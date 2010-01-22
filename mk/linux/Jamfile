@@ -1,0 +1,75 @@
+SubDir TOP ;
+
+UseAutoconf ;
+
+Package license.txt readme.txt ;
+
+#### Library ####
+SubDir TOP shared_lib sources ;
+
+LIB_DIRS =
+	platform/sdl
+	platform/posix
+	util
+	graphics
+	graphics/gl
+	sound
+	sound/openal
+	xml
+	glew
+	lua
+;
+LIB_INCLUDE_DIRS = ../include/$(LIB_DIRS) ;
+
+for i in $(LIB_DIRS) {
+  LIB_SOURCES += [ Wildcard $(i) : *.c *.cpp *.h ] ;
+}
+
+Library glestlib : $(LIB_SOURCES) ;
+ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
+IncludeDir glestlib : $(LIB_INCLUDE_DIRS) ;
+
+#### Game ####
+SubDir TOP glest_game ;
+
+GLEST_DIRS = 
+	.
+	ai
+	facilities
+	game
+	global
+	graphics
+	gui
+	main
+	menu
+	network
+	sound
+	type_instances
+	types
+	world
+;
+
+for i in $(GLEST_DIRS) {
+  GLEST_SOURCES += [ Wildcard $(i) : *.cpp *.h ] ;
+}
+
+Application glest : $(GLEST_SOURCES) ;
+LinkWith glest : glestlib ;
+ExternalLibs glest : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
+IncludeDir glest : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
+
+#### Editor ####
+if $(WX_AVAILABLE) = "yes" {
+  SubDir TOP glest_map_editor ;
+
+  GLEST_MAP_DIRS = . ;
+  for i in $(GLEST_DIRS) {
+    GLEST_MAP_SOURCES += [ Wildcard $(i) : *.cpp *.h ] ;
+  }
+
+  Application glest_editor : $(GLEST_MAP_SOURCES) ;
+  LinkWith glest_editor : glestlib ;
+  ExternalLibs glest_editor : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL WX ;
+  IncludeDir glest_editor : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_MAP_DIRS) ;
+}
+
