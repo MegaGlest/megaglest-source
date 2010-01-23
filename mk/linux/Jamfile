@@ -53,10 +53,10 @@ for i in $(GLEST_DIRS) {
   GLEST_SOURCES += [ Wildcard $(i) : *.cpp *.h ] ;
 }
 
-Application glest : $(GLEST_SOURCES) ;
-LinkWith glest : glestlib ;
-ExternalLibs glest : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
-IncludeDir glest : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
+Application glest.bin : $(GLEST_SOURCES) ;
+LinkWith glest.bin : glestlib ;
+ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
+IncludeDir glestglest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
 #### Editor ####
 if $(WX_AVAILABLE) = "yes" {
