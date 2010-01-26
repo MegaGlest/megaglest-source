@@ -56,7 +56,7 @@ for i in $(GLEST_DIRS) {
 Application glest.bin : $(GLEST_SOURCES) ;
 LinkWith glest.bin : glestlib ;
 ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
-IncludeDir glestglest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
+IncludeDir glest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
 #### Editor ####
 if $(WX_AVAILABLE) = "yes" {
