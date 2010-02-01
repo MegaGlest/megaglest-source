@@ -104,34 +104,34 @@ MainWindow::MainWindow():
 	//objects
 	menuBrushObject= new wxMenu();
 	menuBrushObject->AppendCheckItem(miBrushObject+1, wxT("0 - None"));
-	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("1 - Tree"));
-	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("2 - Dead Tree"));
-	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("3 - Stone"));
-	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("4 - Bush"));
-	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("5 - Water Object"));
-	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("6 - Custom 1"));
-	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("7 - Custom 2"));
-	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("8 - Custom 3"));
-	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("9 - Custom 4"));
-	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("10 - Custom 5"));
+	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("1 - Tree (unwalkable/harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("2 - DeadTree/Cactuses/Thornbush (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("3 - Stone (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("4 - Bush/Grass/Fern (walkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("5 - Water Object/Reed/Papyrus (usually walkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("6 - C1 BigTree/DeadTree/OldPalm (usually unwalkable/not harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("7 - C2 Hanged/Impaled (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("8 - C3, Statues (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("9 - Big Rock (Mountain)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("10 - Invisible Blocking Object"));
 	menuBrush->Append(miBrushObject, wxT("Object"), menuBrushObject);
 
 	//resources
 	menuBrushResource= new wxMenu();
 	menuBrushResource->AppendCheckItem(miBrushResource+1, wxT("0 - None"));
-	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("1 - Custom 1"));
-	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("2 - Custom 2"));
-	menuBrushResource->AppendCheckItem(miBrushResource+4, wxT("3 - Custom 3"));
-	menuBrushResource->AppendCheckItem(miBrushResource+5, wxT("4 - Custom 4"));
-	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("5 - Custom 5"));
+	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("1 - gold"));
+	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("2 - stone"));
+	menuBrushResource->AppendCheckItem(miBrushResource+4, wxT("3 - (not used yet)"));
+	menuBrushResource->AppendCheckItem(miBrushResource+5, wxT("4 - (not used yet)"));
+	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("5 - (not used yet)"));
 	menuBrush->Append(miBrushResource, wxT("Resource"), menuBrushResource);
 
 	//players
 	menuBrushStartLocation= new wxMenu();
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+1, wxT("1 - Player 1"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+2, wxT("2 - Player 2"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+3, wxT("3 - Player 3"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+4, wxT("4 - Player 4"));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+1, wxT("1 - Player 1 (red)"));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+2, wxT("2 - Player 2 (blue)"));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+3, wxT("3 - Player 3 (green)"));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+4, wxT("4 - Player 4 (yellow)"));
 	menuBrush->Append(miBrushStartLocation, wxT("Player"), menuBrushStartLocation);
 
 	menuBar->Append(menuBrush, wxT("Brush"));
