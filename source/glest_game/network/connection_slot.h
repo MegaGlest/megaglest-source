@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -37,23 +37,30 @@ private:
 	int playerIndex;
 	string name;
 	bool ready;
+	vector<std::pair<string,int32> > vctFileList;
+	bool receivedNetworkGameStatus;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
 
+    void update(bool checkForNewClients);
 	virtual void update();
 
 	void setReady()					{ready= true;}
 	const string &getName() const	{return name;}
 	bool isReady() const			{return ready;}
 
-protected:
 	virtual Socket* getSocket()				{return socket;}
 	virtual Socket* getSocket() const		{return socket;}
 
-private:
-	void close();
+	virtual void close();
+	virtual bool getFogOfWar();
+
+	bool getReceivedNetworkGameStatus() { return receivedNetworkGameStatus; }
+	void setReceivedNetworkGameStatus(bool value) { receivedNetworkGameStatus = value; }
+
+	bool hasValidSocketId();
 };
 
 }}//end namespace

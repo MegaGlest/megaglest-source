@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,11 +13,12 @@
 #define _GLEST_GAME_MENUSTATECUSTOMGAME_H_
 
 #include "main_menu.h"
+#include "chat_manager.h"
 
 namespace Glest{ namespace Game{
 
 // ===============================
-// 	class MenuStateCustomGame  
+// 	class MenuStateCustomGame
 // ===============================
 
 class MenuStateCustomGame: public MenuState{
@@ -45,6 +46,12 @@ private:
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
 
+	bool needToSetChangedGameSettings;
+	time_t lastSetChangedGameSettings;
+
+	Console console;
+	ChatManager chatManager;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots= false);
 
@@ -53,7 +60,12 @@ public:
 	void render();
 	void update();
 
+    virtual void keyDown(char key);
+    virtual void keyPress(char c);
+
 private:
+
+    bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings);
 	void loadMapInfo(string file, MapInfo *mapInfo);
 	void reloadFactions();

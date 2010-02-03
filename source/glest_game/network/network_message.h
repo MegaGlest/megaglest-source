@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -33,9 +33,15 @@ enum NetworkMessageType{
 	nmtCommandList,
 	nmtText,
 	nmtQuit,
+	nmtSynchNetworkGameData,
+	nmtSynchNetworkGameDataStatus,
+	nmtSynchNetworkGameDataFileCRCCheck,
+	nmtSynchNetworkGameDataFileGet,
 
 	nmtCount
 };
+
+const int32 networkPacketMsgTypeSize = 6;
 
 // =====================================================
 //	class NetworkMessage
@@ -163,10 +169,11 @@ public:
 //	Message to order a commands to several units
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage{
 private:
 	static const int maxCommandCount= 16*4;
-	
+
 private:
 	struct Data{
 		int8 messageType;
@@ -182,7 +189,7 @@ public:
 	NetworkMessageCommandList(int32 frameCount= -1);
 
 	bool addCommand(const NetworkCommand* networkCommand);
-	
+
 	void clear()									{data.commandCount= 0;}
 	int getCommandCount() const						{return data.commandCount;}
 	int getFrameCount() const						{return data.frameCount;}
@@ -191,6 +198,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageText
@@ -246,6 +254,164 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+
+// =====================================================
+//	class NetworkMessageSynchNetworkGameData
+//
+//	Message sent at the beggining of a network game
+// =====================================================
+
+class NetworkMessageSynchNetworkGameData: public NetworkMessage{
+
+private:
+
+static const int maxStringSize= 256;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		NetworkString<maxStringSize> map;
+		NetworkString<maxStringSize> tileset;
+		NetworkString<maxStringSize> tech;
+
+		int32 mapCRC;
+		int32 tilesetCRC;
+		int32 techCRC;
+		int8  hasFogOfWar;
+	};
+
+private:
+	Data data;
+
+public:
+    NetworkMessageSynchNetworkGameData() {};
+	NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings);
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+
+	string getMap() const		{return data.map.getString();}
+	string getTileset() const   {return data.tileset.getString();}
+	string getTech() const		{return data.tech.getString();}
+
+	int32 getMapCRC() const		{return data.mapCRC;}
+	int32 getTilesetCRC() const	{return data.tilesetCRC;}
+	int32 getTechCRC() const	{return data.techCRC;}
+
+	int8  getFogOfWar() const   { return data.hasFogOfWar; }
+};
+
+// =====================================================
+//	class NetworkMessageSynchNetworkGameDataStatus
+//
+//	Message sent at the beggining of a network game
+// =====================================================
+
+class NetworkMessageSynchNetworkGameDataStatus: public NetworkMessage{
+
+private:
+
+static const int maxStringSize= 256;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		int32 mapCRC;
+		int32 tilesetCRC;
+		int32 techCRC;
+
+		int8  hasFogOfWar;
+	};
+
+private:
+	Data data;
+
+public:
+    NetworkMessageSynchNetworkGameDataStatus() {};
+	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, int8 hasFogOfWar);
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+
+	int32 getMapCRC() const		{return data.mapCRC;}
+	int32 getTilesetCRC() const	{return data.tilesetCRC;}
+	int32 getTechCRC() const	{return data.techCRC;}
+
+	int8 getFogOfWar() const    { return data.hasFogOfWar; }
+};
+
+// =====================================================
+//	class NetworkMessageSynchNetworkGameDataFileCRCCheck
+//
+//	Message sent at the beggining of a network game
+// =====================================================
+
+class NetworkMessageSynchNetworkGameDataFileCRCCheck: public NetworkMessage{
+
+private:
+
+static const int maxStringSize= 256;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		int32 totalFileCount;
+		int32 fileIndex;
+		int32 fileCRC;
+		NetworkString<maxStringSize> fileName;
+	};
+
+private:
+	Data data;
+
+public:
+    NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
+	NetworkMessageSynchNetworkGameDataFileCRCCheck(int32 totalFileCount, int32 fileIndex, int32 fileCRC, const string fileName);
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+
+	int32 getTotalFileCount() const	{return data.totalFileCount;}
+	int32 getFileIndex() const	    {return data.fileIndex;}
+	int32 getFileCRC() const	    {return data.fileCRC;}
+	string getFileName() const		{return data.fileName.getString();}
+};
+
+// =====================================================
+//	class NetworkMessageSynchNetworkGameDataFileGet
+//
+//	Message sent at the beggining of a network game
+// =====================================================
+
+class NetworkMessageSynchNetworkGameDataFileGet: public NetworkMessage{
+
+private:
+
+static const int maxStringSize= 256;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		NetworkString<maxStringSize> fileName;
+	};
+
+private:
+	Data data;
+
+public:
+    NetworkMessageSynchNetworkGameDataFileGet() {};
+	NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+
+	string getFileName() const		{return data.fileName.getString();}
+};
+
 
 }}//end namespace
 

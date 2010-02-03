@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -14,6 +14,7 @@
 
 #include <string>
 #include <winsock.h>
+#include <map>
 
 using std::string;
 
@@ -51,20 +52,30 @@ private:
 protected:
 	static SocketManager socketManager;
 	SOCKET sock;
-	
+
 public:
 	Socket(SOCKET sock);
 	Socket();
 	~Socket();
 
+    static bool enableDebugText;
+
+    // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
+    static bool hasDataToRead(std::map<int,bool> &socketTriggeredList);
+    static bool hasDataToRead(int socket);
+    bool hasDataToRead();
+    void disconnectSocket();
+
+    int getSocketId() const { return sock; }
+
 	int getDataToRead();
 	int send(const void *data, int dataSize);
 	int receive(void *data, int dataSize);
 	int peek(void *data, int dataSize);
-	
+
 	void setBlock(bool block);
 	bool isReadable();
-	bool isWritable();
+	bool isWritable(bool waitOnDelayedResponse);
 	bool isConnected();
 
 	string getHostName() const;

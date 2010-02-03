@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -22,7 +22,7 @@ using Shared::Graphics::Model;
 using Shared::Util::Checksum;
 
 enum ResourceClass{
-	rcTech,		
+	rcTech,
 	rcTileset,
 	rcStatic,
 	rcConsumable
@@ -41,6 +41,8 @@ private:
     int resourceNumber;	//used only if class==rcTech, resource number in the map
     int interval;		//used only if class==rcConsumable
 	int defResPerPatch;	//used only if class==rcTileset || class==rcTech
+	bool recoup_cost;
+
     Model *model;
 
 public:
@@ -53,6 +55,7 @@ public:
 	int getInterval() const			{return interval;}
 	int getDefResPerPatch() const	{return defResPerPatch;}
 	const Model *getModel() const	{return model;}
+	bool getRecoup_cost() const     { return recoup_cost;}
 
 	static ResourceClass strToRc(const string &s);
 };

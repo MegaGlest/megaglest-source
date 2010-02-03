@@ -1,11 +1,11 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -31,7 +31,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 void Faction::init(
-	const FactionType *factionType, ControlType control, TechTree *techTree, 
+	const FactionType *factionType, ControlType control, TechTree *techTree,
 	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)
 {
 	this->control= control;
@@ -83,7 +83,7 @@ int Faction::getStoreAmount(const ResourceType *rt) const{
 bool Faction::getCpuControl() const{
 	return control==ctCpuEasy ||control==ctCpu || control==ctCpuUltra|| control==ctCpuMega;
 }
-	
+
 
 // ==================== upgrade manager ====================
 
@@ -106,9 +106,9 @@ void Faction::finishUpgrade(const UpgradeType *ut){
 
 //checks if all required units and upgrades are present
 bool Faction::reqsOk(const RequirableType *rt) const{
-    
+
 	//required units
-    for(int i=0; i<rt->getUnitReqCount(); ++i){ 
+    for(int i=0; i<rt->getUnitReqCount(); ++i){
         bool found=false;
         for(int j=0; j<getUnitCount(); ++j){
 			Unit *unit= getUnit(j);
@@ -125,7 +125,7 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 
 	//required upgrades
     for(int i=0; i<rt->getUpgradeReqCount(); ++i){
-		if(!upgradeManager.isUpgraded(rt->getUpgradeReq(i))){ 
+		if(!upgradeManager.isUpgraded(rt->getUpgradeReq(i))){
 			return false;
 		}
     }
@@ -134,7 +134,7 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 }
 
 bool Faction::reqsOk(const CommandType *ct) const{
-    
+
 	if(ct->getProduced()!=NULL && !reqsOk(ct->getProduced())){
 		return false;
 	}
@@ -145,113 +145,134 @@ bool Faction::reqsOk(const CommandType *ct) const{
 			return false;
 		}
 	}
-	
-	return reqsOk(static_cast<const RequirableType*>(ct)); 
+
+	return reqsOk(static_cast<const RequirableType*>(ct));
 }
 
 // ================== cost application ==================
 
 //apply costs except static production (start building/production)
 bool Faction::applyCosts(const ProducibleType *p){
-    
+
 	if(!checkCosts(p)){
 		return false;
 	}
-    
+
 	//for each unit cost spend it
     //pass 2, decrease resources, except negative static costs (ie: farms)
-	for(int i=0; i<p->getCostCount(); ++i){
+	for(int i=0; i<p->getCostCount(); ++i)
+	{
         const ResourceType *rt= p->getCost(i)->getType();
 		int cost= p->getCost(i)->getAmount();
-		if((cost>0 || rt->getClass()!=rcStatic) && rt->getClass()!=rcConsumable){
+		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
+		{
             incResourceAmount(rt, -(cost));
 		}
-            
+
     }
     return true;
 }
 
 //apply discount (when a morph ends)
-void Faction::applyDiscount(const ProducibleType *p, int discount){
+void Faction::applyDiscount(const ProducibleType *p, int discount)
+{
 	//increase resources
-	for(int i=0; i<p->getCostCount(); ++i){
+	for(int i=0; i<p->getCostCount(); ++i)
+	{
 		const ResourceType *rt= p->getCost(i)->getType();
         int cost= p->getCost(i)->getAmount();
-		if((cost>0 || rt->getClass()!=rcStatic) && rt->getClass()!=rcConsumable){
+		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
+		{
             incResourceAmount(rt, cost*discount/100);
 		}
     }
 }
 
 //apply static production (for starting units)
-void Faction::applyStaticCosts(const ProducibleType *p){
-    
+void Faction::applyStaticCosts(const ProducibleType *p)
+{
 	//decrease static resources
-    for(int i=0; i<p->getCostCount(); ++i){
+    for(int i=0; i<p->getCostCount(); ++i)
+    {
 		const ResourceType *rt= p->getCost(i)->getType();
-        if(rt->getClass()==rcStatic){
+        if(rt->getClass() == rcStatic)
+        {
             int cost= p->getCost(i)->getAmount();
-			if(cost>0){
+			if(cost > 0)
+			{
 				incResourceAmount(rt, -cost);
 			}
-        }    
+        }
     }
 }
 
 //apply static production (when a mana source is done)
-void Faction::applyStaticProduction(const ProducibleType *p){
-    
+void Faction::applyStaticProduction(const ProducibleType *p)
+{
 	//decrease static resources
-    for(int i=0; i<p->getCostCount(); ++i){
+    for(int i=0; i<p->getCostCount(); ++i)
+    {
 		const ResourceType *rt= p->getCost(i)->getType();
-        if(rt->getClass()==rcStatic){
+        if(rt->getClass() == rcStatic)
+        {
             int cost= p->getCost(i)->getAmount();
-			if(cost<0){
+			if(cost < 0)
+			{
 				incResourceAmount(rt, -cost);
 			}
-        }    
+        }
     }
 }
 
 //deapply all costs except static production (usually when a building is cancelled)
-void Faction::deApplyCosts(const ProducibleType *p){
-
+void Faction::deApplyCosts(const ProducibleType *p)
+{
 	//increase resources
-	for(int i=0; i<p->getCostCount(); ++i){
+	for(int i=0; i<p->getCostCount(); ++i)
+	{
 		const ResourceType *rt= p->getCost(i)->getType();
         int cost= p->getCost(i)->getAmount();
-		if((cost>0 || rt->getClass()!=rcStatic) && rt->getClass()!=rcConsumable){
+		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
+		{
             incResourceAmount(rt, cost);
 		}
-            
+
     }
 }
 
 //deapply static costs (usually when a unit dies)
-void Faction::deApplyStaticCosts(const ProducibleType *p){
-   
+void Faction::deApplyStaticCosts(const ProducibleType *p)
+{
     //decrease resources
-	for(int i=0; i<p->getCostCount(); ++i){
+	for(int i=0; i<p->getCostCount(); ++i)
+	{
 		const ResourceType *rt= p->getCost(i)->getType();
-		if(rt->getClass()==rcStatic){
-            int cost= p->getCost(i)->getAmount();
-			incResourceAmount(rt, cost);
-        }    
+		if(rt->getClass() == rcStatic)
+		{
+		    if(rt->getRecoup_cost() == true)
+		    {
+                int cost= p->getCost(i)->getAmount();
+                incResourceAmount(rt, cost);
+		    }
+        }
     }
 }
 
 //deapply static costs, but not negative costs, for when building gets killed
-void Faction::deApplyStaticConsumption(const ProducibleType *p){
-   
+void Faction::deApplyStaticConsumption(const ProducibleType *p)
+{
     //decrease resources
-	for(int i=0; i<p->getCostCount(); ++i){
+	for(int i=0; i<p->getCostCount(); ++i)
+	{
 		const ResourceType *rt= p->getCost(i)->getType();
-		if(rt->getClass()==rcStatic){
+		if(rt->getClass() == rcStatic)
+		{
             int cost= p->getCost(i)->getAmount();
-			if(cost>0){
+			if(cost>0)
+			{
 				incResourceAmount(rt, cost);
 			}
-        }    
+        }
     }
 }
 
@@ -279,7 +300,7 @@ void Faction::applyCostsOnInterval(){
 				const Resource *resource= unit->getType()->getCost(k);
 				if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
 					incResourceAmount(resource->getType(), -resource->getAmount());
-					
+
 					//decrease unit hp
 					if(getResource(resource->getType())->getAmount()<0){
 						resetResourceAmount(resource->getType());
@@ -296,7 +317,7 @@ void Faction::applyCostsOnInterval(){
 }
 
 bool Faction::checkCosts(const ProducibleType *pt){
-	
+
 	//for each unit cost check if enough resources
 	for(int i=0; i<pt->getCostCount(); ++i){
 		const ResourceType *rt= pt->getCost(i)->getType();
@@ -304,7 +325,7 @@ bool Faction::checkCosts(const ProducibleType *pt){
 		if(cost>0){
 			int available= getResource(rt)->getAmount();
 			if(cost>available){
-				return false;  
+				return false;
 			}
 		}
     }
@@ -320,12 +341,16 @@ bool Faction::isAlly(const Faction *faction){
 
 // ================== misc ==================
 
-void Faction::incResourceAmount(const ResourceType *rt, int amount){
-	for(int i=0; i<resources.size(); ++i){
+void Faction::incResourceAmount(const ResourceType *rt, int amount)
+{
+	for(int i=0; i<resources.size(); ++i)
+	{
 		Resource *r= &resources[i];
-		if(r->getType()==rt){
+		if(r->getType()==rt)
+		{
 			r->setAmount(r->getAmount()+amount);
-			if(r->getType()->getClass()!=rcStatic && r->getAmount()>getStoreAmount(rt)){
+			if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt))
+			{
 				r->setAmount(getStoreAmount(rt));
 			}
 			return;
@@ -368,7 +393,7 @@ void Faction::removeUnit(Unit *unit){
 			return;
 		}
 	}
-	assert(false);	
+	assert(false);
 }
 
 void Faction::addStore(const UnitType *unitType){
@@ -396,11 +421,14 @@ void Faction::removeStore(const UnitType *unitType){
 	limitResourcesToStore();
 }
 
-void Faction::limitResourcesToStore(){
-	for(int i=0; i<resources.size(); ++i){
+void Faction::limitResourcesToStore()
+{
+	for(int i=0; i<resources.size(); ++i)
+	{
 		Resource *r= &resources[i];
 		Resource *s= &store[i];
-		if(r->getType()->getClass()!=rcStatic && r->getAmount()>s->getAmount()){
+		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount())
+		{
 			r->setAmount(s->getAmount());
 		}
 	}

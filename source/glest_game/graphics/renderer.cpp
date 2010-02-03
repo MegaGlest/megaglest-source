@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -46,24 +46,24 @@ public:
 };
 
 void MeshCallbackTeamColor::execute(const Mesh *mesh){
-	
+
 	//team color
 	if(mesh->getCustomTexture() && teamTexture!=NULL){
 		//texture 0
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		
-		//set color to interpolation	
+
+		//set color to interpolation
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-		
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE1);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_TEXTURE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
-		
+
 		//set alpha to 1
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
@@ -76,20 +76,20 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 
 		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(teamTexture)->getHandle());
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-				
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-		
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		
+
 		//set alpha to 1
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PRIMARY_COLOR);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-		
+
 		glActiveTexture(GL_TEXTURE0);
 	}
 	else{
@@ -139,13 +139,13 @@ const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
 const float Renderer::maxLightDist= 50.f;
 
-// ==================== constructor and destructor ==================== 
+// ==================== constructor and destructor ====================
 
 Renderer::Renderer(){
 	GraphicsInterface &gi= GraphicsInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
-	
+
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
@@ -183,7 +183,7 @@ Renderer &Renderer::getInstance(){
 }
 
 
-// ==================== init ==================== 
+// ==================== init ====================
 
 void Renderer::init(){
 
@@ -231,22 +231,22 @@ void Renderer::initGame(Game *game){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		if(shadows==sShadowMapping){
-			
+
 			//shadow mapping
 			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FAIL_VALUE_ARB, 1.0f-shadowAlpha);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, 
-				shadowTextureSize, shadowTextureSize, 
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+				shadowTextureSize, shadowTextureSize,
 				0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		}
 		else{
-			
+
 			//projected
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 
-				shadowTextureSize, shadowTextureSize, 
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
+				shadowTextureSize, shadowTextureSize,
 				0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
 		}
 
@@ -272,7 +272,7 @@ void Renderer::initMenu(MainMenu *mm){
 
 void Renderer::reset3d(){
 	assertGl();
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR); 
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 	glCallList(list3d);
 	pointCount= 0;
 	triangleCount= 0;
@@ -281,19 +281,19 @@ void Renderer::reset3d(){
 
 void Renderer::reset2d(){
 	assertGl();
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR); 
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 	glCallList(list2d);
 	assertGl();
 }
 
 void Renderer::reset3dMenu(){
 	assertGl();
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR); 
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 	glCallList(list3dMenu);
 	assertGl();
 }
 
-// ==================== end ==================== 
+// ==================== end ====================
 
 void Renderer::end(){
 
@@ -347,7 +347,7 @@ void Renderer::reloadResources(){
 }
 
 
-// ==================== engine interface ==================== 
+// ==================== engine interface ====================
 
 Model *Renderer::newModel(ResourceScope rs){
 	return modelManager[rs]->newModel();
@@ -385,8 +385,8 @@ void Renderer::swapBuffers(){
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
 
-// ==================== lighting ==================== 
-	
+// ==================== lighting ====================
+
 //places all the opengl lights
 void Renderer::setupLighting(){
 
@@ -412,7 +412,7 @@ void Renderer::setupLighting(){
 	glFogfv(GL_FOG_COLOR, Vec4f(fogColor*lightColor, 1.f).ptr());
 
     lightCount++;
-  
+
 	//disable all secondary lights
 	for(int i= 1; i<maxLights; ++i){
 		glDisable(GL_LIGHT0 + i);
@@ -438,9 +438,9 @@ void Renderer::setupLighting(){
 					glLightfv(lightEnum, GL_DIFFUSE, Vec4f(unit->getType()->getLightColor()).ptr());
 					glLightfv(lightEnum, GL_SPECULAR, Vec4f(unit->getType()->getLightColor()*0.3f).ptr());
 					glLightf(lightEnum, GL_QUADRATIC_ATTENUATION, 0.05f);
-			
+
                     ++lightCount;
-                
+
 					const GameCamera *gameCamera= game->getGameCamera();
 
 					if(Vec3f(pos).dist(gameCamera->getPos())<Vec3f(nearestLightPos).dist(gameCamera->getPos())){
@@ -467,7 +467,7 @@ void Renderer::loadGameCameraMatrix(){
 void Renderer::loadCameraMatrix(const Camera *camera){
 	Vec3f position= camera->getPosition();
 	Quaternion orientation= camera->getOrientation().conjugate();
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glMultMatrixf(orientation.toMatrix4().ptr());
@@ -484,18 +484,18 @@ void Renderer::computeVisibleQuad(){
 // =======================================
 
 void Renderer::renderMouse2d(int x, int y, int anim, float fade){
-    float color1, color2; 
+    float color1, color2;
 
 	float fadeFactor= fade+1.f;
 
-	anim= anim*2-maxMouse2dAnim; 
+	anim= anim*2-maxMouse2dAnim;
 
-    color2= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;  
+    color2= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
     color1= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
 
     glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
-        glEnable(GL_BLEND);     
-       
+        glEnable(GL_BLEND);
+
 		//inside
 		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
         glBegin(GL_TRIANGLES);
@@ -517,15 +517,15 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade){
     glPopAttrib();
 }
 
-void Renderer::renderMouse3d(){   
-    
+void Renderer::renderMouse3d(){
+
 	const Gui *gui= game->getGui();
 	const Mouse3d *mouse3d= gui->getMouse3d();
 	const Map *map= game->getWorld()->getMap();
 
 	GLUquadricObj *cilQuadric;
 	Vec4f color;
-	
+
 	assertGl();
 
 	if((mouse3d->isEnabled() || gui->isPlacingBuilding()) && gui->isValidPosObjWorld()){
@@ -539,9 +539,9 @@ void Renderer::renderMouse3d(){
 		glEnable(GL_COLOR_MATERIAL);
 		glDepthMask(GL_FALSE);
 
-		Vec2i pos= gui->getPosObjWorld();    
-		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y); 
-		
+		Vec2i pos= gui->getPosObjWorld();
+		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+
 		if(gui->isPlacingBuilding()){
 
 			const UnitType *building= gui->getBuilding();
@@ -553,7 +553,7 @@ void Renderer::renderMouse3d(){
 			//choose color
 			if(map->isFreeCells(pos, building->getSize(), fLand)){
 				color= Vec4f(1.f, 1.f, 1.f, 0.5f);
-			} 
+			}
 			else{
 				color= Vec4f(1.f, 0.f, 0.f, 0.5f);
 			}
@@ -563,7 +563,7 @@ void Renderer::renderMouse3d(){
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
 			const Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 			buildingModel->updateInterpolationData(0.f, false);
-			modelRenderer->render(buildingModel);	
+			modelRenderer->render(buildingModel);
 			glDisable(GL_COLOR_MATERIAL);
 			modelRenderer->end();
 
@@ -571,11 +571,11 @@ void Renderer::renderMouse3d(){
 		else{
 			//standard mouse
 			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_CULL_FACE);    
+			glDisable(GL_CULL_FACE);
 			color= Vec4f(1.f, 0.f, 0.f, 1.f-mouse3d->getFade());
 			glColor4fv(color.ptr());
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
-			
+
 			glTranslatef(pos3f.x, pos3f.y+2.f, pos3f.z);
 			glRotatef(90.f, 1.f, 0.f, 0.f);
 			glRotatef(static_cast<float>(mouse3d->getRot()), 0.f, 0.f, 1.f);
@@ -587,19 +587,19 @@ void Renderer::renderMouse3d(){
 			glTranslatef(0.f, 0.f, 1.f);
 			gluCylinder(cilQuadric, 0.7f, 0.f, 1.f, 4, 1);
 			gluCylinder(cilQuadric, 0.7f, 0.f, 0.f, 4, 1);
-			gluDeleteQuadric(cilQuadric);  
+			gluDeleteQuadric(cilQuadric);
 		}
 
 		glPopAttrib();
 		glPopMatrix();
 	}
-    
+
 }
 
 void Renderer::renderBackground(const Texture2D *texture){
-    
+
 	const Metrics &metrics= Metrics::getInstance();
-	
+
 	assertGl();
 
     glPushAttrib(GL_ENABLE_BIT);
@@ -636,8 +636,8 @@ void Renderer::renderConsole(const Console *console){
 	glEnable(GL_BLEND);
 
 	for(int i=0; i<console->getLineCount(); ++i){
-		renderTextShadow( 
-			console->getLine(i), 
+		renderTextShadow(
+			console->getLine(i),
 			CoreData::getInstance().getConsoleFont(),
 			20, i*20+20);
 	}
@@ -659,7 +659,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager){
 			text+= lang.get("All");
 		}
 		text+= ": " + chatManager->getText() + "_";
-	
+
 		textRenderer->begin(CoreData::getInstance().getConsoleFont());
 		textRenderer->render(text, 300, 150);
 		textRenderer->end();
@@ -667,7 +667,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager){
 }
 
 void Renderer::renderResourceStatus(){
-	
+
 	const Metrics &metrics= Metrics::getInstance();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
@@ -675,16 +675,16 @@ void Renderer::renderResourceStatus(){
 	assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
-	
-	int j= 0; 
+
+	int j= 0;
 	for(int i= 0; i<world->getTechTree()->getResourceTypeCount(); ++i){
 		const ResourceType *rt= world->getTechTree()->getResourceType(i);
 		const Resource *r= thisFaction->getResource(rt);
-		
+
 		//if any unit produces the resource
 		bool showResource= false;
 		for(int k=0; k<thisFaction->getType()->getUnitTypeCount(); ++k){
-			const UnitType *ut= thisFaction->getType()->getUnitType(k); 
+			const UnitType *ut= thisFaction->getType()->getUnitType(k);
 			if(ut->getCost(rt)!=NULL){
 				showResource= true;
 				break;
@@ -693,15 +693,16 @@ void Renderer::renderResourceStatus(){
 
 		//draw resource status
 		if(showResource){
-		
+
 			string str= intToStr(r->getAmount());
-			
+
 			glEnable(GL_TEXTURE_2D);
 			renderQuad(j*100+200, metrics.getVirtualH()-30, 16, 16, rt->getImage());
-			
-			if(rt->getClass()!=rcStatic){
+
+			if(rt->getClass() != rcStatic)
+			{
 				str+= "/" + intToStr(thisFaction->getStoreAmount(rt));
-			}	
+			}
 			if(rt->getClass()==rcConsumable){
 				str+= "(";
 				if(r->getBalance()>0){
@@ -713,22 +714,22 @@ void Renderer::renderResourceStatus(){
 			glDisable(GL_TEXTURE_2D);
 
 			renderTextShadow(
-				str, CoreData::getInstance().getMenuFontSmall(), 
-				j*100+220, metrics.getVirtualH()-30, false); 
+				str, CoreData::getInstance().getMenuFontSmall(),
+				j*100+220, metrics.getVirtualH()-30, false);
 			++j;
 		}
 
 	}
-	
+
 	glPopAttrib();
 
 	assertGl();
 }
 
 void Renderer::renderSelectionQuad(){
-     
+
 	const Gui *gui= game->getGui();
-	const SelectionQuad *sq= gui->getSelectionQuad(); 
+	const SelectionQuad *sq= gui->getSelectionQuad();
 
     Vec2i down= sq->getPosDown();
     Vec2i up= sq->getPosUp();
@@ -751,7 +752,7 @@ Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y){
 
 	const Metrics &metrics= Metrics::getInstance();
 	const FontMetrics *fontMetrics= font->getMetrics();
-	
+
 	textPos= Vec2i(
 		x-metrics.toVirtualX(static_cast<int>(fontMetrics->getTextWidth(text)/2.f)),
 		y-metrics.toVirtualY(static_cast<int>(fontMetrics->getHeight()/2.f)));
@@ -763,32 +764,32 @@ void Renderer::renderText(const string &text, const Font2D *font, float alpha, i
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
-	
+
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	textRenderer->begin(font);
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
-	
+
 	glPopAttrib();
 }
 
 void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &color, int x, int y, bool centered){
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
-	
+
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	textRenderer->begin(font);
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
-	
+
 	glPopAttrib();
 }
 
 void Renderer::renderTextShadow(const string &text, const Font2D *font, int x, int y, bool centered){
 	glPushAttrib(GL_CURRENT_BIT);
-	
+
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	textRenderer->begin(font);
@@ -797,7 +798,7 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font, int x, i
 	glColor3f(1.0f, 1.0f, 1.0f);
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
-	
+
 	glPopAttrib();
 }
 
@@ -827,14 +828,14 @@ void Renderer::renderLabel(const GraphicLabel *label){
 }
 
 void Renderer::renderButton(const GraphicButton *button){
-    
+
     int x= button->getX();
     int y= button->getY();
     int h= button->getH();
     int w= button->getW();
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
-        
+
 	//background
 	CoreData &coreData= CoreData::getInstance();
 	Texture2D *backTexture= w>3*h/2? coreData.getButtonBigTexture(): coreData.getButtonSmallTexture();
@@ -846,29 +847,29 @@ void Renderer::renderButton(const GraphicButton *button){
 
 	//button
 	Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
-	glColor4fv(color.ptr());	
+	glColor4fv(color.ptr());
 
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.f, 0.f);
 		glVertex2f(x, y);
-		
+
 		glTexCoord2f(0.f, 1.f);
 		glVertex2f(x, y+h);
-		
+
 		glTexCoord2f(1.f, 0.f);
 		glVertex2f(x+w, y);
-		
+
 		glTexCoord2f(1.f, 1.f);
 		glVertex2f(x+w, y+h);
-		
+
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
-	
+
 	//lighting
 	float anim= GraphicComponent::getAnim();
-	if(anim>0.5f) anim= 1.f-anim; 
-	
+	if(anim>0.5f) anim= 1.f-anim;
+
 	if(button->getLighted()){
 		const int lightSize= 0;
 		const Vec4f color1= Vec4f(1.f, 1.f, 1.f, 0.1f+anim*0.5f);
@@ -884,7 +885,7 @@ void Renderer::renderButton(const GraphicButton *button){
 
 		glColor4fv(color1.ptr());
 		glVertex2f(x+w+lightSize, y-lightSize);
-		
+
 		glColor4fv(color1.ptr());
 		glVertex2f(x+w+lightSize, y+h+lightSize);
 
@@ -899,11 +900,11 @@ void Renderer::renderButton(const GraphicButton *button){
 
 		glEnd();
 	}
-	
+
 	Vec2i textPos= Vec2i(x+w/2, y+h/2);
 
 	renderText(
-		button->getText(), button->getFont(), GraphicButton::getFade(), 
+		button->getText(), button->getFont(), GraphicButton::getFade(),
 		x+w/2, y+h/2, true);
 
     glPopAttrib();
@@ -913,7 +914,7 @@ void Renderer::renderListBox(const GraphicListBox *listBox){
 
 	renderButton(listBox->getButton1());
     renderButton(listBox->getButton2());
-	
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
@@ -932,15 +933,15 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 
-	glColor4f(0.0f, 0.0f, 0.0f, 0.5f) ;   
+	glColor4f(0.0f, 0.0f, 0.0f, 0.5f) ;
 	glBegin(GL_TRIANGLE_STRIP);
 		glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
 		glVertex2i(messageBox->getX(), messageBox->getY());
 		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + 9*messageBox->getH()/10);
 		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY());
 	glEnd();
-	
-	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;   
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 	glBegin(GL_TRIANGLE_STRIP);
 		glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH());
 		glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
@@ -949,24 +950,24 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 	glEnd();
 
 	glBegin(GL_LINE_LOOP);
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;   
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
 		glVertex2i(messageBox->getX(), messageBox->getY());
-		
-		glColor4f(0.0f, 0.0f, 0.0f, 0.25f) ;   
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.25f) ;
 		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY());
-		
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;   
+
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
 		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + messageBox->getH());
-		
-		glColor4f(0.25f, 0.25f, 0.25f, 0.25f) ;   
+
+		glColor4f(0.25f, 0.25f, 0.25f, 0.25f) ;
 		glVertex2i(messageBox->getX(), messageBox->getY() + messageBox->getH());
 	glEnd();
 
 	glBegin(GL_LINE_STRIP);
-		glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;   
+		glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
 		glVertex2i(messageBox->getX(), messageBox->getY() + 90*messageBox->getH()/100);
-		
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;   
+
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
 		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + 90*messageBox->getH()/100);
 	glEnd();
 
@@ -980,17 +981,17 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 
 	//text
 	renderText(
-		messageBox->getText(), messageBox->getFont(), Vec3f(1.0f, 1.0f, 1.0f), 
-		messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10, 
+		messageBox->getText(), messageBox->getFont(), Vec3f(1.0f, 1.0f, 1.0f),
+		messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
 		false );
 
 	renderText(
-		messageBox->getHeader(), messageBox->getFont(),Vec3f(1.0f, 1.0f, 1.0f), 
-		messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100, 
+		messageBox->getHeader(), messageBox->getFont(),Vec3f(1.0f, 1.0f, 1.0f),
+		messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
 		false );
 }
 
-// ==================== complex rendering ==================== 
+// ==================== complex rendering ====================
 
 void Renderer::renderSurface(){
 
@@ -1016,15 +1017,15 @@ void Renderer::renderSurface(){
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
 	glTexSubImage2D(
-		GL_TEXTURE_2D, 0, 0, 0, 
-		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(), 
-		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());    
+		GL_TEXTURE_2D, 0, 0, 0,
+		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
+		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
 
 	//shadow texture
 	if(shadows==sProjected || shadows==sShadowMapping){
 		glActiveTexture(shadowTexUnit);
 		glEnable(GL_TEXTURE_2D);
-		
+
 		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -1037,7 +1038,7 @@ void Renderer::renderSurface(){
 
 	PosQuadIterator pqi(map, scaledQuad);
 	while(pqi.next()){
-		
+
 		const Vec2i &pos= pqi.getPos();
 
 		if(mapBounds.isInside(pos)){
@@ -1046,7 +1047,7 @@ void Renderer::renderSurface(){
 			SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
 			SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
 			SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
-	
+
 			triangleCount+= 2;
 			pointCount+= 4;
 
@@ -1098,7 +1099,7 @@ void Renderer::renderSurface(){
 
 void Renderer::renderObjects(){
 	const World *world= game->getWorld();
-	const Map *map= world->getMap();	
+	const Map *map= world->getMap();
 
     assertGl();
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
@@ -1109,7 +1110,7 @@ void Renderer::renderObjects(){
 	if(shadows==sShadowMapping){
 		glActiveTexture(shadowTexUnit);
 		glEnable(GL_TEXTURE_2D);
-		
+
 		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -1151,7 +1152,7 @@ void Renderer::renderObjects(){
 
 				objModel->updateInterpolationData(0.f, true);
 				modelRenderer->render(objModel);
-				
+
 				triangleCount+= objModel->getTriangleCount();
 				pointCount+= objModel->getVertexCount();
 
@@ -1169,7 +1170,7 @@ void Renderer::renderObjects(){
 }
 
 void Renderer::renderWater(){
-	
+
 	bool closed= false;
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
@@ -1183,7 +1184,7 @@ void Renderer::renderWater(){
 
 	//water texture nit
     glDisable(GL_TEXTURE_2D);
-    
+
 	glEnable(GL_BLEND);
 	if(textures3D){
 		Texture3D *waterTex= world->getTileset()->getWaterTex();
@@ -1214,12 +1215,12 @@ void Renderer::renderWater(){
 	float waterLevel= world->getMap()->getWaterLevel();
     for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
         glBegin(GL_TRIANGLE_STRIP);
-        	
+
 		for(int i=scaledRect.p[0].x; i<=scaledRect.p[1].x; ++i){
-			
+
 			SurfaceCell *tc0= map->getSurfaceCell(i, j);
             SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
-			
+
 			int thisTeamIndex= world->getThisTeamIndex();
 			if(tc0->getNearSubmerged() && (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex))){
 				glNormal3f(0.f, 1.f, 0.f);
@@ -1230,24 +1231,24 @@ void Renderer::renderWater(){
 
                 //vertex 1
 				glMaterialfv(
-					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 
+					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 					computeWaterColor(waterLevel, tc1->getHeight()).ptr());
 				glMultiTexCoord2fv(GL_TEXTURE1, tc1->getFowTexCoord().ptr());
                 glTexCoord3f(i, 1.f, waterAnim);
 				glVertex3f(
-					static_cast<float>(i)*Map::mapScale, 
-					waterLevel, 
+					static_cast<float>(i)*Map::mapScale,
+					waterLevel,
 					static_cast<float>(j+1)*Map::mapScale);
-                
+
                 //vertex 2
 				glMaterialfv(
-					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 
+					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 					computeWaterColor(waterLevel, tc0->getHeight()).ptr());
 				glMultiTexCoord2fv(GL_TEXTURE1, tc0->getFowTexCoord().ptr());
-                glTexCoord3f(i, 0.f, waterAnim); 
+                glTexCoord3f(i, 0.f, waterAnim);
                 glVertex3f(
-					static_cast<float>(i)*Map::mapScale, 
-					waterLevel, 
+					static_cast<float>(i)*Map::mapScale,
+					waterLevel,
 					static_cast<float>(j)*Map::mapScale);
 
             }
@@ -1258,24 +1259,24 @@ void Renderer::renderWater(){
 
 					//vertex 1
 					glMaterialfv(
-						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 
+						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 						computeWaterColor(waterLevel, tc1->getHeight()).ptr());
 					glMultiTexCoord2fv(GL_TEXTURE1, tc1->getFowTexCoord().ptr());
 					glTexCoord3f(i, 1.f, waterAnim);
 					glVertex3f(
-						static_cast<float>(i)*Map::mapScale, 
-						waterLevel, 
+						static_cast<float>(i)*Map::mapScale,
+						waterLevel,
 						static_cast<float>(j+1)*Map::mapScale);
-	                
+
 					//vertex 2
 					glMaterialfv(
-						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 
+						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 						computeWaterColor(waterLevel, tc0->getHeight()).ptr());
 					glMultiTexCoord2fv(GL_TEXTURE1, tc0->getFowTexCoord().ptr());
-					glTexCoord3f(i, 0.f, waterAnim); 
+					glTexCoord3f(i, 0.f, waterAnim);
 					glVertex3f(
-						static_cast<float>(i)*Map::mapScale, 
-						waterLevel, 
+						static_cast<float>(i)*Map::mapScale,
+						waterLevel,
 						static_cast<float>(j)*Map::mapScale);
 
 					glEnd();
@@ -1303,11 +1304,11 @@ void Renderer::renderUnits(){
 
 	glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 	glEnable(GL_COLOR_MATERIAL);
-	
+
 	if(shadows==sShadowMapping){
 		glActiveTexture(shadowTexUnit);
 		glEnable(GL_TEXTURE_2D);
-		
+
 		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -1322,14 +1323,14 @@ void Renderer::renderUnits(){
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
-				
+
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 
 				//translate
 				Vec3f currVec= unit->getCurrVectorFlat();
 				glTranslatef(currVec.x, currVec.y, currVec.z);
-				
+
 				//rotate
 				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
 				glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
@@ -1345,10 +1346,10 @@ void Renderer::renderUnits(){
 				else{
 					glEnable(GL_COLOR_MATERIAL);
 				}
-				
+
 				//render
 				const Model *model= unit->getCurrentModel();
-				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());				
+				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
 				modelRenderer->render(model);
 
 				triangleCount+= model->getTriangleCount();
@@ -1358,7 +1359,7 @@ void Renderer::renderUnits(){
 			}
 		}
 	}
-	modelRenderer->end();	
+	modelRenderer->end();
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -1372,7 +1373,7 @@ void Renderer::renderSelectionEffects(){
 
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
-	const Selection *selection= game->getGui()->getSelection();	
+	const Selection *selection= game->getGui()->getSelection();
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
@@ -1385,13 +1386,13 @@ void Renderer::renderSelectionEffects(){
 
 	//units
 	for(int i=0; i<selection->getCount(); ++i){
-		
+
 		const Unit *unit= selection->getUnit(i);
 
 		//translate
 		Vec3f currVec= unit->getCurrVectorFlat();
 		currVec.y+= 0.3f;
-				
+
 		//selection circle
 		if(world->getThisFactionIndex()==unit->getFactionIndex()){
 			glColor4f(0, unit->getHpRatio(), 0, 0.3f);
@@ -1400,23 +1401,23 @@ void Renderer::renderSelectionEffects(){
 			glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
 		}
 		renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
-		
+
 		//magic circle
 		if(world->getThisFactionIndex()==unit->getFactionIndex() && unit->getType()->getMaxEp()>0){
-			glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);	
+			glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
 			renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
 		}
 	}
 
 	//target arrow
 	if(selection->getCount()==1){
-		const Unit *unit= selection->getUnit(0);	
-		
+		const Unit *unit= selection->getUnit(0);
+
 		//comand arrow
-		if(focusArrows && unit->anyCommand()){ 
+		if(focusArrows && unit->anyCommand()){
 			const CommandType *ct= unit->getCurrCommand()->getCommandType();
 			if(ct->getClicks()!=cOne){
-				
+
 				//arrow color
 				Vec3f arrowColor;
 				switch(ct->getClass()){
@@ -1438,7 +1439,7 @@ void Renderer::renderSelectionEffects(){
 					arrowTarget= c->getUnit()->getCurrVectorFlat();
 				}
 				else{
-					Vec2i pos= c->getPos(); 
+					Vec2i pos= c->getPos();
 					arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 				}
 
@@ -1448,11 +1449,11 @@ void Renderer::renderSelectionEffects(){
 
 		//meeting point arrow
 		if(unit->getType()->getMeetingPoint()){
-			Vec2i pos= unit->getMeetingPos(); 
+			Vec2i pos= unit->getMeetingPos();
 			Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 			renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
 		}
-	
+
 	}
 
 	//render selection hightlights
@@ -1485,7 +1486,7 @@ void Renderer::renderWaterEffects(){
 	const Map *map= world->getMap();
 	const CoreData &coreData= CoreData::getInstance();
 	float height= map->getWaterLevel()+0.001f;
-	
+
 	assertGl();
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1501,17 +1502,17 @@ void Renderer::renderWaterEffects(){
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(coreData.getWaterSplashTexture())->getHandle());
 	for(int i=0; i<we->getWaterSplashCount(); ++i){
 		const WaterSplash *ws= we->getWaterSplash(i);
-		
+
 		//render only if enabled
 		if(ws->getEnabled()){
-		
+
 			//render only if visible
 			Vec2i intPos= Vec2i(static_cast<int>(ws->getPos().x), static_cast<int>(ws->getPos().y));
 			if(map->getSurfaceCell(Map::toSurfCoords(intPos))->isVisible(world->getThisTeamIndex())){
 
 				float scale= ws->getAnim();
-				
-				glColor4f(1.f, 1.f, 1.f, 1.f-ws->getAnim()); 
+
+				glColor4f(1.f, 1.f, 1.f, 1.f-ws->getAnim());
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2f(0.f, 1.f);
 					glVertex3f(ws->getPos().x-scale, height, ws->getPos().y+scale);
@@ -1542,9 +1543,9 @@ void Renderer::renderMinimap(){
 	int my= metrics.getMinimapY();
 	int mw= metrics.getMinimapW();
 	int mh= metrics.getMinimapH();
-	
+
 	Vec2f zoom= Vec2f(
-		static_cast<float>(mw)/ pixmap->getW(), 
+		static_cast<float>(mw)/ pixmap->getW(),
 		static_cast<float>(mh)/ pixmap->getH());
 
 	assertGl();
@@ -1554,12 +1555,12 @@ void Renderer::renderMinimap(){
     //draw map
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-	
+
 	glActiveTexture(fowTexUnit);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(minimap->getFowTexture())->getHandle());
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-	
+
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PRIMARY_COLOR);
@@ -1571,7 +1572,7 @@ void Renderer::renderMinimap(){
 
 	glActiveTexture(baseTexUnit);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(minimap->getTexture())->getHandle());
-	
+
 	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.0f, 1.0f);
@@ -1589,12 +1590,12 @@ void Renderer::renderMinimap(){
 	glEnd();
 
     glDisable(GL_BLEND);
-	
+
 	glActiveTexture(fowTexUnit);
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(baseTexUnit);
 	glDisable(GL_TEXTURE_2D);
-	
+
 	//draw units
 	glBegin(GL_QUADS);
 	for(int i=0; i<world->getFactionCount(); ++i){
@@ -1602,13 +1603,13 @@ void Renderer::renderMinimap(){
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit)){
 				Vec2i pos= unit->getPos()/Map::cellScale;
-				int size= unit->getType()->getSize(); 
+				int size= unit->getType()->getSize();
 				Vec3f color=  world->getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
 				glColor3fv(color.ptr());
-				glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));     
-				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));     
-				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));     
-				glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));     
+				glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
+				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
+				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
+				glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
 			}
 		}
 	}
@@ -1624,19 +1625,19 @@ void Renderer::renderMinimap(){
     float ang= degToRad(gameCamera->getHAng());
 
     glEnable(GL_BLEND);
-    
+
 	glBegin(GL_TRIANGLES);
     glColor4f(1.f, 1.f, 1.f, 1.f);
 	glVertex2i(mx+x, my+mh-y);
-	
+
 	glColor4f(1.f, 1.f, 1.f, 0.0f);
 	glVertex2i(
-		mx + x + static_cast<int>(20*sin(ang-pi/5)), 
+		mx + x + static_cast<int>(20*sin(ang-pi/5)),
 		my + mh - (y-static_cast<int>(20*cos(ang-pi/5))));
-    
+
 	glColor4f(1.f, 1.f, 1.f, 0.0f);
     glVertex2i(
-		mx + x + static_cast<int>(20*sin(ang+pi/5)), 
+		mx + x + static_cast<int>(20*sin(ang+pi/5)),
 		my + mh - (y-static_cast<int>(20*cos(ang+pi/5))));
 
     glEnd();
@@ -1646,45 +1647,45 @@ void Renderer::renderMinimap(){
 }
 
 void Renderer::renderDisplay(){
-	
+
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
 	const Display *display= game->getGui()->getDisplay();
 
 	glPushAttrib(GL_ENABLE_BIT);
-			
+
 	//infoString
 	renderTextShadow(
-		display->getInfoText().c_str(), 
+		display->getInfoText().c_str(),
 		coreData.getDisplayFont(),
-		metrics.getDisplayX(), 
+		metrics.getDisplayX(),
 		metrics.getDisplayY()+Display::infoStringY);
 
 	//title
 	renderTextShadow(
-		display->getTitle().c_str(), 
+		display->getTitle().c_str(),
 		coreData.getDisplayFont(),
-		metrics.getDisplayX()+40, 
+		metrics.getDisplayX()+40,
 		metrics.getDisplayY() + metrics.getDisplayH() - 20);
 
     glColor3f(0.0f, 0.0f, 0.0f);
 
 	//text
 	renderTextShadow(
-		display->getText().c_str(), 
+		display->getText().c_str(),
 		coreData.getDisplayFont(),
-		metrics.getDisplayX() -1, 
+		metrics.getDisplayX() -1,
 		metrics.getDisplayY() + metrics.getDisplayH() - 56);
 
 	//progress Bar
 	if(display->getProgressBar()!=-1){
 		renderProgressBar(
 			display->getProgressBar(),
-			metrics.getDisplayX(), 
-			metrics.getDisplayY() + metrics.getDisplayH()-50, 
+			metrics.getDisplayX(),
+			metrics.getDisplayY() + metrics.getDisplayH()-50,
 			coreData.getMenuFontSmall());
 	}
-	
+
 	//up images
 	glEnable(GL_TEXTURE_2D);
 
@@ -1692,8 +1693,8 @@ void Renderer::renderDisplay(){
 	for(int i=0; i<Display::upCellCount; ++i){
 		if(display->getUpImage(i)!=NULL){
 			renderQuad(
-				metrics.getDisplayX()+display->computeUpX(i), 
-				metrics.getDisplayY()+display->computeUpY(i), 
+				metrics.getDisplayX()+display->computeUpX(i),
+				metrics.getDisplayY()+display->computeUpY(i),
 				Display::imageSize, Display::imageSize, display->getUpImage(i));
 		}
 	}
@@ -1707,7 +1708,7 @@ void Renderer::renderDisplay(){
 			else{
                 glColor3f(0.3f, 0.3f, 0.3f);
 			}
-			
+
 			int x= metrics.getDisplayX()+display->computeDownX(i);
 			int y= metrics.getDisplayY()+display->computeDownY(i);
 			int size= Display::imageSize;
@@ -1738,11 +1739,11 @@ void Renderer::renderDisplay(){
 }
 
 void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
-	
+
 	assertGl();
 
 	Vec3f cameraPosition= menuBackground->getCamera()->getPosition();
-	
+
 	glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//clear
@@ -1770,7 +1771,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 	modelRenderer->render(menuBackground->getMainModel());
 	modelRenderer->end();
 	glDisable(GL_ALPHA_TEST);
-	
+
 	//characters
 	float dist= menuBackground->getAboutPosition().dist(cameraPosition);
 	float minDist= 3.f;
@@ -1780,7 +1781,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 		float alpha= clamp((minDist-dist)/minDist, 0.f, 1.f);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
 		modelRenderer->begin(true, true, false);
-		
+
 		for(int i=0; i<MenuBackground::characterCount; ++i){
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
@@ -1833,14 +1834,14 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 			CoreData &coreData= CoreData::getInstance();
 			glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(coreData.getWaterSplashTexture())->getHandle());
 			for(int i=0; i<MenuBackground::raindropCount; ++i){
-				
+
 				Vec2f pos= menuBackground->getRaindropPos(i);
 				float scale= menuBackground->getRaindropState(i);
 				float alpha= maxRaindropAlpha-scale*maxRaindropAlpha;
-					
+
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
-				
+
 				glColor4f(1.f, 1.f, 1.f, alpha);
 				glTranslatef(pos.x, waterHeight+0.01f, pos.y);
 
@@ -1865,22 +1866,22 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 	assertGl();
 }
 
-// ==================== computing ==================== 
+// ==================== computing ====================
 
 bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
-    
+
 	assertGl();
 	const Map* map= game->getWorld()->getMap();
 	const Metrics &metrics= Metrics::getInstance();
 	float depth= 0.0f;
-	GLdouble modelviewMatrix[16]; 
+	GLdouble modelviewMatrix[16];
 	GLdouble projectionMatrix[16];
 	GLint viewport[4]= {0, 0, metrics.getScreenW(), metrics.getScreenH()};
 	GLdouble worldX;
 	GLdouble worldY;
 	GLdouble worldZ;
 	GLint screenX= (screenPos.x * metrics.getScreenW() / metrics.getVirtualW());
-	GLint screenY= (screenPos.y * metrics.getScreenH() / metrics.getVirtualH());	
+	GLint screenY= (screenPos.y * metrics.getScreenH() / metrics.getVirtualH());
 
 	//get the depth in the cursor pixel
 	glReadPixels(screenX, screenY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
@@ -1895,19 +1896,19 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
 
 	//get the world coordinates
 	gluUnProject(
-		screenX, screenY, depth, 
+		screenX, screenY, depth,
 		modelviewMatrix, projectionMatrix, viewport,
 		&worldX, &worldY, &worldZ);
 
 	//conver coords to int
 	worldPos= Vec2i(static_cast<int>(worldX+0.5f), static_cast<int>(worldZ+0.5f));
-	
+
 	//clamp coords to map size
 	return map->isInside(worldPos);
 }
 
 void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &posDown, const Vec2i &posUp){
-	
+
 	//declarations
 	GLuint selectBuffer[Gui::maxSelBuff];
 	const Metrics &metrics= Metrics::getInstance();
@@ -1945,7 +1946,7 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 		int unitIndex= selectBuffer[i*5-1];
 		const World *world= game->getWorld();
 		if(factionIndex<world->getFactionCount() && unitIndex<world->getFaction(factionIndex)->getUnitCount()){
-			Unit *unit= world->getFaction(factionIndex)->getUnit(unitIndex); 
+			Unit *unit= world->getFaction(factionIndex)->getUnit(unitIndex);
 			if(unit->isAlive()){
 				units.push_back(unit);
 			}
@@ -1954,7 +1955,7 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 }
 
 
-// ==================== shadows ==================== 
+// ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(){
 
@@ -1975,7 +1976,7 @@ void Renderer::renderShadowsToTexture(){
 				float color= 1.0f-shadowAlpha;
 				glColor3f(color, color, color);
 				glClearColor(1.f, 1.f, 1.f, 1.f);
-				glDisable(GL_DEPTH_TEST);		
+				glDisable(GL_DEPTH_TEST);
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
 
@@ -1983,14 +1984,14 @@ void Renderer::renderShadowsToTexture(){
 			//
 			//set viewport, we leave one texel always in white to avoid problems
 			glViewport(1, 1, shadowTextureSize-2, shadowTextureSize-2);
-			
+
 			if(nearestLightPos.w==0.f){
 				//directional light
-		
+
 				//light pos
 				const TimeFlow *tf= game->getWorld()->getTimeFlow();
 				float ang= tf->isDay()? computeSunAngle(tf->getTime()): computeMoonAngle(tf->getTime());
-				ang= radToDeg(ang);	
+				ang= radToDeg(ang);
 
 				//push and set projection
 				glMatrixMode(GL_PROJECTION);
@@ -2007,19 +2008,19 @@ void Renderer::renderShadowsToTexture(){
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 				glLoadIdentity();
-				
+
 				glRotatef(15, 0, 1, 0);
-				
+
 				glRotatef(ang, 1, 0, 0);
 				glRotatef(90, 0, 1, 0);
 				Vec3f pos= game->getGameCamera()->getPos();
-		
+
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
 
 			}
 			else{
 				//non directional light
-				
+
 				//push projection
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
@@ -2033,7 +2034,7 @@ void Renderer::renderShadowsToTexture(){
 				glRotatef(-90, -1, 0, 0);
 				glTranslatef(-nearestLightPos.x, -nearestLightPos.y-2, -nearestLightPos.z);
 			}
-				
+
 			if(shadows==sShadowMapping){
 				glEnable(GL_POLYGON_OFFSET_FILL);
 				glPolygonOffset(1.0f, 0.001f);
@@ -2042,7 +2043,7 @@ void Renderer::renderShadowsToTexture(){
 			//render 3d
 			renderUnitsFast();
 			renderObjectsFast();
-			
+
 			//read color buffer
 			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, shadowTextureSize, shadowTextureSize);
@@ -2085,12 +2086,12 @@ void Renderer::renderShadowsToTexture(){
 }
 
 
-// ==================== gl wrap ==================== 
+// ==================== gl wrap ====================
 
 string Renderer::getGlInfo(){
 	string infoStr;
 	Lang &lang= Lang::getInstance();
-	
+
 	infoStr+= lang.get("OpenGlInfo")+":\n";
 	infoStr+= "   "+lang.get("OpenGlVersion")+": ";
     infoStr+= string(getGlVersion())+"\n";
@@ -2115,10 +2116,10 @@ string Renderer::getGlInfo(){
 string Renderer::getGlMoreInfo(){
 	string infoStr;
 	Lang &lang= Lang::getInstance();
-	
+
 	//gl extensions
 	infoStr+= lang.get("OpenGlExtensions")+":\n   ";
-	
+
 	string extensions= getGlExtensions();
 	int charCount= 0;
 	for(int i=0; i<extensions.size(); ++i){
@@ -2133,7 +2134,7 @@ string Renderer::getGlMoreInfo(){
 	//platform extensions
 	infoStr+= "\n\n";
 	infoStr+= lang.get("OpenGlPlatformExtensions")+":\n   ";
-	
+
 	charCount= 0;
 	string platformExtensions= getGlPlatformExtensions();
 	for(int i=0; i<platformExtensions.size(); ++i){
@@ -2149,12 +2150,12 @@ string Renderer::getGlMoreInfo(){
 }
 
 void Renderer::autoConfig(){
-	
+
 	Config &config= Config::getInstance();
 	bool nvidiaCard= toLower(getGlVendor()).find("nvidia")!=string::npos;
 	bool atiCard= toLower(getGlVendor()).find("ati")!=string::npos;
 	bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow") && isGlExtensionSupported("GL_ARB_shadow_ambient");
-		
+
 	//3D textures
 	config.setBool("Textures3D", isGlExtensionSupported("GL_EXT_texture3D"));
 
@@ -2215,7 +2216,7 @@ void Renderer::loadConfig(){
 }
 
 void Renderer::saveScreen(const string &path){
-	
+
 	const Metrics &sm= Metrics::getInstance();
 
 	Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
@@ -2224,10 +2225,10 @@ void Renderer::saveScreen(const string &path){
 	pixmap.saveTga(path);
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
 float Renderer::computeSunAngle(float time){
-	
+
 	float dayTime= TimeFlow::dusk-TimeFlow::dawn;
 	float fTime= (time-TimeFlow::dawn)/dayTime;
 	return clamp(fTime*pi, pi/8.f, 7.f*pi/8.f);
@@ -2235,7 +2236,7 @@ float Renderer::computeSunAngle(float time){
 
 float Renderer::computeMoonAngle(float time){
 	float nightTime= 24-(TimeFlow::dusk-TimeFlow::dawn);
-	
+
 	if(time<TimeFlow::dawn){
 		time+= 24.f;
 	}
@@ -2257,7 +2258,7 @@ Vec4f Renderer::computeMoonPos(float time){
 Vec3f Renderer::computeLightColor(float time){
 	const Tileset *tileset= game->getWorld()->getTileset();
 	Vec3f color;
-	
+
 	const float transition= 2;
 	const float dayStart= TimeFlow::dawn;
 	const float dayEnd= TimeFlow::dusk-transition;
@@ -2265,7 +2266,7 @@ Vec3f Renderer::computeLightColor(float time){
 	const float nightEnd= TimeFlow::dawn-transition;
 
 	if(time>dayStart && time<dayEnd){
-		color= tileset->getSunLightColor(); 
+		color= tileset->getSunLightColor();
 	}
 	else if(time>nightStart || time<nightEnd){
 		color= tileset->getMoonLightColor();
@@ -2288,12 +2289,12 @@ Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight){
 	return Vec4f(1.f, 1.f, 1.f, clamp((waterLevel-cellHeight)*waterFactor, 0.f, 1.f));
 }
 
-// ==================== fast render ==================== 
+// ==================== fast render ====================
 
 //render units for selection purposes
 void Renderer::renderUnitsFast(){
 	const World *world= game->getWorld();
-	
+
 	assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -2316,7 +2317,7 @@ void Renderer::renderUnitsFast(){
 				//translate
 				Vec3f currVec= unit->getCurrVectorFlat();
 				glTranslatef(currVec.x, currVec.y, currVec.z);
-				
+
 				//rotate
 				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
 
@@ -2340,7 +2341,7 @@ void Renderer::renderUnitsFast(){
 //render objects for selection purposes
 void Renderer::renderObjectsFast(){
 	const World *world= game->getWorld();
-	const Map *map= world->getMap();	
+	const Map *map= world->getMap();
 
     assertGl();
 
@@ -2350,12 +2351,12 @@ void Renderer::renderObjectsFast(){
     glAlphaFunc(GL_GREATER, 0.5f);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		
-	//set color to the texture alpha		
+
+	//set color to the texture alpha
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-	
+
 	//set alpha to the texture alpha
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
@@ -2383,7 +2384,7 @@ void Renderer::renderObjectsFast(){
 				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
 				modelRenderer->render(objModel);
-				
+
 				glPopMatrix();
 
 			}
@@ -2397,7 +2398,7 @@ void Renderer::renderObjectsFast(){
 	assertGl();
 }
 
-// ==================== gl caps ==================== 
+// ==================== gl caps ====================
 
 void Renderer::checkGlCaps(){
 
@@ -2420,7 +2421,7 @@ void Renderer::checkGlCaps(){
 }
 
 void Renderer::checkGlOptionalCaps(){
-	
+
 	//shadows
 	if(shadows==sProjected || shadows==sShadowMapping){
 		if(getGlMaxTextureUnits()<3){
@@ -2442,7 +2443,7 @@ void Renderer::checkExtension(const string &extension, const string &msg){
 	}
 }
 
-// ==================== init 3d lists ==================== 
+// ==================== init 3d lists ====================
 
 void Renderer::init3dList(){
 
@@ -2451,14 +2452,14 @@ void Renderer::init3dList(){
     assertGl();
 
 	list3d= glGenLists(1);
-	glNewList(list3d, GL_COMPILE_AND_EXECUTE); 
+	glNewList(list3d, GL_COMPILE_AND_EXECUTE);
 	//need to execute, because if not gluPerspective takes no effect and gluLoadMatrix is wrong
 
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
-		glClearColor(fowColor.x, fowColor.y, fowColor.z, fowColor.w);			
-		glFrontFace(GL_CW);											
-		glEnable(GL_CULL_FACE);											
+		glClearColor(fowColor.x, fowColor.y, fowColor.z, fowColor.w);
+		glFrontFace(GL_CW);
+		glEnable(GL_CULL_FACE);
 		loadProjectionMatrix();
 
 		//texture state
@@ -2469,7 +2470,7 @@ void Renderer::init3dList(){
 		glActiveTexture(fowTexUnit);
 		glDisable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		
+
 		glActiveTexture(baseTexUnit);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -2478,7 +2479,7 @@ void Renderer::init3dList(){
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
-		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);			
+		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 		glColor4fv(defColor.ptr());
 
 		//blend state
@@ -2523,7 +2524,7 @@ void Renderer::init3dList(){
 
 	//assert
 	assertGl();
-	  
+
 }
 
 void Renderer::init2dList(){
@@ -2539,7 +2540,7 @@ void Renderer::init2dList(){
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
-		
+
 		//modelview
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -2551,12 +2552,12 @@ void Renderer::init2dList(){
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_STENCIL_TEST);
 		glDisable(GL_FOG);
-		glDisable(GL_CULL_FACE);	
+		glDisable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);
 		glActiveTexture(baseTexUnit);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glDisable(GL_TEXTURE_2D);
-		
+
 		//blend func
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -2575,28 +2576,28 @@ void Renderer::init3dListMenu(MainMenu *mm){
 	const MenuBackground *mb= mm->getMenuBackground();
 
 	list3dMenu= glGenLists(1);
-	glNewList(list3dMenu, GL_COMPILE); 
-	
+	glNewList(list3dMenu, GL_COMPILE);
+
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
-		glClearColor(0.4f, 0.4f, 0.4f, 1.f);			
-		glFrontFace(GL_CW);											
-		glEnable(GL_CULL_FACE);											
+		glClearColor(0.4f, 0.4f, 0.4f, 1.f);
+		glFrontFace(GL_CW);
+		glEnable(GL_CULL_FACE);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000);
-		
+
 		//texture state
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		
+
 		//material state
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
 		glColor4fv(defColor.ptr());
-		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);			
-		
+		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+
 		//blend state
 		glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2619,13 +2620,13 @@ void Renderer::init3dListMenu(MainMenu *mm){
 		//stencil test
 		glDisable(GL_STENCIL_TEST);
 
-		//fog			
+		//fog
 		if(mb->getFog()){
 			glEnable(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_EXP2);
 			glFogf(GL_FOG_DENSITY, mb->getFogDensity());
 		}
-		
+
 	glEndList();
 
 	//assert
@@ -2633,7 +2634,7 @@ void Renderer::init3dListMenu(MainMenu *mm){
 }
 
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
 void Renderer::loadProjectionMatrix(){
 	GLdouble clipping;
@@ -2641,8 +2642,8 @@ void Renderer::loadProjectionMatrix(){
 
     assertGl();
 
-	clipping= photoMode ? perspFarPlane*100 : perspFarPlane; 
- 	
+	clipping= photoMode ? perspFarPlane*100 : perspFarPlane;
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, clipping);
@@ -2661,14 +2662,14 @@ void Renderer::enableProjectiveTexturing(){
 	glEnable(GL_TEXTURE_GEN_Q);
 }
 
-// ==================== private aux drawing ==================== 
+// ==================== private aux drawing ====================
 
 void Renderer::renderSelectionCircle(Vec3f v, int size, float radius){
 	GLUquadricObj *disc;
-	
+
 	glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    
+
 	glTranslatef(v.x, v.y, v.z);
 	glRotatef(90.f, 1.f, 0.f, 0.f);
 	disc= gluNewQuadric();
@@ -2695,7 +2696,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &co
 
 	dir.normalize();
 	Vec3f normal= dir.cross(Vec3f(0, 1, 0));
-	
+
 	Vec3f pos2Left= pos2 + normal*(width-0.05f) - dir*arrowEndSize*width;
 	Vec3f pos2Right= pos2 - normal*(width-0.05f) - dir*arrowEndSize*width;
 	Vec3f pos1Left= pos1 + normal*(width+0.05f);
@@ -2708,11 +2709,11 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &co
 		Vec3f a= pos1Left.lerp(t, pos2Left);
 		Vec3f b= pos1Right.lerp(t, pos2Right);
 		Vec4f c= Vec4f(color, t*0.25f*alphaFactor);
-		
+
 		glColor4fv(c.ptr());
 		glVertex3fv(a.ptr());
 		glVertex3fv(b.ptr());
-	}	
+	}
 	glEnd();
 
 	//arrow end
@@ -2724,7 +2725,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &co
 }
 
 void Renderer::renderProgressBar(int size, int x, int y, Font2D *font){
-	
+
 	//bar
 	glBegin(GL_QUADS);
 		glColor4fv(progressBarFront2.ptr());
@@ -2734,7 +2735,7 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font){
 		glVertex2i(x+size, y+10);
 		glVertex2i(x+size, y);
 	glEnd();
-	
+
 	//transp bar
 	glEnable(GL_BLEND);
 	glBegin(GL_QUADS);
@@ -2750,47 +2751,47 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font){
 	//text
 	glColor3fv(defColor.ptr());
 	textRenderer->begin(font);
-	textRenderer->render(intToStr(static_cast<int>(size))+"%", x+maxProgressBar/2, y, true); 
+	textRenderer->render(intToStr(static_cast<int>(size))+"%", x+maxProgressBar/2, y, true);
 	textRenderer->end();
 }
 
 
 void Renderer::renderTile(const Vec2i &pos){
-	
+
 	const Map *map= game->getWorld()->getMap();
 	Vec2i scaledPos= pos * Map::cellScale;
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glTranslatef(-0.5f, 0.f, -0.5f);
-	
+
 	glInitNames();
 	for(int i=0; i<Map::cellScale; ++i){
 		for(int j=0; j<Map::cellScale; ++j){
-			
+
 			Vec2i renderPos= scaledPos + Vec2i(i, j);
 
 			glPushName(renderPos.y);
 			glPushName(renderPos.x);
-			
+
 			glDisable(GL_CULL_FACE);
 
 			glBegin(GL_TRIANGLE_STRIP);
 			glVertex3f(
-				static_cast<float>(renderPos.x), 
-				map->getCell(renderPos.x, renderPos.y)->getHeight(), 
+				static_cast<float>(renderPos.x),
+				map->getCell(renderPos.x, renderPos.y)->getHeight(),
 				static_cast<float>(renderPos.y));
 			glVertex3f(
-				static_cast<float>(renderPos.x), 
-				map->getCell(renderPos.x, renderPos.y+1)->getHeight(), 
+				static_cast<float>(renderPos.x),
+				map->getCell(renderPos.x, renderPos.y+1)->getHeight(),
 				static_cast<float>(renderPos.y+1));
 			glVertex3f(
-				static_cast<float>(renderPos.x+1), 
-				map->getCell(renderPos.x+1, renderPos.y)->getHeight(), 
+				static_cast<float>(renderPos.x+1),
+				map->getCell(renderPos.x+1, renderPos.y)->getHeight(),
 				static_cast<float>(renderPos.y));
 			glVertex3f(
-				static_cast<float>(renderPos.x+1), 
-				map->getCell(renderPos.x+1, renderPos.y+1)->getHeight(), 
+				static_cast<float>(renderPos.x+1),
+				map->getCell(renderPos.x+1, renderPos.y+1)->getHeight(),
 				static_cast<float>(renderPos.y+1));
 			glEnd();
 
@@ -2847,7 +2848,7 @@ Texture2D::Filter Renderer::strToTextureFilter(const string &s){
 	else if(s=="Trilinear"){
 		return Texture2D::fTrilinear;
 	}
-	
+
 	throw runtime_error("Error converting from string to FilterType, found: "+s);
 }
 

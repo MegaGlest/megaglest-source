@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -41,7 +41,50 @@ private:
 	bool defaultResources;
 	bool defaultVictoryConditions;
 
-public:	
+    void CopyAll(const GameSettings &game)
+    {
+        description              = game.description;
+        map                      = game.map;
+        tileset                  = game.tileset;
+        tech                     = game.tech;
+        scenario                 = game.scenario;
+        scenarioDir              = game.scenarioDir;
+        thisFactionIndex         = game.thisFactionIndex;
+        factionCount             = game.factionCount;
+        defaultUnits             = game.defaultUnits;
+        defaultResources         = game.defaultResources;
+        defaultVictoryConditions = game.defaultVictoryConditions;
+
+        for(int i = 0; i < GameConstants::maxPlayers; i++)
+        {
+            factionTypeNames[i]   = game.factionTypeNames[i]; //faction names
+            factionControls[i]    = game.factionControls[i];
+            teams[i]              = game.teams[i];
+            startLocationIndex[i] = game.startLocationIndex[i];
+        }
+
+        //if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,getTileset().c_str());
+        //if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,getTech().c_str());
+        //if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,getMap().c_str());
+
+    }
+
+public:
+
+
+    GameSettings() { }
+
+    GameSettings(const GameSettings &game)
+    {
+        CopyAll(game);
+    }
+
+    GameSettings & operator=(const GameSettings &game)
+    {
+        CopyAll(game);
+        return *this;
+    }
+
 	//get
 	const string &getDescription() const						{return description;}
 	const string &getMap() const 								{return map;}
@@ -53,7 +96,7 @@ public:
 	ControlType getFactionControl(int factionIndex) const		{return factionControls[factionIndex];}
 
 	int getThisFactionIndex() const						{return thisFactionIndex;}
-	int getFactionCount() const							{return factionCount;} 
+	int getFactionCount() const							{return factionCount;}
 	int getTeam(int factionIndex) const					{return teams[factionIndex];}
 	int getStartLocationIndex(int factionIndex) const	{return startLocationIndex[factionIndex];}
 
@@ -74,7 +117,7 @@ public:
 	void setFactionControl(int factionIndex, ControlType controller)			{this->factionControls[factionIndex]= controller;}
 
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
-	void setFactionCount(int factionCount)									{this->factionCount= factionCount;} 
+	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)								{this->teams[factionIndex]= team;}
 	void setStartLocationIndex(int factionIndex, int startLocationIndex)	{this->startLocationIndex[factionIndex]= startLocationIndex;}
 

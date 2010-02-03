@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -40,7 +40,7 @@ void ChatManager::init(Console* console, int thisTeamIndex){
 }
 
 void ChatManager::keyDown(char key){
-	
+
 	Lang &lang= Lang::getInstance();
 
 	//toggle team mode
@@ -86,18 +86,24 @@ void ChatManager::keyPress(char c){
 	}
 }
 
-void ChatManager::updateNetwork(){
+void ChatManager::updateNetwork()
+{
 	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 	string text;
 	string sender;
-	
-	if(!gameNetworkInterface->getChatText().empty()){
+
+	if(!gameNetworkInterface->getChatText().empty())
+	{
 		int teamIndex= gameNetworkInterface->getChatTeamIndex();
-		
+
+		if(Socket::enableDebugText) printf("In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,gameNetworkInterface->getChatText().c_str(),teamIndex);
+
 		if(teamIndex==-1 || teamIndex==thisTeamIndex){
 			console->addLine(gameNetworkInterface->getChatSender()+": "+gameNetworkInterface->getChatText(), true);
+
+			if(Socket::enableDebugText) printf("In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 		}
 	}
 }
-	
+
 }}//end namespace

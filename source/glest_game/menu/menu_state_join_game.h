@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -14,6 +14,7 @@
 
 #include "properties.h"
 #include "main_menu.h"
+#include "chat_manager.h"
 
 using Shared::Util::Properties;
 
@@ -22,7 +23,7 @@ namespace Glest{ namespace Game{
 class NetworkMessageIntro;
 
 // ===============================
-// 	class MenuStateJoinGame  
+// 	class MenuStateJoinGame
 // ===============================
 
 class MenuStateJoinGame: public MenuState{
@@ -45,6 +46,9 @@ private:
 	int playerIndex;
 	Properties servers;
 
+	Console console;
+	ChatManager chatManager;
+
 public:
 	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip());
 
@@ -52,8 +56,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	void update();
-	void keyDown(char key);
-	void keyPress(char c);
+    virtual void keyDown(char key);
+    virtual void keyPress(char c);
 
 private:
 	void connectToServer();

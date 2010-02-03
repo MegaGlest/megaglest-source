@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -61,7 +61,7 @@ XmlIo::XmlIo(){
 	}
 	catch(const XMLException&){
 		throw runtime_error("Error initializing XML system");
-	}		
+	}
 
 	try{
         XMLCh str[strSize];
@@ -84,7 +84,7 @@ XmlIo::~XmlIo(){
 }
 
 XmlNode *XmlIo::load(const string &path){
-	
+
 	try{
 		ErrorHandler errorHandler;
 #if XERCES_VERSION_MAJOR < 3		
@@ -99,7 +99,7 @@ XmlNode *XmlIo::load(const string &path){
 		config->setParameter(XMLUni::fgDOMValidate, true);
 #endif		
 		DOMDocument *document= parser->parseURI(path.c_str());
-		
+
 		if(document==NULL){
 			throw runtime_error("Can not parse URL: " + path);
 		}
@@ -110,7 +110,7 @@ XmlNode *XmlIo::load(const string &path){
 	}
 	catch(const DOMException &e){
 		throw runtime_error("Exception while loading: " + path + ": " + XMLString::transcode(e.msg));
-	}	
+	}
 }
 
 void XmlIo::save(const string &path, const XmlNode *node){
@@ -144,7 +144,7 @@ void XmlIo::save(const string &path, const XmlNode *node){
 	}
 	catch(const DOMException &e){
 		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
-	}	
+	}
 }
 // =====================================================
 //	class XmlTree
@@ -188,7 +188,7 @@ XmlNode::XmlNode(DOMNode *node){
 
 	//check children
 	for(int i=0; i<node->getChildNodes()->getLength(); ++i){
-		DOMNode *currentNode= node->getChildNodes()->item(i);	
+		DOMNode *currentNode= node->getChildNodes()->item(i);
 		if(currentNode->getNodeType()==DOMNode::ELEMENT_NODE){
 			XmlNode *xmlNode= new XmlNode(currentNode);
 			children.push_back(xmlNode);
@@ -234,7 +234,7 @@ XmlAttribute *XmlNode::getAttribute(int i) const{
 	}
 	return attributes[i];
 }
-	
+
 XmlAttribute *XmlNode::getAttribute(const string &name) const{
 	for(int i=0; i<attributes.size(); ++i){
 		if(attributes[i]->getName()==name){
@@ -269,6 +269,20 @@ XmlNode *XmlNode::getChild(const string &childName, int i) const{
 	throw runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
 }
 
+bool XmlNode::hasChild(const string &childName) const
+{
+	int count= 0;
+	for(int j = 0; j < children.size(); ++j)
+	{
+		if(children[j]->getName()==childName)
+		{
+            return true;
+		}
+	}
+
+	return false;
+}
+
 XmlNode *XmlNode::addChild(const string &name){
 	XmlNode *node= new XmlNode(name);
 	children.push_back(node);
@@ -290,10 +304,10 @@ DOMElement *XmlNode::buildElement(DOMDocument *document) const{
 	for(int i=0; i<attributes.size(); ++i){
         XMLString::transcode(attributes[i]->getName().c_str(), str, strSize-1);
 		DOMAttr *attr= document->createAttribute(str);
-		
+
 		XMLString::transcode(attributes[i]->getValue().c_str(), str, strSize-1);
 		attr->setValue(str);
-		
+
 		node->setAttributeNode(attr);
 	}
 
@@ -387,7 +401,7 @@ const string &XmlAttribute::getRestrictedValue() const
 				"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters);
 		}
 	}
-		
+
 	return value;
 }
 

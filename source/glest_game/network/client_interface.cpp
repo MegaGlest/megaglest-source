@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -20,6 +20,10 @@
 #include "config.h"
 #include "lang.h"
 #include "leak_dumper.h"
+
+#include "map.h"
+#include "config.h"
+#include "logger.h"
 
 using namespace std;
 using namespace Shared::Platform;
@@ -39,25 +43,56 @@ ClientInterface::ClientInterface(){
 	launchGame= false;
 	introDone= false;
 	playerIndex= -1;
+
+	networkGameDataSynchCheckOkMap  = false;
+	networkGameDataSynchCheckOkTile = false;
+	networkGameDataSynchCheckOkTech = false;
 }
 
-ClientInterface::~ClientInterface(){
+ClientInterface::~ClientInterface()
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+    if(clientSocket != NULL && clientSocket->isConnected() == true)
+    {
+        string sQuitText = getHostName() + " has chosen to leave the game!";
+        sendTextMessage(sQuitText,-1);
+    }
+
 	delete clientSocket;
+	clientSocket = NULL;
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ClientInterface::connect(const Ip &ip, int port){
+void ClientInterface::connect(const Ip &ip, int port)
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	delete clientSocket;
+
+	this->ip    = ip;
+	this->port  = port;
+
 	clientSocket= new ClientSocket();
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
 }
 
-void ClientInterface::reset(){
-	delete clientSocket;
-	clientSocket= NULL;
+void ClientInterface::reset()
+{
+    if(getSocket() != NULL)
+    {
+        string sQuitText = getHostName() + " has chosen to leave the game!";
+        sendTextMessage(sQuitText,-1);
+        close();
+    }
 }
 
-void ClientInterface::update(){
+void ClientInterface::update()
+{
 	NetworkMessageCommandList networkMessageCommandList;
 
 	//send as many commands as we can
@@ -79,152 +114,363 @@ void ClientInterface::update(){
 	chatTeamIndex= -1;
 }
 
-void ClientInterface::updateLobby(){
-	NetworkMessageType networkMessageType= getNextMessageType();
-	
-	switch(networkMessageType){
-		case nmtInvalid:
-			break;
+void ClientInterface::updateLobby()
+{
+	//clear chat variables
+	chatText.clear();
+	chatSender.clear();
+	chatTeamIndex= -1;
 
-		case nmtIntro:{
-			NetworkMessageIntro networkMessageIntro;
+    NetworkMessageType networkMessageType = getNextMessageType(true);
 
-			if(receiveMessage(&networkMessageIntro)){
-				
-				//check consistency
-				if(Config::getInstance().getBool("NetworkConsistencyChecks")){
-					if(networkMessageIntro.getVersionString()!=getNetworkVersionString()){
-						throw runtime_error("Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.");
-					}	
-				}
+    switch(networkMessageType)
+    {
+        case nmtInvalid:
+            break;
 
-				//send intro message
-				NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHostName(), -1);
+        case nmtIntro:
+        {
+            NetworkMessageIntro networkMessageIntro;
 
-				playerIndex= networkMessageIntro.getPlayerIndex();
-				serverName= networkMessageIntro.getName();
-				sendMessage(&sendNetworkMessageIntro);
-					
-				assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
-				introDone= true;
-			}
-		}
-		break;
+            if(receiveMessage(&networkMessageIntro))
+            {
+                if(Socket::enableDebugText) printf("In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
 
-		case nmtLaunch:{
-			NetworkMessageLaunch networkMessageLaunch;
+                //check consistency
+                if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+                {
+                    if(networkMessageIntro.getVersionString()!=getNetworkVersionString())
+                    {
+                        throw runtime_error("Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.");
+                    }
+                }
 
-			if(receiveMessage(&networkMessageLaunch)){
-				networkMessageLaunch.buildGameSettings(&gameSettings);
+                //send intro message
+                NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHostName(), -1);
 
-				//replace server player by network
-				for(int i= 0; i<gameSettings.getFactionCount(); ++i){
-					
-					//replace by network
-					if(gameSettings.getFactionControl(i)==ctHuman){
-						gameSettings.setFactionControl(i, ctNetwork);
-					}
+                playerIndex= networkMessageIntro.getPlayerIndex();
+                serverName= networkMessageIntro.getName();
+                sendMessage(&sendNetworkMessageIntro);
 
-					//set the faction index
-					if(gameSettings.getStartLocationIndex(i)==playerIndex){
-						gameSettings.setThisFactionIndex(i);
-					}
-				}
-				launchGame= true;
-			}
-		}
-		break;
+                assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+                introDone= true;
+            }
+        }
+        break;
 
-		default:
-			throw runtime_error("Unexpected network message: " + intToStr(networkMessageType));
-	}
+        case nmtSynchNetworkGameData:
+        {
+            NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData;
+
+            if(receiveMessage(&networkMessageSynchNetworkGameData))
+            {
+                if(Socket::enableDebugText) printf("In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
+
+                // check the checksum's
+                //Checksum checksum;
+                //tileset
+                //string file = "tilesets/" + networkMessageSynchNetworkGameData.getTileset() + "/" + networkMessageSynchNetworkGameData.getTileset() + ".xml";
+                //checksum.addFile(file);
+                // models
+                // sounds
+                // textures
+                //int32  tilesetCRC = checksum.getSum();
+                //if(Socket::enableDebugText) printf("In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),tilesetCRC);
+
+                //if(tilesetCRC != networkMessageSynchNetworkGameData.getTilesetCRC())
+                //{
+                //    if(Socket::enableDebugText) printf("In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d\n",
+                //            __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC());
+                //}
+
+                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively("tilesets/" +
+                    networkMessageSynchNetworkGameData.getTileset() + "/*", ".xml", NULL);
+
+                this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
+                if(this->getNetworkGameDataSynchCheckOkTile() == false)
+                {
+                    if(Socket::enableDebugText) printf("In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d\n",
+                            __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC());
+                }
+
+
+                //tech, load before map because of resources
+                //checksum = Checksum();
+                //file = "techs/" + networkMessageSynchNetworkGameData.getTech() + "/" + networkMessageSynchNetworkGameData.getTech() + ".xml";
+                //checksum.addFile(file);
+                // factions
+                // resources
+                //int32 techCRC = checksum.getSum();
+                //if(Socket::enableDebugText) printf("In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),techCRC);
+
+                //if(techCRC != networkMessageSynchNetworkGameData.getTechCRC())
+                //{
+                //    if(Socket::enableDebugText) printf("In [%s::%s] techCRC mismatch, local = %d, remote = %d\n",
+                //            __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC());
+                //}
+
+                int32 techCRC = getFolderTreeContentsCheckSumRecursively("techs/" +
+                        networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+
+                this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
+
+                if(this->getNetworkGameDataSynchCheckOkTech() == false)
+                {
+                    if(Socket::enableDebugText) printf("In [%s::%s] techCRC mismatch, local = %d, remote = %d\n",
+                            __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC());
+                }
+
+                //map
+                Checksum checksum;
+                string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap());
+                checksum.addFile(file);
+                int32 mapCRC = checksum.getSum();
+                //if(Socket::enableDebugText) printf("In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
+
+                this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
+
+                if(this->getNetworkGameDataSynchCheckOkMap() == false)
+                {
+                    if(Socket::enableDebugText) printf("In [%s::%s] mapCRC mismatch, local = %d, remote = %d\n",
+                            __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC());
+                }
+
+
+                this->setNetworkGameDataSynchCheckOkFogOfWar((getFogOfWar() == networkMessageSynchNetworkGameData.getFogOfWar()));
+
+                if(this->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                {
+                    if(Socket::enableDebugText) printf("In [%s::%s] getFogOfWar mismatch, local = %d, remote = %d\n",
+                            __FILE__,__FUNCTION__,getFogOfWar(),networkMessageSynchNetworkGameData.getFogOfWar());
+                }
+
+                NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC,getFogOfWar());
+                sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
+            }
+        }
+        break;
+
+        case nmtSynchNetworkGameDataFileCRCCheck:
+        {
+            NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
+            if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
+            {
+                /*
+                if(Socket::enableDebugText) printf("In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck totalfiles = %d, fileindex = %d, crc = %d, file [%s]\n",
+                    __FILE__,__FUNCTION__,networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount(),
+                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex(),
+                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
+                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileName().c_str());
+                  */
+                    Checksum checksum;
+                    string file = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
+                    checksum.addFile(file);
+                    int32 fileCRC = checksum.getSum();
+
+                    if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC())
+                    {
+                        if(Socket::enableDebugText) printf("In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck localCRC = %d, remoteCRC = %d, file [%s]\n",
+                            __FILE__,__FUNCTION__,fileCRC,
+                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
+                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileName().c_str());
+
+                        // Here we initiate a download of missing or mismatched content
+
+                        NetworkMessageSynchNetworkGameDataFileGet sendNetworkMessageSynchNetworkGameDataFileGet(networkMessageSynchNetworkGameDataFileCRCCheck.getFileName());
+                        sendMessage(&sendNetworkMessageSynchNetworkGameDataFileGet);
+
+                        FileTransferInfo fileInfo;
+                        fileInfo.hostType   = eClient;
+                        fileInfo.serverIP   = this->ip.getString();
+                        fileInfo.serverPort = this->port;
+                        fileInfo.fileName   = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
+
+                        FileTransferSocketThread *fileXferThread = new FileTransferSocketThread(fileInfo);
+                        fileXferThread->start();
+                    }
+
+                    if(networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() < networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount())
+                    {
+                        NetworkMessageSynchNetworkGameDataFileCRCCheck sendNetworkMessageSynchNetworkGameDataFileCRCCheck(
+                            networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount(),
+                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() + 1,
+                            0,
+                            "");
+                        sendMessage(&sendNetworkMessageSynchNetworkGameDataFileCRCCheck);
+                    }
+            }
+        }
+        break;
+
+        case nmtText:
+        {
+            NetworkMessageText networkMessageText;
+            if(receiveMessage(&networkMessageText))
+            {
+                if(Socket::enableDebugText) printf("In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
+
+                chatText      = networkMessageText.getText();
+                chatSender    = networkMessageText.getSender();
+                chatTeamIndex = networkMessageText.getTeamIndex();
+            }
+        }
+        break;
+
+        case nmtLaunch:
+        {
+            NetworkMessageLaunch networkMessageLaunch;
+
+            if(receiveMessage(&networkMessageLaunch))
+            {
+                if(Socket::enableDebugText) printf("In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
+
+                networkMessageLaunch.buildGameSettings(&gameSettings);
+
+                //replace server player by network
+                for(int i= 0; i<gameSettings.getFactionCount(); ++i)
+                {
+                    //replace by network
+                    if(gameSettings.getFactionControl(i)==ctHuman)
+                    {
+                        gameSettings.setFactionControl(i, ctNetwork);
+                    }
+
+                    //set the faction index
+                    if(gameSettings.getStartLocationIndex(i)==playerIndex)
+                    {
+                        gameSettings.setThisFactionIndex(i);
+                    }
+                }
+                launchGame= true;
+            }
+        }
+        break;
+
+        default:
+            throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+    }
 }
 
-void ClientInterface::updateKeyframe(int frameCount){
-	
+void ClientInterface::updateKeyframe(int frameCount)
+{
 	bool done= false;
 
-	while(!done){
+	while(!done)
+	{
 		//wait for the next message
 		waitForMessage();
 
 		//check we have an expected message
-		NetworkMessageType networkMessageType= getNextMessageType();
+		NetworkMessageType networkMessageType= getNextMessageType(true);
 
-		switch(networkMessageType){
-			case nmtCommandList:{
+		switch(networkMessageType)
+		{
+			case nmtCommandList:
+			    {
 				//make sure we read the message
 				NetworkMessageCommandList networkMessageCommandList;
-				while(!receiveMessage(&networkMessageCommandList)){
+				while(!receiveMessage(&networkMessageCommandList))
+				{
 					sleep(waitSleepTime);
 				}
 
 				//check that we are in the right frame
-				if(networkMessageCommandList.getFrameCount()!=frameCount){
+				if(networkMessageCommandList.getFrameCount()!=frameCount)
+				{
 					throw runtime_error("Network synchronization error, frame counts do not match");
 				}
 
 				// give all commands
-				for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i){
+				for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i)
+				{
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
-				}				
+				}
 
 				done= true;
 			}
 			break;
 
-			case nmtQuit:{
+			case nmtQuit:
+			{
 				NetworkMessageQuit networkMessageQuit;
-				if(receiveMessage(&networkMessageQuit)){
+				if(receiveMessage(&networkMessageQuit))
+				{
 					quit= true;
 				}
 				done= true;
 			}
 			break;
 
-			case nmtText:{
+			case nmtText:
+			{
 				NetworkMessageText networkMessageText;
-				if(receiveMessage(&networkMessageText)){
-					chatText= networkMessageText.getText();
-					chatSender= networkMessageText.getSender();
-					chatTeamIndex= networkMessageText.getTeamIndex();
+				if(receiveMessage(&networkMessageText))
+				{
+					chatText      = networkMessageText.getText();
+					chatSender    = networkMessageText.getSender();
+					chatTeamIndex = networkMessageText.getTeamIndex();
 				}
 			}
 			break;
+            case nmtInvalid:
+                break;
 
 			default:
-				throw runtime_error("Unexpected message in client interface: " + intToStr(networkMessageType));
+				throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
 		}
 	}
 }
 
-void ClientInterface::waitUntilReady(Checksum* checksum){
-	
-	NetworkMessageReady networkMessageReady;
-	Chrono chrono;
+void ClientInterface::waitUntilReady(Checksum* checksum)
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
+    Logger &logger= Logger::getInstance();
+
+	Chrono chrono;
 	chrono.start();
 
+	// FOR TESTING ONLY - delay to see the client count up while waiting
+	//sleep(5000);
+
 	//send ready message
+	NetworkMessageReady networkMessageReady;
 	sendMessage(&networkMessageReady);
 
+    int64 lastMillisCheck = 0;
 	//wait until we get a ready message from the server
-	while(true){
-		
-		NetworkMessageType networkMessageType= getNextMessageType();
+	while(true)
+	{
+		NetworkMessageType networkMessageType = getNextMessageType(true);
 
-		if(networkMessageType==nmtReady){
-			if(receiveMessage(&networkMessageReady)){
+		if(networkMessageType == nmtReady)
+		{
+			if(receiveMessage(&networkMessageReady))
+			{
 				break;
 			}
 		}
-		else if(networkMessageType==nmtInvalid){
-			if(chrono.getMillis()>readyWaitTimeout){
+		else if(networkMessageType == nmtInvalid)
+		{
+			if(chrono.getMillis() > readyWaitTimeout)
+			{
 				throw runtime_error("Timeout waiting for server");
 			}
+			else
+			{
+                if(chrono.getMillis() / 1000 > lastMillisCheck)
+                {
+                    lastMillisCheck = (chrono.getMillis() / 1000);
+
+                    char szBuf[1024]="";
+                    sprintf(szBuf,"Waiting for network: %llu seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
+                    logger.add(szBuf, true);
+                }
+			}
 		}
-		else{
-			throw runtime_error("Unexpected network message: " + intToStr(networkMessageType) );
+		else
+		{
+			throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
 		}
 
 		// sleep a bit
@@ -232,14 +478,18 @@ void ClientInterface::waitUntilReady(Checksum* checksum){
 	}
 
 	//check checksum
-	if(Config::getInstance().getBool("NetworkConsistencyChecks")){
-		if(networkMessageReady.getChecksum()!=checksum->getSum()){
+	if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+	{
+		if(networkMessageReady.getChecksum() != checksum->getSum())
+		{
 			throw runtime_error("Checksum error, you don't have the same data as the server");
 		}
 	}
 
 	//delay the start a bit, so clients have nore room to get messages
 	sleep(GameConstants::networkExtraLatency);
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void ClientInterface::sendTextMessage(const string &text, int teamIndex){
@@ -251,23 +501,52 @@ string ClientInterface::getNetworkStatus() const{
 	return Lang::getInstance().get("Server") + ": " + serverName;
 }
 
-void ClientInterface::waitForMessage(){
+void ClientInterface::waitForMessage()
+{
 	Chrono chrono;
-
 	chrono.start();
 
-	while(getNextMessageType()==nmtInvalid){
-
-		if(!isConnected()){
+	while(getNextMessageType(true) == nmtInvalid)
+	{
+		if(!isConnected())
+		{
 			throw runtime_error("Disconnected");
 		}
 
-		if(chrono.getMillis()>messageWaitTimeout){
+		if(chrono.getMillis()>messageWaitTimeout)
+		{
 			throw runtime_error("Timeout waiting for message");
 		}
 
 		sleep(waitSleepTime);
 	}
+}
+
+void ClientInterface::quitGame(bool userManuallyQuit)
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+    if(clientSocket != NULL && userManuallyQuit == true)
+    {
+        string sQuitText = getHostName() + " has chosen to leave the game!";
+        sendTextMessage(sQuitText,-1);
+        close();
+    }
+
+    if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+}
+
+void ClientInterface::close()
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+	delete clientSocket;
+	clientSocket= NULL;
+}
+
+bool ClientInterface::getFogOfWar()
+{
+    return Config::getInstance().getBool("FogOfWar");
 }
 
 }}//end namespace

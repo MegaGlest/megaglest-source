@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "network_interface.h"
-#include "game_settings.h"
+//#include "game_settings.h"
 
 #include "socket.h"
 
@@ -36,11 +36,14 @@ private:
 
 private:
 	ClientSocket *clientSocket;
-	GameSettings gameSettings;
+	//GameSettings gameSettings;
 	string serverName;
 	bool introDone;
 	bool launchGame;
 	int playerIndex;
+
+	Ip ip;
+	int port;
 
 public:
 	ClientInterface();
@@ -48,6 +51,7 @@ public:
 
 	virtual Socket* getSocket()					{return clientSocket;}
 	virtual const Socket* getSocket() const		{return clientSocket;}
+	virtual void close();
 
 	//message processing
 	virtual void update();
@@ -57,7 +61,7 @@ public:
 
 	// message sending
 	virtual void sendTextMessage(const string &text, int teamIndex);
-	virtual void quitGame(){}
+	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
 	virtual string getNetworkStatus() const;
@@ -67,10 +71,11 @@ public:
 	bool getLaunchGame() const				{return launchGame;}
 	bool getIntroDone() const				{return introDone;}
 	int getPlayerIndex() const				{return playerIndex;}
-	const GameSettings *getGameSettings()	{return &gameSettings;}
+	//const GameSettings *getGameSettings()	{return &gameSettings;}
 
 	void connect(const Ip &ip, int port);
 	void reset();
+	virtual bool getFogOfWar();
 
 private:
 	void waitForMessage();

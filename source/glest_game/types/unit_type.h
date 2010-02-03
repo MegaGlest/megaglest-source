@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -31,7 +31,7 @@ class FactionType;
 
 
 // ===============================
-// 	class Level 
+// 	class Level
 // ===============================
 
 class Level{
@@ -47,7 +47,7 @@ public:
 };
 
 // ===============================
-// 	class UnitType 
+// 	class UnitType
 //
 ///	A unit or building type
 // ===============================
@@ -89,9 +89,9 @@ private:
 	bool light;
     Vec3f lightColor;
     bool multiSelect;
-    int sight;		
+    int sight;
     int size;							//size in cells
-    int height;               
+    int height;
 
 	//cellmap
 	bool *cellMap;
@@ -131,10 +131,10 @@ public:
 	bool getProperty(Property property) const			{return properties[property];}
 	int getArmor() const								{return armor;}
 	const ArmorType *getArmorType() const				{return armorType;}
-	const SkillType *getSkillType(int i) const			{return skillTypes[i];}	
+	const SkillType *getSkillType(int i) const			{return skillTypes[i];}
 	const CommandType *getCommandType(int i) const		{return commandTypes[i];}
 	const Level *getLevel(int i) const					{return &levels[i];}
-	int getSkillTypeCount() const						{return skillTypes.size();}		
+	int getSkillTypeCount() const						{return skillTypes.size();}
 	int getCommandTypeCount() const						{return commandTypes.size();}
 	int getLevelCount() const							{return levels.size();}
 	bool getLight() const								{return light;}
@@ -143,7 +143,7 @@ public:
 	int getSight() const								{return sight;}
 	int getSize() const									{return size;}
 	int getHeight() const								{return height;}
-	int getStoredResourceCount() const					{return storedResources.size();}	
+	int getStoredResourceCount() const					{return storedResources.size();}
 	const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	bool getCellMapCell(int x, int y) const				{return cellMap[size*y+x];}
 	bool getMeetingPoint() const						{return meetingPoint;}
@@ -166,7 +166,7 @@ public:
 	int getTotalSight(const TotalUpgrade *totalUpgrade) const;
 
 	//has
-    bool hasCommandType(const CommandType *commandType) const; 
+    bool hasCommandType(const CommandType *commandType) const;
 	bool hasCommandClass(CommandClass commandClass) const;
     bool hasSkillType(const SkillType *skillType) const;
     bool hasSkillClass(SkillClass skillClass) const;

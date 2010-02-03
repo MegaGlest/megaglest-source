@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -41,7 +41,7 @@ namespace Glest{ namespace Game{
 
 const int Program::maxTimes= 10;
 
-// ===================== PUBLIC ======================== 
+// ===================== PUBLIC ========================
 
 Program::Program(){
 	programState= NULL;
@@ -54,7 +54,7 @@ void Program::initNormal(WindowGl *window){
 
 void Program::initServer(WindowGl *window){
 	MainMenu* mainMenu= NULL;
-	
+
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
@@ -63,7 +63,7 @@ void Program::initServer(WindowGl *window){
 
 void Program::initClient(WindowGl *window, const Ip &serverIp){
 	MainMenu* mainMenu= NULL;
-	
+
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
@@ -72,14 +72,14 @@ void Program::initClient(WindowGl *window, const Ip &serverIp){
 
 Program::~Program(){
 	delete programState;
-	
+
 	Renderer::getInstance().end();
-	
+
 	//restore video mode
 	restoreDisplaySettings();
 }
 
-void Program::mouseDownLeft(int x, int y){    
+void Program::mouseDownLeft(int x, int y){
 	const Metrics &metrics= Metrics::getInstance();
 	programState->mouseDownLeft(metrics.toVirtualX(x), metrics.toVirtualY(y));
 }
@@ -91,12 +91,12 @@ void Program::mouseUpLeft(int x, int y){
 
 void Program::mouseDownRight(int x, int y){
 	const Metrics &metrics= Metrics::getInstance();
-	programState->mouseDownRight(metrics.toVirtualX(x), metrics.toVirtualY(y)); 
+	programState->mouseDownRight(metrics.toVirtualX(x), metrics.toVirtualY(y));
 }
 
 void Program::mouseDoubleClickLeft(int x, int y){
 	const Metrics &metrics= Metrics::getInstance();
-	programState->mouseDoubleClickLeft(metrics.toVirtualX(x), metrics.toVirtualY(y));   
+	programState->mouseDoubleClickLeft(metrics.toVirtualX(x), metrics.toVirtualY(y));
 }
 
 void Program::mouseMove(int x, int y, const MouseState *ms){
@@ -109,7 +109,7 @@ void Program::keyDown(char key){
 	programState->keyDown(key);
 }
 
-void Program::keyUp(char key){        
+void Program::keyUp(char key){
 	programState->keyUp(key);
 }
 
@@ -134,7 +134,7 @@ void Program::loop(){
 		SoundRenderer::getInstance().update();
 		NetworkManager::getInstance().update();
 	}
-	
+
 	//fps timer
 	while(fpsTimer.isTime()){
 		programState->tick();
@@ -142,7 +142,7 @@ void Program::loop(){
 }
 
 void Program::resize(SizeState sizeState){
-	
+
 	switch(sizeState){
 	case ssMinimized:
 		//restoreVideoMode();
@@ -155,32 +155,44 @@ void Program::resize(SizeState sizeState){
 	}
 }
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
-void Program::setState(ProgramState *programState){
-	
+void Program::setState(ProgramState *programState)
+{
+
+	if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	delete this->programState;
-	
+
+    if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
+
 	this->programState= programState;
 	programState->load();
+
+	if(Socket::enableDebugText) printf("In [%s::%s] B\n",__FILE__,__FUNCTION__);
+
 	programState->init();
+
+    if(Socket::enableDebugText) printf("In [%s::%s] C\n",__FILE__,__FUNCTION__);
 
 	updateTimer.reset();
 	updateCameraTimer.reset();
 	fpsTimer.reset();
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
-		
+
 void Program::exit(){
 	window->destroy();
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
 void Program::init(WindowGl *window){
 
 	this->window= window;
 	Config &config= Config::getInstance();
-	
+
     //set video mode
 	setDisplaySettings();
 
@@ -190,7 +202,7 @@ void Program::init(WindowGl *window){
 	window->setPos(0, 0);
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));
 	window->create();
-		
+
 	//timers
 	fpsTimer.init(1, maxTimes);
 	updateTimer.init(GameConstants::updateFps, maxTimes);
@@ -204,13 +216,13 @@ void Program::init(WindowGl *window){
 	//lang
 	Lang &lang= Lang::getInstance();
 	lang.loadStrings(config.getString("Lang"));
-    
+
 	//render
 	Renderer &renderer= Renderer::getInstance();
 
 	window->initGl(config.getInt("ColorBits"), config.getInt("DepthBits"), config.getInt("StencilBits"));
 	window->makeCurrentGl();
-		
+
 	//coreData, needs renderer, but must load before renderer init
 	CoreData &coreData= CoreData::getInstance();
     coreData.load();
@@ -226,29 +238,29 @@ void Program::init(WindowGl *window){
 void Program::setDisplaySettings(){
 
 	Config &config= Config::getInstance();
-	 
+
 	if(!config.getBool("Windowed")){
-		
+
 		int freq= config.getInt("RefreshFrequency");
 		int colorBits= config.getInt("ColorBits");
 		int screenWidth= config.getInt("ScreenWidth");
 		int screenHeight= config.getInt("ScreenHeight");
-		
+
 		if(!(changeVideoMode(screenWidth, screenHeight, colorBits, freq) ||
 			changeVideoMode(screenWidth, screenHeight, colorBits, 0)))
 		{
 			throw runtime_error(
-				"Error setting video mode: " + 
+				"Error setting video mode: " +
 				intToStr(screenWidth) + "x" + intToStr(screenHeight) + "x" + intToStr(colorBits));
-		} 
+		}
 	}
 }
 
 void Program::restoreDisplaySettings(){
 	Config &config= Config::getInstance();
- 		
+
 	if(!config.getBool("Windowed")){
-		restoreVideoMode();	
+		restoreVideoMode();
 	}
 }
 

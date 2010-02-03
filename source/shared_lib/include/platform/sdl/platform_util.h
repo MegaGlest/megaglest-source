@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 #ifndef _SHARED_PLATFORM_PLATFORMUTIL_H_
@@ -18,12 +18,16 @@
 #include <SDL.h>
 
 #include "types.h"
+#include "checksum.h"
+#include <utility>
 
 using std::string;
 using std::vector;
 using std::exception;
 
 using Shared::Platform::int64;
+
+using Shared::Util::Checksum;
 
 namespace Shared{ namespace Platform{
 
@@ -41,7 +45,7 @@ private:
 
 public:
 	void init(float fps, int maxTimes= -1);
-	
+
 	bool isTime();
 	void reset();
 };
@@ -85,6 +89,10 @@ public:
 // =====================================================
 
 void findAll(const string &path, vector<string> &results, bool cutExtension=false);
+int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+void createDirectoryPaths(string  Path);
+string extractDirectoryPathFromFile(string filename);
 
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode();

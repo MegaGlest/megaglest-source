@@ -1,11 +1,11 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -22,7 +22,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.2.3";
+const string glestVersionString= "v3.2.4-4-beta1";
 
 string getCrashDumpFileName(){
 	return "glest"+glestVersionString+".dmp";
@@ -52,11 +52,11 @@ string getAboutString2(int i){
 
 string getTeammateName(int i){
 	switch(i){
-	case 0: return "Martiï¿½o Figueroa";
-	case 1: return "Josï¿½ Luis Gonzï¿½lez";
-	case 2: return "Tucho Fernï¿½ndez";
-	case 3: return "Josï¿½ Zanni";
-	case 4: return "Fï¿½lix Menï¿½ndez";
+	case 0: return "Martiño Figueroa";
+	case 1: return "José Luis González";
+	case 2: return "Tucho Fernández";
+	case 3: return "José Zanni";
+	case 4: return "Félix Menéndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	}

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -50,6 +50,7 @@ enum NetworkCommandType{
 	nctSetMeetingPoint
 };
 
+#pragma pack(push, 2)
 class NetworkCommand{
 private:
 	int16 networkCommandType;
@@ -71,6 +72,7 @@ public:
 	int getUnitTypeId() const							{return unitTypeId;}
 	int getTargetId() const								{return targetId;}
 };
+#pragma pack(pop)
 
 }}//end namespace
 

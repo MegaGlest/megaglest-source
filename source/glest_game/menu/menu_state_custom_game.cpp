@@ -1,11 +1,11 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -25,6 +25,7 @@
 #include "game.h"
 
 #include "leak_dumper.h"
+#include <time.h>
 
 namespace Glest{ namespace Game{
 
@@ -34,11 +35,14 @@ using namespace Shared::Util;
 // 	class MenuStateCustomGame
 // =====================================================
 
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots): 
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots):
 	MenuState(program, mainMenu, "new-game")
 {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+
+	needToSetChangedGameSettings = false;
+	lastSetChangedGameSettings   = time(NULL);;
 
 	vector<string> results, teamItems, controlItems;
 
@@ -121,12 +125,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	if(results.size()==0){
         throw runtime_error("There is no factions for this tech tree");
 	}
-   
+
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
-		listBoxControls[i].setItems(controlItems); 
+		listBoxControls[i].setItems(controlItems);
 		labelNetStatus[i].setText("");
     }
 
@@ -138,7 +142,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelTeam.setText(lang.get("Team"));
 
 	loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
-	
+
 	labelMapInfo.setText(mapInfo.desc);
 
 	//initialize network interface
@@ -156,6 +160,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	updateControlers();
 	updateNetworkSlots();
+
+	//chatManager.init(&console, world.getThisTeamIndex());
+	chatManager.init(&console, -1);
 }
 
 void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -167,31 +174,67 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-    }  
-	else if(buttonPlayNow.mouseClick(x,y)){
-		GameSettings gameSettings;
-		
+    }
+	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+
 		closeUnusedSlots();
 		soundRenderer.playFx(coreData.getClickSoundC());
+
+		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
-		serverInterface->launchGame(&gameSettings);
-		program->setState(new Game(program, &gameSettings));
+
+        // Send the game settings to each client if we have at least one networked client
+        if( hasNetworkGameSettings() == true &&
+            needToSetChangedGameSettings == true)
+        {
+            serverInterface->setGameSettings(&gameSettings,true);
+
+            needToSetChangedGameSettings    = false;
+            lastSetChangedGameSettings      = time(NULL);
+        }
+
+		bool bOkToStart = serverInterface->launchGame(&gameSettings);
+		if(bOkToStart == true)
+		{
+
+            program->setState(new Game(program, &gameSettings));
+		}
 	}
 	else if(listBoxMap.mouseClick(x, y)){
 		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);;
+        }
 	}
 	else if(listBoxTileset.mouseClick(x, y)){
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);;
+        }
 	}
 	else if(listBoxTechTree.mouseClick(x, y)){
 		reloadFactions();
-	}
-	else{
-		for(int i=0; i<mapInfo.players; ++i){
-			//ensure thet only 1 human player is present
-			if(listBoxControls[i].mouseClick(x, y)){
 
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);;
+        }
+	}
+	else
+	{
+		for(int i=0; i<mapInfo.players; ++i)
+		{
+			//ensure thet only 1 human player is present
+			if(listBoxControls[i].mouseClick(x, y))
+			{
 				//look for human players
 				int humanIndex1= -1;
 				int humanIndex2= -1;
@@ -217,17 +260,35 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 					listBoxControls[humanIndex1==i? humanIndex2: humanIndex1].setSelectedItemIndex(ctClosed);
 				}
 				updateNetworkSlots();
+
+                if(hasNetworkGameSettings() == true)
+                {
+                    needToSetChangedGameSettings = true;
+                    lastSetChangedGameSettings   = time(NULL);;
+                }
 			}
 			else if(listBoxFactions[i].mouseClick(x, y)){
+
+                if(hasNetworkGameSettings() == true)
+                {
+                    needToSetChangedGameSettings = true;
+                    lastSetChangedGameSettings   = time(NULL);;
+                }
 			}
-			else if(listBoxTeams[i].mouseClick(x, y)){
+			else if(listBoxTeams[i].mouseClick(x, y))
+			{
+                if(hasNetworkGameSettings() == true)
+                {
+                    needToSetChangedGameSettings = true;
+                    lastSetChangedGameSettings   = time(NULL);;
+                }
 			}
 		}
 	}
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
-	
+
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 
@@ -270,33 +331,131 @@ void MenuStateCustomGame::render(){
 	renderer.renderListBox(&listBoxMap);
 	renderer.renderListBox(&listBoxTileset);
 	renderer.renderListBox(&listBoxTechTree);
+
+	renderer.renderChatManager(&chatManager);
+	renderer.renderConsole(&console);
 }
 
-void MenuStateCustomGame::update(){
+void MenuStateCustomGame::update()
+{
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	Lang& lang= Lang::getInstance();
 
-	for(int i= 0; i<mapInfo.players; ++i){
-		if(listBoxControls[i].getSelectedItemIndex()==ctNetwork){
+    bool haveAtLeastOneNetworkClientConnected = false;
+
+	for(int i= 0; i<mapInfo.players; ++i)
+	{
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+		{
+		    //if(Socket::enableDebugText) printf("In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
+
 			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 
 			assert(connectionSlot!=NULL);
-			
-			if(connectionSlot->isConnected()){
-				labelNetStatus[i].setText(connectionSlot->getName());
+
+            //if(Socket::enableDebugText) printf("In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
+
+			if(connectionSlot->isConnected())
+			{
+			    haveAtLeastOneNetworkClientConnected = true;
+			    //if(Socket::enableDebugText) printf("In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
+
+                string label = connectionSlot->getName();
+                if(connectionSlot->getAllowDownloadDataSynch() == true &&
+                   connectionSlot->getAllowGameDataSynchCheck() == true)
+                {
+                    if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
+                    {
+                        label = connectionSlot->getName() + " - waiting to synch:";
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
+                        {
+                            label = label + " map";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
+                        {
+                            label = label + " tile";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
+                        {
+                            label = label + " techtree";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                        {
+                            label = label + " FogOfWar == false";
+                        }
+
+                    }
+                    else
+                    {
+                        label = connectionSlot->getName() + " - data synch is ok";
+                    }
+                }
+                else
+                {
+                    label = connectionSlot->getName();
+
+                    if(connectionSlot->getAllowGameDataSynchCheck() == true)
+                    {
+                        label += " - warning synch mismatch for:";
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
+                        {
+                            label = label + " map";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
+                        {
+                            label = label + " tile";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
+                        {
+                            label = label + " techtree";
+                        }
+                        if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                        {
+                            label = label + " FogOfWar == false";
+                        }
+                    }
+                }
+
+			    labelNetStatus[i].setText(label);
 			}
 			else
 			{
+			    //if(Socket::enableDebugText) printf("In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
+
 				labelNetStatus[i].setText(lang.get("NotConnected"));
 			}
+
+			//if(Socket::enableDebugText) printf("In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
 		}
 		else{
 			labelNetStatus[i].setText("");
 		}
 	}
+
+    // Send the game settings to each client if we have at least one networked client
+	if( serverInterface->getAllowDownloadDataSynch() == true &&
+        haveAtLeastOneNetworkClientConnected == true &&
+	    needToSetChangedGameSettings == true &&
+        difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+    {
+        GameSettings gameSettings;
+        loadGameSettings(&gameSettings);
+        serverInterface->setGameSettings(&gameSettings);
+
+        needToSetChangedGameSettings    = false;
+        lastSetChangedGameSettings      = time(NULL);
+    }
+
+	//call the chat manager
+	chatManager.updateNetwork();
+
+	//console
+	console.update();
 }
 
-void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings){
+void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
+{
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	int factionCount= 0;
 
@@ -307,11 +466,14 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings){
 	gameSettings->setDefaultUnits(true);
 	gameSettings->setDefaultResources(true);
 	gameSettings->setDefaultVictoryConditions(true);
-   
-    for(int i=0; i<mapInfo.players; ++i){
+
+    for(int i=0; i<mapInfo.players; ++i)
+    {
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-		if(ct!=ctClosed){
-			if(ct==ctHuman){
+		if(ct != ctClosed)
+		{
+			if(ct == ctHuman)
+			{
 				gameSettings->setThisFactionIndex(factionCount);
 			}
 			gameSettings->setFactionControl(factionCount, ct);
@@ -322,9 +484,35 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings){
 		}
     }
 	gameSettings->setFactionCount(factionCount);
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
+	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
+	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 // ============ PRIVATE ===========================
+
+bool MenuStateCustomGame::hasNetworkGameSettings()
+{
+    bool hasNetworkSlot = false;
+
+    for(int i=0; i<mapInfo.players; ++i)
+    {
+		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+		if(ct != ctClosed)
+		{
+			if(ct == ctNetwork)
+			{
+                hasNetworkSlot = true;
+                break;
+			}
+		}
+    }
+
+    return hasNetworkSlot;
+}
 
 void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
 
@@ -364,7 +552,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
 }
 
 void MenuStateCustomGame::reloadFactions(){
-	
+
 	vector<string> results;
 
 	findAll("techs/"+techTreeFiles[listBoxTechTree.getSelectedItemIndex()]+"/factions/*.", results);
@@ -383,7 +571,7 @@ void MenuStateCustomGame::reloadFactions(){
 
 void MenuStateCustomGame::updateControlers(){
 	bool humanPlayer= false;
-	
+
 	for(int i= 0; i<mapInfo.players; ++i){
 		if(listBoxControls[i].getSelectedItemIndex() == ctHuman){
 			humanPlayer= true;
@@ -411,17 +599,33 @@ void MenuStateCustomGame::closeUnusedSlots(){
 	updateNetworkSlots();
 }
 
-void MenuStateCustomGame::updateNetworkSlots(){
+void MenuStateCustomGame::updateNetworkSlots()
+{
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	
-	for(int i= 0; i<GameConstants::maxPlayers; ++i){
-		if(serverInterface->getSlot(i)==NULL && listBoxControls[i].getSelectedItemIndex()==ctNetwork){
+
+	for(int i= 0; i<GameConstants::maxPlayers; ++i)
+	{
+		if(serverInterface->getSlot(i) == NULL && listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+		{
 			serverInterface->addSlot(i);
 		}
-		if(serverInterface->getSlot(i) != NULL && listBoxControls[i].getSelectedItemIndex()!=ctNetwork){
+		if(serverInterface->getSlot(i) != NULL && listBoxControls[i].getSelectedItemIndex() != ctNetwork)
+		{
 			serverInterface->removeSlot(i);
 		}
 	}
 }
+
+void MenuStateCustomGame::keyDown(char key)
+{
+	//send key to the chat manager
+	chatManager.keyDown(key);
+}
+
+void MenuStateCustomGame::keyPress(char c)
+{
+	chatManager.keyPress(c);
+}
+
 
 }}//end namespace

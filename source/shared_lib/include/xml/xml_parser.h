@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -35,11 +35,11 @@ class XmlIo;
 class XmlTree;
 class XmlNode;
 class XmlAttribute;
-	
+
 // =====================================================
-// 	class XmlIo  
-// 
-///	Wrapper for Xerces C++ 
+// 	class XmlIo
+//
+///	Wrapper for Xerces C++
 // =====================================================
 
 class XmlIo{
@@ -72,11 +72,11 @@ private:
 public:
 	XmlTree();
 	~XmlTree();
-	
+
 	void init(const string &name);
 	void load(const string &path);
 	void save(const string &path);
-	
+
 	XmlNode *getRootNode() const	{return rootNode;}
 };
 
@@ -89,7 +89,7 @@ private:
 	string name;
 	string text;
 	vector<XmlNode*> children;
-	vector<XmlAttribute*> attributes; 
+	vector<XmlAttribute*> attributes;
 
 private:
 	XmlNode(XmlNode&);
@@ -109,6 +109,7 @@ public:
 	XmlAttribute *getAttribute(const string &name) const;
 	XmlNode *getChild(int i) const;
 	XmlNode *getChild(const string &childName, int childIndex=0) const;
+	bool hasChild(const string &childName) const;
 	XmlNode *getParent() const;
 
 
@@ -143,9 +144,9 @@ public:
 	const string &getValue() const	{return value;}
 
 	bool getBoolValue() const;
-	int getIntValue() const;		
+	int getIntValue() const;
 	int getIntValue(int min, int max) const;
-	float getFloatValue() const;		
+	float getFloatValue() const;
 	float getFloatValue(float min, float max) const;
 	const string &getRestrictedValue() const;
 };

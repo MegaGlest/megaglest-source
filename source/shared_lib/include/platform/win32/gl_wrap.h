@@ -14,8 +14,8 @@
 
 #include <windows.h>
 
-#include <gl.h>
-#include <glu.h>
+#include <GL\gl.h>
+#include <GL\glu.h>
 #include <glprocs.h>
 
 #include <string>

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -28,10 +28,21 @@ namespace Glest{ namespace Game{
 //	class ServerInterface
 // =====================================================
 
+typedef struct
+{
+    string chatText;
+    string chatSender;
+    int chatTeamIndex;
+    int sourceTeamIndex;
+
+} TeamMessageData;
+
 class ServerInterface: public GameNetworkInterface{
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
 	ServerSocket serverSocket;
+	bool gameHasBeenInitiated;
+	int gameSettingsUpdateCount;
 
 public:
 	ServerInterface();
@@ -39,6 +50,7 @@ public:
 
 	virtual Socket* getSocket()				{return &serverSocket;}
 	virtual const Socket* getSocket() const	{return &serverSocket;}
+	virtual void close();
 
 	//message processing
 	virtual void update();
@@ -48,7 +60,7 @@ public:
 
 	// message sending
 	virtual void sendTextMessage(const string &text, int teamIndex);
-	virtual void quitGame();
+	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
 	virtual string getNetworkStatus() const;
@@ -59,11 +71,14 @@ public:
 	ConnectionSlot* getSlot(int playerIndex);
 	int getConnectedSlotCount();
 
-	void launchGame(const GameSettings* gameSettings);
+	bool launchGame(const GameSettings* gameSettings);
+	virtual void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck = false);
+	virtual bool getFogOfWar();
 
 private:
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
 	void updateListen();
+	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
 };
 
 }}//end namespace

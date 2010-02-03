@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -64,7 +64,7 @@ Game::~Game(){
 
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
-	
+
 	renderer.endGame();
 	SoundRenderer::getInstance().stopAllSounds();
 
@@ -75,7 +75,7 @@ Game::~Game(){
 }
 
 
-// ==================== init and load ==================== 
+// ==================== init and load ====================
 
 void Game::load(){
 	Logger &logger= Logger::getInstance();
@@ -83,7 +83,7 @@ void Game::load(){
 	string tilesetName= gameSettings.getTileset();
 	string techName= gameSettings.getTech();
 	string scenarioName= gameSettings.getScenario();
-	
+
 	logger.setState(Lang::getInstance().get("Loading"));
 
 	if(scenarioName.empty()){
@@ -114,7 +114,10 @@ void Game::load(){
 	}
 }
 
-void Game::init(){
+void Game::init()
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	Lang &lang= Lang::getInstance();
 	Logger &logger= Logger::getInstance();
 	CoreData &coreData= CoreData::getInstance();
@@ -122,8 +125,9 @@ void Game::init(){
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
+    if(Socket::enableDebugText) printf("In [%s::%s] Initializing\n",__FILE__,__FUNCTION__);
 	logger.setState(lang.get("Initializing"));
-	
+
 	//mesage box
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 	mainMessageBox.setEnabled(false);
@@ -142,6 +146,8 @@ void Game::init(){
 	gameCamera.init(map->getW(), map->getH());
 	gameCamera.setPos(Vec2f(v.x, v.y));
 	scriptManager.init(&world, &gameCamera);
+
+    if(Socket::enableDebugText) printf("In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
 
 	//create IAs
 	aiInterfaces.resize(world.getFactionCount());
@@ -174,12 +180,13 @@ void Game::init(){
 	}
 
 	//init renderer state
+	if(Socket::enableDebugText) printf("In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	
+
 	Tileset *tileset= world.getTileset();
 	AmbientSounds *ambientSounds= tileset->getAmbientSounds();
 
@@ -188,36 +195,40 @@ void Game::init(){
 		logger.add("Starting ambient stream", true);
 		soundRenderer.playAmbient(ambientSounds->getRain());
 	}
-	
+
 	//snow
 	if(tileset->getWeather()==wSnowy && ambientSounds->isEnabledSnow()){
 		logger.add("Starting ambient stream", true);
 		soundRenderer.playAmbient(ambientSounds->getSnow());
 	}
 
+    if(Socket::enableDebugText) printf("In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
 	logger.add("Waiting for network", true);
 	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
+    if(Socket::enableDebugText) printf("In [%s::%s] Starting music stream\n",__FILE__,__FUNCTION__);
 	logger.add("Starting music stream", true);
 	StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 	soundRenderer.playMusic(gameMusic);
 
 	logger.add("Launching game");
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 
-// ==================== update ==================== 
+// ==================== update ====================
 
 //update
 void Game::update(){
-	
+
 	// a) Updates non dependant on speed
 
 	//misc
 	updateFps++;
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
-		
-	//console 
+
+	//console
 	console.update();
 
 	// b) Updates depandant on speed
@@ -231,7 +242,7 @@ void Game::update(){
 		//AiInterface
 		for(int i=0; i<world.getFactionCount(); ++i){
 			if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
-				aiInterfaces[i]->update(); 
+				aiInterfaces[i]->update();
 			}
 		}
 
@@ -243,7 +254,7 @@ void Game::update(){
 
 		//Gui
 		gui.update();
-		
+
 		//Particle systems
 		if(weatherParticleSystem != NULL){
 			weatherParticleSystem->setPos(gameCamera.getPos());
@@ -270,7 +281,7 @@ void Game::updateCamera(){
 }
 
 
-// ==================== render ==================== 
+// ==================== render ====================
 
 //render
 void Game::render(){
@@ -280,7 +291,7 @@ void Game::render(){
 	Renderer::getInstance().swapBuffers();
 }
 
-// ==================== tick ==================== 
+// ==================== tick ====================
 
 void Game::tick(){
 	lastUpdateFps= updateFps;
@@ -294,7 +305,7 @@ void Game::tick(){
 }
 
 
-// ==================== events ==================== 
+// ==================== events ====================
 
 void Game::mouseDownLeft(int x, int y){
 
@@ -315,12 +326,12 @@ void Game::mouseDownLeft(int x, int y){
 	//minimap panel
 	if(!messageBoxClick){
 		if(metrics.isInMinimap(x, y) && !gui.isSelectingPos()){
-			
+
 			int xm= x - metrics.getMinimapX();
 			int ym= y - metrics.getMinimapY();
 			int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
 			int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
-			
+
 			if(map->isInside(xCell, yCell)){
 				if(!gui.isSelectingPos()){
 					gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
@@ -333,13 +344,13 @@ void Game::mouseDownLeft(int x, int y){
 			int xd= x - metrics.getDisplayX();
 			int yd= y - metrics.getDisplayY();
 			if(gui.mouseValid(xd, yd)){
-				gui.mouseDownLeftDisplay(xd, yd);    
+				gui.mouseDownLeftDisplay(xd, yd);
 			}
 			else{
 				gui.mouseDownLeftGraphics(x, y);
 			}
 		}
-		
+
 		//graphics panel
 		else{
 			gui.mouseDownLeftGraphics(x, y);
@@ -349,12 +360,15 @@ void Game::mouseDownLeft(int x, int y){
 	//exit message box, has to be the last thing to do in this function
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button)){
-			if(button==1){
-				networkManager.getGameNetworkInterface()->quitGame();
+		if(mainMessageBox.mouseClick(x, y, button))
+		{
+			if(button==1)
+			{
+				networkManager.getGameNetworkInterface()->quitGame(true);
 				quitGame();
 			}
-			else{
+			else
+			{
 				//close message box
 				mainMessageBox.setEnabled(false);
 			}
@@ -372,7 +386,7 @@ void Game::mouseUpLeft(int x, int y){
 
 void Game::mouseDoubleClickLeft(int x, int y){
 	const Metrics &metrics= Metrics::getInstance();
-	
+
 	//display panel
 	if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
 		int xd= x - metrics.getDisplayX();
@@ -389,28 +403,28 @@ void Game::mouseDoubleClickLeft(int x, int y){
 void Game::mouseMove(int x, int y, const MouseState *ms){
 
 	const Metrics &metrics= Metrics::getInstance();
-	
+
     mouseX= x;
     mouseY= y;
 
     //main window
-	if(y<10){ 
+	if(y<10){
         gameCamera.setMoveZ(-1);
 	}
-	else if(y> metrics.getVirtualH()-10){ 
+	else if(y> metrics.getVirtualH()-10){
         gameCamera.setMoveZ(1);
 	}
-	else{ 
+	else{
         gameCamera.stopMoveZ();
 	}
 
-	if(x<10){ 
+	if(x<10){
         gameCamera.setMoveX(-1);
 	}
-	else if(x> metrics.getVirtualW()-10){ 
+	else if(x> metrics.getVirtualW()-10){
         gameCamera.setMoveX(1);
 	}
-	else{ 
+	else{
         gameCamera.stopMoveX();
 	}
 
@@ -449,7 +463,7 @@ void Game::keyDown(char key){
 		else if(key=='E'){
 			for(int i=0; i<100; ++i){
 				string path= "screens/screen" + intToStr(i) + ".tga";
-				
+
 				FILE *f= fopen(path.c_str(), "rb");
 				if(f==NULL){
 					Renderer::getInstance().saveScreen(path);
@@ -592,9 +606,9 @@ void Game::quitGame(){
 	program->setState(new BattleEnd(program, world.getStats()));
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
-// ==================== render ==================== 
+// ==================== render ====================
 
 void Game::render3d(){
 
@@ -630,7 +644,7 @@ void Game::render3d(){
 
 	//particles
 	renderer.renderParticleManager(rsGame);
-	
+
 	//mouse 3d
 	renderer.renderMouse3d();
 }
@@ -642,10 +656,10 @@ void Game::render2d(){
 
 	//init
 	renderer.reset2d();
-	
+
 	//display
 	renderer.renderDisplay();
-	
+
 	//minimap
 	if(!config.getBool("PhotoMode")){
         renderer.renderMinimap();
@@ -687,7 +701,7 @@ void Game::render2d(){
 		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"+intToStr(world.getFrameCount())+"\n";
-	
+
 		//visible quad
 		Quad2i visibleQuad= renderer.getVisibleQuad();
 
@@ -716,7 +730,7 @@ void Game::render2d(){
 	//network status
 	if(renderNetworkStatus){
 		renderer.renderText(
-			NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(), 
+			NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 			coreData.getMenuFontNormal(),
 			Vec3f(1.0f), 20, 500, false);
 	}
@@ -726,15 +740,15 @@ void Game::render2d(){
         renderer.renderResourceStatus();
 		renderer.renderConsole(&console);
     }
-	
+
     //2d mouse
 	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
 }
 
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
-void Game::checkWinner(){	
+void Game::checkWinner(){
 	if(!gameOver){
 		if(gameSettings.getDefaultVictoryConditions()){
 			checkWinnerStandard();
@@ -753,7 +767,7 @@ void Game::checkWinnerStandard(){
 		lose= true;
 		for(int i=0; i<world.getFactionCount(); ++i){
 			if(!world.getFaction(i)->isAlly(world.getThisFaction())){
-				world.getStats()->setVictorious(i);	
+				world.getStats()->setVictorious(i);
 			}
 		}
 		gameOver= true;
@@ -775,7 +789,7 @@ void Game::checkWinnerStandard(){
 		if(win){
 			for(int i=0; i< world.getFactionCount(); ++i){
 				if(world.getFaction(i)->isAlly(world.getThisFaction())){
-					world.getStats()->setVictorious(i);	
+					world.getStats()->setVictorious(i);
 				}
 			}
 			gameOver= true;
@@ -789,7 +803,7 @@ void Game::checkWinnerScripted(){
 		gameOver= true;
 		for(int i= 0; i<world.getFactionCount(); ++i){
 			if(scriptManager.getPlayerModifiers(i)->getWinner()){
-				world.getStats()->setVictorious(i);	
+				world.getStats()->setVictorious(i);
 			}
 		}
 		if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
@@ -869,7 +883,7 @@ void Game::showMessageBox(const string &text, const string &header, bool toggle)
 	if(!toggle){
 		mainMessageBox.setEnabled(false);
 	}
-	
+
 	if(!mainMessageBox.getEnabled()){
 		mainMessageBox.setText(text);
 		mainMessageBox.setHeader(header);

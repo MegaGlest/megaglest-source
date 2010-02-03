@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -31,7 +31,7 @@ namespace Glest{ namespace Game{
 using namespace Shared::Util;
 
 // ===============================
-// 	class MenuStateJoinGame  
+// 	class MenuStateJoinGame
 // ===============================
 
 const int MenuStateJoinGame::newServerIndex= 0;
@@ -87,7 +87,8 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	playerIndex= -1;
 
 	//server ip
-	if(connect){
+	if(connect)
+	{
 		labelServerIp.setText(serverIp.getString() + "_");
 		connectToServer();
 	}
@@ -95,9 +96,13 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	{
 		labelServerIp.setText(config.getString("ServerIp") + "_");
 	}
+
+	chatManager.init(&console, -1);
 }
 
-void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton){
+void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -121,25 +126,42 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 
 	//return
-	if(buttonReturn.mouseClick(x, y)){
+	if(buttonReturn.mouseClick(x, y))
+	{
 		soundRenderer.playFx(coreData.getClickSoundA());
+
+		if(clientInterface->getSocket() != NULL)
+		{
+		    if(clientInterface->isConnected() == true)
+		    {
+                string sQuitText = clientInterface->getHostName() + " has chosen to leave the game!";
+                clientInterface->sendTextMessage(sQuitText,-1);
+		    }
+		    clientInterface->close();
+		}
+
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-    }  
+    }
 
 	//connect
-	else if(buttonConnect.mouseClick(x, y)){
+	else if(buttonConnect.mouseClick(x, y))
+	{
 		ClientInterface* clientInterface= networkManager.getClientInterface();
 
 		soundRenderer.playFx(coreData.getClickSoundA());
 		labelInfo.setText("");
-			
-		if(clientInterface->isConnected()){
+
+		if(clientInterface->isConnected())
+		{
 			clientInterface->reset();
 		}
-		else{
+		else
+		{
 			connectToServer();
 		}
 	}
+
+    if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void MenuStateJoinGame::mouseMove(int x, int y, const MouseState *ms){
@@ -166,7 +188,7 @@ void MenuStateJoinGame::render(){
 	renderer.renderLabel(&labelInfo);
 	renderer.renderButton(&buttonConnect);
 	renderer.renderListBox(&listBoxServerType);
-	
+
 	if(listBoxServerType.getSelectedItemIndex()==newServerIndex){
 		renderer.renderLabel(&labelServerIp);
 	}
@@ -174,52 +196,145 @@ void MenuStateJoinGame::render(){
 	{
 		renderer.renderListBox(&listBoxServers);
 	}
+
+	renderer.renderChatManager(&chatManager);
+	renderer.renderConsole(&console);
 }
 
-void MenuStateJoinGame::update(){
+void MenuStateJoinGame::update()
+{
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
 
 	//update status label
-	if(clientInterface->isConnected()){
+	if(clientInterface->isConnected())
+	{
 		buttonConnect.setText(lang.get("Disconnect"));
-		if(!clientInterface->getServerName().empty()){
-			labelStatus.setText(lang.get("ConnectedToServer") + " " + clientInterface->getServerName());
+
+		if(clientInterface->getAllowDownloadDataSynch() == false)
+		{
+		    string label = lang.get("ConnectedToServer");
+
+            if(!clientInterface->getServerName().empty())
+            {
+                label = label + " " + clientInterface->getServerName();
+            }
+
+            if(clientInterface->getAllowGameDataSynchCheck() == true &&
+               clientInterface->getNetworkGameDataSynchCheckOk() == false)
+            {
+                label = label + " - warning synch mismatch for:";
+                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false)
+                {
+                    label = label + " map";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false)
+                {
+                    label = label + " tile";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false)
+                {
+                    label = label + " techtree";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                {
+                    label = label + " FogOfWar == false";
+                }
+            }
+            else if(clientInterface->getAllowGameDataSynchCheck() == true)
+            {
+                label += " - data synch is ok";
+            }
+
+            labelStatus.setText(label);
 		}
-		else{
-			labelStatus.setText(lang.get("ConnectedToServer"));
+		else
+		{
+		    string label = lang.get("ConnectedToServer");
+
+            if(!clientInterface->getServerName().empty())
+            {
+                label = label + " " + clientInterface->getServerName();
+            }
+
+            if(clientInterface->getAllowGameDataSynchCheck() == true &&
+               clientInterface->getNetworkGameDataSynchCheckOk() == false)
+            {
+                label = label + " - waiting to synch:";
+                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false)
+                {
+                    label = label + " map";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false)
+                {
+                    label = label + " tile";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false)
+                {
+                    label = label + " techtree";
+                }
+                if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                {
+                    label = label + " FogOfWar == false";
+                }
+            }
+            else if(clientInterface->getAllowGameDataSynchCheck() == true)
+            {
+                label += " - data synch is ok";
+            }
+
+            labelStatus.setText(label);
 		}
 	}
-	else{
+	else
+	{
 		buttonConnect.setText(lang.get("Connect"));
 		labelStatus.setText(lang.get("NotConnected"));
 		labelInfo.setText("");
 	}
 
 	//process network messages
-	if(clientInterface->isConnected()){
-
+	if(clientInterface->isConnected())
+	{
 		//update lobby
 		clientInterface->updateLobby();
-		
+
+        //call the chat manager
+        chatManager.updateNetwork();
+
+        //console
+        console.update();
+
 		//intro
-		if(clientInterface->getIntroDone()){
-			labelInfo.setText(lang.get("WaitingHost"));		
+		if(clientInterface->getIntroDone())
+		{
+			labelInfo.setText(lang.get("WaitingHost"));
 			servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
 		}
 
 		//launch
-		if(clientInterface->getLaunchGame()){
+		if(clientInterface->getLaunchGame())
+		{
+		    if(Socket::enableDebugText) printf("In [%s::%s] clientInterface->getLaunchGame() - A\n",__FILE__,__FUNCTION__);
+
 			servers.save(serverFileName);
-			program->setState(new Game(program, clientInterface->getGameSettings())); 
+
+			if(Socket::enableDebugText) printf("In [%s::%s] clientInterface->getLaunchGame() - B\n",__FILE__,__FUNCTION__);
+
+			program->setState(new Game(program, clientInterface->getGameSettings()));
+
+			if(Socket::enableDebugText) printf("In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
 		}
 	}
+
+    if(Socket::enableDebugText && clientInterface->getLaunchGame()) printf("In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
 void MenuStateJoinGame::keyDown(char key){
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-	
-	if(!clientInterface->isConnected()){
+
+	if(!clientInterface->isConnected())
+	{
 		if(key==vkBack){
 			string text= labelServerIp.getText();
 
@@ -230,12 +345,18 @@ void MenuStateJoinGame::keyDown(char key){
 			labelServerIp.setText(text);
 		}
 	}
+	else
+	{
+        //send key to the chat manager
+        chatManager.keyDown(key);
+	}
 }
 
 void MenuStateJoinGame::keyPress(char c){
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-	
-	if(!clientInterface->isConnected()){
+
+	if(!clientInterface->isConnected())
+	{
 		int maxTextSize= 16;
 
 		if(c>='0' && c<='9'){
@@ -258,20 +379,32 @@ void MenuStateJoinGame::keyPress(char c){
 			}
 		}
 	}
+	else
+	{
+	    chatManager.keyPress(c);
+	}
 }
 
-void MenuStateJoinGame::connectToServer(){
+void MenuStateJoinGame::connectToServer()
+{
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Config& config= Config::getInstance();
 	Ip serverIp(labelServerIp.getText());
 
 	clientInterface->connect(serverIp, GameConstants::serverPort);
+
+	if(Socket::enableDebugText) printf("In [%s::%s] server - [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
+
 	labelServerIp.setText(serverIp.getString()+'_');
 	labelInfo.setText("");
 
 	//save server ip
 	config.setString("ServerIp", serverIp.getString());
 	config.save();
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 }}//end namespace

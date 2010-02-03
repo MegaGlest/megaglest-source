@@ -20,6 +20,12 @@
 #include "conversion.h"
 
 #include "leak_dumper.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <direct.h>
+
+#define S_ISDIR(mode) ((mode) & _S_IFDIR)
+
 
 using namespace Shared::Util;
 using namespace std;
@@ -193,6 +199,215 @@ void findAll(const string &path, vector<string> &results, bool cutExtension){
 	}
 
 	delete [] cstr;
+}
+
+int isdir(const char *path)
+{
+  struct stat stats;
+
+  return stat (path, &stats) == 0 && S_ISDIR (stats.st_mode);
+}
+
+bool EndsWith(const string &str, const string& key)
+{
+    size_t keylen = key.length();
+    size_t strlen = str.length();
+
+    if(keylen <= strlen)
+        return string::npos != str.rfind(key.c_str(),strlen - keylen, keylen);
+    else
+        return false;
+}
+
+//finds all filenames like path and gets their checksum of all files combined
+int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum) {
+
+    Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
+
+/* MV - PORT THIS to win32
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+
+	std::string mypath = path;
+	// Stupid win32 is searching for all files without extension when *. is specified as wildcard
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		//
+		//const char* begin = p;
+		//for( ; *p != 0; ++p) {
+		//	// strip the path component
+		//	if(*p == '/')
+		//		begin = p+1;
+		//}
+		
+
+		if(isdir(p) == 0)
+		{
+            bool addFile = true;
+            if(filterFileExt != "")
+            {
+                addFile = EndsWith(p, filterFileExt);
+            }
+
+            if(addFile)
+            {
+                //if(Socket::enableDebugText) printf("In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+
+                checksum.addFile(p);
+            }
+		}
+	}
+
+	globfree(&globbuf);
+
+    // Look recursively for sub-folders
+	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		//
+		//const char* begin = p;
+		//for( ; *p != 0; ++p) {
+			// strip the path component
+		//	if(*p == '/')
+		//		begin = p+1;
+		//}
+		
+        getFolderTreeContentsCheckSumRecursively(string(p) + "/*", filterFileExt, &checksum);
+	}
+
+	globfree(&globbuf);
+*/
+    return checksum.getSum();
+}
+
+//finds all filenames like path and gets the checksum of each file
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
+
+    vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
+
+/* MV - PORT THIS to win32
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+
+	std::string mypath = path;
+	// Stupid win32 is searching for all files without extension when *. is specified as wildcard
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		//
+		//const char* begin = p;
+		//for( ; *p != 0; ++p) {
+			// strip the path component
+		//	if(*p == '/')
+		//		begin = p+1;
+		//}
+		
+
+		if(isdir(p) == 0)
+		{
+            bool addFile = true;
+            if(filterFileExt != "")
+            {
+                addFile = EndsWith(p, filterFileExt);
+            }
+
+            if(addFile)
+            {
+                //if(Socket::enableDebugText) printf("In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+
+                Checksum checksum;
+                checksum.addFile(p);
+
+                checksumFiles.push_back(std::pair<string,int32>(p,checksum.getSum()));
+            }
+		}
+	}
+
+	globfree(&globbuf);
+
+    // Look recursively for sub-folders
+	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		//
+		//const char* begin = p;
+		//for( ; *p != 0; ++p) {
+			// strip the path component
+		//	if(*p == '/')
+		//		begin = p+1;
+		//}
+		
+        checksumFiles = getFolderTreeContentsCheckSumListRecursively(string(p) + "/*", filterFileExt, &checksumFiles);
+	}
+
+	globfree(&globbuf);
+*/
+    return checksumFiles;
+}
+
+string extractDirectoryPathFromFile(string filename)
+{
+    return filename.substr( 0, filename.rfind("/")+1 );
+}
+
+void createDirectoryPaths(string Path)
+{
+ char DirName[256]="";
+ const char *path = Path.c_str();
+ char *dirName = DirName;
+ while(*path)
+ {
+   //if (('\\' == *path) || ('/' == *path))
+   if ('/' == *path)
+   {
+     //if (':' != *(path-1))
+     {
+        _mkdir(DirName);
+     }
+   }
+   *dirName++ = *path++;
+   *dirName = '\0';
+ }
+ _mkdir(DirName);
 }
 
 bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){

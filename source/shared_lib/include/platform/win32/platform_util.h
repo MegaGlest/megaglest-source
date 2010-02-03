@@ -19,12 +19,15 @@
 #include <stdexcept>
 
 #include "types.h"
+#include "checksum.h"
+#include <utility>
 
 using std::string;
 using std::vector;
 using std::exception;
 
 using Shared::Platform::int64;
+using Shared::Util::Checksum;
 
 namespace Shared{ namespace Platform{
 
@@ -96,6 +99,10 @@ public:
 // =====================================================
 
 void findAll(const string &path, vector<string> &results, bool cutExtension=false);
+int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+void createDirectoryPaths(string  Path);
+string extractDirectoryPathFromFile(string filename);
 
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode();
