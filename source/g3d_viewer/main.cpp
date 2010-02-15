@@ -252,7 +252,7 @@ END_EVENT_TABLE()
 // =====================================================
 
 GlCanvas::GlCanvas(MainWindow *	mainWindow):
-	wxGLCanvas(mainWindow, -1)
+	wxGLCanvas(mainWindow, -1, wxDefaultPosition)
 {
 	this->mainWindow = mainWindow;
 }

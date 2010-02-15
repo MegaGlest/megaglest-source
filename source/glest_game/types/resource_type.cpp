@@ -42,6 +42,16 @@ void ResourceType::load(const string &dir, Checksum* checksum){
 		Logger::getInstance().add("Resource type: "+ formatString(name), true);
 		path= dir+"/"+name+".xml";
 
+#ifdef _WINDOWS
+
+		DWORD fileAttributes = GetFileAttributes(path.c_str());
+		if( (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
+		{
+			return;
+		}
+
+#endif
+
 		checksum->addFile(path);
 
 		//tree
