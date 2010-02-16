@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -21,6 +21,7 @@
 #include "element_type.h"
 #include "factory.h"
 #include "sound_container.h"
+#include "particle.h"
 
 using Shared::Sound::StaticSound;
 using Shared::Xml::XmlNode;
@@ -33,10 +34,12 @@ using Shared::Util::MultiFactory;
 
 class ParticleSystemTypeProjectile;
 class ParticleSystemTypeSplash;
+class UnitParticleSystemType;
 class FactionType;
 class TechTree;
 class Lang;
 class TotalUpgrade;
+
 
 enum Field{
      fLand,
@@ -77,6 +80,7 @@ protected:
     Model *animation;
     SoundContainer sounds;
 	float soundStartTime;
+	UnitParticleSystemType *particleSystemType;
 
 public:
     //varios
@@ -92,6 +96,7 @@ public:
 	const Model *getAnimation() const	{return animation;}
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
+	UnitParticleSystemType *getParticleSystemType() const {return particleSystemType;}
 
 	//other
 	virtual string toString() const= 0;	

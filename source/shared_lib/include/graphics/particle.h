@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -27,6 +27,7 @@ namespace Shared{ namespace Graphics{
 
 class ParticleSystem;
 class FireParticleSystem;
+class UnitParticleSystem;
 class RainParticleSystem;
 class SnowParticleSystem;
 class ProjectileParticleSystem;
@@ -185,6 +186,65 @@ public:
 	//set params
 	void setRadius(float radius);
 	void setWind(float windAngle, float windSpeed);
+};
+
+// =====================================================
+//	class UnitParticleSystem
+// =====================================================
+
+class UnitParticleSystem: public ParticleSystem{
+private:
+	float radius;
+	Vec3f windSpeed;
+	Vec3f cRotation;
+	Vec3f fixedAddition;
+    Vec3f oldPosition;
+public:
+	enum Primitive{
+		pQuad,
+		pLine,
+		pLineAlpha
+	};
+	bool relative;
+    bool fixed;
+    int teamNumber;
+    bool teamcolorNoEnergy;
+    bool teamcolorEnergy;
+	Model *model;
+	Primitive primitive;
+	Vec3f offset;
+	Vec3f direction;
+	float sizeNoEnergy;
+	float gravity;
+	float rotation;
+
+public:
+	UnitParticleSystem(int particleCount= 2000);
+
+	//virtual
+	virtual void initParticle(Particle *p, int particleIndex);
+	virtual void updateParticle(Particle *p);
+	virtual void update();
+	virtual void setTeamNumber(int teamNumber);
+	//virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
+
+	//set params
+	void setRadius(float radius);
+	void setWind(float windAngle, float windSpeed);
+	
+	void setOffset(Vec3f offset)						{this->offset= offset;}
+	void setDirection(Vec3f direction)					{this->direction= direction;}
+	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
+	void setGravity(float gravity)						{this->gravity= gravity;}
+	void setRotation(float rotation)					{this->rotation= rotation;}
+	void setRelative(bool relative)						{this->relative= relative;}
+	void setFixed(bool fixed)							{this->fixed= fixed;}
+	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
+	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
+	void setPrimitive(Primitive primitive)				{this->primitive= primitive;}
+
+	static Primitive strToPrimitive(const string &str);
+	
 };
 
 // =====================================================

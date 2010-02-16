@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -275,6 +275,183 @@ void FireParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
 }
+
+
+// ===========================================================================
+//  UnitParticleSystem
+// ===========================================================================
+
+UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(particleCount){
+	
+	radius= 0.5f;
+	speed= 0.01f;
+	windSpeed= Vec3f(0.0f);
+	
+	setParticleSize(0.6f);
+	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
+	
+	primitive= pQuad;
+	offset= Vec3f(0.0f);
+	direction= Vec3f(0.0f,1.0f,0.0f);
+	gravity= 0.0f;
+	
+	fixed=false;
+	teamcolorNoEnergy=false;
+	teamcolorEnergy=false;
+	rotation=0.0f;
+	
+	cRotation= Vec3f(1.0f,1.0f,1.0f);
+	fixedAddition = Vec3f(0.0f,0.0f,0.0f);
+	
+}
+
+/*void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
+	if(active){
+		switch(primitive){
+		case pQuad:
+			pr->renderSystem(this);
+			break;
+		case pLine:
+			pr->renderSystemLine(this);
+			break;
+		default:
+			assert(false);
+		}
+	}
+}*/
+
+UnitParticleSystem::Primitive UnitParticleSystem::strToPrimitive(const string &str){
+	if(str=="quad"){
+		return pQuad;
+	}
+	else if(str=="line"){
+		return pLine;
+	}
+	else{
+		throw "Unknown particle primitive: " + str;
+	}
+}
+
+
+void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
+	ParticleSystem::initParticle(p, particleIndex);
+	
+	float ang= random.randRange(-2.0f*pi, 2.0f*pi);
+	float mod= fabsf(random.randRange(-radius, radius));
+	
+	float x= sinf(ang)*mod;
+	float y= cosf(ang)*mod;
+	
+	float radRatio= sqrtf(sqrtf(mod/radius));
+	float rad=degToRad(rotation);
+	
+	//p->color= color*0.5f + color*0.5f*radRatio;
+	p->color=color;
+	p->energy= static_cast<int>(maxParticleEnergy*radRatio) + random.randRange(-varParticleEnergy, varParticleEnergy);
+	
+	p->lastPos= pos;
+	oldPosition=pos;
+	p->size= particleSize;
+	p->speed= Vec3f(direction.x*speed+direction.x*speed*random.randRange(-0.5f, 0.5f),
+					 direction.y*speed+direction.y*speed*random.randRange(-0.5f, 0.5f),
+					 direction.z*speed+direction.z*speed*random.randRange(-0.5f, 0.5f));
+	
+	if(relative){
+		p->pos= Vec3f(pos.x+x+offset.x, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z); 
+	}
+	else
+	{// rotate it according to rotation
+		float rad=degToRad(rotation);
+		p->pos= Vec3f(pos.x+x+offset.x*cosf(rad)-offset.z*sinf(rad)*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z*cosf(rad)+offset.x*sinf(rad)); 
+		p->speed=Vec3f(p->speed.x*cosf(rad)-p->speed.z*sinf(rad)*-1,p->speed.y,p->speed.z*cosf(rad)+p->speed.x*sinf(rad));
+	}//p->pos=Vec3f(p->pos.x*cosf(rad)-p->pos.z*sinf(rad),p->pos.y,p->pos.z*cosf(rad)+p->pos.z*sinf(rad));
+}
+
+void UnitParticleSystem::update(){
+	if(fixed)
+	{
+		fixedAddition= Vec3f(pos.x-oldPosition.x,pos.y-oldPosition.y,pos.z-oldPosition.z);
+    	oldPosition=pos;
+	}
+	ParticleSystem::update();
+}
+
+void UnitParticleSystem::updateParticle(Particle *p){
+	
+	float energyRatio= clamp(static_cast<float>(p->energy)/maxParticleEnergy, 0.f, 1.f);
+		
+	p->lastPos+= p->speed;
+	p->pos+= p->speed;
+	if(fixed)
+	{
+		p->lastPos+= fixedAddition;
+		p->pos+= fixedAddition;
+	}
+	p->speed+= p->accel;
+	p->color = color * energyRatio + colorNoEnergy * (1.0f-energyRatio);
+	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f-energyRatio);
+	p->energy--;
+
+	/*
+	p->lastPos= p->pos;
+	p->pos= p->pos+p->speed;
+	p->energy--;
+
+	if(p->color.x>0.0f)
+		p->color.x*= 0.98f;
+	if(p->color.y>0.0f)
+		p->color.y*= 0.98f;
+	if(p->color.w>0.0f)
+		p->color.w*= 0.98f;
+
+	p->speed.x*=1.001f;
+	*/
+
+}
+
+// ================= SET PARAMS ====================
+
+void UnitParticleSystem::setRadius(float radius){
+	this->radius= radius;
+}
+
+void UnitParticleSystem::setWind(float windAngle, float windSpeed){
+	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.y= 0.0f;
+	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+}
+
+void UnitParticleSystem::setTeamNumber(int teamNumber){
+	this->teamNumber=teamNumber;
+	Vec3f tmpCol;
+	
+	if(teamNumber==0)
+	{
+		tmpCol=Vec3f(1,0,0);
+	}
+	else if(teamNumber==1)
+	{
+		tmpCol=Vec3f(0,0,1);
+	}
+	else if(teamNumber==2)
+	{
+		tmpCol=Vec3f(0,1,0);
+	}
+	else if(teamNumber==3)
+	{
+		tmpCol=Vec3f(1,1,0);
+	}
+	
+	if(teamcolorNoEnergy)
+	{
+		this->color=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->color.w);
+	}
+	if(teamcolorEnergy)
+	{
+		this->colorNoEnergy=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->colorNoEnergy.w);
+	}
+}
+
 
 // ===========================================================================
 //  RainParticleSystem

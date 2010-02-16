@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -13,6 +13,7 @@
 #include <cassert>
 
 #include "unit.h"
+#include "unit_particle_type.h"
 #include "world.h"
 #include "upgrade.h"
 #include "map.h"
@@ -139,11 +140,12 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
     if(getType()->getField(fLand)) currField=fLand;
 
     fire= NULL;
+    skillParticleSystem=NULL;
 
 	computeTotalUpgrade();
 
 	//starting skill
-	currSkill= getType()->getFirstStOfClass(scStop);
+	this->currSkill=getType()->getFirstStOfClass(scStop);
 }
 
 Unit::~Unit(){
@@ -311,6 +313,22 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 	if(currSkill->getClass()!=this->currSkill->getClass()){
 		animProgress= 0;
 		lastAnimProgress= 0;
+		
+		if(skillParticleSystem!=NULL){
+			skillParticleSystem->fade();
+			skillParticleSystem=NULL;
+		}
+	}
+	if((currSkill->getParticleSystemType()!=NULL) 
+		&& (skillParticleSystem==NULL) ){
+		UnitParticleSystemType *upst=currSkill->getParticleSystemType();
+		UnitParticleSystem *ups;
+		ups= new UnitParticleSystem(200);
+		upst->setValues(ups);
+		ups->setPos(getCurrVector());
+		ups->setTeamNumber(getTeam());
+		skillParticleSystem= ups;
+		Renderer::getInstance().manageParticleSystem(ups, rsGame);
 	}
 	progress2= 0;
 	this->currSkill= currSkill;
@@ -588,6 +606,7 @@ bool Unit::update(){
 		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
 		heightFactor= clamp(1.f+heightDiff/5.f, 0.2f, 5.f);
 	}
+	
 
 	//update progresses
 	lastAnimProgress= animProgress;
@@ -612,6 +631,16 @@ bool Unit::update(){
 		}
 	}
 
+	if (fire!=NULL)
+	{
+		fire->setPos(getCurrVector());
+	}
+	if (skillParticleSystem!=NULL)
+	{
+		skillParticleSystem->setPos(getCurrVector());
+		skillParticleSystem->setRotation(getRotation());
+	}
+	
 	//checks
 	if(animProgress>1.f){
 		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
@@ -645,7 +674,11 @@ void Unit::tick(){
 		if(hp>type->getTotalMaxHp(&totalUpgrade)){
 			hp= type->getTotalMaxHp(&totalUpgrade);
 		}
-
+		//stop fire
+		if(hp>type->getTotalMaxHp(&totalUpgrade)/2 && fire!=NULL){
+			fire->fade();
+			fire= NULL;
+		}
 		//regenerate ep
 		ep+= type->getEpRegeneration();
 		if(ep>type->getTotalMaxEp(&totalUpgrade)){
@@ -685,7 +718,7 @@ bool Unit::repair(){
     }
 
 	//stop fire
-	if(hp>type->getMaxHp()/2 && fire!=NULL){
+	if(hp>type->getTotalMaxHp(&totalUpgrade)/2 && fire!=NULL){
 		fire->fade();
 		fire= NULL;
 	}

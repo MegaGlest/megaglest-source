@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -18,6 +18,7 @@
 #include "lang.h"
 #include "renderer.h"
 #include "particle_type.h"
+#include "unit_particle_type.h"
 #include "tech_tree.h"
 #include "faction_type.h"
 #include "leak_dumper.h"
@@ -32,6 +33,8 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 SkillType::~SkillType(){
+	delete particleSystemType;
+	
 	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
 }
 
@@ -52,6 +55,22 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
 	animation= Renderer::getInstance().newModel(rsGame);
 	animation->load(dir + "/" + path);
+	
+	//particles
+	if(sn->hasChild("particle")){
+		const XmlNode *particleNode= sn->getChild("particle");
+		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+		if(particleEnabled){
+			string path= particleNode->getAttribute("path")->getRestrictedValue();	
+			particleSystemType= new UnitParticleSystemType();
+			particleSystemType->load(dir,  dir + "/" + path);
+		}
+	}
+	else
+	{
+		particleSystemType=NULL;
+	}
+	
 	
 	//sound
 	const XmlNode *soundNode= sn->getChild("sound");

@@ -19,7 +19,7 @@ namespace Shared{ namespace G3dViewer{
 // 	class MainWindow
 // ===============================================
 
-const string MainWindow::versionString= "v1.3.4";
+const string MainWindow::versionString= "v1.3.5-beta1";
 const string MainWindow::winHeader= "G3D viewer " + versionString + " - Built: " + __DATE__;
 
 MainWindow::MainWindow(const string &modelPath): 

@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -20,6 +20,7 @@
 namespace Glest{ namespace Game{
 
 using Shared::Graphics::ParticleSystem;
+using Shared::Graphics::UnitParticleSystem;
 using Shared::Graphics::Vec4f;
 using Shared::Graphics::Vec2f;
 using Shared::Graphics::Vec3f;
@@ -127,6 +128,7 @@ public:
 	static const int maxDeadCount;
 	static const float highlightTime;
 	static const int invalidId;
+	UnitParticleSystem *skillParticleSystem;
 
 private:
 	int id;
@@ -207,6 +209,7 @@ public:
 	float getRotation() const					{return rotation;}
 	float getVerticalRotation() const;
 	ParticleSystem *getFire() const				{return fire;}
+	UnitParticleSystem *getSkillParticleSystem() const	{return skillParticleSystem;}
 	int getKills()								{return kills;}
 	const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
