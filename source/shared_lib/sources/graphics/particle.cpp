@@ -355,15 +355,20 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->speed= Vec3f(direction.x*speed+direction.x*speed*random.randRange(-0.5f, 0.5f),
 					 direction.y*speed+direction.y*speed*random.randRange(-0.5f, 0.5f),
 					 direction.z*speed+direction.z*speed*random.randRange(-0.5f, 0.5f));
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	
-	if(relative){
+	if(!relative){
 		p->pos= Vec3f(pos.x+x+offset.x, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z); 
 	}
 	else
 	{// rotate it according to rotation
 		float rad=degToRad(rotation);
-		p->pos= Vec3f(pos.x+x+offset.x*cosf(rad)-offset.z*sinf(rad)*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z*cosf(rad)+offset.x*sinf(rad)); 
-		p->speed=Vec3f(p->speed.x*cosf(rad)-p->speed.z*sinf(rad)*-1,p->speed.y,p->speed.z*cosf(rad)+p->speed.x*sinf(rad));
+//		p->pos= Vec3f(pos.x+x+offset.x*cosf(rad)-offset.z*sinf(rad)*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z*cosf(rad)+offset.x*sinf(rad)); 
+//		p->speed=Vec3f(p->speed.x*cosf(rad)-p->speed.z*sinf(rad)*-1,p->speed.y,p->speed.z*cosf(rad)+p->speed.x*sinf(rad));
+//		p->pos= Vec3f(pos.x+x+(offset.x*cosf(rad)-offset.z*sinf(rad))*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)+offset.x*sinf(rad))); 
+//		p->speed=Vec3f((p->speed.x*cosf(rad)-p->speed.z*sinf(rad))*-1,p->speed.y,(p->speed.z*cosf(rad)+p->speed.x*sinf(rad)));
+		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)-offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)+offset.x*sinf(rad))); 
+		p->speed=Vec3f(p->speed.z*sinf(rad)-p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)+p->speed.x*sinf(rad)));
 	}//p->pos=Vec3f(p->pos.x*cosf(rad)-p->pos.z*sinf(rad),p->pos.y,p->pos.z*cosf(rad)+p->pos.z*sinf(rad));
 }
 

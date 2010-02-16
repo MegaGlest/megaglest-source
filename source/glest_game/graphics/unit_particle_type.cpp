@@ -148,6 +148,7 @@ void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setMaxParticleEnergy(energyMax);
 	ups->setVarParticleEnergy(energyVar);
 	ups->setFixed(fixed);
+	ups->setRelative(relative);
     ups->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ups->setTeamcolorEnergy(teamcolorEnergy);
     ups->setRadius(radius);

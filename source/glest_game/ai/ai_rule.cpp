@@ -524,11 +524,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int bestIndex=-1;
 				int besti=0;
 				int currentCommandCount=0;
-//				printf("command sizes: ");
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++)
 				{
 					currentProducerIndex=producers[i%(producers.size())];
-//					printf("%d ,",aiInterface->getMyUnit(currentProducerIndex)->getCommandSize());
 					currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 					if( currentCommandCount==1 &&
 						aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
@@ -542,15 +540,6 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						besti=i%(producers.size());
 					}
 				}
-				
-//				printf("\ncurrent team=%d  producercount=%d   bestindex=%d  commandsize=%d besti=%d\n",
-//					aiInterface->getMyUnit(currentProducerIndex)->getTeam(),
-//					producers.size(),
-//					bestIndex,
-//					aiInterface->getMyUnit(currentProducerIndex)->getCommandSize(),
-//					besti
-//					);
-				
 				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize()>2)
 				{
 					// maybe we need another producer of this kind if possible!
@@ -561,16 +550,13 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					}
 					// need to calculte another producer, maybe its better to produce another warrior with another producer 
 					vector<int> backupProducers;
-//					printf("start ----- need to calculate a new producer! \n");
 					// find another producer unit which is free and produce any kind of warrior.
 					//for each unit
 					for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 						const UnitType *ut= aiInterface->getMyUnit(i)->getType();
-//						printf("unit%d\n",i);
 						//for each command
 						for(int j=0; j<ut->getCommandTypeCount(); ++j){
 							const CommandType *ct= ut->getCommandType(j);
-//							printf("command%d\n",j);
 							//if the command is produce
 							if(ct->getClass()==ccProduce)
 							{
@@ -584,19 +570,15 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					}
 					if(!backupProducers.empty())
 					{
-//						printf("Number of possible backupproducers %d",backupProducers.size());
-					
 						vector<int> productionCommandIndexes;
 						int randomstart=ai->getRandom()->randRange(0, backupProducers.size()-1);
 						int lowestCommandCount=1000000;
 						int currentProducerIndex=backupProducers[randomstart];
 						int bestIndex=-1;
 						int currentCommandCount=0;
-//						printf("command sizes: ");
 						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++)
 						{
 							currentProducerIndex=backupProducers[i%(backupProducers.size())];
-//							printf("%d ,",aiInterface->getMyUnit(currentProducerIndex)->getCommandSize());
 							currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 							if( currentCommandCount==1 &&
 								aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
@@ -627,8 +609,6 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						}
 						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, productionCommandIndexes.size()-1)];
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
-//						printf("\nbestindex=%d\n",bestIndex);
-//						printf("end ----- need to calculate a new producer! \n");
 					}
 					else
 					{// do it like normal CPU

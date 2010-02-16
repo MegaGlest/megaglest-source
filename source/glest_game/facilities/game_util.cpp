@@ -22,7 +22,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.2.4-1-beta2";
+const string glestVersionString= "v3.2.4-2-beta2";
 
 string getCrashDumpFileName(){
 	return "glest"+glestVersionString+".dmp";
