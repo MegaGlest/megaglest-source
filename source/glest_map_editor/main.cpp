@@ -10,7 +10,7 @@ using namespace std;
 
 namespace Glest{ namespace MapEditor{
 
-const string MainWindow::versionString= "v1.3.0";
+const string MainWindow::versionString= "v1.3.1";
 const string MainWindow::winHeader= "Glest Map Editor " + versionString + " - Built: " + __DATE__;
 
 // ===============================================
@@ -108,19 +108,19 @@ MainWindow::MainWindow():
 	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("2 - DeadTree/Cactuses/Thornbush (unwalkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("3 - Stone (unwalkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("4 - Bush/Grass/Fern (walkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("5 - Water Object/Reed/Papyrus (usually walkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("6 - C1 BigTree/DeadTree/OldPalm (usually unwalkable/not harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("5 - Water Object/Reed/Papyrus (walkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("6 - C1 BigTree/DeadTree/OldPalm (unwalkable/not harvestable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("7 - C2 Hanged/Impaled (unwalkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("8 - C3, Statues (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("9 - Big Rock (Mountain)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("10 - Invisible Blocking Object"));
+	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("9 - Big Rock (Mountain) (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("10 - Invisible Blocking Object (unwalkable)"));
 	menuBrush->Append(miBrushObject, wxT("Object"), menuBrushObject);
 
 	//resources
 	menuBrushResource= new wxMenu();
 	menuBrushResource->AppendCheckItem(miBrushResource+1, wxT("0 - None"));
-	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("1 - gold"));
-	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("2 - stone"));
+	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("1 - gold  (unwalkable)"));
+	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("2 - stone (unwalkable)"));
 	menuBrushResource->AppendCheckItem(miBrushResource+4, wxT("3 - (not used yet)"));
 	menuBrushResource->AppendCheckItem(miBrushResource+5, wxT("4 - (not used yet)"));
 	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("5 - (not used yet)"));
@@ -128,10 +128,10 @@ MainWindow::MainWindow():
 
 	//players
 	menuBrushStartLocation= new wxMenu();
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+1, wxT("1 - Player 1 (red)"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+2, wxT("2 - Player 2 (blue)"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+3, wxT("3 - Player 3 (green)"));
-	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+4, wxT("4 - Player 4 (yellow)"));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+1, wxT("1 - Player 1 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+2, wxT("2 - Player 2 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+3, wxT("3 - Player 3 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+4, wxT("4 - Player 4 "));
 	menuBrush->Append(miBrushStartLocation, wxT("Player"), menuBrushStartLocation);
 
 	menuBar->Append(menuBrush, wxT("Brush"));
@@ -363,7 +363,7 @@ void MainWindow::onMenuMiscResetZoomAndPos(wxCommandEvent &event){
 }
 
 void MainWindow::onMenuMiscAbout(wxCommandEvent &event){
-	wxMessageDialog(NULL, wxT("Glest Map Editor - Copyright 2004 The Glest Team"), wxT("About")).ShowModal();
+	wxMessageDialog(NULL, wxT("Glest Map Editor - Copyright 2004 The Glest Team ( improved by titi )"), wxT("About")).ShowModal();
 }
 
 void MainWindow::onMenuMiscHelp(wxCommandEvent &event){

@@ -151,10 +151,10 @@ void Renderer::renderMap(Map *map, int x, int y, int clientW, int clientH, int c
 	glLineWidth(3);
 	for (int i=0; i<map->getMaxPlayers(); i++){
 		switch(i){
-		case 0: glColor3f(1.f, 1.f, 0.f); break;
-		case 1: glColor3f(0.5f, 0.5f, 0.5f); break;
-		case 2: glColor3f(1.f, 0.f, 0.f); break;
-		case 3: glColor3f(0.f, 0.f, 1.f); break;
+		case 0: glColor3f(1.f, 0.f, 0.f); break;
+		case 1: glColor3f(0.f, 0.f, 1.f); break;
+		case 2: glColor3f(0.f, 1.f, 0.f); break;
+		case 3: glColor3f(1.f, 1.f, 0.f); break;
 		}
 		glBegin(GL_LINES);
 				glVertex2i((map->getStartLocationX(i)-1)*cellSize, clientH- (map->getStartLocationY(i)-1)*cellSize);

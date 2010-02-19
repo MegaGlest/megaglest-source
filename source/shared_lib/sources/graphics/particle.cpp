@@ -305,8 +305,8 @@ UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(partic
 	
 }
 
-/*void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
-	if(active){
+void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
+	//if(active){
 		switch(primitive){
 		case pQuad:
 			pr->renderSystem(this);
@@ -317,8 +317,8 @@ UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(partic
 		default:
 			assert(false);
 		}
-	}
-}*/
+	//}
+}
 
 UnitParticleSystem::Primitive UnitParticleSystem::strToPrimitive(const string &str){
 	if(str=="quad"){
@@ -352,9 +352,11 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->lastPos= pos;
 	oldPosition=pos;
 	p->size= particleSize;
-	p->speed= Vec3f(direction.x*speed+direction.x*speed*random.randRange(-0.5f, 0.5f),
-					 direction.y*speed+direction.y*speed*random.randRange(-0.5f, 0.5f),
-					 direction.z*speed+direction.z*speed*random.randRange(-0.5f, 0.5f));
+	
+	p->speed= Vec3f(direction.x+direction.x*random.randRange(-0.5f, 0.5f),
+					 direction.y+direction.y*random.randRange(-0.5f, 0.5f),
+					 direction.z+direction.z*random.randRange(-0.5f, 0.5f));
+	p->speed= p->speed * speed;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	
 	if(!relative){
@@ -447,11 +449,11 @@ void UnitParticleSystem::setTeamNumber(int teamNumber){
 		tmpCol=Vec3f(1,1,0);
 	}
 	
-	if(teamcolorNoEnergy)
+	if(teamcolorEnergy)
 	{
 		this->color=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->color.w);
 	}
-	if(teamcolorEnergy)
+	if(teamcolorNoEnergy)
 	{
 		this->colorNoEnergy=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->colorNoEnergy.w);
 	}

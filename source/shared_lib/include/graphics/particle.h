@@ -226,7 +226,7 @@ public:
 	virtual void updateParticle(Particle *p);
 	virtual void update();
 	virtual void setTeamNumber(int teamNumber);
-	//virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
+	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
 	//set params
 	void setRadius(float radius);
