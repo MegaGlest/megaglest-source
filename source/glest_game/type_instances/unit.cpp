@@ -154,6 +154,11 @@ Unit::~Unit(){
 		delete commands.back();
 		commands.pop_back();
 	}
+	// fade(and by this remove) all unit particle systems
+	while(!unitParticleSystems.empty()){
+			unitParticleSystems.back()->fade();
+			unitParticleSystems.pop_back();
+		}
 }
 
 // ====================================== get ======================================
