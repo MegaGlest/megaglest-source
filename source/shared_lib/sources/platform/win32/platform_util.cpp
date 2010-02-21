@@ -454,6 +454,8 @@ void exceptionMessage(const exception &excp){
 	message+= excp.what();
 	
 	title= "Error: Unhandled Exception";
+	printf("Error detected with text: %s\n",message.c_str());
+
 	MessageBox(NULL, message.c_str(), title.c_str(), MB_ICONSTOP | MB_OK | MB_TASKMODAL);
 }
 

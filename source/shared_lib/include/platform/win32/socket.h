@@ -18,6 +18,8 @@
 
 using std::string;
 
+const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,int nErrorID = 0);
+
 namespace Shared{ namespace Platform{
 
 // =====================================================
@@ -83,6 +85,7 @@ public:
 
 protected:
 	static void throwException(const string &str);
+
 };
 
 // =====================================================

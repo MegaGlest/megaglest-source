@@ -235,9 +235,9 @@ int Socket::getDataToRead(){
         if(err < 0 && errno != EAGAIN)
         {
             char szBuf[1024]="";
-            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d errno = %d [%s]",__FILE__,__FUNCTION__,err,errno,strerror(errno));
-
-            throwException(szBuf);
+            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
+            //throwException(szBuf);
+            printf("%s",szBuf);
         }
         else if(err == 0)
         {
@@ -257,9 +257,9 @@ int Socket::send(const void *data, int dataSize) {
 	if(bytesSent < 0 && errno != EAGAIN)
 	{
         char szBuf[1024]="";
-        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d errno = %d [%s]",__FILE__,__FUNCTION__,bytesSent,errno,strerror(errno));
-
-		throwException(szBuf);
+        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesSent,errno,strerror(errno));
+		//throwException(szBuf);
+		printf("%s",szBuf);
 	}
 	else if(bytesSent < 0 && errno == EAGAIN)
 	{
@@ -304,8 +304,8 @@ int Socket::receive(void *data, int dataSize)
 	{
         char szBuf[1024]="";
         sprintf(szBuf,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesReceived,errno,strerror(errno));
-
-		throwException(szBuf);
+		//throwException(szBuf);
+		printf("%s",szBuf);
 	}
 	else if(bytesReceived < 0 && errno == EAGAIN)
 	{
@@ -346,8 +346,9 @@ int Socket::peek(void *data, int dataSize){
 	{
 	    char szBuf[1024]="";
         sprintf(szBuf,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
+		//throwException(szBuf);
 
-		throwException(szBuf);
+		disconnectSocket();
 	}
 	else if(err < 0 && errno == EAGAIN)
 	{

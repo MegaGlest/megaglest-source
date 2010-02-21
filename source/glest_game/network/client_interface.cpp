@@ -141,7 +141,9 @@ void ClientInterface::updateLobby()
                 {
                     if(networkMessageIntro.getVersionString()!=getNetworkVersionString())
                     {
-                        throw runtime_error("Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.");
+						string sErr = "Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.";
+                        printf("%s\n",sErr.c_str());
+						//throw runtime_error("Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.");
                     }
                 }
 
@@ -482,7 +484,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 	{
 		if(networkMessageReady.getChecksum() != checksum->getSum())
 		{
-			throw runtime_error("Checksum error, you don't have the same data as the server");
+			string sErr = "Checksum error, you don't have the same data as the server";
+			//throw runtime_error("Checksum error, you don't have the same data as the server");
+			printf("%s\n",sErr.c_str());
 		}
 	}
 

@@ -17,15 +17,144 @@
 
 #include "leak_dumper.h"
 #include <time.h>
+#include <strstream>
+#include <algorithm>
 
 #define socklen_t int
 
 using namespace std;
 using namespace Shared::Util;
 
+#define MAXHOSTNAME 254
+//// Constants /////////////////////////////////////////////////////////
+const int kBufferSize = 1024;
+
+//// Statics ///////////////////////////////////////////////////////////
+// List of Winsock error constants mapped to an interpretation string.
+// Note that this list must remain sorted by the error constants'
+// values, because we do a binary search on the list when looking up
+// items.
+
+static class ErrorEntry
+{
+public:
+    int nID;
+    const char* pcMessage;
+
+    ErrorEntry(int id, const char* pc = 0) : nID(id), pcMessage(pc)
+    {
+    }
+
+    bool operator<(const ErrorEntry& rhs)
+    {
+        return nID < rhs.nID;
+    }
+
+} gaErrorList[] =
+  {
+    ErrorEntry(0,                  "No error"),
+    ErrorEntry(WSAEINTR,           "Interrupted system call"),
+    ErrorEntry(WSAEBADF,           "Bad file number"),
+    ErrorEntry(WSAEACCES,          "Permission denied"),
+    ErrorEntry(WSAEFAULT,          "Bad address"),
+    ErrorEntry(WSAEINVAL,          "Invalid argument"),
+    ErrorEntry(WSAEMFILE,          "Too many open sockets"),
+    ErrorEntry(WSAEWOULDBLOCK,     "Operation would block"),
+    ErrorEntry(WSAEINPROGRESS,     "Operation now in progress"),
+    ErrorEntry(WSAEALREADY,        "Operation already in progress"),
+    ErrorEntry(WSAENOTSOCK,        "Socket operation on non-socket"),
+    ErrorEntry(WSAEDESTADDRREQ,    "Destination address required"),
+    ErrorEntry(WSAEMSGSIZE,        "Message too long"),
+    ErrorEntry(WSAEPROTOTYPE,      "Protocol wrong type for socket"),
+    ErrorEntry(WSAENOPROTOOPT,     "Bad protocol option"),
+    ErrorEntry(WSAEPROTONOSUPPORT, "Protocol not supported"),
+    ErrorEntry(WSAESOCKTNOSUPPORT, "Socket type not supported"),
+    ErrorEntry(WSAEOPNOTSUPP,      "Operation not supported on socket"),
+    ErrorEntry(WSAEPFNOSUPPORT,    "Protocol family not supported"),
+    ErrorEntry(WSAEAFNOSUPPORT,    "Address family not supported"),
+    ErrorEntry(WSAEADDRINUSE,      "Address already in use"),
+    ErrorEntry(WSAEADDRNOTAVAIL,   "Can't assign requested address"),
+    ErrorEntry(WSAENETDOWN,        "Network is down"),
+    ErrorEntry(WSAENETUNREACH,     "Network is unreachable"),
+    ErrorEntry(WSAENETRESET,       "Net connection reset"),
+    ErrorEntry(WSAECONNABORTED,    "Software caused connection abort"),
+    ErrorEntry(WSAECONNRESET,      "Connection reset by peer"),
+    ErrorEntry(WSAENOBUFS,         "No buffer space available"),
+    ErrorEntry(WSAEISCONN,         "Socket is already connected"),
+    ErrorEntry(WSAENOTCONN,        "Socket is not connected"),
+    ErrorEntry(WSAESHUTDOWN,       "Can't send after socket shutdown"),
+    ErrorEntry(WSAETOOMANYREFS,    "Too many references, can't splice"),
+    ErrorEntry(WSAETIMEDOUT,       "Connection timed out"),
+    ErrorEntry(WSAECONNREFUSED,    "Connection refused"),
+    ErrorEntry(WSAELOOP,           "Too many levels of symbolic links"),
+    ErrorEntry(WSAENAMETOOLONG,    "File name too long"),
+    ErrorEntry(WSAEHOSTDOWN,       "Host is down"),
+    ErrorEntry(WSAEHOSTUNREACH,    "No route to host"),
+    ErrorEntry(WSAENOTEMPTY,       "Directory not empty"),
+    ErrorEntry(WSAEPROCLIM,        "Too many processes"),
+    ErrorEntry(WSAEUSERS,          "Too many users"),
+    ErrorEntry(WSAEDQUOT,          "Disc quota exceeded"),
+    ErrorEntry(WSAESTALE,          "Stale NFS file handle"),
+    ErrorEntry(WSAEREMOTE,         "Too many levels of remote in path"),
+    ErrorEntry(WSASYSNOTREADY,     "Network system is unavailable"),
+    ErrorEntry(WSAVERNOTSUPPORTED, "Winsock version out of range"),
+    ErrorEntry(WSANOTINITIALISED,  "WSAStartup not yet called"),
+    ErrorEntry(WSAEDISCON,         "Graceful shutdown in progress"),
+    ErrorEntry(WSAHOST_NOT_FOUND,  "Host not found"),
+    ErrorEntry(WSANO_DATA,         "No host data of that type was found")
+};
+
+bool operator<(const ErrorEntry& rhs1,const ErrorEntry& rhs2)
+{
+    return rhs1.nID < rhs2.nID;
+}
+
+const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
+
+//// WSAGetLastErrorMessage ////////////////////////////////////////////
+// A function similar in spirit to Unix's perror() that tacks a canned
+// interpretation of the value of WSAGetLastError() onto the end of a
+// passed string, separated by a ": ".  Generally, you should implement
+// smarter error handling than this, but for default cases and simple
+// programs, this function is sufficient.
+//
+// This function returns a pointer to an internal static buffer, so you
+// must copy the data from this function before you call it again.  It
+// follows that this function is also not thread-safe.
+const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,
+								   int nErrorID /* = 0 */)
+{
+    // Build basic error string
+    static char acErrorBuffer[256];
+    std::ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
+    outs << pcMessagePrefix << ": ";
+
+    // Tack appropriate canned message onto end of supplied message
+    // prefix. Note that we do a binary search here: gaErrorList must be
+    // sorted by the error constant's value.
+  	ErrorEntry* pEnd = gaErrorList + kNumMessages;
+    ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
+    ErrorEntry* it = std::lower_bound(gaErrorList, pEnd, Target);
+    if ((it != pEnd) && (it->nID == Target.nID))
+    {
+        outs << it->pcMessage;
+    }
+    else
+    {
+        // Didn't find error in list, so make up a generic one
+        outs << "unknown error";
+    }
+    outs << " (" << Target.nID << ")";
+
+    // Finish error message off and return it.
+    outs << std::ends;
+    acErrorBuffer[sizeof(acErrorBuffer) - 1] = '\0';
+    return acErrorBuffer;
+}
+
 namespace Shared{ namespace Platform{
 
-bool Socket::enableDebugText = false;
+bool Socket::enableDebugText = true;
 
 // =====================================================
 //	class Ip
@@ -73,10 +202,12 @@ Socket::SocketManager::SocketManager(){
 	WORD wVersionRequested = MAKEWORD(2, 0);
 	WSAStartup(wVersionRequested, &wsaData);
 	//dont throw exceptions here, this is a static initializacion
+	printf("Winsock initialized.\n");
 }
 
 Socket::SocketManager::~SocketManager(){
 	WSACleanup();
+	printf("Winsock cleanup complete.\n");
 }
 
 Socket::Socket(SOCKET sock){
@@ -149,7 +280,6 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
                 char szBuf[1024]="";
                 sprintf(szBuf,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d WSAGetLastError() = %d",__FILE__,__FUNCTION__,retval,WSAGetLastError());
                 fprintf(stderr, "%s", szBuf);
-
             }
             else if(retval)
             {
@@ -242,9 +372,9 @@ int Socket::getDataToRead(){
         if(err < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
         {
             char szBuf[1024]="";
-            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d WSAGetLastError() = %d",__FILE__,__FUNCTION__,err,WSAGetLastError());
-
-            throwException(szBuf);
+            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
+            printf("%s",szBuf);
+            //throwException(szBuf);
         }
         else if(err == 0)
         {
@@ -264,9 +394,9 @@ int Socket::send(const void *data, int dataSize) {
 	if(bytesSent < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
 	{
         char szBuf[1024]="";
-        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d WSAGetLastError() = %d",__FILE__,__FUNCTION__,bytesSent,WSAGetLastError());
-
-		throwException(szBuf);
+        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesSent,WSAGetLastError());
+		//throwException(szBuf);
+		printf("%s",szBuf);
 	}
 	else if(bytesSent < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
@@ -311,8 +441,8 @@ int Socket::receive(void *data, int dataSize)
 	{
         char szBuf[1024]="";
         sprintf(szBuf,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesReceived,WSAGetLastError());
-
-		throwException(szBuf);
+		//throwException(szBuf);
+		printf("%s",szBuf);
 	}
 	else if(bytesReceived < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
@@ -353,8 +483,8 @@ int Socket::peek(void *data, int dataSize){
 	{
 	    char szBuf[1024]="";
         sprintf(szBuf,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
-
-		throwException(szBuf);
+		//throwException(szBuf);
+		printf("%s",szBuf);
 	}
 	else if(err < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
@@ -390,7 +520,8 @@ void Socket::setBlock(bool block){
 	u_long iMode= !
 		block;
 	int err= ioctlsocket(sock, FIONBIO, &iMode);
-	if(err==SOCKET_ERROR){
+	if(err==SOCKET_ERROR)
+	{
 		throwException("Error setting I/O mode for socket");
 	}
 }
@@ -507,7 +638,8 @@ string Socket::getIp() const{
 	hostent* info= gethostbyname(getHostName().c_str());
 	unsigned char* address;
 
-	if(info==NULL){
+	if(info==NULL)
+	{
 		throwException("Error getting host by name");
 	}
 
@@ -542,21 +674,24 @@ void ClientSocket::connect(const Ip &ip, int port)
 	addr.sin_addr.s_addr= inet_addr(ip.getString().c_str());
 	addr.sin_port= htons(port);
 
+	fprintf(stderr, "Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
+
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)
 	{
-	    char szBuf[1024]="";
+		char szBuf[1024]="";
 	    sprintf(szBuf,"#2 Error connecting socket for IP: %s for Port: %d err = %d WSAGetLastError() = %d",ip.getString().c_str(),port,err,WSAGetLastError());
-	    fprintf(stderr, "%s", szBuf);
+	    fprintf(stderr, "%s\n", WSAGetLastErrorMessage(szBuf));
+		//fprintf(stderr, "%s", szBuf);
 
-        if (WSAGetLastError() == WSAEINPROGRESS) {
-
+        if (WSAGetLastError() == WSAEINPROGRESS || WSAGetLastError() == WSAEWOULDBLOCK) 
+		{
             fd_set myset;
             struct timeval tv;
             int valopt;
             socklen_t lon;
 
-            fprintf(stderr, "EINPROGRESS in connect() - selecting\n");
+            fprintf(stderr, "WSAEINPROGRESS or WSAEWOULDBLOCK in connect() - selecting\n");
             do {
                tv.tv_sec = 10;
                tv.tv_usec = 0;
@@ -564,9 +699,9 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_ZERO(&myset);
                FD_SET(sock, &myset);
 
-               err = select(sock+1, NULL, &myset, NULL, &tv);
+               err = select(0, NULL, &myset, NULL, &tv);
 
-               if (err < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
+               if (err < 0 && WSAGetLastError() != WSAEWOULDBLOCK && WSAGetLastError() != WSAEWOULDBLOCK)
                {
                   sprintf(szBuf, "Error connecting %d\n", WSAGetLastError());
                   //throwException(szBuf);
@@ -601,6 +736,9 @@ void ClientSocket::connect(const Ip &ip, int port)
                   sprintf(szBuf, "Timeout in select() - Cancelling!\n");
                   //throwException(szBuf);
                   fprintf(stderr, "%s", szBuf);
+
+				  disconnectSocket();
+
                   break;
                }
             } while (1);
@@ -613,6 +751,10 @@ void ClientSocket::connect(const Ip &ip, int port)
         }
 
         fprintf(stderr, "Valid recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());
+	}
+	else
+	{
+		fprintf(stderr, "Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,err);
 	}
 }
 
