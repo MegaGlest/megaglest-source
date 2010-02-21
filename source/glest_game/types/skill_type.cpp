@@ -33,9 +33,12 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 SkillType::~SkillType(){
-	delete particleSystemType;
-	
 	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
+	//remove unitParticleSystemTypes
+	while(!unitParticleSystemTypes.empty()){
+		delete unitParticleSystemTypes.back();
+		unitParticleSystemTypes.pop_back();
+	}
 }
 
 void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft){
@@ -57,19 +60,20 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 	animation->load(dir + "/" + path);
 	
 	//particles
-	if(sn->hasChild("particle")){
-		const XmlNode *particleNode= sn->getChild("particle");
+	if(sn->hasChild("particles")){
+		const XmlNode *particleNode= sn->getChild("particles");
 		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();	
-			particleSystemType= new UnitParticleSystemType();
-			particleSystemType->load(dir,  dir + "/" + path);
+			for(int i=0; i<particleNode->getChildCount(); ++i){
+				const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
+				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+				unitParticleSystemType->load(dir,  dir + "/" + path);
+				unitParticleSystemTypes.push_back(unitParticleSystemType);
+			}
 		}
 	}
-	else
-	{
-		particleSystemType=NULL;
-	}
+	
 	
 	
 	//sound

@@ -122,13 +122,14 @@ class Unit{
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;
+	typedef list<UnitParticleSystem*> UnitParticleSystems;
 
 public:
 	static const float speedDivider;
 	static const int maxDeadCount;
 	static const float highlightTime;
 	static const int invalidId;
-	UnitParticleSystem *skillParticleSystem;
+	//UnitParticleSystem *skillParticleSystem;
 
 private:
 	int id;
@@ -175,6 +176,7 @@ private:
 
     Commands commands;
 	Observers observers;
+	UnitParticleSystems unitParticleSystems;
 
 public:
     Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map);
@@ -209,7 +211,6 @@ public:
 	float getRotation() const					{return rotation;}
 	float getVerticalRotation() const;
 	ParticleSystem *getFire() const				{return fire;}
-	UnitParticleSystem *getSkillParticleSystem() const	{return skillParticleSystem;}
 	int getKills()								{return kills;}
 	const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
@@ -248,6 +249,7 @@ public:
 	void setTarget(const Unit *unit);					
 	void setTargetVec(const Vec3f &targetVec)			{this->targetVec= targetVec;}
 	void setMeetingPos(const Vec2i &meetingPos)			{this->meetingPos= meetingPos;}
+	void setVisible(const bool visible);
 
 	//render related
     const Model *getCurrentModel() const;

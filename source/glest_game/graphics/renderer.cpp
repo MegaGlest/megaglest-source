@@ -1355,15 +1355,11 @@ void Renderer::renderUnits(){
 				pointCount+= model->getVertexCount();
 
 				glPopMatrix();
-				if(unit->skillParticleSystem!=NULL){
-					unit->skillParticleSystem->setVisible(true);
-				}
+				unit->setVisible(true);
 			}
 			else
 			{
-				if(unit->skillParticleSystem!=NULL){
-					unit->skillParticleSystem->setVisible(false);
-				}
+				unit->setVisible(false);
 			}
 		}
 	}

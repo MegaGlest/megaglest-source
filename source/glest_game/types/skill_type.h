@@ -64,6 +64,7 @@ enum SkillClass{
     scCount
 };
 
+typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 // =====================================================
 // 	class SkillType
 //
@@ -71,6 +72,8 @@ enum SkillClass{
 // =====================================================
 
 class SkillType{
+
+    
 protected:
     SkillClass skillClass;
 	string name;
@@ -80,7 +83,8 @@ protected:
     Model *animation;
     SoundContainer sounds;
 	float soundStartTime;
-	UnitParticleSystemType *particleSystemType;
+public:
+	UnitParticleSystemTypes unitParticleSystemTypes;
 
 public:
     //varios
@@ -96,8 +100,7 @@ public:
 	const Model *getAnimation() const	{return animation;}
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
-	UnitParticleSystemType *getParticleSystemType() const {return particleSystemType;}
-
+	
 	//other
 	virtual string toString() const= 0;	
 	virtual int getTotalSpeed(const TotalUpgrade *) const	{return speed;}

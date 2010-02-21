@@ -28,6 +28,7 @@
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 
+
 namespace Glest{ namespace Game{
 
 // =====================================================
@@ -140,7 +141,6 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
     if(getType()->getField(fLand)) currField=fLand;
 
     fire= NULL;
-    skillParticleSystem=NULL;
 
 	computeTotalUpgrade();
 
@@ -314,21 +314,22 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 		animProgress= 0;
 		lastAnimProgress= 0;
 		
-		if(skillParticleSystem!=NULL){
-			skillParticleSystem->fade();
-			skillParticleSystem=NULL;
+		while(!unitParticleSystems.empty()){
+			unitParticleSystems.back()->fade();
+			unitParticleSystems.pop_back();
 		}
 	}
-	if((currSkill->getParticleSystemType()!=NULL) 
-		&& (skillParticleSystem==NULL) ){
-		UnitParticleSystemType *upst=currSkill->getParticleSystemType();
-		UnitParticleSystem *ups;
-		ups= new UnitParticleSystem(200);
-		upst->setValues(ups);
-		ups->setPos(getCurrVector());
-		ups->setTeamNumber(getTeam());
-		skillParticleSystem= ups;
-		Renderer::getInstance().manageParticleSystem(ups, rsGame);
+	if((!currSkill->unitParticleSystemTypes.empty()) 
+		&& (unitParticleSystems.empty()) ){
+		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it!=currSkill->unitParticleSystemTypes.end(); ++it){
+			UnitParticleSystem *ups;
+			ups= new UnitParticleSystem(200);
+			(*it)->setValues(ups);
+			ups->setPos(getCurrVector());
+			ups->setTeamNumber(getTeam());
+			unitParticleSystems.push_back(ups);
+			Renderer::getInstance().manageParticleSystem(ups, rsGame);
+		}
 	}
 	progress2= 0;
 	this->currSkill= currSkill;
@@ -365,6 +366,12 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 	this->targetPos= targetPos;
 }	
 
+void Unit::setVisible(const bool visible){
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
+		(*it)->setVisible(visible);
+	}
+}
+	
 // =============================== Render related ==================================
 
 const Model *Unit::getCurrentModel() const{
@@ -635,12 +642,10 @@ bool Unit::update(){
 	{
 		fire->setPos(getCurrVector());
 	}
-	if (skillParticleSystem!=NULL)
-	{
-		skillParticleSystem->setPos(getCurrVector());
-		skillParticleSystem->setRotation(getRotation());
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
+		(*it)->setPos(getCurrVector());
+		(*it)->setRotation(getRotation());
 	}
-	
 	//checks
 	if(animProgress>1.f){
 		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
