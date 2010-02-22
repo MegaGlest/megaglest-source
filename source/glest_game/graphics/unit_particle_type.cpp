@@ -131,6 +131,16 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     //teamcolorEnergy
     const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
     teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
+    
+    //mode
+	if(particleSystemNode->hasChild("mode")){
+		const XmlNode *modeNode= particleSystemNode->getChild("mode");
+    	mode= modeNode->getAttribute("value")->getRestrictedValue();
+	}
+	else
+	{
+		mode="normal";
+	}
 }
 
 void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
@@ -152,6 +162,7 @@ void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
     ups->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ups->setTeamcolorEnergy(teamcolorEnergy);
     ups->setRadius(radius);
+    ups->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 
 void UnitParticleSystemType::load(const string &dir, const string &path){

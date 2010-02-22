@@ -117,6 +117,17 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	//speed
 	const XmlNode *energyVarNode= particleSystemNode->getChild("energy-var");
 	energyVar= energyVarNode->getAttribute("value")->getIntValue();
+	
+	//mode
+	if(particleSystemNode->hasChild("mode")){
+		const XmlNode *modeNode= particleSystemNode->getChild("mode");
+    	mode= modeNode->getAttribute("value")->getRestrictedValue();
+	}
+	else
+	{
+		mode="normal";
+	}
+	
 }
 
 void ParticleSystemType::setValues(AttackParticleSystem *ats){
@@ -133,6 +144,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setMaxParticleEnergy(energyMax);
 	ats->setVarParticleEnergy(energyVar);
 	ats->setModel(model);
+	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 
 // ===========================================================

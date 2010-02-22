@@ -151,7 +151,9 @@ public:
 	void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
 	void setVisible(bool visible);
+	void setBlendMode(BlendMode blendMode)				{this->blendMode= blendMode;}
 
+	static BlendMode strToBlendMode(const string &str);
 	//misc
 	void fade();
 	int isEmpty() const;

@@ -57,6 +57,7 @@ protected:
 	int emissionRate;
 	int energyMax;
 	int energyVar;
+	string mode;
 
 public:
 	ParticleSystemType();

@@ -59,6 +59,7 @@ protected:
     bool fixed;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
+    string mode;
 
 public:
 	UnitParticleSystemType();

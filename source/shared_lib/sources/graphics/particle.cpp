@@ -94,6 +94,18 @@ void ParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	}
 }
 
+ParticleSystem::BlendMode ParticleSystem::strToBlendMode(const string &str){
+	if(str=="normal"){
+		return bmOne;
+	}
+	else if(str=="black"){
+		return bmOneMinusAlpha;
+	}
+	else{
+		throw "Unknown particle mode: " + str;
+	}
+}
+
 
 // =============== SET ==========================
 
@@ -365,13 +377,9 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	else
 	{// rotate it according to rotation
 		float rad=degToRad(rotation);
-//		p->pos= Vec3f(pos.x+x+offset.x*cosf(rad)-offset.z*sinf(rad)*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z*cosf(rad)+offset.x*sinf(rad)); 
-//		p->speed=Vec3f(p->speed.x*cosf(rad)-p->speed.z*sinf(rad)*-1,p->speed.y,p->speed.z*cosf(rad)+p->speed.x*sinf(rad));
-//		p->pos= Vec3f(pos.x+x+(offset.x*cosf(rad)-offset.z*sinf(rad))*-1, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)+offset.x*sinf(rad))); 
-//		p->speed=Vec3f((p->speed.x*cosf(rad)-p->speed.z*sinf(rad))*-1,p->speed.y,(p->speed.z*cosf(rad)+p->speed.x*sinf(rad)));
 		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)-offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)+offset.x*sinf(rad))); 
 		p->speed=Vec3f(p->speed.z*sinf(rad)-p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)+p->speed.x*sinf(rad)));
-	}//p->pos=Vec3f(p->pos.x*cosf(rad)-p->pos.z*sinf(rad),p->pos.y,p->pos.z*cosf(rad)+p->pos.z*sinf(rad));
+	}
 }
 
 void UnitParticleSystem::update(){
