@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -96,6 +96,7 @@ void ParticleRendererGl::renderSystem(ParticleSystem *ps){
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_FOG);
 	glAlphaFunc(GL_GREATER, 0.0f);
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_VERTEX_ARRAY);
