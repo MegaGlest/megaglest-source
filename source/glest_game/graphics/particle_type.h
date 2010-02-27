@@ -58,6 +58,8 @@ protected:
 	int energyMax;
 	int energyVar;
 	string mode;
+	bool teamcolorNoEnergy;
+    bool teamcolorEnergy;
 
 public:
 	ParticleSystemType();

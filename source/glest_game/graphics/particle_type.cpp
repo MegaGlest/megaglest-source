@@ -30,6 +30,8 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 ParticleSystemType::ParticleSystemType(){
+	teamcolorNoEnergy=false;
+	teamcolorEnergy=false;
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir){
@@ -118,6 +120,17 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	const XmlNode *energyVarNode= particleSystemNode->getChild("energy-var");
 	energyVar= energyVarNode->getAttribute("value")->getIntValue();
 	
+	//teamcolorNoEnergy
+    if(particleSystemNode->hasChild("teamcolorNoEnergy")){
+    	const XmlNode *teamcolorNoEnergyNode= particleSystemNode->getChild("teamcolorNoEnergy");
+    	teamcolorNoEnergy= teamcolorNoEnergyNode->getAttribute("value")->getBoolValue();
+    }
+    //teamcolorEnergy
+    if(particleSystemNode->hasChild("teamcolorEnergy")){
+    	const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
+    	teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
+    }
+
 	//mode
 	if(particleSystemNode->hasChild("mode")){
 		const XmlNode *modeNode= particleSystemNode->getChild("mode");
@@ -144,6 +157,8 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setMaxParticleEnergy(energyMax);
 	ats->setVarParticleEnergy(energyVar);
 	ats->setModel(model);
+	ats->setTeamcolorNoEnergy(teamcolorNoEnergy);
+    ats->setTeamcolorEnergy(teamcolorEnergy);
 	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 

@@ -50,6 +50,8 @@ ParticleSystem::ParticleSystem(int particleCount){
 	colorNoEnergy= Vec4f(0.0f);
 	emissionRate= 15;
 	speed= 1.0f;
+	teamcolorNoEnergy=false;
+	teamcolorEnergy=false;
 }
 
 ParticleSystem::~ParticleSystem(){
@@ -226,6 +228,21 @@ void ParticleSystem::killParticle(Particle *p){
 	aliveParticleCount--;
 }
 
+void ParticleSystem::setFactionColor(Vec3f factionColor){
+	this->factionColor=factionColor;
+	Vec3f tmpCol;
+		
+	if(teamcolorEnergy)
+	{
+		this->color=Vec4f(factionColor.x,factionColor.y,factionColor.z,this->color.w);
+	}
+	if(teamcolorNoEnergy)
+	{
+		this->colorNoEnergy=Vec4f(factionColor.x,factionColor.y,factionColor.z,this->colorNoEnergy.w);
+	}
+}
+
+
 // ===========================================================================
 //  FireParticleSystem
 // ===========================================================================
@@ -308,8 +325,6 @@ UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(partic
 	gravity= 0.0f;
 	
 	fixed=false;
-	teamcolorNoEnergy=false;
-	teamcolorEnergy=false;
 	rotation=0.0f;
 	
 	cRotation= Vec3f(1.0f,1.0f,1.0f);
@@ -436,36 +451,7 @@ void UnitParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
 }
 
-void UnitParticleSystem::setTeamNumber(int teamNumber){
-	this->teamNumber=teamNumber;
-	Vec3f tmpCol;
-	
-	if(teamNumber==0)
-	{
-		tmpCol=Vec3f(1,0,0);
-	}
-	else if(teamNumber==1)
-	{
-		tmpCol=Vec3f(0,0,1);
-	}
-	else if(teamNumber==2)
-	{
-		tmpCol=Vec3f(0,1,0);
-	}
-	else if(teamNumber==3)
-	{
-		tmpCol=Vec3f(1,1,0);
-	}
-	
-	if(teamcolorEnergy)
-	{
-		this->color=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->color.w);
-	}
-	if(teamcolorNoEnergy)
-	{
-		this->colorNoEnergy=Vec4f(tmpCol.x,tmpCol.y,tmpCol.z,this->colorNoEnergy.w);
-	}
-}
+
 
 
 // ===========================================================================

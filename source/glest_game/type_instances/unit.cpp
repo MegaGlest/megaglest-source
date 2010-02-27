@@ -331,7 +331,7 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 			ups= new UnitParticleSystem(200);
 			(*it)->setValues(ups);
 			ups->setPos(getCurrVector());
-			ups->setTeamNumber(getTeam());
+			ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
 			unitParticleSystems.push_back(ups);
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
@@ -876,12 +876,16 @@ void Unit::incKills(){
 bool Unit::morph(const MorphCommandType *mct){
 	const UnitType *morphUnitType= mct->getMorphUnit();
 
-	if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), currField, this)){
+    Field morphUnitField=fLand;
+    if(morphUnitType->getField(fAir)) morphUnitField=fAir;
+    if(morphUnitType->getField(fLand)) morphUnitField=fLand;
+    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this)){
 		map->clearUnitCells(this, pos);
 		faction->deApplyStaticCosts(type);
 		hp+= morphUnitType->getMaxHp() - type->getMaxHp();
 		type= morphUnitType;
 		level= NULL;
+		currField=morphUnitField;
 		computeTotalUpgrade();
 		map->putUnitCells(this, pos);
 		faction->applyDiscount(morphUnitType, mct->getDiscount());	

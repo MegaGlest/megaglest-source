@@ -114,6 +114,9 @@ protected:
 	int varParticleEnergy;
 	float particleSize;
 	float speed;
+	Vec3f factionColor;
+    bool teamcolorNoEnergy;
+    bool teamcolorEnergy;
 
 	ParticleObserver *particleObserver;
 
@@ -152,6 +155,9 @@ public:
 	void setObserver(ParticleObserver *particleObserver);
 	void setVisible(bool visible);
 	void setBlendMode(BlendMode blendMode)				{this->blendMode= blendMode;}
+	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
+	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
+	virtual void setFactionColor(Vec3f factionColor);
 
 	static BlendMode strToBlendMode(const string &str);
 	//misc
@@ -209,9 +215,6 @@ public:
 	};
 	bool relative;
     bool fixed;
-    int teamNumber;
-    bool teamcolorNoEnergy;
-    bool teamcolorEnergy;
 	Model *model;
 	Primitive primitive;
 	Vec3f offset;
@@ -227,7 +230,6 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
 	virtual void update();
-	virtual void setTeamNumber(int teamNumber);
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
 	//set params
@@ -241,8 +243,6 @@ public:
 	void setRotation(float rotation)					{this->rotation= rotation;}
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
-	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
-	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
 	void setPrimitive(Primitive primitive)				{this->primitive= primitive;}
 
 	static Primitive strToPrimitive(const string &str);

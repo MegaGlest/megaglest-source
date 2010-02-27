@@ -125,12 +125,15 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     fixed= fixedNode->getAttribute("value")->getBoolValue();
     
     //teamcolorNoEnergy
-    const XmlNode *teamcolorNoEnergyNode= particleSystemNode->getChild("teamcolorNoEnergy");
-    teamcolorNoEnergy= teamcolorNoEnergyNode->getAttribute("value")->getBoolValue();
-    
+    if(particleSystemNode->hasChild("teamcolorNoEnergy")){
+    	const XmlNode *teamcolorNoEnergyNode= particleSystemNode->getChild("teamcolorNoEnergy");
+    	teamcolorNoEnergy= teamcolorNoEnergyNode->getAttribute("value")->getBoolValue();
+    }
     //teamcolorEnergy
-    const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
-    teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
+    if(particleSystemNode->hasChild("teamcolorEnergy")){
+    	const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
+    	teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
+    }
     
     //mode
 	if(particleSystemNode->hasChild("mode")){
