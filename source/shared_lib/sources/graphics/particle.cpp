@@ -370,7 +370,6 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	float y= cosf(ang)*mod;
 	
 	float radRatio= sqrtf(sqrtf(mod/radius));
-	float rad=degToRad(rotation);
 	
 	//p->color= color*0.5f + color*0.5f*radRatio;
 	p->color=color;
@@ -512,7 +511,7 @@ SnowParticleSystem::SnowParticleSystem(int particleCount):ParticleSystem(particl
 	setEmissionRate(2);
 	setParticleSize(0.2f);
 	setColor(Vec4f(0.8f, 0.8f, 0.8f, 0.8f));
-	setSpeed(0.025f);
+	setSpeed(0.05f);
 }
 
 void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
