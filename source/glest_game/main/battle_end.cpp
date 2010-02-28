@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -60,12 +60,12 @@ void BattleEnd::render(){
 	
 	textRenderer->begin(CoreData::getInstance().getMenuFontBig());
 
-	int lm= 80;
+	int lm= 20;
 	int bm= 100;
 
 	for(int i=0; i<stats.getFactionCount(); ++i){
 
-		int textX= lm+300+i*120;
+		int textX= lm+120+i*110;
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
 		int deaths= stats.getDeaths(i);
@@ -110,15 +110,15 @@ void BattleEnd::render(){
 		textRenderer->render(intToStr(score).c_str(), textX, bm+20);
 	}
 
-	textRenderer->render(lang.get("Result"), lm+50, bm+360);
-	textRenderer->render(lang.get("Control"), lm+50, bm+320);
-	textRenderer->render(lang.get("Faction"), lm+50, bm+280);
-	textRenderer->render(lang.get("Team"), lm+50, bm+240);
-	textRenderer->render(lang.get("Kills"), lm+50, bm+200);
-	textRenderer->render(lang.get("Deaths"), lm+50, bm+160);
-	textRenderer->render(lang.get("UnitsProduced"), lm+50, bm+120);
-	textRenderer->render(lang.get("ResourcesHarvested"), lm+50, bm+80);
-	textRenderer->render(lang.get("Score"), lm+50, bm+20);
+	textRenderer->render(lang.get("Result"), lm, bm+360);
+	textRenderer->render(lang.get("Control"), lm, bm+320);
+	textRenderer->render(lang.get("Faction"), lm, bm+280);
+	textRenderer->render(lang.get("Team"), lm, bm+240);
+	textRenderer->render(lang.get("Kills"), lm, bm+200);
+	textRenderer->render(lang.get("Deaths"), lm, bm+160);
+	textRenderer->render(lang.get("UnitsProduced"), lm, bm+120);
+	textRenderer->render(lang.get("ResourcesHarvested"), lm, bm+80);
+	textRenderer->render(lang.get("Score"), lm, bm+20);
 
 	textRenderer->end();
 

@@ -32,7 +32,7 @@ private:
 	static const int surfaceCount= 5;
 	static const int objectCount= 11;
 	static const int resourceCount= 6;
-	static const int startLocationCount= 4;
+	static const int startLocationCount= 8;
 	static const int radiusCount= 9;
 
 private:
@@ -70,6 +70,8 @@ private:
 	GlCanvas *glCanvas;
 	Program *program;
 	int lastX, lastY;
+
+	wxTimer *timer;
 
 	wxMenuBar *menuBar;
 	wxMenu *menuFile;
@@ -130,6 +132,8 @@ public:
 	void onMenuBrushResource(wxCommandEvent &event);
 	void onMenuBrushStartLocation(wxCommandEvent &event);
 	void onMenuRadius(wxCommandEvent &event);
+
+	void onTimer(wxTimerEvent &event);
 
 	void change(int x, int y);
 

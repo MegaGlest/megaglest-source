@@ -155,6 +155,10 @@ void Renderer::renderMap(Map *map, int x, int y, int clientW, int clientH, int c
 		case 1: glColor3f(0.f, 0.f, 1.f); break;
 		case 2: glColor3f(0.f, 1.f, 0.f); break;
 		case 3: glColor3f(1.f, 1.f, 0.f); break;
+		case 4: glColor3f(1.f, 1.f, 1.f); break;
+		case 5: glColor3f(0.f, 1.f, 0.8f); break;
+		case 6: glColor3f(1.f, 0.8f, 0.f); break;
+		case 7: glColor3f(1.f, 0.8f, 1.f); break;
 		}
 		glBegin(GL_LINES);
 				glVertex2i((map->getStartLocationX(i)-1)*cellSize, clientH- (map->getStartLocationY(i)-1)*cellSize);

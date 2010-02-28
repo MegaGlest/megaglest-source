@@ -132,6 +132,10 @@ MainWindow::MainWindow():
 	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+2, wxT("2 - Player 2 "));
 	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+3, wxT("3 - Player 3 "));
 	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+4, wxT("4 - Player 4 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+5, wxT("5 - Player 5 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+6, wxT("6 - Player 6 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+7, wxT("7 - Player 7 "));
+	menuBrushStartLocation->AppendCheckItem(miBrushStartLocation+8, wxT("8 - Player 8 "));
 	menuBrush->Append(miBrushStartLocation, wxT("Player"), menuBrushStartLocation);
 
 	menuBar->Append(menuBrush, wxT("Brush"));
@@ -145,6 +149,9 @@ MainWindow::MainWindow():
 	menuBar->Append(menuRadius, wxT("Radius"));
 
 	SetMenuBar(menuBar);
+
+	timer = new wxTimer(this);
+	timer->Start(50);
 }
 
 void MainWindow::init(){
@@ -414,6 +421,11 @@ void MainWindow::onMenuRadius(wxCommandEvent &event){
 	radius= event.GetId() - miRadius + 1;
 }
 
+void MainWindow::onTimer(wxTimerEvent &event) {
+	wxPaintEvent paintEvent;
+	onPaint(paintEvent);
+}
+
 void MainWindow::change(int x, int y){
 	switch(enabledGroup){
 	case 0:
@@ -459,6 +471,7 @@ void MainWindow::uncheckRadius(){
 }
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
+	EVT_TIMER(-1, MainWindow::onTimer)
 	EVT_CLOSE(MainWindow::onClose)
 	EVT_LEFT_DOWN(MainWindow::onMouseDown)
 	EVT_MOTION(MainWindow::onMouseMove)

@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -47,8 +47,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	vector<string> results, teamItems, controlItems;
 
 	//create
-	buttonReturn.init(350, 200, 125);
-	buttonPlayNow.init(525, 200, 125);
+	buttonReturn.init(350, 140, 125);
+	buttonPlayNow.init(525, 140, 125);
 
     //map listBox
     findAll("maps/*.gbm", results, true);
@@ -59,10 +59,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	for(int i= 0; i<results.size(); ++i){
 		results[i]= formatString(results[i]);
 	}
-    listBoxMap.init(200, 320, 150);
+    listBoxMap.init(200, 260, 150);
     listBoxMap.setItems(results);
-	labelMap.init(200, 350);
-	labelMapInfo.init(200, 290, 200, 40);
+	labelMap.init(200, 290);
+	labelMapInfo.init(200, 230, 200, 40);
 
     //tileset listBox
     findAll("tilesets/*.", results);
@@ -73,9 +73,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	for(int i= 0; i<results.size(); ++i){
 		results[i]= formatString(results[i]);
 	}
-	listBoxTileset.init(400, 320, 150);
+	listBoxTileset.init(400, 260, 150);
     listBoxTileset.setItems(results);
-	labelTileset.init(400, 350);
+	labelTileset.init(400, 290);
 
     //tech Tree listBox
     findAll("techs/*.", results);
@@ -86,22 +86,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	for(int i= 0; i<results.size(); ++i){
 		results[i]= formatString(results[i]);
 	}
-	listBoxTechTree.init(600, 320, 150);
+	listBoxTechTree.init(600, 260, 150);
     listBoxTechTree.setItems(results);
-	labelTechTree.init(600, 350);
+	labelTechTree.init(600, 290);
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(200, 500-i*30);
-        listBoxControls[i].init(300, 500-i*30);
-        listBoxFactions[i].init(500, 500-i*30);
-		listBoxTeams[i].init(700, 500-i*30, 60);
-		labelNetStatus[i].init(800, 500-i*30, 60);
+		labelPlayers[i].init(200, 550-i*30);
+        listBoxControls[i].init(300, 550-i*30);
+        listBoxFactions[i].init(500, 550-i*30);
+		listBoxTeams[i].init(700, 550-i*30, 60);
+		labelNetStatus[i].init(800, 550-i*30, 60);
     }
 
-	labelControl.init(300, 550, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(500, 550, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(700, 550, 60, GraphicListBox::defH, true);
+	labelControl.init(300, 600, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(500, 600, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(700, 600, 60, GraphicListBox::defH, true);
 
 	//texts
 	buttonReturn.setText(lang.get("Return"));
@@ -118,6 +118,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	teamItems.push_back("2");
 	teamItems.push_back("3");
 	teamItems.push_back("4");
+	teamItems.push_back("5");
+	teamItems.push_back("6");
+	teamItems.push_back("7");
+	teamItems.push_back("8");
 
 	reloadFactions();
 

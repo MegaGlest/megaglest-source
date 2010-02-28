@@ -39,13 +39,22 @@ Ip::Ip(){
 	bytes[1]= 0;
 	bytes[2]= 0;
 	bytes[3]= 0;
+	bytes[4]= 0;
+	bytes[5]= 0;
+	bytes[6]= 0;
+	bytes[7]= 0;
 }
 
-Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3){
+Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3,
+		unsigned char byte4, unsigned char byte5, unsigned char byte6, unsigned char byte7){
 	bytes[0]= byte0;
 	bytes[1]= byte1;
 	bytes[2]= byte2;
 	bytes[3]= byte3;
+	bytes[4]= byte4;
+	bytes[5]= byte5;
+	bytes[6]= byte6;
+	bytes[7]= byte7;
 }
 
 
@@ -53,7 +62,7 @@ Ip::Ip(const string& ipString){
 	int offset= 0;
 	int byteIndex= 0;
 
-	for(byteIndex= 0; byteIndex<4; ++byteIndex){
+	for(byteIndex= 0; byteIndex<8; ++byteIndex){
 		int dotPos= ipString.find_first_of('.', offset);
 
 		bytes[byteIndex]= atoi(ipString.substr(offset, dotPos-offset).c_str());

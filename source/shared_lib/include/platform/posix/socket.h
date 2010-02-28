@@ -38,7 +38,8 @@ private:
 
 public:
 	Ip();
-	Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3);
+	Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3,
+		unsigned char byte4, unsigned char byte5, unsigned char byte6, unsigned char byte7);
 	Ip(const string& ipString);
 
 	unsigned char getByte(int byteIndex)	{return bytes[byteIndex];}

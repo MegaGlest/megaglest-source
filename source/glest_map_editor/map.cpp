@@ -320,8 +320,8 @@ void Map::resize(int w, int h, float alt, int surf){
 }
 
 void Map::resetPlayers(int maxPlayers){
-	if (maxPlayers<1 || maxPlayers>4){
-		throw runtime_error("Max Players must be in the range 1-4");
+	if (maxPlayers<1 || maxPlayers>8){
+		throw runtime_error("Max Players must be in the range 1-8");
 		return;
 	}
 	

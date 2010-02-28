@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -32,7 +32,8 @@ private:
 
 public:
 	Ip();
-	Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3);
+	Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3,
+		unsigned char byte4, unsigned char byte5, unsigned char byte6, unsigned char byte7);
 	Ip(const string& ipString);
 
 	unsigned char getByte(int byteIndex)	{return bytes[byteIndex];}
