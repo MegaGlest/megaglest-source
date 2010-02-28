@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -109,6 +109,7 @@ public:
 	XmlAttribute *getAttribute(const string &name) const;
 	XmlNode *getChild(int i) const;
 	XmlNode *getChild(const string &childName, int childIndex=0) const;
+	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
 	bool hasChild(const string &childName) const;
 	XmlNode *getParent() const;
 

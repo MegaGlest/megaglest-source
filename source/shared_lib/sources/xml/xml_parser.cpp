@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -268,6 +268,24 @@ XmlNode *XmlNode::getChild(const string &childName, int i) const{
 
 	throw runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
 }
+
+bool XmlNode::hasChildAtIndex(const string &childName, int i) const
+{
+	int count= 0;
+	for(int j = 0; j < children.size(); ++j)
+	{
+		if(children[j]->getName()==childName)
+		{
+            if(count==i){
+				return true;
+			}
+			count++;
+		}
+	}
+
+	return false;
+}
+
 
 bool XmlNode::hasChild(const string &childName) const
 {

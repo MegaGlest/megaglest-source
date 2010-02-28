@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -143,10 +143,19 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 	}
 
 	const XmlNode *playersNode= scenarioNode->getChild("players");
+	
     for(int i= 0; i<GameConstants::maxPlayers; ++i){
-        const XmlNode* playerNode = playersNode->getChild("player", i);
-        ControlType factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
-        string factionTypeName;
+    	XmlNode* playerNode;
+    	string factionTypeName;
+    	ControlType factionControl;
+    	
+    	if(playersNode->hasChildAtIndex("player",i)){
+        	playerNode = playersNode->getChild("player", i);
+        	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
+    	}
+        else{
+        	factionControl=ctClosed;
+        }
 
         scenarioInfo->factionControls[i] = factionControl;
 
