@@ -22,7 +22,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.2.4-1-beta4";
+const string glestVersionString= "v3.2.4-2-beta4";
 
 string getCrashDumpFileName(){
 	return "glest"+glestVersionString+".dmp";
@@ -43,7 +43,7 @@ string getAboutString1(int i){
 
 string getAboutString2(int i){
 	switch(i){
-	case 0: return "Web: http://glest.org";
+	case 0: return "Web: http://sourceforge.net/projects/megaglest  http://glest.org";
 	case 1: return "Mail: " + mailString;
 	case 2: return "Irc: irc://irc.freenode.net/glest";
 	}
@@ -59,6 +59,8 @@ string getTeammateName(int i){
 	case 4: return "F�lix Men�ndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
+	case 7: return "Titus Tscharntke";
+	case 8: return "Mark Vejvoda";
 	}
 	return "";
 }
@@ -74,6 +76,8 @@ string getTeammateRole(int i){
 	case 4: return l.get("Animation");
 	case 5: return l.get("3dArt");
 	case 6: return l.get("LinuxPort");
+	case 7: return l.get("Megaglest3d2dProgramming");
+	case 8: return l.get("MegaglestProgramming");
 	}
 	return "";
 }

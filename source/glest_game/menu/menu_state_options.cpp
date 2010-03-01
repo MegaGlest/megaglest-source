@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -49,6 +49,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelShadows.init(200, 310);
 	labelTextures3D.init(200, 280);
 	labelLights.init(200, 250);
+	labelUnitParticles.init(200,220);
 
 	//list boxes
 	listBoxVolumeFx.init(350, 530, 80);
@@ -62,7 +63,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxShadows.init(350, 310, 170);
 	listBoxTextures3D.init(350, 280, 80);
 	listBoxLights.init(350, 250, 80);
-
+	listBoxUnitParticles.init(350,220,80);
+	
 	//set text
 	buttonReturn.setText(lang.get("Return"));
 	buttonAutoConfig.setText(lang.get("AutoConfig"));
@@ -71,6 +73,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelFilter.setText(lang.get("Filter"));
 	labelTextures3D.setText(lang.get("Textures3D"));
 	labelLights.setText(lang.get("MaxLights"));
+	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
 	labelVolumeFx.setText(lang.get("FxVolume"));
 	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
 	labelVolumeMusic.setText(lang.get("MusicVolume"));
@@ -103,6 +106,11 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxTextures3D.pushBackItem(lang.get("No"));
 	listBoxTextures3D.pushBackItem(lang.get("Yes"));
 	listBoxTextures3D.setSelectedItemIndex(clamp(config.getInt("Textures3D"), 0, 1));
+	
+	//textures 3d
+	listBoxUnitParticles.pushBackItem(lang.get("No"));
+	listBoxUnitParticles.pushBackItem(lang.get("Yes"));
+	listBoxUnitParticles.setSelectedItemIndex(clamp(config.getInt("UnitParticles"), 0, 1));
 
 	//lights
 	for(int i= 1; i<=8; ++i){
@@ -158,6 +166,10 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		config.setInt("Textures3D", listBoxTextures3D.getSelectedItemIndex());
 		saveConfig();
 	}
+	else if(listBoxUnitParticles.mouseClick(x, y)){
+		config.setInt("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
+		saveConfig();
+	}
 	else if(listBoxLights.mouseClick(x, y)){
 		config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 		saveConfig();
@@ -190,6 +202,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxFilter.mouseMove(x, y);
 	listBoxShadows.mouseMove(x, y);
 	listBoxTextures3D.mouseMove(x, y);
+	listBoxUnitParticles.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
 }
 
@@ -201,6 +214,7 @@ void MenuStateOptions::render(){
 	renderer.renderListBox(&listBoxLang);
 	renderer.renderListBox(&listBoxShadows);
 	renderer.renderListBox(&listBoxTextures3D);
+	renderer.renderListBox(&listBoxUnitParticles);
 	renderer.renderListBox(&listBoxLights);
 	renderer.renderListBox(&listBoxFilter);
 	renderer.renderListBox(&listBoxVolumeFx);
@@ -209,6 +223,7 @@ void MenuStateOptions::render(){
 	renderer.renderLabel(&labelLang);
 	renderer.renderLabel(&labelShadows);
 	renderer.renderLabel(&labelTextures3D);
+	renderer.renderLabel(&labelUnitParticles);
 	renderer.renderLabel(&labelLights);
 	renderer.renderLabel(&labelFilter);
 	renderer.renderLabel(&labelVolumeFx);

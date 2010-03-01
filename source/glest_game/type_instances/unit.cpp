@@ -110,8 +110,11 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->type=type;
     this->faction=faction;
 	this->map= map;
-
 	this->id= id;
+	
+	Config &config= Config::getInstance();
+	showUnitParticles= config.getBool("UnitParticles");
+	
 	lastPos= pos;
     progress= 0;
 	lastAnimProgress= 0;
@@ -159,6 +162,7 @@ Unit::~Unit(){
 			unitParticleSystems.back()->fade();
 			unitParticleSystems.pop_back();
 		}
+	stopDamageParticles();
 }
 
 // ====================================== get ======================================
@@ -324,8 +328,8 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 			unitParticleSystems.pop_back();
 		}
 	}
-	if((!currSkill->unitParticleSystemTypes.empty()) 
-		&& (unitParticleSystems.empty()) ){
+	if(showUnitParticles && (!currSkill->unitParticleSystemTypes.empty()) && 
+		(unitParticleSystems.empty()) ){
 		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it!=currSkill->unitParticleSystemTypes.end(); ++it){
 			UnitParticleSystem *ups;
 			ups= new UnitParticleSystem(200);
@@ -373,6 +377,9 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 void Unit::setVisible(const bool visible){
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
+		(*it)->setVisible(visible);
+	}
+	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it!=damageParticleSystems.end(); ++it){
 		(*it)->setVisible(visible);
 	}
 }
@@ -651,6 +658,10 @@ bool Unit::update(){
 		(*it)->setPos(getCurrVector());
 		(*it)->setRotation(getRotation());
 	}
+	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it!=damageParticleSystems.end(); ++it){
+		(*it)->setPos(getCurrVector());
+		(*it)->setRotation(getRotation());
+	}
 	//checks
 	if(animProgress>1.f){
 		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
@@ -684,10 +695,9 @@ void Unit::tick(){
 		if(hp>type->getTotalMaxHp(&totalUpgrade)){
 			hp= type->getTotalMaxHp(&totalUpgrade);
 		}
-		//stop fire
-		if(hp>type->getTotalMaxHp(&totalUpgrade)/2 && fire!=NULL){
-			fire->fade();
-			fire= NULL;
+		//stop DamageParticles
+		if(hp>type->getTotalMaxHp(&totalUpgrade)/2 ){
+			stopDamageParticles();
 		}
 		//regenerate ep
 		ep+= type->getEpRegeneration();
@@ -727,10 +737,9 @@ bool Unit::repair(){
         return true;
     }
 
-	//stop fire
-	if(hp>type->getTotalMaxHp(&totalUpgrade)/2 && fire!=NULL){
-		fire->fade();
-		fire= NULL;
+	//stop DamageParticles
+	if(hp>type->getTotalMaxHp(&totalUpgrade)/2 ){
+		stopDamageParticles();
 	}
     return false;
 }
@@ -743,27 +752,16 @@ bool Unit::decHp(int i){
 	
 	hp-=i;
 
-	//fire
-	if(type->getProperty(UnitType::pBurnable) && hp<type->getMaxHp()/2 && fire==NULL){
-		FireParticleSystem *fps;
-		fps= new FireParticleSystem(200);
-		fps->setSpeed(2.5f/GameConstants::updateFps);
-		fps->setPos(getCurrVector());
-		fps->setRadius(type->getSize()/3.f);
-		fps->setTexture(CoreData::getInstance().getFireTexture());
-		fps->setParticleSize(type->getSize()/3.f);
-		fire= fps;
-		Renderer::getInstance().manageParticleSystem(fps, rsGame);
+	//startDamageParticles
+	if(hp<type->getMaxHp()/2 ){
+		startDamageParticles();
 	}
 
-	//stop fire on death
+	//stop DamageParticles on death
     if(hp<=0){
 		alive= false;
         hp=0;
-		if(fire!=NULL){
-			fire->fade();
-			fire= NULL;
-		}
+		stopDamageParticles();
 		return true;
     }
     return false;
@@ -1019,6 +1017,68 @@ CommandResult Unit::undoCommand(Command *command){
 	}
 
 	return crSuccess;
+}
+
+void Unit::stopDamageParticles(){
+	// stop fire
+	if(fire!=NULL){
+			fire->fade();
+			fire= NULL;
+		}
+	// stop additional particles
+	while(!damageParticleSystems.empty()){
+		damageParticleSystems.back()->fade();
+		damageParticleSystems.pop_back();
+	}
+}
+
+void Unit::startDamageParticles(){
+	//start additional particles
+	if( showUnitParticles && (!type->damageParticleSystemTypes.empty()) 
+		&& (damageParticleSystems.empty()) ){
+		for(UnitParticleSystemTypes::const_iterator it= type->damageParticleSystemTypes.begin(); it!=type->damageParticleSystemTypes.end(); ++it){
+			UnitParticleSystem *ups;
+			ups= new UnitParticleSystem(200);
+			(*it)->setValues(ups);
+			ups->setPos(getCurrVector());
+			ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+			damageParticleSystems.push_back(ups);
+			Renderer::getInstance().manageParticleSystem(ups, rsGame);
+		}
+	}
+	// start fire
+	if(type->getProperty(UnitType::pBurnable) && fire==NULL){
+		FireParticleSystem *fps;
+		fps= new FireParticleSystem(200);
+		fps->setSpeed(2.5f/GameConstants::updateFps);
+		fps->setPos(getCurrVector());
+		fps->setRadius(type->getSize()/3.f);
+		fps->setTexture(CoreData::getInstance().getFireTexture());
+		fps->setParticleSize(type->getSize()/3.f);
+		fire= fps;
+		Renderer::getInstance().manageParticleSystem(fps, rsGame);
+		if(showUnitParticles){
+			// smoke
+			UnitParticleSystem *ups= new UnitParticleSystem(400);
+			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
+			ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
+			ups->setPos(getCurrVector());
+			ups->setBlendMode(ups->strToBlendMode("black"));
+			ups->setOffset(Vec3f(0,2,0));
+			ups->setDirection(Vec3f(0,1,-0.2f));
+			ups->setRadius(type->getSize()/3.f);
+			ups->setTexture(CoreData::getInstance().getFireTexture());
+			ups->setSpeed(2.0f/GameConstants::updateFps);
+			ups->setGravity(0.0004f);
+			ups->setEmissionRate(1);
+			ups->setMaxParticleEnergy(150);
+			ups->setSizeNoEnergy(type->getSize()*0.6f);
+			ups->setParticleSize(type->getSize()*0.8f);
+			damageParticleSystems.push_back(ups);
+			Renderer::getInstance().manageParticleSystem(ups, rsGame);
+		}
+		
+	}
 }
 
 

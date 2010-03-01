@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -24,6 +24,7 @@
 #include "renderer.h"
 #include "game_util.h"
 #include "leak_dumper.h"
+#include "unit_particle_type.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
@@ -76,6 +77,12 @@ UnitType::~UnitType(){
 	deleteValues(selectionSounds.getSounds().begin(), selectionSounds.getSounds().end());
 	deleteValues(commandSounds.getSounds().begin(), commandSounds.getSounds().end());
 	delete [] cellMap;
+	//remove damageParticleSystemTypes
+	while(!damageParticleSystemTypes.empty()){
+		delete damageParticleSystemTypes.back();
+		damageParticleSystemTypes.pop_back();
+	}
+	
 }
 
 void UnitType::preLoad(const string &dir){
@@ -206,6 +213,20 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			}
 			if(!found){
 				throw runtime_error("Unknown property: " + propertyName);
+			}
+		}
+		//damage-particles
+		if(parametersNode->hasChild("damage-particles")){
+			const XmlNode *particleNode= parametersNode->getChild("damage-particles");
+			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+			if(particleEnabled){
+				for(int i=0; i<particleNode->getChildCount(); ++i){
+					const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
+					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+					unitParticleSystemType->load(dir,  dir + "/" + path);
+					damageParticleSystemTypes.push_back(unitParticleSystemType);
+				}
 			}
 		}
 

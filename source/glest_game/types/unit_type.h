@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -25,6 +25,7 @@ using Shared::Util::Checksum;
 
 class UpgradeType;
 class UnitType;
+class UnitParticleSystemType;
 class ResourceType;
 class TechTree;
 class FactionType;
@@ -58,6 +59,8 @@ enum UnitClass{
 	ucBuilding
 };
 
+typedef list<UnitParticleSystemType*> DamageParticleSystemTypes;
+
 class UnitType: public ProducibleType{
 public:
 	enum Property{
@@ -68,7 +71,7 @@ public:
 	};
 
 	static const char *propertyNames[];
-
+	DamageParticleSystemTypes damageParticleSystemTypes;
 private:
     typedef vector<SkillType*> SkillTypes;
     typedef vector<CommandType*> CommandTypes;

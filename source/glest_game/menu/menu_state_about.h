@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -24,7 +24,7 @@ class MenuStateAbout: public MenuState{
 public:
 	static const int aboutStringCount1= 3;
 	static const int aboutStringCount2= 3;
-	static const int teammateCount= 7;
+	static const int teammateCount= 9;
 
 private:
 	GraphicButton buttonReturn;

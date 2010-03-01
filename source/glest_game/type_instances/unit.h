@@ -129,7 +129,7 @@ public:
 	static const int maxDeadCount;
 	static const float highlightTime;
 	static const int invalidId;
-	//UnitParticleSystem *skillParticleSystem;
+
 
 private:
 	int id;
@@ -166,6 +166,7 @@ private:
 	
     bool toBeUndertaken;
 	bool alive;
+	bool showUnitParticles;
 
     Faction *faction;
 	ParticleSystem *fire;
@@ -177,6 +178,7 @@ private:
     Commands commands;
 	Observers observers;
 	UnitParticleSystems unitParticleSystems;
+	UnitParticleSystems damageParticleSystems;
 
 public:
     Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map);
@@ -297,6 +299,8 @@ private:
 	void updateTarget();
 	void clearCommands();
 	CommandResult undoCommand(Command *command);
+	void stopDamageParticles();
+	void startDamageParticles();
 };
 
 }}// end namespace

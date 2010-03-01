@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -51,10 +51,14 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu):
 		labelTeammateRole[i].setText(getTeammateRole(i));
 	}
 
-	labelTeammateName[5].init(360, 160);
-	labelTeammateRole[5].init(360, 180);
-	labelTeammateName[6].init(540, 160);
-	labelTeammateRole[6].init(540, 180);
+	labelTeammateName[5].init(180, 160);
+	labelTeammateRole[5].init(180, 180);
+	labelTeammateName[6].init(360, 160);
+	labelTeammateRole[6].init(360, 180);
+	labelTeammateName[7].init(540, 160);
+	labelTeammateRole[7].init(540, 180);
+	labelTeammateName[8].init(720, 160);
+	labelTeammateRole[8].init(720, 180);
 }
 
 void MenuStateAbout::mouseClick(int x, int y, MouseButton mouseButton){
