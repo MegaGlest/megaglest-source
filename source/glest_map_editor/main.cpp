@@ -45,7 +45,8 @@ MainWindow::MainWindow():
 
 	
 	//gl canvas
-	glCanvas = new GlCanvas(this);
+	int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER};
+	glCanvas = new GlCanvas(this,args);
 
 	//menus
 	menuBar= new wxMenuBar();
@@ -203,7 +204,6 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 
 void MainWindow::onPaint(wxPaintEvent &event){
 	program->renderMap(GetClientSize().x, GetClientSize().y);
-	
 	glCanvas->SwapBuffers();
 }
 
@@ -508,8 +508,8 @@ END_EVENT_TABLE()
 //	class GlCanvas
 // =====================================================
 
-GlCanvas::GlCanvas(MainWindow *	mainWindow):
-	wxGLCanvas(mainWindow, -1, wxDefaultPosition)
+GlCanvas::GlCanvas(MainWindow *	mainWindow, int* args):
+	wxGLCanvas(mainWindow, -1, wxDefaultPosition,wxDefaultSize,0,wxT("GLCanvas"),args)
 {
 	this->mainWindow = mainWindow;
 }
