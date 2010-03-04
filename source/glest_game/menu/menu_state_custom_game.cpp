@@ -44,20 +44,28 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	needToSetChangedGameSettings = false;
 	lastSetChangedGameSettings   = time(NULL);;
 
-	vector<string> results, teamItems, controlItems;
+	vector<string> glestMaps, megaMaps, teamItems, controlItems;
 
 	//create
 	buttonReturn.init(350, 140, 125);
 	buttonPlayNow.init(525, 140, 125);
 
     //map listBox
-    findAll("maps/*.gbm", results, true);
-	if(results.size()==0){
-        throw runtime_error("There is no maps");
+    findAll("maps/*.gbm", glestMaps, true);
+    findAll("maps/*.mgm", megaMaps, true);
+	mapFiles.resize(glestMaps.size() + megaMaps.size());
+	if (!glestMaps.empty()) {
+		copy(glestMaps.begin(), glestMaps.end(), mapFiles.begin());
 	}
-	mapFiles= results;
-	for(int i= 0; i<results.size(); ++i){
-		results[i]= formatString(results[i]);
+	if (!megaMaps.empty()) {
+		copy(megaMaps.begin(), megaMaps.end(), mapFiles.begin() + glestMaps.size());
+	}
+	if(mapFiles.size()==0){
+        throw runtime_error("There are no maps");
+	}
+	vector<string> results;
+	for(int i= 0; i < mapFiles.size(); ++i){
+		results.push_back(formatString(mapFiles[i]));
 	}
     listBoxMap.init(200, 260, 150);
     listBoxMap.setItems(results);
@@ -205,6 +213,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(listBoxMap.mouseClick(x, y)){
+		printf("%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
+
 		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();

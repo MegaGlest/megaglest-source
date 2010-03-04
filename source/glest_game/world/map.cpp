@@ -20,6 +20,7 @@
 #include "tech_tree.h"
 #include "config.h"
 #include "leak_dumper.h"
+#include "util.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -609,6 +610,19 @@ void Map::computeCellColors(){
 				sc->setColor(Vec3f(1.0f, 1.0f, 1.0f));
 			}
 		}
+	}
+}
+
+// static 
+string Map::getMapPath(const string &mapName) {
+	string mega = "maps/" + mapName + ".mgm";
+	string glest = "maps/" + mapName + ".gbm";
+	if (fileExists(mega)) {
+		return mega;
+	} else if (fileExists(glest)) {
+		return glest;
+	} else {
+		throw runtime_error("Map " + mapName + " not found.");
 	}
 }
 
