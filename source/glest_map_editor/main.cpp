@@ -55,6 +55,8 @@ MainWindow::MainWindow()
 	startLocation=1;
 	enabledGroup=ctHeight;
 	currentBrush=btHeight;
+	resourceUnderMouse=0;
+	objectUnderMouse=0;
   
 	//gl canvas
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER };
@@ -177,7 +179,8 @@ MainWindow::MainWindow()
 	int status_widths[siCOUNT] = {
 		10, // empty
 		-2, // File name
-		-2, // File type
+		-1, // File type
+		-2, // Current Object
 		-2, // Brush Type
 		-2, // Brush 'Value'
 		-1, // Brush Radius
@@ -186,7 +189,8 @@ MainWindow::MainWindow()
 	GetStatusBar()->SetStatusWidths(siCOUNT, status_widths);
 
 	SetStatusText(wxT("File: ") + ToUnicode(fileName), siFILE_NAME);
-	SetStatusText(wxT("Type: Glest Map (gbm)"), siFILE_TYPE);
+	SetStatusText(wxT(".gbm"), siFILE_TYPE);
+	SetStatusText(wxT("Object: None (Erase)"), siCURR_OBJECT);
 	SetStatusText(wxT("Brush: Height"), siBRUSH_TYPE);
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
 	SetStatusText(wxT("Radius: 1"), siBRUSH_RADIUS);
@@ -243,10 +247,10 @@ void MainWindow::setExtension() {
 		currentFile = cutLastExt(currentFile);
 	}
 	if (Program::getMap()->getMaxFactions() <= 4) {
-		SetStatusText(wxT("Type: Glest Map (gbm)"), siFILE_TYPE);
+		SetStatusText(wxT(".gbm"), siFILE_TYPE);
 		currentFile += ".gbm";
 	} else {
-		SetStatusText(wxT("Type: Mega Map (mgm)"), siFILE_TYPE);
+		SetStatusText(wxT(".mgm"), siFILE_TYPE);
 		currentFile += ".mgm";
 	}
 }
@@ -254,6 +258,7 @@ void MainWindow::setExtension() {
 void MainWindow::onTimer(wxTimerEvent &event) {
 	wxPaintEvent paintEvent;
 	onPaint(paintEvent);
+	
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event) {
@@ -295,6 +300,21 @@ void MainWindow::onMouseMove(wxMouseEvent &event) {
 		wxPaintEvent ev;
 		onPaint(ev);
 	}
+	else {
+		int currResource = program->getResource(x,y);
+		if(currResource>0){
+			SetStatusText(wxT("Resource: ") + ToUnicode(resource_descs[currResource]), siCURR_OBJECT);
+			resourceUnderMouse = currResource;
+			objectUnderMouse = 0;
+		}
+		else {
+			int currObject = program->getObject(x,y);
+			SetStatusText(wxT("Object: ") + ToUnicode(object_descs[currObject]), siCURR_OBJECT);
+			resourceUnderMouse = 0;
+			objectUnderMouse = currObject;				
+		}
+	}
+	
 	event.Skip();
 }
 
@@ -690,6 +710,17 @@ void MainWindow::uncheckRadius() {
  	if (e.GetKeyCode() == 'H') {
  		wxCommandEvent evt(wxEVT_NULL, miBrushHeight + height + heightCount / 2 + 1);
  		onMenuBrushHeight(evt);
+ 	} else if (e.GetKeyCode() == ' ') {	
+		if( resourceUnderMouse != 0 )
+		{
+			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resourceUnderMouse + 1);
+ 			onMenuBrushResource(evt);
+		}
+		else
+		{
+			wxCommandEvent evt(wxEVT_NULL, miBrushObject + objectUnderMouse + 1);
+ 			onMenuBrushObject(evt);
+		}
  	} else if (e.GetKeyCode() == 'G') {
  		wxCommandEvent evt(wxEVT_NULL, miBrushGradient + height + heightCount / 2 + 1);
  		onMenuBrushGradient(evt);

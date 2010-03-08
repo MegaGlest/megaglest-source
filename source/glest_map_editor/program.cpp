@@ -155,6 +155,28 @@ Program::~Program() {
 	delete map;
 }
 
+int Program::getObject(int x, int y) {
+	int i=(x - ofsetX) / cellSize;
+	int j= (y + ofsetY) / cellSize;
+	if (map->inside(i, j)) {
+		map->getObject(i,j);
+	}
+	else{
+		return 0;
+	}
+}
+
+int Program::getResource(int x, int y) {
+	int i=(x - ofsetX) / cellSize;
+	int j= (y + ofsetY) / cellSize;
+	if (map->inside(i, j)) {
+		map->getResource(i,j);
+	}
+	else{
+		return 0;
+	}
+}
+
 void Program::glestChangeMapHeight(int x, int y, int Height, int radius) {
 	map->glestChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
 }

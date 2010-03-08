@@ -43,6 +43,7 @@ enum StatusItems {
 	siNULL_ENTRY,
 	siFILE_NAME,
 	siFILE_TYPE,
+	siCURR_OBJECT,
 	siBRUSH_TYPE,
 	siBRUSH_VALUE,
 	siBRUSH_RADIUS,
@@ -155,6 +156,9 @@ private:
 	int object;
 	int resource;
 	int startLocation;
+	int resourceUnderMouse;
+	int objectUnderMouse;
+	
 	ChangeType enabledGroup;
 
 	string fileName;
