@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;W:\glest\megaglest\source\shared_lib\include\util;W:\glest\megaglest\source\shared_lib\include\platform\win32;W:\glest\megaglest\source\shared_lib\include\graphics\gl;W:\glest\megaglest\source\win32_deps\include;W:\glest\megaglest\source\shared_lib\include\graphics;&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;"
 				PreprocessorDefinitions="MWIN;__WXMSW__;__WXDEBUG__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,7 +66,7 @@
 				AdditionalDependencies="wxbase28d.lib wxbase28d_net.lib wxbase28d_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28d_adv.lib wxmsw28d_aui.lib wxmsw28d_core.lib wxmsw28d_gl.lib wxmsw28d_html.lib wxmsw28d_media.lib wxmsw28d_qa.lib wxmsw28d_richtext.lib wxmsw28d_xrc.lib wxpngd.lib wxregexd.lib wxtiffd.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib"
 				OutputFile="$(OutDir)\Glest_Editor.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="W:\glest\megaglest\source\win32_deps\lib"
+				AdditionalLibraryDirectories="..\..\source\win32_deps\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\msw&quot;;&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;W:\glest\megaglest\source\shared_lib\include\util;W:\glest\megaglest\source\shared_lib\include\platform\win32;W:\glest\megaglest\source\shared_lib\include\graphics\gl;W:\glest\megaglest\source\win32_deps\include;W:\glest\megaglest\source\shared_lib\include\graphics;&quot;W:\glest\megaglest\source\win32_deps\wxWidgets-2.8.10\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\msw&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;"
 				PreprocessorDefinitions="MWIN;__WXMSW__"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -179,19 +179,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\main.h"
+				RelativePath="..\..\source\glest_map_editor\main.h"
 				>
 			</File>
 			<File
-				RelativePath=".\map.h"
+				RelativePath="..\..\source\glest_map_editor\map.h"
 				>
 			</File>
 			<File
-				RelativePath=".\program.h"
+				RelativePath="..\..\source\glest_map_editor\program.h"
 				>
 			</File>
 			<File
-				RelativePath=".\renderer.h"
+				RelativePath="..\..\source\glest_map_editor\renderer.h"
 				>
 			</File>
 		</Filter>
@@ -201,7 +201,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\mk\windoze\glest.rc"
+				RelativePath=".\glest.rc"
 				>
 			</File>
 		</Filter>
@@ -211,19 +211,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath="..\..\source\glest_map_editor\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\map.cpp"
+				RelativePath="..\..\source\glest_map_editor\map.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\program.cpp"
+				RelativePath="..\..\source\glest_map_editor\program.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\renderer.cpp"
+				RelativePath="..\..\source\glest_map_editor\renderer.cpp"
 				>
 			</File>
 		</Filter>

@@ -388,6 +388,10 @@
 				RelativePath="..\..\source\glest_game\graphics\renderer.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\source\glest_game\graphics\unit_particle_type.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="gui"

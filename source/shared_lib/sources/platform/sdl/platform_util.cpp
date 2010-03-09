@@ -119,7 +119,7 @@ int64 Chrono::queryCounter(int multiplier) const {
 // =====================================
 
 //finds all filenames like path and stores them in resultys
-void findAll(const string &path, vector<string> &results, bool cutExtension) {
+void findAll(const string &path, vector<string> &results, bool cutExtension, bool errorOnNotFound) {
 	results.clear();
 
 	std::string mypath = path;
@@ -130,6 +130,8 @@ void findAll(const string &path, vector<string> &results, bool cutExtension) {
 		mypath = mypath.substr(0, mypath.size() - 2);
 		mypath += "*";
 	}
+
+    if(Socket::enableDebugText) printf("In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,mypath.c_str());
 
 	glob_t globbuf;
 
@@ -153,7 +155,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension) {
 
 	globfree(&globbuf);
 
-	if(results.size() == 0) {
+	if(results.size() == 0 && errorOnNotFound == true) {
 		throw runtime_error("No files found in: " + mypath);
 	}
 

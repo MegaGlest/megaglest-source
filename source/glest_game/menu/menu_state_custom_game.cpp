@@ -51,8 +51,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonPlayNow.init(525, 140, 125);
 
     //map listBox
-    findAll("maps/*.gbm", glestMaps, true);
-    findAll("maps/*.mgm", megaMaps, true);
+    findAll("maps/*.gbm", glestMaps, true, true);
+    findAll("maps/*.mgm", megaMaps, true, false);
+
 	mapFiles.resize(glestMaps.size() + megaMaps.size());
 	if (!glestMaps.empty()) {
 		copy(glestMaps.begin(), glestMaps.end(), mapFiles.begin());

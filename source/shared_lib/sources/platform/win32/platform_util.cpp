@@ -163,7 +163,7 @@ void PlatformExceptionHandler::install(string dumpFileName){
 // =====================================================
 
 //finds all filenames like path and stores them in resultys
-void findAll(const string &path, vector<string> &results, bool cutExtension){
+void findAll(const string &path, vector<string> &results, bool cutExtension, bool errorOnNotFound){
 
 	int i= 0;
 	struct _finddata_t fi;
@@ -184,11 +184,11 @@ void findAll(const string &path, vector<string> &results, bool cutExtension){
 		}
 		while(_findnext(handle, &fi)==0);
 	}
-	else{
+	else if(errorOnNotFound == true){
 		throw runtime_error("Error opening files: "+ path);
 	}
 
-	if(i==0){
+	if(i==0 && errorOnNotFound == true){
 		throw runtime_error("No files found: "+ path);
 	}
 

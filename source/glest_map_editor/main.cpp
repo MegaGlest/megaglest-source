@@ -16,6 +16,7 @@
 #include <ctime>
 
 #include "conversion.h"
+#include <iostream>
 
 using namespace Shared::Util;
 using namespace std;

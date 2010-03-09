@@ -19,6 +19,7 @@ cd $GAMEDIR
 # export game library directory
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
-./glest.bin > glest.log 2>&1
+#./glest.bin > glest.log 2>&1
+./glest.bin
 # ./glest > /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
 

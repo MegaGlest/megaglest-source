@@ -88,7 +88,7 @@ public:
 //	Misc
 // =====================================================
 
-void findAll(const string &path, vector<string> &results, bool cutExtension=false);
+void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
 void createDirectoryPaths(string  Path);
