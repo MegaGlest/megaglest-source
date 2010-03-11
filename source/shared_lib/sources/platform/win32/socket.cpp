@@ -683,7 +683,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 	    fprintf(stderr, "%s\n", WSAGetLastErrorMessage(szBuf));
 		//fprintf(stderr, "%s", szBuf);
 
-        if (WSAGetLastError() == WSAEINPROGRESS || WSAGetLastError() == WSAEWOULDBLOCK) 
+        if (WSAGetLastError() == WSAEINPROGRESS || WSAGetLastError() == WSAEWOULDBLOCK)
 		{
             fd_set myset;
             struct timeval tv;
@@ -747,6 +747,7 @@ void ClientSocket::connect(const Ip &ip, int port)
         {
             fprintf(stderr, "In [%s::%s] Before END sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,WSAGetLastError());
             //throwException(szBuf);
+            disconnectSocket();
         }
 
         fprintf(stderr, "Valid recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());

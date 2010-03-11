@@ -52,6 +52,7 @@ public:
 class Socket {
 protected:
 	int sock;
+	long lastDebugEvent;
 
 public:
 	Socket(int sock);

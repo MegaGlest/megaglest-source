@@ -402,10 +402,15 @@ bool Socket::isReadable()
 	int i= select(sock+1, &set, NULL, NULL, &tv);
 	if(i < 0)
 	{
-		//throwException("Error selecting socket");
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-        printf("%s",szBuf);
+        if(difftime(time(NULL),lastDebugEvent) >= 1)
+        {
+            lastDebugEvent = time(NULL);
+
+            //throwException("Error selecting socket");
+            char szBuf[1024]="";
+            sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
+            printf("%s",szBuf);
+        }
 	}
 	//return (i == 1 && FD_ISSET(sock, &set));
 	return (i == 1);
@@ -429,18 +434,27 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
         int i = select(sock+1, NULL, &set, NULL, &tv);
         if(i < 0 )
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-            printf("%s",szBuf);
+            if(difftime(time(NULL),lastDebugEvent) >= 1)
+            {
+                lastDebugEvent = time(NULL);
+
+                char szBuf[1024]="";
+                sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
+                printf("%s",szBuf);
+            }
             waitOnDelayedResponse = false;
 
             //throwException("Error selecting socket");
         }
         else if(i == 0)
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-            printf("%s",szBuf);
+            if(difftime(time(NULL),lastDebugEvent) >= 1)
+            {
+                lastDebugEvent = time(NULL);
+                char szBuf[1024]="";
+                sprintf(szBuf,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
+                printf("%s",szBuf);
+            }
 
             if(waitOnDelayedResponse == false)
             {
@@ -611,6 +625,8 @@ void ClientSocket::connect(const Ip &ip, int port)
                   sprintf(szBuf, "In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
                   //throwException(szBuf);
                   fprintf(stderr, "%s", szBuf);
+
+                  disconnectSocket();
                   break;
                }
             } while (1);
@@ -620,6 +636,7 @@ void ClientSocket::connect(const Ip &ip, int port)
         {
             fprintf(stderr, "In [%s::%s] Before END sock = %d, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,sock,err,errno,strerror(errno));
             //throwException(szBuf);
+            disconnectSocket();
         }
         else
         {
