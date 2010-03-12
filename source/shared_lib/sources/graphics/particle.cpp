@@ -391,8 +391,8 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	else
 	{// rotate it according to rotation
 		float rad=degToRad(rotation);
-		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)-offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)+offset.x*sinf(rad))); 
-		p->speed=Vec3f(p->speed.z*sinf(rad)-p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)+p->speed.x*sinf(rad)));
+		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)+offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)-offset.x*sinf(rad))); 
+		p->speed=Vec3f(p->speed.z*sinf(rad)+p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)-p->speed.x*sinf(rad)));
 	}
 }
 
