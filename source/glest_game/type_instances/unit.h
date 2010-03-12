@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -73,7 +73,7 @@ public:
 };
 
 // =====================================================
-// 	class UnitReference  
+// 	class UnitReference
 // =====================================================
 
 class UnitReference{
@@ -89,7 +89,7 @@ public:
 };
 
 // =====================================================
-// 	class UnitPath  
+// 	class UnitPath
 //
 /// Holds the next cells of a Unit movement
 // =====================================================
@@ -141,7 +141,7 @@ private:
 	float lastAnimProgress;	//between 0 and 1
 	float animProgress;		//between 0 and 1
 	float highlight;
-	int progress2;  
+	int progress2;
 	int kills;
 
 	UnitReference targetRef;
@@ -152,18 +152,18 @@ private:
 
     Vec2i pos;
 	Vec2i lastPos;
-    Vec2i targetPos;		//absolute target pos 
+    Vec2i targetPos;		//absolute target pos
 	Vec3f targetVec;
 	Vec2i meetingPos;
 
 	float lastRotation;		//in degrees
-	float targetRotation;	
-	float rotation;			
+	float targetRotation;
+	float rotation;
 
     const UnitType *type;
     const ResourceType *loadType;
     const SkillType *currSkill;
-	
+
     bool toBeUndertaken;
 	bool alive;
 	bool showUnitParticles;
@@ -180,8 +180,11 @@ private:
 	UnitParticleSystems unitParticleSystems;
 	UnitParticleSystems damageParticleSystems;
 
+    float rotateAmount;
+	bool *cellMap;
+
 public:
-    Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map);
+    Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation);
     ~Unit();
 
     //queries
@@ -200,7 +203,7 @@ public:
 	int getProductionPercent() const;
 	float getHpRatio() const;
 	float getEpRatio() const;
-	bool getToBeUndertaken() const				{return toBeUndertaken;}      
+	bool getToBeUndertaken() const				{return toBeUndertaken;}
 	Vec2i getTargetPos() const					{return targetPos;}
 	Vec3f getTargetVec() const					{return targetVec;}
 	Field getTargetField() const				{return targetField;}
@@ -247,8 +250,8 @@ public:
 	void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
 	void setProgress2(int progress2)					{this->progress2= progress2;}
 	void setPos(const Vec2i &pos);
-	void setTargetPos(const Vec2i &targetPos);							
-	void setTarget(const Unit *unit);					
+	void setTargetPos(const Vec2i &targetPos);
+	void setTarget(const Unit *unit);
 	void setTargetVec(const Vec3f &targetVec)			{this->targetVec= targetVec;}
 	void setMeetingPos(const Vec2i &meetingPos)			{this->meetingPos= meetingPos;}
 	void setVisible(const bool visible);
@@ -257,12 +260,12 @@ public:
     const Model *getCurrentModel() const;
 	Vec3f getCurrVector() const;
 	Vec3f getCurrVectorFlat() const;
-    
+
     //command related
 	bool anyCommand() const;
 	Command *getCurrCommand() const;
 	unsigned int getCommandSize() const;
-	CommandResult giveCommand(Command *command);		//give a command 
+	CommandResult giveCommand(Command *command);		//give a command
 	CommandResult finishCommand();						//command finished
 	CommandResult cancelCommand();						//cancel canceled
 
@@ -293,6 +296,10 @@ public:
 	bool morph(const MorphCommandType *mct);
 	CommandResult checkCommand(Command *command) const;
 	void applyCommand(Command *command);
+
+    void setRotateAmount(float value);
+    float getRotateAmount() { return rotateAmount; }
+    bool getCellMapCell(int x, int y) const;
 
 private:
 	float computeHeight(const Vec2i &pos) const;

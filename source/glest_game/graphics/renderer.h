@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -121,7 +121,7 @@ public:
 		sCount
 	};
 
-private:   
+private:
 	//config
 	int maxLights;
     bool photoMode;
@@ -134,7 +134,7 @@ private:
 
 	//game
 	const Game *game;
-	
+
 	//misc
 	int triangleCount;
 	int pointCount;
@@ -184,7 +184,7 @@ public:
 	void end();
 	void endMenu();
 	void endGame();
-	
+
 	//get
 	int getTriangleCount() const	{return triangleCount;}
 	int getPointCount() const		{return pointCount;}
@@ -208,7 +208,7 @@ public:
 	void loadGameCameraMatrix();
 	void loadCameraMatrix(const Camera *camera);
 	void computeVisibleQuad();
-	
+
     //basic rendering
 	void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
     void renderMouse3d();
@@ -220,8 +220,8 @@ public:
 	void renderSelectionQuad();
 	void renderText(const string &text, const Font2D *font, float alpha, int x, int y, bool centered= false);
 	void renderText(const string &text, const Font2D *font, const Vec3f &color, int x, int y, bool centered= false);
-	void renderTextShadow(const string &text, const Font2D *font, int x, int y, bool centered= false);	
-	
+	void renderTextShadow(const string &text, const Font2D *font, int x, int y, bool centered= false);
+
     //components
 	void renderLabel(const GraphicLabel *label);
     void renderButton(const GraphicButton *button);
@@ -238,7 +238,7 @@ public:
 	void renderMinimap();
     void renderDisplay();
 	void renderMenuBackground(const MenuBackground *menuBackground);
-   
+
 	//computing
     bool computePosition(const Vec2i &screenPos, Vec2i &worldPos);
 	void computeSelected(Selection::UnitContainer &units, const Vec2i &posDown, const Vec2i &posUp);
@@ -247,7 +247,7 @@ public:
 	string getGlInfo();
 	string getGlMoreInfo();
 	void autoConfig();
-	
+
 	//clear
     void clearBuffers();
 	void clearZBuffer();
@@ -273,11 +273,11 @@ private:
 	Vec3f computeLightColor(float time);
 	Vec4f computeWaterColor(float waterLevel, float cellHeight);
 	void checkExtension(const string &extension, const string &msg);
-	
+
 	//selection render
 	void renderObjectsFast();
 	void renderUnitsFast();
-	
+
 	//gl requirements
 	void checkGlCaps();
 	void checkGlOptionalCaps();
@@ -297,7 +297,7 @@ private:
 	void renderProgressBar(int size, int x, int y, Font2D *font);
 	void renderTile(const Vec2i &pos);
 	void renderQuad(int x, int y, int w, int h, const Texture2D *texture);
-	
+
 	//static
     static Texture2D::Filter strToTextureFilter(const string &s);
 };

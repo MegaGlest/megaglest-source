@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -39,10 +39,10 @@ Cell::Cell(){
 	height= 0;
 }
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
 //returns if the cell is free
-bool Cell::isFree(Field field) const{		
+bool Cell::isFree(Field field) const{
 	return getUnit(field)==NULL || getUnit(field)->isPutrefacting();
 }
 
@@ -83,7 +83,7 @@ void SurfaceCell::setVisible(int teamIndex, bool visible){
 // 	class Map
 // =====================================================
 
-// ===================== PUBLIC ======================== 
+// ===================== PUBLIC ========================
 
 const int Map::cellScale= 2;
 const int Map::mapScale= 2;
@@ -103,7 +103,7 @@ Map::~Map(){
 }
 
 void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
-	
+
 	struct MapFileHeader{
 		int32 version;
 		int32 maxPlayers;
@@ -155,14 +155,14 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 			//cells
 			cells= new Cell[w*h];
 			surfaceCells= new SurfaceCell[surfaceW*surfaceH];
-			
+
 			//read heightmap
 			for(int j=0; j<surfaceH; ++j){
 				for(int i=0; i<surfaceW; ++i){
 					float32 alt;
 					fread(&alt, sizeof(float32), 1, f);
 					SurfaceCell *sc= getSurfaceCell(i, j);
-					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale)); 
+					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale));
 				}
 			}
 
@@ -171,14 +171,14 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 				for(int i=0; i<surfaceW; ++i){
 					int8 surf;
 					fread(&surf, sizeof(int8), 1, f);
-					getSurfaceCell(i, j)->setSurfaceType(surf-1); 
+					getSurfaceCell(i, j)->setSurfaceType(surf-1);
 				}
 			}
-			
+
 			//read objects and resources
 			for(int j=0; j<h; j+= cellScale){
 				for(int i=0; i<w; i+= cellScale){
-					
+
 					int8 objNumber;
 					fread(&objNumber, sizeof(int8), 1, f);
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
@@ -224,7 +224,7 @@ void Map::init(){
 }
 
 
-// ==================== is ==================== 
+// ==================== is ====================
 
 bool Map::isInside(int x, int y) const{
 	return x>=0 && y>=0 && x<w && y<h;
@@ -261,12 +261,12 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 }
 
 
-// ==================== free cells ==================== 
+// ==================== free cells ====================
 
 bool Map::isFreeCell(const Vec2i &pos, Field field) const{
-	return 
-		isInside(pos) && 
-		getCell(pos)->isFree(field) && 
+	return
+		isInside(pos) &&
+		getCell(pos)->isFree(field) &&
 		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
 		(field!=fLand || !getDeepSubmerged(getCell(pos)));
 }
@@ -286,7 +286,7 @@ bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) c
 
 bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const{
 
-	if(isInside(pos)){ 
+	if(isInside(pos)){
 		const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
 
 		if(sc->isVisible(teamIndex)){
@@ -298,7 +298,7 @@ bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const{
 		else{
 			return true;
 		}
-	}	
+	}
 	return false;
 }
 
@@ -336,7 +336,7 @@ bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamInde
 }
 
 
-// ==================== unit placement ==================== 
+// ==================== unit placement ====================
 
 //checks if a unit can move from between 2 cells
 bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const{
@@ -403,7 +403,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 
 //put a units into the cells
 void Map::putUnitCells(Unit *unit, const Vec2i &pos){
-	
+
 	assert(unit!=NULL);
 	const UnitType *ut= unit->getType();
 
@@ -411,19 +411,19 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || ut->getCellMapCell(i, j)){
+			if(!ut->hasCellMap() || unit->getCellMapCell(i, j)){
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==NULL);
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
 			}
 
-		}     
+		}
 	}
 	unit->setPos(pos);
 }
 
 //removes a unit from cells
 void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
-	
+
 	assert(unit!=NULL);
 	const UnitType *ut= unit->getType();
 
@@ -431,19 +431,19 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || ut->getCellMapCell(i, j)){
+			if(!ut->hasCellMap() || unit->getCellMapCell(i, j)){
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
 			}
-		}     
+		}
 	}
 }
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
 //returnis if unit is next to pos
 bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const{
-     
+
 	for(int i=-1; i<=1; ++i){
 		for(int j=-1; j<=1; ++j){
 			if(isInside(pos.x+i, pos.y+j)) {
@@ -477,15 +477,15 @@ void Map::prepareTerrain(const Unit *unit){
 	computeInterpolatedHeights();
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
-// ==================== compute ==================== 
+// ==================== compute ====================
 
 void Map::flatternTerrain(const Unit *unit){
 	float refHeight= getSurfaceCell(toSurfCoords(unit->getCenteredPos()))->getHeight();
 	for(int i=-1; i<=unit->getType()->getSize(); ++i){
         for(int j=-1; j<=unit->getType()->getSize(); ++j){
-            Vec2i pos= unit->getPos()+Vec2i(i, j); 
+            Vec2i pos= unit->getPos()+Vec2i(i, j);
 			Cell *c= getCell(pos);
 			SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
             //we change height if pos is inside world, if its free or ocupied by the currenty building
@@ -497,14 +497,14 @@ void Map::flatternTerrain(const Unit *unit){
 }
 
 //compute normals
-void Map::computeNormals(){  
+void Map::computeNormals(){
     //compute center normals
     for(int i=1; i<surfaceW-1; ++i){
         for(int j=1; j<surfaceH-1; ++j){
             getSurfaceCell(i, j)->setNormal(
-				getSurfaceCell(i, j)->getVertex().normal(getSurfaceCell(i, j-1)->getVertex(), 
-					getSurfaceCell(i+1, j)->getVertex(), 
-					getSurfaceCell(i, j+1)->getVertex(), 
+				getSurfaceCell(i, j)->getVertex().normal(getSurfaceCell(i, j-1)->getVertex(),
+					getSurfaceCell(i+1, j)->getVertex(),
+					getSurfaceCell(i, j+1)->getVertex(),
 					getSurfaceCell(i-1, j)->getVertex()));
         }
     }
@@ -547,7 +547,7 @@ void Map::computeInterpolatedHeights(){
 		}
 	}
 }
-	
+
 
 void Map::smoothSurface(){
 
@@ -613,7 +613,7 @@ void Map::computeCellColors(){
 	}
 }
 
-// static 
+// static
 string Map::getMapPath(const string &mapName) {
 	string mega = "maps/" + mapName + ".mgm";
 	string glest = "maps/" + mapName + ".gbm";
@@ -639,9 +639,9 @@ PosCircularIterator::PosCircularIterator(const Map *map, const Vec2i &center, in
 }
 
 bool PosCircularIterator::next(){
-	
+
 	//iterate while dont find a cell that is inside the world
-	//and at less or equal distance that the radius 
+	//and at less or equal distance that the radius
 	do{
 		pos.x++;
 		if(pos.x > center.x+radius){
@@ -653,7 +653,7 @@ bool PosCircularIterator::next(){
 	}
 	while(floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos));
 	//while(!(pos.dist(center) <= radius && map->isInside(pos)));
-	
+
 	return true;
 }
 
@@ -678,27 +678,27 @@ PosQuadIterator::PosQuadIterator(const Map *map, const Quad2i &quad, int step){
 }
 
 bool PosQuadIterator::next(){
-	
+
 	do{
 		pos.x+= step;
 		if(pos.x > boundingRect.p[1].x){
-			pos.x= (boundingRect.p[0].x/step)*step; 
+			pos.x= (boundingRect.p[0].x/step)*step;
 			pos.y+= step;
 		}
 		if(pos.y>boundingRect.p[1].y)
 			return false;
 	}
 	while(!quad.isInside(pos));
-	
+
 	return true;
 }
 
 void PosQuadIterator::skipX(){
 	pos.x+= step;
-} 
+}
 
 const Vec2i &PosQuadIterator::getPos(){
 	return pos;
 }
-      
+
 }}//end namespace

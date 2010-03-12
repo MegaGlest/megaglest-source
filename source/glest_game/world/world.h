@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -87,12 +87,13 @@ private:
 	bool fogOfWar;
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
-	
+	Game *game;
+
 public:
 	World();
 	void end(); //to die before selection does
 
-	//get			
+	//get
 	int getMaxPlayers() const						{return map.getMaxPlayers();}
 	int getThisFactionIndex() const					{return thisFactionIndex;}
 	int getThisTeamIndex() const					{return thisTeamIndex;}
@@ -120,7 +121,7 @@ public:
 	void loadTech(const string &dir, set<string> &factions, Checksum* checksum);
 	void loadMap(const string &path, Checksum* checksum);
 	void loadScenario(const string &path, Checksum* checksum);
-	
+
 	//misc
 	void update();
 	Unit* findUnitById(int id);
@@ -145,7 +146,7 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 private:
-	
+
 	void initCells();
 	void initSplattedTextures();
 	void initFactionTypes(GameSettings *gs);
@@ -153,7 +154,7 @@ private:
 	void initUnits();
 	void initMap();
 	void initExplorationState();
-	
+
 	//misc
 	void tick();
 	void computeFow();

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -19,6 +19,7 @@
 #include "console.h"
 #include "selection.h"
 #include "random.h"
+#include <map>
 
 using Shared::Util::Random;
 
@@ -52,10 +53,10 @@ private:
 
 public:
 	Mouse3d();
-	
+
 	void enable();
 	void update();
-	
+
 	bool isEnabled() const	{return enabled;}
 	float getFade() const	{return fade;}
 	int getRot() const		{return rot;}
@@ -84,7 +85,7 @@ public:
 };
 
 // =====================================================
-// 	class Gui 
+// 	class Gui
 //
 ///	In game GUI
 // =====================================================
@@ -106,7 +107,7 @@ private:
 	const World *world;
 	GameCamera *gameCamera;
 	Console *console;
-	
+
 	//Positions
 	Vec2i posObjWorld;		//world coords
 	bool validPosObjWorld;
@@ -129,6 +130,8 @@ private:
 	bool selectingPos;
 	bool selectingMeetingPoint;
 
+	std::map<int, float> unitTypeBuildRotation;
+
 public:
 	Gui();
 	void init(Game *game);
@@ -137,7 +140,7 @@ public:
 	//get
 	Vec2i getPosObjWorld() const			{return posObjWorld;}
 	const UnitType *getBuilding() const;
-	
+
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
@@ -171,8 +174,10 @@ public:
 	//misc
 	void onSelectionChanged();
 
+    float getUnitTypeBuildRotation(int unitId) const;
+
 private:
-	
+
 	//orders
 	void giveDefaultOrders(int x, int y);
 	void giveOneClickOrders();

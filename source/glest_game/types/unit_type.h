@@ -95,6 +95,7 @@ private:
     int sight;
     int size;							//size in cells
     int height;
+    float rotatedBuildPos;
 
 	//cellmap
 	bool *cellMap;
@@ -180,6 +181,9 @@ public:
 
 	//find
 	const CommandType* findCommandTypeById(int id) const;
+
+    float getRotatedBuildPos() { return rotatedBuildPos; }
+    float setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
 private:
     void computeFirstStOfClass();

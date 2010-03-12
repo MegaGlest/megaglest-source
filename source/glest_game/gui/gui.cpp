@@ -1,11 +1,12 @@
 // ==============================================================
+// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -58,7 +59,7 @@ void Mouse3d::update(){
 }
 
 // ===============================
-// 	class SelectionQuad  
+// 	class SelectionQuad
 // ===============================
 
 SelectionQuad::SelectionQuad(){
@@ -87,6 +88,8 @@ void SelectionQuad::disable(){
 
 //constructor
 Gui::Gui(){
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
     posObjWorld= Vec2i(54, 14);
     computeSelection= false;
 	validPosObjWorld= false;
@@ -96,6 +99,8 @@ Gui::Gui(){
 	selectingPos= false;
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::init(Game *game){
@@ -110,23 +115,23 @@ void Gui::end(){
 	selection.clear();
 }
 
-// ==================== get ==================== 
+// ==================== get ====================
 
 const UnitType *Gui::getBuilding() const{
     assert(selectingBuilding);
     return choosenBuildingType;
 }
 
-// ==================== is ==================== 
+// ==================== is ====================
 
 bool Gui::isPlacingBuilding() const{
 	return isSelectingPos() && activeCommandType!=NULL && activeCommandType->getClass()==ccBuild;
 }
 
-// ==================== set ==================== 
+// ==================== set ====================
 
 void Gui::invalidatePosObjWorld(){
-    validPosObjWorld= false; 
+    validPosObjWorld= false;
 }
 
 void Gui::setComputeSelectionFlag(){
@@ -134,7 +139,7 @@ void Gui::setComputeSelectionFlag(){
 }
 
 
-// ==================== reset state ==================== 
+// ==================== reset state ====================
 
 void Gui::resetState(){
     selectingBuilding= false;
@@ -145,7 +150,7 @@ void Gui::resetState(){
 	activeCommandType= NULL;
 }
 
-// ==================== events ==================== 
+// ==================== events ====================
 
 void Gui::update(){
     setComputeSelectionFlag();
@@ -167,9 +172,14 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 		if(posDisplay!= invalidPos){
 			if(selection.isComandable()){
 				if(selectingBuilding){
+
+				    //if(Socket::enableDebugText) printf("In [%s::%s] selectingBuilding == true\n",__FILE__,__FUNCTION__);
+
 					mouseDownDisplayUnitBuild(posDisplay);
 				}
 				else{
+				    //if(Socket::enableDebugText) printf("In [%s::%s] selectingBuilding == false\n",__FILE__,__FUNCTION__);
+
 					mouseDownDisplayUnitSkills(posDisplay);
 				}
 			}
@@ -182,33 +192,54 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 }
 
 void Gui::mouseMoveDisplay(int x, int y){
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	computeInfoString(computePosDisplay(x, y));
 }
 
 void Gui::mouseDownLeftGraphics(int x, int y){
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	if(selectingPos){
+	    //if(Socket::enableDebugText) printf("In [%s::%s] selectingPos == true\n",__FILE__,__FUNCTION__);
+
 		//give standard orders
 		giveTwoClickOrders(x, y);
 		resetState();
 	}
 	//set meeting point
 	else if(selectingMeetingPoint){
+	    if(Socket::enableDebugText) printf("In [%s::%s] selectingMeetingPoint == true\n",__FILE__,__FUNCTION__);
+
 		if(selection.isComandable()){
+
+		    if(Socket::enableDebugText) printf("In [%s::%s] selection.isComandable() == true\n",__FILE__,__FUNCTION__);
+
 			Vec2i targetPos;
 			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos)){
+
+			    if(Socket::enableDebugText) printf("In [%s::%s] computePosition() == true\n",__FILE__,__FUNCTION__);
+
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
 		}
 		resetState();
 	}
 	else{
+	    if(Socket::enableDebugText) printf("In [%s::%s] selectionQuad()\n",__FILE__,__FUNCTION__);
+
 		selectionQuad.setPosDown(Vec2i(x, y));
 		computeSelected(false);
 	}
 	computeDisplay();
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseDownRightGraphics(int x, int y){
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(selectingPos || selectingMeetingPoint){
 		resetState();
@@ -217,25 +248,31 @@ void Gui::mouseDownRightGraphics(int x, int y){
 		giveDefaultOrders(x, y);
 	}
 	computeDisplay();
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseUpLeftGraphics(int x, int y){
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	if(!selectingPos && !selectingMeetingPoint){
 		if(selectionQuad.isEnabled()){
 			selectionQuad.setPosUp(Vec2i(x, y));
 			if(selection.isComandable() && random.randRange(0, 1)==0){
 				SoundRenderer::getInstance().playFx(
 					selection.getFrontUnit()->getType()->getSelectionSound(),
-					selection.getFrontUnit()->getCurrVector(), 
+					selection.getFrontUnit()->getCurrVector(),
 					gameCamera->getPos());
 			}
 			selectionQuad.disable();
 		}
 	}
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseMoveGraphics(int x, int y){
-   
+
 	//compute selection
 	if(selectionQuad.isEnabled()){
 		selectionQuad.setPosUp(Vec2i(x, y));
@@ -247,6 +284,8 @@ void Gui::mouseMoveGraphics(int x, int y){
 
 	//compute position for building
 	if(isPlacingBuilding()){
+	    //if(Socket::enableDebugText) printf("In [%s::%s] isPlacingBuilding() == true\n",__FILE__,__FUNCTION__);
+
 		validPosObjWorld= Renderer::getInstance().computePosition(Vec2i(x,y), posObjWorld);
 	}
 
@@ -270,7 +309,20 @@ void Gui::groupKey(int groupIndex){
 	}
 }
 
+float Gui::getUnitTypeBuildRotation(int unitId) const {
+    float rotationValue = -1;
+
+    if(unitTypeBuildRotation.find(unitId) != unitTypeBuildRotation.end()) {
+        rotationValue = unitTypeBuildRotation.find(unitId)->second;
+    }
+
+    return rotationValue;
+}
+
 void Gui::hotKey(char key){
+
+    if(Socket::enableDebugText) printf("In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
+
 	if(key==' '){
 		centerCameraOnSelection();
 	}
@@ -281,7 +333,27 @@ void Gui::hotKey(char key){
 		selectInterestingUnit(iutBuiltBuilding);
 	}
 	else if(key=='R'){
-		selectInterestingUnit(iutProducer);
+	    //!!!
+	    if(isPlacingBuilding()){
+	        const UnitType *unitType = getBuilding();
+	        float unitTypeRotation = getUnitTypeBuildRotation(unitType->getId());
+
+	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
+
+	        if(unitTypeRotation < 0) {
+	            unitTypeRotation = 0;
+	        }
+	        unitTypeRotation += 90;
+	        if(unitTypeRotation >= 360) {
+	            unitTypeRotation = 0;
+	        }
+	        unitTypeBuildRotation[unitType->getId()] = unitTypeRotation;
+
+	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
+	    }
+	    else {
+            selectInterestingUnit(iutProducer);
+	    }
 	}
 	else if(key=='D'){
 		selectInterestingUnit(iutDamaged);
@@ -310,10 +382,10 @@ void Gui::onSelectionChanged(){
 void Gui::giveOneClickOrders(){
 	CommandResult result;
 	if(selection.isUniform()){
-		result= commander->tryGiveCommand(&selection, activeCommandType);  
+		result= commander->tryGiveCommand(&selection, activeCommandType);
 	}
 	else{
-		result= commander->tryGiveCommand(&selection, activeCommandClass); 
+		result= commander->tryGiveCommand(&selection, activeCommandClass);
 	}
 	addOrdersResultToConsole(activeCommandClass, result);
     activeCommandType= NULL;
@@ -337,11 +409,11 @@ void Gui::giveDefaultOrders(int x, int y){
 	addOrdersResultToConsole(activeCommandClass, result);
 	if(result == crSuccess || result == crSomeFailed){
 		mouse3d.enable();
-	
+
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				selection.getFrontUnit()->getCurrVector(), 
+				selection.getFrontUnit()->getCurrVector(),
 				gameCamera->getPos());
 		}
 	}
@@ -351,7 +423,7 @@ void Gui::giveDefaultOrders(int x, int y){
 }
 
 void Gui::giveTwoClickOrders(int x, int y){
-   
+
 	CommandResult result;
 
 	//compute target
@@ -365,26 +437,26 @@ void Gui::giveTwoClickOrders(int x, int y){
     //give orders to the units of this faction
 	if(!selectingBuilding){
 		if(selection.isUniform()){
-			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit);  
+			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit);
 		}
 		else{
-			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit);        
+			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit);
         }
 	}
 	else{
 		//selecting building
-		result= commander->tryGiveCommand( selection.getFrontUnit(), activeCommandType, posObjWorld, choosenBuildingType ); 
+		result= commander->tryGiveCommand( selection.getFrontUnit(), activeCommandType, posObjWorld, choosenBuildingType );
     }
-          
+
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
 	if(result == crSuccess || result == crSomeFailed){
 		mouse3d.enable();
-	
+
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				selection.getFrontUnit()->getCurrVector(), 
+				selection.getFrontUnit()->getCurrVector(),
 				gameCamera->getPos());
 		}
 	}
@@ -459,8 +531,8 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay){
 	if(!selection.isEmpty()){
 		if(posDisplay != cancelPos){
 			if(posDisplay!=meetingPointPos){
-				const Unit *unit= selection.getFrontUnit();	
-				
+				const Unit *unit= selection.getFrontUnit();
+
 				//uniform selection
 				if(selection.isUniform()){
 					if(unit->getFaction()->reqsOk(display.getCommandType(posDisplay))){
@@ -510,7 +582,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay){
 }
 
 void Gui::mouseDownDisplayUnitBuild(int posDisplay){
-	int factionIndex= world->getThisFactionIndex(); 
+	int factionIndex= world->getThisFactionIndex();
 
 	if(posDisplay==cancelPos){
 		resetState();
@@ -524,7 +596,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 				assert(choosenBuildingType!=NULL);
 				selectingPos= true;;
 				activePos= posDisplay;
-			}   
+			}
 		}
 	}
 }
@@ -561,11 +633,11 @@ void Gui::computeInfoString(int posDisplay){
 									display.setInfoText(lang.get("AlreadyUpgraded"));
 								}
 								else{
-									display.setInfoText(ct->getReqDesc());  
+									display.setInfoText(ct->getReqDesc());
 								}
 							}
 							else{
-								display.setInfoText(ct->getReqDesc());  
+								display.setInfoText(ct->getReqDesc());
 							}
 						}
 					}
@@ -599,9 +671,9 @@ void Gui::computeDisplay(){
 
 	//init
 	display.clear();
-	
+
     // ================ PART 1 ================
-    
+
 	//title, text and progress bar
     if(selection.getCount()==1){
 		display.setTitle(selection.getFrontUnit()->getFullName());
@@ -613,7 +685,7 @@ void Gui::computeDisplay(){
 	for(int i=0; i<selection.getCount(); ++i){
 		display.setUpImage(i, selection.getUnit(i)->getType()->getImage());
 	}
-  
+
     // ================ PART 2 ================
 
 	if(selectingPos || selectingMeetingPoint){
@@ -643,7 +715,7 @@ void Gui::computeDisplay(){
 					int morphPos= 8;
 					for(int i=0; i<ut->getCommandTypeCount(); ++i){
 						int displayPos= i;
-						const CommandType *ct= ut->getCommandType(i);	
+						const CommandType *ct= ut->getCommandType(i);
 						if(ct->getClass()==ccMorph){
 							displayPos= morphPos++;
 						}
@@ -665,7 +737,7 @@ void Gui::computeDisplay(){
 						display.setCommandClass(lastCommand, cc);
 						lastCommand++;
 					}
-				} 
+				}
 			}
 		}
 		else{
@@ -687,9 +759,9 @@ void Gui::computeDisplay(){
 
 int Gui::computePosDisplay(int x, int y){
 	int posDisplay= display.computeDownIndex(x, y);
-    
+
 	if(posDisplay<0 || posDisplay>=Display::downCellCount){
-		posDisplay= invalidPos;		
+		posDisplay= invalidPos;
 	}
 	else if(selection.isComandable()){
 		if(posDisplay!=cancelPos){
@@ -697,7 +769,7 @@ int Gui::computePosDisplay(int x, int y){
 				if(!selectingBuilding){
 					//standard selection
 					if(display.getCommandClass(posDisplay)==ccNull && display.getCommandType(posDisplay)==NULL){
-						posDisplay= invalidPos;	
+						posDisplay= invalidPos;
 					}
 				}
 				else{
@@ -710,17 +782,17 @@ int Gui::computePosDisplay(int x, int y){
 					}
 				}
 			}
-			else{ 
+			else{
 				//check meeting point
 				if(!selection.isMeetable()){
-					posDisplay= invalidPos; 	
+					posDisplay= invalidPos;
 				}
 			}
 		}
-		else{ 
+		else{
 			//check cancel button
 			if(!selection.isCancelable()){
-				posDisplay= invalidPos; 
+				posDisplay= invalidPos;
 			}
 		}
 	}
@@ -732,11 +804,11 @@ int Gui::computePosDisplay(int x, int y){
 }
 
 void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
-        
+
     switch(result){
-	case crSuccess: 
+	case crSuccess:
 		break;
-	case crFailReqs: 
+	case crFailReqs:
         switch(cc){
         case ccBuild:
             console->addStdMessage("BuildingNoReqs");
@@ -766,7 +838,7 @@ void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
 			break;
         }
 		break;
-    
+
     case crFailUndefined:
         console->addStdMessage("InvalidOrder");
         break;
@@ -827,7 +899,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	Renderer &renderer= Renderer::getInstance();
 	renderer.computeSelected(uc, screenPos, screenPos);
 	validPosObjWorld= false;
-			
+
 	if(!uc.empty()){
 		targetUnit= uc.front();
 		targetPos= targetUnit->getPos();

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -41,6 +41,7 @@ enum CommandClass{
 	ccProduce,
 	ccUpgrade,
 	ccMorph,
+	ccRotateUnit,
 
 	ccCount,
 	ccNull
@@ -75,13 +76,13 @@ public:
 	virtual bool isQueuable() const						{return false;}
 
     //get
-    CommandClass getClass() const;		
-	Clicks getClicks() const		{return clicks;} 
-	int getId() const				{return id;}  
+    CommandClass getClass() const;
+	Clicks getClicks() const		{return clicks;}
+	int getId() const				{return id;}
 };
 
 // ===============================
-// 	class StopCommandType  
+// 	class StopCommandType
 // ===============================
 
 class StopCommandType: public CommandType{
@@ -101,7 +102,7 @@ public:
 
 
 // ===============================
-// 	class MoveCommandType  
+// 	class MoveCommandType
 // ===============================
 
 class MoveCommandType: public CommandType{
@@ -121,7 +122,7 @@ public:
 
 
 // ===============================
-// 	class AttackCommandType  
+// 	class AttackCommandType
 // ===============================
 
 class AttackCommandType: public CommandType{
@@ -142,7 +143,7 @@ public:
 };
 
 // =======================================
-// 	class AttackStoppedCommandType  
+// 	class AttackStoppedCommandType
 // =======================================
 
 class AttackStoppedCommandType: public CommandType{
@@ -164,7 +165,7 @@ public:
 
 
 // ===============================
-// 	class BuildCommandType  
+// 	class BuildCommandType
 // ===============================
 
 class BuildCommandType: public CommandType{
@@ -194,7 +195,7 @@ public:
 
 
 // ===============================
-// 	class HarvestCommandType  
+// 	class HarvestCommandType
 // ===============================
 
 class HarvestCommandType: public CommandType{
@@ -228,7 +229,7 @@ public:
 
 
 // ===============================
-// 	class RepairCommandType  
+// 	class RepairCommandType
 // ===============================
 
 class RepairCommandType: public CommandType{
@@ -253,7 +254,7 @@ public:
 
 
 // ===============================
-// 	class ProduceCommandType  
+// 	class ProduceCommandType
 // ===============================
 
 class ProduceCommandType: public CommandType{
@@ -278,7 +279,7 @@ public:
 
 
 // ===============================
-// 	class UpgradeCommandType  
+// 	class UpgradeCommandType
 // ===============================
 
 class UpgradeCommandType: public CommandType{
@@ -302,7 +303,7 @@ public:
 };
 
 // ===============================
-// 	class MorphCommandType  
+// 	class MorphCommandType
 // ===============================
 
 class MorphCommandType: public CommandType{
@@ -327,7 +328,30 @@ public:
 };
 
 // ===============================
-// 	class CommandFactory  
+// 	class BuildCommandType
+// ===============================
+
+class RotateUnitCommandType: public CommandType{
+private:
+    float rotateAmount;
+
+public:
+    RotateUnitCommandType();
+
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+	virtual string toString() const;
+	virtual bool isQueuable() const						{return true;}
+
+    //get
+	const float getRotateAmount() const	{return rotateAmount; }
+	void setRotateAmount(float value)   { rotateAmount = value; }
+};
+
+
+// ===============================
+// 	class CommandFactory
 // ===============================
 
 class CommandTypeFactory: public MultiFactory<CommandType>{

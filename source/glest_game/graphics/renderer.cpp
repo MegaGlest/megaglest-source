@@ -562,6 +562,14 @@ void Renderer::renderMouse3d(){
 			glColor4fv(color.ptr());
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
 			const Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
+
+            //!!!
+            float rotateAmount = gui->getUnitTypeBuildRotation(building->getId());
+            if(rotateAmount >= 0) {
+                //if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,building->getId(),rotateAmount);
+                glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+            }
+
 			buildingModel->updateInterpolationData(0.f, false);
 			modelRenderer->render(buildingModel);
 			glDisable(GL_COLOR_MATERIAL);
@@ -1350,6 +1358,14 @@ void Renderer::renderUnits(){
 				//render
 				const Model *model= unit->getCurrentModel();
 				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+
+                //!!!
+                float rotateAmount = unit->getRotateAmount();
+                if(rotateAmount >= 0) {
+                    //if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,unit->getId(),rotateAmount);
+                    glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+                }
+
 				modelRenderer->render(model);
 				triangleCount+= model->getTriangleCount();
 				pointCount+= model->getVertexCount();
@@ -2328,6 +2344,14 @@ void Renderer::renderUnitsFast(){
 				//render
 				const Model *model= unit->getCurrentModel();
 				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+
+                //!!!
+                float rotateAmount = unit->getRotateAmount();
+                if(rotateAmount >= 0) {
+                    //if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,unit->getId(),rotateAmount);
+                    glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+                }
+
 				modelRenderer->render(model);
 
 				glPopMatrix();

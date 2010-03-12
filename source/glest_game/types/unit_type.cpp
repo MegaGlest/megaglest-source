@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -25,6 +25,7 @@
 #include "game_util.h"
 #include "leak_dumper.h"
 #include "unit_particle_type.h"
+#include "socket.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
@@ -33,7 +34,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 // ===============================
-// 	class Level 
+// 	class Level
 // ===============================
 
 void Level::init(string name, int kills){
@@ -45,11 +46,11 @@ void Level::init(string name, int kills){
 // 	class UnitType
 // =====================================================
 
-// ===================== PUBLIC ======================== 
+// ===================== PUBLIC ========================
 
 const char *UnitType::propertyNames[]= {"burnable", "rotated_climb"};
 
-// ==================== creation and loading ==================== 
+// ==================== creation and loading ====================
 
 UnitType::UnitType(){
 
@@ -69,7 +70,7 @@ UnitType::UnitType(){
 	cellMap= NULL;
 	hpRegeneration= 0;
 	epRegeneration= 0;
-} 
+}
 
 UnitType::~UnitType(){
 	deleteValues(commandTypes.begin(), commandTypes.end());
@@ -82,7 +83,7 @@ UnitType::~UnitType(){
 		delete damageParticleSystemTypes.back();
 		damageParticleSystemTypes.pop_back();
 	}
-	
+
 }
 
 void UnitType::preLoad(const string &dir){
@@ -90,7 +91,7 @@ void UnitType::preLoad(const string &dir){
 }
 
 void UnitType::load(int id,const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum){
-    
+
 	this->id= id;
     string path;
 
@@ -121,19 +122,19 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//size
 		size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
-		
+
 		//height
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-		
+
 		//maxHp
 		maxHp= parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-		
+
 		//hpRegeneration
 		hpRegeneration= parametersNode->getChild("max-hp")->getAttribute("regeneration")->getIntValue();
-		
+
 		//maxEp
 		maxEp= parametersNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-		
+
 		if(maxEp!=0){
 			//wpRegeneration
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
@@ -141,14 +142,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//armor
 		armor= parametersNode->getChild("armor")->getAttribute("value")->getIntValue();
-		
+
 		//armor type string
 		string armorTypeName= parametersNode->getChild("armor-type")->getAttribute("value")->getRestrictedValue();
 		armorType= techTree->getArmorType(armorTypeName);
 
 		//sight
 		sight= parametersNode->getChild("sight")->getAttribute("value")->getIntValue();
-		
+
 		//prod time
 		productionTime= parametersNode->getChild("time")->getAttribute("value")->getIntValue();
 
@@ -170,6 +171,19 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					cellMap[i*size+j]= row[j]=='0'? false: true;
 				}
 			}
+
+            if(Socket::enableDebugText) printf("In [%s::%s] Original Unit cellmap matrix below [%s] [%s]:\n",__FILE__,__FUNCTION__,getName().c_str(),path.c_str());
+            for(int iRow = 0; iRow < size; ++iRow) {
+				const XmlNode *rowNode= cellMapNode->getChild("row", iRow);
+				string row= rowNode->getAttribute("value")->getRestrictedValue();
+				if(Socket::enableDebugText) printf("In [%s::%s] row = %s\n",__FILE__,__FUNCTION__,row.c_str());
+
+                for(int iCol = 0; iCol < size; ++iCol) {
+                    bool getCellResult          = getCellMapCell(iCol, iRow);
+                    if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
+                }
+            }
+
 		}
 
 		//levels
@@ -236,7 +250,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		if(light){
 			lightColor.x= lightNode->getAttribute("red")->getFloatValue(0.f, 1.f);
 			lightColor.y= lightNode->getAttribute("green")->getFloatValue(0.f, 1.f);
-			lightColor.z= lightNode->getAttribute("blue")->getFloatValue(0.f, 1.f);	
+			lightColor.z= lightNode->getAttribute("blue")->getFloatValue(0.f, 1.f);
 		}
 
 		//unit requirements
@@ -333,7 +347,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//commands
 		const XmlNode *commandsNode= unitNode->getChild("commands");
-		commandTypes.resize(commandsNode->getChildCount()); 
+		commandTypes.resize(commandsNode->getChildCount());
 		for(int i=0; i<commandTypes.size(); ++i){
 			const XmlNode *commandNode= commandsNode->getChild("command", i);
 			const XmlNode *typeNode= commandNode->getChild("type");
@@ -342,7 +356,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			commandType->load(i, commandNode, dir, techTree, factionType, *this);
 			commandTypes[i]= commandType;
 		}
-				
+
 		computeFirstStOfClass();
 		computeFirstCtOfClass();
 
@@ -352,7 +366,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		if(getFirstStOfClass(scDie)==NULL){
 			throw runtime_error("Every unit must have at least one die skill: "+ path);
 		}
-	
+
 	}
 	//Exception handling (conversions and so on);
 	catch(const exception &e){
@@ -360,7 +374,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 	}
 }
 
-// ==================== get ==================== 
+// ==================== get ====================
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
     return firstCommandTypeOfClass[commandClass];
@@ -412,7 +426,7 @@ int UnitType::getStore(const ResourceType *rt) const{
             return storedResources[i].getAmount();
 		}
     }
-    return 0;    
+    return 0;
 }
 
 const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skillClass) const{
@@ -429,7 +443,7 @@ const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skil
 	throw runtime_error("No skill named \""+skillName+"\"");
 }
 
-// ==================== totals ==================== 
+// ==================== totals ====================
 
 int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const{
 	return maxHp + totalUpgrade->getMaxHp();
@@ -447,10 +461,10 @@ int UnitType::getTotalSight(const TotalUpgrade *totalUpgrade) const{
 	return sight + totalUpgrade->getSight();
 }
 
-// ==================== has ==================== 
+// ==================== has ====================
 
 bool UnitType::hasSkillClass(SkillClass skillClass) const{
-    return firstSkillTypeOfClass[skillClass]!=NULL;        
+    return firstSkillTypeOfClass[skillClass]!=NULL;
 }
 
 bool UnitType::hasCommandType(const CommandType *commandType) const{
@@ -474,7 +488,7 @@ bool UnitType::hasSkillType(const SkillType *skillType) const{
             return true;
         }
     }
-    return false;   
+    return false;
 }
 
 bool UnitType::isOfClass(UnitClass uc) const{
@@ -491,14 +505,14 @@ bool UnitType::isOfClass(UnitClass uc) const{
 	return false;
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
 void UnitType::computeFirstStOfClass(){
 	for(int j= 0; j<scCount; ++j){
         firstSkillTypeOfClass[j]= NULL;
         for(int i= 0; i<skillTypes.size(); ++i){
             if(skillTypes[i]->getClass()== SkillClass(j)){
-                firstSkillTypeOfClass[j]= skillTypes[i];  
+                firstSkillTypeOfClass[j]= skillTypes[i];
                 break;
             }
         }
@@ -510,7 +524,7 @@ void UnitType::computeFirstCtOfClass(){
         firstCommandTypeOfClass[j]= NULL;
         for(int i=0; i<commandTypes.size(); ++i){
             if(commandTypes[i]->getClass()== CommandClass(j)){
-                firstCommandTypeOfClass[j]= commandTypes[i];  
+                firstCommandTypeOfClass[j]= commandTypes[i];
                 break;
             }
         }

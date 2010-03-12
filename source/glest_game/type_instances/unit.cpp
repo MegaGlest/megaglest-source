@@ -3,12 +3,12 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
-#include "faction.h" 
+#include "faction.h"
 
 #include <cassert>
 
@@ -24,6 +24,7 @@
 #include "core_data.h"
 #include "renderer.h"
 #include "leak_dumper.h"
+#include "socket.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -103,18 +104,27 @@ const int Unit::invalidId= -1;
 
 // ============================ Constructor & destructor =============================
 
-Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map){
+Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation) {
+
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
     Random random;
-	
+
 	this->pos=pos;
 	this->type=type;
     this->faction=faction;
 	this->map= map;
 	this->id= id;
-	
+	level= NULL;
+	cellMap= NULL;
+
+	if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
+    setRotateAmount(unitPlacementRotation);
+    if(Socket::enableDebugText) printf("In [%s::%s] B unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),unitPlacementRotation);
+
 	Config &config= Config::getInstance();
 	showUnitParticles= config.getBool("UnitParticles");
-	
+
 	lastPos= pos;
     progress= 0;
 	lastAnimProgress= 0;
@@ -126,7 +136,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	deadCount= 0;
 	hp= type->getMaxHp()/20;
 	toBeUndertaken= false;
-	level= NULL;
+
 	highlight= 0.f;
 	meetingPos= pos;
 	alive= true;
@@ -135,7 +145,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 
 	random.init(id);
 	rot+= random.randRange(-5, 5);
-	
+
 	rotation= rot;
 	lastRotation= rot;
 	targetRotation= rot;
@@ -149,6 +159,8 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 
 	//starting skill
 	this->currSkill=getType()->getFirstStOfClass(scStop);
+
+	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 Unit::~Unit(){
@@ -163,6 +175,9 @@ Unit::~Unit(){
 			unitParticleSystems.pop_back();
 		}
 	stopDamageParticles();
+
+	delete [] cellMap;
+	cellMap = NULL;
 }
 
 // ====================================== get ======================================
@@ -184,9 +199,8 @@ Vec2f Unit::getFloatCenteredPos() const{
 }
 
 Vec2i Unit::getCellPos() const{
-
 	if(type->hasCellMap()){
-		
+
 		//find nearest pos to center that is free
 		Vec2i centeredPos= getCenteredPos();
 		float nearestDist= -1.f;
@@ -194,7 +208,7 @@ Vec2i Unit::getCellPos() const{
 
 		for(int i=0; i<type->getSize(); ++i){
 			for(int j=0; j<type->getSize(); ++j){
-				if(type->getCellMapCell(i, j)){
+                if(getCellMapCell(i, j)){
 					Vec2i currPos= pos + Vec2i(i, j);
 					float dist= currPos.dist(centeredPos);
 					if(nearestDist==-1.f || dist<nearestDist){
@@ -233,7 +247,7 @@ float Unit::getHpRatio() const{
 }
 
 float Unit::getEpRatio() const{
-	if(type->getMaxHp()==0){ 
+	if(type->getMaxHp()==0){
 		return 0.f;
 	}
 	else{
@@ -256,11 +270,14 @@ const Level *Unit::getNextLevel() const{
 }
 
 string Unit::getFullName() const{
-	string str;
-	if(level!=NULL){
-		str+= level->getName() + " ";
+	string str="";
+	if(level != NULL){
+		str += (level->getName() + " ");
 	}
-	str+= type->getName();
+	if(type == NULL) {
+	    throw runtime_error("type == NULL in Unit::getFullName()!");
+	}
+	str += type->getName();
 	return str;
 }
 
@@ -273,7 +290,7 @@ bool Unit::isOperative() const{
 bool Unit::isBeingBuilt() const{
     return currSkill->getClass()==scBeBuilt;
 }
-        
+
 bool Unit::isBuilt() const{
     return !isBeingBuilt();
 }
@@ -292,7 +309,7 @@ bool Unit::isDamaged() const{
 
 bool Unit::isInteresting(InterestingUnitType iut) const{
 	switch(iut){
-	case iutIdleHarvester: 
+	case iutIdleHarvester:
 		if(type->hasCommandClass(ccHarvest)){
 			if(!commands.empty()){
 				const CommandType *ct= commands.front()->getCommandType();
@@ -303,11 +320,11 @@ bool Unit::isInteresting(InterestingUnitType iut) const{
 		}
 		return false;
 
-	case iutBuiltBuilding: 
+	case iutBuiltBuilding:
 		return type->hasSkillClass(scBeBuilt) && isBuilt();
-	case iutProducer: 
+	case iutProducer:
 		return type->hasSkillClass(scProduce);
-	case iutDamaged: 
+	case iutDamaged:
 		return isDamaged();
 	case iutStore:
 		return type->getStoredResourceCount()>0;
@@ -322,13 +339,13 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 	if(currSkill->getClass()!=this->currSkill->getClass()){
 		animProgress= 0;
 		lastAnimProgress= 0;
-		
+
 		while(!unitParticleSystems.empty()){
 			unitParticleSystems.back()->fade();
 			unitParticleSystems.pop_back();
 		}
 	}
-	if(showUnitParticles && (!currSkill->unitParticleSystemTypes.empty()) && 
+	if(showUnitParticles && (!currSkill->unitParticleSystemTypes.empty()) &&
 		(unitParticleSystems.empty()) ){
 		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it!=currSkill->unitParticleSystemTypes.end(); ++it){
 			UnitParticleSystem *ups;
@@ -373,7 +390,7 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 	targetRef= NULL;
 
 	this->targetPos= targetPos;
-}	
+}
 
 void Unit::setVisible(const bool visible){
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
@@ -383,11 +400,11 @@ void Unit::setVisible(const bool visible){
 		(*it)->setVisible(visible);
 	}
 }
-	
+
 // =============================== Render related ==================================
 
 const Model *Unit::getCurrentModel() const{
-    return currSkill->getAnimation(); 
+    return currSkill->getAnimation();
 }
 
 Vec3f Unit::getCurrVector() const{
@@ -399,11 +416,11 @@ Vec3f Unit::getCurrVectorFlat() const{
 
 	float y1= computeHeight(lastPos);
 	float y2= computeHeight(pos);
-				
+
     if(currSkill->getClass()==scMove){
         v.x= lastPos.x + progress * (pos.x-lastPos.x);
         v.z= lastPos.y + progress * (pos.y-lastPos.y);
-		v.y= y1+progress*(y2-y1); 
+		v.y= y1+progress*(y2-y1);
     }
     else{
         v.x= static_cast<float>(pos.x);
@@ -421,7 +438,7 @@ Vec3f Unit::getCurrVectorFlat() const{
 //any command
 bool Unit::anyCommand() const{
 	return !commands.empty();
-}		
+}
 
 //return current command, assert that there is always one command
 Command *Unit::getCurrCommand() const{
@@ -435,7 +452,9 @@ unsigned int Unit::getCommandSize() const{
 
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command){
-	
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
 	if(command->getCommandType()->isQueuable()){
 		//cancel current command if it is not queuable
 		if(!commands.empty() && !commands.front()->getCommandType()->isQueuable()){
@@ -447,12 +466,16 @@ CommandResult Unit::giveCommand(Command *command){
 		clearCommands();
 		unitPath.clear();
 	}
-	
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
+
 	//check command
 	CommandResult result= checkCommand(command);
 	if(result==crSuccess){
 		applyCommand(command);
 	}
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] B\n",__FILE__,__FUNCTION__);
 
 	//push back command
 	if(result== crSuccess){
@@ -462,8 +485,10 @@ CommandResult Unit::giveCommand(Command *command){
 		delete command;
 	}
 
+    //if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+
 	return result;
-} 
+}
 
 //pop front (used when order is done)
 CommandResult Unit::finishCommand(){
@@ -483,7 +508,7 @@ CommandResult Unit::finishCommand(){
 
 //to cancel a command
 CommandResult Unit::cancelCommand(){
- 
+
 	//is empty?
 	if(commands.empty()){
 		return crFailUndefined;
@@ -514,13 +539,13 @@ void Unit::create(bool startingUnit){
 
 void Unit::born(){
 	faction->addStore(type);
-	faction->applyStaticProduction(type);	
+	faction->applyStaticProduction(type);
 	setCurrSkill(scStop);
 	hp= type->getMaxHp();
 }
 
 void Unit::kill(){
-	
+
 	//no longer needs static resources
 	if(isBeingBuilt()){
 		faction->deApplyStaticConsumption(type);
@@ -576,7 +601,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		//attack enemies
 		if(!isAlly(targetUnit)){
 			commandType= type->getFirstAttackCommand(targetUnit->getCurrField());
-		}	
+		}
 
 		//repair allies
 		else{
@@ -609,12 +634,12 @@ bool Unit::update(){
 
 	//speed
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
-	
+
 	//speed modifier
 	float diagonalFactor= 1.f;
 	float heightFactor= 1.f;
 	if(currSkill->getClass()==scMove){
-		
+
 		//if moving in diagonal move slower
 		Vec2i dest= pos-lastPos;
 		if(abs(dest.x)+abs(dest.y) == 2){
@@ -625,7 +650,7 @@ bool Unit::update(){
 		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
 		heightFactor= clamp(1.f+heightDiff/5.f, 0.2f, 5.f);
 	}
-	
+
 
 	//update progresses
 	lastAnimProgress= animProgress;
@@ -668,7 +693,7 @@ bool Unit::update(){
 	}
 
 	//checks
-	if(progress>=1.f){ 
+	if(progress>=1.f){
 		lastRotation= targetRotation;
 		if(currSkill->getClass()!=scDie){
 			progress= 0.f;
@@ -678,7 +703,7 @@ bool Unit::update(){
 			progress= 1.f;
 			deadCount++;
 			if(deadCount>=maxDeadCount){
-				toBeUndertaken= true;			
+				toBeUndertaken= true;
 				return false;
 			}
 		}
@@ -713,23 +738,23 @@ int Unit::update2(){
 }
 
 bool Unit::computeEp(){
-    
+
 	//if not enough ep
-    if(ep-currSkill->getEpCost() < 0){ 
+    if(ep-currSkill->getEpCost() < 0){
         return true;
     }
 
 	//decrease ep
     ep-= currSkill->getEpCost();
 	if(ep>getType()->getTotalMaxEp(&totalUpgrade)){
-        ep= getType()->getTotalMaxEp(&totalUpgrade); 
+        ep= getType()->getTotalMaxEp(&totalUpgrade);
 	}
 
     return false;
 }
 
 bool Unit::repair(){
-	
+
 	//increase hp
 	hp+= getType()->getMaxHp()/type->getProductionTime() + 1;
     if(hp>(getType()->getTotalMaxHp(&totalUpgrade))){
@@ -749,7 +774,7 @@ bool Unit::decHp(int i){
 	if(hp==0){
 		return false;
 	}
-	
+
 	hp-=i;
 
 	//startDamageParticles
@@ -886,7 +911,7 @@ bool Unit::morph(const MorphCommandType *mct){
 		currField=morphUnitField;
 		computeTotalUpgrade();
 		map->putUnitCells(this, pos);
-		faction->applyDiscount(morphUnitType, mct->getDiscount());	
+		faction->applyDiscount(morphUnitType, mct->getDiscount());
 		return true;
 	}
 	else{
@@ -899,7 +924,7 @@ bool Unit::morph(const MorphCommandType *mct){
 
 float Unit::computeHeight(const Vec2i &pos) const{
 	float height= map->getCell(pos)->getHeight();
-	
+
 	if(currField==fAir){
 		height+= World::airHeight;
 	}
@@ -931,7 +956,7 @@ void Unit::clearCommands(){
 }
 
 CommandResult Unit::checkCommand(Command *command) const{
-	
+
 	//if not operative or has not command type => fail
 	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())){
         return crFailUndefined;
@@ -966,13 +991,13 @@ CommandResult Unit::checkCommand(Command *command) const{
 
     //upgrade command specific, check that upgrade is not upgraded
     else if(command->getCommandType()->getClass()==ccUpgrade){
-        const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());  
+        const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
             return crFailUndefined;
 		}
 	}
 
-    return crSuccess; 
+    return crSuccess;
 }
 
 void Unit::applyCommand(Command *command){
@@ -990,7 +1015,7 @@ void Unit::applyCommand(Command *command){
 
     //upgrade command specific
     else if(command->getCommandType()->getClass()==ccUpgrade){
-        const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());  
+        const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 		faction->startUpgrade(uct->getProducedUpgrade());
 	}
 }
@@ -1003,7 +1028,7 @@ CommandResult Unit::undoCommand(Command *command){
 		faction->deApplyCosts(produced);
 	}
 
-	//return building cost if not already building it or dead 
+	//return building cost if not already building it or dead
 	if(command->getCommandType()->getClass() == ccBuild){
 		if(currSkill->getClass()!=scBuild && currSkill->getClass()!=scDie){
 			faction->deApplyCosts(command->getUnitType());
@@ -1034,7 +1059,7 @@ void Unit::stopDamageParticles(){
 
 void Unit::startDamageParticles(){
 	//start additional particles
-	if( showUnitParticles && (!type->damageParticleSystemTypes.empty()) 
+	if( showUnitParticles && (!type->damageParticleSystemTypes.empty())
 		&& (damageParticleSystems.empty()) ){
 		for(UnitParticleSystemTypes::const_iterator it= type->damageParticleSystemTypes.begin(); it!=type->damageParticleSystemTypes.end(); ++it){
 			UnitParticleSystem *ups;
@@ -1077,9 +1102,77 @@ void Unit::startDamageParticles(){
 			damageParticleSystems.push_back(ups);
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
-		
+
 	}
 }
 
+bool Unit::getCellMapCell(int x, int y) const {
+    const UnitType *ut= getType();
+    if(ut != NULL && rotateAmount > 0) {
+        return cellMap[ut->getSize() * y + x];
+    }
+    else {
+        return ut->getCellMapCell(x,y);
+    }
+}
+
+void Unit::setRotateAmount(float value) {
+    rotateAmount = value;
+
+    if(Socket::enableDebugText) printf("In [%s::%s] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),rotateAmount);
+
+    const UnitType *ut= getType();
+    if(ut != NULL && ut->hasCellMap() == true) {
+        int matrixSize = ut->getSize();
+
+        if(rotateAmount > 0) {
+
+            delete [] cellMap;
+            cellMap = new bool[matrixSize * matrixSize];
+
+            for(int iRow = 0; iRow < matrixSize; ++iRow) {
+                for(int iCol = 0; iCol < matrixSize; ++iCol) {
+                    bool getCellResult = ut->getCellMapCell(iCol, iRow);
+                    if(Socket::enableDebugText) printf("In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
+
+                    int newRow = 0;
+                    int newCol = 0;
+
+                    switch((int)rotateAmount)
+                    {
+                        case 90:
+                            newRow = (matrixSize - iCol - 1);
+                            newCol = iRow;
+                            break;
+                        case 180:
+                            newRow = (matrixSize - iRow - 1);
+                            newCol = (matrixSize - iCol - 1);
+                            break;
+                        case 270:
+                            newRow = iCol;
+                            newCol = (matrixSize - iRow - 1);
+                            break;
+
+                    }
+
+                    if(Socket::enableDebugText) printf("In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
+
+                    // bool getCellMapCell(int x, int y) const {return cellMap[size*y+x];}
+                    // cellMap[i*size+j]= row[j]=='0'? false: true;
+                    cellMap[matrixSize * newRow + newCol] = getCellResult;
+                }
+            }
+        }
+
+        if(Socket::enableDebugText) printf("In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
+        for(int iRow = 0; iRow < matrixSize; ++iRow) {
+            for(int iCol = 0; iCol < matrixSize; ++iCol) {
+                bool getCellResult          = ut->getCellMapCell(iCol, iRow);
+                bool getCellResultRotated   = getCellMapCell(iRow, iCol);
+                if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
+            }
+        }
+    }
+}
 
 }}//end namespace
