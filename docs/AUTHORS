@@ -1,0 +1,96 @@
+###########################
+#Glest Community Megapack #
+###########################
+( from http://www.titusgames.de )
+
+Factions:
+=========
+
+Indians:
+Copyright 2007-2010 (C) Titus Tscharntke(titi) & Philipp Tscharntke ( http://www.titusgames.de )
+
+The Norsemen:
+Copyright 2008-2010 (C) Titus Tscharntke(titi) & Raphael Schröder(weedkiller) & Philipp Tscharntke ( http://www.titusgames.de ) 
+
+The Persian:
+Copyright 2010 (C) Titus Tscharntke(titi) & Philipp Tscharntke ( http://www.titusgames.de )
+
+The Norsemen:
+Copyright 2008-2010 (C) Titus Tscharntke(titi) & Raphael Schröder(weedkiller) & Philipp Tscharntke ( http://www.titusgames.de ) 
+
+The Egypts:
+Copyright 2010-2010 (C) Titus Tscharntke(titi) ( http://www.titusgames.de ) 
+
+Tech and Magic:
+The factions tech and magic are from the original game glest ( a bit modified now ).  
+( copyrighted by the glest team www.glest.org )
+
+The new factions Indians/Norsemen/Persian use some models from original glest!
+
+Tilesets:
+=========
+Tileset Jungle:     by Titus Tscharntke(titi) & Philipp Tscharntke 
+Tileset Evergreen:  by Titus Tscharntke(titi) 
+Tileset Autumn:     by Titus Tscharntke(titi) 
+Tileset Desert2:    by Idanwin and Titus Tscharntke(titi)
+Tileset Winter:     by Titus Tscharntke(titi)
+Tileset Hell:       by Titus Tscharntke(titi)
+Tileset Mediterran: by Titus Tscharntke(titi)
+Tileset Scurbland:  by MadElf (improved a bit by titi)
+
+Maps:
+=====
+ conflict          by ttsmj
+ domination_isles  by mapmaker(from the glest forum)
+ one_on_one        by original glest team ( but no longer in the game yet )
+ overgrown_city    by mapmaker and Titus Tscharntke(titi)
+ tropical_arena    by mapmaker(from the glest forum)
+ tt_goldrush_v2    by Titus Tscharntke(titi)
+ waterworld        by Titus Tscharntke(titi)
+
+Scenarios:
+==========
+m4_amazones          by Titus Tscharntke(titi)
+m4_amazones_light    by Titus Tscharntke(titi)
+m4_beehive_castle    by Titus Tscharntke(titi)
+m4_indian_attack     by Titus Tscharntke(titi)
+m4_kill_the_magic    by Titus Tscharntke(titi)
+m4_magic_can_do_it   by Titus Tscharntke(titi)
+m4_my_island         by Titus Tscharntke(titi)
+m4_norsemen_attack   by Titus Tscharntke(titi)
+m4_persian_conflict  by Philipp Tscharntke
+m4_waterworld_light  by Titus Tscharntke(titi)
+m4_waterworld        by Titus Tscharntke(titi)
+
+
+Credits go to:
+==============
+Titus Tscharntke(titi) - Lead developer and creator of the new Mega-Glest project (http://www.titusgames.de)
+Mark Vejvoda(SoftCoder) - Developer of the new Mega-Glest project (http://www.soft-haus.com)
+
+The original glest team who made all this possible!!!
+
+Aminos for the indians and persian background music !!
+Margaras for the egypt background music!!
+manolo camp for the background music(norsemen)!!
+http://www.burningwell.org who have nice free (public domain) textures!
+Gameboy for the norsemen icons
+Weedkiller who created the spearman model of the indians, and the princess and swordman model of the persian faction
+My family, some friends and neighbors for the unit voices.
+ZaggyDad for some help with textures/models (norsemen) and for the persian elephant model.
+Baida for the axe_thrower model (norsemen)
+erdie (from http://www.freesound.org) for the autumn day sound
+patchen (from http://www.freesound.org) for the autumn night sound
+royal (from http://www.freesound.org) for the  desert day sound
+Cacatoes (from http://forum.freegamedev.net/) for a nice rock texture photo used in autumn tileset.
+
+INFO:
+Some source textures distributed with the tilesets(evergreen/autumn) are copyrighted by CGTextures.com. Permission to release these specific textures has been granted to the creator of these tilesets. 
+!!Textures downloaded from CGTextures.com DO NOT fall under any GPL or Creative Commons License by default.!!
+
+( !!! Texture Hint: Better use textures from www.burningwell.org which are really free to use (public domain)!!!)
+
+
+All files are released under the Terms of the 
+Attribution-ShareAlike 3.0 Unported license ( see data_license.txt )
+
