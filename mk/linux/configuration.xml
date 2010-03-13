@@ -205,6 +205,16 @@ shadows and shadow mapping, bigger sizes result in less pixelized shadows but ar
 				<min value="0"/>
 				<max value="5"/>
 			</field>
+			<field type="Enum">
+				<name value="Show Unit Particles"/>
+				<variable-name value="UnitParticles"/>
+				<description value="Displays particles on game units"/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
 		</field-group>
 
 		<field-group name="Audio">
