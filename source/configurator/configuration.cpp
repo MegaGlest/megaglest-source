@@ -70,7 +70,7 @@ void Configuration::loadValues(const string &path){
 		FieldGroup *fg= fieldGroups[i];
 		for(int j=0; j<fg->getFieldCount(); ++j){
 			Field *f= fg->getField(j);
-			f->setValue(properties.getString(f->getVariableName()));
+			f->setValue(properties.getString(f->getVariableName(),""));
 		}
 	}
 }

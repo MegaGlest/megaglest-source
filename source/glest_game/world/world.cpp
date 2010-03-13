@@ -48,6 +48,8 @@ World::World(){
 
 	scriptManager= NULL;
 	this->game = NULL;
+
+	allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 }
 
 void World::end(){
@@ -312,9 +314,12 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		const UnitType* ut= ft->getUnitType(unitName);
 
         //!!!
-        //if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
-        float unitRotation = game->getGui()->getUnitTypeBuildRotation(ut->getId());
-        //if(Socket::enableDebugText) printf("In [%s::%s] B\n",__FILE__,__FUNCTION__);
+        float unitRotation = -1;
+        if(allowRotateUnits == true) {
+            char unitKey[50]="";
+            sprintf(unitKey,"%d_%d",ut->getId(),faction->getIndex());
+            unitRotation = game->getGui()->getUnitTypeBuildRotation(unitKey);
+        }
 
 		Unit* unit= new Unit(getNextUnitId(), pos, ut, faction, &map, unitRotation);
 
@@ -575,9 +580,12 @@ void World::initUnits(){
 			for(int l=0; l<initNumber; l++){
 
                 //!!!
-                //if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
-                float unitRotation = game->getGui()->getUnitTypeBuildRotation(ut->getId());
-                //if(Socket::enableDebugText) printf("In [%s::%s] B\n",__FILE__,__FUNCTION__);
+                float unitRotation = -1;
+                if(allowRotateUnits == true) {
+                    char unitKey[50]="";
+                    sprintf(unitKey,"%d_%d",ut->getId(),f->getIndex());
+                    unitRotation = game->getGui()->getUnitTypeBuildRotation(unitKey);
+                }
 
 				Unit *unit= new Unit(getNextUnitId(), Vec2i(0), ut, f, &map, unitRotation);
 

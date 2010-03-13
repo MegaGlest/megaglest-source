@@ -90,6 +90,8 @@ void SelectionQuad::disable(){
 Gui::Gui(){
     if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
+    allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
+
     posObjWorld= Vec2i(54, 14);
     computeSelection= false;
 	validPosObjWorld= false;
@@ -309,11 +311,11 @@ void Gui::groupKey(int groupIndex){
 	}
 }
 
-float Gui::getUnitTypeBuildRotation(int unitId) const {
+float Gui::getUnitTypeBuildRotation(string unitKey) const {
     float rotationValue = -1;
 
-    if(unitTypeBuildRotation.find(unitId) != unitTypeBuildRotation.end()) {
-        rotationValue = unitTypeBuildRotation.find(unitId)->second;
+    if(unitTypeBuildRotation.find(unitKey) != unitTypeBuildRotation.end()) {
+        rotationValue = unitTypeBuildRotation.find(unitKey)->second;
     }
 
     return rotationValue;
@@ -334,11 +336,14 @@ void Gui::hotKey(char key){
 	}
 	else if(key=='R'){
 	    //!!!
-	    if(0 && isPlacingBuilding()) {
+	    if(allowRotateUnits == true && isPlacingBuilding()) {
 	        const UnitType *unitType = getBuilding();
-	        float unitTypeRotation = getUnitTypeBuildRotation(unitType->getId());
+	        int factionIndex = world->getThisFactionIndex();
+	        char unitKey[50]="";
+	        sprintf(unitKey,"%d_%d",unitType->getId(),factionIndex);
+	        float unitTypeRotation = getUnitTypeBuildRotation(unitKey);
 
-	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
+	        if(Socket::enableDebugText) printf("In [%s::%s] factionIndex = %d unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,factionIndex,unitType->getId(),unitTypeRotation);
 
 	        if(unitTypeRotation < 0) {
 	            unitTypeRotation = 0;
@@ -347,7 +352,7 @@ void Gui::hotKey(char key){
 	        if(unitTypeRotation >= 360) {
 	            unitTypeRotation = 0;
 	        }
-	        unitTypeBuildRotation[unitType->getId()] = unitTypeRotation;
+	        unitTypeBuildRotation[unitKey] = unitTypeRotation;
 
 	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
 	    }

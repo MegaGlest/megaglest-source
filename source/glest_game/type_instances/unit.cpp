@@ -107,6 +107,7 @@ const int Unit::invalidId= -1;
 Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 
     Random random;
 
@@ -1108,69 +1109,76 @@ void Unit::startDamageParticles(){
 
 bool Unit::getCellMapCell(int x, int y) const {
     const UnitType *ut= getType();
-    if(ut != NULL && rotateAmount > 0) {
+
+    if(allowRotateUnits == true && ut != NULL && rotateAmount > 0) {
         return cellMap[ut->getSize() * y + x];
     }
-    else {
+    else if(ut != NULL) {
         return ut->getCellMapCell(x,y);
+    }
+    else {
+        throw runtime_error("ut == NULL in Unit::getCellMapCell()!");
     }
 }
 
 void Unit::setRotateAmount(float value) {
-    rotateAmount = value;
+    if(allowRotateUnits == true) {
+        rotateAmount = value;
+        //if(Socket::enableDebugText) printf("In [%s::%s] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),rotateAmount);
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),rotateAmount);
+        const UnitType *ut= getType();
+        if(ut != NULL && ut->hasCellMap() == true) {
+            int matrixSize = ut->getSize();
 
-    const UnitType *ut= getType();
-    if(ut != NULL && ut->hasCellMap() == true) {
-        int matrixSize = ut->getSize();
+            if(rotateAmount > 0) {
 
-        if(rotateAmount > 0) {
+                delete [] cellMap;
+                cellMap = new bool[matrixSize * matrixSize];
 
-            delete [] cellMap;
-            cellMap = new bool[matrixSize * matrixSize];
+                for(int iRow = 0; iRow < matrixSize; ++iRow) {
+                    for(int iCol = 0; iCol < matrixSize; ++iCol) {
+                        bool getCellResult = ut->getCellMapCell(iCol, iRow);
+                        //if(Socket::enableDebugText) printf("In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
 
-            for(int iRow = 0; iRow < matrixSize; ++iRow) {
-                for(int iCol = 0; iCol < matrixSize; ++iCol) {
-                    bool getCellResult = ut->getCellMapCell(iCol, iRow);
-                    //if(Socket::enableDebugText) printf("In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
+                        int newRow = 0;
+                        int newCol = 0;
 
-                    int newRow = 0;
-                    int newCol = 0;
+                        switch((int)rotateAmount)
+                        {
+                            case 90:
+                                newRow = (matrixSize - iCol - 1);
+                                newCol = iRow;
+                                break;
+                            case 180:
+                                newRow = (matrixSize - iRow - 1);
+                                newCol = (matrixSize - iCol - 1);
+                                break;
+                            case 270:
+                                newRow = iCol;
+                                newCol = (matrixSize - iRow - 1);
+                                break;
 
-                    switch((int)rotateAmount)
-                    {
-                        case 90:
-                            newRow = (matrixSize - iCol - 1);
-                            newCol = iRow;
-                            break;
-                        case 180:
-                            newRow = (matrixSize - iRow - 1);
-                            newCol = (matrixSize - iCol - 1);
-                            break;
-                        case 270:
-                            newRow = iCol;
-                            newCol = (matrixSize - iRow - 1);
-                            break;
+                        }
 
+                        //if(Socket::enableDebugText) printf("In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
+
+                        // bool getCellMapCell(int x, int y) const {return cellMap[size*y+x];}
+                        // cellMap[i*size+j]= row[j]=='0'? false: true;
+                        cellMap[matrixSize * newRow + newCol] = getCellResult;
                     }
-
-                    //if(Socket::enableDebugText) printf("In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
-
-                    // bool getCellMapCell(int x, int y) const {return cellMap[size*y+x];}
-                    // cellMap[i*size+j]= row[j]=='0'? false: true;
-                    cellMap[matrixSize * newRow + newCol] = getCellResult;
                 }
             }
-        }
 
-        //if(Socket::enableDebugText) printf("In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
-        for(int iRow = 0; iRow < matrixSize; ++iRow) {
-            for(int iCol = 0; iCol < matrixSize; ++iCol) {
-                bool getCellResult          = ut->getCellMapCell(iCol, iRow);
-                bool getCellResultRotated   = getCellMapCell(iRow, iCol);
-                //if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
+            //if(Socket::enableDebugText) printf("In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
+            /*
+            for(int iRow = 0; iRow < matrixSize; ++iRow) {
+                for(int iCol = 0; iCol < matrixSize; ++iCol) {
+                    bool getCellResult          = ut->getCellMapCell(iCol, iRow);
+                    bool getCellResultRotated   = getCellMapCell(iRow, iCol);
+                    if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
+                }
             }
+            */
         }
     }
 }
