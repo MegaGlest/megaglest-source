@@ -1,4 +1,4 @@
-Mega-Glest source code v3.2.x - Copyright (C) 2009-2010 Titus Tscharntke () and Mark Vejvoda (www.soft-haus.com - mark_vejvoda@hotmail.com.
+Mega-Glest source code v3.2.x - Copyright (C) 2009-2010 Titus Tscharntke (info@titusgames.de) and Mark Vejvoda (mark_vejvoda@hotmail.com.
 
 Glest source code v3.2.x - Copyright (C) 2002-2009 Martiño Figueroa (www.glest.org - contact_game@glest.org).
 
