@@ -1,20 +1,17 @@
 					Mega-Glest
         	        	by Titus Tscharntke and Mark Vejvoda
 
-        			original Glest linux port
-        	        	by Matthias Braun
+        			original Glest code
+        	        	by Martiño Figueroa
 
 1. System requirements
 Developed on Windows with Microsoft Visual C++ 2008 Express (free version), 
 little endian cpu. The game does currently not work on big endian cpus like ppc. 
-There are some unfinished patches floating around the glest board, so this might 
-improve (feel free to send me updated/finished ppc patches).
-Graphics card + OpenGL libraries that support OpenGL 1.3 and shader extensions
-(=opengl 1.4 or glUseProgramObjectARB and co.)
 The app has been reported to run fine on a 900Mhz Athlon box with nvidia geforce
-3 graphics card.
-It seems that the game also runs on geforce 2 and geforce mx class hardware when
-you disable 3d textures and shadowmaps in the options menu.
+3 graphics card. It seems that the game also runs on geforce 2 and geforce mx 
+class hardware when you disable 3d textures and shadowmaps in the options menu.
+The windows version should run on 32 and 64 bit versions of Windows and has been
+reported to run successfully on Windows 2000 - Windows 7.
 
 2. Building and Installation
 
@@ -51,7 +48,8 @@ in it.
    Rebuild All.
 
 If you had no errors all binaries will be created in trunk\data\glest_game.
-You should be to to just run glest_game.exe
+Before running mega-glest you must run the batchfile: CopyWindowsRuntimeDlls.bat
+You should now be to to just run glest_game.exe
 
 2.3 Installation
 
