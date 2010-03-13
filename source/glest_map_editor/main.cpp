@@ -9,8 +9,6 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-
-
 #include "main.h"
 
 #include <ctime>

@@ -1,11 +1,7 @@
 #include "renderer.h"
 
-#include "opengl.h"
-//#include "texture_gl.h"
 #include "graphics_factory_gl.h"
 #include "graphics_interface.h"
-
-//#include "factory_repository.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;

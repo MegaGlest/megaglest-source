@@ -7,10 +7,7 @@
 #include <wx/glcanvas.h>
 
 #include "renderer.h"
-//#include "util.h"
-
-//using Shared::Platform::Window;
-//using Shared::Platform::MouseState;
+#include "util.h"
 
 using std::string;
 

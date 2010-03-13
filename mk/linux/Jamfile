@@ -74,6 +74,7 @@ if $(WX_AVAILABLE) = "yes" {
 }
 
 ### Viewer ###
+if $(WX_AVAILABLE) = "yes" {
   SubDir TOP g3d_viewer ;
 
   GLEST_VIEWER_DIRS = . ;
@@ -85,6 +86,7 @@ if $(WX_AVAILABLE) = "yes" {
   LinkWith glest_g3dviewer : glestlib ;
   ExternalLibs glest_g3dviewer : SDL GL GLU WX ;
   IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS) ;
+}
 
 ### Configurator ###
   SubDir TOP configurator ;

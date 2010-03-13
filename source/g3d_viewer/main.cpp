@@ -2,7 +2,8 @@
 
 #include <stdexcept>
 
-#include "graphics_factory_gl.h"
+//#include "graphics_factory_gl.h"
+#include "model_gl.h"
 #include "graphics_interface.h"
 #include "util.h"
 #include "conversion.h"
