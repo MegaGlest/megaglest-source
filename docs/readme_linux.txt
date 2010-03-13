@@ -124,4 +124,6 @@ The game crashs
 
 Original Glest is from http://www.glest.org
 Linux port by Matthias Braun <matze@braunis.de> with help from
-	Karl Robillard <krobbillard@san.rr.com>
+	Karl Robillard <krobbillard@san.rr.com>Mega-Glest by:
+	Titus Tscharntke (info@titusgames.de) 
+	Mark Vejvoda (www.soft-haus.com - mark_vejvoda@hotmail.com ) 

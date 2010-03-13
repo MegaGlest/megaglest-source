@@ -64,6 +64,6 @@ glest_game.exe from within the trunk\data\glest_game directory.
 
 Main Glest website from http://www.glest.org
 
-Titus Tscharntke () 
-Mark Vejvoda (www.soft-haus.com - mark_vejvoda@hotmail.com.
+Titus Tscharntke (info@titusgames.de) 
+Mark Vejvoda (www.soft-haus.com - mark_vejvoda@hotmail.com )
 
