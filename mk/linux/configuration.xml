@@ -1,0 +1,368 @@
+<?xml version="1.0" standalone="yes"?>
+<configuration>
+	<title value="Mega Glest"/>
+	<file-name value="glest.ini"/>
+	<icon value="true" path="glest.ico"/>
+	<field-groups>
+		<field-group name="General">
+			<field type="Int">
+				<name value="Screen width"/>
+				<variable-name value="ScreenWidth"/>
+				<description value=""/>
+				<default value="1024"/>
+			</field>
+			<field type="Int">
+				<name value="Screen height"/>
+				<variable-name value="ScreenHeight"/>
+				<description value=""/>
+				<default value="768"/>
+			</field>
+			<field type="Int">
+				<name value="Refresh frequency"/>
+				<variable-name value="RefreshFrequency"/>
+				<description value=""/>
+				<default value="75"/>
+			</field>
+			<field type="Enum">
+				<name value="Color bits"/>
+				<variable-name value="ColorBits"/>
+				<description value=""/>
+				<default value="32"/>
+				<enums>
+					<enum value="16"/>
+					<enum value="24"/>
+					<enum value="32"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Windowed"/>
+				<variable-name value="Windowed"/>
+				<description value="Execute in a window"/>
+				<default value="0"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="First time"/>
+				<variable-name value="FirstTime"/>
+				<description value=""/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="FloatRange">
+				<name value="Gameplay speed maximum"/>
+				<variable-name value="FastSpeedLoops"/>
+				<description value=""/>
+				<default value="2"/>
+				<min value="0"/>
+				<max value="20"/>
+			</field>
+			<field type="Enum">
+				<name value="Fog of war enabled"/>
+				<variable-name value="FogOfWar"/>
+				<description value=""/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+		</field-group>
+
+		<field-group name="Renderer">
+			<field type="Enum">
+				<name value="Renderer"/>
+				<variable-name value="FactoryGraphics"/>
+				<description value=""/>
+				<default value="OpenGL"/>
+				<enums>
+					<enum value="OpenGL"/>
+					<enum value="OpenGL2"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Check OpenGL version on startup"/>
+				<variable-name value="CheckGlCaps"/>
+				<description value=""/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Filter"/>
+				<variable-name value="Filter"/>
+				<description value=""/>
+				<default value="Bilinear"/>
+				<enums>
+					<enum value="Bilinear"/>
+					<enum value="Trilinear"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Depth bits"/>
+				<variable-name value="DepthBits"/>
+				<description value="Z buffer precision"/>
+				<default value="32"/>
+				<enums>
+					<enum value="16"/>
+					<enum value="24"/>
+					<enum value="32"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="3D textures"/>
+				<variable-name value="Textures3D"/>
+				<description value="If enabled, 3D textures are used for water 
+
+animation, disable on old cards"/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Shadows"/>
+				<variable-name value="Shadows"/>
+				<description value="Projected shadows are fast but only create 
+
+units and object shadows and in some cases are incorrect.  Shadow mapping creates everything 
+
+over everything shadows, but are slow and look aliased in some cards"/>
+				<default value="Projected"/>
+				<enums>
+					<enum value="Disabled"/>
+					<enum value="Projected"/>
+					<enum value="ShadowMapping"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Shadow texture size"/>
+				<variable-name value="ShadowTextureSize"/>
+				<description value="Size of the texture used for projected 
+
+shadows and shadow mapping, bigger sizes result in less pixelized shadows but are much slower"/>
+				<default value="512"/>
+				<enums>
+					<enum value="256"/>
+					<enum value="512"/>			
+				</enums>
+			</field>
+			<field type="FloatRange">
+				<name value="Shadow alpha"/>
+				<variable-name value="ShadowAlpha"/>
+				<description value="Shadow transparency"/>
+				<default value="0.2"/>
+				<min value="0"/>
+				<max value="1"/>
+			</field>
+			<field type="IntRange">
+				<name value="Shadow frame skip"/>
+				<variable-name value="ShadowFrameSkip"/>
+				<description value=""/>
+				<default value="2"/>
+				<min value="0"/>
+				<max value="5"/>
+			</field>
+			<field type="FloatRange">
+				<name value="Day time"/>
+				<variable-name value="DayTime"/>
+				<description value="Day/Night cycle duration, in seconds"/>
+				<default value="1000.00"/>
+				<min value="100"/>
+				<max value="2000"/>
+			</field>
+			<field type="IntRange">
+				<name value="Maximum lights"/>
+				<variable-name value="MaxLights"/>
+				<description value=""/>
+				<default value="1"/>
+				<min value="1"/>
+				<max value="8"/>
+			</field>
+			<field type="Enum">
+				<name value="Fog of war smoothing"/>
+				<variable-name value="FogOfWarSmoothing"/>
+				<description value=""/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="IntRange">
+				<name value="Fog of war sm. frame skip"/>
+				<variable-name value="FogOfWarSmoothingFrameSkip"/>
+				<description value=""/>
+				<default value="3"/>
+				<min value="0"/>
+				<max value="5"/>
+			</field>
+		</field-group>
+
+		<field-group name="Audio">
+			<field type="Enum">
+				<name value="Sound factory"/>
+				<variable-name value="FactorySound"/>
+				<description value=""/>
+				<default value="OpenAL"/>
+				<enums>
+					<enum value="DirectSound8"/>
+					<enum value="OpenAL"/>
+				</enums>
+			</field>
+			<field type="IntRange">
+				<name value="FX volume"/>
+				<variable-name value="SoundVolumeFx"/>
+				<description value=""/>
+				<default value="80"/>
+				<min value="0"/>
+				<max value="100"/>
+			</field>
+			<field type="IntRange">
+				<name value="Music volume"/>
+				<variable-name value="SoundVolumeMusic"/>
+				<description value=""/>
+				<default value="90"/>
+				<min value="0"/>
+				<max value="100"/>
+			</field>
+			<field type="IntRange">
+				<name value="Ambient volume"/>
+				<variable-name value="SoundVolumeAmbient"/>
+				<description value=""/>
+				<default value="80"/>
+				<min value="0"/>
+				<max value="100"/>
+			</field>
+		</field-group>
+
+		<field-group name="GUI">
+			<field type="String">
+				<name value="Menu font"/>
+				<variable-name value="FontMenu"/>
+				<description value=""/>
+				<default value="Verdana"/>
+			</field>
+			<field type="String">
+				<name value="Console font"/>
+				<variable-name value="FontConsole"/>
+				<description value=""/>
+				<default value="Verdana"/>
+			</field>
+			<field type="String">
+				<name value="Display font"/>
+				<variable-name value="FontDisplay"/>
+				<description value=""/>
+				<default value="Verdana"/>
+			</field>
+			<field type="String">
+				<name value="Language"/>
+				<variable-name value="Lang"/>
+				<description value=""/>
+				<default value="english"/>
+			</field>
+			<field type="Enum">
+				<name value="Focus arrows"/>
+				<variable-name value="FocusArrows"/>
+				<description value="If enabled, arrows are displayed under units 
+
+when they are issued a command"/>
+				<default value="1"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="Enum">
+				<name value="Disable ingame UI"/>
+				<variable-name value="PhotoMode"/>
+				<description value=""/>
+				<default value="0"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="IntRange">
+				<name value="Maximum console lines"/>
+				<variable-name value="ConsoleMaxLines"/>
+				<description value=""/>
+				<default value="10"/>
+				<min value="0"/>
+				<max value="50"/>
+			</field>
+			<field type="IntRange">
+				<name value="Console text timeout"/>
+				<variable-name value="ConsoleTimeout"/>
+				<description value=""/>
+				<default value="20"/>
+				<min value="1"/>
+				<max value="50"/>
+			</field>
+		</field-group>
+
+		<field-group name="Network">
+			<field type="String">
+				<name value="Server IP"/>
+				<variable-name value="ServerIp"/>
+				<description value=""/>
+				<default value="192.168.1.1"/>
+			</field>
+			<field type="Int">
+				<name value="Server port"/>
+				<variable-name value="ServerPort"/>
+				<description value=""/>
+				<default value="6666"/>
+			</field>
+			<field type="Enum">
+				<name value="Client data consistency checks"/>
+				<variable-name value="NetworkConsistencyChecks"/>
+				<description value=""/>
+				<default value="0"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+		</field-group>
+
+		<field-group name="Advanced">
+			<field type="Enum">
+				<name value="Debug mode"/>
+				<variable-name value="DebugMode"/>
+				<description value=""/>
+				<default value="0"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+			<field type="IntRange">
+				<name value="AI log"/>
+				<variable-name value="AiLog"/>
+				<description value=""/>
+				<default value="0"/>
+				<min value="0"/>
+				<max value="4"/>
+			</field>
+			<field type="Enum">
+				<name value="AI log console redirection"/>
+				<variable-name value="AiRedir"/>
+				<description value=""/>
+				<default value="0"/>
+				<enums>
+					<enum value="1"/>
+					<enum value="0"/>
+				</enums>
+			</field>
+		</field-group>
+	</field-groups>
+</configuration>
