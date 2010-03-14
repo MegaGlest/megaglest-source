@@ -33,6 +33,6 @@ else
   fi
 fi
 
-./bin/glest.bin 2>&1 | tee -a glest.log
-# ./bin/glest.bin 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
+./bin/glest_editor
+
 
