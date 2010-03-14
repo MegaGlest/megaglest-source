@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Library directory
+LIBDIR="lib"
+
+# If we are launching from a symlink, such as /usr/local/bin/runglest.sh, we need to get where
+# the symlink points to
+pth="`readlink $0`"
+
+# $pth will be empty if our start path wasnt a symlink
+if [ $pth ]; then
+	GAMEDIR="`dirname $pth`"
+else
+	GAMEDIR="`dirname $0`"
+fi
+
+# Change to the game dir, and go!
+cd $GAMEDIR
+# export game library directory
+test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
+
+# now deal with the openal library [libopenal.so.0]
+hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.0" | cut "-d>" -f2 | cut "-d " -f2`
+#echo "openal search = [$hasopenal]"
+if [ -n "$hasopenal" ]; then
+  echo "default openal library was found in [$hasopenal]"
+else
+  echo "default openal library is missing, attempting to find and link to a newer version if available..."
+
+  hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.1" | cut "-d>" -f2 | cut "-d " -f2`
+  if [ -n "$hasopenal" ]; then
+    ln -f -s $hasopenal lib/libopenal.so.0
+  fi
+fi
+
+./glest.bin > glest.log 2>&1
+# ./glest > /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
+
