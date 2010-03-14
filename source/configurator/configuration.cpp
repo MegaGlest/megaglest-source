@@ -139,7 +139,7 @@ void FieldGroup::load(const XmlNode *groupNode){
 		f->loadSpecific(fieldNode);
 
 		if(!f->isValueValid(f->getDefaultValue())){
-			throw runtime_error("Default value not valid in field: " + f->getName());
+			throw runtime_error("Default value not valid in field: " + f->getName() + " [" + f->getDefaultValue() + "]");
 		}
 
 		fields[i]= f;
