@@ -35,6 +35,7 @@ bool strToBool(const string &s){
 
 int strToInt(const string &s){
 	char *endChar;
+	setlocale(LC_NUMERIC, "C");
 	int intValue= strtol(s.c_str(), &endChar, 10);
 
 	if(*endChar!='\0'){
@@ -47,6 +48,8 @@ int strToInt(const string &s){
 
 float strToFloat(const string &s){
 	char *endChar;
+
+	setlocale(LC_NUMERIC, "C");
 	float floatValue= static_cast<float>(strtod(s.c_str(), &endChar));
 
 	if(*endChar!='\0'){
@@ -71,6 +74,8 @@ bool strToBool(const string &s, bool *b){
 
 bool strToInt(const string &s, int *i){
 	char *endChar;
+
+	setlocale(LC_NUMERIC, "C");
 	*i= strtol(s.c_str(), &endChar, 10);
 
 	if(*endChar!='\0'){
@@ -81,6 +86,7 @@ bool strToInt(const string &s, int *i){
 
 bool strToFloat(const string &s, float *f){
 	char *endChar;
+	setlocale(LC_NUMERIC, "C");
 	*f= static_cast<float>(strtod(s.c_str(), &endChar));
 
 	if(*endChar!='\0'){
