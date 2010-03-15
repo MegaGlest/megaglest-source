@@ -27,9 +27,9 @@ find -name "\.svn" -exec rm -rf {} \;
 popd
 
 pushd release
-PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
+PACKAGE="$RELEASENAME-$VERSION.7z"
 echo "creating $PACKAGE"
 
 pushd $RELEASEDIR
-tar -c --bzip2 -f "../$PACKAGE" *
+7za a "../$PACKAGE" *
 popd
