@@ -13,6 +13,8 @@
 #define _GLEST_GAME_CONFIG_H_
 
 #include "properties.h"
+#include <vector>
+#include "game_constants.h"
 
 namespace Glest{ namespace Game{
 
@@ -49,6 +51,8 @@ public:
 	void setBool(const string &key, bool value);
 	void setFloat(const string &key, float value);
 	void setString(const string &key, const string &value);
+
+    vector<string> getPathListForType(PathType type);
 
 	string toString();
 };

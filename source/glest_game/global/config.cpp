@@ -14,8 +14,17 @@
 #include "util.h"
 
 #include "leak_dumper.h"
+#include "game_constants.h"
 
 namespace Glest{ namespace Game{
+
+
+const char *GameConstants::folder_path_maps         = "maps";
+const char *GameConstants::folder_path_scenarios    = "scenarios";
+const char *GameConstants::folder_path_techs        = "techs";
+const char *GameConstants::folder_path_tilesets     = "tilesets";
+const char *GameConstants::folder_path_tutorials    = "tutorials";
+
 
 // =====================================================
 // 	class Config
@@ -84,6 +93,45 @@ void Config::setString(const string &key, const string &value){
 
 string Config::toString(){
 	return properties.toString();
+}
+
+vector<string> Config::getPathListForType(PathType type) {
+    vector<string> pathList;
+
+    switch(type) {
+        case ptMaps:
+            pathList.push_back(GameConstants::folder_path_maps);
+            if(getString("UserData_Maps","") != "") {
+                pathList.push_back(getString("UserData_Maps"));
+            }
+            break;
+        case ptScenarios:
+            pathList.push_back(GameConstants::folder_path_scenarios);
+            if(getString("UserData_Scenarios","") != "") {
+                pathList.push_back(getString("UserData_Scenarios"));
+            }
+            break;
+        case ptTechs:
+            pathList.push_back(GameConstants::folder_path_techs);
+            if(getString("UserData_Techs","") != "") {
+                pathList.push_back(getString("UserData_Techs"));
+            }
+            break;
+        case ptTilesets:
+            pathList.push_back(GameConstants::folder_path_tilesets);
+            if(getString("UserData_Tilesets","") != "") {
+                pathList.push_back(getString("UserData_Tilesets"));
+            }
+            break;
+        case ptTutorials:
+            pathList.push_back(GameConstants::folder_path_tutorials);
+            if(getString("UserData_Tutorials","") != "") {
+                pathList.push_back(getString("UserData_Tutorials"));
+            }
+            break;
+    }
+
+    return pathList;
 }
 
 }}// end namespace
