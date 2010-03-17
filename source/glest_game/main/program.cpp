@@ -256,7 +256,7 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
-void Program::init(WindowGl *window){
+void Program::init(WindowGl *window, bool initSound){
 
 	this->window= window;
 	Config &config= Config::getInstance();
@@ -299,8 +299,10 @@ void Program::init(WindowGl *window){
 	renderer.init();
 
 	//sound
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	soundRenderer.init(window);
+	if(initSound == true) {
+        SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        soundRenderer.init(window);
+	}
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","0"));
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","0"));
@@ -378,7 +380,7 @@ void Program::showMessage(const char *msg) {
 #endif
 
     //MainWindow *mainWindow= new MainWindow(this);
-	init(this->window);
+	init(this->window,false);
     setState(originalState);
 	//this->programState = originalState;
 

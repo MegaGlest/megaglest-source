@@ -127,7 +127,7 @@ public:
 	void exit();
 
 private:
-	void init(WindowGl *window);
+	void init(WindowGl *window, bool initSound=true);
 	void setDisplaySettings();
 	void restoreDisplaySettings();
 };
