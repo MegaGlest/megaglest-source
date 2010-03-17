@@ -56,7 +56,7 @@ public:
 	virtual void mouseUpLeft(int x, int y){};
 	virtual void mouseDownRight(int x, int y){};
 	virtual void mouseDoubleClickLeft(int x, int y){};
-	virtual void mouseMove(int x, int y, const MouseState *mouseState){};
+	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
 	virtual void keyDown(char key){};
 	virtual void keyUp(char key){};
 	virtual void keyPress(char c){};
@@ -76,6 +76,7 @@ private:
 		int mouseY;
 		int mouse2dAnim;
 		string msg;
+		bool userWantsExit;
 
 	public:
 		ShowMessageProgramState(Program *program, const char *msg);
@@ -84,6 +85,7 @@ private:
 		virtual void mouseDownLeft(int x, int y);
 		virtual void mouseMove(int x, int y, const MouseState &mouseState);
 		virtual void update();
+		virtual bool wantExit() { return userWantsExit; }
 	};
 
 

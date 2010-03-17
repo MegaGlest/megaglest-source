@@ -50,7 +50,7 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 		ProgramState(program) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+    userWantsExit = false;
 	msgBox.init("Ok");
 
 	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -85,6 +85,7 @@ void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
 
 	    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
+		userWantsExit = true;
 	}
 
 	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -244,7 +245,7 @@ void Program::setState(ProgramState *programState)
 	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Program::exit(){
+void Program::exit() {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -345,11 +346,14 @@ void Program::showMessage(const char *msg) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    this->programState = new ShowMessageProgramState(this, msg);
+    SDL_ShowCursor(SDL_ENABLE);
+    //SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+    ShowMessageProgramState *showMsg = new ShowMessageProgramState(this, msg);
+    this->programState = showMsg;
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    while(Window::handleEvent()) {
+    while(Window::handleEvent() && showMsg->wantExit() == false) {
         loop();
     }
 
@@ -360,7 +364,8 @@ void Program::showMessage(const char *msg) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	init(window);
+    //MainWindow *mainWindow= new MainWindow(this);
+	init(this->window);
     setState(originalState);
 	//this->programState = originalState;
 
