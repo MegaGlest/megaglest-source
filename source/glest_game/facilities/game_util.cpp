@@ -22,7 +22,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.0";
+const string glestVersionString= "v3.3.1";
 
 string getCrashDumpFileName(){
 	return "glest"+glestVersionString+".dmp";
@@ -36,7 +36,7 @@ string getAboutString1(int i){
 	switch(i){
 	case 0: return "Glest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__);
-	case 2: return "Copyright 2001-2009 The Glest Team";
+	case 2: return "Copyright 2001-2010 The Glest Team";
 	}
 	return "";
 }
