@@ -29,5 +29,6 @@ popd
 pushd release
 PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
 echo "creating $PACKAGE"
-tar -c --bzip2 -f "$PACKAGE" "$RELEASENAME-$VERSION"
+#tar -c --bzip2 -f "$PACKAGE" "$RELEASENAME-$VERSION"
+7za a "$RELEASENAME-$VERSION.7z" "$RELEASENAME-$VERSION"
 popd
