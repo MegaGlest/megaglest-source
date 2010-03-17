@@ -338,14 +338,14 @@ void Program::showMessage(const char *msg) {
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *originalState = NULL;
-    if(programState) {
+    if(this->programState) {
         //delete programState;
-        originalState = programState;
+        originalState = this->programState;
     }
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    programState = new ShowMessageProgramState(this, msg);
+    this->programState = new ShowMessageProgramState(this, msg);
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -355,11 +355,15 @@ void Program::showMessage(const char *msg) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    delete programState;
+    delete this->programState;
+	this->programState = NULL;
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    programState = originalState;
+	init(window);
+    //setState(originalState);
+	this->programState = originalState;
+
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
