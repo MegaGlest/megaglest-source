@@ -346,7 +346,8 @@ void Program::showMessage(const char *msg) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    SDL_ShowCursor(SDL_ENABLE);
+	showCursor(true);
+
     //SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
     ShowMessageProgramState *showMsg = new ShowMessageProgramState(this, msg);
     this->programState = showMsg;
