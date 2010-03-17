@@ -40,11 +40,71 @@ using namespace Shared::Graphics::Gl;
 namespace Glest{ namespace Game{
 
 const int Program::maxTimes= 10;
+Program *Program::singleton = NULL;
+
+// =====================================================
+// 	class Program::CrashProgramState
+// =====================================================
+
+Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
+		ProgramState(program) {
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	msgBox.init("Ok");
+
+	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(msg) {
+		fprintf(stderr, "%s\n", msg);
+		msgBox.setText(msg);
+	} else {
+		msgBox.setText("Mega-Glest has crashed.");
+	}
+	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	mouse2dAnim = mouseY = mouseX = 0;
+	this->msg = (msg ? msg : "");
+
+	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Program::ShowMessageProgramState::render() {
+	Renderer &renderer= Renderer::getInstance();
+	renderer.clearBuffers();
+	renderer.reset2d();
+	renderer.renderMessageBox(&msgBox);
+	renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+	renderer.swapBuffers();
+}
+
+void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(msgBox.mouseClick(x,y)) {
+
+	    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		program->exit();
+	}
+
+	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Program::ShowMessageProgramState::mouseMove(int x, int y, const MouseState &mouseState) {
+	mouseX = x;
+	mouseY = y;
+	msgBox.mouseMove(x, y);
+}
+
+void Program::ShowMessageProgramState::update() {
+	mouse2dAnim = (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
+}
 
 // ===================== PUBLIC ========================
 
-Program::Program(){
+Program::Program() {
 	programState= NULL;
+	singleton = this;
 }
 
 void Program::initNormal(WindowGl *window){
@@ -72,11 +132,13 @@ void Program::initClient(WindowGl *window, const Ip &serverIp){
 
 Program::~Program(){
 	delete programState;
+	programState = NULL;
 
 	Renderer::getInstance().end();
 
 	//restore video mode
 	restoreDisplaySettings();
+	singleton = NULL;
 }
 
 void Program::mouseDownLeft(int x, int y){
@@ -160,30 +222,35 @@ void Program::resize(SizeState sizeState){
 void Program::setState(ProgramState *programState)
 {
 
-	if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	//if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete this->programState;
 
-    if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->programState= programState;
 	programState->load();
 
-	if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	programState->init();
 
-    if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	updateTimer.reset();
 	updateCameraTimer.reset();
 	fpsTimer.reset();
 
-	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Program::exit(){
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	window->destroy();
+
+	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
@@ -266,5 +333,36 @@ void Program::restoreDisplaySettings(){
 		restoreVideoMode();
 	}
 }
+
+void Program::showMessage(const char *msg) {
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    ProgramState *originalState = NULL;
+    if(programState) {
+        //delete programState;
+        originalState = programState;
+    }
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    programState = new ShowMessageProgramState(this, msg);
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    while(Window::handleEvent()) {
+        loop();
+    }
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    delete programState;
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    programState = originalState;
+
+    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 
 }}//end namespace

@@ -38,6 +38,8 @@ namespace Glest{ namespace Game{
 //	class NetworkInterface
 // =====================================================
 
+typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
+
 class NetworkInterface {
 
 protected:
@@ -51,6 +53,8 @@ protected:
 	string chatText;
 	string chatSender;
 	int chatTeamIndex;
+	static DisplayMessageFunction pCB_DisplayMessage;
+	void DisplayErrorMessage(string sErr, bool closeSocket=true);
 
 public:
 	static const int readyWaitTimeout;
@@ -63,6 +67,7 @@ public:
 	virtual const Socket* getSocket() const= 0;
 	virtual void close()= 0;
 
+    static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 	string getIp() const		{return getSocket()->getIp();}
 	string getHostName() const	{return getSocket()->getHostName();}
 

@@ -139,11 +139,14 @@ void ClientInterface::updateLobby()
                 //check consistency
                 if(Config::getInstance().getBool("NetworkConsistencyChecks"))
                 {
-                    if(networkMessageIntro.getVersionString()!=getNetworkVersionString())
+                    if(networkMessageIntro.getVersionString() != getNetworkVersionString())
                     {
-						string sErr = "Server and client versions do not match (" + networkMessageIntro.getVersionString() + "). You have to use the same binaries.";
+						string sErr = "Server and client binary versions do not match [" + networkMessageIntro.getVersionString() + "]. You have to use the same binaries.";
                         printf("%s\n",sErr.c_str());
-						throw runtime_error(sErr);
+
+                        sendTextMessage("Server and client binary mismatch [" + networkMessageIntro.getVersionString() + "]",-1);
+						DisplayErrorMessage(sErr);
+                        return;
                     }
                 }
 
@@ -319,7 +322,12 @@ void ClientInterface::updateLobby()
         break;
 
         default:
-            throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+            {
+            string sErr = string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
+            //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
+            DisplayErrorMessage(sErr);
+            }
     }
 }
 
@@ -349,7 +357,11 @@ void ClientInterface::updateKeyframe(int frameCount)
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount()!=frameCount)
 				{
-					throw runtime_error("Network synchronization error, frame counts do not match");
+				    string sErr = "Network synchronization error, frame counts do not match";
+					//throw runtime_error("Network synchronization error, frame counts do not match");
+                    sendTextMessage(sErr,-1);
+                    DisplayErrorMessage(sErr);
+                    return;
 				}
 
 				// give all commands
@@ -388,7 +400,12 @@ void ClientInterface::updateKeyframe(int frameCount)
                 break;
 
 			default:
-				throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+                {
+				//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+
+                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1);
+                DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+                }
 		}
 	}
 }
@@ -426,7 +443,11 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		{
 			if(chrono.getMillis() > readyWaitTimeout)
 			{
-				throw runtime_error("Timeout waiting for server");
+				//throw runtime_error("Timeout waiting for server");
+				string sErr = "Timeout waiting for server";
+                sendTextMessage(sErr,-1);
+                DisplayErrorMessage(sErr);
+                return;
 			}
 			else
 			{
@@ -442,7 +463,10 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		}
 		else
 		{
-			throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
+			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
+            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
+            DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+            return;
 		}
 
 		// sleep a bit
@@ -456,8 +480,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		{
 			string sErr = "Checksum error, you don't have the same data as the server";
 			//throw runtime_error("Checksum error, you don't have the same data as the server");
-			printf("%s\n",sErr.c_str());
-			throw runtime_error(sErr);
+            sendTextMessage(sErr,-1);
+            DisplayErrorMessage(sErr);
+            return;
 		}
 	}
 
@@ -485,12 +510,18 @@ void ClientInterface::waitForMessage()
 	{
 		if(!isConnected())
 		{
-			throw runtime_error("Disconnected");
+			//throw runtime_error("Disconnected");
+            sendTextMessage("Disconnected",-1);
+            DisplayErrorMessage("Disconnected");
+			return;
 		}
 
 		if(chrono.getMillis()>messageWaitTimeout)
 		{
-			throw runtime_error("Timeout waiting for message");
+			//throw runtime_error("Timeout waiting for message");
+            sendTextMessage("Timeout waiting for message",-1);
+            DisplayErrorMessage("Timeout waiting for message");
+            return;
 		}
 
 		sleep(waitSleepTime);
