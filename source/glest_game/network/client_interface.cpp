@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -137,18 +137,24 @@ void ClientInterface::updateLobby()
                 if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
 
                 //check consistency
-                if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+            
+                if(networkMessageIntro.getVersionString() != getNetworkVersionString())
                 {
-                    if(networkMessageIntro.getVersionString() != getNetworkVersionString())
-                    {
-						string sErr = "Server and client binary versions do not match [" + networkMessageIntro.getVersionString() + "]. You have to use the same binaries.";
-                        printf("%s\n",sErr.c_str());
+					string sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
+					networkMessageIntro.getVersionString() +
+					"\nClient: " + getNetworkVersionString();
+                    printf("%s\n",sErr.c_str());
 
-                        sendTextMessage("Server and client binary mismatch [" + networkMessageIntro.getVersionString() + "]",-1);
+                    sendTextMessage("Server and client binary mismatch!!",-1);
+                    sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
+                    sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
+					if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+            		{// error message and disconnect only if checked
 						DisplayErrorMessage(sErr);
-                        return;
-                    }
+                    	return;
+            		}
                 }
+                
 
                 //send intro message
                 NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHostName(), -1);
@@ -474,17 +480,19 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 	}
 
 	//check checksum
-	if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+	if(networkMessageReady.getChecksum() != checksum->getSum())
 	{
-		if(networkMessageReady.getChecksum() != checksum->getSum())
-		{
-			string sErr = "Checksum error, you don't have the same data as the server";
-			//throw runtime_error("Checksum error, you don't have the same data as the server");
-            sendTextMessage(sErr,-1);
-            DisplayErrorMessage(sErr);
-            return;
-		}
+		string sErr = "Checksum error, you don't have the same data as the server";
+		//throw runtime_error("Checksum error, you don't have the same data as the server");
+        sendTextMessage(sErr,-1);
+		if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+        	{// error message and disconnect only if checked
+				DisplayErrorMessage(sErr);
+               	return;
+        	}
+        return;
 	}
+	
 
 	//delay the start a bit, so clients have nore room to get messages
 	sleep(GameConstants::networkExtraLatency);

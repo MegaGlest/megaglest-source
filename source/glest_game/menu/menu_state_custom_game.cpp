@@ -47,8 +47,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	vector<string> glestMaps, megaMaps, teamItems, controlItems;
 
 	//create
-	buttonReturn.init(350, 140, 125);
-	buttonPlayNow.init(525, 140, 125);
+	buttonReturn.init(350, 180, 125);
+	buttonPlayNow.init(525, 180, 125);
 
     //map listBox
     findAll("maps/*.gbm", glestMaps, true, true);

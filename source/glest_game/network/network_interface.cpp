@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -92,6 +92,12 @@ bool NetworkInterface::isConnected(){
 }
 
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
+
+    if(closeSocket == true && getSocket() != NULL)
+    {
+        close();
+    }
+
     if(pCB_DisplayMessage != NULL) {
         pCB_DisplayMessage(sErr.c_str(), false);
     }
@@ -99,10 +105,6 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
         throw runtime_error(sErr);
     }
 
-    if(closeSocket == true && getSocket() != NULL)
-    {
-        close();
-    }
 
 }
 
