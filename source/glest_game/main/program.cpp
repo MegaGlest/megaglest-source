@@ -361,9 +361,8 @@ void Program::showMessage(const char *msg) {
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	init(window);
-    //setState(originalState);
-	this->programState = originalState;
-
+    setState(originalState);
+	//this->programState = originalState;
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
