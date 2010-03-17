@@ -137,8 +137,9 @@ void ClientInterface::updateLobby()
                 if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
 
                 //check consistency
-            
+
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString())
+                //if(1)
                 {
 					string sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
 					networkMessageIntro.getVersionString() +
@@ -151,10 +152,12 @@ void ClientInterface::updateLobby()
 					if(Config::getInstance().getBool("NetworkConsistencyChecks"))
             		{// error message and disconnect only if checked
 						DisplayErrorMessage(sErr);
+                        quit= true;
+                        close();
                     	return;
             		}
                 }
-                
+
 
                 //send intro message
                 NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHostName(), -1);
@@ -333,6 +336,8 @@ void ClientInterface::updateLobby()
             //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
             DisplayErrorMessage(sErr);
+            quit= true;
+            close();
             }
     }
 }
@@ -367,6 +372,8 @@ void ClientInterface::updateKeyframe(int frameCount)
 					//throw runtime_error("Network synchronization error, frame counts do not match");
                     sendTextMessage(sErr,-1);
                     DisplayErrorMessage(sErr);
+                    quit= true;
+                    close();
                     return;
 				}
 
@@ -411,6 +418,8 @@ void ClientInterface::updateKeyframe(int frameCount)
 
                 sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1);
                 DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+				quit= true;
+				close();
                 }
 		}
 	}
@@ -453,6 +462,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 				string sErr = "Timeout waiting for server";
                 sendTextMessage(sErr,-1);
                 DisplayErrorMessage(sErr);
+				quit= true;
+				close();
                 return;
 			}
 			else
@@ -472,6 +483,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
             DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+            quit= true;
+            close();
             return;
 		}
 
@@ -481,6 +494,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 
 	//check checksum
 	if(networkMessageReady.getChecksum() != checksum->getSum())
+	//if(1)
 	{
 		string sErr = "Checksum error, you don't have the same data as the server";
 		//throw runtime_error("Checksum error, you don't have the same data as the server");
@@ -488,11 +502,12 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		if(Config::getInstance().getBool("NetworkConsistencyChecks"))
         	{// error message and disconnect only if checked
 				DisplayErrorMessage(sErr);
-               	return;
+				quit= true;
+				close();
         	}
         return;
 	}
-	
+
 
 	//delay the start a bit, so clients have nore room to get messages
 	sleep(GameConstants::networkExtraLatency);
@@ -521,6 +536,8 @@ void ClientInterface::waitForMessage()
 			//throw runtime_error("Disconnected");
             sendTextMessage("Disconnected",-1);
             DisplayErrorMessage("Disconnected");
+            quit= true;
+            close();
 			return;
 		}
 
@@ -529,6 +546,8 @@ void ClientInterface::waitForMessage()
 			//throw runtime_error("Timeout waiting for message");
             sendTextMessage("Timeout waiting for message",-1);
             DisplayErrorMessage("Timeout waiting for message");
+            quit= true;
+            close();
             return;
 		}
 
