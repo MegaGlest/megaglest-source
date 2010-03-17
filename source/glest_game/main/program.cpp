@@ -374,7 +374,28 @@ void Program::showMessage(const char *msg) {
 
     //MainWindow *mainWindow= new MainWindow(this);
 	init(this->window,false);
-    setState(originalState);
+    //setState(originalState);
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+	delete this->programState;
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	this->programState= originalState;
+	//programState->load();
+
+	//if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//programState->init();
+
+    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//updateTimer.reset();
+	//updateCameraTimer.reset();
+	//fpsTimer.reset();
+
+
 	//this->programState = originalState;
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
