@@ -346,11 +346,19 @@ void Program::showMessage(const char *msg) {
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	showCursor(true);
+#ifndef WIN32
+    int sdl_CursorState = SDL_ShowCursor(SDL_QUERY);
+    if(sdl_CursorState == SDL_DISABLE) {
+        showCursor(true);
+    }
+#endif
 
     //SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
     ShowMessageProgramState *showMsg = new ShowMessageProgramState(this, msg);
-    this->programState = showMsg;
+    //this->programState = showMsg;
+
+    this->programState = NULL;
+    setState(showMsg);
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -364,6 +372,10 @@ void Program::showMessage(const char *msg) {
 	this->programState = NULL;
 
     //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+#ifndef WIN32
+    showCursor((sdl_CursorState == SDL_ENABLE));
+#endif
 
     //MainWindow *mainWindow= new MainWindow(this);
 	init(this->window);
