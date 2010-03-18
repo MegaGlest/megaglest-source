@@ -51,8 +51,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonPlayNow.init(525, 180, 125);
 
     //map listBox
-    findAll("maps/*.gbm", glestMaps, true, true);
-    findAll("maps/*.mgm", megaMaps, true, false);
+    Config &config = Config::getInstance();
+    findAll(config.getPathListForType(ptMaps), "*.gbm", glestMaps, true, false);
+    findAll(config.getPathListForType(ptMaps), "*.mgm", megaMaps, true, false);
 
 	mapFiles.resize(glestMaps.size() + megaMaps.size());
 	if (!glestMaps.empty()) {
@@ -74,8 +75,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMapInfo.init(200, 230, 200, 40);
 
     //tileset listBox
-    findAll("tilesets/*.", results);
-	if(results.size()==0){
+    findDirs(config.getPathListForType(ptTilesets), results);
+	if(results.size() == 0) {
         throw runtime_error("There is no tile set");
 	}
     tilesetFiles= results;
@@ -87,9 +88,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTileset.init(400, 290);
 
     //tech Tree listBox
-    findAll("techs/*.", results);
-	if(results.size()==0){
-        throw runtime_error("There is no tech tree");
+    findDirs(config.getPathListForType(ptTechs), results);
+	if(results.size() == 0) {
+        throw runtime_error("There are no tech trees");
 	}
     techTreeFiles= results;
 	for(int i= 0; i<results.size(); ++i){
@@ -134,10 +135,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	reloadFactions();
 
-	findAll("techs/"+techTreeFiles[listBoxTechTree.getSelectedItemIndex()]+"/factions/*.", results);
-	if(results.size()==0){
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+        findAll(techPath + "/" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+
+        if(results.size() > 0) {
+            break;
+        }
+    }
+
+    if(results.size() == 0) {
         throw runtime_error("There is no factions for this tech tree");
-	}
+    }
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
@@ -570,18 +580,32 @@ void MenuStateCustomGame::reloadFactions(){
 
 	vector<string> results;
 
-	findAll("techs/"+techTreeFiles[listBoxTechTree.getSelectedItemIndex()]+"/factions/*.", results);
-	if(results.size()==0){
-        throw runtime_error("There is no factions for this tech tree");
-	}
-	factionFiles= results;
-   	for(int i= 0; i<results.size(); ++i){
-		results[i]= formatString(results[i]);
-	}
-	for(int i=0; i<GameConstants::maxPlayers; ++i){
-		listBoxFactions[i].setItems(results);
-		listBoxFactions[i].setSelectedItemIndex(i % results.size());
+    Config &config = Config::getInstance();
+
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+
+        findAll(techPath + "/" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        if(results.size() > 0) {
+            break;
+        }
     }
+
+    if(results.size() == 0) {
+        throw runtime_error("There is no factions for this tech tree");
+    }
+    factionFiles= results;
+    for(int i= 0; i<results.size(); ++i){
+        results[i]= formatString(results[i]);
+
+        printf("Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+    }
+    for(int i=0; i<GameConstants::maxPlayers; ++i){
+        listBoxFactions[i].setItems(results);
+        listBoxFactions[i].setSelectedItemIndex(i % results.size());
+    }
+
 }
 
 void MenuStateCustomGame::updateControlers(){

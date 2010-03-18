@@ -135,7 +135,7 @@ public:
 	virtual string getNetworkStatus() const= 0;
 
 	//access functions
-	void requestCommand(const NetworkCommand *networkCommand)	{requestedCommands.push_back(*networkCommand);}
+	void requestCommand(const NetworkCommand *networkCommand, bool insertAtStart=false);
 	int getPendingCommandCount() const							{return pendingCommands.size();}
 	const NetworkCommand* getPendingCommand(int i) const		{return &pendingCommands[i];}
 	void clearPendingCommands()									{pendingCommands.clear();}

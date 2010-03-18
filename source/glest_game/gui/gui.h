@@ -176,6 +176,7 @@ public:
 	void onSelectionChanged();
 
     float getUnitTypeBuildRotation(string unitKey) const;
+    void setUnitTypeBuildRotation(string unitKey, float value);
 
 private:
 

@@ -93,8 +93,10 @@ void Game::load(){
 		logger.setSubtitle(formatString(scenarioName));
 	}
 
+    Config &config = Config::getInstance();
+
 	//tileset
-    world.loadTileset("tilesets/"+tilesetName, &checksum);
+    world.loadTileset(config.getPathListForType(ptTilesets), tilesetName, &checksum);
 
 	set<string> factions;
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
@@ -102,7 +104,7 @@ void Game::load(){
 	}
 
     //tech, load before map because of resources
-    world.loadTech("techs/"+techName, factions, &checksum);
+    world.loadTech(config.getPathListForType(ptTechs), techName, factions, &checksum);
 
     //map
 	world.loadMap(Map::getMapPath(mapName), &checksum);
@@ -110,7 +112,7 @@ void Game::load(){
     //scenario
 	if(!scenarioName.empty()){
 		Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
-		world.loadScenario(Scenario::getScenarioPath(gameSettings.getScenarioDir(), scenarioName), &checksum);
+		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
 	}
 }
 

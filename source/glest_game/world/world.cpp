@@ -85,14 +85,19 @@ void World::init(Game *game, bool createUnits){
 }
 
 //load tileset
+void World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+	tileset.loadTileset(pathList, tilesetName, checksum);
+	timeFlow.init(&tileset);
+}
+
 void World::loadTileset(const string &dir, Checksum *checksum){
 	tileset.load(dir, checksum);
 	timeFlow.init(&tileset);
 }
 
 //load tech
-void World::loadTech(const string &dir, set<string> &factions, Checksum *checksum){
-	techTree.load(dir, factions, checksum);
+void World::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum *checksum){
+	techTree.loadTech(pathList, techName, factions, checksum);
 }
 
 //load map

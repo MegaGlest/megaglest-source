@@ -28,6 +28,10 @@
 #include "faction.h"
 #include "leak_dumper.h"
 
+#include "network_types.h"
+#include "network_manager.h"
+
+
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 
@@ -311,6 +315,10 @@ void Gui::groupKey(int groupIndex){
 	}
 }
 
+void Gui::setUnitTypeBuildRotation(string unitKey, float value) {
+    unitTypeBuildRotation[unitKey] = value;
+}
+
 float Gui::getUnitTypeBuildRotation(string unitKey) const {
     float rotationValue = -1;
 
@@ -335,7 +343,7 @@ void Gui::hotKey(char key){
 		selectInterestingUnit(iutBuiltBuilding);
 	}
 	else if(key=='R'){
-	    //!!!
+	    // Here the user triggers a unit rotation while placing a unit
 	    if(allowRotateUnits == true && isPlacingBuilding()) {
 	        const UnitType *unitType = getBuilding();
 	        int factionIndex = world->getThisFactionIndex();
@@ -353,6 +361,20 @@ void Gui::hotKey(char key){
 	            unitTypeRotation = 0;
 	        }
 	        unitTypeBuildRotation[unitKey] = unitTypeRotation;
+
+            //!!!
+            //if(allowRotateUnits == true && unitRotation > 0) {
+                if(Socket::enableDebugText) printf("In [%s::%s] before sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
+
+                //unitRotation = 0;
+                NetworkCommand networkCommand(nctNetworkCommand, ncstRotateUnit, unitType->getId(), factionIndex, (int)unitTypeRotation);
+                //CommandResult result= game->getCommander()->pushNetworkCommand(&networkCommand);
+                GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+                gameNetworkInterface->requestCommand(&networkCommand);
+
+                //if(Socket::enableDebugText) printf("In [%s::%s] after sending nctNetworkCommand RotateUnit [%d] result = %d\n",__FILE__,__FUNCTION__,builtUnit->getId(),result);
+                if(Socket::enableDebugText) printf("In [%s::%s] after sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
+            //}
 
 	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
 	    }

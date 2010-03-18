@@ -615,15 +615,22 @@ void Map::computeCellColors(){
 
 // static
 string Map::getMapPath(const string &mapName) {
-	string mega = "maps/" + mapName + ".mgm";
-	string glest = "maps/" + mapName + ".gbm";
-	if (fileExists(mega)) {
-		return mega;
-	} else if (fileExists(glest)) {
-		return glest;
-	} else {
-		throw runtime_error("Map " + mapName + " not found.");
-	}
+
+    Config &config = Config::getInstance();
+    vector<string> pathList = config.getPathListForType(ptMaps);
+    for(int idx = 0; idx < pathList.size(); idx++) {
+        const string &map_path = pathList[idx];
+        const string mega = map_path + "/" + mapName + ".mgm";
+        const string glest = map_path + "/" + mapName + ".gbm";
+        if (fileExists(mega)) {
+            return mega;
+        }
+        else if (fileExists(glest)) {
+            return glest;
+        }
+    }
+
+    throw runtime_error("Map " + mapName + " not found.");
 }
 
 // =====================================================

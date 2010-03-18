@@ -116,6 +116,15 @@ GameNetworkInterface::GameNetworkInterface(){
 	quit= false;
 }
 
+void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, bool insertAtStart) {
+    if(insertAtStart == false) {
+        requestedCommands.push_back(*networkCommand);
+    }
+    else {
+        requestedCommands.insert(requestedCommands.begin(),*networkCommand);
+    }
+}
+
 // =====================================================
 //	class FileTransferSocketThread
 // =====================================================

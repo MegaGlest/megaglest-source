@@ -24,7 +24,7 @@
 #include "core_data.h"
 #include "renderer.h"
 #include "leak_dumper.h"
-//#include "socket.h"
+#include "socket.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -106,8 +106,9 @@ const int Unit::invalidId= -1;
 
 Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation) {
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
+    rotateAmount= -1;
 
     Random random;
 
@@ -177,7 +178,7 @@ Unit::~Unit(){
 		}
 	stopDamageParticles();
 
-	delete [] cellMap;
+	if(cellMap == NULL) delete [] cellMap;
 	cellMap = NULL;
 }
 
@@ -454,16 +455,20 @@ unsigned int Unit::getCommandSize() const{
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command){
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(command->getCommandType()->isQueuable()){
 		//cancel current command if it is not queuable
+		if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(!commands.empty() && !commands.front()->getCommandType()->isQueuable()){
+		    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cancelCommand();
 		}
 	}
 	else{
 		//empty command queue
+		if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		clearCommands();
 		unitPath.clear();
 	}
@@ -471,8 +476,10 @@ CommandResult Unit::giveCommand(Command *command){
     //if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
 
 	//check command
+	if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
 	if(result==crSuccess){
+	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		applyCommand(command);
 	}
 
@@ -480,13 +487,15 @@ CommandResult Unit::giveCommand(Command *command){
 
 	//push back command
 	if(result== crSuccess){
+	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		commands.push_back(command);
 	}
 	else{
+	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		delete command;
 	}
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+    if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
 
 	return result;
 }
@@ -693,24 +702,25 @@ bool Unit::update(){
 		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
 	}
 
+    bool return_value = false;
 	//checks
 	if(progress>=1.f){
 		lastRotation= targetRotation;
 		if(currSkill->getClass()!=scDie){
 			progress= 0.f;
-			return true;
+			return_value = true;
 		}
 		else{
 			progress= 1.f;
 			deadCount++;
 			if(deadCount>=maxDeadCount){
 				toBeUndertaken= true;
-				return false;
+				return_value = false;
 			}
 		}
 	}
 
-	return false;
+	return return_value;
 }
 
 void Unit::tick(){
@@ -1124,7 +1134,8 @@ bool Unit::getCellMapCell(int x, int y) const {
 void Unit::setRotateAmount(float value) {
     if(allowRotateUnits == true) {
         rotateAmount = value;
-        //if(Socket::enableDebugText) printf("In [%s::%s] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),rotateAmount);
+        //if(Socket::enableDebugText && rotateAmount > 0) printf("In [%s::%s Line: %d] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(), getFullName().c_str(),rotateAmount);
+        if(Socket::enableDebugText ) printf("In [%s::%s Line: %d] unit id = %d rotate amount = %f cellMap = %s\n",__FILE__,__FUNCTION__,__LINE__, getId(), rotateAmount,(cellMap == NULL ? "NULL" : "Valid"));
 
         const UnitType *ut= getType();
         if(ut != NULL && ut->hasCellMap() == true) {
@@ -1132,7 +1143,7 @@ void Unit::setRotateAmount(float value) {
 
             if(rotateAmount > 0) {
 
-                delete [] cellMap;
+                if(cellMap == NULL) delete [] cellMap;
                 cellMap = new bool[matrixSize * matrixSize];
 
                 for(int iRow = 0; iRow < matrixSize; ++iRow) {
@@ -1180,6 +1191,9 @@ void Unit::setRotateAmount(float value) {
             }
             */
         }
+
+        //if(Socket::enableDebugText && rotateAmount > 0) printf("In [%s::%s Line: %d] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(), getFullName().c_str(),rotateAmount);
+        if(Socket::enableDebugText ) printf("In [%s::%s Line: %d] unit id = %d rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(),rotateAmount);
     }
 }
 

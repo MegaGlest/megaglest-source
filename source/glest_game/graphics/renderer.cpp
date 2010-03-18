@@ -1369,7 +1369,7 @@ void Renderer::renderUnits(){
                 //!!!
                 if(allowRotateUnits == true) {
                     float rotateAmount = unit->getRotateAmount();
-                    if(rotateAmount >= 0) {
+                    if(rotateAmount > 0) {
                         //if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,unit->getId(),rotateAmount);
                         glRotatef(rotateAmount, 0.f, 1.f, 0.f);
                     }

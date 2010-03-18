@@ -54,6 +54,7 @@ private:
 	Console *console;
 	ScriptManager *scriptManager;
 	PathFinder pathFinder;
+	Game *game;
 	Random random;
 	bool allowRotateUnits;
 

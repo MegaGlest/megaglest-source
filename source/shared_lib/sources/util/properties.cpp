@@ -137,6 +137,7 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	it= propertyMap.find(key);
 	if(it==propertyMap.end()){
 	    if(defaultValueIfNotFound != NULL) {
+	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",__FILE__,__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
@@ -144,7 +145,7 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	    }
 	}
 	else{
-		return it->second;
+		return (it->second != "" ? it->second : (defaultValueIfNotFound != NULL ? defaultValueIfNotFound : it->second));
 	}
 }
 
@@ -209,6 +210,7 @@ const string Properties::getString(const char *key, const char *defaultValueIfNo
 	it= propertyMap.find(key);
 	if(it==propertyMap.end()){
 	    if(defaultValueIfNotFound != NULL) {
+	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",__FILE__,__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
@@ -216,7 +218,7 @@ const string Properties::getString(const char *key, const char *defaultValueIfNo
 	    }
 	}
 	else{
-		return it->second;
+		return (it->second != "" ? it->second : (defaultValueIfNotFound != NULL ? defaultValueIfNotFound : it->second));
 	}
 }
 

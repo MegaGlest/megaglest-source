@@ -522,6 +522,8 @@ void UnitType::computeFirstStOfClass(){
 }
 
 void UnitType::computeFirstCtOfClass(){
+    printf("In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
+
     for(int j=0; j<ccCount; ++j){
         firstCommandTypeOfClass[j]= NULL;
         for(int i=0; i<commandTypes.size(); ++i){

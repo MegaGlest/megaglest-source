@@ -118,8 +118,9 @@ public:
 
 	//init & load
 	void init(Game *game, bool createUnits);
+	void loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
 	void loadTileset(const string &dir, Checksum* checksum);
-	void loadTech(const string &dir, set<string> &factions, Checksum* checksum);
+	void loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
 	void loadMap(const string &path, Checksum* checksum);
 	void loadScenario(const string &path, Checksum* checksum);
 
@@ -145,6 +146,8 @@ public:
 	int getUnitFactionIndex(int unitId);
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
+
+	Game * getGame() { return game; }
 
 private:
 
