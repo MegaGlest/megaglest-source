@@ -14,8 +14,6 @@ else
 	GAMEDIR="`dirname $0`"
 fi
 
-# Change to the game dir, and go!
-cd $GAMEDIR
 # export game library directory
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
@@ -29,10 +27,10 @@ else
 
   hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.1" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasopenal" ]; then
-    ln -f -s $hasopenal lib/libopenal.so.0
+    ln -f -s $hasopenal $GAMEDIR/lib/libopenal.so.0
   fi
 fi
 
-./bin/glest_editor
+$GAMEDIR/bin/glest_editor "$1"
 
 
