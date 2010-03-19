@@ -248,10 +248,10 @@ void Commander::updateNetwork(){
 void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const {
     switch(networkCommand->getNetworkCommandType()) {
         case nctNetworkCommand: {
-            if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
             switch(networkCommand->getCommandTypeId()) {
                 case ncstRotateUnit: {
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
 
                     //!!!
                     int unitTypeId = networkCommand->getUnitId();
@@ -264,18 +264,18 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
                     char unitKey[50]="";
                     sprintf(unitKey,"%d_%d",unitTypeId,factionIndex);
 
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] unitKey = [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitKey);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitKey);
 
                     Game *game = this->world->getGame();
                     Gui *gui = game->getGui();
                     gui->setUnitTypeBuildRotation(unitKey,rotateAmount);
                     //unit->setRotateAmount(networkCommand->getTargetId());
 
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
                     }
                     break;
             }
-            if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
             }
             break;
         default:
@@ -297,24 +297,24 @@ void Commander::giveNetworkCommand(const NetworkCommand* networkCommand) const {
                 case nctGiveCommand:{
                     assert(networkCommand->getCommandTypeId()!=CommandType::invalidId);
 
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 
                     Command* command= buildCommand(networkCommand);
                     unit->giveCommand(command);
 
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }
                     break;
                 case nctCancelCommand: {
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
                     unit->cancelCommand();
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
                 case nctSetMeetingPoint: {
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                     unit->setMeetingPos(networkCommand->getPosition());
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
                 default:
@@ -322,7 +322,7 @@ void Commander::giveNetworkCommand(const NetworkCommand* networkCommand) const {
             }
         }
         else {
-            if(Socket::enableDebugText) printf("In [%s::%s Line: %d] NULL Unit for id = %d, networkCommand->getNetworkCommandType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId(),networkCommand->getNetworkCommandType());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NULL Unit for id = %d, networkCommand->getNetworkCommandType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId(),networkCommand->getNetworkCommandType());
         }
     }
 }

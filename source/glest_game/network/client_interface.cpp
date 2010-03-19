@@ -51,7 +51,7 @@ ClientInterface::ClientInterface(){
 
 ClientInterface::~ClientInterface()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     if(clientSocket != NULL && clientSocket->isConnected() == true)
     {
@@ -62,12 +62,12 @@ ClientInterface::~ClientInterface()
 	delete clientSocket;
 	clientSocket = NULL;
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void ClientInterface::connect(const Ip &ip, int port)
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete clientSocket;
 
@@ -78,7 +78,7 @@ void ClientInterface::connect(const Ip &ip, int port)
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
 }
 
 void ClientInterface::reset()
@@ -134,7 +134,7 @@ void ClientInterface::updateLobby()
 
             if(receiveMessage(&networkMessageIntro))
             {
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
 
                 //check consistency
 
@@ -178,7 +178,7 @@ void ClientInterface::updateLobby()
 
             if(receiveMessage(&networkMessageSynchNetworkGameData))
             {
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
 
                 // check the checksum's
                 int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" +
@@ -187,7 +187,7 @@ void ClientInterface::updateLobby()
                 this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
                 if(this->getNetworkGameDataSynchCheckOkTile() == false)
                 {
-                    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d\n",
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d\n",
                             __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC());
                 }
 
@@ -200,7 +200,7 @@ void ClientInterface::updateLobby()
 
                 if(this->getNetworkGameDataSynchCheckOkTech() == false)
                 {
-                    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] techCRC mismatch, local = %d, remote = %d\n",
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC mismatch, local = %d, remote = %d\n",
                             __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC());
                 }
 
@@ -209,13 +209,13 @@ void ClientInterface::updateLobby()
                 string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap());
                 checksum.addFile(file);
                 int32 mapCRC = checksum.getSum();
-                //if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
+                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
 
                 this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
 
                 if(this->getNetworkGameDataSynchCheckOkMap() == false)
                 {
-                    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] mapCRC mismatch, local = %d, remote = %d\n",
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC mismatch, local = %d, remote = %d\n",
                             __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC());
                 }
 
@@ -224,7 +224,7 @@ void ClientInterface::updateLobby()
 
                 if(this->getNetworkGameDataSynchCheckOkFogOfWar() == false)
                 {
-                    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] getFogOfWar mismatch, local = %d, remote = %d\n",
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] getFogOfWar mismatch, local = %d, remote = %d\n",
                             __FILE__,__FUNCTION__,getFogOfWar(),networkMessageSynchNetworkGameData.getFogOfWar());
                 }
 
@@ -239,49 +239,42 @@ void ClientInterface::updateLobby()
             NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
             if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
             {
-                /*
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck totalfiles = %d, fileindex = %d, crc = %d, file [%s]\n",
-                    __FILE__,__FUNCTION__,networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount(),
-                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex(),
-                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
-                    networkMessageSynchNetworkGameDataFileCRCCheck.getFileName().c_str());
-                  */
-                    Checksum checksum;
-                    string file = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
-                    checksum.addFile(file);
-                    int32 fileCRC = checksum.getSum();
+                Checksum checksum;
+                string file = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
+                checksum.addFile(file);
+                int32 fileCRC = checksum.getSum();
 
-                    if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC())
-                    {
-                        if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck localCRC = %d, remoteCRC = %d, file [%s]\n",
-                            __FILE__,__FUNCTION__,fileCRC,
-                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
-                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileName().c_str());
+                if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC())
+                {
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck localCRC = %d, remoteCRC = %d, file [%s]\n",
+                        __FILE__,__FUNCTION__,fileCRC,
+                        networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
+                        networkMessageSynchNetworkGameDataFileCRCCheck.getFileName().c_str());
 
-                        // Here we initiate a download of missing or mismatched content
+                    // Here we initiate a download of missing or mismatched content
 
-                        NetworkMessageSynchNetworkGameDataFileGet sendNetworkMessageSynchNetworkGameDataFileGet(networkMessageSynchNetworkGameDataFileCRCCheck.getFileName());
-                        sendMessage(&sendNetworkMessageSynchNetworkGameDataFileGet);
+                    NetworkMessageSynchNetworkGameDataFileGet sendNetworkMessageSynchNetworkGameDataFileGet(networkMessageSynchNetworkGameDataFileCRCCheck.getFileName());
+                    sendMessage(&sendNetworkMessageSynchNetworkGameDataFileGet);
 
-                        FileTransferInfo fileInfo;
-                        fileInfo.hostType   = eClient;
-                        fileInfo.serverIP   = this->ip.getString();
-                        fileInfo.serverPort = this->port;
-                        fileInfo.fileName   = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
+                    FileTransferInfo fileInfo;
+                    fileInfo.hostType   = eClient;
+                    fileInfo.serverIP   = this->ip.getString();
+                    fileInfo.serverPort = this->port;
+                    fileInfo.fileName   = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
 
-                        FileTransferSocketThread *fileXferThread = new FileTransferSocketThread(fileInfo);
-                        fileXferThread->start();
-                    }
+                    FileTransferSocketThread *fileXferThread = new FileTransferSocketThread(fileInfo);
+                    fileXferThread->start();
+                }
 
-                    if(networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() < networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount())
-                    {
-                        NetworkMessageSynchNetworkGameDataFileCRCCheck sendNetworkMessageSynchNetworkGameDataFileCRCCheck(
-                            networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount(),
-                            networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() + 1,
-                            0,
-                            "");
-                        sendMessage(&sendNetworkMessageSynchNetworkGameDataFileCRCCheck);
-                    }
+                if(networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() < networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount())
+                {
+                    NetworkMessageSynchNetworkGameDataFileCRCCheck sendNetworkMessageSynchNetworkGameDataFileCRCCheck(
+                        networkMessageSynchNetworkGameDataFileCRCCheck.getTotalFileCount(),
+                        networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex() + 1,
+                        0,
+                        "");
+                    sendMessage(&sendNetworkMessageSynchNetworkGameDataFileCRCCheck);
+                }
             }
         }
         break;
@@ -291,7 +284,7 @@ void ClientInterface::updateLobby()
             NetworkMessageText networkMessageText;
             if(receiveMessage(&networkMessageText))
             {
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
                 chatText      = networkMessageText.getText();
                 chatSender    = networkMessageText.getSender();
@@ -306,7 +299,7 @@ void ClientInterface::updateLobby()
 
             if(receiveMessage(&networkMessageLaunch))
             {
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
 
@@ -427,7 +420,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 void ClientInterface::waitUntilReady(Checksum* checksum)
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     Logger &logger= Logger::getInstance();
 
@@ -512,7 +505,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 	//delay the start a bit, so clients have nore room to get messages
 	sleep(GameConstants::networkExtraLatency);
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void ClientInterface::sendTextMessage(const string &text, int teamIndex){
@@ -557,7 +550,7 @@ void ClientInterface::waitForMessage()
 
 void ClientInterface::quitGame(bool userManuallyQuit)
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     if(clientSocket != NULL && userManuallyQuit == true)
     {
@@ -566,12 +559,12 @@ void ClientInterface::quitGame(bool userManuallyQuit)
         close();
     }
 
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void ClientInterface::close()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete clientSocket;
 	clientSocket= NULL;

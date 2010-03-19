@@ -92,7 +92,7 @@ void SelectionQuad::disable(){
 
 //constructor
 Gui::Gui(){
-    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 
@@ -106,7 +106,7 @@ Gui::Gui(){
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
 
-	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::init(Game *game){
@@ -179,12 +179,12 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 			if(selection.isComandable()){
 				if(selectingBuilding){
 
-				    //if(Socket::enableDebugText) printf("In [%s::%s] selectingBuilding == true\n",__FILE__,__FUNCTION__);
+				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingBuilding == true\n",__FILE__,__FUNCTION__);
 
 					mouseDownDisplayUnitBuild(posDisplay);
 				}
 				else{
-				    //if(Socket::enableDebugText) printf("In [%s::%s] selectingBuilding == false\n",__FILE__,__FUNCTION__);
+				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingBuilding == false\n",__FILE__,__FUNCTION__);
 
 					mouseDownDisplayUnitSkills(posDisplay);
 				}
@@ -198,17 +198,17 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 }
 
 void Gui::mouseMoveDisplay(int x, int y){
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	computeInfoString(computePosDisplay(x, y));
 }
 
 void Gui::mouseDownLeftGraphics(int x, int y){
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(selectingPos){
-	    //if(Socket::enableDebugText) printf("In [%s::%s] selectingPos == true\n",__FILE__,__FUNCTION__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingPos == true\n",__FILE__,__FUNCTION__);
 
 		//give standard orders
 		giveTwoClickOrders(x, y);
@@ -216,16 +216,16 @@ void Gui::mouseDownLeftGraphics(int x, int y){
 	}
 	//set meeting point
 	else if(selectingMeetingPoint){
-	    //if(Socket::enableDebugText) printf("In [%s::%s] selectingMeetingPoint == true\n",__FILE__,__FUNCTION__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingMeetingPoint == true\n",__FILE__,__FUNCTION__);
 
 		if(selection.isComandable()){
 
-		    //if(Socket::enableDebugText) printf("In [%s::%s] selection.isComandable() == true\n",__FILE__,__FUNCTION__);
+		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selection.isComandable() == true\n",__FILE__,__FUNCTION__);
 
 			Vec2i targetPos;
 			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos)){
 
-			    //if(Socket::enableDebugText) printf("In [%s::%s] computePosition() == true\n",__FILE__,__FUNCTION__);
+			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] computePosition() == true\n",__FILE__,__FUNCTION__);
 
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
@@ -233,19 +233,19 @@ void Gui::mouseDownLeftGraphics(int x, int y){
 		resetState();
 	}
 	else{
-	    //if(Socket::enableDebugText) printf("In [%s::%s] selectionQuad()\n",__FILE__,__FUNCTION__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectionQuad()\n",__FILE__,__FUNCTION__);
 
 		selectionQuad.setPosDown(Vec2i(x, y));
 		computeSelected(false);
 	}
 	computeDisplay();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseDownRightGraphics(int x, int y){
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(selectingPos || selectingMeetingPoint){
 		resetState();
@@ -255,11 +255,11 @@ void Gui::mouseDownRightGraphics(int x, int y){
 	}
 	computeDisplay();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseUpLeftGraphics(int x, int y){
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(!selectingPos && !selectingMeetingPoint){
 		if(selectionQuad.isEnabled()){
@@ -274,7 +274,7 @@ void Gui::mouseUpLeftGraphics(int x, int y){
 		}
 	}
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::mouseMoveGraphics(int x, int y){
@@ -290,7 +290,7 @@ void Gui::mouseMoveGraphics(int x, int y){
 
 	//compute position for building
 	if(isPlacingBuilding()){
-	    //if(Socket::enableDebugText) printf("In [%s::%s] isPlacingBuilding() == true\n",__FILE__,__FUNCTION__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] isPlacingBuilding() == true\n",__FILE__,__FUNCTION__);
 
 		validPosObjWorld= Renderer::getInstance().computePosition(Vec2i(x,y), posObjWorld);
 	}
@@ -331,7 +331,7 @@ float Gui::getUnitTypeBuildRotation(string unitKey) const {
 
 void Gui::hotKey(char key){
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
 
 	if(key==' '){
 		centerCameraOnSelection();
@@ -351,7 +351,7 @@ void Gui::hotKey(char key){
 	        sprintf(unitKey,"%d_%d",unitType->getId(),factionIndex);
 	        float unitTypeRotation = getUnitTypeBuildRotation(unitKey);
 
-	        if(Socket::enableDebugText) printf("In [%s::%s] factionIndex = %d unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,factionIndex,unitType->getId(),unitTypeRotation);
+	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] factionIndex = %d unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,factionIndex,unitType->getId(),unitTypeRotation);
 
 	        if(unitTypeRotation < 0) {
 	            unitTypeRotation = 0;
@@ -364,7 +364,7 @@ void Gui::hotKey(char key){
 
             //!!!
             //if(allowRotateUnits == true && unitRotation > 0) {
-                if(Socket::enableDebugText) printf("In [%s::%s] before sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] before sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
 
                 //unitRotation = 0;
                 NetworkCommand networkCommand(nctNetworkCommand, ncstRotateUnit, unitType->getId(), factionIndex, (int)unitTypeRotation);
@@ -372,11 +372,11 @@ void Gui::hotKey(char key){
                 GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
                 gameNetworkInterface->requestCommand(&networkCommand);
 
-                //if(Socket::enableDebugText) printf("In [%s::%s] after sending nctNetworkCommand RotateUnit [%d] result = %d\n",__FILE__,__FUNCTION__,builtUnit->getId(),result);
-                if(Socket::enableDebugText) printf("In [%s::%s] after sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
+                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit [%d] result = %d\n",__FILE__,__FUNCTION__,builtUnit->getId(),result);
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
             //}
 
-	        if(Socket::enableDebugText) printf("In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
+	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
 	    }
 	    else {
             selectInterestingUnit(iutProducer);

@@ -52,11 +52,11 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 ConnectionSlot::~ConnectionSlot()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	close();
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void ConnectionSlot::update()
@@ -82,7 +82,7 @@ void ConnectionSlot::update(bool checkForNewClients)
             //send intro message when connected
             if(socket != NULL)
             {
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] accepted new client connection\n",__FILE__,__FUNCTION__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection\n",__FILE__,__FUNCTION__);
 
                 chatText.clear();
                 chatSender.clear();
@@ -111,7 +111,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 
                 case nmtText:
                 {
-                    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
                     NetworkMessageText networkMessageText;
                     if(receiveMessage(&networkMessageText))
@@ -120,7 +120,7 @@ void ConnectionSlot::update(bool checkForNewClients)
                         chatSender    = networkMessageText.getSender();
                         chatTeamIndex = networkMessageText.getTeamIndex();
 
-                        if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
                     }
                 }
                 break;
@@ -128,7 +128,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 				//command list
 				case nmtCommandList: {
 
-				    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtCommandList\n",__FILE__,__FUNCTION__);
+				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtCommandList\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageCommandList networkMessageCommandList;
 					if(receiveMessage(&networkMessageCommandList))
@@ -145,18 +145,18 @@ void ConnectionSlot::update(bool checkForNewClients)
 				case nmtIntro:
 				{
 
-				    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtIntro\n",__FILE__,__FUNCTION__);
+				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtIntro\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageIntro networkMessageIntro;
 					if(receiveMessage(&networkMessageIntro))
 					{
 						name= networkMessageIntro.getName();
 
-						if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got name [%s]\n",__FILE__,__FUNCTION__,name.c_str());
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s]\n",__FILE__,__FUNCTION__,name.c_str());
 
                         if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL)
                         {
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
 
                             NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(serverInterface->getGameSettings());
                             sendMessage(&networkMessageSynchNetworkGameData);
@@ -169,7 +169,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 				case nmtSynchNetworkGameDataStatus:
 				{
 
-				    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__);
+				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageSynchNetworkGameDataStatus networkMessageSynchNetworkGameDataStatus;
 					if(receiveMessage(&networkMessageSynchNetworkGameDataStatus))
@@ -196,14 +196,14 @@ void ConnectionSlot::update(bool checkForNewClients)
                             networkGameDataSynchCheckOkTech     == true &&
                             networkGameDataSynchCheckOkFogOfWar == true)
                         {
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] client data synch ok\n",__FILE__,__FUNCTION__);
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client data synch ok\n",__FILE__,__FUNCTION__);
                         }
                         else
                         {
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] mapCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameDataStatus.getMapCRC());
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] tilesetCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameDataStatus.getTilesetCRC());
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] techCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameDataStatus.getTechCRC());
-                            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] serverInterface->getFogOfWar() = %d, remote = %d\n",__FILE__,__FUNCTION__,serverInterface->getFogOfWar(),networkMessageSynchNetworkGameDataStatus.getFogOfWar());
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameDataStatus.getMapCRC());
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameDataStatus.getTilesetCRC());
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameDataStatus.getTechCRC());
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] serverInterface->getFogOfWar() = %d, remote = %d\n",__FILE__,__FUNCTION__,serverInterface->getFogOfWar(),networkMessageSynchNetworkGameDataStatus.getFogOfWar());
 
                             if(allowDownloadDataSynch == true)
                             {
@@ -251,7 +251,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 				case nmtSynchNetworkGameDataFileCRCCheck:
 				{
 
-				    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck\n",__FILE__,__FUNCTION__);
+				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
 					if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
@@ -266,7 +266,7 @@ void ConnectionSlot::update(bool checkForNewClients)
                 case nmtSynchNetworkGameDataFileGet:
 				{
 
-				    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] got nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__);
+				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageSynchNetworkGameDataFileGet networkMessageSynchNetworkGameDataFileGet;
 					if(receiveMessage(&networkMessageSynchNetworkGameDataFileGet))
@@ -295,7 +295,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 		}
 		else
 		{
-		    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] calling close...\n",__FILE__,__FUNCTION__);
+		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling close...\n",__FILE__,__FUNCTION__);
 
 			close();
 		}
@@ -304,7 +304,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 
 void ConnectionSlot::close()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete socket;
 	socket= NULL;
@@ -313,7 +313,7 @@ void ConnectionSlot::close()
     chatSender.clear();
     chatTeamIndex= -1;
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 bool ConnectionSlot::getFogOfWar()

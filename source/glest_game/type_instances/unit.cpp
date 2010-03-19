@@ -106,7 +106,7 @@ const int Unit::invalidId= -1;
 
 Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation) {
 
-    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
     rotateAmount= -1;
 
@@ -120,9 +120,9 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	level= NULL;
 	cellMap= NULL;
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A\n",__FILE__,__FUNCTION__);
     setRotateAmount(unitPlacementRotation);
-    //if(Socket::enableDebugText) printf("In [%s::%s] B unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),unitPlacementRotation);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),unitPlacementRotation);
 
 	Config &config= Config::getInstance();
 	showUnitParticles= config.getBool("UnitParticles");
@@ -162,7 +162,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	//starting skill
 	this->currSkill=getType()->getFirstStOfClass(scStop);
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 Unit::~Unit(){
@@ -455,47 +455,47 @@ unsigned int Unit::getCommandSize() const{
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command){
 
-    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	if(command->getCommandType()->isQueuable()){
 		//cancel current command if it is not queuable
-		if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(!commands.empty() && !commands.front()->getCommandType()->isQueuable()){
-		    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cancelCommand();
 		}
 	}
 	else{
 		//empty command queue
-		if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		clearCommands();
 		unitPath.clear();
 	}
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] A\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A\n",__FILE__,__FUNCTION__);
 
 	//check command
-	if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
 	if(result==crSuccess){
-	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		applyCommand(command);
 	}
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] B\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B\n",__FILE__,__FUNCTION__);
 
 	//push back command
 	if(result== crSuccess){
-	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		commands.push_back(command);
 	}
 	else{
-	    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		delete command;
 	}
 
-    if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 
 	return result;
 }
@@ -1134,8 +1134,7 @@ bool Unit::getCellMapCell(int x, int y) const {
 void Unit::setRotateAmount(float value) {
     if(allowRotateUnits == true) {
         rotateAmount = value;
-        //if(Socket::enableDebugText && rotateAmount > 0) printf("In [%s::%s Line: %d] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(), getFullName().c_str(),rotateAmount);
-        if(Socket::enableDebugText ) printf("In [%s::%s Line: %d] unit id = %d rotate amount = %f cellMap = %s\n",__FILE__,__FUNCTION__,__LINE__, getId(), rotateAmount,(cellMap == NULL ? "NULL" : "Valid"));
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d rotate amount = %f cellMap = %s\n",__FILE__,__FUNCTION__,__LINE__, getId(), rotateAmount,(cellMap == NULL ? "NULL" : "Valid"));
 
         const UnitType *ut= getType();
         if(ut != NULL && ut->hasCellMap() == true) {
@@ -1149,7 +1148,7 @@ void Unit::setRotateAmount(float value) {
                 for(int iRow = 0; iRow < matrixSize; ++iRow) {
                     for(int iCol = 0; iCol < matrixSize; ++iCol) {
                         bool getCellResult = ut->getCellMapCell(iCol, iRow);
-                        //if(Socket::enableDebugText) printf("In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
+                        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
 
                         int newRow = 0;
                         int newCol = 0;
@@ -1171,7 +1170,7 @@ void Unit::setRotateAmount(float value) {
 
                         }
 
-                        //if(Socket::enableDebugText) printf("In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
+                        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
 
                         // bool getCellMapCell(int x, int y) const {return cellMap[size*y+x];}
                         // cellMap[i*size+j]= row[j]=='0'? false: true;
@@ -1180,20 +1179,19 @@ void Unit::setRotateAmount(float value) {
                 }
             }
 
-            //if(Socket::enableDebugText) printf("In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
             /*
             for(int iRow = 0; iRow < matrixSize; ++iRow) {
                 for(int iCol = 0; iCol < matrixSize; ++iCol) {
                     bool getCellResult          = ut->getCellMapCell(iCol, iRow);
                     bool getCellResultRotated   = getCellMapCell(iRow, iCol);
-                    if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
                 }
             }
             */
         }
 
-        //if(Socket::enableDebugText && rotateAmount > 0) printf("In [%s::%s Line: %d] unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(), getFullName().c_str(),rotateAmount);
-        if(Socket::enableDebugText ) printf("In [%s::%s Line: %d] unit id = %d rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(),rotateAmount);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(),rotateAmount);
     }
 }
 

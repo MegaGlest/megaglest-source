@@ -84,7 +84,7 @@ void UnitUpdater::updateUnit(Unit *unit){
 
 	//update unit
 	if(unit->update()){
-        //if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		updateUnitCommand(unit);
 
@@ -124,10 +124,10 @@ void UnitUpdater::updateUnitCommand(Unit *unit){
 
 	//if no commands stop and add stop command
 	if(!unit->anyCommand() && unit->isOperative()){
-	    //if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		unit->setCurrSkill(scStop);
 		if(unit->getType()->hasCommandClass(ccStop)){
-		    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 		}
 	}
@@ -160,7 +160,7 @@ void UnitUpdater::updateStop(Unit *unit){
 			//use it to attack
 			if(ast!=NULL){
 				if(attackableOnSight(unit, &sighted, ast)){
-				    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(ct, sighted->getPos()));
 					break;
 				}
@@ -172,7 +172,7 @@ void UnitUpdater::updateStop(Unit *unit){
 	else if(unit->getType()->hasCommandClass(ccMove)){
 		if(attackerOnSight(unit, &sighted)){
 			Vec2i escapePos= unit->getPos()*2-sighted->getPos();
-			if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccMove), escapePos));
 		}
 	}
@@ -295,13 +295,13 @@ void UnitUpdater::updateBuild(Unit *unit){
                 //!!!
                 float unitRotation = -1;
                 if(allowRotateUnits == true) {
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                     char unitKey[50]="";
                     sprintf(unitKey,"%d_%d",builtUnitType->getId(),unit->getFaction()->getIndex());
                     unitRotation = gui->getUnitTypeBuildRotation(unitKey);
 
-                    if(Socket::enableDebugText) printf("In [%s::%s Line: %d] builtUnitType->getId() = %d unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,builtUnitType->getId(),unitRotation);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builtUnitType->getId() = %d unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,builtUnitType->getId(),unitRotation);
                 }
 				Unit *builtUnit= new Unit(world->getNextUnitId(), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(),unitRotation);
 				builtUnit->create();
@@ -575,7 +575,7 @@ void UnitUpdater::updateProduce(Unit *unit){
 				world->getStats()->produce(unit->getFactionIndex());
 				const CommandType *ct= produced->computeCommandType(unit->getMeetingPos());
 				if(ct!=NULL){
-				    if(Socket::enableDebugText) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					produced->giveCommand(new Command(ct, unit->getMeetingPos()));
 				}
 				scriptManager->onUnitCreated(produced);

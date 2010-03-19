@@ -202,12 +202,12 @@ Socket::SocketManager::SocketManager(){
 	WORD wVersionRequested = MAKEWORD(2, 0);
 	WSAStartup(wVersionRequested, &wsaData);
 	//dont throw exceptions here, this is a static initializacion
-	printf("Winsock initialized.\n");
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock initialized.\n");
 }
 
 Socket::SocketManager::~SocketManager(){
 	WSACleanup();
-	printf("Winsock cleanup complete.\n");
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock cleanup complete.\n");
 }
 
 Socket::Socket(SOCKET sock){
@@ -223,16 +223,16 @@ Socket::Socket(){
 
 Socket::~Socket()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
     disconnectSocket();
 
-	if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 }
 
 void Socket::disconnectSocket()
 {
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
     if(sock > 0)
     {
@@ -241,7 +241,7 @@ void Socket::disconnectSocket()
         sock = -1;
     }
 
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 }
 
 // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
@@ -285,7 +285,7 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
             {
                 bResult = true;
 
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] select detected data imaxsocket = %d...\n",__FILE__,__FUNCTION__,imaxsocket);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] select detected data imaxsocket = %d...\n",__FILE__,__FUNCTION__,imaxsocket);
 
                 for(std::map<int,bool>::iterator itermap = socketTriggeredList.begin();
                     itermap != socketTriggeredList.end(); itermap++)
@@ -293,7 +293,7 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
                     int socket = itermap->first;
                     if (FD_ISSET(socket, &rfds))
                     {
-                        if(Socket::enableNetworkDebugInfo) printf("In [%s] FD_ISSET true for socket %d...\n",__FUNCTION__,socket);
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] FD_ISSET true for socket %d...\n",__FUNCTION__,socket);
 
                         itermap->second = true;
                     }
@@ -303,7 +303,7 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
                     }
                 }
 
-                if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] socketTriggeredList->size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList->size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
             }
         }
     }
@@ -378,7 +378,7 @@ int Socket::getDataToRead(){
         }
         else if(err == 0)
         {
-            //if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
+            //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
         }
     }
 
@@ -400,7 +400,7 @@ int Socket::send(const void *data, int dataSize) {
 	}
 	else if(bytesSent < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
-	    printf("In [%s::%s] #1 WSAEWOULDBLOCK during send, trying again...\n",__FILE__,__FUNCTION__);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 WSAEWOULDBLOCK during send, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesSent < 0 && WSAGetLastError() == WSAEWOULDBLOCK) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -409,7 +409,7 @@ int Socket::send(const void *data, int dataSize) {
 	        {
                 bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 
-                printf("In [%s::%s] #2 WSAEWOULDBLOCK during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 WSAEWOULDBLOCK during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        }
 	    }
 	}
@@ -424,7 +424,7 @@ int Socket::send(const void *data, int dataSize) {
 	    //throwException(szBuf);
 	}
 
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] sock = %d, bytesSent = %d\n",__FILE__,__FUNCTION__,sock,bytesSent);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] sock = %d, bytesSent = %d\n",__FILE__,__FUNCTION__,sock,bytesSent);
 
 	return static_cast<int>(bytesSent);
 }
@@ -674,7 +674,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 	addr.sin_addr.s_addr= inet_addr(ip.getString().c_str());
 	addr.sin_port= htons(port);
 
-	fprintf(stderr, "Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
 
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)

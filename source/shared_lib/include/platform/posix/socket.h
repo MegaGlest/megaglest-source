@@ -59,9 +59,6 @@ public:
 	Socket();
 	~Socket();
 
-    static bool enableDebugText;
-    static bool enableNetworkDebugInfo;
-
     // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
     static bool hasDataToRead(std::map<int,bool> &socketTriggeredList);
     static bool hasDataToRead(int socket);

@@ -160,7 +160,9 @@ int glestMain(int argc, char** argv){
 	try{
 		Config &config = Config::getInstance();
 
-		Socket::enableNetworkDebugInfo = (config.getBool("DebugMode","0") || config.getBool("DebugNetwork","0"));
+		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","0");
+		SystemFlags::enableDebugText = config.getBool("DebugMode","0");
+
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
 		showCursor(config.getBool("Windowed"));

@@ -173,15 +173,15 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			}
 
             /*
-            if(Socket::enableDebugText) printf("In [%s::%s] Original Unit cellmap matrix below [%s] [%s]:\n",__FILE__,__FUNCTION__,getName().c_str(),path.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Original Unit cellmap matrix below [%s] [%s]:\n",__FILE__,__FUNCTION__,getName().c_str(),path.c_str());
             for(int iRow = 0; iRow < size; ++iRow) {
 				const XmlNode *rowNode= cellMapNode->getChild("row", iRow);
 				string row= rowNode->getAttribute("value")->getRestrictedValue();
-				if(Socket::enableDebugText) printf("In [%s::%s] row = %s\n",__FILE__,__FUNCTION__,row.c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] row = %s\n",__FILE__,__FUNCTION__,row.c_str());
 
                 for(int iCol = 0; iCol < size; ++iCol) {
                     bool getCellResult          = getCellMapCell(iCol, iRow);
-                    if(Socket::enableDebugText) printf("In [%s::%s] matrix [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] matrix [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
                 }
             }
             */
@@ -522,7 +522,7 @@ void UnitType::computeFirstStOfClass(){
 }
 
 void UnitType::computeFirstCtOfClass(){
-    printf("In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int j=0; j<ccCount; ++j){
         firstCommandTypeOfClass[j]= NULL;

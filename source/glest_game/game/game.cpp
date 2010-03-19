@@ -118,7 +118,7 @@ void Game::load(){
 
 void Game::init()
 {
-    if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	Lang &lang= Lang::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -127,7 +127,7 @@ void Game::init()
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-    if(Socket::enableDebugText) printf("In [%s::%s] Initializing\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing\n",__FILE__,__FUNCTION__);
 	logger.setState(lang.get("Initializing"));
 
 	//mesage box
@@ -149,7 +149,7 @@ void Game::init()
 	gameCamera.setPos(Vec2f(v.x, v.y));
 	scriptManager.init(&world, &gameCamera);
 
-    if(Socket::enableDebugText) printf("In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
 
 	//create IAs
 	aiInterfaces.resize(world.getFactionCount());
@@ -182,7 +182,7 @@ void Game::init()
 	}
 
 	//init renderer state
-	if(Socket::enableDebugText) printf("In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
 
@@ -204,18 +204,18 @@ void Game::init()
 		soundRenderer.playAmbient(ambientSounds->getSnow());
 	}
 
-    if(Socket::enableDebugText) printf("In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
 	logger.add("Waiting for network", true);
 	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
-    if(Socket::enableDebugText) printf("In [%s::%s] Starting music stream\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Starting music stream\n",__FILE__,__FUNCTION__);
 	logger.add("Starting music stream", true);
 	StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 	soundRenderer.playMusic(gameMusic);
 
 	logger.add("Launching game");
 
-	if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 

@@ -224,7 +224,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(listBoxMap.mouseClick(x, y)){
-		printf("%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
 
 		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
@@ -372,18 +372,18 @@ void MenuStateCustomGame::update()
 	{
 		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 		{
-		    //if(Socket::enableDebugText) printf("In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
+		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
 
 			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 
 			assert(connectionSlot!=NULL);
 
-            //if(Socket::enableDebugText) printf("In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
 			if(connectionSlot->isConnected())
 			{
 			    haveAtLeastOneNetworkClientConnected = true;
-			    //if(Socket::enableDebugText) printf("In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
+			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
                 string label = connectionSlot->getName();
                 if(connectionSlot->getAllowDownloadDataSynch() == true &&
@@ -445,12 +445,12 @@ void MenuStateCustomGame::update()
 			}
 			else
 			{
-			    //if(Socket::enableDebugText) printf("In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
+			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
 
 				labelNetStatus[i].setText(lang.get("NotConnected"));
 			}
 
-			//if(Socket::enableDebugText) printf("In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
 		}
 		else{
 			labelNetStatus[i].setText("");
@@ -480,7 +480,7 @@ void MenuStateCustomGame::update()
 
 void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 {
-    //if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	int factionCount= 0;
 
@@ -510,11 +510,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
     }
 	gameSettings->setFactionCount(factionCount);
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
-	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
-	//if(Socket::enableDebugText) printf("In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 // ============ PRIVATE ===========================
@@ -599,7 +599,7 @@ void MenuStateCustomGame::reloadFactions(){
     for(int i= 0; i<results.size(); ++i){
         results[i]= formatString(results[i]);
 
-        printf("Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
     }
     for(int i=0; i<GameConstants::maxPlayers; ++i){
         listBoxFactions[i].setItems(results);

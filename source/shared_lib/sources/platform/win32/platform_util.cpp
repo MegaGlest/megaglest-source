@@ -172,12 +172,7 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
             for(int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 const string current_folder = current_results[folder_index];
                 const string current_folder_path = paths[idx] + "/" + current_folder;
-
-                //printf("current_folder = [%s]\n",current_folder_path.c_str());
-
                 if(isdir(current_folder_path.c_str()) == true) {
-                    //printf("%s is a folder.\n",current_folder_path.c_str());
-
                     if(std::find(results.begin(),results.end(),current_folder) == results.end()) {
                         results.push_back(current_folder);
                     }
@@ -273,7 +268,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 /* MV - PORT THIS to win32
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 
 	std::string mypath = path;
 	// Stupid win32 is searching for all files without extension when *. is specified as wildcard
@@ -312,7 +307,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
             if(addFile)
             {
-                //if(Socket::enableDebugText) printf("In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
 
                 checksum.addFile(p);
             }
@@ -354,7 +349,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 /* MV - PORT THIS to win32
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 
 	std::string mypath = path;
 	// Stupid win32 is searching for all files without extension when *. is specified as wildcard
@@ -393,7 +388,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
             if(addFile)
             {
-                //if(Socket::enableDebugText) printf("In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
 
                 Checksum checksum;
                 checksum.addFile(p);

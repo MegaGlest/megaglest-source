@@ -17,9 +17,10 @@
 #include "types.h"
 #include "conversion.h"
 #include "platform_util.h"
+#include <fstream>
+#include "util.h"
 
 #include "leak_dumper.h"
-#include <fstream>
 
 using namespace Shared::Platform;
 using namespace Shared::Util;
@@ -56,11 +57,11 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
         //peek message type
         int dataSize = socket->getDataToRead();
         if(dataSize >= sizeof(messageType)){
-            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
 
             int iPeek = socket->peek(&messageType, sizeof(messageType));
 
-            if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] socket->getDataToRead() iPeek = %d, messageType = %d\n",__FILE__,__FUNCTION__,iPeek,messageType);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() iPeek = %d, messageType = %d\n",__FILE__,__FUNCTION__,iPeek,messageType);
         }
 
         //sanity check new message type
@@ -74,7 +75,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
 
 bool NetworkInterface::receiveMessage(NetworkMessage* networkMessage){
 
-    if(Socket::enableNetworkDebugInfo) printf("In [%s::%s]\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
 
 	Socket* socket= getSocket();
 
@@ -82,12 +83,7 @@ bool NetworkInterface::receiveMessage(NetworkMessage* networkMessage){
 }
 
 bool NetworkInterface::isConnected(){
-    //if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
     bool result = (getSocket()!=NULL && getSocket()->isConnected());
-
-    //if(Socket::enableNetworkDebugInfo) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
-
 	return result;
 }
 
