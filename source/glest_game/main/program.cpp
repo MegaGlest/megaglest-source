@@ -319,6 +319,13 @@ void Program::setDisplaySettings(){
 		int screenWidth= config.getInt("ScreenWidth");
 		int screenHeight= config.getInt("ScreenHeight");
 
+        if(config.getBool("AutoMaxFullScreen","false") == true) {
+            getFullscreenVideoInfo(colorBits,screenWidth,screenHeight);
+            config.setInt("ColorBits",colorBits);
+            config.setInt("ScreenWidth",screenWidth);
+            config.setInt("ScreenHeight",screenHeight);
+        }
+
 		if(!(changeVideoMode(screenWidth, screenHeight, colorBits, freq) ||
 			changeVideoMode(screenWidth, screenHeight, colorBits, 0)))
 		{

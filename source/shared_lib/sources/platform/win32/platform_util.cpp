@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <direct.h>
 #include <algorithm>
+#include "opengl.h"
 
 #include "leak_dumper.h"
 
@@ -451,6 +452,14 @@ void createDirectoryPaths(string Path)
    *dirName = '\0';
  }
  _mkdir(DirName);
+}
+
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
+    // Get the current video hardware information
+    const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    colorBits      = vidInfo->vfmt->BitsPerPixel;
+    screenWidth    = vidInfo->current_w;
+    screenHeight   = vidInfo->current_h;
 }
 
 bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){

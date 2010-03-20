@@ -435,6 +435,14 @@ void createDirectoryPaths(string Path)
  mkdir(DirName, S_IRWXO);
 }
 
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
+    // Get the current video hardware information
+    const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    colorBits      = vidInfo->vfmt->BitsPerPixel;
+    screenWidth    = vidInfo->current_w;
+    screenHeight   = vidInfo->current_h;
+}
+
 bool changeVideoMode(int resW, int resH, int colorBits, int ) {
 	Private::shouldBeFullscreen = true;
 	return true;

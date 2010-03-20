@@ -215,6 +215,16 @@ shadows and shadow mapping, bigger sizes result in less pixelized shadows but ar
 					<enum value="false"/>
 				</enums>
 			</field>
+			<field type="Enum">
+				<name value="Auto maximum screen"/>
+				<variable-name value="AutoMaxFullScreen"/>
+				<description value="Automatically use maximum screen space and resolution"/>
+				<default value="true"/>
+				<enums>
+					<enum value="true"/>
+					<enum value="false"/>
+				</enums>
+			</field>
 		</field-group>
 
 		<field-group name="Audio">

@@ -97,6 +97,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 void createDirectoryPaths(string  Path);
 string extractDirectoryPathFromFile(string filename);
 
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode();
 
