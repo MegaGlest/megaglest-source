@@ -146,7 +146,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     }
 
     if(results.size() == 0) {
-        throw runtime_error("There is no factions for this tech tree");
+        throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
     }
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -593,7 +593,7 @@ void MenuStateCustomGame::reloadFactions(){
     }
 
     if(results.size() == 0) {
-        throw runtime_error("There is no factions for this tech tree");
+        throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
     }
     factionFiles= results;
     for(int i= 0; i<results.size(); ++i){

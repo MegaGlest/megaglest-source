@@ -218,19 +218,35 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	cstr= new char[path.length()+1];
 	strcpy(cstr, path.c_str());
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
 	if((handle=_findfirst(cstr,&fi))!=-1){
 		do{
-			if(!(strcmp(".", fi.name)==0 || strcmp("..", fi.name)==0)){
-				i++;
-				results.push_back(fi.name);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fi.name [%s]\n",__FILE__,__FUNCTION__,__LINE__,fi.name);
+
+			DWORD fileAttributes = GetFileAttributes(fi.name);
+			if( (fileAttributes != INVALID_FILE_ATTRIBUTES && ((fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)) || (fi.attrib & _A_HIDDEN) == _A_HIDDEN) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file IS HIDDEN fi.name [%s]\n",__FILE__,__FUNCTION__,__LINE__,fi.name);
+			}
+			else
+			{
+				if(!(strcmp(".", fi.name)==0 || strcmp("..", fi.name)==0 || strcmp(".svn", fi.name)==0)){
+					i++;
+					results.push_back(fi.name);
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,fi.name);
+				}
 			}
 		}
 		while(_findnext(handle, &fi)==0);
 	}
 	else if(errorOnNotFound == true){
+		_findclose(handle);
 		throw runtime_error("Error opening files: "+ path);
 	}
 
+	_findclose(handle);
 	if(i==0 && errorOnNotFound == true){
 		throw runtime_error("No files found: "+ path);
 	}
@@ -247,7 +263,17 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 bool isdir(const char *path)
 {
   struct stat stats;
-  bool ret = stat (path, &stats) == 0 && S_ISDIR (stats.st_mode);
+  bool ret = stat (path, &stats) == 0 && S_ISDIR(stats.st_mode);
+  
+  if(ret == true) {
+	DWORD fileAttributes = GetFileAttributes(path);
+	if( fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
+	{
+		ret = false;
+	}
+  }
+  if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
+
   return ret;
 }
 
@@ -479,7 +505,7 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
 	DEVMODE devMode;
 	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
 
-		printf("devMode.dmPelsWidth = %d, devMode.dmPelsHeight = %d, devMode.dmBitsPerPel = %d\n",devMode.dmPelsWidth,devMode.dmPelsHeight,devMode.dmBitsPerPel);
+		//printf("devMode.dmPelsWidth = %d, devMode.dmPelsHeight = %d, devMode.dmBitsPerPel = %d\n",devMode.dmPelsWidth,devMode.dmPelsHeight,devMode.dmBitsPerPel);
 
 		if(devMode.dmPelsWidth > iMaxWidth) {
 			iMaxWidth  = devMode.dmPelsWidth;

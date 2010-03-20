@@ -15,6 +15,9 @@
 
 #include "leak_dumper.h"
 #include "game_constants.h"
+#include "platform_util.h"
+
+using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
