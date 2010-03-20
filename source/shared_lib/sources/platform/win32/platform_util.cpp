@@ -23,7 +23,6 @@
 #include <sys/stat.h>
 #include <direct.h>
 #include <algorithm>
-#include "opengl.h"
 
 #include "leak_dumper.h"
 
@@ -456,10 +455,44 @@ void createDirectoryPaths(string Path)
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
     // Get the current video hardware information
-    const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-    colorBits      = vidInfo->vfmt->BitsPerPixel;
-    screenWidth    = vidInfo->current_w;
-    screenHeight   = vidInfo->current_h;
+    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+    //screenWidth    = vidInfo->current_w;
+	
+/*
+	//screenHeight   = vidInfo->current_h;
+    int cx = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    // height
+    int cy = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+	printf("cx = %d, cy = %d\n",cx,cy);
+
+	if(cx > screenWidth) {
+		screenWidth  = cx;
+		screenHeight = cy;
+	}
+*/
+	int iMaxWidth	= -1;
+	int iMaxHeight	= -1;
+	int iMaxBits	= -1;
+
+	DEVMODE devMode;
+	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
+
+		printf("devMode.dmPelsWidth = %d, devMode.dmPelsHeight = %d, devMode.dmBitsPerPel = %d\n",devMode.dmPelsWidth,devMode.dmPelsHeight,devMode.dmBitsPerPel);
+
+		if(devMode.dmPelsWidth > iMaxWidth) {
+			iMaxWidth  = devMode.dmPelsWidth;
+			iMaxHeight = devMode.dmPelsHeight;
+			iMaxBits   = devMode.dmBitsPerPel;
+			//devMode.dmDisplayFrequency=refreshFrequency;
+		}
+	}
+	if(iMaxWidth > 0) {
+		colorBits      = iMaxBits;
+		screenWidth    = iMaxWidth;
+		screenHeight   = iMaxHeight;
+	}
 }
 
 bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){
