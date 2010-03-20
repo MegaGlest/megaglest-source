@@ -38,20 +38,20 @@
 				<name value="Windowed"/>
 				<variable-name value="Windowed"/>
 				<description value="Execute in a window"/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
 				<name value="First time"/>
 				<variable-name value="FirstTime"/>
 				<description value=""/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="FloatRange">
@@ -66,10 +66,10 @@
 				<name value="Fog of war enabled"/>
 				<variable-name value="FogOfWar"/>
 				<description value=""/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 		</field-group>
@@ -89,10 +89,10 @@
 				<name value="Check OpenGL version on startup"/>
 				<variable-name value="CheckGlCaps"/>
 				<description value=""/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
@@ -122,10 +122,10 @@
 				<description value="If enabled, 3D textures are used for water 
 
 animation, disable on old cards"/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
@@ -191,10 +191,10 @@ shadows and shadow mapping, bigger sizes result in less pixelized shadows but ar
 				<name value="Fog of war smoothing"/>
 				<variable-name value="FogOfWarSmoothing"/>
 				<description value=""/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="IntRange">
@@ -209,10 +209,10 @@ shadows and shadow mapping, bigger sizes result in less pixelized shadows but ar
 				<name value="Show Unit Particles"/>
 				<variable-name value="UnitParticles"/>
 				<description value="Displays particles on game units"/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 		</field-group>
@@ -285,20 +285,20 @@ shadows and shadow mapping, bigger sizes result in less pixelized shadows but ar
 				<description value="If enabled, arrows are displayed under units 
 
 when they are issued a command"/>
-				<default value="1"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
 				<name value="Disable ingame UI"/>
 				<variable-name value="PhotoMode"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="true"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="IntRange">
@@ -336,32 +336,43 @@ when they are issued a command"/>
 				<name value="Client data consistency checks"/>
 				<variable-name value="NetworkConsistencyChecks"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
 				<name value="Client and Server data file synch check"/>
 				<variable-name value="AllowGameDataSynchCheck"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
 				<name value="Client and Server data file transfer support"/>
 				<variable-name value="AllowDownloadDataSynch"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
+			<field type="Enum">
+				<name value="Enable Network Debugging Output"/>
+				<variable-name value="DebugNetwork"/>
+				<description value=""/>
+				<default value="false"/>
+				<enums>
+					<enum value="true"/>
+					<enum value="false"/>
+				</enums>
+			</field>
+
 		</field-group>
 
 		<field-group name="Advanced">
@@ -369,10 +380,10 @@ when they are issued a command"/>
 				<name value="Debug mode"/>
 				<variable-name value="DebugMode"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="IntRange">
@@ -387,21 +398,28 @@ when they are issued a command"/>
 				<name value="AI log console redirection"/>
 				<variable-name value="AiRedir"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
 			</field>
 			<field type="Enum">
 				<name value="Allow players to rotate Units when building new Units"/>
 				<variable-name value="AllowRotateUnits"/>
 				<description value=""/>
-				<default value="0"/>
+				<default value="false"/>
 				<enums>
-					<enum value="1"/>
-					<enum value="0"/>
+					<enum value="true"/>
+					<enum value="false"/>
 				</enums>
+			</field>
+
+			<field type="String">
+				<name value="User created Data Folder"/>
+				<variable-name value="UserData_Root"/>
+				<description value=""/>
+				<default value=""/>
 			</field>
 		</field-group>
 	</field-groups>
