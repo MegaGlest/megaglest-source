@@ -59,7 +59,7 @@ public:
 	int getScriptCount() const				{return scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}
 
-	static string getScenarioPath(const vector<string> dir, const string &scenarioName);
+	static string getScenarioPath(const vector<string> dir, const string &scenarioName, bool getMatchingRootScenarioPathOnly=false);
 	static string getScenarioPath(const string &dir, const string &scenarioName);
 	static int getScenarioPathIndex(const vector<string> dirList, const string &scenarioName);
 

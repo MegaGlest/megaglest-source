@@ -70,15 +70,21 @@ int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &s
     return iIndex;
 }
 
-string Scenario::getScenarioPath(const vector<string> dirList, const string &scenarioName){
+string Scenario::getScenarioPath(const vector<string> dirList, const string &scenarioName, bool getMatchingRootScenarioPathOnly){
     string scenarioFile = "";
     for(int idx = 0; idx < dirList.size(); idx++) {
         scenarioFile = dirList[idx] + "/" + scenarioName + "/" + scenarioName + ".xml";
         if(fileExists(scenarioFile) == true) {
+			if(getMatchingRootScenarioPathOnly == true) {
+				scenarioFile = dirList[idx];
+			}
             break;
         }
+		else {
+			scenarioFile = "";
+		}
     }
-
+	
     return scenarioFile;
 }
 
