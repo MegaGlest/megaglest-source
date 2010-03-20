@@ -98,35 +98,42 @@ string Config::toString(){
 vector<string> Config::getPathListForType(PathType type) {
     vector<string> pathList;
 
+    string userData = getString("UserData_Root","");
+    if(userData != "") {
+        if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
+            userData += '/';
+        }
+    }
+
     switch(type) {
         case ptMaps:
             pathList.push_back(GameConstants::folder_path_maps);
-            if(getString("UserData_Maps","") != "") {
-                pathList.push_back(getString("UserData_Maps"));
+            if(userData != "") {
+                pathList.push_back(userData + string(GameConstants::folder_path_maps));
             }
             break;
         case ptScenarios:
             pathList.push_back(GameConstants::folder_path_scenarios);
-            if(getString("UserData_Scenarios","") != "") {
-                pathList.push_back(getString("UserData_Scenarios"));
+            if(userData != "") {
+                pathList.push_back(userData + string(GameConstants::folder_path_scenarios));
             }
             break;
         case ptTechs:
             pathList.push_back(GameConstants::folder_path_techs);
-            if(getString("UserData_Techs","") != "") {
-                pathList.push_back(getString("UserData_Techs"));
+            if(userData != "") {
+                pathList.push_back(userData + string(GameConstants::folder_path_techs));
             }
             break;
         case ptTilesets:
             pathList.push_back(GameConstants::folder_path_tilesets);
-            if(getString("UserData_Tilesets","") != "") {
-                pathList.push_back(getString("UserData_Tilesets"));
+            if(userData != "") {
+                pathList.push_back(userData + string(GameConstants::folder_path_tilesets));
             }
             break;
         case ptTutorials:
             pathList.push_back(GameConstants::folder_path_tutorials);
-            if(getString("UserData_Tutorials","") != "") {
-                pathList.push_back(getString("UserData_Tutorials"));
+            if(userData != "") {
+                pathList.push_back(userData + string(GameConstants::folder_path_tutorials));
             }
             break;
     }
