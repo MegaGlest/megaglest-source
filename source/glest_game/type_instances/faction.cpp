@@ -294,27 +294,31 @@ void Faction::applyCostsOnInterval(){
 			}
 		}
 	}
-
+	
 	//decrement consumables
-	for(int j=0; j<getUnitCount(); ++j){
-		Unit *unit= getUnit(j);
-		if(unit->isOperative()){
-			for(int k=0; k<unit->getType()->getCostCount(); ++k){
-				const Resource *resource= unit->getType()->getCost(k);
-				if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
-					incResourceAmount(resource->getType(), -resource->getAmount());
-
-					//decrease unit hp
-					if(getResource(resource->getType())->getAmount()<0){
-						resetResourceAmount(resource->getType());
-						bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
-						if(decHpResult){
-							world->getStats()->die(unit->getFactionIndex());
-							scriptManager->onUnitDied(unit);
-						}
-						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
-						if(sound!=NULL && thisFaction){
-							SoundRenderer::getInstance().playFx(sound);
+	if(!getCpuControl() ||
+		getCpuControl() && !scriptManager->getPlayerModifiers(this->thisFaction)->getAiEnabled())
+	{
+		for(int j=0; j<getUnitCount(); ++j){
+			Unit *unit= getUnit(j);
+			if(unit->isOperative()){
+				for(int k=0; k<unit->getType()->getCostCount(); ++k){
+					const Resource *resource= unit->getType()->getCost(k);
+					if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
+						incResourceAmount(resource->getType(), -resource->getAmount());
+	
+						//decrease unit hp
+						if(getResource(resource->getType())->getAmount()<0){
+							resetResourceAmount(resource->getType());
+							bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
+							if(decHpResult){
+								world->getStats()->die(unit->getFactionIndex());
+								scriptManager->onUnitDied(unit);
+							}
+							StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
+							if(sound!=NULL && thisFaction){
+								SoundRenderer::getInstance().playFx(sound);
+							}
 						}
 					}
 				}
