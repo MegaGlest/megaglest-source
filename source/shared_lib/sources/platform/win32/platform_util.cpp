@@ -224,8 +224,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		do{
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fi.name [%s]\n",__FILE__,__FUNCTION__,__LINE__,fi.name);
 
-			DWORD fileAttributes = GetFileAttributes(fi.name);
-			if( (fileAttributes != INVALID_FILE_ATTRIBUTES && ((fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)) || (fi.attrib & _A_HIDDEN) == _A_HIDDEN) {
+			if((fi.attrib & _A_HIDDEN) == _A_HIDDEN) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file IS HIDDEN fi.name [%s]\n",__FILE__,__FUNCTION__,__LINE__,fi.name);
 			}
 			else
@@ -264,14 +263,6 @@ bool isdir(const char *path)
 {
   struct stat stats;
   bool ret = stat (path, &stats) == 0 && S_ISDIR(stats.st_mode);
-  
-  if(ret == true) {
-	DWORD fileAttributes = GetFileAttributes(path);
-	if( fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
-	{
-		ret = false;
-	}
-  }
   if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
 
   return ret;

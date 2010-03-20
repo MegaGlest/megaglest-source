@@ -108,16 +108,6 @@ void Tileset::load(const string &dir, Checksum *checksum){
 	string name= lastDir(dir);
 	string path= dir+"/"+name+".xml";
 
-#ifdef _WINDOWS
-
-	DWORD fileAttributes = GetFileAttributes(path.c_str());
-	if( (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
-	{
-		return;
-	}
-
-#endif
-
 	checksum->addFile(path);
 
 	try{

@@ -101,17 +101,6 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//file load
 		path= dir+"/"+name+".xml";
-
-#ifdef _WINDOWS
-
-		DWORD fileAttributes = GetFileAttributes(path.c_str());
-		if( (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
-		{
-			return;
-		}
-
-#endif
-
 		checksum->addFile(path);
 
 		XmlTree xmlTree;

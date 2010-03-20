@@ -70,52 +70,38 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		XmlTree	xmlTree;
 		string path= dir+"/"+lastDir(dir)+".xml";
 
-		bool bCanProcessFile = true;
-#ifdef _WINDOWS
+		checksum->addFile(path);
 
-		DWORD fileAttributes = GetFileAttributes(path.c_str());
-		if( (fileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
-		{
-			bCanProcessFile = false;
+		xmlTree.load(path);
+		const XmlNode *techTreeNode= xmlTree.getRootNode();
+
+		//attack types
+		const XmlNode *attackTypesNode= techTreeNode->getChild("attack-types");
+		attackTypes.resize(attackTypesNode->getChildCount());
+		for(int i=0; i<attackTypes.size(); ++i){
+			const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
+			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
+			attackTypes[i].setId(i);
 		}
 
-#endif
+		//armor types
+		const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
+		armorTypes.resize(armorTypesNode->getChildCount());
+		for(int i=0; i<armorTypes.size(); ++i){
+			const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
+			armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
+			armorTypes[i].setId(i);
+		}
 
-		if(bCanProcessFile == true)
-		{
-			checksum->addFile(path);
-
-			xmlTree.load(path);
-			const XmlNode *techTreeNode= xmlTree.getRootNode();
-
-			//attack types
-			const XmlNode *attackTypesNode= techTreeNode->getChild("attack-types");
-			attackTypes.resize(attackTypesNode->getChildCount());
-			for(int i=0; i<attackTypes.size(); ++i){
-				const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
-				attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
-				attackTypes[i].setId(i);
-			}
-
-			//armor types
-			const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
-			armorTypes.resize(armorTypesNode->getChildCount());
-			for(int i=0; i<armorTypes.size(); ++i){
-				const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
-				armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
-				armorTypes[i].setId(i);
-			}
-
-			//damage multipliers
-			damageMultiplierTable.init(attackTypes.size(), armorTypes.size());
-			const XmlNode *damageMultipliersNode= techTreeNode->getChild("damage-multipliers");
-			for(int i=0; i<damageMultipliersNode->getChildCount(); ++i){
-				const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
-				const AttackType *attackType= getAttackType(damageMultiplierNode->getAttribute("attack")->getRestrictedValue());
-				const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
-				float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
-				damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
-			}
+		//damage multipliers
+		damageMultiplierTable.init(attackTypes.size(), armorTypes.size());
+		const XmlNode *damageMultipliersNode= techTreeNode->getChild("damage-multipliers");
+		for(int i=0; i<damageMultipliersNode->getChildCount(); ++i){
+			const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
+			const AttackType *attackType= getAttackType(damageMultiplierNode->getAttribute("attack")->getRestrictedValue());
+			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
+			float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
+			damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
 		}
     }
     catch(const exception &e){
