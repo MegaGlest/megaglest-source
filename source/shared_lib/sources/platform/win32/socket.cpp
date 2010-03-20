@@ -14,11 +14,12 @@
 #include <stdexcept>
 
 #include "conversion.h"
-
-#include "leak_dumper.h"
 #include <time.h>
 #include <strstream>
 #include <algorithm>
+#include "util.h"
+
+#include "leak_dumper.h"
 
 #define socklen_t int
 

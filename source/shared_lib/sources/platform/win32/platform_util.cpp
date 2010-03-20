@@ -19,13 +19,14 @@
 #include "util.h"
 #include "conversion.h"
 
-#include "leak_dumper.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <direct.h>
+#include <algorithm>
+
+#include "leak_dumper.h"
 
 #define S_ISDIR(mode) ((mode) & _S_IFDIR)
-
 
 using namespace Shared::Util;
 using namespace std;
@@ -169,7 +170,7 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
         vector<string> current_results;
         findAll(path, current_results, false, errorOnNotFound);
         if(current_results.size() > 0) {
-            for(int folder_index = 0; folder_index < current_results.size(); folder_index++) {
+            for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 const string current_folder = current_results[folder_index];
                 const string current_folder_path = paths[idx] + "/" + current_folder;
                 if(isdir(current_folder_path.c_str()) == true) {
@@ -192,7 +193,7 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
         vector<string> current_results;
         findAll(path, current_results, cutExtension, errorOnNotFound);
         if(current_results.size() > 0) {
-            for(int folder_index = 0; folder_index < current_results.size(); folder_index++) {
+            for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 string &current_file = current_results[folder_index];
                 if(std::find(results.begin(),results.end(),current_file) == results.end()) {
                     results.push_back(current_file);
@@ -235,7 +236,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	}
 
 	if(cutExtension){
-		for (int i=0; i<results.size(); ++i){
+		for (unsigned int i=0; i<results.size(); ++i){
 			results.at(i)=cutLastExt(results.at(i));
 		}
 	}
