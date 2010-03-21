@@ -233,13 +233,13 @@ bool isdir(const char *path)
 
 bool EndsWith(const string &str, const string& key)
 {
-    size_t keylen = key.length();
-    size_t strlen = str.length();
+    bool result = false;
+    if (str.length() > key.length()) {
+    	result = (0 == str.compare (str.length() - key.length(), key.length(), key));
+    }
 
-    if(keylen <= strlen)
-        return string::npos != str.rfind(key.c_str(),strlen - keylen, keylen);
-    else
-        return false;
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] result [%d] str = [%s] key = [%s]\n",__FILE__,__FUNCTION__,result,str.c_str(),key.c_str());
+    return result;
 }
 
 //finds all filenames like path and gets their checksum of all files combined

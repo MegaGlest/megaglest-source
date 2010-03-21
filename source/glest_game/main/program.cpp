@@ -278,7 +278,11 @@ void Program::init(WindowGl *window, bool initSound){
 
     //log start
 	Logger &logger= Logger::getInstance();
-	logger.setFile("glest.log");
+	string logFile = "glest.log";
+    if(getGameReadWritePath() != "") {
+        logFile = getGameReadWritePath() + logFile;
+    }
+	logger.setFile(logFile);
 	logger.clear();
 
 	//lang

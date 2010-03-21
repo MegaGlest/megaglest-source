@@ -155,9 +155,6 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,
 
 namespace Shared{ namespace Platform{
 
-bool Socket::enableDebugText = true;
-bool Socket::enableNetworkDebugInfo = true;
-
 // =====================================================
 //	class Ip
 // =====================================================

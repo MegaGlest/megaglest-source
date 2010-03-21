@@ -25,6 +25,14 @@ Configuration::~Configuration(){
 }
 
 void Configuration::load(const string &path){
+
+    if(fileExists(path) == false) {
+            throw runtime_error("Cannot find file: " + path);
+    }
+    else if(fileExists(fileName) == false) {
+        throw runtime_error("Cannot find file: " + fileName);
+    }
+
 	loadStructure(path);
 	loadValues(fileName);
 }

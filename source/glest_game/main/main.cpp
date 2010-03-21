@@ -54,7 +54,7 @@ public:
             program->showMessage(msg);
         }
         else {
-            message("An error ocurred and Glest will close.\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
+            message("An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
         }
 
         exit(0);
@@ -152,6 +152,9 @@ void MainWindow::eventClose(){
 
 int glestMain(int argc, char** argv){
 
+	SystemFlags::enableNetworkDebugInfo = true;
+    SystemFlags::enableDebugText = true;
+
 	MainWindow *mainWindow= NULL;
 	Program *program= NULL;
 	ExceptionHandler exceptionHandler;
@@ -159,6 +162,8 @@ int glestMain(int argc, char** argv){
 
 	try{
 		Config &config = Config::getInstance();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","0");
 		SystemFlags::enableDebugText = config.getBool("DebugMode","0");

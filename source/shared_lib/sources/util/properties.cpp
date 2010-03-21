@@ -16,6 +16,7 @@
 #include <cstring>
 
 #include "conversion.h"
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -29,16 +30,21 @@ namespace Shared{ namespace Util{
 void Properties::load(const string &path){
 
 	ifstream fileStream;
-	char lineBuffer[maxLine];
+	char lineBuffer[maxLine]="";
 	string line, key, value;
-	int pos;
+	int pos=0;
 
 	this->path= path;
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
 	fileStream.open(path.c_str(), ios_base::in);
 	if(fileStream.fail()){
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 		throw runtime_error("Can't open propertyMap file: " + path);
 	}
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 	propertyMap.clear();
 	while(!fileStream.eof()){

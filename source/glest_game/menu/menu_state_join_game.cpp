@@ -44,7 +44,12 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	Config &config= Config::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-	servers.load(serverFileName);
+	serversSavedFile = serverFileName;
+    if(getGameReadWritePath() != "") {
+        serversSavedFile = getGameReadWritePath() + serversSavedFile;
+    }
+
+	servers.load(serversSavedFile);
 
 	//buttons
 	buttonReturn.init(325, 300, 125);
@@ -317,7 +322,7 @@ void MenuStateJoinGame::update()
 		{
 		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - A\n",__FILE__,__FUNCTION__);
 
-			servers.save(serverFileName);
+			servers.save(serversSavedFile);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - B\n",__FILE__,__FUNCTION__);
 

@@ -15,9 +15,12 @@
 #include "lang.h"
 #include "game_constants.h"
 #include "config.h"
+#include <stdlib.h>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
@@ -103,6 +106,20 @@ string formatString(const string &str){
 		}
 	}
 	return outStr;
+}
+
+string getGameReadWritePath() {
+	string path         = "";
+    if(getenv("GLESTHOME") != NULL) {
+        path = getenv("GLESTHOME");
+        if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+            path += "/";
+        }
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+    }
+
+    return path;
 }
 
 }}//end namespace

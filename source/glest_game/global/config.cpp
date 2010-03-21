@@ -12,12 +12,13 @@
 #include "config.h"
 
 #include "util.h"
-
-#include "leak_dumper.h"
 #include "game_constants.h"
 #include "platform_util.h"
+#include "game_util.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Platform;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -34,7 +35,15 @@ const char *GameConstants::folder_path_tutorials    = "tutorials";
 // =====================================================
 
 Config::Config(){
-	properties.load("glest.ini");
+
+	string cfgFile = "glest.ini";
+    if(getGameReadWritePath() != "") {
+        cfgFile = getGameReadWritePath() + cfgFile;
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile = [%s]\n",__FILE__,__FUNCTION__,__LINE__,cfgFile.c_str());
+	properties.load(cfgFile);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile = [%s]\n",__FILE__,__FUNCTION__,__LINE__,cfgFile.c_str());
 }
 
 Config &Config::getInstance(){
