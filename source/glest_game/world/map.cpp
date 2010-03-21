@@ -1,4 +1,5 @@
 // ==============================================================
+// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
@@ -19,11 +20,15 @@
 #include "logger.h"
 #include "tech_tree.h"
 #include "config.h"
-#include "leak_dumper.h"
 #include "util.h"
+#include "game_settings.h"
+#include "platform_util.h"
+
+#include "leak_dumper.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
+using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
@@ -614,10 +619,11 @@ void Map::computeCellColors(){
 }
 
 // static
-string Map::getMapPath(const string &mapName) {
+string Map::getMapPath(const string &mapName, string scenarioDir) {
 
     Config &config = Config::getInstance();
-    vector<string> pathList = config.getPathListForType(ptMaps);
+    vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+
     for(int idx = 0; idx < pathList.size(); idx++) {
         const string &map_path = pathList[idx];
         const string mega = map_path + "/" + mapName + ".mgm";

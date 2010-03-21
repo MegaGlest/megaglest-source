@@ -98,7 +98,7 @@ string Config::toString(){
 	return properties.toString();
 }
 
-vector<string> Config::getPathListForType(PathType type) {
+vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
     vector<string> pathList;
 
     string userData = getString("UserData_Root","");
@@ -106,6 +106,9 @@ vector<string> Config::getPathListForType(PathType type) {
         if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
             userData += '/';
         }
+    }
+    if(scenarioDir != "") {
+        pathList.push_back(scenarioDir);
     }
 
     switch(type) {

@@ -95,8 +95,19 @@ void Game::load(){
 
     Config &config = Config::getInstance();
 
+    string scenarioDir = "";
+    if(gameSettings.getScenarioDir() != "") {
+        scenarioDir = gameSettings.getScenarioDir();
+        if(EndsWith(scenarioDir, ".xml") == true) {
+            scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
+            scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings.getScenario().size(), gameSettings.getScenario().size() + 1);
+        }
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
+    }
+
 	//tileset
-    world.loadTileset(config.getPathListForType(ptTilesets), tilesetName, &checksum);
+    world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
 
 	set<string> factions;
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
@@ -104,10 +115,10 @@ void Game::load(){
 	}
 
     //tech, load before map because of resources
-    world.loadTech(config.getPathListForType(ptTechs), techName, factions, &checksum);
+    world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
 
     //map
-	world.loadMap(Map::getMapPath(mapName), &checksum);
+	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
 
     //scenario
 	if(!scenarioName.empty()){

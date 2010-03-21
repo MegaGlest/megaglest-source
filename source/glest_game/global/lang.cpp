@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -31,7 +31,7 @@ namespace Glest{ namespace Game{
 Lang &Lang::getInstance(){
 	static Lang lang;
 	return lang;
-} 
+}
 
 void Lang::loadStrings(const string &language){
 	this->language= language;
@@ -46,12 +46,11 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 		path = path.erase(path.size()-4,4);
 		path += "_" + language + ".lng";
 	}
-	
-	
+
 	scenarioStrings.clear();
-	
+
 	//try to load the current language first
-	if(fileExists(path)){
+	if(fileExists(path)) {
 		scenarioStrings.load(path);
 	}
 	else{

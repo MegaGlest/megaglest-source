@@ -52,7 +52,7 @@ public:
 	void setFloat(const string &key, float value);
 	void setString(const string &key, const string &value);
 
-    vector<string> getPathListForType(PathType type);
+    vector<string> getPathListForType(PathType type, string scenarioDir = "");
 
 	string toString();
 };
