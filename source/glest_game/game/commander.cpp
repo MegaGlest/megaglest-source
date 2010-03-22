@@ -41,7 +41,7 @@ void Commander::init(World *world){
 }
 
 CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType) const{
-	NetworkCommand networkCommand(nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId());
+	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId());
 	return pushNetworkCommand(&networkCommand);
 }
 
@@ -61,7 +61,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
 				Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-				NetworkCommand networkCommand(nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId);
 
 				//every unit is ordered to a different pos
 				CommandResult result= pushNetworkCommand(&networkCommand);
@@ -90,7 +90,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 			int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 			int unitId= selection->getUnit(i)->getId();
 			Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-			NetworkCommand networkCommand(nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
+			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
 
 			//every unit is ordered to a different position
 			CommandResult result= pushNetworkCommand(&networkCommand);
@@ -125,7 +125,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 			if(commandType!=NULL){
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
-				NetworkCommand networkCommand(nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
 
 				CommandResult result= pushNetworkCommand(&networkCommand);
 				results.push_back(result);
@@ -144,7 +144,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 CommandResult Commander::tryCancelCommand(const Selection *selection) const{
 
 	for(int i=0; i<selection->getCount(); ++i){
-		NetworkCommand command(nctCancelCommand, selection->getUnit(i)->getId());
+		NetworkCommand command(this->world,nctCancelCommand, selection->getUnit(i)->getId());
 		pushNetworkCommand(&command);
 	}
 
@@ -152,7 +152,7 @@ CommandResult Commander::tryCancelCommand(const Selection *selection) const{
 }
 
 void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos)const{
-	NetworkCommand command(nctSetMeetingPoint, unit->getId(), -1, pos);
+	NetworkCommand command(this->world,nctSetMeetingPoint, unit->getId(), -1, pos);
 	pushNetworkCommand(&command);
 }
 
@@ -245,6 +245,7 @@ void Commander::updateNetwork(){
 	}
 }
 
+/*
 void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const {
     switch(networkCommand->getNetworkCommandType()) {
         case nctNetworkCommand: {
@@ -282,13 +283,18 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
             assert(false);
     }
 }
+*/
 
-void Commander::giveNetworkCommand(const NetworkCommand* networkCommand) const {
+void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
+    networkCommand->preprocessNetworkCommand(this->world);
+    /*
     if(networkCommand->getNetworkCommandType() == nctNetworkCommand) {
         giveNetworkCommandSpecial(networkCommand);
     }
-    else {
+    else
+    */
+    {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
         //exec ute command, if unit is still alive

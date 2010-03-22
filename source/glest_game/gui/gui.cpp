@@ -363,6 +363,7 @@ void Gui::hotKey(char key){
 	        unitTypeBuildRotation[unitKey] = unitTypeRotation;
 
             //!!!
+            /*
             //if(allowRotateUnits == true && unitRotation > 0) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] before sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
 
@@ -375,6 +376,7 @@ void Gui::hotKey(char key){
                 //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit [%d] result = %d\n",__FILE__,__FUNCTION__,builtUnit->getId(),result);
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
             //}
+            */
 
 	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
 	    }

@@ -301,7 +301,7 @@ void UnitUpdater::updateBuild(Unit *unit){
                     sprintf(unitKey,"%d_%d",builtUnitType->getId(),unit->getFaction()->getIndex());
                     unitRotation = gui->getUnitTypeBuildRotation(unitKey);
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builtUnitType->getId() = %d unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,builtUnitType->getId(),unitRotation);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s] unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,unitKey,unitRotation);
                 }
 				Unit *builtUnit= new Unit(world->getNextUnitId(), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(),unitRotation);
 				builtUnit->create();

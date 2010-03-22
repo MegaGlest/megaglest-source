@@ -25,6 +25,8 @@ using Shared::Graphics::Vec2i;
 
 namespace Glest{ namespace Game{
 
+class World;
+
 // =====================================================
 //	class NetworkString
 // =====================================================
@@ -47,13 +49,13 @@ public:
 enum NetworkCommandType {
 	nctGiveCommand,
 	nctCancelCommand,
-	nctSetMeetingPoint,
-	nctNetworkCommand
+	nctSetMeetingPoint
+	//nctNetworkCommand
 };
 
-enum NetworkCommandSubType {
-	ncstRotateUnit
-};
+//enum NetworkCommandSubType {
+//	ncstRotateUnit
+//};
 
 #pragma pack(push, 2)
 class NetworkCommand{
@@ -68,8 +70,8 @@ private:
 
 public:
 	NetworkCommand(){};
-	NetworkCommand(int networkCommandType, int unitId, int commandTypeId= -1, const Vec2i &pos= Vec2i(0), int unitTypeId= -1, int targetId= -1);
-	NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2=-1);
+	NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId= -1, const Vec2i &pos= Vec2i(0), int unitTypeId= -1, int targetId= -1);
+	//NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2=-1);
 
 	NetworkCommandType getNetworkCommandType() const	{return static_cast<NetworkCommandType>(networkCommandType);}
 	int getUnitId() const								{return unitId;}
@@ -77,6 +79,9 @@ public:
 	Vec2i getPosition() const							{return Vec2i(positionX, positionY);}
 	int getUnitTypeId() const							{return unitTypeId;}
 	int getTargetId() const								{return targetId;}
+
+    void preprocessNetworkCommand(World *world);
+	string toString() const;
 };
 #pragma pack(pop)
 

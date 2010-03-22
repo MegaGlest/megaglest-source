@@ -54,13 +54,13 @@ public:
 	CommandResult tryCancelCommand(const Selection *selection) const;
 	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
 	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
-	void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
+	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
 
 private:
     Vec2i computeRefPos(const Selection *selection) const;
     Vec2i computeDestPos(const Vec2i &refUnitPos, const Vec2i &unitPos, const Vec2i &commandPos) const;
     CommandResult computeResult(const CommandResultContainer &results) const;
-	void giveNetworkCommand(const NetworkCommand* networkCommand) const;
+	void giveNetworkCommand(NetworkCommand* networkCommand) const;
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
 };
 
