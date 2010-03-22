@@ -559,8 +559,10 @@ void UnitUpdater::updateProduce(Unit *unit){
             float unitRotation = -1;
             if(allowRotateUnits == true) {
                 char unitKey[50]="";
-                sprintf(unitKey,"%d_%d",pct->getId(),unit->getFaction()->getIndex());
+                sprintf(unitKey,"%d_%d",pct->getProducedUnit()->getId(),unit->getFaction()->getIndex());
                 unitRotation = gui->getUnitTypeBuildRotation(unitKey);
+
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s] unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,unitKey,unitRotation);
             }
 
 			produced= new Unit(world->getNextUnitId(), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(),unitRotation);
