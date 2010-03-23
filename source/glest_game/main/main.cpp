@@ -40,7 +40,6 @@ string debugLogFile = "";
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle(){
-
 		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.";
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
@@ -54,7 +53,6 @@ public:
 	}
 
 	static void handleRuntimeError(const char *msg) {
-        
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 
 		Program *program = Program::getInstance();
@@ -65,7 +63,6 @@ public:
         else {
             message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
         }
-
         restoreVideoMode(true);
 		//SystemFlags::Close();
         exit(0);

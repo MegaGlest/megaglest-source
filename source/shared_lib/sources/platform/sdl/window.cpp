@@ -51,17 +51,21 @@ bool Window::handleEvent() {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		try {
-		    //printf("[%d]\n",event.type);
+		    //printf("START [%d]\n",event.type);
 
 			switch(event.type) {
 				case SDL_QUIT:
 					return false;
 				case SDL_MOUSEBUTTONDOWN:
-					global_window->handleMouseDown(event);
+                    if(global_window) {
+                        global_window->handleMouseDown(event);
+                    }
 					break;
 				case SDL_MOUSEBUTTONUP: {
-					global_window->eventMouseUp(event.button.x,
+				    if(global_window) {
+                        global_window->eventMouseUp(event.button.x,
 							event.button.y,getMouseButton(event.button.button));
+				    }
 					break;
 				}
 				case SDL_MOUSEMOTION: {
@@ -69,7 +73,10 @@ bool Window::handleEvent() {
 					ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
 					ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
 					ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
-					global_window->eventMouseMove(event.motion.x, event.motion.y, &ms);
+
+					if(global_window) {
+                        global_window->eventMouseMove(event.motion.x, event.motion.y, &ms);
+					}
 					break;
 				}
 				case SDL_KEYDOWN:
@@ -78,17 +85,23 @@ bool Window::handleEvent() {
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						toggleFullscreen();
 					}
-					global_window->eventKeyDown(getKey(event.key.keysym));
-					global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
+					if(global_window) {
+                        global_window->eventKeyDown(getKey(event.key.keysym));
+                        global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
+					}
 					break;
 				case SDL_KEYUP:
-					global_window->eventKeyUp(getKey(event.key.keysym));
+                    if(global_window) {
+                        global_window->eventKeyUp(getKey(event.key.keysym));
+                    }
 					break;
 			}
 		} catch(std::exception& e) {
 			std::cerr << "Couldn't process event: " << e.what() << "\n";
 		}
 	}
+
+    //printf("END [%d]\n",event.type);
 
 	return true;
 }

@@ -85,6 +85,7 @@ private:
 		virtual void render();
 		virtual void mouseDownLeft(int x, int y);
 		virtual void mouseMove(int x, int y, const MouseState &mouseState);
+		virtual void keyPress(char c);
 		virtual void update();
 		virtual bool wantExit() { return userWantsExit; }
 	};
