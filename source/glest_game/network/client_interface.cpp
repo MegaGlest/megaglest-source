@@ -160,7 +160,7 @@ void ClientInterface::updateLobby()
 
 
                 //send intro message
-                NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName"), -1);
+                NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1);
 
                 playerIndex= networkMessageIntro.getPlayerIndex();
                 serverName= networkMessageIntro.getName();

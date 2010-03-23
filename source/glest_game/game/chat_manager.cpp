@@ -63,9 +63,9 @@ void ChatManager::keyDown(char key){
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
 			editEnabled= false;
-			if(!text.empty()){
-				console->addLine(Config::getInstance().getString("NetPlayerName") + ": " + text);
-				gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName")+": "+
+			if(!text.empty()) {
+				console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
+				gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": "+
 					text, teamMode? thisTeamIndex: -1);
 			}
 		}

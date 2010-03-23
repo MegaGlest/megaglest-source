@@ -81,8 +81,8 @@ public:
 	bool isWritable(bool waitOnDelayedResponse);
 	bool isConnected();
 
-	string getHostName() const;
-	string getIp() const;
+	static string getHostName();
+	static string getIp();
 
 protected:
 	static void throwException(const string &str);

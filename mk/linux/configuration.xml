@@ -342,6 +342,12 @@ when they are issued a command"/>
 				<description value=""/>
 				<default value="6666"/>
 			</field>
+			<field type="String">
+				<name value="Network player name"/>
+				<variable-name value="NetPlayerName"/>
+				<description value="Your player name for network games"/>
+				<default value="192.168.1.1"/>
+			</field>
 			<field type="Enum">
 				<name value="Client data consistency checks"/>
 				<variable-name value="NetworkConsistencyChecks"/>

@@ -514,14 +514,14 @@ bool Socket::isConnected()
 	return true;
 }
 
-string Socket::getHostName() const {
+string Socket::getHostName()  {
 	const int strSize= 256;
 	char hostname[strSize];
 	gethostname(hostname, strSize);
 	return hostname;
 }
 
-string Socket::getIp() const{
+string Socket::getIp() {
 	hostent* info= gethostbyname(getHostName().c_str());
 	unsigned char* address;
 

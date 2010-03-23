@@ -349,7 +349,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 }
 
 void ServerInterface::sendTextMessage(const string &text, int teamIndex){
-	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName"), teamIndex);
+	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), teamIndex);
 	broadcastMessage(&networkMessageText);
 }
 

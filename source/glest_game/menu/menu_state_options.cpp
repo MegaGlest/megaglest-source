@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -28,7 +28,7 @@ namespace Glest{ namespace Game{
 // 	class MenuStateOptions
 // =====================================================
 
-MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu): 
+MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "config")
 {
 	Lang &lang= Lang::getInstance();
@@ -36,8 +36,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	activeInputLabel=NULL;
 
 	//create
-	buttonOk.init(200, 150, 100);	
-	buttonAbort.init(310, 150, 100);	
+	buttonOk.init(200, 150, 100);
+	buttonAbort.init(310, 150, 100);
 	buttonAutoConfig.init(450, 150, 125);
 
 	//labels
@@ -48,7 +48,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelLang.init(200, 400);
 	labelPlayerNameLabel.init(200,370);
 	labelPlayerName.init(350,370);
-	
+
 	labelFilter.init(200, 340);
 	labelShadows.init(200, 310);
 	labelTextures3D.init(200, 280);
@@ -62,13 +62,13 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxMusicSelect.init(350, 440, 150);
 
 	listBoxLang.init(350, 400, 170);
-	
+
 	listBoxFilter.init(350, 340, 170);
 	listBoxShadows.init(350, 310, 170);
 	listBoxTextures3D.init(350, 280, 80);
 	listBoxLights.init(350, 250, 80);
 	listBoxUnitParticles.init(350,220,80);
-	
+
 	//set text
 	buttonOk.setText(lang.get("Ok"));
 	buttonAbort.setText(lang.get("Abort"));
@@ -94,10 +94,10 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
-	
+
 	//playerName
-	labelPlayerName.setText(config.getString("NetPlayerName"));
-	
+	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
+
 	//shadows
 	for(int i= 0; i<Renderer::sCount; ++i){
 		listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
@@ -115,7 +115,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxTextures3D.pushBackItem(lang.get("No"));
 	listBoxTextures3D.pushBackItem(lang.get("Yes"));
 	listBoxTextures3D.setSelectedItemIndex(clamp(config.getInt("Textures3D"), 0, 1));
-	
+
 	//textures 3d
 	listBoxUnitParticles.pushBackItem(lang.get("No"));
 	listBoxUnitParticles.pushBackItem(lang.get("Yes"));
@@ -136,7 +136,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeFx.setSelectedItem(intToStr(config.getInt("SoundVolumeFx")/5*5));
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
-	
+
 }
 
 void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
@@ -149,17 +149,17 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-    }  
+    }
 	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-    }  
+    }
 	else if(buttonAutoConfig.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		Renderer::getInstance().autoConfig();
 		saveConfig();
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
-	}	
+	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
 	}
@@ -215,11 +215,11 @@ void MenuStateOptions::keyPress(char c){
 				(c=='-')||(c=='(')||(c==')')){
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
-					text.insert(text.end()-1, c);	
+					text.insert(text.end()-1, c);
 					activeInputLabel->setText(text);
 				}
 			}
-		}	
+		}
 	}
 }
 
@@ -255,7 +255,7 @@ void MenuStateOptions::saveConfig(){
 	Config &config= Config::getInstance();
 	Lang &lang= Lang::getInstance();
 	setActiveInputLable(NULL);
-	
+
 	if(labelPlayerName.getText().length()>0)
 	{
 		config.setString("NetPlayerName", labelPlayerName.getText());
