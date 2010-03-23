@@ -99,7 +99,7 @@ string extractDirectoryPathFromFile(string filename);
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
-void restoreVideoMode();
+void restoreVideoMode(bool exitingApp=false);
 
 bool EndsWith(const string &str, const string& key);
 void message(string message);

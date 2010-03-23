@@ -57,6 +57,7 @@ public:
             message("An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
         }
 
+        restoreVideoMode(true);
         exit(0);
 	}
 
@@ -71,6 +72,7 @@ public:
         }
 
         if(exitApp == true) {
+            restoreVideoMode(true);
             exit(0);
         }
 
@@ -203,7 +205,6 @@ int glestMain(int argc, char** argv){
 		}
 	}
 	catch(const exception &e){
-		restoreVideoMode();
 		//exceptionMessage(e);
 		ExceptionHandler::handleRuntimeError(e.what());
 	}

@@ -437,10 +437,60 @@ void createDirectoryPaths(string Path)
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
     // Get the current video hardware information
-    const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-    colorBits      = vidInfo->vfmt->BitsPerPixel;
-    screenWidth    = vidInfo->current_w;
-    screenHeight   = vidInfo->current_h;
+    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+    //screenWidth    = vidInfo->current_w;
+    //screenHeight   = vidInfo->current_h;
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    /* Get available fullscreen/hardware modes */
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+
+    /* Check if there are any modes available */
+    if (modes == (SDL_Rect**)0) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   /* Check if our resolution is restricted */
+   else if (modes == (SDL_Rect**)-1) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   else{
+       /* Print valid modes */
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+       int bestW = -1;
+       int bestH = -1;
+       for(int i=0; modes[i]; ++i) {
+           SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
+
+           if(bestW < modes[i]->w) {
+               bestW = modes[i]->w;
+               bestH = modes[i]->h;
+           }
+       }
+
+       if(bestW > screenWidth) {
+           screenWidth = bestW;
+           screenHeight = bestH;
+       }
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+  }
 }
 
 bool changeVideoMode(int resW, int resH, int colorBits, int ) {
@@ -448,7 +498,8 @@ bool changeVideoMode(int resW, int resH, int colorBits, int ) {
 	return true;
 }
 
-void restoreVideoMode() {
+void restoreVideoMode(bool exitingApp) {
+    SDL_Quit();
 }
 
 void message(string message) {

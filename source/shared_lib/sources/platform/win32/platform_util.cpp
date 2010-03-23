@@ -535,7 +535,7 @@ bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){
 	return false;
 }
 
-void restoreVideoMode(){
+void restoreVideoMode(bool exitingApp) {
 	int dispChangeErr= ChangeDisplaySettings(NULL, 0);
 	assert(dispChangeErr==DISP_CHANGE_SUCCESSFUL);
 }
