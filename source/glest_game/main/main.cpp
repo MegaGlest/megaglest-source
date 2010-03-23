@@ -31,6 +31,8 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+string debugLogFile = "";
+
 // =====================================================
 // 	class ExceptionHandler
 // =====================================================
@@ -39,9 +41,12 @@ class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle(){
 
-        string msg = "An error ocurred and Glest will close.\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.";
+		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.";
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
+
         Program *program = Program::getInstance();
         if(program) {
+			//SystemFlags::Close();
             program->showMessage(msg.c_str());
         }
 
@@ -49,15 +54,20 @@ public:
 	}
 
 	static void handleRuntimeError(const char *msg) {
-        Program *program = Program::getInstance();
+        
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
+
+		Program *program = Program::getInstance();
         if(program) {
+			//SystemFlags::Close();
             program->showMessage(msg);
         }
         else {
-            message("An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
+            message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
         }
 
         restoreVideoMode(true);
+		//SystemFlags::Close();
         exit(0);
 	}
 
@@ -73,6 +83,8 @@ public:
 
         if(exitApp == true) {
             restoreVideoMode(true);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
+			//SystemFlags::Close();
             exit(0);
         }
 
@@ -167,7 +179,6 @@ int glestMain(int argc, char** argv){
 	Program *program= NULL;
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
-	string debugLogFile = "";
 
 	try{
 		Config &config = Config::getInstance();
@@ -216,6 +227,7 @@ int glestMain(int argc, char** argv){
 	}
 
 	delete mainWindow;
+	//SystemFlags::Close();
 
 	return 0;
 }

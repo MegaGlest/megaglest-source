@@ -114,7 +114,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	//textures 3d
 	listBoxTextures3D.pushBackItem(lang.get("No"));
 	listBoxTextures3D.pushBackItem(lang.get("Yes"));
-	listBoxTextures3D.setSelectedItemIndex(clamp(config.getInt("Textures3D"), 0, 1));
+	listBoxTextures3D.setSelectedItemIndex(clamp(config.getBool("Textures3D"), false, true));
 
 	//textures 3d
 	listBoxUnitParticles.pushBackItem(lang.get("No"));
@@ -268,7 +268,7 @@ void MenuStateOptions::saveConfig(){
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
 
 	config.setString("Filter", listBoxFilter.getSelectedItem());
-	config.setInt("Textures3D", listBoxTextures3D.getSelectedItemIndex());
+	config.setBool("Textures3D", listBoxTextures3D.getSelectedItemIndex());
 	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());

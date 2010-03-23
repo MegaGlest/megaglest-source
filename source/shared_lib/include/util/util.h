@@ -13,6 +13,7 @@
 #define _SHARED_UTIL_UTIL_H_
 
 #include <string>
+#include <fstream>
 
 using std::string;
 
@@ -20,6 +21,9 @@ namespace Shared{ namespace Util{
 
 class SystemFlags
 {
+protected:
+	
+	static std::ofstream fileStream;
 public:
 
     enum DebugType {
@@ -32,6 +36,7 @@ public:
     static const char *debugLogFile;
 
     static void OutputDebug(DebugType type, const char *fmt, ...);
+	static void Close();
 };
 
 const string sharedLibVersionString= "v0.4.1";
