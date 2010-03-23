@@ -103,6 +103,25 @@ NP_FINDLIB([OPENAL], [OpenAL], [OpenAL],
 		[AC_MSG_ERROR([Please intall OpenAL])],
 		[], [])
 
+NP_FINDLIB([JPEG], [LibJPEG], [LibJPEG],
+		NP_LANG_PROGRAM([
+		#include <stdio.h>
+		#include <sys/types.h>
+		#include <jpeglib.h>],
+			[jpeg_create_decompress(0);]),
+		[], [-ljpeg],
+		[],
+		[AC_MSG_ERROR([Please intall libjpeg])],
+		[], [])
+
+NP_FINDLIB([PNG], [LibPng], [LibPNG],
+		NP_LANG_PROGRAM([#include <png.h>],
+			[png_sig_cmp(0, 0, 8);]),
+		[], [-lpng],
+		[],
+		[AC_MSG_ERROR([Please intall libpng])],
+		[], [])
+
 CHECK_LUA([], [AC_MSG_ERROR([Please install lua 5.1])])
 
 AX_CHECK_GL

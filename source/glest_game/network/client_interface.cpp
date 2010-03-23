@@ -55,7 +55,7 @@ ClientInterface::~ClientInterface()
 
     if(clientSocket != NULL && clientSocket->isConnected() == true)
     {
-        string sQuitText = getHostName() + " has chosen to leave the game!";
+        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
     }
 
@@ -85,7 +85,7 @@ void ClientInterface::reset()
 {
     if(getSocket() != NULL)
     {
-        string sQuitText = getHostName() + " has chosen to leave the game!";
+        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }
@@ -554,7 +554,7 @@ void ClientInterface::quitGame(bool userManuallyQuit)
 
     if(clientSocket != NULL && userManuallyQuit == true)
     {
-        string sQuitText = getHostName() + " has chosen to leave the game!";
+        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }

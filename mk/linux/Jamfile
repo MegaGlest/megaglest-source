@@ -26,7 +26,7 @@ for i in $(LIB_DIRS) {
 }
 
 Library glestlib : $(LIB_SOURCES) ;
-ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
+ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
 IncludeDir glestlib : $(LIB_INCLUDE_DIRS) ;
 
 #### Game ####
@@ -55,7 +55,7 @@ for i in $(GLEST_DIRS) {
 
 Application glest.bin : $(GLEST_SOURCES) ;
 LinkWith glest.bin : glestlib ;
-ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA ;
+ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
 IncludeDir glest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
 #### Editor ####

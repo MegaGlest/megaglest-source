@@ -357,7 +357,7 @@ void ServerInterface::quitGame(bool userManuallyQuit)
 {
     if(userManuallyQuit == true)
     {
-        string sQuitText = getHostName() + " has chosen to leave the game!";
+        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         NetworkMessageText networkMessageText(sQuitText,getHostName(),-1);
         broadcastMessage(&networkMessageText, -1);
     }

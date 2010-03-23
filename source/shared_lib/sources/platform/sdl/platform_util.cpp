@@ -414,6 +414,15 @@ string extractDirectoryPathFromFile(string filename)
     return filename.substr( 0, filename.rfind("/")+1 );
 }
 
+string extractExtension(const string& filepath) {
+	size_t lastPoint = filepath.find_last_of('.');
+	size_t lastDirectory = filepath.find_last_of('/');
+	if (lastPoint == string::npos || (lastDirectory != string::npos && lastDirectory > lastPoint)) {
+		return "";
+	}
+	return filepath.substr(lastPoint+1);
+} 
+
 void createDirectoryPaths(string Path)
 {
  char DirName[256]="";

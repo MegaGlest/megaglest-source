@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -478,7 +478,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 void Game::eventMouseWheel(int x, int y, int zDelta) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
-	gameCamera.zoom((float)zDelta / 30.0f);
+	gameCamera.zoom((float)zDelta / 60.0f);
+	//gameCamera.setMoveY(1);
 }
 
 void Game::keyDown(char key){

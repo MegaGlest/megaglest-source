@@ -105,6 +105,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
 void createDirectoryPaths(string  Path);
 string extractDirectoryPathFromFile(string filename);
+string extractExtension(const string& filename);
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);

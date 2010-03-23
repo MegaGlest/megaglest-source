@@ -19,6 +19,12 @@
 #include "math_util.h"
 #include "random.h"
 #include "leak_dumper.h"
+#include "FileReader.h"
+
+//Readers
+#include "ImageReaders.h"
+
+
 
 using namespace Shared::Util;
 using namespace std;
@@ -460,59 +466,14 @@ Pixmap2D::~Pixmap2D(){
 	delete [] pixels;
 }
 
+Pixmap2D* Pixmap2D::loadPath(const string& path) {
+	return FileReader<Pixmap2D>::readPath(path);
+}
+
 void Pixmap2D::load(const string &path){
-	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="bmp"){
-		loadBmp(path);
-	}
-	else if(extension=="tga"){
-		loadTga(path);
-	}
-	else{
-		throw runtime_error("Unknown pixmap extension: "+extension);
-	}
+	FileReader<Pixmap2D>::readPath(path,this);
 }
 
-void Pixmap2D::loadBmp(const string &path){
-
-	PixmapIoBmp plb;
-	plb.openRead(path);
-
-	//init
-	w= plb.getW();
-	h= plb.getH();
-	if(components==-1){
-		components= 3;
-	}
-	if(pixels==NULL){
-		pixels= new uint8[w*h*components];
-	}
-
-	//data
-	plb.read(pixels, components);
-}
-
-void Pixmap2D::loadTga(const string &path){
-
-	PixmapIoTga plt;
-	plt.openRead(path);
-	w= plt.getW();
-	h= plt.getH();
-
-	//header
-	int fileComponents= plt.getComponents();
-
-	//init
-	if(components==-1){
-		components= fileComponents;
-	}
-	if(pixels==NULL){
-		pixels= new uint8[w*h*components];
-	}
-
-	//read data
-	plt.read(pixels, components);
-}
 
 void Pixmap2D::save(const string &path){
 	string extension= path.substr(path.find_last_of('.')+1);
@@ -865,12 +826,5 @@ void PixmapCube::loadFace(const string &path, int face){
 	faces[face].load(path);
 }
 
-void PixmapCube::loadFaceBmp(const string &path, int face){
-	faces[face].loadBmp(path);
-}
-
-void PixmapCube::loadFaceTga(const string &path, int face){
-	faces[face].loadTga(path);
-}
 
 }}//end namespace
