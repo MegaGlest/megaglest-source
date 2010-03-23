@@ -125,7 +125,11 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\${APNAME}"
   CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME}\Example2 (MakeNSISW).lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}_game.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0
+  
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}_config.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}_editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}_viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0
 
 SectionEnd
 
@@ -140,7 +144,6 @@ Section "Uninstall"
   DeleteRegKey HKLM SOFTWARE\${APNAME}
 
   ; Remove files and uninstaller
-  Delete $INSTDIR\example2.nsi
   Delete $INSTDIR\uninstall.exe
 
   Delete $INSTDIR\glest_game.exe
