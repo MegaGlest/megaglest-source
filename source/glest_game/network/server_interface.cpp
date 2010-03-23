@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -349,7 +349,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 }
 
 void ServerInterface::sendTextMessage(const string &text, int teamIndex){
-	NetworkMessageText networkMessageText(text, getHostName(), teamIndex);
+	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName"), teamIndex);
 	broadcastMessage(&networkMessageText);
 }
 

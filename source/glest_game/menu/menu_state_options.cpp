@@ -33,10 +33,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 {
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
+	activeInputLabel=NULL;
 
 	//create
-	buttonReturn.init(200, 150, 125);	
-	buttonAutoConfig.init(375, 150, 125);
+	buttonOk.init(200, 150, 100);	
+	buttonAbort.init(310, 150, 100);	
+	buttonAutoConfig.init(450, 150, 125);
 
 	//labels
 	labelVolumeFx.init(200, 530);
@@ -44,6 +46,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelVolumeMusic.init(200, 470);
 
 	labelLang.init(200, 400);
+	labelPlayerNameLabel.init(200,370);
+	labelPlayerName.init(350,370);
 	
 	labelFilter.init(200, 340);
 	labelShadows.init(200, 310);
@@ -66,9 +70,11 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxUnitParticles.init(350,220,80);
 	
 	//set text
-	buttonReturn.setText(lang.get("Return"));
+	buttonOk.setText(lang.get("Ok"));
+	buttonAbort.setText(lang.get("Abort"));
 	buttonAutoConfig.setText(lang.get("AutoConfig"));
 	labelLang.setText(lang.get("Language"));
+	labelPlayerNameLabel.setText(lang.get("Playername"));
 	labelShadows.setText(lang.get("Shadows"));
 	labelFilter.setText(lang.get("Filter"));
 	labelTextures3D.setText(lang.get("Textures3D"));
@@ -88,6 +94,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
+	
+	//playerName
+	labelPlayerName.setText(config.getString("NetPlayerName"));
 	
 	//shadows
 	for(int i= 0; i<Renderer::sCount; ++i){
@@ -127,16 +136,21 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeFx.setSelectedItem(intToStr(config.getInt("SoundVolumeFx")/5*5));
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
+	
 }
 
 void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 	Config &config= Config::getInstance();
-	Lang &lang= Lang::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(buttonReturn.mouseClick(x, y)){
+	if(buttonOk.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundA());
+		saveConfig();
+		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+    }  
+	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }  
@@ -145,54 +159,27 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		Renderer::getInstance().autoConfig();
 		saveConfig();
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+	}	
+	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
+			setActiveInputLable(&labelPlayerName);
 	}
-	else if(listBoxLang.mouseClick(x, y)){
-		config.setString("Lang", listBoxLang.getSelectedItem());
-		lang.loadStrings(config.getString("Lang"));
-		saveConfig();
-		mainMenu->setState(new MenuStateOptions(program, mainMenu));
-		
+	else
+	{
+		listBoxLang.mouseClick(x, y);
+		listBoxShadows.mouseClick(x, y);
+		listBoxFilter.mouseClick(x, y);
+		listBoxTextures3D.mouseClick(x, y);
+		listBoxUnitParticles.mouseClick(x, y);
+		listBoxLights.mouseClick(x, y);
+		listBoxVolumeFx.mouseClick(x, y);
+		listBoxVolumeAmbient.mouseClick(x, y);
+		listBoxVolumeMusic.mouseClick(x, y);
 	}
-	else if(listBoxShadows.mouseClick(x, y)){
-		int index= listBoxShadows.getSelectedItemIndex();
-		config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
-		saveConfig();
-	}
-	else if(listBoxFilter.mouseClick(x, y)){
-		config.setString("Filter", listBoxFilter.getSelectedItem());
-		saveConfig();
-	}
-	else if(listBoxTextures3D.mouseClick(x, y)){
-		config.setInt("Textures3D", listBoxTextures3D.getSelectedItemIndex());
-		saveConfig();
-	}
-	else if(listBoxUnitParticles.mouseClick(x, y)){
-		config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
-		saveConfig();
-	}
-	else if(listBoxLights.mouseClick(x, y)){
-		config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
-		saveConfig();
-	}
-	else if(listBoxVolumeFx.mouseClick(x, y)){
-		config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
-		saveConfig();
-	}
-	else if(listBoxVolumeAmbient.mouseClick(x, y)){
-		config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
-		saveConfig();
-	}
-	else if(listBoxVolumeMusic.mouseClick(x, y)){
-		CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
-		config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
-		saveConfig();
-	}
-
-
 }
 
 void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
-	buttonReturn.mouseMove(x, y);
+	buttonOk.mouseMove(x, y);
+	buttonAbort.mouseMove(x, y);
 	buttonAutoConfig.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
 	listBoxVolumeFx.mouseMove(x, y);
@@ -206,10 +193,41 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxLights.mouseMove(x, y);
 }
 
+void MenuStateOptions::keyDown(char key){
+	if(activeInputLabel!=NULL)
+	{
+		if(key==vkBack){
+			string text= activeInputLabel->getText();
+			if(text.size()>1){
+				text.erase(text.end()-2);
+			}
+			activeInputLabel->setText(text);
+		}
+	}
+}
+
+void MenuStateOptions::keyPress(char c){
+	if(activeInputLabel!=NULL)
+	{
+		int maxTextSize= 16;
+		if(&labelPlayerName==activeInputLabel){
+			if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
+				(c=='-')||(c=='(')||(c==')')){
+				if(activeInputLabel->getText().size()<maxTextSize){
+					string text= activeInputLabel->getText();
+					text.insert(text.end()-1, c);	
+					activeInputLabel->setText(text);
+				}
+			}
+		}	
+	}
+}
+
 void MenuStateOptions::render(){
 	Renderer &renderer= Renderer::getInstance();
 
-	renderer.renderButton(&buttonReturn);
+	renderer.renderButton(&buttonOk);
+	renderer.renderButton(&buttonAbort);
 	renderer.renderButton(&buttonAutoConfig);
 	renderer.renderListBox(&listBoxLang);
 	renderer.renderListBox(&listBoxShadows);
@@ -221,6 +239,8 @@ void MenuStateOptions::render(){
 	renderer.renderListBox(&listBoxVolumeAmbient);
 	renderer.renderListBox(&listBoxVolumeMusic);
 	renderer.renderLabel(&labelLang);
+	renderer.renderLabel(&labelPlayerNameLabel);
+	renderer.renderLabel(&labelPlayerName);
 	renderer.renderLabel(&labelShadows);
 	renderer.renderLabel(&labelTextures3D);
 	renderer.renderLabel(&labelUnitParticles);
@@ -233,10 +253,57 @@ void MenuStateOptions::render(){
 
 void MenuStateOptions::saveConfig(){
 	Config &config= Config::getInstance();
+	Lang &lang= Lang::getInstance();
+	setActiveInputLable(NULL);
+	
+	if(labelPlayerName.getText().length()>0)
+	{
+		config.setString("NetPlayerName", labelPlayerName.getText());
+	}
+	//Copy values
+	config.setString("Lang", listBoxLang.getSelectedItem());
+	lang.loadStrings(config.getString("Lang"));
+
+	int index= listBoxShadows.getSelectedItemIndex();
+	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
+
+	config.setString("Filter", listBoxFilter.getSelectedItem());
+	config.setInt("Textures3D", listBoxTextures3D.getSelectedItemIndex());
+	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
+	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
+	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
+	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
+	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
+	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 
 	config.save();
 	Renderer::getInstance().loadConfig();
 	SoundRenderer::getInstance().loadConfig();
+}
+
+void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable)
+{
+	if(newLable!=NULL){
+		string text= newLable->getText();
+		size_t found;
+		found=text.find_last_of("_");
+		if (found==string::npos)
+		{
+			text=text+"_";
+		}
+		newLable->setText(text);
+	}
+	if(activeInputLabel!=NULL && !activeInputLabel->getText().empty()){
+		string text= activeInputLabel->getText();
+		size_t found;
+		found=text.find_last_of("_");
+		if (found!=string::npos)
+		{
+			text=text.substr(0,found);
+		}
+		activeInputLabel->setText(text);
+	}
+	activeInputLabel=newLable;
 }
 
 }}//end namespace

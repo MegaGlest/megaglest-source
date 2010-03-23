@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -13,6 +13,7 @@
 
 #include "window.h"
 #include "console.h"
+#include "config.h"
 #include "network_manager.h"
 #include "lang.h"
 #include "util.h"
@@ -63,8 +64,9 @@ void ChatManager::keyDown(char key){
 
 			editEnabled= false;
 			if(!text.empty()){
-				console->addLine(gameNetworkInterface->getHostName() + ": " + text);
-				gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
+				console->addLine(Config::getInstance().getString("NetPlayerName") + ": " + text);
+				gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName")+": "+
+					text, teamMode? thisTeamIndex: -1);
 			}
 		}
 		else{
@@ -93,6 +95,7 @@ void ChatManager::updateNetwork()
 	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 	string text;
 	string sender;
+	Config &config= Config::getInstance();
 
 	if(!gameNetworkInterface->getChatText().empty())
 	{
@@ -101,7 +104,7 @@ void ChatManager::updateNetwork()
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,gameNetworkInterface->getChatText().c_str(),teamIndex);
 
 		if(teamIndex==-1 || teamIndex==thisTeamIndex){
-			console->addLine(gameNetworkInterface->getChatSender()+": "+gameNetworkInterface->getChatText(), true);
+			console->addLine(gameNetworkInterface->getChatText(), true);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 		}
