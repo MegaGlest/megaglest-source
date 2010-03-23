@@ -32,6 +32,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 string debugLogFile = "";
+bool gameInitialized = false;
 
 // =====================================================
 // 	class ExceptionHandler
@@ -44,7 +45,7 @@ public:
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
         Program *program = Program::getInstance();
-        if(program) {
+        if(program && gameInitialized == true) {
 			//SystemFlags::Close();
             program->showMessage(msg.c_str());
         }
@@ -56,7 +57,7 @@ public:
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 
 		Program *program = Program::getInstance();
-        if(program) {
+        if(program && gameInitialized == true) {
 			//SystemFlags::Close();
             program->showMessage(msg);
         }
@@ -71,7 +72,7 @@ public:
 	static int DisplayMessage(const char *msg, bool exitApp) {
 
         Program *program = Program::getInstance();
-        if(program) {
+        if(program && gameInitialized == true) {
             program->showMessage(msg);
         }
         else {
@@ -213,6 +214,7 @@ int glestMain(int argc, char** argv){
         //throw runtime_error("test!");
         //ExceptionHandler::DisplayMessage("test!", false);
 
+		gameInitialized = true;
 		//main loop
 		while(Window::handleEvent()){
 			program->loop();
