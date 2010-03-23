@@ -49,11 +49,11 @@ Program *Program::singleton = NULL;
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
     userWantsExit = false;
 	msgBox.init("Ok");
 
-	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(msg) {
 		fprintf(stderr, "%s\n", msg);
@@ -61,12 +61,12 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 	} else {
 		msgBox.setText("Mega-Glest has crashed.");
 	}
-	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mouse2dAnim = mouseY = mouseX = 0;
 	this->msg = (msg ? msg : "");
 
-	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::ShowMessageProgramState::render() {
@@ -79,16 +79,16 @@ void Program::ShowMessageProgramState::render() {
 }
 
 void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(msgBox.mouseClick(x,y)) {
 
-	    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
 		userWantsExit = true;
 	}
 
-	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::ShowMessageProgramState::mouseMove(int x, int y, const MouseState &mouseState) {
@@ -162,6 +162,17 @@ void Program::mouseDoubleClickLeft(int x, int y){
 	programState->mouseDoubleClickLeft(metrics.toVirtualX(x), metrics.toVirtualY(y));
 }
 
+void Program::eventMouseWheel(int x, int y, int zDelta) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    const Metrics &metrics= Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(window->getH() - y);
+
+    programState->eventMouseWheel(vx, vy, zDelta);
+}
+
+
 void Program::mouseMove(int x, int y, const MouseState *ms){
 	const Metrics &metrics= Metrics::getInstance();
 	programState->mouseMove(metrics.toVirtualX(x), metrics.toVirtualY(y), ms);
@@ -223,35 +234,35 @@ void Program::resize(SizeState sizeState){
 void Program::setState(ProgramState *programState)
 {
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete this->programState;
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->programState= programState;
 	programState->load();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	programState->init();
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	updateTimer.reset();
 	updateCameraTimer.reset();
 	fpsTimer.reset();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Program::exit() {
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	window->destroy();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
@@ -349,7 +360,7 @@ void Program::restoreDisplaySettings(){
 }
 
 void Program::showMessage(const char *msg) {
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *originalState = NULL;
     if(this->programState) {
@@ -357,7 +368,7 @@ void Program::showMessage(const char *msg) {
         originalState = this->programState;
     }
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     showCursor(true);
 
@@ -368,18 +379,18 @@ void Program::showMessage(const char *msg) {
     this->programState = NULL;
     setState(showMsg);
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     while(Window::handleEvent() && showMsg->wantExit() == false) {
         loop();
     }
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     delete this->programState;
 	this->programState = NULL;
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	showCursor(Config::getInstance().getBool("Windowed"));
 
@@ -387,20 +398,20 @@ void Program::showMessage(const char *msg) {
 	init(this->window,false);
     //setState(originalState);
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete this->programState;
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->programState= originalState;
 	//programState->load();
 
-	//if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//programState->init();
 
-    //if(Socket::enableDebugText) printf("In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//updateTimer.reset();
 	//updateCameraTimer.reset();
@@ -409,7 +420,7 @@ void Program::showMessage(const char *msg) {
 
 	//this->programState = originalState;
 
-    //if(Socket::enableDebugText) printf("In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 

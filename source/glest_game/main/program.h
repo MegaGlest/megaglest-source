@@ -56,6 +56,7 @@ public:
 	virtual void mouseUpLeft(int x, int y){};
 	virtual void mouseDownRight(int x, int y){};
 	virtual void mouseDoubleClickLeft(int x, int y){};
+	virtual void eventMouseWheel(int x, int y, int zDelta){}
 	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
 	virtual void keyDown(char key){};
 	virtual void keyUp(char key){};
@@ -114,6 +115,8 @@ public:
     void mouseUpLeft(int x, int y);
     void mouseDownRight(int x, int y);
     void mouseDoubleClickLeft(int x, int y);
+    void eventMouseWheel(int x, int y, int zDelta);
+
     void mouseMove(int x, int y, const MouseState *mouseState);
     void keyDown(char key);
     void keyUp(char key);

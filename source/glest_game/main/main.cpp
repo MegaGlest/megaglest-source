@@ -90,16 +90,22 @@ MainWindow::~MainWindow(){
 	delete program;
 }
 
+void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    program->eventMouseWheel(x, y, zDelta);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 	switch(mouseButton){
-	case mbLeft:
-		program->mouseDownLeft(x, getH() - y);
-		break;
-	case mbRight:
-		program->mouseDownRight(x, getH() - y);
-		break;
-	default:
-		break;
+        case mbLeft:
+            program->mouseDownLeft(x, getH() - y);
+            break;
+        case mbRight:
+            program->mouseDownRight(x, getH() - y);
+            break;
+        default:
+            break;
 	}
 }
 

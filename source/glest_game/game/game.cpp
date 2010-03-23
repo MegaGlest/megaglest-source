@@ -42,6 +42,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program)
 {
 	this->gameSettings= *gameSettings;
+	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 
 	mouseX=0;
 	mouseY=0;
@@ -415,49 +416,69 @@ void Game::mouseDoubleClickLeft(int x, int y){
 
 void Game::mouseMove(int x, int y, const MouseState *ms){
 
-	const Metrics &metrics= Metrics::getInstance();
+	const Metrics &metrics = Metrics::getInstance();
 
-    mouseX= x;
-    mouseY= y;
+	mouseX = x;
+	mouseY = y;
 
-    //main window
-	if(y<10){
-        gameCamera.setMoveZ(-1);
-	}
-	else if(y> metrics.getVirtualH()-10){
-        gameCamera.setMoveZ(1);
-	}
-	else{
-        gameCamera.stopMoveZ();
+    /*
+	if (ms.get(mbCenter)) {
+		if (input.isCtrlDown()) {
+			float speed = input.isShiftDown() ? 1.f : 0.125f;
+			float response = input.isShiftDown() ? 0.1875f : 0.0625f;
+			gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
+			gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
+		} else {
+			//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
+			//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
+			float ymult = 0.2f;
+			float xmult = 0.2f;
+
+			gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+		}
+	} else */
+	{
+		//main window
+		if (y < 10) {
+			gameCamera.setMoveZ(-scrollSpeed);
+		} else if (y > metrics.getVirtualH() - 10) {
+			gameCamera.setMoveZ(scrollSpeed);
+		} else {
+			gameCamera.setMoveZ(0);
+		}
+
+		if (x < 10) {
+			gameCamera.setMoveX(-scrollSpeed);
+		} else if (x > metrics.getVirtualW() - 10) {
+			gameCamera.setMoveX(scrollSpeed);
+		} else {
+			gameCamera.setMoveX(0);
+		}
+
+		if (mainMessageBox.getEnabled()) {
+			mainMessageBox.mouseMove(x, y);
+		} else if (ScriptManager::getMessageBox()->getEnabled()) {
+			ScriptManager::getMessageBox()->mouseMove(x, y);
+		//} else if (saveBox) {
+		//	saveBox->mouseMove(x, y);
+		} else {
+			//graphics
+			gui.mouseMoveGraphics(x, y);
+		}
 	}
 
-	if(x<10){
-        gameCamera.setMoveX(-1);
-	}
-	else if(x> metrics.getVirtualW()-10){
-        gameCamera.setMoveX(1);
-	}
-	else{
-        gameCamera.stopMoveX();
-	}
-
-	if(mainMessageBox.getEnabled()){
-		mainMessageBox.mouseMove(x, y);
-	}
-
-	if(scriptManager.getMessageBox()->getEnabled()){
-		scriptManager.getMessageBox()->mouseMove(x, y);
-	}
-
-    //graphics
-    gui.mouseMoveGraphics(x, y);
-
-    //display
-    if(metrics.isInDisplay(x, y) && !gui.isSelecting() && !gui.isSelectingPos()){
-        if(!gui.isSelectingPos()){
+	//display
+	if (metrics.isInDisplay(x, y) && !gui.isSelecting() && !gui.isSelectingPos()) {
+		if (!gui.isSelectingPos()) {
 			gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
-	    }
-    }
+		}
+	}
+}
+
+void Game::eventMouseWheel(int x, int y, int zDelta) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
+	gameCamera.zoom((float)zDelta / 30.0f);
 }
 
 void Game::keyDown(char key){
@@ -595,17 +616,17 @@ void Game::keyUp(char key){
 
 		case 'W':
 		case 'S':
-			gameCamera.stopMoveY();
+			gameCamera.setMoveY(0);
 			break;
 
 		case vkUp:
 		case vkDown:
-			gameCamera.stopMoveZ();
+			gameCamera.setMoveZ(0);
 			break;
 
 		case vkLeft:
 		case vkRight:
-			gameCamera.stopMoveX();
+			gameCamera.setMoveX(0);
 			break;
 		}
 	}
