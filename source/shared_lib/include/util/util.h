@@ -29,6 +29,7 @@ public:
 
     static bool enableDebugText;
     static bool enableNetworkDebugInfo;
+    static const char *debugLogFile;
 
     static void OutputDebug(DebugType type, const char *fmt, ...);
 };

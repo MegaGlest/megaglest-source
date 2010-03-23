@@ -402,6 +402,12 @@ when they are issued a command"/>
 					<enum value="false"/>
 				</enums>
 			</field>
+			<field type="String">
+				<name value="Debug LogFile"/>
+				<variable-name value="DebugLogFile"/>
+				<description value="Debug LogFile to save debug output"/>
+				<default value=""/>
+			</field>
 			<field type="IntRange">
 				<name value="AI log"/>
 				<variable-name value="AiLog"/>

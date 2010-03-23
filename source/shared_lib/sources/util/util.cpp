@@ -17,6 +17,7 @@
 #include <cstring>
 #include <cstdio>
 #include <stdarg.h>
+#include <fstream>
 
 #include "leak_dumper.h"
 
@@ -27,6 +28,7 @@ namespace Shared{ namespace Util{
 
 bool SystemFlags::enableDebugText           = false;
 bool SystemFlags::enableNetworkDebugInfo    = false;
+const char * SystemFlags::debugLogFile            = NULL;
 
 void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
     if((type == debugSystem && SystemFlags::enableDebugText == false) ||
@@ -37,7 +39,27 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
     va_list argList;
     va_start(argList, fmt);
 
-    vprintf(fmt, argList);
+    // Either output to a logfile or
+    if(SystemFlags::debugLogFile != NULL && SystemFlags::debugLogFile[0] != 0) {
+        static ofstream fileStream;
+        if(fileStream.is_open() == false) {
+            printf("Opening logfile [%s]\n",SystemFlags::debugLogFile);
+            fileStream.open(SystemFlags::debugLogFile, ios_base::out | ios_base::trunc);
+        }
+
+        //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
+
+        char szBuf[1024]="";
+        vsprintf(szBuf,fmt, argList);
+
+        //printf("writing to logfile [%s]\n",szBuf);
+        fileStream << szBuf;
+        fileStream.flush();
+    }
+    // output to console
+    else {
+        vprintf(fmt, argList);
+    }
 
     va_end(argList);
 }

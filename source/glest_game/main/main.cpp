@@ -167,6 +167,7 @@ int glestMain(int argc, char** argv){
 	Program *program= NULL;
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
+	string debugLogFile = "";
 
 	try{
 		Config &config = Config::getInstance();
@@ -175,6 +176,11 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","0");
 		SystemFlags::enableDebugText = config.getBool("DebugMode","0");
+		debugLogFile = config.getString("DebugLogFile","");
+        if(getGameReadWritePath() != "") {
+            debugLogFile = getGameReadWritePath() + debugLogFile;
+        }
+		SystemFlags::debugLogFile = debugLogFile.c_str();
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
