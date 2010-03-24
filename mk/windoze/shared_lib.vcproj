@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;NO_GL_ASSERTIONS;USE_PCH=1"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -113,7 +113,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -168,6 +168,10 @@
 				Name="graphics"
 				>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\BMPReader.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\buffer.cpp"
 					>
 				</File>
@@ -177,6 +181,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\context.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\FileReader.cpp"
 					>
 				</File>
 				<File
@@ -192,7 +200,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\ImageReaders.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\interpolation.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\JPGReader.cpp"
 					>
 				</File>
 				<File
@@ -209,6 +225,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\pixmap.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\PNGReader.cpp"
 					>
 				</File>
 				<File
@@ -229,6 +249,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\texture_manager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\graphics\TGAReader.cpp"
 					>
 				</File>
 				<Filter
