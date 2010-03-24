@@ -119,18 +119,10 @@ public:
 	void initClient(WindowGl *window, const Ip &serverIp);
 
 	//main
-    void mouseDownLeft(int x, int y);
-    void mouseUpLeft(int x, int y);
-    void mouseDownRight(int x, int y);
-    void mouseDoubleClickLeft(int x, int y);
-    void eventMouseWheel(int x, int y, int zDelta);
-
-	void eventMouseDown(int x, int y, MouseButton mouseButton);
-
-    void mouseMove(int x, int y, const MouseState *mouseState);
     void keyDown(char key);
     void keyUp(char key);
     void keyPress(char c);
+
 	void loop();
 	void resize(SizeState sizeState);
 	void showMessage(const char *msg);

@@ -83,7 +83,7 @@ private:
 
 	//misc
 	MessageQueue messageQueue;
-	static GraphicMessageBox messageBox;
+	GraphicMessageBox messageBox;
 	string displayText;
 
 	//last created unit
@@ -110,7 +110,7 @@ public:
 
 	//message box functions
 	bool getMessageBoxEnabled() const									{return !messageQueue.empty();}
-	static GraphicMessageBox* getMessageBox()									{return &messageBox;}
+	GraphicMessageBox* getMessageBox()									{return &messageBox;}
 	string getDisplayText() const										{return displayText;}
 	bool getGameOver() const											{return gameOver;}
 	const PlayerModifiers *getPlayerModifiers(int factionIndex) const	{return &playerModifiers[factionIndex];}

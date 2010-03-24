@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -415,19 +415,18 @@ void Game::mouseDoubleClickLeft(int x, int y){
 }
 
 void Game::mouseMove(int x, int y, const MouseState *ms){
-
 	const Metrics &metrics = Metrics::getInstance();
 
 	mouseX = x;
 	mouseY = y;
 
  	if (ms->get(mbCenter)) {
-		/*if (input.isCtrlDown()) {
-			float speed = input.isShiftDown() ? 1.f : 0.125f;
-			float response = input.isShiftDown() ? 0.1875f : 0.0625f;
-			gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
-			gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
-		} else*/
+		//if (input.isCtrlDown()) {
+		//	float speed = input.isShiftDown() ? 1.f : 0.125f;
+		//	float response = input.isShiftDown() ? 0.1875f : 0.0625f;
+		//	gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
+		//	gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
+		//} else
         {
 			//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
 			//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
@@ -441,30 +440,36 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 		//main window
 		if (y < 10) {
 			gameCamera.setMoveZ(-scrollSpeed);
-		} else if (y > metrics.getVirtualH() - 10) {
+		}
+		else if (y > metrics.getVirtualH() - 10) {
 			gameCamera.setMoveZ(scrollSpeed);
-		} else {
+		}
+		else {
 			gameCamera.setMoveZ(0);
 		}
 
 		if (x < 10) {
 			gameCamera.setMoveX(-scrollSpeed);
-		} else if (x > metrics.getVirtualW() - 10) {
+		}
+		else if (x > metrics.getVirtualW() - 10) {
 			gameCamera.setMoveX(scrollSpeed);
-		} else {
+		}
+		else {
 			gameCamera.setMoveX(0);
 		}
 
 		if (mainMessageBox.getEnabled()) {
 			mainMessageBox.mouseMove(x, y);
-		} else if (ScriptManager::getMessageBox()->getEnabled()) {
-			ScriptManager::getMessageBox()->mouseMove(x, y);
-		//} else if (saveBox) {
-		//	saveBox->mouseMove(x, y);
-		} else {
-			//graphics
-			gui.mouseMoveGraphics(x, y);
 		}
+	    if (scriptManager.getMessageBox()->getEnabled()) {
+			scriptManager.getMessageBox()->mouseMove(x, y);
+		}
+		//else if (saveBox) {
+		//	saveBox->mouseMove(x, y);
+		//} else {
+		//	//graphics
+		gui.mouseMoveGraphics(x, y);
+		//}
 	}
 
 	//display

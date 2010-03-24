@@ -34,9 +34,6 @@ PlayerModifiers::PlayerModifiers(){
 // =====================================================
 //	class ScriptManager
 // =====================================================
-
-GraphicMessageBox	ScriptManager::messageBox;
-
 ScriptManager* ScriptManager::thisScriptManager= NULL;
 const int ScriptManager::messageWrapCount= 30;
 const int ScriptManager::displayTextWrapCount= 64;

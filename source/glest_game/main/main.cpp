@@ -125,19 +125,6 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     default:
         break;
     }
-
-    /*
-	switch(mouseButton){
-        case mbLeft:
-            program->mouseDownLeft(x, getH() - y);
-            break;
-        case mbRight:
-            program->mouseDownRight(x, getH() - y);
-            break;
-        default:
-            break;
-	}
-	*/
 }
 
 void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
@@ -161,12 +148,6 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
     default:
         break;
     }
-
-	/*
-	if(mouseButton==mbLeft){
-		program->mouseUpLeft(x, getH() - y);
-	}
-	*/
 }
 
 void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
@@ -190,12 +171,6 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
     default:
         break;
     }
-
-/*
-	if(mouseButton == mbLeft){
-		program->mouseDoubleClickLeft(x,  getH() - y);
-	}
-*/
 }
 
 void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
@@ -206,8 +181,6 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
 
     ProgramState *programState = program->getState();
     programState->mouseMove(vx, vy, ms);
-
-	//program->mouseMove(x, getH() - y, ms);
 }
 
 void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
@@ -222,10 +195,6 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	programState->eventMouseWheel(vx, vy, zDelta);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    //program->eventMouseWheel(x, y, zDelta);
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyDown(char key){
@@ -285,6 +254,7 @@ int glestMain(int argc, char** argv){
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
 		showCursor(config.getBool("Windowed"));
+		//showCursor(false);
 
 		program= new Program();
 		mainWindow= new MainWindow(program);

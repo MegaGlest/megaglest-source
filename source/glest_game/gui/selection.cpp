@@ -1,11 +1,11 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -26,7 +26,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 void Selection::init(Gui *gui, int factionIndex){
-	this->factionIndex= factionIndex;	
+	this->factionIndex= factionIndex;
 	this->gui= gui;
 }
 
@@ -41,7 +41,7 @@ void Selection::select(Unit *unit){
 		return;
 	}
 
-	//check if already selected 
+	//check if already selected
 	for(int i=0; i<selectedUnits.size(); ++i){
 		if(selectedUnits[i]==unit){
 			return;
@@ -79,7 +79,7 @@ void Selection::select(Unit *unit){
 }
 
 void Selection::select(const UnitContainer &units){
-	
+
 	//add units to gui
 	for(UnitIterator it= units.begin(); it!=units.end(); ++it){
 		select(*it);
@@ -87,7 +87,7 @@ void Selection::select(const UnitContainer &units){
 }
 
 void Selection::unSelect(const UnitContainer &units){
-	
+
 	//add units to gui
 	for(UnitIterator it= units.begin(); it!=units.end(); ++it){
 		for(int i=0; i<selectedUnits.size(); ++i){
@@ -104,7 +104,7 @@ void Selection::unSelect(int i){
 	gui->onSelectionChanged();
 }
 
-void Selection::clear(){   
+void Selection::clear(){
 	//clear list
 	selectedUnits.clear();
 }
@@ -127,17 +127,17 @@ bool Selection::isUniform() const{
 bool Selection::isEnemy() const{
 	return selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex()!=factionIndex;
 }
-	
+
 bool Selection::isComandable() const{
-	return 
-		!isEmpty() && 
-		!isEnemy() && 
+	return
+		!isEmpty() &&
+		!isEnemy() &&
 		!(selectedUnits.size()==1 && !selectedUnits.front()->isOperative());
 }
 
 bool Selection::isCancelable() const{
-	return 
-		selectedUnits.size()>1 || 
+	return
+		selectedUnits.size()>1 ||
 		(selectedUnits.size()==1 && selectedUnits[0]->anyCommand());
 }
 
@@ -204,4 +204,4 @@ void Selection::unitEvent(UnitObserver::Event event, const Unit *unit){
 	}
 }
 
-}}//end namespace 
+}}//end namespace
