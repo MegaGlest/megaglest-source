@@ -17,7 +17,9 @@
 #include "window_gl.h"
 #include "socket.h"
 #include "components.h"
+#include "window.h"
 
+using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;
 using Shared::Platform::WindowGl;
 using Shared::Platform::SizeState;
@@ -54,8 +56,13 @@ public:
 	virtual void end(){};
 	virtual void mouseDownLeft(int x, int y){};
 	virtual void mouseUpLeft(int x, int y){};
+	virtual void mouseUpRight(int x, int y){}
+	virtual void mouseUpCenter(int x, int y){}
 	virtual void mouseDownRight(int x, int y){};
+	virtual void mouseDownCenter(int x, int y){}
 	virtual void mouseDoubleClickLeft(int x, int y){};
+	virtual void mouseDoubleClickRight(int x, int y){}
+	virtual void mouseDoubleClickCenter(int x, int y){}
 	virtual void eventMouseWheel(int x, int y, int zDelta){}
 	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
 	virtual void keyDown(char key){};
@@ -118,6 +125,8 @@ public:
     void mouseDoubleClickLeft(int x, int y);
     void eventMouseWheel(int x, int y, int zDelta);
 
+	void eventMouseDown(int x, int y, MouseButton mouseButton);
+
     void mouseMove(int x, int y, const MouseState *mouseState);
     void keyDown(char key);
     void keyUp(char key);
@@ -128,6 +137,7 @@ public:
 
 	//misc
 	void setState(ProgramState *programState);
+	ProgramState * getState() { return programState;}
 	void exit();
 
 private:

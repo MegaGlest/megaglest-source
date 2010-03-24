@@ -32,14 +32,22 @@ namespace Shared{ namespace Platform{
 
 // Matze: hack for now...
 static Window* global_window = 0;
+unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+Vec2i Window::mousePos;
+MouseState Window::mouseState;
+
 
 // ========== PUBLIC ==========
 
-Window::Window() {
+Window::Window()  {
 	memset(lastMouseDown, 0, sizeof(lastMouseDown));
 
 	assert(global_window == 0);
 	global_window = this;
+
+	lastMouseEvent = 0;
+	mousePos = Vec2i(0);
+	mouseState.clear();
 }
 
 Window::~Window() {
@@ -53,33 +61,55 @@ bool Window::handleEvent() {
 		try {
 		    //printf("START [%d]\n",event.type);
 
+            switch(event.type) {
+                case SDL_MOUSEBUTTONDOWN:
+                case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEMOTION:
+
+                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    setLastMouseEvent(Chrono::getCurMillis());
+                    setMousePos(Vec2i(event.button.x, event.button.y));
+                    break;
+            }
+
 			switch(event.type) {
 				case SDL_QUIT:
+                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					return false;
 				case SDL_MOUSEBUTTONDOWN:
+                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
                     if(global_window) {
                         global_window->handleMouseDown(event);
                     }
 					break;
 				case SDL_MOUSEBUTTONUP: {
+				    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 				    if(global_window) {
+                        MouseButton b = getMouseButton(event.button.button);
+                        setMouseState(b, false);
+
                         global_window->eventMouseUp(event.button.x,
 							event.button.y,getMouseButton(event.button.button));
 				    }
 					break;
 				}
 				case SDL_MOUSEMOTION: {
-					MouseState ms;
-					ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
-					ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
-					ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
+				    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					//MouseState ms;
+					//ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
+					//ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
+					//ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
+                    setMouseState(mbLeft, event.motion.state & SDL_BUTTON_LMASK);
+                    setMouseState(mbRight, event.motion.state & SDL_BUTTON_RMASK);
+                    setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
 
 					if(global_window) {
-                        global_window->eventMouseMove(event.motion.x, event.motion.y, &ms);
+                        global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
 					}
 					break;
 				}
 				case SDL_KEYDOWN:
+                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -91,6 +121,7 @@ bool Window::handleEvent() {
 					}
 					break;
 				case SDL_KEYUP:
+                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
                     if(global_window) {
                         global_window->eventKeyUp(getKey(event.key.keysym));
                     }

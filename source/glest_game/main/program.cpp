@@ -155,6 +155,26 @@ Program::~Program(){
 	singleton = NULL;
 }
 
+void Program::eventMouseDown(int x, int y, MouseButton mouseButton) {
+    const Metrics &metrics = Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(window->getH() - y);
+
+    switch(mouseButton) {
+    case mbLeft:
+        programState->mouseDownLeft(vx, vy);
+        break;
+    case mbRight:
+        programState->mouseDownRight(vx, vy);
+        break;
+    case mbCenter:
+        programState->mouseDownCenter(vx, vy);
+        break;
+    default:
+        break;
+    }
+}
+
 void Program::mouseDownLeft(int x, int y){
 	const Metrics &metrics= Metrics::getInstance();
 	programState->mouseDownLeft(metrics.toVirtualX(x), metrics.toVirtualY(y));

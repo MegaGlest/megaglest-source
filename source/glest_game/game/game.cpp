@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 // ===================== PUBLIC ========================
 
 Game::Game(Program *program, const GameSettings *gameSettings):
-	ProgramState(program)
+	ProgramState(program), lastMousePos(0)
 {
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
@@ -421,14 +421,14 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 	mouseX = x;
 	mouseY = y;
 
-    /*
-	if (ms.get(mbCenter)) {
-		if (input.isCtrlDown()) {
+ 	if (ms->get(mbCenter)) {
+		/*if (input.isCtrlDown()) {
 			float speed = input.isShiftDown() ? 1.f : 0.125f;
 			float response = input.isShiftDown() ? 0.1875f : 0.0625f;
 			gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
 			gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
-		} else {
+		} else*/
+        {
 			//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
 			//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
 			float ymult = 0.2f;
@@ -436,8 +436,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 
 			gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 		}
-	} else */
-	{
+	}
+	else {
 		//main window
 		if (y < 10) {
 			gameCamera.setMoveZ(-scrollSpeed);
@@ -473,6 +473,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 			gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
 		}
 	}
+
+	lastMousePos.x = x;
+	lastMousePos.y = y;
 }
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {

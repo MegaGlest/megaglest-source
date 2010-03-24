@@ -69,6 +69,9 @@ public:
 	int64 getMillis() const;
 	int64 getSeconds() const;
 
+    static int64 getCurTicks();
+    static int64 getCurMillis();
+
 private:
 	int64 queryCounter(int multiplier) const;
 };

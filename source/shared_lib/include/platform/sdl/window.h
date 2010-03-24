@@ -1,4 +1,5 @@
 // ==============================================================
+// ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
 //	Copyright (C) 2005 Matthias Braun <matze@braunis.de>
@@ -15,24 +16,31 @@
 #include <map>
 #include <string>
 #include <SDL.h>
+#include <cassert>
 
 #include "types.h"
+#include "vec.h"
 
 using std::map;
 using std::string;
+using Shared::Graphics::Vec2i;
 
 namespace Shared{ namespace Platform{
 
 class Timer;
 class PlatformContextGl;
 
-enum MouseButton{
+enum MouseButton {
+	mbUnknown,
 	mbLeft,
-	mbRight,
 	mbCenter,
+	mbRight,
 	mbWheelUp,
-	mbWheelDown
+	mbWheelDown,
+	mbButtonX1,
+	mbButtonX2,
 
+	mbCount
 };
 
 enum SizeState{
@@ -40,6 +48,31 @@ enum SizeState{
 	ssMinimized,
 	ssRestored
 };
+
+class MouseState {
+private:
+	bool states[mbCount];
+
+
+public:
+	MouseState() {
+		clear();
+	}
+	//MouseState(const MouseState &);
+	//MouseState &operator=(const MouseState &);
+	void clear() { memset(this, 0, sizeof(MouseState)); }
+
+	bool get(MouseButton b) const {
+		assert(b > 0 && b < mbCount);
+		return states[b];
+	}
+
+	void set(MouseButton b, bool state) {
+		assert(b > 0 && b < mbCount);
+		states[b] = state;
+	}
+};
+
 
 // keycode constants (unfortunately designed after DirectInput and therefore not
 // very specific)
@@ -59,11 +92,13 @@ const char vkDown = -10;
 const char vkReturn = -11;
 const char vkBack = -12;
 
+/*
 struct MouseState{
 	bool leftMouse;
 	bool rightMouse;
 	bool centerMouse;
 };
+*/
 
 enum WindowStyle{
 	wsFullscreen,
@@ -80,6 +115,19 @@ private:
 	Uint32 lastMouseDown[3];
 	int lastMouseX[3];
 	int lastMouseY[3];
+
+    static unsigned int lastMouseEvent;	/** for use in mouse hover calculations */
+    static MouseState mouseState;
+    static Vec2i mousePos;
+
+    static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
+    static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
+
+    static const MouseState &getMouseState() 				    {return Window::mouseState;}
+    static void setMouseState(MouseButton b, bool state)		{Window::mouseState.set(b, state);}
+
+    static const Vec2i &getMousePos() 					        {return Window::mousePos;}
+    static void setMousePos(const Vec2i &mousePos)				{Window::mousePos = mousePos;}
 
 protected:
 	int w, h;

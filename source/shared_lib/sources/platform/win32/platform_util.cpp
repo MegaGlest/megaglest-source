@@ -116,6 +116,15 @@ int64 Chrono::queryCounter(int multiplier) const{
 	}
 }
 
+int64 Chrono::getCurMillis() {
+    return getCurTicks() * 1000 / freq;
+}
+int64 Chrono::getCurTicks() {
+		int64 now;
+		QueryPerformanceCounter((LARGE_INTEGER*) &now);
+		return now;
+}
+
 // =====================================================
 //	class PlatformExceptionHandler
 // =====================================================

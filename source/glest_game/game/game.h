@@ -75,6 +75,7 @@ private:
 	//misc ptr
 	ParticleSystem *weatherParticleSystem;
 	GameSettings gameSettings;
+	Vec2i lastMousePos;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);

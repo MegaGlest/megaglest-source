@@ -115,6 +115,13 @@ int64 Chrono::queryCounter(int multiplier) const {
 	}
 }
 
+int64 Chrono::getCurMillis() {
+    return SDL_GetTicks();
+}
+int64 Chrono::getCurTicks() {
+    return SDL_GetTicks();
+}
+
 // =====================================
 //         Misc
 // =====================================

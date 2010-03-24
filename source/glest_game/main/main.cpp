@@ -102,13 +102,29 @@ MainWindow::~MainWindow(){
 	delete program;
 }
 
-void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    program->eventMouseWheel(x, y, zDelta);
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
+
+    const Metrics &metrics = Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(getH() - y);
+
+    ProgramState *programState = program->getState();
+
+    switch(mouseButton) {
+    case mbLeft:
+        programState->mouseDownLeft(vx, vy);
+        break;
+    case mbRight:
+        programState->mouseDownRight(vx, vy);
+        break;
+    case mbCenter:
+        programState->mouseDownCenter(vx, vy);
+        break;
+    default:
+        break;
+    }
+
+    /*
 	switch(mouseButton){
         case mbLeft:
             program->mouseDownLeft(x, getH() - y);
@@ -119,22 +135,95 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
         default:
             break;
 	}
+	*/
 }
 
 void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
+
+    const Metrics &metrics = Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(getH() - y);
+
+    ProgramState *programState = program->getState();
+
+    switch(mouseButton) {
+    case mbLeft:
+        programState->mouseUpLeft(vx, vy);
+        break;
+    case mbRight:
+        programState->mouseUpRight(vx, vy);
+        break;
+    case mbCenter:
+        programState->mouseUpCenter(vx, vy);
+        break;
+    default:
+        break;
+    }
+
+	/*
 	if(mouseButton==mbLeft){
 		program->mouseUpLeft(x, getH() - y);
 	}
+	*/
 }
 
 void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
+
+    const Metrics &metrics= Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(getH() - y);
+
+    ProgramState *programState = program->getState();
+
+    switch(mouseButton){
+    case mbLeft:
+        programState->mouseDoubleClickLeft(vx, vy);
+        break;
+    case mbRight:
+        programState->mouseDoubleClickRight(vx, vy);
+        break;
+    case mbCenter:
+        programState->mouseDoubleClickCenter(vx, vy);
+        break;
+    default:
+        break;
+    }
+
+/*
 	if(mouseButton == mbLeft){
 		program->mouseDoubleClickLeft(x,  getH() - y);
 	}
+*/
 }
 
 void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
-	program->mouseMove(x, getH() - y, ms);
+
+    const Metrics &metrics= Metrics::getInstance();
+    int vx = metrics.toVirtualX(x);
+    int vy = metrics.toVirtualY(getH() - y);
+
+    ProgramState *programState = program->getState();
+    programState->mouseMove(vx, vy, ms);
+
+	//program->mouseMove(x, getH() - y, ms);
+}
+
+void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	const Metrics &metrics= Metrics::getInstance();
+	int vx = metrics.toVirtualX(x);
+	int vy = metrics.toVirtualY(getH() - y);
+
+    ProgramState *programState = program->getState();
+	programState->eventMouseWheel(vx, vy, zDelta);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //program->eventMouseWheel(x, y, zDelta);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyDown(char key){
