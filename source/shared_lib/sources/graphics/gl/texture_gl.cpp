@@ -15,6 +15,7 @@
 
 #include "opengl.h"
 #include "leak_dumper.h"
+#include <iostream>
 
 using namespace std;
 
@@ -47,6 +48,7 @@ GLint toFormatGl(Texture::Format format, int components){
 		case 4:
 			return GL_RGBA;
 		default:
+			std::cerr << "Components = " << (components) << std::endl;
 			assert(false);
 			return GL_RGBA;
 		}

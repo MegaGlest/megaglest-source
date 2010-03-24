@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <typeinfo>
 
 using std::map;
 using std::string;
@@ -30,6 +31,8 @@ using std::runtime_error;
 
 using Shared::Platform::extractExtension;
 
+#define AS_STRING(...) #__VA_ARGS__
+
 namespace Shared{
 
 // =====================================================
@@ -38,13 +41,17 @@ namespace Shared{
 
 template <class T>
 class FileReader {
-protected:
+public:
 	string const * extensions;
 
 	/**Creates a filereader being able to possibly load files
 	 * from the specified extension
 	 **/
 	FileReader(string const * extensions);
+
+	/**Creates a low-priority filereader
+	 **/
+	FileReader();
 
 public:
 	/*Return the - existing and initialized - fileReadersMap
@@ -53,7 +60,16 @@ public:
 		static map<string, vector<FileReader<T> const * >* > fileReaderByExtension;
 		return fileReaderByExtension;
 	}
-	static vector<FileReader<T> const * > fileReaders;
+
+	static vector<FileReader<T> const * >& getFileReaders() {
+		static vector<FileReader<T> const*> fileReaders;
+		return fileReaders;
+	};
+
+	static vector<FileReader<T> const * >& getLowPriorityFileReaders() {
+		static vector<FileReader<T> const*> lowPriorityFileReaders;
+		return lowPriorityFileReaders;
+	};
 
 
 public:
@@ -125,14 +141,16 @@ public:
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath) {
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
+		T* ret = NULL;
 		try {
 			FileReader<T> const * reader = *i;		
-			T* ret = reader->read(filepath); //It is guaranteed that at least the filepath matches ...
-			if (ret != NULL) {
-				return ret;
-			}
+			ret = reader->read(filepath); //It is guaranteed that at least the filepath matches ...
 		} catch (...) { //TODO: Specific exceptions
+			continue;
 		}
+		if (ret != NULL) {
+			return ret;
+		} 
 	}
 	return NULL;
 }
@@ -140,16 +158,17 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath, T* object) {
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
+		T* ret = NULL;
 		try {
 			FileReader<T> const * reader = *i;
-			T* ret = reader->read(filepath, object); //It is guaranteed that at least the filepath matches ...
-			if (ret != NULL) {
-				return ret;
-			}
+			ret = reader->read(filepath, object); //It is guaranteed that at least the filepath matches ...
 		} catch (...) { //TODO: Specific exceptions
+			continue;
 		}
+		if (ret != NULL) {
+			return ret;
+		} 
 	}
-	std::cerr << "Could not parse filepath: " << filepath << std::endl;
 	return NULL;
 }
 
@@ -168,7 +187,11 @@ T* FileReader<T>::readPath(const string& filepath) {
 			return ret;
 		}
 	}
-	T* ret = readFromFileReaders(&fileReaders, filepath); //Try all other
+	T* ret = readFromFileReaders(&(getFileReaders()), filepath); //Try all other
+	if (ret == NULL) {
+		std::cerr << "Could not parse filepath: " << filepath << std::endl;
+		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file
+	}
 	return ret;
 }
 
@@ -187,17 +210,20 @@ T* FileReader<T>::readPath(const string& filepath, T* object) {
 			return ret;
 		}
 	}
-	T* ret = readFromFileReaders(&fileReaders, filepath, object); //Try all other
+	T* ret = readFromFileReaders(&(getFileReaders()), filepath, object); //Try all other
+	if (ret == NULL) {
+		std::cerr << "Could not parse filepath: " << filepath << std::endl;
+		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file		
+		if (ret == NULL) {
+			throw runtime_error(string("Could not parse ") + filepath + " as object of type " + typeid(T).name());
+		}
+	}
 	return ret;
 }
 
-
-template<typename T>
-vector<FileReader<T> const * > FileReader<T>::fileReaders;
-
 template <typename T>
 FileReader<T>::FileReader(string const * extensions): extensions(extensions) {
-	fileReaders.push_back(this);
+	getFileReaders().push_back(this);
 	string const * nextExtension = extensions;
 	while (((*nextExtension) != "")) {
 		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[*nextExtension];

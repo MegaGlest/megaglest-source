@@ -85,6 +85,7 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
  	const int w = fileHeader.width;
 	const int fileComponents= fileHeader.bitsPerPixel/8;
 	const int picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
+	std::cout << "BMP-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 	ret->init(w,h,picComponents);
 	uint8* pixels = ret->getPixels();
 	//read file

@@ -65,9 +65,18 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	//Read file
 	is.seekg(0, ios::end);
 	size_t length = is.tellg();
+	if (length < 8) {
+		return NULL;
+	}
 	is.seekg(0, ios::beg);
 	uint8 * buffer = new uint8[length];
 	is.read((char*)buffer, length);
+	//Check buffer (weak jpeg check)
+	if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
+		delete[] buffer;
+		std::cout << "Returning NULL jpeg" << std::endl;
+		return NULL;
+	}
 
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -112,6 +121,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	std::cout << "Color components per fixel: " << cinfo.num_components << std::endl;
 	std::cout << "Color space: " << cinfo.jpeg_color_space << std::endl;*/
 	const int picComponents = (ret->getComponents() == -1)?cinfo.num_components:ret->getComponents();
+	std::cout << "JPG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << cinfo.num_components << std::endl;
 	ret->init(cinfo.image_width, cinfo.image_height, picComponents);
 	uint8* pixels = ret->getPixels();
 	//TODO: Irrlicht has some special CMYK-handling - maybe needed too?
