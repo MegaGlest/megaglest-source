@@ -34,6 +34,10 @@ const DWORD Window::windowedResizeableStyle= WS_SIZEBOX | WS_CAPTION | WS_MINIMI
 int Window::nextClassName= 0;
 Window::WindowMap Window::createdWindows;
 
+unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+Vec2i Window::mousePos;
+MouseState Window::mouseState;
+
 // ===================== PUBLIC ========================
 
 Window::Window(){
@@ -45,6 +49,11 @@ Window::Window(){
 	y= 0;
 	w= 100;
 	h= 100;
+
+	lastMouseEvent = 0;
+	mousePos = Vec2i(0);
+	mouseState.clear();
+
 }
 
 Window::~Window(){
@@ -223,6 +232,230 @@ LRESULT CALLBACK Window::eventRouter(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 	Window *eventWindow;
 	WindowMap::iterator it;
 
+	it = createdWindows.find(hwnd);
+	if (it == createdWindows.end()) {
+		return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+	eventWindow = it->second;
+
+	switch (msg) {
+	case WM_CREATE:
+		eventWindow->eventCreate();
+		break;
+
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+	case WM_MOUSEMOVE: {
+			RECT windowRect;
+			POINT mousePos;
+
+			GetWindowRect(eventWindow->getHandle(), &windowRect);
+			mousePos.x = LOWORD(lParam) - windowRect.left;
+			mousePos.y = HIWORD(lParam) - windowRect.top;
+			ClientToScreen(eventWindow->getHandle(), &mousePos);
+
+			eventWindow->setLastMouseEvent(Chrono::getCurMillis());
+			eventWindow->setMousePos(Vec2i(mousePos.x, mousePos.y));
+			switch(msg) {
+			case WM_LBUTTONDOWN:
+				eventWindow->mouseyVent(0, mbLeft);
+				return 0;
+
+			case WM_LBUTTONUP:
+				eventWindow->mouseyVent(1, mbLeft);
+				return 0;
+
+			case WM_LBUTTONDBLCLK:
+				eventWindow->mouseyVent(2, mbLeft);
+				return 0;
+
+			case WM_RBUTTONDOWN:
+				eventWindow->mouseyVent(0, mbRight);
+				return 0;
+
+			case WM_RBUTTONUP:
+				eventWindow->mouseyVent(1, mbRight);
+				return 0;
+
+			case WM_RBUTTONDBLCLK:
+				eventWindow->mouseyVent(2, mbRight);
+				return 0;
+
+			case WM_MBUTTONDOWN:
+				eventWindow->mouseyVent(0, mbCenter);
+				return 0;
+
+			case WM_MBUTTONUP:
+				eventWindow->mouseyVent(1, mbCenter);
+				return 0;
+
+			case WM_MBUTTONDBLCLK:
+				eventWindow->mouseyVent(2, mbCenter);
+				return 0;
+
+			case WM_XBUTTONDOWN:
+				// we only know about XBUTTON1 and XBUTTON2, but there may be more later, let
+				// DefWindowProc take these.
+				switch(HIWORD(wParam)) {
+				case XBUTTON1:
+					eventWindow->mouseyVent(0, mbButtonX1);
+					return TRUE;// don't ask me why it wants TRUE instead of zero like
+								// everything else
+				case XBUTTON2:
+					eventWindow->mouseyVent(0, mbButtonX2);
+					return TRUE;
+				}
+				break;
+
+			case WM_XBUTTONUP:
+				switch(HIWORD(wParam)) {
+				case XBUTTON1:
+					eventWindow->mouseyVent(1, mbButtonX1);
+					return TRUE;// don't ask me why it wants TRUE instead of zero like
+								// everything else
+				case XBUTTON2:
+					eventWindow->mouseyVent(1, mbButtonX2);
+					return TRUE;
+				}
+				break;
+
+			case WM_XBUTTONDBLCLK:
+				switch(HIWORD(wParam)) {
+				case XBUTTON1:
+					eventWindow->mouseyVent(2, mbButtonX1);
+					return TRUE;// don't ask me why it wants TRUE instead of zero like
+								// everything else
+				case XBUTTON2:
+					eventWindow->mouseyVent(2, mbButtonX2);
+					return TRUE;
+				}
+				break;
+
+			case WM_MOUSEWHEEL:
+				eventWindow->eventMouseWheel(mousePos.x, mousePos.y, GET_WHEEL_DELTA_WPARAM(wParam));
+				return 0;
+
+			case WM_MOUSEHWHEEL:
+				//eventWindow->eventMouseHWheel(mousePos.x, mousePos.y, GET_WHEEL_DELTA_WPARAM(wParam));
+				break; // not handled, send to DefWindowProc
+
+			case WM_MOUSEMOVE:
+				eventWindow->setMouseState(mbLeft, wParam & MK_LBUTTON);
+				eventWindow->setMouseState(mbRight, wParam & MK_RBUTTON);
+				eventWindow->setMouseState(mbCenter, wParam & MK_MBUTTON);
+				eventWindow->setMouseState(mbButtonX1, wParam & MK_XBUTTON1);
+				eventWindow->setMouseState(mbButtonX2, wParam & MK_XBUTTON2);
+				eventWindow->eventMouseMove(mousePos.x, mousePos.y, &eventWindow->getMouseState());
+				return 0;
+			}
+			break;
+		}
+
+	case WM_KEYDOWN: {
+
+			eventWindow->eventKeyDown(static_cast<char>(wParam));
+			break;
+			/*
+			Key key(Input::getKeyCode(wParam), static_cast<char>(wParam));
+			// bottom 16 bits is repeat acount, and I only care if it's zero or non-zero
+			bool isRepeat = (lParam << 16);
+			// I don't want repeats of modifier keys posting
+			if(!isRepeat || !key.isModifier()) {
+				eventWindow->input.updateKeyModifiers(key.getCode(), true);
+				eventWindow->eventKeyDown(key);
+			}
+			break;
+			*/
+		}
+
+	case WM_KEYUP: {
+			
+			eventWindow->eventKeyUp(static_cast<char>(wParam));
+			break;
+
+			/*
+			Key key(Input::getKeyCode(wParam), static_cast<char>(wParam));
+			eventWindow->input.updateKeyModifiers(key.getCode(), false);
+			eventWindow->eventKeyUp(key);
+			break;
+			*/
+		}
+
+	case WM_CHAR:
+		eventWindow->eventKeyPress(static_cast<char>(wParam));
+		break;
+
+	case WM_COMMAND:
+		if (HIWORD(wParam) == 0) {
+			eventWindow->eventMenu(LOWORD(wParam));
+		}
+		break;
+
+	case WM_ACTIVATE:
+		eventWindow->eventActivate(wParam != WA_INACTIVE);
+		break;
+
+	case WM_MOVE: {
+			RECT rect;
+	
+			GetWindowRect(eventWindow->getHandle(), &rect);
+			eventWindow->x = rect.left;
+			eventWindow->y = rect.top;
+			eventWindow->w = rect.right - rect.left;
+			eventWindow->h = rect.bottom - rect.top;
+		}
+		break;
+
+	case WM_SIZE: {
+			RECT rect;
+	
+			GetWindowRect(eventWindow->getHandle(), &rect);
+			eventWindow->x = rect.left;
+			eventWindow->y = rect.top;
+			eventWindow->w = rect.right - rect.left;
+			eventWindow->h = rect.bottom - rect.top;
+	
+			eventWindow->eventResize(static_cast<SizeState>(wParam));
+		}
+		break;
+
+	case WM_SIZING:
+		eventWindow->eventResize();
+		break;
+
+	case WM_PAINT:
+		eventWindow->eventPaint();
+		break;
+
+	case WM_CLOSE:
+		eventWindow->eventClose();
+		break;
+
+	case WM_DESTROY:
+		eventWindow->eventDestroy();
+		PostQuitMessage(0);
+		return 0;
+	}
+
+	return DefWindowProc(hwnd, msg, wParam, lParam);
+
+
+/*
+	Window *eventWindow;
+	WindowMap::iterator it;
+
 	it= createdWindows.find(hwnd);
 	if(it==createdWindows.end()){
 		return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -353,6 +586,7 @@ LRESULT CALLBACK Window::eventRouter(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+*/
 }
 
 int Window::getNextClassName(){

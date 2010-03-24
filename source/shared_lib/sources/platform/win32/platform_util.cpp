@@ -73,6 +73,8 @@ void PerformanceTimer::reset(){
 //	class Chrono
 // =====================================================
 
+int64 Chrono::freq;
+
 Chrono::Chrono(){
 	if(!QueryPerformanceFrequency((LARGE_INTEGER*) &freq)){
 		throw runtime_error("Performance counters not supported");

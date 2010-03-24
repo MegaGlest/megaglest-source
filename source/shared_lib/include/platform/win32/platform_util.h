@@ -59,7 +59,8 @@ class Chrono{
 private:
 	int64 startCount;
 	int64 accumCount;
-	int64 freq;
+	static int64 freq;
+
 	bool stopped;
 
 public:

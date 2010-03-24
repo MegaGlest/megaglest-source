@@ -8,18 +8,20 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
-
 #ifndef _SHARED_PLATFORM_WINDOW_H_
 #define _SHARED_PLATFORM_WINDOW_H_
 
 #include <map>
 #include <string>
+#include <cassert>
 
 #include "types.h"
+#include "vec.h"
 #include "platform_menu.h"
 
 using std::map;
 using std::string;
+using Shared::Graphics::Vec2i;
 
 namespace Shared{ namespace Platform{
 
@@ -27,9 +29,16 @@ class Timer;
 class PlatformContextGl;
 
 enum MouseButton{
+	mbUnknown,
 	mbLeft,
+	mbCenter,
 	mbRight,
-	mbCenter
+	mbWheelUp,
+	mbWheelDown,
+	mbButtonX1,
+	mbButtonX2,
+
+	mbCount
 };
 
 enum SizeState{
@@ -53,10 +62,28 @@ const int vkBack= VK_BACK;
 const int vkDelete= VK_DELETE;
 const int vkF1= VK_F1;
 
-struct MouseState{
-	bool leftMouse;
-	bool rightMouse;
-	bool centerMouse;
+class MouseState {
+private:
+	bool states[mbCount];
+
+
+public:
+	MouseState() {
+		clear();
+	}
+	//MouseState(const MouseState &);
+	//MouseState &operator=(const MouseState &);
+	void clear() { memset(this, 0, sizeof(MouseState)); }
+
+	bool get(MouseButton b) const {
+		assert(b > 0 && b < mbCount);
+		return states[b];
+	}
+
+	void set(MouseButton b, bool state) {
+		assert(b > 0 && b < mbCount);
+		states[b] = state;
+	}
 };
 
 enum WindowStyle{
@@ -80,6 +107,19 @@ private:
 
 	static int nextClassName;
 	static WindowMap createdWindows;
+
+    static unsigned int lastMouseEvent;	/** for use in mouse hover calculations */
+    static MouseState mouseState;
+    static Vec2i mousePos;
+
+    static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
+    static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
+
+    static const MouseState &getMouseState() 				    {return Window::mouseState;}
+    static void setMouseState(MouseButton b, bool state)		{Window::mouseState.set(b, state);}
+
+    static const Vec2i &getMousePos() 					        {return Window::mousePos;}
+    static void setMousePos(const Vec2i &mousePos)				{Window::mousePos = mousePos;}
 
 protected:
 	WindowHandle handle;
@@ -152,6 +192,23 @@ private:
 	static int getNextClassName();
 	void registerWindow(WNDPROC wndProc= NULL);
 	void createWindow(LPVOID creationData= NULL);
+	void mouseyVent(int asdf, MouseButton mouseButton) {
+		const Vec2i &mousePos = getMousePos();
+		switch(asdf) {
+		case 0:
+			setMouseState(mouseButton, true);
+			eventMouseDown(mousePos.x, mousePos.y, mouseButton);
+			break;
+		case 1:
+			setMouseState(mouseButton, false);
+			eventMouseUp(mousePos.x, mousePos.y, mouseButton);
+			break;
+		case 2:
+			eventMouseDoubleClick(mousePos.x, mousePos.y, mouseButton);
+			break;
+		}
+	}
+
 };
 
 }}//end namespace
