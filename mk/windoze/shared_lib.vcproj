@@ -418,6 +418,10 @@
 				Name="graphics"
 				>
 				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\BMPReader.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\buffer.h"
 					>
 				</File>
@@ -427,6 +431,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\context.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\FileReader.h"
 					>
 				</File>
 				<File
@@ -446,7 +454,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\ImageReaders.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\interpolation.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\JPGReader.h"
 					>
 				</File>
 				<File
@@ -486,6 +502,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\PNGReader.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\quaternion.h"
 					>
 				</File>
@@ -507,6 +527,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\texture_manager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\TGAReader.h"
 					>
 				</File>
 				<File

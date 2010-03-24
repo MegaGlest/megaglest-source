@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib zlib.lib lua5.1.lib xerces-c_3D.lib Dbghelp.lib"
+				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib zlib.lib lua5.1.lib xerces-c_3D.lib Dbghelp.lib libpng.lib jpeg.lib"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
