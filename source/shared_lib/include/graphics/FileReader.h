@@ -265,7 +265,7 @@ T* FileReader<T>::read(const string& filepath, T* object) const {
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
 		throw runtime_error("Could not open file " + filepath);
 	}
-	read(file,filepath,object);
+	return read(file,filepath,object);
 }
 
 

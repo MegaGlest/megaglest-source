@@ -25,6 +25,8 @@
 #include "leak_dumper.h"
 #include "network_interface.h"
 
+#include "ImageReaders.h"
+
 using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
@@ -258,7 +260,7 @@ void MainWindow::eventClose(){
 // =====================================================
 
 int glestMain(int argc, char** argv){
-
+	Shared::Graphics::ImageRegisterer::registerImageReaders();
 	SystemFlags::enableNetworkDebugInfo = true;
     SystemFlags::enableDebugText = true;
 

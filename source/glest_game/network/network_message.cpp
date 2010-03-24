@@ -35,6 +35,36 @@ namespace Glest{ namespace Game{
 //	class NetworkMessage
 // =====================================================
 
+bool NetworkMessage::peek(Socket* socket, void* data, int dataSize)
+{
+    int ipeekdatalen = socket->getDataToRead();
+
+	if(ipeekdatalen >= dataSize)
+	{
+		if(socket->peek(data, dataSize)!=dataSize)
+		{
+            if(socket != NULL && socket->getSocketId() > 0)
+            {
+                throw runtime_error("Error peeking NetworkMessage");
+            }
+            else
+            {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
+            }
+		}
+		else
+		{
+		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+		}
+		return true;
+	}
+	else
+	{
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
+	}
+	return false;
+}
+
 bool NetworkMessage::receive(Socket* socket, void* data, int dataSize)
 {
     int ipeekdatalen = socket->getDataToRead();
@@ -204,40 +234,38 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 }
 
 bool NetworkMessageCommandList::receive(Socket* socket){
-	//return NetworkMessage::receive(socket, &data, sizeof(data));
-
-    // read type, commandCount & frame num first.
-	if (!NetworkMessage::receive(socket, &data, networkPacketMsgTypeSize)) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] NetworkMessage::receive failed!\n",__FILE__,__FUNCTION__,__LINE__);
+    // _peek_ type, commandCount & frame num first.
+	if (!NetworkMessage::peek(socket, &data, commandListHeaderSize)) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
         __FILE__,__FUNCTION__,__LINE__,data.messageType,data.frameCount,data.commandCount);
 
-	// read data.commandCount commands.
-	if (data.commandCount) {
-		bool result = NetworkMessage::receive(socket, &data.commands, sizeof(NetworkCommand) * data.commandCount);
-
-		if(SystemFlags::enableNetworkDebugInfo) {
-            for(int idx = 0 ; idx < data.commandCount; ++idx) {
-                const NetworkCommand &cmd = data.commands[idx];
-
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, networkCommandType = %d, unitId = %d, commandTypeId = %d, positionX = %d, positionY = %d, unitTypeId = %d, targetId = %d\n",
-                        __FILE__,__FUNCTION__,__LINE__,idx, cmd.getNetworkCommandType(),cmd.getUnitId(), cmd.getCommandTypeId(),
-                        cmd.getPosition().x,cmd.getPosition().y, cmd.getUnitTypeId(), cmd.getTargetId());
-            }
-		}
-
-		return result;
+	// read header + data.commandCount commands.
+	int totalMsgSize = commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount;
+	if (socket->getDataToRead() < totalMsgSize) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] Insufficient data to read entire command list [need %d bytes, only %d available].\n",
+			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
+		return false;
 	}
-	return true;
+	bool result = NetworkMessage::receive(socket, &data, totalMsgSize);
+	if(SystemFlags::enableNetworkDebugInfo) {
+        for(int idx = 0 ; idx < data.commandCount; ++idx) {
+            const NetworkCommand &cmd = data.commands[idx];
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, networkCommandType = %d, unitId = %d, commandTypeId = %d, positionX = %d, positionY = %d, unitTypeId = %d, targetId = %d\n",
+                    __FILE__,__FUNCTION__,__LINE__,idx, cmd.getNetworkCommandType(),cmd.getUnitId(), cmd.getCommandTypeId(),
+                    cmd.getPosition().x,cmd.getPosition().y, cmd.getUnitTypeId(), cmd.getTargetId());
+        }
+	}
+	return result;
 }
 
 void NetworkMessageCommandList::send(Socket* socket) const{
 	assert(data.messageType==nmtCommandList);
-	//NetworkMessage::send(socket, &data, sizeof(data));
-	NetworkMessage::send(socket, &data, networkPacketMsgTypeSize + sizeof(NetworkCommand) * data.commandCount);
+	NetworkMessage::send(socket, &data, commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount);
 
 	if(SystemFlags::enableNetworkDebugInfo) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",

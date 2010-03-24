@@ -31,7 +31,8 @@ namespace ImageRegisterer {
 	bool registerImageReaders();
 
 	//Since you can't call void methods here, I have used a method doing nothing except initializing the image Readers
-	static bool readersRegistered = registerImageReaders(); //should always return true, this should guarantee that the readers are registered <--> ImageReaders is included anywhere
+// this static initialisation relies on other static initialisations. == bad! [was quick-fixed, registerImageReaders() is called from main()]
+//	static bool readersRegistered = registerImageReaders(); //should always return true, this should guarantee that the readers are registered <--> ImageReaders is included anywhere
 }
 
 }} //end namespace
