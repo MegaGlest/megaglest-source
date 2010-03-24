@@ -66,7 +66,7 @@ bool Window::handleEvent() {
                 case SDL_MOUSEBUTTONUP:
                 case SDL_MOUSEMOTION:
 
-                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
                     setLastMouseEvent(Chrono::getCurMillis());
                     setMousePos(Vec2i(event.button.x, event.button.y));
                     break;
@@ -74,16 +74,16 @@ bool Window::handleEvent() {
 
 			switch(event.type) {
 				case SDL_QUIT:
-                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					return false;
 				case SDL_MOUSEBUTTONDOWN:
-                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
                     if(global_window) {
                         global_window->handleMouseDown(event);
                     }
 					break;
 				case SDL_MOUSEBUTTONUP: {
-				    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+				    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 				    if(global_window) {
                         MouseButton b = getMouseButton(event.button.button);
                         setMouseState(b, false);
@@ -94,7 +94,7 @@ bool Window::handleEvent() {
 					break;
 				}
 				case SDL_MOUSEMOTION: {
-				    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+				    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					//MouseState ms;
 					//ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
 					//ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
@@ -109,7 +109,8 @@ bool Window::handleEvent() {
 					break;
 				}
 				case SDL_KEYDOWN:
-                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -121,7 +122,7 @@ bool Window::handleEvent() {
 					}
 					break;
 				case SDL_KEYUP:
-                    printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
                     if(global_window) {
                         global_window->eventKeyUp(getKey(event.key.keysym));
                     }

@@ -92,14 +92,6 @@ const char vkDown = -10;
 const char vkReturn = -11;
 const char vkBack = -12;
 
-/*
-struct MouseState{
-	bool leftMouse;
-	bool rightMouse;
-	bool centerMouse;
-};
-*/
-
 enum WindowStyle{
 	wsFullscreen,
 	wsWindowedFixed,
