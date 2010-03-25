@@ -81,7 +81,7 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	int h= infoHeader.height;
 	int w= infoHeader.width;
 	int components= (ret->getComponents() == -1)?3:ret->getComponents();
-	std::cout << "BMP-Components: Pic: " << components << " old: " << (ret->getComponents()) << " File: " << 3 << std::endl;
+	//std::cout << "BMP-Components: Pic: " << components << " old: " << (ret->getComponents()) << " File: " << 3 << std::endl;
 	ret->init(w,h,components);
 	uint8* pixels = ret->getPixels();
 	for(int i=0; i<h*w*components; i+=components){

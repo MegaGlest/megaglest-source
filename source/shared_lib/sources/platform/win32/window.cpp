@@ -35,6 +35,7 @@ int Window::nextClassName= 0;
 Window::WindowMap Window::createdWindows;
 
 unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+static int oldX=0,oldY=0;
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
 
@@ -68,6 +69,13 @@ Window::~Window(){
 //static
 bool Window::handleEvent(){
 	MSG msg;
+	
+	POINT point;
+	bool ret = GetCursorPos(&point);
+	if(ret == true) {
+		oldX = point.x;
+		oldY = point.y;
+	}
 
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 		if(msg.message==WM_QUIT){
@@ -78,6 +86,10 @@ bool Window::handleEvent(){
 	}
 
 	return true;
+}
+
+void Window::revertMousePos() {
+	SetCursorPos(oldX, oldY);
 }
 
 string Window::getText(){
