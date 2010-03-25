@@ -712,6 +712,8 @@ void Renderer::renderResourceStatus(){
 			string str= intToStr(r->getAmount());
 
 			glEnable(GL_TEXTURE_2D);
+			glColor3f(1.f, 1.f, 1.f);
+
 			renderQuad(j*100+200, metrics.getVirtualH()-30, 16, 16, rt->getImage());
 
 			if(rt->getClass() != rcStatic)
