@@ -57,7 +57,7 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 	move= Vec3f(0.f);
 
 	maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
-	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","35");
+	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
 	minHeight = Config::getInstance().getFloat("CameraMinDistance","8");
 	maxCameraDist = maxHeight;
 	minCameraDist = minHeight;
@@ -219,6 +219,13 @@ void GameCamera::switchState(){
 	}
 }
 
+void GameCamera::resetPosition(){
+	state= sGame;
+	destAng.x = startingVAng;
+	destAng.y = startingHAng;
+	destPos.y = defaultHeight;
+}
+
 void GameCamera::centerXZ(float x, float z){
 	destPos.x = pos.x= x;
 	destPos.z = pos.z= z+centerOffsetZ;
@@ -241,13 +248,7 @@ void GameCamera::transitionVH(float v, float h) {
 void GameCamera::zoom(float dist) {
 	float flatDist = dist * cosf(degToRad(vAng));
 	Vec3f offset(flatDist * sinf(degToRad(hAng)), dist * sinf(degToRad(vAng)), flatDist  * -cosf(degToRad(hAng)));
-	float mult = 1.f;
-	if(destPos.y + offset.y < minHeight) {
-		mult = abs((destPos.y - minHeight) / offset.y);
-	} else if(destPos.y + offset.y > maxHeight) {
-		mult = abs((maxHeight - destPos.y) / offset.y);
-	}
-	destPos += offset * mult;
+	destPos += offset;
 }
 
 void GameCamera::load(const XmlNode *node) {

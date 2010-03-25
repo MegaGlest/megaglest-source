@@ -548,7 +548,11 @@ void Game::keyDown(char key){
 			string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
 			console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 		}
-
+		
+		//reset camera mode to normal
+		else if(key==' '){
+			gameCamera.resetPosition();
+		}
 		//pause
 		else if(key=='P'){
 			if(speedChangesAllowed){
