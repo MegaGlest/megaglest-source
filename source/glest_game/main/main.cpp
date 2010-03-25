@@ -253,8 +253,8 @@ int glestMain(int argc, char** argv){
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
-		showCursor(config.getBool("Windowed"));
-		//showCursor(false);
+		//showCursor(config.getBool("Windowed"));
+		showCursor(false);
 
 		program= new Program();
 		mainWindow= new MainWindow(program);

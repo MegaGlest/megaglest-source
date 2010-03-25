@@ -89,7 +89,7 @@ bool Window::handleEvent(){
 }
 
 void Window::revertMousePos() {
-	SetCursorPos(oldX, oldY);
+	//SetCursorPos(oldX, oldY);
 }
 
 string Window::getText(){
@@ -364,13 +364,18 @@ LRESULT CALLBACK Window::eventRouter(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 				break; // not handled, send to DefWindowProc
 
 			case WM_MOUSEMOVE:
+
 				eventWindow->setMouseState(mbLeft, wParam & MK_LBUTTON);
 				eventWindow->setMouseState(mbRight, wParam & MK_RBUTTON);
 				eventWindow->setMouseState(mbCenter, wParam & MK_MBUTTON);
 				eventWindow->setMouseState(mbButtonX1, wParam & MK_XBUTTON1);
 				eventWindow->setMouseState(mbButtonX2, wParam & MK_XBUTTON2);
-				eventWindow->eventMouseMove(mousePos.x, mousePos.y, &eventWindow->getMouseState());
-				return 0;
+
+				const MouseState &ms = eventWindow->getMouseState();
+				eventWindow->eventMouseMove(mousePos.x, mousePos.y, &ms);
+
+				//return 0;
+				break;
 			}
 			break;
 		}
