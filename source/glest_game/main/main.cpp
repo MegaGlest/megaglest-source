@@ -229,7 +229,6 @@ void MainWindow::eventClose(){
 // =====================================================
 
 int glestMain(int argc, char** argv){
-	Shared::Graphics::ImageRegisterer::registerImageReaders();
 	SystemFlags::enableNetworkDebugInfo = true;
     SystemFlags::enableDebugText = true;
 
