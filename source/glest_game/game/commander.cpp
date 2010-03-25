@@ -40,8 +40,8 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType) const{
-	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId());
+CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing) const{
+	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), facing);
 	return pushNetworkCommand(&networkCommand);
 }
 
@@ -362,15 +362,19 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 		throw runtime_error(szBuf);
 	}
 
-	//get target, the target might be dead due to lag, cope with it
-	if(networkCommand->getTargetId()!=Unit::invalidId){
+	CardinalDir facing;
+	// get facing/target ... the target might be dead due to lag, cope with it
+	if (ct->getClass() == ccBuild) {
+		assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
+		facing = CardinalDir(networkCommand->getTargetId());
+	} else if (networkCommand->getTargetId() != Unit::invalidId ) {
 		target= world->findUnitById(networkCommand->getTargetId());
 	}
 
 	//create command
 	Command *command= NULL;
 	if(unitType!=NULL){
-		command= new Command(ct, networkCommand->getPosition(), unitType);
+		command= new Command(ct, networkCommand->getPosition(), unitType, facing);
 	}
 	else if(target==NULL){
 		command= new Command(ct, networkCommand->getPosition());

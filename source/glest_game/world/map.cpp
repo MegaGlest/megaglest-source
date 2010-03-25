@@ -416,11 +416,10 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || unit->getCellMapCell(i, j)){
+			if(!ut->hasCellMap() || ut->getCellMapCell(i, j, unit->getModelFacing())){
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==NULL);
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
 			}
-
 		}
 	}
 	unit->setPos(pos);
@@ -436,7 +435,7 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || unit->getCellMapCell(i, j)){
+			if(!ut->hasCellMap() || ut->getCellMapCell(i, j, unit->getModelFacing())){
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
 			}

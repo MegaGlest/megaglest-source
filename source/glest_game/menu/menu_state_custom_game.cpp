@@ -55,24 +55,26 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     findAll(config.getPathListForType(ptMaps), "*.gbm", glestMaps, true, false);
     findAll(config.getPathListForType(ptMaps), "*.mgm", megaMaps, true, false);
 
-	mapFiles.resize(glestMaps.size() + megaMaps.size());
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	set<string> allMaps;
 	if (!glestMaps.empty()) {
-		copy(glestMaps.begin(), glestMaps.end(), mapFiles.begin());
+		copy(glestMaps.begin(), glestMaps.end(), std::inserter(allMaps, allMaps.begin()));
 	}
 	if (!megaMaps.empty()) {
-		copy(megaMaps.begin(), megaMaps.end(), mapFiles.begin() + glestMaps.size());
+		copy(megaMaps.begin(), megaMaps.end(), std::inserter(allMaps, allMaps.begin()));
 	}
-	if(mapFiles.size()==0){
+	if(allMaps.size()==0){
         throw runtime_error("There are no maps");
 	}
-	vector<string> results;
-	for(int i= 0; i < mapFiles.size(); ++i){
-		results.push_back(formatString(mapFiles[i]));
-	}
-    listBoxMap.init(200, 260, 150);
-    listBoxMap.setItems(results);
+	std::copy(allMaps.begin(), allMaps.end(), std::back_inserter(mapFiles));
+
+	listBoxMap.init(200, 260, 150);
+    listBoxMap.setItems(mapFiles);
 	labelMap.init(200, 290);
 	labelMapInfo.init(200, 230, 200, 40);
+	
+	vector<string> results;
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);

@@ -318,15 +318,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		const FactionType* ft= faction->getType();
 		const UnitType* ut= ft->getUnitType(unitName);
 
-        //!!!
-        float unitRotation = -1;
-        if(allowRotateUnits == true) {
-            char unitKey[50]="";
-            sprintf(unitKey,"%d_%d",ut->getId(),faction->getIndex());
-            unitRotation = game->getGui()->getUnitTypeBuildRotation(unitKey);
-        }
-
-		Unit* unit= new Unit(getNextUnitId(), pos, ut, faction, &map, unitRotation);
+		Unit* unit= new Unit(getNextUnitId(), pos, ut, faction, &map, CardinalDir::NORTH);
 
 		if(placeUnit(pos, generationArea, unit, true)){
 			unit->create(true);
@@ -583,16 +575,7 @@ void World::initUnits(){
 			const UnitType *ut= ft->getStartingUnit(j);
 			int initNumber= ft->getStartingUnitAmount(j);
 			for(int l=0; l<initNumber; l++){
-
-                //!!!
-                float unitRotation = -1;
-                if(allowRotateUnits == true) {
-                    char unitKey[50]="";
-                    sprintf(unitKey,"%d_%d",ut->getId(),f->getIndex());
-                    unitRotation = game->getGui()->getUnitTypeBuildRotation(unitKey);
-                }
-
-				Unit *unit= new Unit(getNextUnitId(), Vec2i(0), ut, f, &map, unitRotation);
+				Unit *unit= new Unit(getNextUnitId(), Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 
 				int startLocationIndex= f->getStartLocationIndex();
 

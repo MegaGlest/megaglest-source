@@ -16,6 +16,7 @@
 #include "upgrade_type.h"
 #include "particle.h"
 #include "skill_type.h"
+#include "game_constants.h"
 
 namespace Glest{ namespace Game{
 
@@ -181,11 +182,10 @@ private:
 	UnitParticleSystems damageParticleSystems;
 
     bool allowRotateUnits;
-    float rotateAmount;
-	bool *cellMap;
+	CardinalDir modelFacing;
 
 public:
-    Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation);
+    Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
 
     //queries
@@ -298,9 +298,8 @@ public:
 	CommandResult checkCommand(Command *command) const;
 	void applyCommand(Command *command);
 
-    void setRotateAmount(float value);
-    float getRotateAmount() { return rotateAmount; }
-    bool getCellMapCell(int x, int y) const;
+	void setModelFacing(CardinalDir value);
+	CardinalDir getModelFacing() { return modelFacing; }
 
 private:
 	float computeHeight(const Vec2i &pos) const;

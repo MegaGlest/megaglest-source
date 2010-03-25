@@ -411,6 +411,30 @@ const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaire
 	return NULL;
 }
 
+bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
+	assert(cellMap);
+	int tmp;
+	switch (facing) {
+		case CardinalDir::EAST:
+			tmp = y;
+			y = x;
+			x = size - tmp - 1;
+			break;
+		case CardinalDir::SOUTH:
+			x = size - x - 1;
+			y = size - y - 1;
+			break;
+		case CardinalDir::WEST:
+			tmp = x;
+			x = y;
+			y = size - tmp - 1;
+			break;
+		default:
+			break;
+	}
+	return cellMap[y * size + x];
+}
+
 int UnitType::getStore(const ResourceType *rt) const{
     for(int i=0; i<storedResources.size(); ++i){
 		if(storedResources[i].getType()==rt){

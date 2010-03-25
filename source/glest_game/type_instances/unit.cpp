@@ -104,11 +104,11 @@ const int Unit::invalidId= -1;
 
 // ============================ Constructor & destructor =============================
 
-Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, float unitPlacementRotation) {
+Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
-    rotateAmount= -1;
+	modelFacing = CardinalDir::NORTH;
 
     Random random;
 
@@ -118,11 +118,8 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->map= map;
 	this->id= id;
 	level= NULL;
-	cellMap= NULL;
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A\n",__FILE__,__FUNCTION__);
-    setRotateAmount(unitPlacementRotation);
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B unit id = %d [%s] rotate amount = %f\n",__FILE__,__FUNCTION__,getId(), getFullName().c_str(),unitPlacementRotation);
+    setModelFacing(placeFacing);
 
 	Config &config= Config::getInstance();
 	showUnitParticles= config.getBool("UnitParticles");
@@ -143,14 +140,15 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	meetingPos= pos;
 	alive= true;
 
-	float rot= 0.f;
-
-	random.init(id);
-	rot+= random.randRange(-5, 5);
-
-	rotation= rot;
-	lastRotation= rot;
-	targetRotation= rot;
+	if (!type->hasSkillClass(scBeBuilt)) {
+		float rot= 0.f;
+		random.init(id);
+		rot+= random.randRange(-5, 5);
+		rotation= rot;
+		lastRotation= rot;
+		targetRotation= rot;
+	}
+	// else it was set appropriately in setModelFacing()
 
     if(getType()->getField(fAir)) currField=fAir;
     if(getType()->getField(fLand)) currField=fLand;
@@ -173,13 +171,15 @@ Unit::~Unit(){
 	}
 	// fade(and by this remove) all unit particle systems
 	while(!unitParticleSystems.empty()){
-			unitParticleSystems.back()->fade();
-			unitParticleSystems.pop_back();
-		}
+		unitParticleSystems.back()->fade();
+		unitParticleSystems.pop_back();
+	}
 	stopDamageParticles();
+}
 
-	if(cellMap == NULL) delete [] cellMap;
-	cellMap = NULL;
+void Unit::setModelFacing(CardinalDir value) { 
+	modelFacing = value;
+	lastRotation = targetRotation = rotation = value * 90.f;
 }
 
 // ====================================== get ======================================
@@ -210,7 +210,7 @@ Vec2i Unit::getCellPos() const{
 
 		for(int i=0; i<type->getSize(); ++i){
 			for(int j=0; j<type->getSize(); ++j){
-                if(getCellMapCell(i, j)){
+				if(type->getCellMapCell(i, j, modelFacing)){
 					Vec2i currPos= pos + Vec2i(i, j);
 					float dist= currPos.dist(centeredPos);
 					if(nearestDist==-1.f || dist<nearestDist){
@@ -685,8 +685,7 @@ bool Unit::update(){
 		}
 	}
 
-	if (fire!=NULL)
-	{
+	if (fire!=NULL) {
 		fire->setPos(getCurrVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
@@ -1116,7 +1115,7 @@ void Unit::startDamageParticles(){
 
 	}
 }
-
+#if 0
 bool Unit::getCellMapCell(int x, int y) const {
     const UnitType *ut= getType();
 
@@ -1194,5 +1193,5 @@ void Unit::setRotateAmount(float value) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(),rotateAmount);
     }
 }
-
+#endif
 }}//end namespace

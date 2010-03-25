@@ -97,7 +97,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 }
 
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut){
-    return world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut));
+	return world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir::NORTH));
 }
 
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, Unit *u){

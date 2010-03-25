@@ -70,7 +70,16 @@ private:
 
 public:
 	NetworkCommand(){};
-	NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId= -1, const Vec2i &pos= Vec2i(0), int unitTypeId= -1, int targetId= -1);
+	NetworkCommand(
+		World *world, 
+		int networkCommandType, 
+		int unitId, 
+		int commandTypeId= -1, 
+		const Vec2i &pos= Vec2i(0), 
+		int unitTypeId= -1, 
+		int targetId= -1,
+		int facing= -1);
+	
 	//NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2=-1);
 
 	NetworkCommandType getNetworkCommandType() const	{return static_cast<NetworkCommandType>(networkCommandType);}

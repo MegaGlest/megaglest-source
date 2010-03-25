@@ -291,19 +291,8 @@ void UnitUpdater::updateBuild(Unit *unit){
             assert(command->getUnitType()!=NULL);
             if(map->isFreeCells(command->getPos(), ut->getSize(), fLand)){
 				const UnitType *builtUnitType= command->getUnitType();
-
-                //!!!
-                float unitRotation = -1;
-                if(allowRotateUnits == true) {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-                    char unitKey[50]="";
-                    sprintf(unitKey,"%d_%d",builtUnitType->getId(),unit->getFaction()->getIndex());
-                    unitRotation = gui->getUnitTypeBuildRotation(unitKey);
-
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s] unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,unitKey,unitRotation);
-                }
-				Unit *builtUnit= new Unit(world->getNextUnitId(), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(),unitRotation);
+				CardinalDir facing = command->getFacing();
+				Unit *builtUnit= new Unit(world->getNextUnitId(), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
 				builtUnit->create();
 
 				if(!builtUnitType->hasSkillClass(scBeBuilt)){
@@ -554,18 +543,7 @@ void UnitUpdater::updateProduce(Unit *unit){
         if(unit->getProgress2()>pct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
-
-            //!!!
-            float unitRotation = -1;
-            if(allowRotateUnits == true) {
-                char unitKey[50]="";
-                sprintf(unitKey,"%d_%d",pct->getProducedUnit()->getId(),unit->getFaction()->getIndex());
-                unitRotation = gui->getUnitTypeBuildRotation(unitKey);
-
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s] unitRotation = %f\n",__FILE__,__FUNCTION__,__LINE__,unitKey,unitRotation);
-            }
-
-			produced= new Unit(world->getNextUnitId(), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(),unitRotation);
+			produced= new Unit(world->getNextUnitId(), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
 
 			//place unit creates the unit
 			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)){

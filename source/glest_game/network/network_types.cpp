@@ -27,14 +27,15 @@ namespace Glest{ namespace Game{
 //	class NetworkCommand
 // =====================================================
 
-NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId, const Vec2i &pos, int unitTypeId, int targetId){
-	this->networkCommandType= networkCommandType;
-	this->unitId= unitId;
-	this->commandTypeId= commandTypeId;
-	this->positionX= pos.x;
-	this->positionY= pos.y;
-	this->unitTypeId= unitTypeId;
-	this->targetId= targetId;
+NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId, const Vec2i &pos, int unitTypeId, int targetId, int facing)
+		: networkCommandType(networkCommandType)
+		, unitId(unitId)
+		, commandTypeId(commandTypeId)
+		, positionX(pos.x)
+		, positionY(pos.y)
+		, unitTypeId(unitTypeId) {
+	assert(targetId == -1 || facing == -1);
+	this->targetId = targetId >= 0 ? targetId : facing;
 
     if(this->networkCommandType == nctGiveCommand) {
         const Unit *unit= world->findUnitById(this->unitId);
@@ -45,19 +46,7 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
             const CommandType *ct   = unit->getType()->findCommandTypeById(this->commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
-
-                Game *game  = world->getGame();
-                Gui *gui    = game->getGui();
-
-                int factionIndex = world->getThisFactionIndex();
-                char unitKey[50]="";
-                sprintf(unitKey,"%d_%d",this->unitTypeId,factionIndex);
-                float unitTypeRotation = gui->getUnitTypeBuildRotation(unitKey);
-
-                if(unitTypeRotation >= 0) {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] attaching RotateUnit to ccBuild command for unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,this->unitTypeId,factionIndex,unitTypeRotation);
-                    this->targetId = unitTypeRotation;
-                }
+				assert(facing >= 0 && facing < 4 && targetId == -1);
             }
         }
     }
@@ -72,17 +61,7 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
             const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
             const CommandType *ct   = unit->getType()->findCommandTypeById(commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
-                Game *game  = world->getGame();
-                Gui *gui    = game->getGui();
-
-                int factionIndex = unit->getFactionIndex();
-                char unitKey[50]="";
-                sprintf(unitKey,"%d_%d",unitTypeId,factionIndex);
-                gui->setUnitTypeBuildRotation(unitKey,targetId);
-
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s, unitKey = [%s] targetId = %d\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str(),unitKey,targetId);
-
-                targetId = Unit::invalidId;
+				assert(targetId < 4);
             }
         }
         else {

@@ -130,8 +130,8 @@ private:
 	bool selectingPos;
 	bool selectingMeetingPoint;
 
+	CardinalDir selectedBuildingFacing;
     bool allowRotateUnits;
-	std::map<string, float> unitTypeBuildRotation;
 
 public:
 	Gui();
@@ -146,6 +146,7 @@ public:
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
 	const SelectionQuad *getSelectionQuad() const	{return &selectionQuad;}
+	CardinalDir getSelectedFacing() const			{return selectedBuildingFacing;}
 	bool isSelected(const Unit *unit) const			{return selection.hasUnit(unit);}
 
 	bool isValidPosObjWorld() const		{return validPosObjWorld;}
@@ -174,9 +175,6 @@ public:
 
 	//misc
 	void onSelectionChanged();
-
-    float getUnitTypeBuildRotation(string unitKey) const;
-    void setUnitTypeBuildRotation(string unitKey, float value);
 
 private:
 

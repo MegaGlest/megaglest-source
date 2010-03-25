@@ -1,6 +1,8 @@
 #ifndef _GLEST_GAME_GAMECONSTANTS_H_
 #define _GLEST_GAME_GAMECONSTANTS_H_
 
+#include <cassert>
+
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
@@ -52,7 +54,28 @@ enum PathType {
 	ptTutorials
 };
 
+struct CardinalDir {
+public:
+	enum Enum { NORTH, EAST, SOUTH, WEST };
 
+	CardinalDir() : value(NORTH) {}
+	CardinalDir(Enum v) : value(v) {}
+	explicit CardinalDir(int v) {
+		assert(v >= 0 && v < 4);
+		value = static_cast<Enum>(v);
+	}
+	operator Enum() { return value; }
+
+	void operator++() {
+		value = static_cast<Enum>(value + 1 % 4);
+	}
+	void operator--() { // mod with negative numbers is a 'grey area', hence the +3 rather than -1
+		value = static_cast<Enum>(value + 3 % 4);
+	}
+
+private:
+	Enum value;
+};
 
 }}//end namespace
 

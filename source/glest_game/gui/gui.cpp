@@ -102,6 +102,7 @@ Gui::Gui(){
     activeCommandType= NULL;
     activeCommandClass= ccStop;
 	selectingBuilding= false;
+	selectedBuildingFacing = CardinalDir::NORTH;
 	selectingPos= false;
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
@@ -149,6 +150,7 @@ void Gui::setComputeSelectionFlag(){
 
 void Gui::resetState(){
     selectingBuilding= false;
+	selectedBuildingFacing = CardinalDir::NORTH;
 	selectingPos= false;
 	selectingMeetingPoint= false;
     activePos= invalidPos;
@@ -315,20 +317,6 @@ void Gui::groupKey(int groupIndex){
 	}
 }
 
-void Gui::setUnitTypeBuildRotation(string unitKey, float value) {
-    unitTypeBuildRotation[unitKey] = value;
-}
-
-float Gui::getUnitTypeBuildRotation(string unitKey) const {
-    float rotationValue = -1;
-
-    if(unitTypeBuildRotation.find(unitKey) != unitTypeBuildRotation.end()) {
-        rotationValue = unitTypeBuildRotation.find(unitKey)->second;
-    }
-
-    return rotationValue;
-}
-
 void Gui::hotKey(char key){
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
@@ -345,40 +333,7 @@ void Gui::hotKey(char key){
 	else if(key=='R'){
 	    // Here the user triggers a unit rotation while placing a unit
 	    if(allowRotateUnits == true && isPlacingBuilding()) {
-	        const UnitType *unitType = getBuilding();
-	        int factionIndex = world->getThisFactionIndex();
-	        char unitKey[50]="";
-	        sprintf(unitKey,"%d_%d",unitType->getId(),factionIndex);
-	        float unitTypeRotation = getUnitTypeBuildRotation(unitKey);
-
-	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] factionIndex = %d unitType->getId() = %d unitTypeRotation = %f\n",__FILE__,__FUNCTION__,factionIndex,unitType->getId(),unitTypeRotation);
-
-	        if(unitTypeRotation < 0) {
-	            unitTypeRotation = 0;
-	        }
-	        unitTypeRotation += 90;
-	        if(unitTypeRotation >= 360) {
-	            unitTypeRotation = 0;
-	        }
-	        unitTypeBuildRotation[unitKey] = unitTypeRotation;
-
-            //!!!
-            /*
-            //if(allowRotateUnits == true && unitRotation > 0) {
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] before sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
-
-                //unitRotation = 0;
-                NetworkCommand networkCommand(nctNetworkCommand, ncstRotateUnit, unitType->getId(), factionIndex, (int)unitTypeRotation);
-                //CommandResult result= game->getCommander()->pushNetworkCommand(&networkCommand);
-                GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-                gameNetworkInterface->requestCommand(&networkCommand);
-
-                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit [%d] result = %d\n",__FILE__,__FUNCTION__,builtUnit->getId(),result);
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] after sending nctNetworkCommand RotateUnit unitTypeid = %d, factionIndex = %d, unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),factionIndex,unitTypeRotation);
-            //}
-            */
-
-	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] unitType->getId() = %d NEW unitTypeRotation = %f\n",__FILE__,__FUNCTION__,unitType->getId(),unitTypeRotation);
+			++selectedBuildingFacing;
 	    }
 	    else {
             selectInterestingUnit(iutProducer);
@@ -474,7 +429,8 @@ void Gui::giveTwoClickOrders(int x, int y){
 	}
 	else{
 		//selecting building
-		result= commander->tryGiveCommand( selection.getFrontUnit(), activeCommandType, posObjWorld, choosenBuildingType );
+		result= commander->tryGiveCommand(selection.getFrontUnit(), 
+			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing );
     }
 
 	//graphical result
@@ -623,7 +579,8 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 			if(world->getFaction(factionIndex)->reqsOk(ut)){
 				choosenBuildingType= ut;
 				assert(choosenBuildingType!=NULL);
-				selectingPos= true;;
+				selectingPos= true;
+				selectedBuildingFacing = CardinalDir::NORTH;
 				activePos= posDisplay;
 			}
 		}
