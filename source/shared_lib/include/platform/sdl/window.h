@@ -126,6 +126,8 @@ protected:
 
 public:
 	static bool handleEvent();
+	static void revertMousePos();
+	
 
 	Window();
 	virtual ~Window();

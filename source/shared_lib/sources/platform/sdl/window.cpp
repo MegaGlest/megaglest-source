@@ -32,6 +32,7 @@ namespace Shared{ namespace Platform{
 
 // Matze: hack for now...
 static Window* global_window = 0;
+static int oldX=0,oldY=0;
 unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
@@ -57,6 +58,7 @@ Window::~Window() {
 
 bool Window::handleEvent() {
 	SDL_Event event;
+	SDL_GetMouseState(&oldX,&oldY);
 	while(SDL_PollEvent(&event)) {
 		try {
 		    //printf("START [%d]\n",event.type);
@@ -136,6 +138,10 @@ bool Window::handleEvent() {
     //printf("END [%d]\n",event.type);
 
 	return true;
+}
+
+void Window::revertMousePos() {
+	SDL_WarpMouse(oldX, oldY);
 }
 
 string Window::getText() {

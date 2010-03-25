@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -434,6 +434,10 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 			float xmult = 0.2f;
 
 			gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+			mouseX=lastMousePos.x;
+			mouseY=lastMousePos.y;
+			Window::revertMousePos();
+			return;
 		}
 	}
 	else {
@@ -479,8 +483,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 		}
 	}
 
-	lastMousePos.x = x;
-	lastMousePos.y = y;
+	lastMousePos.x = mouseX;
+	lastMousePos.y = mouseY;
 }
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {
