@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2010 Martiño Figueroa and others
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -72,7 +72,10 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	uint8 * buffer = new uint8[length];
 	is.read((char*)buffer, length);
 	//Check buffer (weak jpeg check)
-	if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
+	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
+	// Proper header check found from: http://www.fastgraph.com/help/jpeg_header_format.html
+	if (buffer[0] != 0xFF || buffer[1] != 0xD8) {
+	    std::cout << "0 = [" << std::hex << (int)buffer[0] << "] 1 = [" << std::hex << (int)buffer[1] << "]" << std::endl;
 		delete[] buffer;
 		std::cout << "Returning NULL jpeg" << std::endl;
 		return NULL;
@@ -80,12 +83,12 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-	
+
 	JSAMPROW row_pointer[1];
 	row_pointer[0] = NULL;
 	cinfo.err = jpeg_std_error( &jerr ); //Standard error handler
 	jpeg_create_decompress( &cinfo ); //Create decompressing structure
-	struct jpeg_source_mgr source;	
+	struct jpeg_source_mgr source;
 
 	jmp_buf error_buffer; //Used for saving/restoring context
 	// Set up data pointer
@@ -155,7 +158,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						g = row_pointer[0][xFile+1];
 						b = row_pointer[0][xFile+2];
 						l = (r+g+b+2)/3;
-						a = row_pointer[0][xFile+3];	
+						a = row_pointer[0][xFile+3];
 						break;
 					default:
 						//TODO: Error
