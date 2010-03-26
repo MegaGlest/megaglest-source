@@ -754,6 +754,14 @@ void Pixmap3D::init(int d, int components){
 	pixels= NULL;
 }
 
+void Pixmap3D::init(int components){
+	this->w= -1;
+	this->h= -1;
+	this->d= -1;
+	this->components= components;
+	pixels= NULL;
+}
+
 Pixmap3D::~Pixmap3D(){
 	delete [] pixels;
 }
@@ -818,6 +826,12 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 void PixmapCube::init(int w, int h, int components){
 	for(int i=0; i<6; ++i){
 		faces[i].init(w, h, components);
+	}
+}
+
+void PixmapCube::init(int components){
+	for(int i=0; i<6; ++i){
+		faces[i].init(components);
 	}
 }
 

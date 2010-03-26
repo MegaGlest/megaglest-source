@@ -81,34 +81,58 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	int h= infoHeader.height;
 	int w= infoHeader.width;
 	int components= (ret->getComponents() == -1)?3:ret->getComponents();
+	const int fileComponents = 3;
 	//std::cout << "BMP-Components: Pic: " << components << " old: " << (ret->getComponents()) << " File: " << 3 << std::endl;
 	ret->init(w,h,components);
 	uint8* pixels = ret->getPixels();
-	for(int i=0; i<h*w*components; i+=components){
-		uint8 r, g, b;
-		in.read((char*)&b, 1);
-		in.read((char*)&g, 1);
-		in.read((char*)&r, 1);
-		if (!in.good()) {
-			return NULL;
+	char buffer[4];
+	//BMP is padded to sizes of 4
+	const int padSize = (4 - (w*fileComponents)%4)%4; //Yeah, could be faster
+	//std::cout << "Padsize = " << padSize;
+	for (int y = 0, i = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x, i+=components) {
+			uint8 r, g, b;
+			in.read((char*)&b, 1);
+			in.read((char*)&g, 1);
+			in.read((char*)&r, 1);
+			if (!in.good()) {
+				return NULL;
+			}
+			switch(components){
+				case 1:
+				pixels[i]= (r+g+b)/3;
+				break;
+			case 3:
+				pixels[i]= r;
+				pixels[i+1]= g;
+				pixels[i+2]= b;
+				break;
+			case 4:
+				pixels[i]= r;
+				pixels[i+1]= g;
+				pixels[i+2]= b;
+				pixels[i+3]= 255;
+				break;
+			}
 		}
-		switch(components){
-		case 1:
-			pixels[i]= (r+g+b)/3;
-			break;
-		case 3:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			break;
-		case 4:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			pixels[i+3]= 255;
-			break;
+		if (padSize) {
+			in.read(buffer,padSize);
 		}
 	}
+	/*for(int i = 0; i < w*h*components; ++i) {
+		if (i%39 == 0) std::cout << std::endl;
+		int first = pixels[i]/16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		first = pixels[i]%16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		std::cout << " ";		
+	}*/
 	return ret;
 }
 

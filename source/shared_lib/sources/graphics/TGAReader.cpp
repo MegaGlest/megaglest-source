@@ -85,7 +85,7 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
  	const int w = fileHeader.width;
 	const int fileComponents= fileHeader.bitsPerPixel/8;
 	const int picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
-	//std::cout << "BMP-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
+	//std::cout << "TGA-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 	ret->init(w,h,picComponents);
 	uint8* pixels = ret->getPixels();
 	//read file
@@ -131,6 +131,20 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 		break;
 		}
 	}
+	/*for(int i = 0; i < w*h*picComponents; ++i) {
+		if (i%39 == 0) std::cout << std::endl;
+		int first = pixels[i]/16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		first = pixels[i]%16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		std::cout << " ";		
+	}*/
 	return ret;
 	}
 

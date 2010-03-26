@@ -217,6 +217,7 @@ public:
 	Pixmap3D(int d, int components);
 	void init(int w, int h, int d, int components);
 	void init(int d, int components);
+	void init(int components);
 	~Pixmap3D();
 	
 	//load & save
@@ -253,6 +254,7 @@ protected:
 public:
 	//init
 	void init(int w, int h, int components);
+	void init(int components);
 
 	//load & save
 	void loadFace(const string &path, int face);

@@ -109,6 +109,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	int fileComponents = info_ptr->rowbytes/info_ptr->width;
 	int picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
 	//std::cout << "PNG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
+	//picComponents = 4;
 	//Copy image
 	ret->init(width,height,picComponents);
 	uint8* pixels = ret->getPixels();

@@ -77,7 +77,6 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	if (buffer[0] != 0xFF || buffer[1] != 0xD8) {
 	    std::cout << "0 = [" << std::hex << (int)buffer[0] << "] 1 = [" << std::hex << (int)buffer[1] << "]" << std::endl;
 		delete[] buffer;
-		std::cout << "Returning NULL jpeg" << std::endl;
 		return NULL;
 	}
 
@@ -121,30 +120,32 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 
 	/*std::cout << "JPEG FILE Information: " << std::endl;
 	std::cout << "Image width and height: " << cinfo.image_width <<" pixels and " << cinfo.image_height <<" pixels." << std::endl;
+
 	std::cout << "Color components per fixel: " << cinfo.num_components << std::endl;
 	std::cout << "Color space: " << cinfo.jpeg_color_space << std::endl;*/
-	const int picComponents = (ret->getComponents() == -1)?cinfo.num_components:ret->getComponents();
+	int picComponents = (ret->getComponents() == -1)?cinfo.num_components:ret->getComponents();
 	//std::cout << "JPG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << cinfo.num_components << std::endl;
-	ret->init(cinfo.image_width, cinfo.image_height, picComponents);
-	uint8* pixels = ret->getPixels();
+	//picComponents = 4;
 	//TODO: Irrlicht has some special CMYK-handling - maybe needed too?
 	/* Start decompression jpeg here */
 	jpeg_start_decompress( &cinfo );
-
+	ret->init(cinfo.image_width, cinfo.image_height, picComponents);
+	uint8* pixels = ret->getPixels();
+	//std::cout << "output width and height: " << cinfo.output_width <<" pixels and " << cinfo.output_height <<" pixels." << std::endl;
 	/* now actually read the jpeg into the raw buffer */
 	row_pointer[0] = new unsigned char[cinfo.output_width*cinfo.num_components];
 	size_t location = 0; //Current pixel
 	/* read one scan line at a time */
 	/* Again you need to invert the lines unfortunately*/
-	while( cinfo.output_scanline < cinfo.image_height )
+	while( cinfo.output_scanline < cinfo.output_height )
 	{
 		jpeg_read_scanlines( &cinfo, row_pointer, 1 );
-		location = (cinfo.image_height - cinfo.output_scanline)*cinfo.image_width*cinfo.num_components;
+		location = (cinfo.output_height - cinfo.output_scanline)*cinfo.output_width*picComponents;
 		if (picComponents == cinfo.num_components) {
-			memcpy(pixels+location,row_pointer[0],cinfo.image_width*cinfo.num_components);
+			memcpy(pixels+location,row_pointer[0],cinfo.output_width*cinfo.num_components);
 		} else {
 			int r,g,b,a,l;
-			for (int xPic = 0, xFile = 0; xPic < cinfo.image_width*picComponents; xPic+= picComponents, xFile+= cinfo.num_components) {
+			for (int xPic = 0, xFile = 0; xPic < cinfo.output_width*picComponents; xPic+= picComponents, xFile+= cinfo.num_components) {
 				switch(cinfo.num_components) {
 					case 3:
 						r = row_pointer[0][xFile];
@@ -188,6 +189,20 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 			}
 		}
 	}
+	/*for(int i = 0; i < cinfo.image_width*cinfo.image_height*picComponents; ++i) {
+		if (i%39 == 0) std::cout << std::endl;
+		int first = pixels[i]/16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		first = pixels[i]%16;
+		if (first < 10)
+			std:: cout << first;
+		else
+			std::cout << (char)('A'+(first-10));
+		std::cout << " ";		
+	}*/
 	/* wrap up decompression, destroy objects, free pointers and close open files */
 	jpeg_finish_decompress( &cinfo );
 	jpeg_destroy_decompress( &cinfo );
