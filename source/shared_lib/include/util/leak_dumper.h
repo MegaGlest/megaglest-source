@@ -12,7 +12,7 @@
 #ifndef _LEAKDUMPER_H_
 #define _LEAKDUMPER_H_
 
-#define SL_LEAK_DUMP
+//#define SL_LEAK_DUMP
 //SL_LEAK_DUMP controls if leak dumping is enabled or not
 
 #ifdef SL_LEAK_DUMP
