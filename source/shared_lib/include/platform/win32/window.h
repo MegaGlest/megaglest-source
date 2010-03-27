@@ -111,6 +111,7 @@ private:
     static unsigned int lastMouseEvent;	/** for use in mouse hover calculations */
     static MouseState mouseState;
     static Vec2i mousePos;
+    static bool isKeyPressedDown;
 
     static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
@@ -137,6 +138,7 @@ protected:
 public:
 	static bool handleEvent();
 	static void revertMousePos();
+	static bool isKeyDown() { return isKeyPressedDown; }
 
 	//contructor & destructor
 	Window();

@@ -36,7 +36,7 @@ static int oldX=0,oldY=0;
 unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
-
+bool Window::isKeyPressedDown = false;
 
 // ========== PUBLIC ==========
 
@@ -59,6 +59,7 @@ Window::~Window() {
 bool Window::handleEvent() {
 	SDL_Event event;
 	SDL_GetMouseState(&oldX,&oldY);
+
 	while(SDL_PollEvent(&event)) {
 		try {
 		    //printf("START [%d]\n",event.type);
@@ -69,8 +70,8 @@ bool Window::handleEvent() {
                 case SDL_MOUSEMOTION:
 
                     //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
-                    setLastMouseEvent(Chrono::getCurMillis());
-                    setMousePos(Vec2i(event.button.x, event.button.y));
+               		setLastMouseEvent(Chrono::getCurMillis());
+               		setMousePos(Vec2i(event.button.x, event.button.y));
                     break;
             }
 
@@ -106,13 +107,14 @@ bool Window::handleEvent() {
                     setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
 
 					if(global_window) {
-                        global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
+						global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
 					}
 					break;
 				}
 				case SDL_KEYDOWN:
                     //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
+					Window::isKeyPressedDown = true;
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -125,6 +127,9 @@ bool Window::handleEvent() {
 					break;
 				case SDL_KEYUP:
                     //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					Window::isKeyPressedDown = false;
+
                     if(global_window) {
                         global_window->eventKeyUp(getKey(event.key.keysym));
                     }

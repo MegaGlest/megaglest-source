@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -38,6 +38,7 @@ unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations
 static int oldX=0,oldY=0;
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
+bool Window::isKeyPressedDown = false;
 
 // ===================== PUBLIC ========================
 
@@ -382,6 +383,8 @@ LRESULT CALLBACK Window::eventRouter(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
 	case WM_KEYDOWN: {
 
+			Window::isKeyPressedDown = true;
+
 			eventWindow->eventKeyDown(static_cast<char>(wParam));
 			break;
 			/*
@@ -399,6 +402,8 @@ LRESULT CALLBACK Window::eventRouter(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
 	case WM_KEYUP: {
 			
+			Window::isKeyPressedDown = false;
+
 			eventWindow->eventKeyUp(static_cast<char>(wParam));
 			break;
 
