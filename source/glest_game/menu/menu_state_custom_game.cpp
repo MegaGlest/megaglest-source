@@ -23,9 +23,11 @@
 #include "conversion.h"
 #include "socket.h"
 #include "game.h"
+#include <algorithm>
+#include <time.h>
 
 #include "leak_dumper.h"
-#include <time.h>
+
 
 namespace Glest{ namespace Game{
 
