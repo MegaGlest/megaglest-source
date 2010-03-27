@@ -321,7 +321,7 @@ void Gui::hotKey(char key){
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
 
-	if(key==' '){
+	if(key=='G'){
 		centerCameraOnSelection();
 	}
 	else if(key=='I'){
@@ -336,9 +336,6 @@ void Gui::hotKey(char key){
 	    	if(getBuilding()->getRotationAllowed()){
 				++selectedBuildingFacing;
 	    	}
-	    }
-	    else {
-            selectInterestingUnit(iutProducer);
 	    }
 	}
 	else if(key=='D'){

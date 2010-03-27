@@ -84,8 +84,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	// @350 ? 300 ?
 	labelFogOfWar.init(350, 290, 100);
 	listBoxFogOfWar.init(350, 260, 100);
-	listBoxFogOfWar.pushBackItem(lang.get("On"));
-	listBoxFogOfWar.pushBackItem(lang.get("Off"));
+	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
+	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
     //tileset listBox
