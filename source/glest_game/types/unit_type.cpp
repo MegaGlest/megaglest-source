@@ -244,6 +244,17 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			lightColor.z= lightNode->getAttribute("blue")->getFloatValue(0.f, 1.f);
 		}
 
+		//rotationAllowed
+		if(parametersNode->hasChild("rotationAllowed")){
+			const XmlNode *rotationAllowedNode= parametersNode->getChild("rotationAllowed");
+			rotationAllowed= rotationAllowedNode->getAttribute("value")->getBoolValue();
+		}
+		else
+		{
+			rotationAllowed=true;
+		}
+
+
 		//unit requirements
 		const XmlNode *unitRequirementsNode= parametersNode->getChild("unit-requirements");
 		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){

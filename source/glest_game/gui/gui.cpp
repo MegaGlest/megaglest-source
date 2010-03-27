@@ -2,7 +2,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -333,7 +333,9 @@ void Gui::hotKey(char key){
 	else if(key=='R'){
 	    // Here the user triggers a unit rotation while placing a unit
 	    if(allowRotateUnits == true && isPlacingBuilding()) {
-			++selectedBuildingFacing;
+	    	if(getBuilding()->getRotationAllowed()){
+				++selectedBuildingFacing;
+	    	}
 	    }
 	    else {
             selectInterestingUnit(iutProducer);

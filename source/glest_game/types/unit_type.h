@@ -97,6 +97,7 @@ private:
     int size;							//size in cells
     int height;
     float rotatedBuildPos;
+    bool rotationAllowed;
 
 	//cellmap
 	bool *cellMap;
@@ -143,6 +144,7 @@ public:
 	int getCommandTypeCount() const						{return commandTypes.size();}
 	int getLevelCount() const							{return levels.size();}
 	bool getLight() const								{return light;}
+	bool getRotationAllowed() const						{return rotationAllowed;}
 	Vec3f getLightColor() const							{return lightColor;}
 	bool getMultiSelect() const							{return multiSelect;}
 	int getSight() const								{return sight;}
