@@ -22,10 +22,11 @@
 #include "game_util.h"
 #include "platform_util.h"
 #include "platform_main.h"
-#include "leak_dumper.h"
 #include "network_interface.h"
-
+#include "sound_renderer.h"
 #include "ImageReaders.h"
+
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
@@ -269,6 +270,8 @@ int glestMain(int argc, char** argv){
 			program->initNormal(mainWindow);
 		}
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
         //throw runtime_error("test!");
@@ -285,7 +288,11 @@ int glestMain(int argc, char** argv){
 		ExceptionHandler::handleRuntimeError(e.what());
 	}
 
+	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	//soundRenderer.stopAllSounds();
+
 	delete mainWindow;
+
 	//SystemFlags::Close();
 
 	return 0;

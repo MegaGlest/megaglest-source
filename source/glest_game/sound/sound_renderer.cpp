@@ -15,8 +15,10 @@
 #include "config.h"
 #include "sound_interface.h"
 #include "factory_repository.h"
+#include "util.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Util;
 using namespace Shared::Graphics;
 using namespace Shared::Sound;
 
@@ -30,27 +32,50 @@ const float SoundRenderer::audibleDist= 50.f;
 // =====================================================
 
 SoundRenderer::SoundRenderer(){
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     soundPlayer = NULL;
 	loadConfig();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void SoundRenderer::init(Window *window){
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	SoundInterface &si= SoundInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
 
-	si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
-	soundPlayer= si.newSoundPlayer();
+    //if(soundPlayer == NULL) {
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
 
-	SoundPlayerParams soundPlayerParams;
-	soundPlayerParams.staticBufferCount= config.getInt("SoundStaticBuffers");
-	soundPlayerParams.strBufferCount= config.getInt("SoundStreamingBuffers");
-	soundPlayer->init(&soundPlayerParams);
+        stopAllSounds();
+
+        soundPlayer= si.newSoundPlayer();
+
+        SoundPlayerParams soundPlayerParams;
+        soundPlayerParams.staticBufferCount= config.getInt("SoundStaticBuffers");
+        soundPlayerParams.strBufferCount= config.getInt("SoundStreamingBuffers");
+        soundPlayer->init(&soundPlayerParams);
+	//}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 SoundRenderer::~SoundRenderer(){
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    stopAllSounds();
+
 	delete soundPlayer;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	soundPlayer = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 SoundRenderer &SoundRenderer::getInstance(){
