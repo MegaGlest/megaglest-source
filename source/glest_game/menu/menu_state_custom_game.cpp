@@ -31,6 +31,12 @@ namespace Glest{ namespace Game{
 
 using namespace Shared::Util;
 
+struct FormatString {
+	void operator()(string &s) {
+		s = formatString(s);
+	}
+};
+
 // =====================================================
 // 	class MenuStateCustomGame
 // =====================================================
@@ -40,67 +46,69 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+    Config &config = Config::getInstance();
 
 	needToSetChangedGameSettings = false;
 	lastSetChangedGameSettings   = time(NULL);;
 
-	vector<string> glestMaps, megaMaps, teamItems, controlItems;
+	vector<string> teamItems, controlItems, results;
 
 	//create
 	buttonReturn.init(350, 180, 125);
 	buttonPlayNow.init(525, 180, 125);
 
     //map listBox
-    Config &config = Config::getInstance();
-    findAll(config.getPathListForType(ptMaps), "*.gbm", glestMaps, true, false);
-    findAll(config.getPathListForType(ptMaps), "*.mgm", megaMaps, true, false);
-
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	set<string> allMaps;
-	if (!glestMaps.empty()) {
-		copy(glestMaps.begin(), glestMaps.end(), std::inserter(allMaps, allMaps.begin()));
-	}
-	if (!megaMaps.empty()) {
-		copy(megaMaps.begin(), megaMaps.end(), std::inserter(allMaps, allMaps.begin()));
-	}
-	if(allMaps.size()==0){
-        throw runtime_error("There are no maps");
-	}
-	std::copy(allMaps.begin(), allMaps.end(), std::back_inserter(mapFiles));
-
-	listBoxMap.init(200, 260, 150);
-    listBoxMap.setItems(mapFiles);
-	labelMap.init(200, 290);
-	labelMapInfo.init(200, 230, 200, 40);
+    findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
+    findAll(config.getPathListForType(ptMaps), "*.mgm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
 	
-	vector<string> results;
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+	std::for_each(results.begin(), results.end(), FormatString());
+
+	listBoxMap.init(100, 260, 200);
+    listBoxMap.setItems(results);
+	labelMap.init(100, 290);
+	labelMapInfo.init(100, 230, 200, 40);
+	
+	// fog - o - war
+	// @350 ? 300 ?
+	labelFogOfWar.init(350, 290, 100);
+	listBoxFogOfWar.init(350, 260, 100);
+	listBoxFogOfWar.pushBackItem(lang.get("On"));
+	listBoxFogOfWar.pushBackItem(lang.get("Off"));
+	listBoxFogOfWar.setSelectedItemIndex(0);
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
-	if(results.size() == 0) {
-        throw runtime_error("There is no tile set");
+	if (results.empty()) {
+        throw runtime_error("No tile-sets were found!");
 	}
     tilesetFiles= results;
-	for(int i= 0; i<results.size(); ++i){
-		results[i]= formatString(results[i]);
-	}
-	listBoxTileset.init(400, 260, 150);
+	std::for_each(results.begin(), results.end(), FormatString());
+	listBoxTileset.init(500, 260, 150);
     listBoxTileset.setItems(results);
-	labelTileset.init(400, 290);
+	labelTileset.init(500, 290);
 
     //tech Tree listBox
     findDirs(config.getPathListForType(ptTechs), results);
-	if(results.size() == 0) {
-        throw runtime_error("There are no tech trees");
+	if(results.empty()) {
+        throw runtime_error("No tech-trees were found!");
 	}
     techTreeFiles= results;
-	for(int i= 0; i<results.size(); ++i){
-		results[i]= formatString(results[i]);
-	}
-	listBoxTechTree.init(600, 260, 150);
+	std::for_each(results.begin(), results.end(), FormatString());
+	listBoxTechTree.init(700, 260, 150);
     listBoxTechTree.setItems(results);
-	labelTechTree.init(600, 290);
+	labelTechTree.init(700, 290);
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -160,6 +168,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     }
 
 	labelMap.setText(lang.get("Map"));
+	labelFogOfWar.setText(lang.get("FogOfWar"));
 	labelTileset.setText(lang.get("Tileset"));
 	labelTechTree.setText(lang.get("TechTree"));
 	labelControl.setText(lang.get("Control"));
@@ -232,6 +241,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);;
+        }
+	}
+	else if (listBoxFogOfWar.mouseClick(x, y)) {
         if(hasNetworkGameSettings() == true)
         {
             needToSetChangedGameSettings = true;
@@ -325,6 +341,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		listBoxTeams[i].mouseMove(x, y);
     }
 	listBoxMap.mouseMove(x, y);
+	listBoxFogOfWar.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 }
@@ -348,6 +365,7 @@ void MenuStateCustomGame::render(){
 		}
     }
 	renderer.renderLabel(&labelMap);
+	renderer.renderLabel(&labelFogOfWar);
 	renderer.renderLabel(&labelTileset);
 	renderer.renderLabel(&labelTechTree);
 	renderer.renderLabel(&labelControl);
@@ -356,6 +374,7 @@ void MenuStateCustomGame::render(){
 	renderer.renderLabel(&labelMapInfo);
 
 	renderer.renderListBox(&listBoxMap);
+	renderer.renderListBox(&listBoxFogOfWar);
 	renderer.renderListBox(&listBoxTileset);
 	renderer.renderListBox(&listBoxTechTree);
 
@@ -493,6 +512,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 	gameSettings->setDefaultUnits(true);
 	gameSettings->setDefaultResources(true);
 	gameSettings->setDefaultVictoryConditions(true);
+	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0);
 
     for(int i=0; i<mapInfo.players; ++i)
     {
@@ -667,6 +687,5 @@ void MenuStateCustomGame::keyPress(char c)
 {
 	chatManager.keyPress(c);
 }
-
 
 }}//end namespace

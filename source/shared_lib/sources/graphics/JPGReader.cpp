@@ -18,6 +18,8 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 
+#include "leak_dumper.h"
+
 using std::runtime_error;
 using std::ios;
 

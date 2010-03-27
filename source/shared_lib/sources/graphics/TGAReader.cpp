@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "leak_dumper.h"
+
 using std::runtime_error;
 
 namespace Shared{ namespace Graphics{
@@ -146,6 +148,6 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 		std::cout << " ";		
 	}*/
 	return ret;
-	}
+}
 
 }} //end namespace

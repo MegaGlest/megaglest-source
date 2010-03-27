@@ -18,13 +18,10 @@
 #include "util.h"
 #include "math_util.h"
 #include "random.h"
-#include "leak_dumper.h"
 #include "FileReader.h"
-
-//Readers
 #include "ImageReaders.h"
 
-
+#include "leak_dumper.h"
 
 using namespace Shared::Util;
 using namespace std;

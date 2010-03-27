@@ -93,7 +93,6 @@ public:
     virtual bool getNetworkGameDataSynchCheckOkMap()            { return networkGameDataSynchCheckOkMap; }
     virtual bool getNetworkGameDataSynchCheckOkTile()           { return networkGameDataSynchCheckOkTile; }
     virtual bool getNetworkGameDataSynchCheckOkTech()           { return networkGameDataSynchCheckOkTech; }
-    virtual bool getFogOfWar()=0;
     virtual bool getNetworkGameDataSynchCheckOkFogOfWar()       { return networkGameDataSynchCheckOkFogOfWar; }
     virtual void setNetworkGameDataSynchCheckOkFogOfWar(bool value)  { networkGameDataSynchCheckOkFogOfWar = value; }
 

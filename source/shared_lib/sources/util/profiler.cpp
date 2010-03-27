@@ -14,6 +14,7 @@
 #ifdef SL_PROFILE
 
 #include <stdexcept>
+#include "leak_dumper.h"
 
 using namespace std;
 

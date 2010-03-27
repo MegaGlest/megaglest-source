@@ -39,7 +39,6 @@ const float World::airHeight= 5.f;
 World::World(){
 	Config &config= Config::getInstance();
 
-	fogOfWar= config.getBool("FogOfWar");
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
@@ -70,8 +69,11 @@ void World::init(Game *game, bool createUnits){
 
 	unitUpdater.init(game);
 
-	initFactionTypes(game->getGameSettings());
-	initCells(); //must be done after knowing faction number and dimensions
+	GameSettings *gs = game->getGameSettings();
+	fogOfWar = gs->getFogOfWar();
+	
+	initFactionTypes(gs);
+	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
 	initSplattedTextures();
 
@@ -80,7 +82,7 @@ void World::init(Game *game, bool createUnits){
 	if(createUnits){
 		initUnits();
 	}
-	initExplorationState();
+	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
 	computeFow();
 }
 
@@ -487,7 +489,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName){
 // ==================== private init ====================
 
 //init basic cell state
-void World::initCells(){
+void World::initCells(bool fogOfWar){
 
 	Logger::getInstance().add("State cells", true);
     for(int i=0; i<map.getSurfaceW(); ++i){
@@ -499,10 +501,10 @@ void World::initCells(){
 				i/(next2Power(map.getSurfaceW())-1.f),
 				j/(next2Power(map.getSurfaceH())-1.f)));
 
-			for(int k=0; k<GameConstants::maxPlayers; k++){
-				sc->setExplored(k, false);
-				sc->setVisible(k, 0);
-            }
+			for (int k = 0; k < GameConstants::maxPlayers; k++) {
+				sc->setExplored(k, !fogOfWar);
+				sc->setVisible(k, !fogOfWar);
+			}
 		}
     }
 }
@@ -558,7 +560,7 @@ void World::initFactionTypes(GameSettings *gs){
 }
 
 void World::initMinimap(){
-    minimap.init(map.getW(), map.getH(), this);
+    minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
 	Logger::getInstance().add("Compute minimap surface", true);
 }
 
@@ -599,18 +601,6 @@ void World::initUnits(){
 void World::initMap(){
 	map.init();
 }
-
-void World::initExplorationState(){
-	if(!fogOfWar){
-		for(int i=0; i<map.getSurfaceW(); ++i){
-			for(int j=0; j<map.getSurfaceH(); ++j){
-				map.getSurfaceCell(i, j)->setVisible(thisTeamIndex, true);
-				map.getSurfaceCell(i, j)->setExplored(thisTeamIndex, true);
-			}
-		}
-	}
-}
-
 
 // ==================== exploration ====================
 

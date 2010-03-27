@@ -151,13 +151,13 @@ public:
 
 private:
 
-	void initCells();
+	void initCells(bool fogOfWar);
 	void initSplattedTextures();
 	void initFactionTypes(GameSettings *gs);
 	void initMinimap();
 	void initUnits();
 	void initMap();
-	void initExplorationState();
+	//void initExplorationState();
 
 	//misc
 	void tick();

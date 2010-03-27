@@ -14,6 +14,8 @@
 #include "pixmap.h"
 #include <stdexcept>
 
+#include "leak_dumper.h"
+
 using std::runtime_error;
 
 namespace Shared{ namespace Graphics{

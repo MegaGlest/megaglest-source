@@ -177,6 +177,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings){
 	data.defaultResources= gameSettings->getDefaultResources();
     data.defaultUnits= gameSettings->getDefaultUnits();
     data.defaultVictoryConditions= gameSettings->getDefaultVictoryConditions();
+	data.fogOfWar = gameSettings->getFogOfWar();
 
 	for(int i= 0; i<data.factionCount; ++i){
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
@@ -196,6 +197,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setDefaultResources(data.defaultResources);
     gameSettings->setDefaultUnits(data.defaultUnits);
     gameSettings->setDefaultVictoryConditions(data.defaultVictoryConditions);
+	gameSettings->setFogOfWar(data.fogOfWar);
 
 	for(int i= 0; i<data.factionCount; ++i){
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
@@ -344,8 +346,6 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 	checksum.addFile(file);
 	data.mapCRC = checksum.getSum();
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),data.mapCRC);
-
-	data.hasFogOfWar = Config::getInstance().getBool("FogOfWar");;
 }
 
 bool NetworkMessageSynchNetworkGameData::receive(Socket* socket)
@@ -364,15 +364,13 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) const
 //	class NetworkMessageSynchNetworkGameDataStatus
 // =====================================================
 
-NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, int8 hasFogOfWar)
+NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC)
 {
 	data.messageType= nmtSynchNetworkGameDataStatus;
 
     data.tilesetCRC     = tilesetCRC;
     data.techCRC        = techCRC;
 	data.mapCRC         = mapCRC;
-
-	data.hasFogOfWar    = hasFogOfWar;
 }
 
 bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket)

@@ -571,9 +571,4 @@ void ServerInterface::close()
 	//serverSocket = ServerSocket();
 }
 
-bool ServerInterface::getFogOfWar()
-{
-    return Config::getInstance().getBool("FogOfWar");
-}
-
 }}//end namespace

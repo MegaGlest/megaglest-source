@@ -13,22 +13,12 @@
 
 #ifdef SL_LEAK_DUMP
 
-AllocInfo::AllocInfo(){
-	ptr= NULL;
-	file= "";
-	line= -1;
-	bytes= -1;
-	array= false;
-	free= true;
+AllocInfo::AllocInfo()
+		: ptr(0), file(""), line(-1), bytes(-1), array(false), free(false) {
 }
 
-AllocInfo::AllocInfo(void* ptr, const char* file, int line, size_t bytes, bool array){
-	this->ptr= ptr;
-	this->file= file;
-	this->line= line;
-	this->bytes= bytes;
-	this->array= array;
-	free= false;
+AllocInfo::AllocInfo(void* ptr, const char* file, int line, size_t bytes, bool array)
+		: ptr(ptr), file(file), line(line), bytes(bytes), array(array), free(false) {
 }
 
 // =====================================================
@@ -53,12 +43,7 @@ AllocRegistry &AllocRegistry::getInstance(){
 
 AllocRegistry::~AllocRegistry(){
 
-    string leakLog = "leak_dump.log";
-    if(getGameReadWritePath() != "") {
-        leakLog = getGameReadWritePath() + leakLog;
-    }
-
-	dump(leakLog.c_str());
+	dump("leak_dump.log");
 }
 
 void AllocRegistry::allocate(AllocInfo info){

@@ -218,17 +218,7 @@ void ClientInterface::updateLobby()
                     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC mismatch, local = %d, remote = %d\n",
                             __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC());
                 }
-
-
-                this->setNetworkGameDataSynchCheckOkFogOfWar((getFogOfWar() == networkMessageSynchNetworkGameData.getFogOfWar()));
-
-                if(this->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] getFogOfWar mismatch, local = %d, remote = %d\n",
-                            __FILE__,__FUNCTION__,getFogOfWar(),networkMessageSynchNetworkGameData.getFogOfWar());
-                }
-
-                NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC,getFogOfWar());
+                NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC);
                 sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
             }
         }
@@ -569,10 +559,10 @@ void ClientInterface::close()
 	delete clientSocket;
 	clientSocket= NULL;
 }
-
+/*
 bool ClientInterface::getFogOfWar()
 {
     return Config::getInstance().getBool("FogOfWar");
 }
-
+*/
 }}//end namespace

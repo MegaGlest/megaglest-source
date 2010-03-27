@@ -149,6 +149,7 @@ private:
 		int8 defaultResources;
         int8 defaultUnits;
         int8 defaultVictoryConditions;
+		int8 fogOfWar;
 	};
 
 private:
@@ -279,7 +280,6 @@ private:
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
-		int8  hasFogOfWar;
 	};
 
 private:
@@ -299,8 +299,6 @@ public:
 	int32 getMapCRC() const		{return data.mapCRC;}
 	int32 getTilesetCRC() const	{return data.tilesetCRC;}
 	int32 getTechCRC() const	{return data.techCRC;}
-
-	int8  getFogOfWar() const   { return data.hasFogOfWar; }
 };
 
 // =====================================================
@@ -323,7 +321,6 @@ private:
 		int32 tilesetCRC;
 		int32 techCRC;
 
-		int8  hasFogOfWar;
 	};
 
 private:
@@ -331,7 +328,7 @@ private:
 
 public:
     NetworkMessageSynchNetworkGameDataStatus() {};
-	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, int8 hasFogOfWar);
+	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC);
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -339,8 +336,6 @@ public:
 	int32 getMapCRC() const		{return data.mapCRC;}
 	int32 getTilesetCRC() const	{return data.tilesetCRC;}
 	int32 getTechCRC() const	{return data.techCRC;}
-
-	int8 getFogOfWar() const    { return data.hasFogOfWar; }
 };
 
 // =====================================================

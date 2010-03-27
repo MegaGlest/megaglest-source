@@ -186,7 +186,6 @@ void ConnectionSlot::update(bool checkForNewClients)
                         networkGameDataSynchCheckOkMap      = (networkMessageSynchNetworkGameDataStatus.getMapCRC() == mapCRC);
                         networkGameDataSynchCheckOkTile     = (networkMessageSynchNetworkGameDataStatus.getTilesetCRC() == tilesetCRC);
                         networkGameDataSynchCheckOkTech     = (networkMessageSynchNetworkGameDataStatus.getTechCRC()    == techCRC);
-                        networkGameDataSynchCheckOkFogOfWar = (networkMessageSynchNetworkGameDataStatus.getFogOfWar() == serverInterface->getFogOfWar() == true);
 
                         // For testing
                         //techCRC++;
@@ -203,7 +202,6 @@ void ConnectionSlot::update(bool checkForNewClients)
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameDataStatus.getMapCRC());
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameDataStatus.getTilesetCRC());
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameDataStatus.getTechCRC());
-                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] serverInterface->getFogOfWar() = %d, remote = %d\n",__FILE__,__FUNCTION__,serverInterface->getFogOfWar(),networkMessageSynchNetworkGameDataStatus.getFogOfWar());
 
                             if(allowDownloadDataSynch == true)
                             {
