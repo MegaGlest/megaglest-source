@@ -102,6 +102,9 @@ void SoundRenderer::playMusic(StrSound *strSound){
 void SoundRenderer::stopMusic(StrSound *strSound){
     if(soundPlayer != NULL) {
         soundPlayer->stop(strSound);
+		if(strSound->getNext() != NULL) {
+			soundPlayer->stop(strSound->getNext());
+		}
     }
 }
 
