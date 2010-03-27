@@ -2,6 +2,7 @@
 #define _GLEST_GAME_GAMECONSTANTS_H_
 
 #include <cassert>
+#include <stdio.h>
 
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
@@ -65,12 +66,15 @@ public:
 		value = static_cast<Enum>(v);
 	}
 	operator Enum() { return value; }
+	//int asInt() { return (int)value; }
 
 	void operator++() {
-		value = static_cast<Enum>(value + 1 % 4);
+		//printf("In [%s::%s] Line: %d BEFORE +: value = %d\n",__FILE__,__FUNCTION__,__LINE__,asInt());
+		value = static_cast<Enum>((value + 1) % 4);
+		//printf("In [%s::%s] Line: %d AFTER +: value = %d\n",__FILE__,__FUNCTION__,__LINE__,asInt());
 	}
 	void operator--() { // mod with negative numbers is a 'grey area', hence the +3 rather than -1
-		value = static_cast<Enum>(value + 3 % 4);
+		value = static_cast<Enum>((value + 3) % 4);
 	}
 
 private:
