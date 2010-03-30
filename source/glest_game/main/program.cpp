@@ -122,8 +122,15 @@ Program::Program() {
 }
 
 void Program::initNormal(WindowGl *window){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	init(window);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	setState(new Intro(this));
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::initServer(WindowGl *window){
@@ -254,11 +261,17 @@ void Program::exit() {
 
 void Program::init(WindowGl *window, bool initSound){
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->window= window;
 	Config &config= Config::getInstance();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     //set video mode
 	setDisplaySettings();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//window
 	window->setText("Glest");
@@ -267,10 +280,14 @@ void Program::init(WindowGl *window, bool initSound){
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));
 	window->create();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//timers
 	fpsTimer.init(1, maxTimes);
 	updateTimer.init(GameConstants::updateFps, maxTimes);
 	updateCameraTimer.init(GameConstants::cameraFps, maxTimes);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //log start
 	Logger &logger= Logger::getInstance();
@@ -281,22 +298,37 @@ void Program::init(WindowGl *window, bool initSound){
 	logger.setFile(logFile);
 	logger.clear();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//lang
 	Lang &lang= Lang::getInstance();
 	lang.loadStrings(config.getString("Lang"));
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//render
 	Renderer &renderer= Renderer::getInstance();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	window->initGl(config.getInt("ColorBits"), config.getInt("DepthBits"), config.getInt("StencilBits"));
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	window->makeCurrentGl();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//coreData, needs renderer, but must load before renderer init
 	CoreData &coreData= CoreData::getInstance();
     coreData.load();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//init renderer (load global textures)
 	renderer.init();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//sound
 	if(initSound == true) {
@@ -306,6 +338,8 @@ void Program::init(WindowGl *window, bool initSound){
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","0"));
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","0"));
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::setDisplaySettings(){

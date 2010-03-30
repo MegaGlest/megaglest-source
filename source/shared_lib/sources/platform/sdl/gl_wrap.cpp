@@ -34,6 +34,8 @@ namespace Shared{ namespace Platform{
 // ======================================
 
 void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
+	
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
@@ -41,6 +43,9 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	int flags = SDL_OPENGL;
 	if(Private::shouldBeFullscreen)
 		flags |= SDL_FULLSCREEN;
@@ -106,7 +111,49 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	XFreeFont(display, fontInfo);
 #else
     // we badly need a solution portable to more than just glx
-	NOIMPL;
+	//NOIMPL;
+	HFONT font= CreateFont(
+		size, 0, 0, 0, width, 0, FALSE, FALSE, ANSI_CHARSET,
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+		DEFAULT_PITCH, type.c_str());
+
+	assert(font!=NULL);
+
+	HDC dc= wglGetCurrentDC();
+	SelectObject(dc, font);
+	BOOL err= wglUseFontBitmaps(dc, 0, charCount, base);
+		
+	FIXED one;
+	one.value= 1;
+	one.fract= 0;
+
+	FIXED zero;
+	zero.value= 0;
+	zero.fract= 0;
+
+	MAT2 mat2;
+	mat2.eM11= one;
+	mat2.eM12= zero;
+	mat2.eM21= zero;
+	mat2.eM22= one;
+
+	//metrics
+	GLYPHMETRICS glyphMetrics;
+	int errorCode= GetGlyphOutline(dc, 'a', GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+	if(errorCode!=GDI_ERROR){
+		metrics.setHeight(static_cast<float>(glyphMetrics.gmBlackBoxY));
+	}
+	for(int i=0; i<charCount; ++i){
+		int errorCode= GetGlyphOutline(dc, i, GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+		if(errorCode!=GDI_ERROR){
+			metrics.setWidth(i, static_cast<float>(glyphMetrics.gmCellIncX));
+		}
+	}
+
+	DeleteObject(font);
+
+	assert(err);
+
 #endif
 }
 

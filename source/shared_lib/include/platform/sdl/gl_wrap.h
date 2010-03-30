@@ -11,9 +11,23 @@
 #ifndef _SHARED_PLATFORM_GLWRAP_H_
 #define _SHARED_PLATFORM_GLWRAP_H_
 
+#ifdef WIN32
+
+#include <windows.h>
+
+#include <GL\gl.h>
+#include <GL\glu.h>
+#include <glprocs.h>
+
+#define GLEST_GLPROC(X, Y) inline X( static a= wglGetProcAddress(a); return a;) 
+
+#else
+
 #include <SDL.h>
 #define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
+
+#endif
 
 #include <string>
 

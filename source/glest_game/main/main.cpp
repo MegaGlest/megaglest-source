@@ -253,11 +253,18 @@ int glestMain(int argc, char** argv){
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//showCursor(config.getBool("Windowed"));
 		showCursor(false);
 
 		program= new Program();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		mainWindow= new MainWindow(program);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//parse command line
 		if(argc==2 && string(argv[1])=="-server"){

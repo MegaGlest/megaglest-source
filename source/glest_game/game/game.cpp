@@ -428,10 +428,15 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 			float ymult = 0.2f;
 			float xmult = 0.2f;
 
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 			mouseX=lastMousePos.x;
 			mouseY=lastMousePos.y;
 			Window::revertMousePos();
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			return;
 		}
 	}

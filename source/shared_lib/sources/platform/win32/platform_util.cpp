@@ -24,6 +24,11 @@
 #include <direct.h>
 #include <algorithm>
 
+#include <SDL.h>
+#include "sdl_private.h"
+#include "window.h"
+#include "noimpl.h"
+
 #include "leak_dumper.h"
 
 #define S_ISDIR(mode) ((mode) & _S_IFDIR)
@@ -32,6 +37,14 @@ using namespace Shared::Util;
 using namespace std;
 
 namespace Shared{ namespace Platform{
+
+namespace Private{
+
+bool shouldBeFullscreen = false;
+int ScreenWidth;
+int ScreenHeight;
+
+}
 
 // =====================================================
 //	class PerformanceTimer
@@ -492,75 +505,143 @@ void createDirectoryPaths(string Path)
  _mkdir(DirName);
 }
 
+//void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
+//    // Get the current video hardware information
+//    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+//    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+//    //screenWidth    = vidInfo->current_w;
+//
+///*
+//	//screenHeight   = vidInfo->current_h;
+//    int cx = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+//    // height
+//    int cy = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+//
+//	printf("cx = %d, cy = %d\n",cx,cy);
+//
+//	if(cx > screenWidth) {
+//		screenWidth  = cx;
+//		screenHeight = cy;
+//	}
+//*/
+//	int iMaxWidth	= -1;
+//	int iMaxHeight	= -1;
+//	int iMaxBits	= -1;
+//
+//	DEVMODE devMode;
+//	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
+//
+//		//printf("devMode.dmPelsWidth = %d, devMode.dmPelsHeight = %d, devMode.dmBitsPerPel = %d\n",devMode.dmPelsWidth,devMode.dmPelsHeight,devMode.dmBitsPerPel);
+//
+//		if(devMode.dmPelsWidth > iMaxWidth) {
+//			iMaxWidth  = devMode.dmPelsWidth;
+//			iMaxHeight = devMode.dmPelsHeight;
+//			iMaxBits   = devMode.dmBitsPerPel;
+//			//devMode.dmDisplayFrequency=refreshFrequency;
+//		}
+//	}
+//	if(iMaxWidth > 0) {
+//		colorBits      = iMaxBits;
+//		screenWidth    = iMaxWidth;
+//		screenHeight   = iMaxHeight;
+//	}
+//}
+//
+//bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){
+//	DEVMODE devMode;
+//
+//	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
+//		if (devMode.dmPelsWidth== resW &&
+//			devMode.dmPelsHeight== resH &&
+//			devMode.dmBitsPerPel== colorBits){
+//
+//			devMode.dmDisplayFrequency=refreshFrequency;
+//
+//			LONG result= ChangeDisplaySettings(&devMode, 0);
+//			if(result == DISP_CHANGE_SUCCESSFUL){
+//				return true;
+//			}
+//			else{
+//				return false;
+//			}
+//		}
+//	}
+//
+//	return false;
+//}
+//
+//void restoreVideoMode(bool exitingApp) {
+//	int dispChangeErr= ChangeDisplaySettings(NULL, 0);
+//	assert(dispChangeErr==DISP_CHANGE_SUCCESSFUL);
+//}
+
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
     // Get the current video hardware information
     //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
     //colorBits      = vidInfo->vfmt->BitsPerPixel;
     //screenWidth    = vidInfo->current_w;
+    //screenHeight   = vidInfo->current_h;
 
-/*
-	//screenHeight   = vidInfo->current_h;
-    int cx = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-    // height
-    int cy = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	printf("cx = %d, cy = %d\n",cx,cy);
+    /* Get available fullscreen/hardware modes */
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
 
-	if(cx > screenWidth) {
-		screenWidth  = cx;
-		screenHeight = cy;
-	}
-*/
-	int iMaxWidth	= -1;
-	int iMaxHeight	= -1;
-	int iMaxBits	= -1;
+    /* Check if there are any modes available */
+    if (modes == (SDL_Rect**)0) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
 
-	DEVMODE devMode;
-	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
 
-		//printf("devMode.dmPelsWidth = %d, devMode.dmPelsHeight = %d, devMode.dmBitsPerPel = %d\n",devMode.dmPelsWidth,devMode.dmPelsHeight,devMode.dmBitsPerPel);
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   /* Check if our resolution is restricted */
+   else if (modes == (SDL_Rect**)-1) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(devMode.dmPelsWidth > iMaxWidth) {
-			iMaxWidth  = devMode.dmPelsWidth;
-			iMaxHeight = devMode.dmPelsHeight;
-			iMaxBits   = devMode.dmBitsPerPel;
-			//devMode.dmDisplayFrequency=refreshFrequency;
-		}
-	}
-	if(iMaxWidth > 0) {
-		colorBits      = iMaxBits;
-		screenWidth    = iMaxWidth;
-		screenHeight   = iMaxHeight;
-	}
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   else{
+       /* Print valid modes */
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+       int bestW = -1;
+       int bestH = -1;
+       for(int i=0; modes[i]; ++i) {
+           SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
+
+           if(bestW < modes[i]->w) {
+               bestW = modes[i]->w;
+               bestH = modes[i]->h;
+           }
+       }
+
+       if(bestW > screenWidth) {
+           screenWidth = bestW;
+           screenHeight = bestH;
+       }
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+  }
 }
 
-bool changeVideoMode(int resW, int resH, int colorBits, int refreshFrequency){
-	DEVMODE devMode;
-
-	for (int i=0; EnumDisplaySettings(NULL, i, &devMode) ;i++){
-		if (devMode.dmPelsWidth== resW &&
-			devMode.dmPelsHeight== resH &&
-			devMode.dmBitsPerPel== colorBits){
-
-			devMode.dmDisplayFrequency=refreshFrequency;
-
-			LONG result= ChangeDisplaySettings(&devMode, 0);
-			if(result == DISP_CHANGE_SUCCESSFUL){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
-	}
-
-	return false;
+bool changeVideoMode(int resW, int resH, int colorBits, int ) {
+	Private::shouldBeFullscreen = true;
+	return true;
 }
 
 void restoreVideoMode(bool exitingApp) {
-	int dispChangeErr= ChangeDisplaySettings(NULL, 0);
-	assert(dispChangeErr==DISP_CHANGE_SUCCESSFUL);
+    SDL_Quit();
 }
+
 
 void message(string message){
 	MessageBox(NULL, message.c_str(), "Message", MB_OK);
@@ -583,13 +664,22 @@ void exceptionMessage(const exception &excp){
 	MessageBox(NULL, message.c_str(), title.c_str(), MB_ICONSTOP | MB_OK | MB_TASKMODAL);
 }
 
-int getScreenW(){
-	return GetSystemMetrics(SM_CXSCREEN);
+//int getScreenW(){
+//	return GetSystemMetrics(SM_CXSCREEN);
+//}
+
+//int getScreenH(){
+//	return GetSystemMetrics(SM_CYSCREEN);
+//}
+
+int getScreenW() {
+	return SDL_GetVideoSurface()->w;
 }
 
-int getScreenH(){
-	return GetSystemMetrics(SM_CYSCREEN);
+int getScreenH() {
+	return SDL_GetVideoSurface()->h;
 }
+
 
 void sleep(int millis){
 	Sleep(millis);
