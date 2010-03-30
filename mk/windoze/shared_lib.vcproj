@@ -113,7 +113,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -371,19 +371,23 @@
 			<Filter
 				Name="platform"
 				>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\sdl\window.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\sdl\window_gl.cpp"
+					>
+				</File>
 				<Filter
 					Name="win32"
 					>
 					<File
 						RelativePath="..\..\source\shared_lib\sources\platform\win32\factory_repository.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\sources\platform\win32\gl_wrap.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\sources\platform\win32\platform_menu.cpp"
 						>
 					</File>
 					<File
@@ -396,14 +400,6 @@
 					</File>
 					<File
 						RelativePath="..\..\source\shared_lib\sources\platform\win32\thread.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\sources\platform\win32\window.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\sources\platform\win32\window_gl.cpp"
 						>
 					</File>
 				</Filter>
@@ -645,6 +641,30 @@
 			<Filter
 				Name="platform"
 				>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\gl_wrap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\noimpl.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\platform_main.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\sdl_private.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\window.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\window_gl.h"
+					>
+				</File>
 				<Filter
 					Name="win32"
 					>
@@ -653,15 +673,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\gl_wrap.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_definitions.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_main.h"
 						>
 					</File>
 					<File
@@ -682,14 +694,6 @@
 					</File>
 					<File
 						RelativePath="..\..\source\shared_lib\include\platform\win32\types.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\window.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\window_gl.h"
 						>
 					</File>
 				</Filter>

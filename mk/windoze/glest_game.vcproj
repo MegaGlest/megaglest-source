@@ -133,7 +133,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl"
 				AdditionalUsingDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;XML_LIBRARY;USE_PCH=1;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib"
+				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
