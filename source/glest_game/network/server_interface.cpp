@@ -42,7 +42,7 @@ ServerInterface::ServerInterface(){
 		slots[i]= NULL;
 	}
 	serverSocket.setBlock(false);
-	serverSocket.bind(GameConstants::serverPort);
+	serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 }
 
 ServerInterface::~ServerInterface(){

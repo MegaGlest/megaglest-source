@@ -331,18 +331,6 @@ when they are issued a command"/>
 
 		<field-group name="Network">
 			<field type="String">
-				<name value="Server IP"/>
-				<variable-name value="ServerIp"/>
-				<description value=""/>
-				<default value="192.168.1.1"/>
-			</field>
-			<field type="Int">
-				<name value="Server port"/>
-				<variable-name value="ServerPort"/>
-				<description value=""/>
-				<default value="6666"/>
-			</field>
-			<field type="String">
 				<name value="Network player name"/>
 				<variable-name value="NetPlayerName"/>
 				<description value="Your player name for network games"/>
