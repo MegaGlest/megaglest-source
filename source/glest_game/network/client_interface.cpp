@@ -559,6 +559,17 @@ void ClientInterface::close()
 	delete clientSocket;
 	clientSocket= NULL;
 }
+
+std::vector<string> ClientInterface::discoverServers() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	std::vector<string> serverList = ClientSocket::discoverServers();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return serverList;
+}
+
 /*
 bool ClientInterface::getFogOfWar()
 {

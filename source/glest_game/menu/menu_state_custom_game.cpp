@@ -232,7 +232,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		bool bOkToStart = serverInterface->launchGame(&gameSettings);
 		if(bOkToStart == true)
 		{
-
             program->setState(new Game(program, &gameSettings));
 		}
 	}

@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -17,6 +17,7 @@
 #include <cstring>
 #include <cstdio>
 #include <stdarg.h>
+#include <time.h>
 
 #include "leak_dumper.h"
 
@@ -41,8 +42,18 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         return;
     }
 
+    /* Get the current time.  */
+    time_t curtime = time (NULL);
+    /* Convert it to local time representation.  */
+    struct tm *loctime = localtime (&curtime);
+    char szBuf2[100]="";
+    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+
     va_list argList;
     va_start(argList, fmt);
+
+    char szBuf[1024]="";
+    vsprintf(szBuf,fmt, argList);
 
     // Either output to a logfile or
     if(SystemFlags::debugLogFile != NULL && SystemFlags::debugLogFile[0] != 0) {
@@ -53,16 +64,13 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
 
-        char szBuf[1024]="";
-        vsprintf(szBuf,fmt, argList);
-
         //printf("writing to logfile [%s]\n",szBuf);
-        fileStream << szBuf;
+        fileStream << "[" << szBuf2 << "] " << szBuf;
         fileStream.flush();
     }
     // output to console
     else {
-        vprintf(fmt, argList);
+        printf("[%s] %s", szBuf2, szBuf);
     }
 
     va_end(argList);

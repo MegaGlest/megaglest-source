@@ -336,11 +336,15 @@ void MenuStateJoinGame::update()
 }
 
 void MenuStateJoinGame::keyDown(char key){
-	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
+	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	if(!clientInterface->isConnected())
 	{
-		if(key==vkBack){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(key==vkBack) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			string text= labelServerIp.getText();
 
 			if(text.size()>1){
@@ -349,9 +353,22 @@ void MenuStateJoinGame::keyDown(char key){
 
 			labelServerIp.setText(text);
 		}
+		else if(key== 'A') {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			std::vector<string> serverList = clientInterface->discoverServers();
+			if(serverList.size() > 0) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] serverList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverList[0].c_str());
+
+				labelServerIp.setText(serverList[0]);
+				connectToServer();
+			}
+		}
 	}
 	else
 	{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         //send key to the chat manager
         chatManager.keyDown(key);
 	}

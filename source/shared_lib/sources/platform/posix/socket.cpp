@@ -21,13 +21,18 @@
 #include <sys/filio.h>
 #endif
 
+#include <net/if.h>
+
 #include "conversion.h"
 #include "util.h"
+#include "platform_util.h"
 
 using namespace std;
 using namespace Shared::Util;
 
 namespace Shared{ namespace Platform{
+
+int Socket::broadcast_portno = 61357;
 
 // =====================================================
 //	class Ip
@@ -67,6 +72,50 @@ string Ip::getString() const{
 // ===============================================
 //	class Socket
 // ===============================================
+
+std::vector<std::string> Socket::getLocalIPAddressList() {
+	std::vector<std::string> ipList;
+
+	/* get my host name */
+	char myhostname[101]="";
+	gethostname(myhostname,100);
+
+	struct hostent* myhostent = gethostbyname(myhostname);
+
+	// get all host IP addresses (Except for loopback)
+	char myhostaddr[101] = "";
+	int ipIdx = 0;
+	while (myhostent->h_addr_list[ipIdx] != 0) {
+	   sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
+	   printf("%s\n",myhostaddr);
+
+	   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+		   ipList.push_back(myhostaddr);
+	   }
+	   ipIdx++;
+	}
+
+	// Now check all linux network devices
+	int fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+	/* I want to get an IPv4 IP address */
+	struct ifreq ifr;
+	ifr.ifr_addr.sa_family = AF_INET;
+
+	/* I want IP address attached to "eth0" */
+	strncpy(ifr.ifr_name, "eth1", IFNAMSIZ-1);
+	ioctl(fd, SIOCGIFADDR, &ifr);
+	close(fd);
+
+    sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+	printf("%s\n",myhostaddr);
+
+    if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+	   ipList.push_back(myhostaddr);
+    }
+
+	return ipList;
+}
 
 Socket::Socket(int sock){
 	this->sock= sock;
@@ -644,9 +693,131 @@ void ClientSocket::connect(const Ip &ip, int port)
 	}
 }
 
+//=======================================================================
+// Function :		discovery_response_thread
+// in		:		none
+// return	:		none
+// Description:		To be forked in its own thread to listen and respond to broadcasts from
+//					other servers
+//
+std::vector<string> ClientSocket::discoverServers() {
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	std::vector<string> foundServers;
+
+	short port;                 // The port for the broadcast.
+    struct sockaddr_in bcSender; // local socket address for the broadcast.
+    struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
+    int bcfd;                // The file descriptor used for the broadcast.
+    bool one = true;            // Parameter for "setscokopt".
+    char buff[10024];            // Buffers the data to be broadcasted.
+    socklen_t alen;
+    int nb;                     // The number of bytes read.
+
+    port = htons( Socket::getBroadCastPort() );
+
+    // Prepare to receive the broadcast.
+    bcfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if( bcfd <= 0 )	{
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"socket failed: %d\n", errno);
+		//exit(-1);
+	}
+    else {
+		// Create the address we are receiving on.
+		memset( (char*)&bcaddr, 0, sizeof(bcaddr));
+		bcaddr.sin_family = AF_INET;
+		bcaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+		bcaddr.sin_port = port;
+
+		int val = 1;
+		setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+		if(bind( bcfd,  (struct sockaddr *)&bcaddr, sizeof(bcaddr) ) < 0 )	{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %d\n", errno);
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			// Keep getting packets forever.
+			for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 3; )
+			{
+				alen = sizeof(struct sockaddr);
+				if( (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) <= 0  )
+				{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"recvfrom failed: %d\n", errno);
+					//exit(-1);
+				}
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,inet_ntoa(bcSender.sin_addr) );
+
+				vector<string> tokens;
+				Tokenize(buff,tokens,":");
+				foundServers.push_back(tokens[1]);
+				break;
+			}
+		}
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    return foundServers;
+}
+
 // ===============================================
 //	class ServerSocket
 // ===============================================
+
+ServerSocket::ServerSocket() : Socket() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	broadCastThread = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+ServerSocket::~ServerSocket() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	stopBroadCastThread();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ServerSocket::stopBroadCastThread() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(broadCastThread != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		broadCastThread->signalQuit();
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
+			if(broadCastThread->getRunningStatus() == false) {
+				break;
+			}
+			sleep(100);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		delete broadCastThread;
+		broadCastThread = NULL;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ServerSocket::startBroadCastThread() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	stopBroadCastThread();
+
+	broadCastThread = new BroadCastSocketThread();
+	broadCastThread->start();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
 
 void ServerSocket::bind(int port)
 {
@@ -677,6 +848,10 @@ void ServerSocket::listen(int connectionQueueSize)
 	    sprintf(szBuf, "In [%s::%s] Error listening socket sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,errno);
 		throwException(szBuf);
 	}
+
+	broadCastThread = new BroadCastSocketThread();
+	broadCastThread->start();
+
 }
 
 Socket *ServerSocket::accept()
@@ -695,6 +870,215 @@ Socket *ServerSocket::accept()
 
 	}
 	return new Socket(newSock);
+}
+
+
+BroadCastSocketThread::BroadCastSocketThread() {
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setQuitStatus(false);
+	setRunningStatus(false);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void BroadCastSocketThread::signalQuit() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setQuitStatus(true);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void BroadCastSocketThread::setQuitStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	mutexQuit.p();
+	quit = value;
+	mutexQuit.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool BroadCastSocketThread::getQuitStatus() {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool retval = false;
+	mutexQuit.p();
+	retval = quit;
+	mutexQuit.v();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return retval;
+}
+
+bool BroadCastSocketThread::getRunningStatus() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool retval = false;
+	mutexRunning.p();
+	retval = running;
+	mutexRunning.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,retval);
+
+	return retval;
+}
+
+void BroadCastSocketThread::setRunningStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	mutexRunning.p();
+	running = value;
+	mutexRunning.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+}
+
+//=======================================================================
+// Function :		broadcast_thread
+// in		:		none
+// return	:		none
+// Description:		To be forked in its own thread to send out a broadcast to the local subnet
+//					the current broadcast message is <myhostname:my.ip.address.dotted>
+//
+void BroadCastSocketThread::execute() {
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    unsigned int tbcaddr;       // The broadcast address.
+    short port;                 // The port for the broadcast.
+    struct sockaddr_in bcLocal; // local socket address for the broadcast.
+    struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
+    int bcfd;                // The socket used for the broadcast.
+    bool one = true;            // Parameter for "setscokopt".
+    int pn;                     // The number of the packet broadcasted.
+    char buff[1024];            // Buffers the data to be broadcasted.
+    char myhostname[100];       // hostname of local machine
+    //char subnetmask[100];       // Subnet mask to broadcast to
+    struct in_addr myaddr;      // My host address in net format
+    struct hostent* myhostent;
+    char * ptr;                 // some transient vars
+    int len,i;
+
+    /* get my host name */
+    gethostname(myhostname,100);
+    myhostent = gethostbyname(myhostname);
+
+    // get only the first host IP address
+    std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+
+    /*
+    strcpy(subnetmask, ipList[0].c_str());
+    ptr = &subnetmask[0];
+    len = strlen(ptr);
+
+    // substitute the address with class C subnet mask x.x.x.255
+    for(i=len;i>0;i--) {
+		if(ptr[i] == '.') {
+			strcpy(&ptr[i+1],"255");
+			break;
+		}
+    }
+    */
+
+    // Convert the broadcast address from dot notation to a broadcast address.
+    //if( (tbcaddr = inet_addr( subnetmask )) == INADDR_NONE )
+    //{
+    //	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Badly formatted BC address: %d\n", errno);
+    	//exit(-1);
+    //}
+    //else
+    {
+		port = htons( Socket::getBroadCastPort() );
+
+		// Create the broadcast socket
+		memset( &bcLocal, 0, sizeof( struct sockaddr_in));
+		bcLocal.sin_family = AF_INET;
+		bcLocal.sin_addr.s_addr = htonl( INADDR_BROADCAST );
+		bcLocal.sin_port = port;  // We are letting the OS fill in the port number for the local machine.
+		bcfd  = socket( AF_INET, SOCK_DGRAM, 0 );
+
+		// If there is an error, report it and  terminate.
+		if( bcfd <= 0  ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket.: %d\n", errno);
+			//exit(-1);
+		}
+		// Mark the socket for broadcast.
+		else if( setsockopt( bcfd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast.: %d\n", errno);
+			//exit(-1);
+		}
+		// Bind the address to the broadcast socket.
+		else {
+
+			//int val = 1;
+			//setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+			//if(::bind(bcfd, (struct sockaddr *) &bcLocal, sizeof(struct sockaddr_in)) < 0) {
+			//	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not bind address to BC socket.: %d\n", errno);
+				//exit(-1);
+			//}
+			//else
+			{
+				// Record the broadcast address of the receiver.
+				bcaddr.sin_family = AF_INET;
+				bcaddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);//tbcaddr;
+				bcaddr.sin_port = port;
+
+				setRunningStatus(true);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				try {
+					// Send this machine's host name and address in hostname:n.n.n.n format
+					sprintf(buff,"%s:%s",myhostname,ipList[0].c_str());
+
+					time_t elapsed = 0;
+					for( pn = 1; ; pn++ )
+					{
+						if(difftime(time(NULL),elapsed) >= 1) {
+							time_t elapsed = time(NULL);
+							// Broadcast the packet to the subnet
+							if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
+							{
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %d\n", errno);
+								//exit(-1);
+							}
+							else {
+								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting to [%s] the message: [%s]\n",subnetmask,buff);
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting on port [%d] the message: [%s]\n",Socket::getBroadCastPort(),buff);
+							}
+
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						}
+						if(getQuitStatus() == true) {
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							break;
+						}
+						sleep( 100 ); // send out broadcast every 1 seconds
+					}
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+				catch(const exception &ex) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+					setRunningStatus(false);
+				}
+				catch(...) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+					setRunningStatus(false);
+				}
+
+				setRunningStatus(false);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is exiting\n");
+			}
+		}
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 

@@ -108,6 +108,7 @@ public:
 //	Misc
 // =====================================================
 int MessageBox(int handle, const char *msg, const char *title, int buttons);
+void Tokenize(const string& str,vector<string>& tokens,const string& delimiters = " ");
 bool isdir(const char *path);
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false);
 void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);

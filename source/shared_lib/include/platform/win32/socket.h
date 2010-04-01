@@ -103,10 +103,15 @@ public:
 // =====================================================
 
 class ServerSocket: public Socket{
+
 public:
 	void bind(int port);
 	void listen(int connectionQueueSize= SOMAXCONN);
 	Socket *accept();
+
+protected:
+
+	void broadcast_thread();
 };
 
 }}//end namespace

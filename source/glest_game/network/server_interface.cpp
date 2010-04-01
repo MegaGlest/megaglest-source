@@ -412,6 +412,8 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     if(bOkToStart == true)
     {
+   		serverSocket.stopBroadCastThread();
+
         NetworkMessageLaunch networkMessageLaunch(gameSettings);
         broadcastMessage(&networkMessageLaunch);
     }

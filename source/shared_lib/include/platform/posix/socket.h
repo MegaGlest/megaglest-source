@@ -23,6 +23,8 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <map>
+#include <vector>
+#include "thread.h"
 
 using std::string;
 
@@ -53,11 +55,16 @@ class Socket {
 protected:
 	int sock;
 	long lastDebugEvent;
+	static int broadcast_portno;
 
 public:
 	Socket(int sock);
 	Socket();
-	~Socket();
+	virtual ~Socket();
+
+	static int getBroadCastPort() { return broadcast_portno; }
+	static void setBroadCastPort(int value) { broadcast_portno = value; }
+	static std::vector<std::string> getLocalIPAddressList();
 
     // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
     static bool hasDataToRead(std::map<int,bool> &socketTriggeredList);
@@ -91,6 +98,28 @@ protected:
 class ClientSocket: public Socket{
 public:
 	void connect(const Ip &ip, int port);
+
+	static std::vector<string> discoverServers();
+};
+
+class BroadCastSocketThread : public Thread
+{
+private:
+	Mutex mutexRunning;
+	Mutex mutexQuit;
+
+	bool quit;
+	bool running;
+
+	void setRunningStatus(bool value);
+	void setQuitStatus(bool value);
+
+public:
+	BroadCastSocketThread();
+    virtual void execute();
+    void signalQuit();
+    bool getQuitStatus();
+    bool getRunningStatus();
 };
 
 // =====================================================
@@ -99,9 +128,18 @@ public:
 
 class ServerSocket: public Socket{
 public:
+	ServerSocket();
+	virtual ~ServerSocket();
 	void bind(int port);
 	void listen(int connectionQueueSize= SOMAXCONN);
 	Socket *accept();
+	void stopBroadCastThread();
+
+protected:
+
+	BroadCastSocketThread *broadCastThread;
+	void startBroadCastThread();
+
 };
 
 }}//end namespace
