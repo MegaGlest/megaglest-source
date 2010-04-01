@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <direct.h>
 #include <algorithm>
+#include <map>
 
 #include <SDL.h>
 #include "sdl_private.h"
@@ -659,37 +660,76 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    /* Get available fullscreen/hardware modes */
-    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+    SDL_PixelFormat format;
+  	SDL_Rect **modes;
+  	int loops(0);
+	int bpp(0);
+	std::map<std::string,bool> uniqueResList;
 
-    /* Check if there are any modes available */
-    if (modes == (SDL_Rect**)0) {
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+	do
+	{
+			//format.BitsPerPixel seems to get zeroed out on my windows box
+			switch(loops)
+			{
+				case 0://32 bpp
+					format.BitsPerPixel = 32;
+					bpp = 32;
+					break;
+				case 1://24 bpp
+					format.BitsPerPixel = 24;
+					bpp = 24;
+					break;
+				case 2://16 bpp
+					format.BitsPerPixel = 16;
+					bpp = 16;
+					break;
+			}
 
-       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-       modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
-   }
-   /* Check if our resolution is restricted */
-   else if (modes == (SDL_Rect**)-1) {
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+			/* Get available fullscreen/hardware modes */
+			//SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
+			SDL_Rect**modes = SDL_ListModes(&format, SDL_FULLSCREEN);
 
-       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-       modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
-   }
-   else{
-       /* Print valid modes */
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+			/* Check if there are any modes available */
+			if (modes == (SDL_Rect**)0) {
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
 
-       int bestW = -1;
-       int bestH = -1;
-       for(int i=0; modes[i]; ++i) {
-          	SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,modes[i]->x);
-       		modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,modes[i]->x));   
-       		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h);
-       }
-  }
+			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
+		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+		    	   uniqueResList[lookupKey] = true;
+		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+		       }
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+		   }
+		   /* Check if our resolution is restricted */
+		   else if (modes == (SDL_Rect**)-1) {
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
+		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+		    	   uniqueResList[lookupKey] = true;
+		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+		       }
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+		   }
+		   else{
+			   /* Print valid modes */
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+			   int bestW = -1;
+			   int bestH = -1;
+			   for(int i=0; modes[i]; ++i) {
+				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,modes[i]->x);
+				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(modes[i]->x);
+				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+				    	uniqueResList[lookupKey] = true;
+				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,modes[i]->x));
+				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h);
+				    }
+			   }
+		  }
+	} while(++loops != 3);
 }
 
 bool changeVideoMode(int resW, int resH, int colorBits, int ) {
