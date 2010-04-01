@@ -537,7 +537,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     /* Get available fullscreen/hardware modes */
-    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
 
     /* Check if there are any modes available */
     if (modes == (SDL_Rect**)0) {
