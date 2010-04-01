@@ -94,23 +94,51 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		throw std::runtime_error("Font not found.");
 	}
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	// we need the height of 'a' which sould ~ be half ascent+descent
 	metrics.setHeight(static_cast<float>
 			(fontInfo->ascent + fontInfo->descent) / 2);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	for(unsigned int i = 0; i < static_cast<unsigned int> (charCount); ++i) {
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(i < fontInfo->min_char_or_byte2 ||
 				i > fontInfo->max_char_or_byte2) {
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			metrics.setWidth(i, static_cast<float>(6));
 		} else {
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			int p = i - fontInfo->min_char_or_byte2;
-			metrics.setWidth(i, static_cast<float> (
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,p,fontInfo->per_char);
+			if(fontInfo->per_char == NULL) {
+				XCharStruct *charinfo = &(fontInfo->min_bounds);
+				int charWidth = charinfo->rbearing - charinfo->lbearing;
+			    int charHeight = charinfo->ascent + charinfo->descent;
+			    int spanLength = (charWidth + 7) / 8;
+
+			    metrics.setWidth(i, static_cast<float> (charWidth));
+			}
+			else {
+				metrics.setWidth(i, static_cast<float> (
 						fontInfo->per_char[p].rbearing
 						- fontInfo->per_char[p].lbearing));
+			}
 		}
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glXUseXFont(fontInfo->fid, 0, charCount, base);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	XFreeFont(display, fontInfo);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 #else
     // we badly need a solution portable to more than just glx
 	//NOIMPL;
