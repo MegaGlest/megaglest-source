@@ -226,6 +226,8 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits) {
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
 }
 
+#ifdef WIN32
+
 static HWND GetSDLWindow()
 {
     SDL_SysWMinfo   info;
@@ -235,6 +237,8 @@ static HWND GetSDLWindow()
         return NULL;
     return info.window;
 }
+
+#endif
 
 void Window::toggleFullscreen() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
