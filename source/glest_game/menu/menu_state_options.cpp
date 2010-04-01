@@ -37,18 +37,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Shared::Platform::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
 	
-	int leftline=640;
-	int rightline=640;
-	int leftLabelStart=50;
+	int leftline=670;
+	int rightline=670;
+	int leftLabelStart=250;
 	int leftColumnStart=leftLabelStart+150;
 	int rightLabelStart=500;
 	int rightColumnStart=rightLabelStart+150;
-	int buttonRowPos=20;
+	int buttonRowPos=80;
 	int captionOffset=75;
 	
 	
 	
-	leftline-=30;
 	labelAudioSection.init(leftLabelStart+captionOffset, leftline);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelAudioSection.setText(lang.get("Audio"));

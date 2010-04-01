@@ -81,41 +81,64 @@ void CoreData::load(){
 
 	//display font
 	Config &config= Config::getInstance();
-	string displayFontName= config.getString("FontDisplay");
-
+	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
+	string displayFontNamePostfix=config.getString("FontDisplayPostfix");
+	int displayFontSize=computeFontSize(15);
+	string displayFontName=displayFontNamePrefix+intToStr(displayFontSize)+displayFontNamePostfix;
 	displayFont= renderer.newFont(rsGlobal);
 	displayFont->setType(displayFontName);
-	displayFont->setSize(computeFontSize(15));
+	displayFont->setSize(displayFontSize);
+
+	menuFontSmall=displayFont;
+	menuFontNormal=displayFont;
+	menuFontBig=displayFont;
+	menuFontVeryBig=displayFont;
+	consoleFont=displayFont;
 
 	//menu fonts
-	string menuFontNameSmall= config.getString("FontMenuSmall");
-
+	string menuFontNameSmallPrefix= config.getString("FontMenuNormalPrefix");
+	string menuFontNameSmallPostfix= config.getString("FontMenuNormalPostfix");
+	int menuFontNameSmallSize=computeFontSize(12);
+	string menuFontNameSmall=menuFontNameSmallPrefix+intToStr(menuFontNameSmallSize)+menuFontNameSmallPostfix;
 	menuFontSmall= renderer.newFont(rsGlobal);
 	menuFontSmall->setType(menuFontNameSmall);
-	menuFontSmall->setSize(computeFontSize(10));
-
-	string menuFontNameNormal= config.getString("FontMenuNormal");
+	menuFontSmall->setSize(menuFontNameSmallSize);
+	
+	
+	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
+	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
+	int menuFontNameNormalSize=computeFontSize(13);
+	string menuFontNameNormal= menuFontNameNormalPrefix+intToStr(menuFontNameNormalSize)+menuFontNameNormalPostfix;
 	menuFontNormal= renderer.newFont(rsGlobal);
 	menuFontNormal->setType(menuFontNameNormal);
-	menuFontNormal->setSize(computeFontSize(12));
+	menuFontNormal->setSize(menuFontNameNormalSize);
 	menuFontNormal->setWidth(Font::wBold);
 
-	string menuFontNameBig= config.getString("FontMenuBig");
+
+	string menuFontNameBigPrefix= config.getString("FontMenuBigPrefix");
+	string menuFontNameBigPostfix= config.getString("FontMenuBigPostfix");
+	int menuFontNameBigSize=computeFontSize(20);
+	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
 	menuFontBig= renderer.newFont(rsGlobal);
 	menuFontBig->setType(menuFontNameBig);
-	menuFontBig->setSize(computeFontSize(16));
+	menuFontBig->setSize(menuFontNameBigSize);
 
-	string menuFontNameVeryBig= config.getString("FontMenuVeryBig");
+	string menuFontNameVeryBigPrefix= config.getString("FontMenuBigPrefix");
+	string menuFontNameVeryBigPostfix= config.getString("FontMenuBigPostfix");
+	int menuFontNameVeryBigSize=computeFontSize(25);
+	string menuFontNameVeryBig= menuFontNameVeryBigPrefix+intToStr(menuFontNameVeryBigSize)+menuFontNameVeryBigPostfix;
 	menuFontVeryBig= renderer.newFont(rsGlobal);
 	menuFontVeryBig->setType(menuFontNameVeryBig);
-	menuFontVeryBig->setSize(computeFontSize(20));
+	menuFontVeryBig->setSize(menuFontNameVeryBigSize);
 
 	//console font
-	string consoleFontName= Config::getInstance().getString("FontConsole");
-
+	string consoleFontNamePrefix= config.getString("FontConsolePrefix");
+	string consoleFontNamePostfix= config.getString("FontConsolePostfix");
+	int consoleFontNameSize=computeFontSize(16);
+	string consoleFontName= consoleFontNamePrefix+intToStr(consoleFontNameSize)+consoleFontNamePostfix;
 	consoleFont= renderer.newFont(rsGlobal);
 	consoleFont->setType(consoleFontName);
-	consoleFont->setSize(computeFontSize(16));
+	consoleFont->setSize(consoleFontNameSize);
 
 	//sounds
     clickSoundA.load(dir+"/menu/sound/click_a.wav");
@@ -135,10 +158,11 @@ void CoreData::load(){
 
 int CoreData::computeFontSize(int size){
 	int screenH= Config::getInstance().getInt("ScreenHeight");
-	int rs= size*screenH/750;
+	int rs= size*screenH/1024;
 	if(rs<12){
 		rs= 12;
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
 	return rs;
 }
 

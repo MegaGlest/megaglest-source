@@ -88,6 +88,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	if(display == 0) {
 		throw std::runtime_error("Couldn't create font: display is 0");
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load font %s\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(!fontInfo) {
 		throw std::runtime_error("Font not found.");
