@@ -44,10 +44,17 @@ private:
 	GraphicListBox listBoxVolumeFx;
 	GraphicListBox listBoxVolumeAmbient;
 	GraphicListBox listBoxVolumeMusic;
-	GraphicListBox listBoxMusicSelect;
 	GraphicLabel labelPlayerName;
 	GraphicLabel labelPlayerNameLabel;
 	GraphicLabel *activeInputLabel;
+	
+	GraphicLabel labelScreenModes;
+	GraphicListBox listBoxScreenModes;
+	list<ModeInfo> modeInfos;
+	
+	GraphicLabel labelVideoSection;
+	GraphicLabel labelAudioSection;
+	GraphicLabel labelMiscSection;
 	
 
 public:

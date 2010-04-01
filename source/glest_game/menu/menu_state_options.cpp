@@ -33,101 +33,43 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 {
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
+	//modeinfos=list<ModeInfo> ();
+	Shared::Platform::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
-
-	//create
-	buttonOk.init(200, 150, 100);
-	buttonAbort.init(310, 150, 100);
-	buttonAutoConfig.init(450, 150, 125);
-
-	//labels
-	labelVolumeFx.init(200, 530);
-	labelVolumeAmbient.init(200, 500);
-	labelVolumeMusic.init(200, 470);
-
-	labelLang.init(200, 400);
-	labelPlayerNameLabel.init(200,370);
-	labelPlayerName.init(350,370);
-
-	labelFilter.init(200, 340);
-	labelShadows.init(200, 310);
-	labelTextures3D.init(200, 280);
-	labelLights.init(200, 250);
-	labelUnitParticles.init(200,220);
-
-	//list boxes
-	listBoxVolumeFx.init(350, 530, 80);
-	listBoxVolumeAmbient.init(350, 500, 80);
-	listBoxVolumeMusic.init(350, 470, 80);
-	listBoxMusicSelect.init(350, 440, 150);
-
-	listBoxLang.init(350, 400, 170);
-
-	listBoxFilter.init(350, 340, 170);
-	listBoxShadows.init(350, 310, 170);
-	listBoxTextures3D.init(350, 280, 80);
-	listBoxLights.init(350, 250, 80);
-	listBoxUnitParticles.init(350,220,80);
-
-	//set text
-	buttonOk.setText(lang.get("Ok"));
-	buttonAbort.setText(lang.get("Abort"));
-	buttonAutoConfig.setText(lang.get("AutoConfig"));
-	labelLang.setText(lang.get("Language"));
-	labelPlayerNameLabel.setText(lang.get("Playername"));
-	labelShadows.setText(lang.get("Shadows"));
-	labelFilter.setText(lang.get("Filter"));
-	labelTextures3D.setText(lang.get("Textures3D"));
-	labelLights.setText(lang.get("MaxLights"));
-	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
+	
+	int leftline=640;
+	int rightline=640;
+	int leftLabelStart=50;
+	int leftColumnStart=leftLabelStart+150;
+	int rightLabelStart=500;
+	int rightColumnStart=rightLabelStart+150;
+	int buttonRowPos=20;
+	int captionOffset=75;
+	
+	
+	
+	leftline-=30;
+	labelAudioSection.init(leftLabelStart+captionOffset, leftline);
+	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelAudioSection.setText(lang.get("Audio"));
+	leftline-=30;
+	
+	//soundboxes
+	labelVolumeFx.init(leftLabelStart, leftline);
 	labelVolumeFx.setText(lang.get("FxVolume"));
+	listBoxVolumeFx.init(leftColumnStart, leftline, 80);
+	leftline-=30;
+	
+	labelVolumeAmbient.init(leftLabelStart, leftline);
+	listBoxVolumeAmbient.init(leftColumnStart, leftline, 80);
 	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
+	leftline-=30;
+	
+	labelVolumeMusic.init(leftLabelStart, leftline);
+	listBoxVolumeMusic.init(leftColumnStart, leftline, 80);
 	labelVolumeMusic.setText(lang.get("MusicVolume"));
-
-	//sound
-
-	//lang
-	vector<string> langResults;
-	findAll("data/lang/*.lng", langResults, true);
-	if(langResults.empty()){
-        throw runtime_error("There is no lang file");
-	}
-    listBoxLang.setItems(langResults);
-	listBoxLang.setSelectedItem(config.getString("Lang"));
-
-	//playerName
-	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
-
-	//shadows
-	for(int i= 0; i<Renderer::sCount; ++i){
-		listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
-	}
-
-	string str= config.getString("Shadows");
-	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
-
-	//filter
-	listBoxFilter.pushBackItem("Bilinear");
-	listBoxFilter.pushBackItem("Trilinear");
-	listBoxFilter.setSelectedItem(config.getString("Filter"));
-
-	//textures 3d
-	listBoxTextures3D.pushBackItem(lang.get("No"));
-	listBoxTextures3D.pushBackItem(lang.get("Yes"));
-	listBoxTextures3D.setSelectedItemIndex(clamp(config.getBool("Textures3D"), false, true));
-
-	//textures 3d
-	listBoxUnitParticles.pushBackItem(lang.get("No"));
-	listBoxUnitParticles.pushBackItem(lang.get("Yes"));
-	listBoxUnitParticles.setSelectedItemIndex(clamp(config.getBool("UnitParticles"), 0, 1));
-
-	//lights
-	for(int i= 1; i<=8; ++i){
-		listBoxLights.pushBackItem(intToStr(i));
-	}
-	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
-
-	//sound
+	leftline-=30;
+	
 	for(int i=0; i<=100; i+=5){
 		listBoxVolumeFx.pushBackItem(intToStr(i));
 		listBoxVolumeAmbient.pushBackItem(intToStr(i));
@@ -136,6 +78,106 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeFx.setSelectedItem(intToStr(config.getInt("SoundVolumeFx")/5*5));
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
+	
+	
+	leftline-=30;
+	labelMiscSection.init(leftLabelStart+captionOffset, leftline);
+	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelMiscSection.setText(lang.get("Misc"));
+	leftline-=30;
+	
+	//lang
+	labelLang.init(leftLabelStart, leftline);
+	labelLang.setText(lang.get("Language"));
+	listBoxLang.init(leftColumnStart, leftline, 170);
+	vector<string> langResults;
+	findAll("data/lang/*.lng", langResults, true);
+	if(langResults.empty()){
+        throw runtime_error("There is no lang file");
+	}
+    listBoxLang.setItems(langResults);
+	listBoxLang.setSelectedItem(config.getString("Lang"));
+	leftline-=30;
+	
+	//playerName
+	labelPlayerNameLabel.init(leftLabelStart,leftline);
+	labelPlayerNameLabel.setText(lang.get("Playername"));
+	
+	labelPlayerName.init(leftColumnStart,leftline);
+	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
+	leftline-=30;
+
+	leftline-=30;
+	labelVideoSection.init(leftLabelStart+captionOffset, leftline);
+	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelVideoSection.setText(lang.get("Video"));
+	leftline-=30;
+
+	//resolution
+	labelScreenModes.init(leftLabelStart, leftline);
+	labelScreenModes.setText(lang.get("Resolution"));
+	listBoxScreenModes.init(leftColumnStart, leftline, 170);
+	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+		listBoxScreenModes.pushBackItem((*it).getString());
+	}
+	listBoxScreenModes.setSelectedItem(config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight"));
+	leftline-=30;
+	
+	//filter
+	labelFilter.init(leftLabelStart, leftline);
+	labelFilter.setText(lang.get("Filter"));
+	listBoxFilter.init(leftColumnStart, leftline, 170);
+	listBoxFilter.pushBackItem("Bilinear");
+	listBoxFilter.pushBackItem("Trilinear");
+	listBoxFilter.setSelectedItem(config.getString("Filter"));
+	leftline-=30;
+	
+	//shadows
+	labelShadows.init(leftLabelStart, leftline);
+	labelShadows.setText(lang.get("Shadows"));
+	listBoxShadows.init(leftColumnStart, leftline, 170);
+	for(int i= 0; i<Renderer::sCount; ++i){
+		listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
+	}
+	string str= config.getString("Shadows");
+	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
+	leftline-=30;
+	
+	//textures 3d
+	labelTextures3D.init(leftLabelStart, leftline);
+	listBoxTextures3D.init(leftColumnStart, leftline, 80);
+	labelTextures3D.setText(lang.get("Textures3D"));
+	listBoxTextures3D.pushBackItem(lang.get("No"));
+	listBoxTextures3D.pushBackItem(lang.get("Yes"));
+	listBoxTextures3D.setSelectedItemIndex(clamp(config.getBool("Textures3D"), false, true));
+	leftline-=30;
+	
+	//lights
+	labelLights.init(leftLabelStart, leftline);
+	labelLights.setText(lang.get("MaxLights"));
+	listBoxLights.init(leftColumnStart, leftline, 80);
+	for(int i= 1; i<=8; ++i){
+		listBoxLights.pushBackItem(intToStr(i));
+	}
+	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
+	leftline-=30;
+	
+	//unit particles
+	labelUnitParticles.init(leftLabelStart,leftline);
+	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
+	listBoxUnitParticles.init(leftColumnStart,leftline,80);
+	listBoxUnitParticles.pushBackItem(lang.get("No"));
+	listBoxUnitParticles.pushBackItem(lang.get("Yes"));
+	listBoxUnitParticles.setSelectedItemIndex(clamp(config.getBool("UnitParticles"), 0, 1));
+	leftline-=30;
+
+	// buttons
+	buttonOk.init(200, buttonRowPos, 100);	
+	buttonOk.setText(lang.get("Ok"));
+	buttonAbort.setText(lang.get("Abort"));
+	buttonAbort.init(310, buttonRowPos, 100);
+	buttonAutoConfig.setText(lang.get("AutoConfig"));
+	buttonAutoConfig.init(450, buttonRowPos, 125);
 
 }
 
@@ -174,6 +216,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxVolumeFx.mouseClick(x, y);
 		listBoxVolumeAmbient.mouseClick(x, y);
 		listBoxVolumeMusic.mouseClick(x, y);
+		listBoxScreenModes.mouseClick(x, y);
 	}
 }
 
@@ -191,6 +234,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxTextures3D.mouseMove(x, y);
 	listBoxUnitParticles.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
+	listBoxScreenModes.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -249,6 +293,11 @@ void MenuStateOptions::render(){
 	renderer.renderLabel(&labelVolumeFx);
 	renderer.renderLabel(&labelVolumeAmbient);
 	renderer.renderLabel(&labelVolumeMusic);
+	renderer.renderLabel(&labelVideoSection);
+	renderer.renderLabel(&labelAudioSection);
+	renderer.renderLabel(&labelMiscSection);
+	renderer.renderLabel(&labelScreenModes);
+	renderer.renderListBox(&listBoxScreenModes);
 }
 
 void MenuStateOptions::saveConfig(){
@@ -275,7 +324,20 @@ void MenuStateOptions::saveConfig(){
 	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
-
+	
+	//just for the moment ....
+	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
+	string selectedResolution=listBoxScreenModes.getSelectedItem();
+	if(currentResolution!=selectedResolution){
+		for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+			if((*it).getString()==selectedResolution)
+			{
+				config.setInt("ScreenWidth",(*it).width);
+				config.setInt("ScreenHeight",(*it).height);
+			}
+		}
+	}
+	
 	config.save();
 	Renderer::getInstance().loadConfig();
 	SoundRenderer::getInstance().loadConfig();
