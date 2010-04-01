@@ -752,7 +752,9 @@ std::vector<string> ClientSocket::discoverServers() {
 
 				vector<string> tokens;
 				Tokenize(buff,tokens,":");
-				foundServers.push_back(tokens[1]);
+				for(int idx = 1; idx < tokens.size(); idx++) {
+					foundServers.push_back(tokens[idx]);
+				}
 				break;
 			}
 		}
@@ -1036,9 +1038,9 @@ void BroadCastSocketThread::execute() {
 
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
-					strcat(buff,myhostname);
-					for(int idx = 0; idx < ipList.size() ++idx) {
-						sprintf(buff,"%s:%s",buf,ipList[idx].c_str());
+					sprintf(buff,"%s",myhostname);
+					for(int idx = 0; idx < ipList.size(); idx++) {
+						sprintf(buff,"%s:%s",buff,ipList[idx].c_str());
 					}
 
 					time_t elapsed = 0;
