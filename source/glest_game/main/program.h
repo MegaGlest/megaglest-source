@@ -128,12 +128,14 @@ public:
 	void showMessage(const char *msg);
 
 	//misc
-	void setState(ProgramState *programState);
+	void setState(ProgramState *programState,bool cleanupOldState=true);
 	ProgramState * getState() { return programState;}
+	WindowGl * getWindow() { return window; }
+	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
 
 private:
-	void init(WindowGl *window, bool initSound=true);
+	
 	void setDisplaySettings();
 	void restoreDisplaySettings();
 };

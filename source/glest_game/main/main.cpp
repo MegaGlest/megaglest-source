@@ -225,6 +225,10 @@ void MainWindow::eventClose(){
 	program= NULL;
 }
 
+void MainWindow::setProgram(Program *program) {
+	this->program= program;
+}
+
 // =====================================================
 // Main
 // =====================================================
@@ -252,7 +256,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::debugLogFile = debugLogFile.c_str();
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
-
+		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//showCursor(config.getBool("Windowed"));

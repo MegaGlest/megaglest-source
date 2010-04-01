@@ -223,12 +223,14 @@ void Program::resize(SizeState sizeState){
 
 // ==================== misc ====================
 
-void Program::setState(ProgramState *programState)
+void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	delete this->programState;
+	if(cleanupOldState == true) {
+		delete this->programState;
+	}
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -259,7 +261,7 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
-void Program::init(WindowGl *window, bool initSound){
+void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -269,7 +271,9 @@ void Program::init(WindowGl *window, bool initSound){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //set video mode
-	setDisplaySettings();
+	if(toggleFullScreen == false) {
+		setDisplaySettings();
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -331,7 +335,7 @@ void Program::init(WindowGl *window, bool initSound){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//sound
-	if(initSound == true) {
+	if(initSound == true && toggleFullScreen == false) {
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         soundRenderer.init(window);
 	}

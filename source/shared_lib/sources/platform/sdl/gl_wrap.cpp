@@ -21,6 +21,7 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
+#include "window.h"
 
 #include "leak_dumper.h"
 
@@ -37,18 +38,18 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 	
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits);
+	Window::setupGraphicsScreen(depthBits, stencilBits);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int flags = SDL_OPENGL;
-	if(Private::shouldBeFullscreen)
+	if(Private::shouldBeFullscreen) {
 		flags |= SDL_FULLSCREEN;
+		Window::setIsFullScreen(true);
+	}
+	else {
+		Window::setIsFullScreen(false);
+	}
 
 	int resW = Private::ScreenWidth;
 	int resH = Private::ScreenHeight;

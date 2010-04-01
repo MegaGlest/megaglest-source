@@ -36,7 +36,7 @@ public:
 	MainWindow(Program *program);
 	~MainWindow();
 
-	void setProgram(Program *program)	{this->program= program;}
+	void setProgram(Program *program);
 
 	virtual void eventMouseDown(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseUp(int x, int y, MouseButton mouseButton);

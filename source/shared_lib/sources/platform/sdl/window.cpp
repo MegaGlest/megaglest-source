@@ -15,9 +15,11 @@
 
 #include "conversion.h"
 #include "platform_util.h"
-#include "leak_dumper.h"
 #include "sdl_private.h"
 #include "noimpl.h"
+#include "util.h"
+#include "SDL_syswm.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Util;
 using namespace std;
@@ -37,6 +39,7 @@ unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
+bool Window::isFullScreen = false;
 
 // ========== PUBLIC ==========
 
@@ -118,6 +121,7 @@ bool Window::handleEvent() {
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",__FILE__,__FUNCTION__,__LINE__);
 						toggleFullscreen();
 					}
 					if(global_window) {
@@ -206,8 +210,124 @@ void Window::destroy() {
 	SDL_PushEvent(&event);
 }
 
+void Window::setupGraphicsScreen(int depthBits, int stencilBits) {
+	static int newDepthBits   = depthBits;
+	static int newStencilBits = stencilBits;
+	if(depthBits >= 0)
+		newDepthBits   = depthBits;
+	if(stencilBits >= 0)
+		newStencilBits = stencilBits;
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
+}
+
+static HWND GetSDLWindow()
+{
+    SDL_SysWMinfo   info;
+ 
+    SDL_VERSION(&info.version);
+    if (SDL_GetWMInfo(&info) == -1)
+        return NULL;
+    return info.window;
+}
+
 void Window::toggleFullscreen() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Window::isFullScreen = !Window::isFullScreen;
+#ifdef WIN32
+	/* -- Portable Fullscreen Toggling --
+	As of SDL 1.2.10, if width and height are both 0, SDL_SetVideoMode will use the
+	width and height of the current video mode (or the desktop mode, if no mode has been set).
+	Use 0 for Height, Width, and Color Depth to keep the current values. */
+
+	/*
+
+	//setupGraphicsScreen();
+	//SDL_Surface *surface = SDL_GetVideoSurface();
+	//int flags = surface->flags ^ SDL_FULLSCREEN;
+	//int flags = SDL_OPENGL;
+	//if(Window::isFullScreen) {
+	//	flags |= SDL_FULLSCREEN;
+	//}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//SDL_SetVideoMode(0, 0, 0, flags);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	SDL_Surface *sf = SDL_GetVideoSurface();
+	SDL_Surface **surface = &sf;
+	uint32 *flags = NULL;
+	void *pixels = NULL;
+    SDL_Color *palette = NULL;
+    SDL_Rect clip;
+    int ncolors = 0;
+    Uint32 tmpflags = 0;
+    int w = 0;
+    int h = 0;
+    int bpp = 0;
+
+    if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
+        return;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    tmpflags = (*surface)->flags;
+    w = (*surface)->w;
+    h = (*surface)->h;
+    bpp = (*surface)->format->BitsPerPixel;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",__FILE__,__FUNCTION__,__LINE__,w,h,bpp);
+
+    if (flags == NULL)  // use the surface's flags.
+        flags = &tmpflags;
+
+    //
+	if ( *flags & SDL_FULLSCREEN )
+		*flags &= ~SDL_FULLSCREEN;
+	//
+	else
+		*flags |= SDL_FULLSCREEN;
+
+    SDL_GetClipRect(*surface, &clip);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    *surface = SDL_SetVideoMode(w, h, bpp, (*flags));
+
+    if (*surface == NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
+    } // if
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    SDL_SetClipRect(*surface, &clip);
+	*/
+
+	HWND handle = GetSDLWindow();
+
+	if(Window::isFullScreen == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+		ShowWindow(handle, SW_MAXIMIZE);
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+		ShowWindow(handle, SW_RESTORE);
+	}
+	
+#else
 	SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+#endif
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Window::handleMouseDown(SDL_Event event) {

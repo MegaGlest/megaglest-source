@@ -650,6 +650,48 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
   }
 }
 
+void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
+    // Get the current video hardware information
+    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+    //screenWidth    = vidInfo->current_w;
+    //screenHeight   = vidInfo->current_h;
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    /* Get available fullscreen/hardware modes */
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+
+    /* Check if there are any modes available */
+    if (modes == (SDL_Rect**)0) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+   }
+   /* Check if our resolution is restricted */
+   else if (modes == (SDL_Rect**)-1) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+   }
+   else{
+       /* Print valid modes */
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+       int bestW = -1;
+       int bestH = -1;
+       for(int i=0; modes[i]; ++i) {
+          	SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,modes[i]->x);
+       		modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,modes[i]->x));   
+       		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h);
+       }
+  }
+}
+
 bool changeVideoMode(int resW, int resH, int colorBits, int ) {
 	Private::shouldBeFullscreen = true;
 	return true;
@@ -708,6 +750,20 @@ void showCursor(bool b){
 
 bool isKeyDown(int virtualKey){
 	return (GetKeyState(virtualKey) & 0x8000) != 0;
+}
+
+// =====================================
+//         ModeInfo
+// =====================================
+
+ModeInfo::ModeInfo(int w, int h, int d) {
+	width=w;
+	height=h;
+	depth=d;
+}
+
+string ModeInfo::getString() const{
+	return intToStr(width)+"x"+intToStr(height);
 }
 
 }}//end namespace

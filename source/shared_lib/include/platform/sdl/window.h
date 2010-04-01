@@ -112,7 +112,8 @@ private:
     static MouseState mouseState;
     static Vec2i mousePos;
     static bool isKeyPressedDown;
-
+	static bool isFullScreen;
+	
     static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
 
@@ -129,8 +130,10 @@ public:
 	static bool handleEvent();
 	static void revertMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
+	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1);
+	static const bool getIsFullScreen() { return isFullScreen; }
+	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	
-
 	Window();
 	virtual ~Window();
 

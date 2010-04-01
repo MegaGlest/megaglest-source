@@ -87,7 +87,8 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	int ipIdx = 0;
 	while (myhostent->h_addr_list[ipIdx] != 0) {
 	   sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
-	   printf("%s\n",myhostaddr);
+	   //printf("%s\n",myhostaddr);
+	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
 	   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
 		   ipList.push_back(myhostaddr);
@@ -1035,7 +1036,10 @@ void BroadCastSocketThread::execute() {
 
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
-					sprintf(buff,"%s:%s",myhostname,ipList[0].c_str());
+					strcat(buff,myhostname);
+					for(int idx = 0; idx < ipList.size() ++idx) {
+						sprintf(buff,"%s:%s",buf,ipList[idx].c_str());
+					}
 
 					time_t elapsed = 0;
 					for( pn = 1; ; pn++ )

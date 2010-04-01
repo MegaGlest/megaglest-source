@@ -356,11 +356,19 @@ void MenuStateJoinGame::keyDown(char key){
 		else if(key== 'A') {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			string bestIPMatch = "";
 			std::vector<string> serverList = clientInterface->discoverServers();
 			if(serverList.size() > 0) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] serverList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverList[0].c_str());
+				std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
+				for(int idx = 0; idx < serverList.size(); idx++) {
+					bestIPMatch = serverList[idx];
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
+					if(strncmp(localIPList[0].c_str(),serverList[idx].c_str(),4) == 0) {
+						break;
+					}
+				}
 
-				labelServerIp.setText(serverList[0]);
+				labelServerIp.setText(bestIPMatch);
 				connectToServer();
 			}
 		}

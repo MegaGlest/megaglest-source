@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <list>
 
 #include "types.h"
 #include "checksum.h"
@@ -25,6 +26,7 @@
 using std::string;
 using std::vector;
 using std::exception;
+using std::list;
 
 using Shared::Platform::int64;
 using Shared::Util::Checksum;
@@ -79,6 +81,20 @@ private:
 };
 
 // =====================================================
+//	class ModeInfo
+// =====================================================
+class ModeInfo {
+public:
+	int width;
+	int height;
+	int depth;
+
+	ModeInfo(int width, int height, int depth);
+	
+	string getString() const;
+};
+
+// =====================================================
 //	class PlatformExceptionHandler
 // =====================================================
 
@@ -113,6 +129,7 @@ string extractDirectoryPathFromFile(string filename);
 string extractExtension(const string& filename);
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
+void getFullscreenVideoModes(list<ModeInfo> *modeinfos);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode(bool exitingApp=false);
 
