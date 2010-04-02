@@ -25,6 +25,7 @@
 #include "network_interface.h"
 #include "sound_renderer.h"
 #include "ImageReaders.h"
+#include "renderer.h"
 
 #include "leak_dumper.h"
 
@@ -199,7 +200,23 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 }
 
 void MainWindow::eventKeyDown(char key){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 	program->keyDown(key);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(key == vkReturn) {
+		SDL_keysym keystate = Window::getKeystate();
+		if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
+
+			//Renderer &renderer= Renderer::getInstance();
+			//renderer.reloadResources();
+			//renderer.init();
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+	}
 }
 
 void MainWindow::eventKeyUp(char key){

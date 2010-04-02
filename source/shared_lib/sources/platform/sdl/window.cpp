@@ -40,6 +40,7 @@ Vec2i Window::mousePos;
 MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
+SDL_keysym Window::keystate;
 
 // ========== PUBLIC ==========
 
@@ -118,6 +119,7 @@ bool Window::handleEvent() {
                     //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 					Window::isKeyPressedDown = true;
+					keystate = event.key.keysym;
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -125,6 +127,7 @@ bool Window::handleEvent() {
 						toggleFullscreen();
 					}
 					if(global_window) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                         global_window->eventKeyDown(getKey(event.key.keysym));
                         global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 					}
@@ -133,6 +136,7 @@ bool Window::handleEvent() {
                     //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 					Window::isKeyPressedDown = false;
+					keystate = event.key.keysym;
 
                     if(global_window) {
                         global_window->eventKeyUp(getKey(event.key.keysym));

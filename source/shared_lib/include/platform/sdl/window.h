@@ -113,6 +113,7 @@ private:
     static Vec2i mousePos;
     static bool isKeyPressedDown;
 	static bool isFullScreen;
+	static SDL_keysym keystate;
 	
     static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
@@ -122,6 +123,8 @@ private:
 
     static const Vec2i &getMousePos() 					        {return Window::mousePos;}
     static void setMousePos(const Vec2i &mousePos)				{Window::mousePos = mousePos;}
+
+    static void setKeystate(SDL_keysym state)					{ keystate = state; }
 
 protected:
 	int w, h;
@@ -133,6 +136,7 @@ public:
 	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1);
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
+	static SDL_keysym getKeystate() { return keystate; }
 	
 	Window();
 	virtual ~Window();

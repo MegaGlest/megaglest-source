@@ -118,12 +118,19 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 			int p = i - fontInfo->min_char_or_byte2;
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,p,fontInfo->per_char);
 			if(fontInfo->per_char == NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),p,fontInfo->per_char);
+
 				XCharStruct *charinfo = &(fontInfo->min_bounds);
-				int charWidth = charinfo->rbearing - charinfo->lbearing;
+				//int charWidth = charinfo->rbearing - charinfo->lbearing;
 			    //int charHeight = charinfo->ascent + charinfo->descent;
 			    //int spanLength = (charWidth + 7) / 8;
 
-			    metrics.setWidth(i, static_cast<float> (charWidth));
+				if(charinfo != NULL) {
+					metrics.setWidth(i, static_cast<float> (charinfo->width));
+				}
+				else {
+					metrics.setWidth(i, static_cast<float>(6));
+				}
 			}
 			else {
 				metrics.setWidth(i, static_cast<float> (
