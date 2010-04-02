@@ -91,7 +91,10 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load font %s\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(!fontInfo) {
-		throw std::runtime_error("Font not found.");
+		fontInfo = XLoadQueryFont(display, "fixed");
+		if(!fontInfo) {
+			throw std::runtime_error("Font not found: " + type);
+		}
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -117,8 +120,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 			if(fontInfo->per_char == NULL) {
 				XCharStruct *charinfo = &(fontInfo->min_bounds);
 				int charWidth = charinfo->rbearing - charinfo->lbearing;
-			    int charHeight = charinfo->ascent + charinfo->descent;
-			    int spanLength = (charWidth + 7) / 8;
+			    //int charHeight = charinfo->ascent + charinfo->descent;
+			    //int spanLength = (charWidth + 7) / 8;
 
 			    metrics.setWidth(i, static_cast<float> (charWidth));
 			}
