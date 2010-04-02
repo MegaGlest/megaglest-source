@@ -52,11 +52,14 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	servers.load(serversSavedFile);
 
 	//buttons
-	buttonReturn.init(325, 300, 125);
+	buttonReturn.init(300, 300, 125);
 	buttonReturn.setText(lang.get("Return"));
 
-	buttonConnect.init(475, 300, 125);
+	buttonConnect.init(450, 300, 125);
 	buttonConnect.setText(lang.get("Connect"));
+
+	buttonAutoFindServers.init(595, 300, 125);
+	buttonAutoFindServers.setText(lang.get("FindLANGames"));
 
 	//server type label
 	labelServerType.init(330, 460);
@@ -103,6 +106,31 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	}
 
 	chatManager.init(&console, -1);
+}
+MenuStateJoinGame::~MenuStateJoinGame() {
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	ClientInterface* clientInterface= networkManager.getClientInterface();
+	clientInterface->stopServerDiscovery();
+}
+
+void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(serverList.size() > 0) {
+		string bestIPMatch = "";
+		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
+		for(int idx = 0; idx < serverList.size(); idx++) {
+			bestIPMatch = serverList[idx];
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
+			if(strncmp(localIPList[0].c_str(),serverList[idx].c_str(),4) == 0) {
+				break;
+			}
+		}
+
+		labelServerIp.setText(bestIPMatch);
+		connectToServer();
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
@@ -165,6 +193,20 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 			connectToServer();
 		}
 	}
+	else if(buttonAutoFindServers.mouseClick(x, y)) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		ClientInterface* clientInterface= networkManager.getClientInterface();
+
+		soundRenderer.playFx(coreData.getClickSoundA());
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		// Triggers a thread which calls back into MenuStateJoinGame::DiscoveredServers
+		// with the results
+		clientInterface->discoverServers(this);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -172,6 +214,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 void MenuStateJoinGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonReturn.mouseMove(x, y);
 	buttonConnect.mouseMove(x, y);
+	buttonAutoFindServers.mouseMove(x, y);
 	listBoxServerType.mouseMove(x, y);
 
 	//hide-show options depending on the selection
@@ -192,6 +235,7 @@ void MenuStateJoinGame::render(){
 	renderer.renderLabel(&labelStatus);
 	renderer.renderLabel(&labelInfo);
 	renderer.renderButton(&buttonConnect);
+	renderer.renderButton(&buttonAutoFindServers);
 	renderer.renderListBox(&listBoxServerType);
 
 	if(listBoxServerType.getSelectedItemIndex()==newServerIndex){
@@ -352,25 +396,6 @@ void MenuStateJoinGame::keyDown(char key){
 			}
 
 			labelServerIp.setText(text);
-		}
-		else if(key== 'A') {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			string bestIPMatch = "";
-			std::vector<string> serverList = clientInterface->discoverServers();
-			if(serverList.size() > 0) {
-				std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
-				for(int idx = 0; idx < serverList.size(); idx++) {
-					bestIPMatch = serverList[idx];
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
-					if(strncmp(localIPList[0].c_str(),serverList[idx].c_str(),4) == 0) {
-						break;
-					}
-				}
-
-				labelServerIp.setText(bestIPMatch);
-				connectToServer();
-			}
 		}
 	}
 	else

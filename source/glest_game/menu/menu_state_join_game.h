@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -15,6 +15,8 @@
 #include "properties.h"
 #include "main_menu.h"
 #include "chat_manager.h"
+#include <vector>
+#include <string>
 
 using Shared::Util::Properties;
 
@@ -26,7 +28,7 @@ class NetworkMessageIntro;
 // 	class MenuStateJoinGame
 // ===============================
 
-class MenuStateJoinGame: public MenuState{
+class MenuStateJoinGame: public MenuState, public DiscoveredServersInterface {
 private:
 	static const int newServerIndex;
 	static const string serverFileName;
@@ -34,6 +36,7 @@ private:
 private:
 	GraphicButton buttonReturn;
 	GraphicButton buttonConnect;
+	GraphicButton buttonAutoFindServers;
 	GraphicLabel labelServer;
 	GraphicLabel labelServerType;
 	GraphicLabel labelServerIp;
@@ -53,6 +56,7 @@ private:
 
 public:
 	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip());
+	virtual ~MenuStateJoinGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -63,6 +67,7 @@ public:
 
 private:
 	void connectToServer();
+	virtual void DiscoveredServers(std::vector<string> serverList);
 };
 }}//end namespace
 

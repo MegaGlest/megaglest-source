@@ -30,6 +30,15 @@ using std::string;
 
 namespace Shared{ namespace Platform{
 
+//
+// This interface describes the methods a callback object must implement
+// when signalled with detected servers
+//
+class DiscoveredServersInterface {
+public:
+	virtual void DiscoveredServers(std::vector<string> serverList) = 0;
+};
+
 // =====================================================
 //	class IP
 // =====================================================
@@ -80,6 +89,8 @@ public:
 	int peek(void *data, int dataSize);
 
 	void setBlock(bool block);
+	static void setBlock(bool block, int socket);
+
 	bool isReadable();
 	bool isWritable(bool waitOnDelayedResponse);
 	bool isConnected();
@@ -91,15 +102,46 @@ protected:
 	static void throwException(const string &str);
 };
 
+class BroadCastClientSocketThread : public Thread
+{
+private:
+	Mutex mutexRunning;
+	Mutex mutexQuit;
+
+	bool quit;
+	bool running;
+
+	DiscoveredServersInterface *discoveredServersCB;
+
+	void setRunningStatus(bool value);
+	void setQuitStatus(bool value);
+
+public:
+	BroadCastClientSocketThread(DiscoveredServersInterface *cb);
+    virtual void execute();
+    void signalQuit();
+    bool getQuitStatus();
+    bool getRunningStatus();
+};
+
 // =====================================================
 //	class ClientSocket
 // =====================================================
 
 class ClientSocket: public Socket{
 public:
-	void connect(const Ip &ip, int port);
+	ClientSocket();
+	virtual ~ClientSocket();
 
-	static std::vector<string> discoverServers();
+	void connect(const Ip &ip, int port);
+	static void discoverServers(DiscoveredServersInterface *cb);
+
+	static void stopBroadCastClientThread();
+
+protected:
+
+	static BroadCastClientSocketThread *broadCastClientThread;
+	static void startBroadCastClientThread(DiscoveredServersInterface *cb);
 };
 
 class BroadCastSocketThread : public Thread

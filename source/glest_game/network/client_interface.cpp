@@ -560,14 +560,19 @@ void ClientInterface::close()
 	clientSocket= NULL;
 }
 
-std::vector<string> ClientInterface::discoverServers() {
+void ClientInterface::discoverServers(DiscoveredServersInterface *cb) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	std::vector<string> serverList = ClientSocket::discoverServers();
+	ClientSocket::discoverServers(cb);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+void ClientInterface::stopServerDiscovery() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	return serverList;
+	ClientSocket::stopBroadCastClientThread();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 /*

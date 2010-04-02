@@ -76,7 +76,8 @@ public:
 	void connect(const Ip &ip, int port);
 	void reset();
 
-	std::vector<string> discoverServers();
+	void discoverServers(DiscoveredServersInterface *cb);
+	void stopServerDiscovery();
 
 private:
 	void waitForMessage();
