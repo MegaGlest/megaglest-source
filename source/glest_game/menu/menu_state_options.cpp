@@ -46,7 +46,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	int buttonRowPos=80;
 	int captionOffset=75;
 	
-	
+	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.setEnabled(false);
+	mainMessageBoxState=0;
 	
 	labelAudioSection.init(leftLabelStart+captionOffset, leftline);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
@@ -119,7 +121,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
 		listBoxScreenModes.pushBackItem((*it).getString());
 	}
-	listBoxScreenModes.setSelectedItem(config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight"));
+	listBoxScreenModes.setSelectedItem(config.getString("ScreenWidth")+"x"+
+		config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits")));
 	leftline-=30;
 	
 	//filter
@@ -180,14 +183,58 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 }
 
+void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(!mainMessageBox.getEnabled()){
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
+	}
+}
+
+
+
 void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 	Config &config= Config::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(buttonOk.mouseClick(x, y)){
+	if(mainMessageBox.getEnabled()){
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button))
+		{
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(button==1)
+			{
+				if(mainMessageBoxState==1)
+				{
+					mainMessageBox.setEnabled(false);
+					saveConfig();
+					mainMenu->setState(new MenuStateRoot(program, mainMenu));
+				}
+				else
+					mainMessageBox.setEnabled(false);
+			}
+		}
+	}
+	else if(buttonOk.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
+		
+		string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits"));
+		string selectedResolution=listBoxScreenModes.getSelectedItem();
+		if(currentResolution!=selectedResolution){
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
+			return;
+		}
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
@@ -220,6 +267,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
+	if (mainMessageBox.getEnabled()) {
+			mainMessageBox.mouseMove(x, y);
+		}
 	buttonOk.mouseMove(x, y);
 	buttonAbort.mouseMove(x, y);
 	buttonAutoConfig.mouseMove(x, y);
@@ -269,6 +319,11 @@ void MenuStateOptions::keyPress(char c){
 void MenuStateOptions::render(){
 	Renderer &renderer= Renderer::getInstance();
 
+	if(mainMessageBox.getEnabled()){
+		renderer.renderMessageBox(&mainMessageBox);
+	}
+	else
+	{
 	renderer.renderButton(&buttonOk);
 	renderer.renderButton(&buttonAbort);
 	renderer.renderButton(&buttonAutoConfig);
@@ -297,6 +352,7 @@ void MenuStateOptions::render(){
 	renderer.renderLabel(&labelMiscSection);
 	renderer.renderLabel(&labelScreenModes);
 	renderer.renderListBox(&listBoxScreenModes);
+	}
 }
 
 void MenuStateOptions::saveConfig(){
@@ -333,6 +389,7 @@ void MenuStateOptions::saveConfig(){
 			{
 				config.setInt("ScreenWidth",(*it).width);
 				config.setInt("ScreenHeight",(*it).height);
+				config.setInt("ColorBits",(*it).depth);
 			}
 		}
 	}

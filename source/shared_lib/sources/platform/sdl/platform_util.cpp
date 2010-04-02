@@ -576,7 +576,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		    	   uniqueResList[lookupKey] = true;
 		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
 		       }
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
 		   }
 		   /* Check if our resolution is restricted */
 		   else if (modes == (SDL_Rect**)-1) {
@@ -588,7 +588,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		    	   uniqueResList[lookupKey] = true;
 		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
 		       }
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h);
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
 		   }
 		   else{
 			   /* Print valid modes */
@@ -597,12 +597,19 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 			   int bestW = -1;
 			   int bestH = -1;
 			   for(int i=0; modes[i]; ++i) {
-				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,modes[i]->x);
-				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(modes[i]->x);
+				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
+				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(bpp);
 				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
 				    	uniqueResList[lookupKey] = true;
-				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,modes[i]->x));
-				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h);
+				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,bpp));
+				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
+				    }
+				    // fake the missing 16 bit resolutions in linux
+				    string lookupKey16 = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(16);
+				    if(uniqueResList.find(lookupKey16) == uniqueResList.end()) {
+				    	uniqueResList[lookupKey16] = true;
+				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,16));
+				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,16);
 				    }
 			   }
 		  }
@@ -706,7 +713,7 @@ ModeInfo::ModeInfo(int w, int h, int d) {
 }
 
 string ModeInfo::getString() const{
-	return intToStr(width)+"x"+intToStr(height);
+	return intToStr(width)+"x"+intToStr(height)+"-"+intToStr(depth);
 }
 
 }}//end namespace

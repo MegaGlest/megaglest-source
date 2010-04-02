@@ -56,6 +56,9 @@ private:
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
 	
+	GraphicMessageBox mainMessageBox;
+	int mainMessageBoxState;
+	
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
@@ -70,6 +73,7 @@ public:
 private:
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
+	void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 }}//end namespace
