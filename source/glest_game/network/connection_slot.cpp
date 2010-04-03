@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -176,10 +176,27 @@ void ConnectionSlot::update(bool checkForNewClients)
 					{
                         receivedNetworkGameStatus = true;
 
-						int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", NULL);
-						int32 techCRC    = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
+                        Config &config = Config::getInstance();
+                        string scenarioDir = "";
+                        if(serverInterface->getGameSettings()->getScenarioDir() != "") {
+                            scenarioDir = serverInterface->getGameSettings()->getScenarioDir();
+                            if(EndsWith(scenarioDir, ".xml") == true) {
+                                scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
+                                scenarioDir = scenarioDir.erase(scenarioDir.size() - serverInterface->getGameSettings()->getScenario().size(), serverInterface->getGameSettings()->getScenario().size() + 1);
+                            }
+
+                            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getGameSettings()->getScenarioDir().c_str(),serverInterface->getGameSettings()->getScenario().c_str(),scenarioDir.c_str());
+                        }
+
+                    	//tileset
+                        //world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
+
+						//int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", NULL);
+                        int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), ".xml", NULL);
+						//int32 techCRC    = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
+                        int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
                         Checksum checksum;
-                        string file = Map::getMapPath(serverInterface->getGameSettings()->getMap());
+                        string file = Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir);
                         checksum.addFile(file);
                         int32 mapCRC = checksum.getSum();
 
@@ -208,31 +225,47 @@ void ConnectionSlot::update(bool checkForNewClients)
                                 // Now get all filenames with their CRC values and send to the client
                                 vctFileList.clear();
 
+                                Config &config = Config::getInstance();
+                                string scenarioDir = "";
+                                if(serverInterface->getGameSettings()->getScenarioDir() != "") {
+                                    scenarioDir = serverInterface->getGameSettings()->getScenarioDir();
+                                    if(EndsWith(scenarioDir, ".xml") == true) {
+                                        scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
+                                        scenarioDir = scenarioDir.erase(scenarioDir.size() - serverInterface->getGameSettings()->getScenario().size(), serverInterface->getGameSettings()->getScenario().size() + 1);
+                                    }
+
+                                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getGameSettings()->getScenarioDir().c_str(),serverInterface->getGameSettings()->getScenario().c_str(),scenarioDir.c_str());
+                                }
+
                                 if(networkGameDataSynchCheckOkTile == false)
                                 {
                                     if(tilesetCRC == 0)
                                     {
-                                        vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", "", &vctFileList);
+                                        //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", "", &vctFileList);
+                                    	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), "", &vctFileList);
                                     }
                                     else
                                     {
-                                        vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", &vctFileList);
+                                        //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", &vctFileList);
+                                    	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTilesets,scenarioDir), "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", &vctFileList);
                                     }
                                 }
                                 if(networkGameDataSynchCheckOkTech == false)
                                 {
                                     if(techCRC == 0)
                                     {
-                                        vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
+                                        //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
+                                    	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
                                     }
                                     else
                                     {
-                                        vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
+                                        //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
+                                    	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
                                     }
                                 }
                                 if(networkGameDataSynchCheckOkMap == false)
                                 {
-                                    vctFileList.push_back(std::pair<string,int32>(Map::getMapPath(serverInterface->getGameSettings()->getMap()),mapCRC));
+                                    vctFileList.push_back(std::pair<string,int32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir),mapCRC));
                                 }
 
                                 //for(int i = 0; i < vctFileList.size(); i++)

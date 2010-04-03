@@ -113,8 +113,12 @@ bool isdir(const char *path);
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false);
 void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
+
+int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum);
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+
 void createDirectoryPaths(string  Path);
 string extractDirectoryPathFromFile(string filename);
 string extractExtension(const string& filename);
