@@ -107,6 +107,20 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelPlayerName.init(leftColumnStart,leftline);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 	leftline-=30;
+	
+	// server port
+	labelServerPortLabel.init(leftLabelStart,leftline);
+	labelServerPortLabel.setText(lang.get("ServerPort"));
+	labelServerPort.init(leftColumnStart,leftline);
+	string port=intToStr(config.getInt("ServerPort"));
+	if(port!="61357"){
+		port=port +" ("+lang.get("NonStandardPort")+")";
+	}
+	else{
+		port=port +" ("+lang.get("StandardPort")+")";
+	}
+	
+	labelServerPort.setText(port);
 
 	leftline-=30;
 	labelVideoSection.init(leftLabelStart+captionOffset, leftline);
@@ -324,34 +338,36 @@ void MenuStateOptions::render(){
 	}
 	else
 	{
-	renderer.renderButton(&buttonOk);
-	renderer.renderButton(&buttonAbort);
-	renderer.renderButton(&buttonAutoConfig);
-	renderer.renderListBox(&listBoxLang);
-	renderer.renderListBox(&listBoxShadows);
-	renderer.renderListBox(&listBoxTextures3D);
-	renderer.renderListBox(&listBoxUnitParticles);
-	renderer.renderListBox(&listBoxLights);
-	renderer.renderListBox(&listBoxFilter);
-	renderer.renderListBox(&listBoxVolumeFx);
-	renderer.renderListBox(&listBoxVolumeAmbient);
-	renderer.renderListBox(&listBoxVolumeMusic);
-	renderer.renderLabel(&labelLang);
-	renderer.renderLabel(&labelPlayerNameLabel);
-	renderer.renderLabel(&labelPlayerName);
-	renderer.renderLabel(&labelShadows);
-	renderer.renderLabel(&labelTextures3D);
-	renderer.renderLabel(&labelUnitParticles);
-	renderer.renderLabel(&labelLights);
-	renderer.renderLabel(&labelFilter);
-	renderer.renderLabel(&labelVolumeFx);
-	renderer.renderLabel(&labelVolumeAmbient);
-	renderer.renderLabel(&labelVolumeMusic);
-	renderer.renderLabel(&labelVideoSection);
-	renderer.renderLabel(&labelAudioSection);
-	renderer.renderLabel(&labelMiscSection);
-	renderer.renderLabel(&labelScreenModes);
-	renderer.renderListBox(&listBoxScreenModes);
+		renderer.renderButton(&buttonOk);
+		renderer.renderButton(&buttonAbort);
+		renderer.renderButton(&buttonAutoConfig);
+		renderer.renderListBox(&listBoxLang);
+		renderer.renderListBox(&listBoxShadows);
+		renderer.renderListBox(&listBoxTextures3D);
+		renderer.renderListBox(&listBoxUnitParticles);
+		renderer.renderListBox(&listBoxLights);
+		renderer.renderListBox(&listBoxFilter);
+		renderer.renderListBox(&listBoxVolumeFx);
+		renderer.renderListBox(&listBoxVolumeAmbient);
+		renderer.renderListBox(&listBoxVolumeMusic);
+		renderer.renderLabel(&labelLang);
+		renderer.renderLabel(&labelPlayerNameLabel);
+		renderer.renderLabel(&labelPlayerName);
+		renderer.renderLabel(&labelShadows);
+		renderer.renderLabel(&labelTextures3D);
+		renderer.renderLabel(&labelUnitParticles);
+		renderer.renderLabel(&labelLights);
+		renderer.renderLabel(&labelFilter);
+		renderer.renderLabel(&labelVolumeFx);
+		renderer.renderLabel(&labelVolumeAmbient);
+		renderer.renderLabel(&labelVolumeMusic);
+		renderer.renderLabel(&labelVideoSection);
+		renderer.renderLabel(&labelAudioSection);
+		renderer.renderLabel(&labelMiscSection);
+		renderer.renderLabel(&labelScreenModes);
+		renderer.renderListBox(&listBoxScreenModes);
+		renderer.renderLabel(&labelServerPortLabel);
+		renderer.renderLabel(&labelServerPort);
 	}
 }
 

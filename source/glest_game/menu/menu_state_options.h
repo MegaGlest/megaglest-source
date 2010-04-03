@@ -47,6 +47,9 @@ private:
 	GraphicLabel labelPlayerName;
 	GraphicLabel labelPlayerNameLabel;
 	GraphicLabel *activeInputLabel;
+	GraphicLabel labelServerPort;
+	GraphicLabel labelServerPortLabel;
+	
 	
 	GraphicLabel labelScreenModes;
 	GraphicListBox listBoxScreenModes;
@@ -55,6 +58,7 @@ private:
 	GraphicLabel labelVideoSection;
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
+	
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;

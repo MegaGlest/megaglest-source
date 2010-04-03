@@ -44,6 +44,9 @@ private:
 	GraphicLabel labelInfo;
 	GraphicListBox listBoxServerType;
 	GraphicListBox listBoxServers;
+	GraphicLabel labelServerPort;
+	GraphicLabel labelServerPortLabel;
+
 
 	bool connected;
 	int playerIndex;

@@ -62,27 +62,42 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	buttonAutoFindServers.setText(lang.get("FindLANGames"));
 
 	//server type label
-	labelServerType.init(330, 460);
+	labelServerType.init(330, 490);
 	labelServerType.setText(lang.get("ServerType") + ":");
 
 	//server type list box
-	listBoxServerType.init(465, 460);
+	listBoxServerType.init(465, 490);
 	listBoxServerType.pushBackItem(lang.get("ServerTypeNew"));
 	listBoxServerType.pushBackItem(lang.get("ServerTypePrevious"));
 
 	//server label
-	labelServer.init(330, 430);
+	labelServer.init(330, 460);
 	labelServer.setText(lang.get("Server") + ": ");
 
 	//server listbox
-	listBoxServers.init(465, 430);
-
+	listBoxServers.init(465, 460);
 	for(int i= 0; i<servers.getPropertyCount(); ++i){
 		listBoxServers.pushBackItem(servers.getKey(i));
 	}
 
 	//server ip
-	labelServerIp.init(465, 430);
+	labelServerIp.init(465, 460);
+
+
+	// server port
+	labelServerPortLabel.init(330,430);
+	labelServerPortLabel.setText(lang.get("ServerPort"));
+	labelServerPort.init(465,430);
+	string port=intToStr(config.getInt("ServerPort"));
+	if(port!="61357"){
+		port=port +" ("+lang.get("NonStandardPort")+")";
+	}
+	else{
+		port=port +" ("+lang.get("StandardPort")+")";
+	}	
+	labelServerPort.setText(port);
+
+
 
 	labelStatus.init(330, 400);
 	labelStatus.setText("");
@@ -234,6 +249,8 @@ void MenuStateJoinGame::render(){
 	renderer.renderLabel(&labelServerType);
 	renderer.renderLabel(&labelStatus);
 	renderer.renderLabel(&labelInfo);
+	renderer.renderLabel(&labelServerPort);
+	renderer.renderLabel(&labelServerPortLabel);
 	renderer.renderButton(&buttonConnect);
 	renderer.renderButton(&buttonAutoFindServers);
 	renderer.renderListBox(&listBoxServerType);

@@ -89,12 +89,6 @@ void CoreData::load(){
 	displayFont->setType(displayFontName);
 	displayFont->setSize(displayFontSize);
 
-	menuFontSmall=displayFont;
-	menuFontNormal=displayFont;
-	menuFontBig=displayFont;
-	menuFontVeryBig=displayFont;
-	consoleFont=displayFont;
-
 	//menu fonts
 	string menuFontNameSmallPrefix= config.getString("FontMenuNormalPrefix");
 	string menuFontNameSmallPostfix= config.getString("FontMenuNormalPostfix");
@@ -134,7 +128,7 @@ void CoreData::load(){
 	//console font
 	string consoleFontNamePrefix= config.getString("FontConsolePrefix");
 	string consoleFontNamePostfix= config.getString("FontConsolePostfix");
-	int consoleFontNameSize=computeFontSize(16);
+	int consoleFontNameSize=computeFontSize(12);
 	string consoleFontName= consoleFontNamePrefix+intToStr(consoleFontNameSize)+consoleFontNamePostfix;
 	consoleFont= renderer.newFont(rsGlobal);
 	consoleFont->setType(consoleFontName);
@@ -163,6 +157,7 @@ int CoreData::computeFontSize(int size){
 		rs= 12;
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
+	if(rs==16) rs=15; // 16 is invisible in linux, nobody knows why!?!
 	return rs;
 }
 
