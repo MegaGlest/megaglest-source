@@ -114,16 +114,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(200, 550-i*30);
-        listBoxControls[i].init(300, 550-i*30);
-        listBoxFactions[i].init(500, 550-i*30);
-		listBoxTeams[i].init(700, 550-i*30, 60);
-		labelNetStatus[i].init(800, 550-i*30, 60);
+		labelPlayers[i].init(100, 550-i*30);
+        listBoxControls[i].init(200, 550-i*30);
+        listBoxFactions[i].init(400, 550-i*30);
+		listBoxTeams[i].init(600, 550-i*30, 60);
+		labelNetStatus[i].init(700, 550-i*30, 60);
     }
 
-	labelControl.init(300, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(500, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(700, 600, 60, GraphicListBox::defH, true);
+	labelControl.init(200, 600, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(400, 600, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(600, 600, 60, GraphicListBox::defH, true);
 
 	//texts
 	buttonReturn.setText(lang.get("Return"));
@@ -389,7 +389,7 @@ void MenuStateCustomGame::update()
 	Lang& lang= Lang::getInstance();
 
     bool haveAtLeastOneNetworkClientConnected = false;
-
+	Config &config = Config::getInstance();
 	for(int i= 0; i<mapInfo.players; ++i)
 	{
 		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
@@ -469,8 +469,16 @@ void MenuStateCustomGame::update()
 			else
 			{
 			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
-
-				labelNetStatus[i].setText(lang.get("NotConnected"));
+				string port=intToStr(config.getInt("ServerPort"));
+				if(port!="61357"){
+					port=port +lang.get(" NonStandardPort")+"!";
+				}
+				else
+				{
+					port=port+")";
+				}
+				port="("+port;
+				labelNetStatus[i].setText("--- "+port);
 			}
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
