@@ -322,6 +322,17 @@ bool EndsWith(const string &str, const string& key)
 }
 
 //finds all filenames like path and gets their checksum of all files combined
+int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum) {
+	Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
+	int count = paths.size();
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+		getFolderTreeContentsCheckSumRecursively(path, filterFileExt, recursiveChecksum);
+	}
+	return checksum.getSum();
+}
+
+//finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum) {
 
     Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
@@ -400,6 +411,16 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	globfree(&globbuf);
 */
     return checksum.getSum();
+}
+
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
+	vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
+	int count = paths.size();
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+		getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
+	}
+	return checksumFiles;
 }
 
 //finds all filenames like path and gets the checksum of each file
