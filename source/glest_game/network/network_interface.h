@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -48,7 +48,7 @@ protected:
 	bool networkGameDataSynchCheckOkMap;
 	bool networkGameDataSynchCheckOkTile;
 	bool networkGameDataSynchCheckOkTech;
-	bool networkGameDataSynchCheckOkFogOfWar;
+	//bool networkGameDataSynchCheckOkFogOfWar;
 
 	string chatText;
 	string chatSender;
@@ -86,15 +86,15 @@ public:
 	static void setAllowGameDataSynchCheck(bool value)          { allowGameDataSynchCheck = value; }
 	static bool getAllowGameDataSynchCheck()                    { return allowGameDataSynchCheck; }
 
-    virtual bool getNetworkGameDataSynchCheckOk()               { return (networkGameDataSynchCheckOkMap && networkGameDataSynchCheckOkTile && networkGameDataSynchCheckOkTech && networkGameDataSynchCheckOkFogOfWar); }
+    virtual bool getNetworkGameDataSynchCheckOk()               { return (networkGameDataSynchCheckOkMap && networkGameDataSynchCheckOkTile && networkGameDataSynchCheckOkTech); }
     virtual void setNetworkGameDataSynchCheckOkMap(bool value)  { networkGameDataSynchCheckOkMap = value; }
     virtual void setNetworkGameDataSynchCheckOkTile(bool value) { networkGameDataSynchCheckOkTile = value; }
     virtual void setNetworkGameDataSynchCheckOkTech(bool value) { networkGameDataSynchCheckOkTech = value; }
     virtual bool getNetworkGameDataSynchCheckOkMap()            { return networkGameDataSynchCheckOkMap; }
     virtual bool getNetworkGameDataSynchCheckOkTile()           { return networkGameDataSynchCheckOkTile; }
     virtual bool getNetworkGameDataSynchCheckOkTech()           { return networkGameDataSynchCheckOkTech; }
-    virtual bool getNetworkGameDataSynchCheckOkFogOfWar()       { return networkGameDataSynchCheckOkFogOfWar; }
-    virtual void setNetworkGameDataSynchCheckOkFogOfWar(bool value)  { networkGameDataSynchCheckOkFogOfWar = value; }
+    //virtual bool getNetworkGameDataSynchCheckOkFogOfWar()       { return networkGameDataSynchCheckOkFogOfWar; }
+    //virtual void setNetworkGameDataSynchCheckOkFogOfWar(bool value)  { networkGameDataSynchCheckOkFogOfWar = value; }
 
 	const string getChatText() const							{return chatText;}
 	const string getChatSender() const							{return chatSender;}

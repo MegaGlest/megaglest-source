@@ -43,7 +43,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
 	networkGameDataSynchCheckOkTech     = false;
-	networkGameDataSynchCheckOkFogOfWar = false;
+	//networkGameDataSynchCheckOkFogOfWar = false;
 
     chatText.clear();
     chatSender.clear();
@@ -71,7 +71,7 @@ void ConnectionSlot::update(bool checkForNewClients)
         if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
         if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
         if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
-        if(networkGameDataSynchCheckOkFogOfWar) networkGameDataSynchCheckOkFogOfWar = false;
+        //if(networkGameDataSynchCheckOkFogOfWar) networkGameDataSynchCheckOkFogOfWar = false;
 
         // Is the listener socket ready to be read?
 	    //if(serverInterface->getServerSocket()->isReadable() == true)
@@ -209,8 +209,8 @@ void ConnectionSlot::update(bool checkForNewClients)
 
 						if( networkGameDataSynchCheckOkMap      == true &&
                             networkGameDataSynchCheckOkTile     == true &&
-                            networkGameDataSynchCheckOkTech     == true &&
-                            networkGameDataSynchCheckOkFogOfWar == true)
+                            networkGameDataSynchCheckOkTech     == true) // &&
+                            //networkGameDataSynchCheckOkFogOfWar == true)
                         {
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client data synch ok\n",__FILE__,__FUNCTION__);
                         }
@@ -347,10 +347,12 @@ void ConnectionSlot::close()
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
+/*
 bool ConnectionSlot::getFogOfWar()
 {
     return networkGameDataSynchCheckOkFogOfWar;
 }
+*/
 
 bool ConnectionSlot::hasValidSocketId()
 {

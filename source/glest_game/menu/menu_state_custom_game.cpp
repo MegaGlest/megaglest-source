@@ -426,10 +426,10 @@ void MenuStateCustomGame::update()
                         {
                             label = label + " techtree";
                         }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                        {
-                            label = label + " FogOfWar == false";
-                        }
+                        //if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                        //{
+                        //    label = label + " FogOfWar == false";
+                        //}
 
                     }
                     else
@@ -441,7 +441,8 @@ void MenuStateCustomGame::update()
                 {
                     label = connectionSlot->getName();
 
-                    if(connectionSlot->getAllowGameDataSynchCheck() == true)
+                    if(connectionSlot->getAllowGameDataSynchCheck() == true &&
+                       connectionSlot->getNetworkGameDataSynchCheckOk() == false)
                     {
                         label += " - warning synch mismatch for:";
                         if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
@@ -456,10 +457,10 @@ void MenuStateCustomGame::update()
                         {
                             label = label + " techtree";
                         }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                        {
-                            label = label + " FogOfWar == false";
-                        }
+                        //if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+                        //{
+                        //    label = label + " FogOfWar == false";
+                        //}
                     }
                 }
 
