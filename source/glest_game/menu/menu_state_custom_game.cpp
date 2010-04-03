@@ -480,7 +480,7 @@ void MenuStateCustomGame::update()
 	}
 
     // Send the game settings to each client if we have at least one networked client
-	if( serverInterface->getAllowDownloadDataSynch() == true &&
+	if( serverInterface->getAllowGameDataSynchCheck() == true &&
         haveAtLeastOneNetworkClientConnected == true &&
 	    needToSetChangedGameSettings == true &&
         difftime(time(NULL),lastSetChangedGameSettings) >= 2)

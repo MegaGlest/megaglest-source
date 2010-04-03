@@ -180,9 +180,21 @@ void ClientInterface::updateLobby()
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
 
+                Config &config = Config::getInstance();
+                string scenarioDir = "";
+                if(gameSettings.getScenarioDir() != "") {
+                    scenarioDir = gameSettings.getScenarioDir();
+                    if(EndsWith(scenarioDir, ".xml") == true) {
+                        scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
+                        scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings.getScenario().size(), gameSettings.getScenario().size() + 1);
+                    }
+
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
+                }
+
                 // check the checksum's
-                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" +
-                    networkMessageSynchNetworkGameData.getTileset() + "/*", ".xml", NULL);
+                //int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + networkMessageSynchNetworkGameData.getTileset() + "/*", ".xml", NULL);
+                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTileset() + string("/*"), ".xml", NULL);
 
                 this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
                 if(this->getNetworkGameDataSynchCheckOkTile() == false)
@@ -193,8 +205,8 @@ void ClientInterface::updateLobby()
 
 
                 //tech, load before map because of resources
-                int32 techCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" +
-                        networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+                //int32 techCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+                int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTech() + string("/*"), ".xml", NULL);
 
                 this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
 
@@ -206,7 +218,7 @@ void ClientInterface::updateLobby()
 
                 //map
                 Checksum checksum;
-                string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap());
+                string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap(),scenarioDir);
                 checksum.addFile(file);
                 int32 mapCRC = checksum.getSum();
                 //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);

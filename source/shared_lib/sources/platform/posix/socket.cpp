@@ -1190,7 +1190,7 @@ void BroadCastSocketThread::execute() {
 			for( pn = 1; ; pn++ )
 			{
 				if(difftime(time(NULL),elapsed) >= 1) {
-					time_t elapsed = time(NULL);
+					elapsed = time(NULL);
 					// Broadcast the packet to the subnet
 					if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
 					{

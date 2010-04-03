@@ -327,8 +327,13 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	int count = paths.size();
 	for(int idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
-		getFolderTreeContentsCheckSumRecursively(path, filterFileExt, recursiveChecksum);
+		getFolderTreeContentsCheckSumRecursively(path, filterFileExt, &checksum);
 	}
+
+	if(recursiveChecksum != NULL) {
+		*recursiveChecksum = checksum;
+	}
+
 	return checksum.getSum();
 }
 
@@ -410,6 +415,11 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 	globfree(&globbuf);
 */
+
+	if(recursiveChecksum != NULL) {
+		*recursiveChecksum = checksum;
+	}
+
     return checksum.getSum();
 }
 
