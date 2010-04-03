@@ -976,13 +976,19 @@ void BroadCastClientSocketThread::execute() {
 						//exit(-1);
 					}
 					else {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,inet_ntoa(bcSender.sin_addr) );
+						string fromIP = inet_ntoa(bcSender.sin_addr);
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,fromIP.c_str() );
 
-						vector<string> tokens;
-						Tokenize(buff,tokens,":");
-						for(int idx = 1; idx < tokens.size(); idx++) {
-							foundServers.push_back(tokens[idx]);
+						//vector<string> tokens;
+						//Tokenize(buff,tokens,":");
+						//for(int idx = 1; idx < tokens.size(); idx++) {
+						//	foundServers.push_back(tokens[idx]);
+						//}
+						if(std::find(foundServers.begin(),foundServers.end(),fromIP) == foundServers.end()) {
+							foundServers.push_back(fromIP);
 						}
+
+						// For now break as soon as we find a server
 						break;
 					}
 

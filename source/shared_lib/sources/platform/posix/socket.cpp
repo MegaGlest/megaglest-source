@@ -26,6 +26,7 @@
 #include "conversion.h"
 #include "util.h"
 #include "platform_util.h"
+#include <algorithm>
 
 using namespace std;
 using namespace Shared::Util;
@@ -98,23 +99,29 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	}
 
 	// Now check all linux network devices
-	int fd = socket(AF_INET, SOCK_DGRAM, 0);
+	for(int idx = 0; idx < 5; ++idx) {
+		int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-	/* I want to get an IPv4 IP address */
-	struct ifreq ifr;
-	ifr.ifr_addr.sa_family = AF_INET;
+		/* I want to get an IPv4 IP address */
+		struct ifreq ifr;
+		ifr.ifr_addr.sa_family = AF_INET;
 
-	/* I want IP address attached to "eth0" */
-	strncpy(ifr.ifr_name, "eth1", IFNAMSIZ-1);
-	ioctl(fd, SIOCGIFADDR, &ifr);
-	close(fd);
+		/* I want IP address attached to "eth0" */
+		char szBuf[10]="";
+		sprintf(szBuf,"eth%d",idx);
+		strncpy(ifr.ifr_name, szBuf, IFNAMSIZ-1);
+		ioctl(fd, SIOCGIFADDR, &ifr);
+		close(fd);
 
-    sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-	printf("%s\n",myhostaddr);
+		sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+		printf("%s\n",myhostaddr);
 
-    if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
-	   ipList.push_back(myhostaddr);
-    }
+		if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+			if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
+				ipList.push_back(myhostaddr);
+			}
+		}
+	}
 
 	return ipList;
 }
@@ -887,13 +894,19 @@ void BroadCastClientSocketThread::execute() {
 						//exit(-1);
 					}
 					else {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,inet_ntoa(bcSender.sin_addr) );
+						string fromIP = inet_ntoa(bcSender.sin_addr);
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,fromIP.c_str() );
 
-						vector<string> tokens;
-						Tokenize(buff,tokens,":");
-						for(int idx = 1; idx < tokens.size(); idx++) {
-							foundServers.push_back(tokens[idx]);
+						//vector<string> tokens;
+						//Tokenize(buff,tokens,":");
+						//for(int idx = 1; idx < tokens.size(); idx++) {
+						//	foundServers.push_back(tokens[idx]);
+						//}
+						if(std::find(foundServers.begin(),foundServers.end(),fromIP) == foundServers.end()) {
+							foundServers.push_back(fromIP);
 						}
+
+						// For now break as soon as we find a server
 						break;
 					}
 
