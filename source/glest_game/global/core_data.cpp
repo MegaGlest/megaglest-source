@@ -83,7 +83,7 @@ void CoreData::load(){
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
 	string displayFontNamePostfix=config.getString("FontDisplayPostfix");
-	int displayFontSize=computeFontSize(15);
+	int displayFontSize=computeFontSize(12);
 	string displayFontName=displayFontNamePrefix+intToStr(displayFontSize)+displayFontNamePostfix;
 	displayFont= renderer.newFont(rsGlobal);
 	displayFont->setType(displayFontName);
@@ -101,7 +101,7 @@ void CoreData::load(){
 	
 	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
-	int menuFontNameNormalSize=computeFontSize(13);
+	int menuFontNameNormalSize=computeFontSize(14);
 	string menuFontNameNormal= menuFontNameNormalPrefix+intToStr(menuFontNameNormalSize)+menuFontNameNormalPostfix;
 	menuFontNormal= renderer.newFont(rsGlobal);
 	menuFontNormal->setType(menuFontNameNormal);

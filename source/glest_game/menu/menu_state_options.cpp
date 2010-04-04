@@ -114,7 +114,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelServerPort.init(leftColumnStart,leftline);
 	string port=intToStr(config.getInt("ServerPort"));
 	if(port!="61357"){
-		port=port +" ("+lang.get("NonStandardPort")+")";
+		port=port +" ("+lang.get("NonStandardPort")+"!!)";
 	}
 	else{
 		port=port +" ("+lang.get("StandardPort")+")";
