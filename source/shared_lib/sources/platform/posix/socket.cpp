@@ -114,7 +114,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		close(fd);
 
 		sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-		printf("%s\n",myhostaddr);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
 		if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
 			if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
@@ -196,10 +196,7 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
             int retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
             if(retval < 0)
             {
-                char szBuf[1024]="";
-                sprintf(szBuf,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d errno = %d [%s]",__FILE__,__FUNCTION__,retval,errno,strerror(errno));
-                fprintf(stderr, "%s", szBuf);
-
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,retval,errno,strerror(errno));
             }
             else if(retval)
             {
@@ -291,10 +288,8 @@ int Socket::getDataToRead(){
 
         if(err < 0 && errno != EAGAIN)
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
             //throwException(szBuf);
-            printf("%s",szBuf);
         }
         else if(err == 0)
         {
@@ -313,14 +308,12 @@ int Socket::send(const void *data, int dataSize) {
 	}
 	if(bytesSent < 0 && errno != EAGAIN)
 	{
-        char szBuf[1024]="";
-        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesSent,errno,strerror(errno));
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesSent,errno,strerror(errno));
 		//throwException(szBuf);
-		printf("%s",szBuf);
 	}
 	else if(bytesSent < 0 && errno == EAGAIN)
 	{
-	    printf("In [%s::%s] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesSent < 0 && errno == EAGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -329,7 +322,7 @@ int Socket::send(const void *data, int dataSize) {
 	        {
                 bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 
-                printf("In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        }
 	    }
 	}
@@ -338,9 +331,7 @@ int Socket::send(const void *data, int dataSize) {
 	    int iErr = errno;
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesSent,iErr,strerror(iErr));
-	    printf("%s",szBuf);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesSent,iErr,strerror(iErr));
 	    //throwException(szBuf);
 	}
 
@@ -359,14 +350,12 @@ int Socket::receive(void *data, int dataSize)
 	}
 	if(bytesReceived < 0 && errno != EAGAIN)
 	{
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesReceived,errno,strerror(errno));
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesReceived,errno,strerror(errno));
 		//throwException(szBuf);
-		printf("%s",szBuf);
 	}
 	else if(bytesReceived < 0 && errno == EAGAIN)
 	{
-	    printf("In [%s::%s] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && errno == EAGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -375,7 +364,7 @@ int Socket::receive(void *data, int dataSize)
 	        {
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
-                printf("In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
 	        }
 	    }
 	}
@@ -385,9 +374,7 @@ int Socket::receive(void *data, int dataSize)
 	    int iErr = errno;
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesReceived,iErr,strerror(iErr));
-        printf("%s",szBuf);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,bytesReceived,iErr,strerror(iErr));
 	    //throwException(szBuf);
 	}
 	return static_cast<int>(bytesReceived);
@@ -401,15 +388,14 @@ int Socket::peek(void *data, int dataSize){
 	}
 	if(err < 0 && errno != EAGAIN)
 	{
-	    char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,errno,strerror(errno));
 		//throwException(szBuf);
 
 		disconnectSocket();
 	}
 	else if(err < 0 && errno == EAGAIN)
 	{
-	    printf("In [%s::%s] #1 EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && errno == EAGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -418,7 +404,7 @@ int Socket::peek(void *data, int dataSize){
 	        {
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
-                printf("In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
 	        }
 	    }
 	}
@@ -428,9 +414,7 @@ int Socket::peek(void *data, int dataSize){
 	    int iErr = errno;
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while peeking socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,iErr,strerror(iErr));
-        printf("%s",szBuf);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while peeking socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,iErr,strerror(iErr));
 	    //throwException(szBuf);
 	}
 
@@ -468,9 +452,7 @@ bool Socket::isReadable()
             lastDebugEvent = time(NULL);
 
             //throwException("Error selecting socket");
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-            printf("%s",szBuf);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
         }
 	}
 	//return (i == 1 && FD_ISSET(sock, &set));
@@ -499,9 +481,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
             {
                 lastDebugEvent = time(NULL);
 
-                char szBuf[1024]="";
-                sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-                printf("%s",szBuf);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
             }
             waitOnDelayedResponse = false;
 
@@ -512,9 +492,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
             if(difftime(time(NULL),lastDebugEvent) >= 1)
             {
                 lastDebugEvent = time(NULL);
-                char szBuf[1024]="";
-                sprintf(szBuf,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
-                printf("%s",szBuf);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,i,errno,strerror(errno));
             }
 
             if(waitOnDelayedResponse == false)
@@ -546,30 +524,6 @@ bool Socket::isConnected()
 		char tmp;
 		int err = peek(&tmp, sizeof(tmp));
 		return (err > 0);
-		/*
-		int err = recv(sock, &tmp, sizeof(tmp), MSG_PEEK);
-
-        if(err <= 0 && errno != EAGAIN)
-        {
-            int iErr = errno;
-            disconnectSocket();
-
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while peeking isconnected socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,iErr,strerror(iErr));
-            printf("%s",szBuf);
-
-            return false;
-        }
-        else if(err <= 0)
-        {
-            int iErr = errno;
-            //disconnectSocket();
-
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] #2 DISCONNECTED SOCKET error while peeking isconnected socket data, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,err,iErr,strerror(iErr));
-            printf("%s",szBuf);
-        }
-        */
 	}
 
 	//otherwise the socket is connected
@@ -684,9 +638,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)
 	{
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,errno,strerror(errno));
-	    fprintf(stderr, "%s", szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d errno = %d [%s]\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,errno,strerror(errno));
 
         if (errno == EINPROGRESS)
         {
@@ -695,7 +647,7 @@ void ClientSocket::connect(const Ip &ip, int port)
             int valopt;
             socklen_t lon;
 
-            fprintf(stderr, "In [%s::%s] EINPROGRESS in connect() - selecting\n",__FILE__,__FUNCTION__);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] EINPROGRESS in connect() - selecting\n",__FILE__,__FUNCTION__);
 
             do
             {
@@ -709,9 +661,8 @@ void ClientSocket::connect(const Ip &ip, int port)
 
                if (err < 0 && errno != EINTR)
                {
-                  sprintf(szBuf, "In [%s::%s] Error connecting %d - [%s]\n",__FILE__,__FUNCTION__,errno, strerror(errno));
+            	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error connecting %d - [%s]\n",__FILE__,__FUNCTION__,errno, strerror(errno));
                   //throwException(szBuf);
-                  fprintf(stderr, "%s", szBuf);
                   break;
                }
                else if (err > 0)
@@ -720,30 +671,27 @@ void ClientSocket::connect(const Ip &ip, int port)
                   lon = sizeof(int);
                   if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0)
                   {
-                     sprintf(szBuf, "In [%s::%s] Error in getsockopt() %d - [%s]\n",__FILE__,__FUNCTION__,errno, strerror(errno));
+                	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error in getsockopt() %d - [%s]\n",__FILE__,__FUNCTION__,errno, strerror(errno));
                      //throwException(szBuf);
-                     fprintf(stderr, "%s", szBuf);
                      break;
                   }
                   // Check the value returned...
                   if (valopt)
                   {
-                     sprintf(szBuf, "In [%s::%s] Error in delayed connection() %d - [%s]\n",__FILE__,__FUNCTION__,valopt, strerror(valopt));
+                	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error in delayed connection() %d - [%s]\n",__FILE__,__FUNCTION__,valopt, strerror(valopt));
                      //throwException(szBuf);
-                     fprintf(stderr, "%s", szBuf);
                      break;
                   }
 
                   errno = 0;
-                  fprintf(stderr, "In [%s::%s] Apparent recovery for connection sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,errno);
+                  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Apparent recovery for connection sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,errno);
 
                   break;
                }
                else
                {
-                  sprintf(szBuf, "In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
+            	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
                   //throwException(szBuf);
-                  fprintf(stderr, "%s", szBuf);
 
                   disconnectSocket();
                   break;
@@ -753,13 +701,13 @@ void ClientSocket::connect(const Ip &ip, int port)
 
         if(err < 0)
         {
-            fprintf(stderr, "In [%s::%s] Before END sock = %d, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,sock,err,errno,strerror(errno));
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Before END sock = %d, err = %d, errno = %d [%s]\n",__FILE__,__FUNCTION__,sock,err,errno,strerror(errno));
             //throwException(szBuf);
             disconnectSocket();
         }
         else
         {
-            fprintf(stderr, "In [%s::%s] Valid recovery for connection sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,errno);
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Valid recovery for connection sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,errno);
         }
 	}
 }

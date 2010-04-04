@@ -304,9 +304,7 @@ bool Socket::hasDataToRead(std::map<int,bool> &socketTriggeredList)
             int retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
             if(retval < 0)
             {
-                char szBuf[1024]="";
-                sprintf(szBuf,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d WSAGetLastError() = %d",__FILE__,__FUNCTION__,retval,WSAGetLastError());
-                fprintf(stderr, "%s", szBuf);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d WSAGetLastError() = %d",__FILE__,__FUNCTION__,retval,WSAGetLastError());
             }
             else if(retval)
             {
@@ -398,9 +396,7 @@ int Socket::getDataToRead(){
 
         if(err < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
-            printf("%s",szBuf);
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
             //throwException(szBuf);
         }
         else if(err == 0)
@@ -420,10 +416,8 @@ int Socket::send(const void *data, int dataSize) {
 	}
 	if(bytesSent < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
 	{
-        char szBuf[1024]="";
-        sprintf(szBuf,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesSent,WSAGetLastError());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesSent,WSAGetLastError());
 		//throwException(szBuf);
-		printf("%s",szBuf);
 	}
 	else if(bytesSent < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
@@ -445,9 +439,7 @@ int Socket::send(const void *data, int dataSize) {
 	    int iErr = WSAGetLastError();
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesSent,iErr);
-	    printf("%s",szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesSent,iErr);
 	    //throwException(szBuf);
 	}
 
@@ -466,14 +458,12 @@ int Socket::receive(void *data, int dataSize)
 	}
 	if(bytesReceived < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
 	{
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesReceived,WSAGetLastError());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesReceived,WSAGetLastError());
 		//throwException(szBuf);
-		printf("%s",szBuf);
 	}
 	else if(bytesReceived < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
-	    printf("In [%s::%s] #1 WSAEWOULDBLOCK during receive, trying again...\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 WSAEWOULDBLOCK during receive, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && WSAGetLastError() == WSAEWOULDBLOCK) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -482,7 +472,7 @@ int Socket::receive(void *data, int dataSize)
 	        {
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
-                printf("In [%s::%s] #2 WSAEWOULDBLOCK during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 WSAEWOULDBLOCK during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
 	        }
 	    }
 	}
@@ -492,9 +482,7 @@ int Socket::receive(void *data, int dataSize)
 	    int iErr = WSAGetLastError();
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesReceived,iErr);
-        printf("%s",szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,bytesReceived,iErr);
 	    //throwException(szBuf);
 	}
 	return static_cast<int>(bytesReceived);
@@ -508,14 +496,12 @@ int Socket::peek(void *data, int dataSize){
 	}
 	if(err < 0 && WSAGetLastError() != WSAEWOULDBLOCK)
 	{
-	    char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,WSAGetLastError());
 		//throwException(szBuf);
-		printf("%s",szBuf);
 	}
 	else if(err < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
 	{
-	    printf("In [%s::%s] #1 WSAEWOULDBLOCK during peek, trying again...\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 WSAEWOULDBLOCK during peek, trying again...\n",__FILE__,__FUNCTION__);
 
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && WSAGetLastError() == WSAEWOULDBLOCK) && (difftime(time(NULL),tStartTimer) <= 5))
@@ -524,7 +510,7 @@ int Socket::peek(void *data, int dataSize){
 	        {
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
-                printf("In [%s::%s] #2 WSAEWOULDBLOCK during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 WSAEWOULDBLOCK during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
 	        }
 	    }
 	}
@@ -534,9 +520,7 @@ int Socket::peek(void *data, int dataSize){
 	    int iErr = WSAGetLastError();
 	    disconnectSocket();
 
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while peeking socket data, err = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,iErr);
-        printf("%s",szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while peeking socket data, err = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,iErr);
 	    //throwException(szBuf);
 	}
 
@@ -571,9 +555,7 @@ bool Socket::isReadable()
 	int i= select(sock+1, &set, NULL, NULL, &tv);
 	if(i==SOCKET_ERROR)
 	{
-        char szBuf[1024]="";
-        sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
-        printf("%s",szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
     }
 	//return (i == 1 && FD_ISSET(sock, &set));
 	return (i == 1);
@@ -597,16 +579,12 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
         int i= select(sock+1, NULL, &set, NULL, &tv);
         if(i==SOCKET_ERROR)
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] error while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
-            printf("%s",szBuf);
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
             waitOnDelayedResponse = false;
         }
         else if(i == 0)
         {
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
-            printf("%s",szBuf);
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] TIMEOUT while selecting socket data, err = %d, errno = %d\n",__FILE__,__FUNCTION__,i,WSAGetLastError());
 
             if(waitOnDelayedResponse == false)
             {
@@ -636,21 +614,6 @@ bool Socket::isConnected(){
         char tmp;
 		int err = peek(&tmp, sizeof(tmp));
 		return (err > 0);
-		/*
-		int err = recv(sock, &tmp, sizeof(tmp), MSG_PEEK);
-
-        if(err <= 0 && WSAGetLastError() != WSAEWOULDBLOCK)
-        {
-            int iErr = WSAGetLastError();
-            disconnectSocket();
-
-            char szBuf[1024]="";
-            sprintf(szBuf,"[%s::%s] DISCONNECTED SOCKET error while peeking isconnected socket data, err = %d, WSAGetLastError() = %d\n",__FILE__,__FUNCTION__,err,iErr);
-            printf("%s",szBuf);
-
-            return false;
-        }
-        */
 	}
 
 	//otherwise the socket is connected
@@ -766,10 +729,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)
 	{
-		char szBuf[1024]="";
-	    sprintf(szBuf,"#2 Error connecting socket for IP: %s for Port: %d err = %d WSAGetLastError() = %d",ip.getString().c_str(),port,err,WSAGetLastError());
-	    fprintf(stderr, "%s\n", WSAGetLastErrorMessage(szBuf));
-		//fprintf(stderr, "%s", szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"#2 Error connecting socket for IP: %s for Port: %d err = %d WSAGetLastError() = %d",ip.getString().c_str(),port,err,WSAGetLastError());
 
         if (WSAGetLastError() == WSAEINPROGRESS || WSAGetLastError() == WSAEWOULDBLOCK)
 		{
@@ -778,7 +738,7 @@ void ClientSocket::connect(const Ip &ip, int port)
             int valopt;
             socklen_t lon;
 
-            fprintf(stderr, "WSAEINPROGRESS or WSAEWOULDBLOCK in connect() - selecting\n");
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"WSAEINPROGRESS or WSAEWOULDBLOCK in connect() - selecting\n");
             do {
                tv.tv_sec = 10;
                tv.tv_usec = 0;
@@ -790,9 +750,8 @@ void ClientSocket::connect(const Ip &ip, int port)
 
                if (err < 0 && WSAGetLastError() != WSAEWOULDBLOCK && WSAGetLastError() != WSAEWOULDBLOCK)
                {
-                  sprintf(szBuf, "Error connecting %d\n", WSAGetLastError());
+            	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Error connecting %d\n", WSAGetLastError());
                   //throwException(szBuf);
-                  fprintf(stderr, "%s", szBuf);
                   break;
                }
                else if (err > 0) {
@@ -800,29 +759,26 @@ void ClientSocket::connect(const Ip &ip, int port)
                   lon = sizeof(int);
                   if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (char *)(&valopt), &lon) < 0)
                   {
-                     sprintf(szBuf, "Error in getsockopt() %d\n", WSAGetLastError());
+                	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Error in getsockopt() %d\n", WSAGetLastError());
                      //throwException(szBuf);
-                     fprintf(stderr, "%s", szBuf);
                      break;
                   }
                   // Check the value returned...
                   if (valopt)
                   {
-                     sprintf(szBuf, "Error in delayed connection() %d\n", valopt);
+                	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Error in delayed connection() %d\n", valopt);
                      //throwException(szBuf);
-                     fprintf(stderr, "%s", szBuf);
                      break;
                   }
 
-                  fprintf(stderr, "Apparent recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());
+                  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Apparent recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());
 
                   break;
                }
                else
                {
-                  sprintf(szBuf, "Timeout in select() - Cancelling!\n");
+            	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Timeout in select() - Cancelling!\n");
                   //throwException(szBuf);
-                  fprintf(stderr, "%s", szBuf);
 
 				  disconnectSocket();
 
@@ -833,16 +789,16 @@ void ClientSocket::connect(const Ip &ip, int port)
 
         if(err < 0)
         {
-            fprintf(stderr, "In [%s::%s] Before END sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,WSAGetLastError());
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Before END sock = %d, err = %d, errno = %d\n",__FILE__,__FUNCTION__,sock,err,WSAGetLastError());
             //throwException(szBuf);
             disconnectSocket();
         }
 
-        fprintf(stderr, "Valid recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Valid recovery for connection sock = %d, err = %d, WSAGetLastError() = %d\n",sock,err,WSAGetLastError());
 	}
 	else
 	{
-		fprintf(stderr, "Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,err);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,err);
 	}
 }
 

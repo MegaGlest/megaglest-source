@@ -77,6 +77,7 @@ public:
     ~MainMenu();
 
 	MenuBackground *getMenuBackground()	{return &menuBackground;}
+	const MenuBackground *getConstMenuBackground() const	{return &menuBackground;}
 
     virtual void render();
     virtual void update();

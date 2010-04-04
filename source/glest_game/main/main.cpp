@@ -210,9 +210,9 @@ void MainWindow::eventKeyDown(char key){
 		if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
-			//Renderer &renderer= Renderer::getInstance();
+			Renderer &renderer= Renderer::getInstance();
 			//renderer.reloadResources();
-			//renderer.init();
+			renderer.reinitAll();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}

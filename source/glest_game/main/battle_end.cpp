@@ -35,12 +35,16 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 BattleEnd::BattleEnd(Program *program, const Stats *stats):
-ProgramState(program){
+ProgramState(program) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	this->stats= *stats;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 BattleEnd::~BattleEnd(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SoundRenderer::getInstance().playMusic(CoreData::getInstance().getMenuMusic());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void BattleEnd::update(){
@@ -140,11 +144,15 @@ void BattleEnd::render(){
 }
 
 void BattleEnd::keyDown(char key){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	program->setState(new MainMenu(program));
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void BattleEnd::mouseDownLeft(int x, int y){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	program->setState(new MainMenu(program));
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 }}//end namespace

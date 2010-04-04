@@ -88,17 +88,17 @@ ALenum SoundSource::getFormat(Sound* sound)
 		else if(sound->getInfo()->getBitsPerSample() == 8)
 			return AL_FORMAT_STEREO8;
 		else
-			throw std::runtime_error("Sample format not supported");
+			throw std::runtime_error("[1] Sample format not supported in file: " + sound->getFileName());
 	} else if(sound->getInfo()->getChannels() == 1) {
 		if(sound->getInfo()->getBitsPerSample() == 16)
 			return AL_FORMAT_MONO16;
 		else if(sound->getInfo()->getBitsPerSample() == 8)
 			return AL_FORMAT_MONO8;
 		else
-			throw std::runtime_error("Sample format not supported");
+			throw std::runtime_error("[2] Sample format not supported in file: " + sound->getFileName());
 	}
 
-	throw std::runtime_error("Sample format not supported");
+	throw std::runtime_error("[3] Sample format not supported in file: " + sound->getFileName());
 }
 
 //---------------------------------------------------------------------------
@@ -218,10 +218,9 @@ void StreamSoundSource::update()
 
  	// we might have to restart the source if we had a buffer underrun
 	if(!playing()) {
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Restarting audio source because of buffer underrun.\n",__FILE__,__FUNCTION__,__LINE__);
 
-		std::cerr
-			<< "Restarting audio source because of buffer underrun.\n";
+		std::cerr << "Restarting audio source because of buffer underrun.\n";
 		alSourcePlay(source);
 		SoundPlayerOpenAL::checkAlError("Couldn't restart audio source: ");
   	}
@@ -260,8 +259,7 @@ bool StreamSoundSource::fillBufferAndQueue(ALuint buffer)
 	int8* bufferdata = new int8[STREAMFRAGMENTSIZE];
 	uint32 bytesread = 0;
 	do {
-		bytesread += sound->read(bufferdata + bytesread,
-				STREAMFRAGMENTSIZE - bytesread);
+		bytesread += sound->read(bufferdata + bytesread,STREAMFRAGMENTSIZE - bytesread);
 		if(bytesread < STREAMFRAGMENTSIZE) {
 			StrSound* next = sound->getNext();
 			if(next == 0)

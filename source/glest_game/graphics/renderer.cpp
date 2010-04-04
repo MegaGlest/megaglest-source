@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -149,6 +149,9 @@ Renderer::Renderer(){
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
+	this->menu = NULL;
+	this->game = NULL;
+
 	modelRenderer= graphicsFactory->newModelRenderer();
 	textRenderer= graphicsFactory->newTextRenderer2D();
 	particleRenderer= graphicsFactory->newParticleRenderer();
@@ -184,7 +187,33 @@ Renderer &Renderer::getInstance(){
 	return renderer;
 }
 
+void Renderer::reinitAll() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	const Game *gamePtr 	= this->game;
+	const MainMenu *menuPtr = this->menu;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//end();
+	init();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(gamePtr != NULL) {
+		//endGame();
+		initGame(gamePtr);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(menuPtr != NULL) {
+		//endMenu();
+		initMenu(menuPtr);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
 // ==================== init ====================
 
 void Renderer::init(){
@@ -210,7 +239,10 @@ void Renderer::init(){
 	init2dList();
 }
 
-void Renderer::initGame(Game *game){
+void Renderer::initGame(const Game *game){
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->game= game;
 
 	//check gl caps
@@ -219,6 +251,8 @@ void Renderer::initGame(Game *game){
 	//vars
 	shadowMapFrame= 0;
 	waterAnim= 0;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//shadows
 	if(shadows==sProjected || shadows==sShadowMapping){
@@ -234,6 +268,8 @@ void Renderer::initGame(Game *game){
 
 		if(shadows==sShadowMapping){
 
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			//shadow mapping
 			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
@@ -246,6 +282,8 @@ void Renderer::initGame(Game *game){
 		}
 		else{
 
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			//projected
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
 				shadowTextureSize, shadowTextureSize,
@@ -255,21 +293,35 @@ void Renderer::initGame(Game *game){
 		shadowMapFrame= -1;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//texture init
 	modelManager[rsGame]->init();
 	textureManager[rsGame]->init();
 	fontManager[rsGame]->init();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	init3dList();
 }
 
-void Renderer::initMenu(MainMenu *mm){
+void Renderer::initMenu(const MainMenu *mm){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	this->menu = mm;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	modelManager[rsMenu]->init();
 	textureManager[rsMenu]->init();
 	fontManager[rsMenu]->init();
 	//modelRenderer->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	init3dListMenu(mm);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Renderer::reset3d(){
@@ -326,6 +378,7 @@ void Renderer::endGame(){
 }
 
 void Renderer::endMenu(){
+	this->menu = NULL;
 	//delete resources
 	modelManager[rsMenu]->end();
 	textureManager[rsMenu]->end();
@@ -2464,13 +2517,22 @@ void Renderer::checkExtension(const string &extension, const string &msg){
 
 void Renderer::init3dList(){
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	const Metrics &metrics= Metrics::getInstance();
 
     assertGl();
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	list3d= glGenLists(1);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glNewList(list3d, GL_COMPILE_AND_EXECUTE);
 	//need to execute, because if not gluPerspective takes no effect and gluLoadMatrix is wrong
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
@@ -2478,6 +2540,8 @@ void Renderer::init3dList(){
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		loadProjectionMatrix();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//texture state
 		glActiveTexture(shadowTexUnit);
@@ -2491,6 +2555,8 @@ void Renderer::init3dList(){
 		glActiveTexture(baseTexUnit);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//material state
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
@@ -2512,6 +2578,8 @@ void Renderer::init3dList(){
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LESS);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//lighting state
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
@@ -2522,9 +2590,21 @@ void Renderer::init3dList(){
 		//stencil test
 		glDisable(GL_STENCIL_TEST);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//fog
-		const Tileset *tileset= game->getWorld()->getTileset();
-		if(tileset->getFog()){
+		const Tileset *tileset= NULL;
+		if(game != NULL && game->getWorld() != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			tileset = game->getWorld()->getTileset();
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(tileset != NULL && tileset->getFog()){
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			glEnable(GL_FOG);
 			if(tileset->getFogMode()==fmExp){
 				glFogi(GL_FOG_MODE, GL_EXP);
@@ -2537,7 +2617,11 @@ void Renderer::init3dList(){
 			glFogfv(GL_FOG_COLOR, tileset->getFogColor().ptr());
 		}
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glEndList();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//assert
 	assertGl();
@@ -2586,15 +2670,23 @@ void Renderer::init2dList(){
 	assertGl();
 }
 
-void Renderer::init3dListMenu(MainMenu *mm){
+void Renderer::init3dListMenu(const MainMenu *mm){
     assertGl();
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	const Metrics &metrics= Metrics::getInstance();
-	const MenuBackground *mb= mm->getMenuBackground();
+	const MenuBackground *mb= mm->getConstMenuBackground();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	list3dMenu= glGenLists(1);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glNewList(list3dMenu, GL_COMPILE);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
 		glClearColor(0.4f, 0.4f, 0.4f, 1.f);
@@ -2637,14 +2729,22 @@ void Renderer::init3dListMenu(MainMenu *mm){
 		//stencil test
 		glDisable(GL_STENCIL_TEST);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//fog
-		if(mb->getFog()){
+		if(mb != NULL && mb->getFog()){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			glEnable(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_EXP2);
 			glFogf(GL_FOG_DENSITY, mb->getFogDensity());
 		}
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glEndList();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//assert
 	assertGl();

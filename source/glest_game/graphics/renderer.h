@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -134,6 +134,7 @@ private:
 
 	//game
 	const Game *game;
+	const MainMenu *menu;
 
 	//misc
 	int triangleCount;
@@ -174,10 +175,13 @@ private:
 public:
 	static Renderer &getInstance();
 
+	void reinitAll();
+
+
     //init
 	void init();
-	void initGame(Game *game);
-	void initMenu(MainMenu *mm);
+	void initGame(const Game *game);
+	void initMenu(const MainMenu *mm);
 	void reset3d();
 	void reset2d();
 	void reset3dMenu();
@@ -287,7 +291,7 @@ private:
 	//gl init
 	void init3dList();
     void init2dList();
-	void init3dListMenu(MainMenu *mm);
+	void init3dListMenu(const MainMenu *mm);
 
 	//misc
 	void loadProjectionMatrix();
