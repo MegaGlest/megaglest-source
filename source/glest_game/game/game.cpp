@@ -62,7 +62,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 Game::~Game(){
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
-
+	
+	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
 
@@ -84,7 +85,7 @@ void Game::load(){
 	string tilesetName= gameSettings.getTileset();
 	string techName= gameSettings.getTech();
 	string scenarioName= gameSettings.getScenario();
-
+	
 	logger.setState(Lang::getInstance().get("Loading"));
 
 	if(scenarioName.empty()){
@@ -106,6 +107,25 @@ void Game::load(){
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
     }
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for loading screen\n",__FILE__,__FUNCTION__);
+	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
+		if(gameSettings.getFactionControl(i)==ctHuman){
+			vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);	
+			for(int idx = 0; idx < pathList.size(); idx++) {
+	        	const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ gameSettings.getFactionTypeName(i);
+	        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
+	        	if(isdir(path.c_str()) == true) {
+	        		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,path.c_str());
+	            	logger.loadLoadingScreen(path+"/"+"loading_screen.tga");
+	            	break;
+	        	}
+	        }
+	        break;
+		}
+    }
+	
+
 
 	//tileset
     world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
