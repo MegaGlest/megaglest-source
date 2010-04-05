@@ -16,11 +16,13 @@
 #include "core_data.h"
 #include "metrics.h"
 #include "lang.h"
-#include "leak_dumper.h"
 #include "graphics_interface.h"
+
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Graphics;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -35,6 +37,18 @@ const int Logger::logLineCount= 15;
 Logger::Logger(){
 	fileName= "log.txt";
 	loadingTexture=NULL;
+}
+
+Logger::~Logger(){
+	cleanupLoadingTexture();
+}
+
+void Logger::cleanupLoadingTexture() {
+	if(loadingTexture!=NULL)
+	{
+		delete loadingTexture;
+		loadingTexture=NULL;
+	}
 }
 
 Logger & Logger::getInstance(){
@@ -71,13 +85,9 @@ void Logger::clear(){
 
 void Logger::loadLoadingScreen(string filepath){
 	
-	Renderer &renderer= Renderer::getInstance();
-	
-	if(loadingTexture!=NULL)
-	{
-		delete loadingTexture;
-		loadingTexture=NULL;
-	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanupLoadingTexture();
 
 	if(filepath=="")
 	{
@@ -85,9 +95,15 @@ void Logger::loadLoadingScreen(string filepath){
 	}
 	else
 	{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
+
 		loadingTexture=GraphicsInterface::getInstance().getFactory()->newTexture2D();
+		//loadingTexture = renderer.newTexture2D(rsGlobal);
 		loadingTexture->setMipmap(false);
 		loadingTexture->getPixmap()->load(filepath);
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.initTexture(rsGlobal,loadingTexture);
 	}
 }
 

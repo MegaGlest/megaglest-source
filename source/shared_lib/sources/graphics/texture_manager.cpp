@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -31,6 +31,20 @@ TextureManager::TextureManager(){
 
 TextureManager::~TextureManager(){
 	end();
+}
+
+void TextureManager::initTexture(Texture *texture) {
+	if(texture != NULL) {
+		texture->init(textureFilter, maxAnisotropy);
+	}
+}
+
+void TextureManager::endTexture(Texture **texture) {
+	if(texture != NULL && *texture != NULL) {
+		(*texture)->end();
+		delete (*texture);
+		*texture = NULL;
+	}
 }
 
 void TextureManager::init(){

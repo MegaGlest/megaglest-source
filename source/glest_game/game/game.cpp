@@ -116,9 +116,16 @@ void Game::load(){
 	        	const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ gameSettings.getFactionTypeName(i);
 	        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
 	        	if(isdir(path.c_str()) == true) {
-	        		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,path.c_str());
-	            	logger.loadLoadingScreen(path+"/"+"loading_screen.tga");
-	            	break;
+	        		string factionLogo = path + "/" + "loading_screen.tga";
+
+	        		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+
+	        		if(fileExists(factionLogo) == true) {
+	        			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+
+	        			logger.loadLoadingScreen(factionLogo);
+	        			break;
+	        		}
 	        	}
 	        }
 	        break;

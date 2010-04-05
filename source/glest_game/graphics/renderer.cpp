@@ -404,6 +404,14 @@ void Renderer::reloadResources(){
 
 // ==================== engine interface ====================
 
+void Renderer::initTexture(ResourceScope rs, Texture *texture) {
+	textureManager[rs]->initTexture(texture);
+}
+
+void Renderer::endTexture(ResourceScope rs, Texture **texture) {
+	textureManager[rs]->endTexture(texture);
+}
+
 Model *Renderer::newModel(ResourceScope rs){
 	return modelManager[rs]->newModel();
 }

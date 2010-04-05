@@ -29,6 +29,7 @@
 
 namespace Glest{ namespace Game{
 
+using Shared::Graphics::Texture;
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::Texture3D;
 using Shared::Graphics::ModelRenderer;
@@ -55,6 +56,7 @@ class MainMenu;
 class Console;
 class MenuBackground;
 class ChatManager;
+class Texture;
 
 enum ResourceScope{
 	rsGlobal,
@@ -199,6 +201,9 @@ public:
 	void reloadResources();
 
 	//engine interface
+	void initTexture(ResourceScope rs, Texture *texture);
+	void endTexture(ResourceScope rs, Texture **texture);
+
 	Model *newModel(ResourceScope rs);
 	Texture2D *newTexture2D(ResourceScope rs);
 	Texture3D *newTexture3D(ResourceScope rs);

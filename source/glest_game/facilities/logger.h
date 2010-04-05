@@ -45,6 +45,9 @@ private:
 
 private:
 	Logger();
+	~Logger();
+
+	void cleanupLoadingTexture();
 
 public:
 	static Logger & getInstance();
