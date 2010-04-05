@@ -190,26 +190,12 @@ Renderer &Renderer::getInstance(){
 void Renderer::reinitAll() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	const Game *gamePtr 	= this->game;
-	const MainMenu *menuPtr = this->menu;
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//end();
-	init();
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(gamePtr != NULL) {
-		//endGame();
-		initGame(gamePtr);
-	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(menuPtr != NULL) {
-		//endMenu();
-		initMenu(menuPtr);
+	//resources
+	for(int i=0; i<rsCount; ++i){
+		modelManager[i]->init();
+		textureManager[i]->init(true);
+		//particleManager[i]->init();
+		fontManager[i]->init();
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

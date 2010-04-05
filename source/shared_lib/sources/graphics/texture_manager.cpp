@@ -12,6 +12,7 @@
 #include "texture_manager.h"
 
 #include <cstdlib>
+#include <stdexcept>
 
 #include "graphics_interface.h"
 #include "graphics_factory.h"
@@ -47,9 +48,16 @@ void TextureManager::endTexture(Texture **texture) {
 	}
 }
 
-void TextureManager::init(){
+void TextureManager::init(bool forceInit) {
 	for(int i=0; i<textures.size(); ++i){
-		textures[i]->init(textureFilter, maxAnisotropy);
+		Texture *texture = textures[i];
+		if(texture == NULL) {
+			throw std::runtime_error("texture == NULL during init");
+		}
+		if(forceInit == true) {
+			texture->reseInitState();
+		}
+		texture->init(textureFilter, maxAnisotropy);
 	}
 }
 

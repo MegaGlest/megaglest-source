@@ -38,13 +38,14 @@ protected:
 public:
 	TextureManager();
 	~TextureManager();
-	void init();
+	void init(bool forceInit=false);
 	void end();
 
 	void setFilter(Texture::Filter textureFilter);
 	void setMaxAnisotropy(int maxAnisotropy);
 	void initTexture(Texture *texture);
 	void endTexture(Texture **texture);
+	void reinitTextures();
 
 	Texture *getTexture(const string &path);
 	Texture1D *newTexture1D();

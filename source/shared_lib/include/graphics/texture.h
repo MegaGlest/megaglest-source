@@ -78,6 +78,8 @@ public:
 
 	virtual void init(Filter filter= fBilinear, int maxAnisotropy= 1)=0;
 	virtual void end()=0;
+
+	virtual void reseInitState() { inited = false; }
 };
 
 // =====================================================
