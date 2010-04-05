@@ -46,7 +46,10 @@ Logger::~Logger(){
 void Logger::cleanupLoadingTexture() {
 	if(loadingTexture!=NULL)
 	{
-		delete loadingTexture;
+		Renderer &renderer= Renderer::getInstance();
+		Texture *genericTexture = loadingTexture;
+		renderer.endTexture(rsGlobal,&genericTexture);
+		//delete loadingTexture;
 		loadingTexture=NULL;
 	}
 }
