@@ -24,11 +24,9 @@
 #include "graphics_factory_gl2.h"
 #include "sound_factory_ds8.h"
 
-#else
+#endif
 
 #include "sound_factory_openal.h"
-
-#endif
 
 using std::string;
 
@@ -41,11 +39,9 @@ using Shared::Graphics::Gl::GraphicsFactoryGl;
 using Shared::Graphics::Gl::GraphicsFactoryGl2;
 using Shared::Sound::Ds8::SoundFactoryDs8;
 
-#else 
+#endif
 
 using Shared::Sound::OpenAL::SoundFactoryOpenAL;
-
-#endif
 
 namespace Shared{ namespace Platform{
 
@@ -67,11 +63,9 @@ private:
 	GraphicsFactoryGl2 graphicsFactoryGl2;
 	SoundFactoryDs8 soundFactoryDs8;
 
-#else
+#endif
 
 	SoundFactoryOpenAL soundFactoryOpenAL;
-
-#endif
 
 public:
 	static FactoryRepository &getInstance();
