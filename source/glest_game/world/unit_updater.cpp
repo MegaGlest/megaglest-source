@@ -443,6 +443,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 		//if working
 		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()));
 		Resource *r= sc->getResource();
+
+		/*
 		if(r!=NULL){
 			//if there is a resource, continue working, until loaded
 			unit->update2();
@@ -467,6 +469,42 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			//if there is no resource, just stop
 			unit->setCurrSkill(hct->getStopLoadedSkillType());
 		}
+		*/
+
+		if (r != NULL) {
+			// Fix from Silnarm to disable cheating - START
+			if (!hct->canHarvest(r->getType()) || r->getType() != unit->getLoadType()) {
+				// hct has changed to a different harvest command.
+				unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
+				unit->getPath()->clear();
+				return;
+			}
+			// Fix from Silnarm to disable cheating - END
+
+			// if there is a resource, continue working, until loaded
+			unit->update2();
+			if (unit->getProgress2() >= hct->getHitsPerUnit()) {
+				if (unit->getLoadCount() < hct->getMaxLoad()) {
+					unit->setProgress2(0);
+					unit->setLoadCount(unit->getLoadCount() + 1);
+
+					//if resource exausted, then delete it and stop
+					if (r->decAmount(1)) {
+						sc->deleteResource();
+						unit->setCurrSkill(hct->getStopLoadedSkillType());
+					}
+				}
+				if (unit->getLoadCount() >= hct->getMaxLoad()) {
+					unit->setCurrSkill(hct->getStopLoadedSkillType());
+					unit->getPath()->clear();
+				}
+			}
+		}
+		else{
+			//if there is no resource, just stop
+			unit->setCurrSkill(hct->getStopLoadedSkillType());
+		}
+
 	}
 }
 
