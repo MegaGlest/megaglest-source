@@ -192,10 +192,10 @@ void Renderer::reinitAll() {
 
 	//resources
 	for(int i=0; i<rsCount; ++i){
-		modelManager[i]->init();
+		//modelManager[i]->init();
 		textureManager[i]->init(true);
 		//particleManager[i]->init();
-		fontManager[i]->init();
+		//fontManager[i]->init();
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
