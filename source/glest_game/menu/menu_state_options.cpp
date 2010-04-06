@@ -132,11 +132,21 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelScreenModes.init(leftLabelStart, leftline);
 	labelScreenModes.setText(lang.get("Resolution"));
 	listBoxScreenModes.init(leftColumnStart, leftline, 170);
+
+	string currentResString = config.getString("ScreenWidth") + "x" + 
+							  config.getString("ScreenHeight") + "-" +
+							  intToStr(config.getInt("ColorBits"));
+	bool currentResolutionFound = false;
 	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+		if((*it).getString() == currentResString) {
+			currentResolutionFound = true;
+		}
 		listBoxScreenModes.pushBackItem((*it).getString());
 	}
-	listBoxScreenModes.setSelectedItem(config.getString("ScreenWidth")+"x"+
-		config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits")));
+	if(currentResolutionFound == false) {
+		listBoxScreenModes.pushBackItem(currentResString);
+	}
+	listBoxScreenModes.setSelectedItem(currentResString);
 	leftline-=30;
 	
 	//filter

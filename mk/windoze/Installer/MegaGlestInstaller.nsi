@@ -3,9 +3,12 @@
 
 !define APNAME Mega-Glest
 
-Name "${APNAME}"
+Name "${APNAME} 3.3.2"
 OutFile "${APNAME}-Installer.exe"
+;Icon "..\glest.ico"
+;UninstallIcon "..\glest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}"
+ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
 
 ; Request application privileges for Windows Vista
@@ -50,6 +53,24 @@ Function MUIGUIInit
 #  GetDlgItem $0 $0 1006
 #  SetCtlColors $0 0xDF9437 0xDF9437
 
+   ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "UninstallString"
+   StrCmp $R0 "" doneInit
+
+MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+  "${APNAME} is already installed. $\n$\nClick `OK` to remove the \
+  previous version or `Cancel` to cancel this upgrade." \
+  IDOK uninstInit
+  Abort
+
+;Run the uninstaller
+uninstInit:
+  ClearErrors
+  ExecWait '$R0 _?=$INSTDIR' ;Do not copy the uninstaller to a temp file
+
+  Exec $INSTDIR\uninst.exe ; instead of the ExecWait line
+    
+doneInit:
+
 FunctionEnd
 
 
@@ -86,15 +107,16 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\glest.ico"
   File "..\..\..\data\glest_game\glest.ini"
   File "..\..\..\data\glest_game\servers.ini"
-  File "..\..\..\data\glest_game\dsound.dll"
+#  File "..\..\..\data\glest_game\dsound.dll"
+  File "..\..\..\data\glest_game\openal32.dll"
   File "..\..\..\data\glest_game\xerces-c_3_0.dll"
-  File /r /x .svn "..\..\..\data\glest_game\data"
-  File /r /x .svn "..\..\..\data\glest_game\docs"
-  File /r /x .svn "..\..\..\data\glest_game\maps"
-  File /r /x .svn "..\..\..\data\glest_game\scenarios"
-  File /r /x .svn "..\..\..\data\glest_game\techs"
-  File /r /x .svn "..\..\..\data\glest_game\tilesets"
-  File /r /x .svn "..\..\..\data\glest_game\tutorials"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
 #  File /r /x .svn "..\..\..\data\glest_game\screens"
 
   ; Write the installation path into the registry
@@ -154,7 +176,8 @@ Section "Uninstall"
   Delete $INSTDIR\glest.ico
   Delete $INSTDIR\glest.ini
   Delete $INSTDIR\servers.ini
-  Delete $INSTDIR\dsound.dll
+ # Delete $INSTDIR\dsound.dll
+  Delete $INSTDIR\openal32.dll
   Delete $INSTDIR\xerces-c_3_0.dll
   Delete $INSTDIR\*.log
 
