@@ -309,17 +309,23 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 }
 
 void Gui::groupKey(int groupIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
+
 	if(isKeyDown(vkControl)){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
+
 		selection.assignGroup(groupIndex);
 	}
 	else{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
+
 		selection.recallGroup(groupIndex);
 	}
 }
 
 void Gui::hotKey(char key){
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c]\n",__FILE__,__FUNCTION__,key);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c][%d]\n",__FILE__,__FUNCTION__,key,key);
 
 	if(key=='G'){
 		centerCameraOnSelection();

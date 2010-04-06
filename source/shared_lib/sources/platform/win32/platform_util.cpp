@@ -820,7 +820,45 @@ void showCursor(bool b){
 }
 
 bool isKeyDown(int virtualKey){
-	return (GetKeyState(virtualKey) & 0x8000) != 0;
+	//return (GetKeyState(virtualKey) & 0x8000) != 0;
+
+	char key = static_cast<char> (virtualKey);
+	const Uint8* keystate = SDL_GetKeyState(0);
+
+	// kinda hack and wrong...
+	if(key >= 0) {
+		return keystate[key];
+	}
+	switch(key) {
+		case vkAdd:
+			return keystate[SDLK_PLUS] | keystate[SDLK_KP_PLUS];
+		case vkSubtract:
+			return keystate[SDLK_MINUS] | keystate[SDLK_KP_MINUS];
+		case vkAlt:
+			return keystate[SDLK_LALT] | keystate[SDLK_RALT];
+		case vkControl:
+			return keystate[SDLK_LCTRL] | keystate[SDLK_RCTRL];
+		case vkShift:
+			return keystate[SDLK_LSHIFT] | keystate[SDLK_RSHIFT];
+		case vkEscape:
+			return keystate[SDLK_ESCAPE];
+		case vkUp:
+			return keystate[SDLK_UP];
+		case vkLeft:
+			return keystate[SDLK_LEFT];
+		case vkRight:
+			return keystate[SDLK_RIGHT];
+		case vkDown:
+			return keystate[SDLK_DOWN];
+		case vkReturn:
+			return keystate[SDLK_RETURN] | keystate[SDLK_KP_ENTER];
+		case vkBack:
+			return keystate[SDLK_BACKSPACE];
+		default:
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"isKeyDown called with unknown key.\n");
+			break;
+	}
+	return false;
 }
 
 // =====================================
