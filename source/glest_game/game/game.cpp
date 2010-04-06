@@ -551,6 +551,8 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 
 void Game::keyDown(char key){
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
 	Lang &lang= Lang::getInstance();
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 
@@ -558,6 +560,7 @@ void Game::keyDown(char key){
 	chatManager.keyDown(key);
 
 	if(!chatManager.getEditEnabled()){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
 		if(key=='N'){
 			renderNetworkStatus= true;
@@ -643,11 +646,17 @@ void Game::keyDown(char key){
 
 		//group
 		else if(key>='0' && key<'0'+Selection::maxGroups){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
 			gui.groupKey(key-'0');
 		}
 
 		//hotkeys
-		if(gameCamera.getState()==GameCamera::sGame){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameCamera.getState());
+
+		if(gameCamera.getState() == GameCamera::sGame){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
 			gui.hotKey(key);
 		}
 		else{
