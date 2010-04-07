@@ -108,6 +108,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 	leftline-=30;
 	
+	//FontSizeAdjustment
+	labelFontSizeAdjustment.init(leftLabelStart,leftline);
+	labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
+	
+	listFontSizeAdjustment.init(leftColumnStart, leftline, 80);
+	for(int i=-5; i<=5; i+=1){
+		listFontSizeAdjustment.pushBackItem(intToStr(i));
+	}
+	listFontSizeAdjustment.setSelectedItem(intToStr(config.getInt("FontSizeAdjustment")));
+	
+	leftline-=30;
 	// server port
 	labelServerPortLabel.init(leftLabelStart,leftline);
 	labelServerPortLabel.setText(lang.get("ServerPort"));
@@ -259,6 +270,15 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
 			return;
 		}
+		string currentFontSizeAdjustment=config.getString("FontSizeAdjustment");
+		string selectedFontSizeAdjustment=listFontSizeAdjustment.getSelectedItem();
+		if(currentFontSizeAdjustment!=selectedFontSizeAdjustment){
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			showMessageBox(lang.get("RestartNeeded"), lang.get("FontSizeAdjustmentChanged"), false);
+			return;
+		}
+		
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
@@ -287,6 +307,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxVolumeAmbient.mouseClick(x, y);
 		listBoxVolumeMusic.mouseClick(x, y);
 		listBoxScreenModes.mouseClick(x, y);
+		listFontSizeAdjustment.mouseClick(x, y);
 	}
 }
 
@@ -308,6 +329,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxUnitParticles.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
 	listBoxScreenModes.mouseMove(x, y);
+	listFontSizeAdjustment.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -378,6 +400,8 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listBoxScreenModes);
 		renderer.renderLabel(&labelServerPortLabel);
 		renderer.renderLabel(&labelServerPort);
+		renderer.renderListBox(&listFontSizeAdjustment);
+		renderer.renderLabel(&labelFontSizeAdjustment);
 	}
 }
 
@@ -403,6 +427,7 @@ void MenuStateOptions::saveConfig(){
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
 	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
+	config.setString("FontSizeAdjustment", listFontSizeAdjustment.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 	

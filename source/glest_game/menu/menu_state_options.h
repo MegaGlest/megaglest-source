@@ -59,6 +59,8 @@ private:
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
 	
+	GraphicLabel labelFontSizeAdjustment;
+	GraphicListBox listFontSizeAdjustment;
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;

@@ -773,7 +773,7 @@ void Renderer::renderResourceStatus(){
 			glDisable(GL_TEXTURE_2D);
 
 			renderTextShadow(
-				str, CoreData::getInstance().getMenuFontSmall(),
+				str, CoreData::getInstance().getDisplayFontSmall(),
 				j*100+220, metrics.getVirtualH()-30, false);
 			++j;
 		}
@@ -1747,7 +1747,7 @@ void Renderer::renderDisplay(){
 			display->getProgressBar(),
 			metrics.getDisplayX(),
 			metrics.getDisplayY() + metrics.getDisplayH()-50,
-			coreData.getMenuFontSmall());
+			coreData.getDisplayFontSmall());
 	}
 
 	//up images

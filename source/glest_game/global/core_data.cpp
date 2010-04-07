@@ -78,30 +78,30 @@ void CoreData::load(){
 
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
 	buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
-
+	
 	//display font
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
 	string displayFontNamePostfix=config.getString("FontDisplayPostfix");
-	int displayFontSize=computeFontSize(12);
+	int displayFontSize=computeFontSize(config.getInt("FontDisplayBaseSize"));
 	string displayFontName=displayFontNamePrefix+intToStr(displayFontSize)+displayFontNamePostfix;
 	displayFont= renderer.newFont(rsGlobal);
 	displayFont->setType(displayFontName);
 	displayFont->setSize(displayFontSize);
 
 	//menu fonts
-	string menuFontNameSmallPrefix= config.getString("FontMenuNormalPrefix");
-	string menuFontNameSmallPostfix= config.getString("FontMenuNormalPostfix");
-	int menuFontNameSmallSize=computeFontSize(12);
-	string menuFontNameSmall=menuFontNameSmallPrefix+intToStr(menuFontNameSmallSize)+menuFontNameSmallPostfix;
-	menuFontSmall= renderer.newFont(rsGlobal);
-	menuFontSmall->setType(menuFontNameSmall);
-	menuFontSmall->setSize(menuFontNameSmallSize);
+	string displayFontNameSmallPrefix= config.getString("FontDisplayPrefix");
+	string displayFontNameSmallPostfix= config.getString("FontDisplayPostfix");
+	int displayFontNameSmallSize=computeFontSize(config.getInt("FontDisplaySmallBaseSize"));
+	string displayFontNameSmall=displayFontNameSmallPrefix+intToStr(displayFontNameSmallSize)+displayFontNameSmallPostfix;
+	displayFontSmall= renderer.newFont(rsGlobal);
+	displayFontSmall->setType(displayFontNameSmall);
+	displayFontSmall->setSize(displayFontNameSmallSize);
 	
 	
 	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
-	int menuFontNameNormalSize=computeFontSize(14);
+	int menuFontNameNormalSize=computeFontSize(config.getInt("FontMenuNormalBaseSize"));
 	string menuFontNameNormal= menuFontNameNormalPrefix+intToStr(menuFontNameNormalSize)+menuFontNameNormalPostfix;
 	menuFontNormal= renderer.newFont(rsGlobal);
 	menuFontNormal->setType(menuFontNameNormal);
@@ -111,7 +111,7 @@ void CoreData::load(){
 
 	string menuFontNameBigPrefix= config.getString("FontMenuBigPrefix");
 	string menuFontNameBigPostfix= config.getString("FontMenuBigPostfix");
-	int menuFontNameBigSize=computeFontSize(20);
+	int menuFontNameBigSize=computeFontSize(config.getInt("FontMenuBigBaseSize"));
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
 	menuFontBig= renderer.newFont(rsGlobal);
 	menuFontBig->setType(menuFontNameBig);
@@ -119,7 +119,7 @@ void CoreData::load(){
 
 	string menuFontNameVeryBigPrefix= config.getString("FontMenuBigPrefix");
 	string menuFontNameVeryBigPostfix= config.getString("FontMenuBigPostfix");
-	int menuFontNameVeryBigSize=computeFontSize(25);
+	int menuFontNameVeryBigSize=computeFontSize(config.getInt("FontMenuVeryBigBaseSize"));
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix+intToStr(menuFontNameVeryBigSize)+menuFontNameVeryBigPostfix;
 	menuFontVeryBig= renderer.newFont(rsGlobal);
 	menuFontVeryBig->setType(menuFontNameVeryBig);
@@ -128,7 +128,7 @@ void CoreData::load(){
 	//console font
 	string consoleFontNamePrefix= config.getString("FontConsolePrefix");
 	string consoleFontNamePostfix= config.getString("FontConsolePostfix");
-	int consoleFontNameSize=computeFontSize(12);
+	int consoleFontNameSize=computeFontSize(config.getInt("FontConsoleBaseSize"));
 	string consoleFontName= consoleFontNamePrefix+intToStr(consoleFontNameSize)+consoleFontNamePostfix;
 	consoleFont= renderer.newFont(rsGlobal);
 	consoleFont->setType(consoleFontName);
@@ -151,13 +151,15 @@ void CoreData::load(){
 }
 
 int CoreData::computeFontSize(int size){
-	int screenH= Config::getInstance().getInt("ScreenHeight");
+	Config &config= Config::getInstance();
+	int screenH= config.getInt("ScreenHeight");
 	int rs= size*screenH/1024;
-	if(rs<12){
-		rs= 12;
+	//FontSizeAdjustment
+	rs=rs+config.getInt("FontSizeAdjustment");
+	if(rs<10){
+		rs= 10;
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
-	if(rs==16) rs=15; // 16 is invisible in linux, nobody knows why!?!
 	return rs;
 }
 
