@@ -643,8 +643,6 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 			   /* Print valid modes */
 			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
 
-			   int bestW = -1;
-			   int bestH = -1;
 			   for(int i=0; modes[i]; ++i) {
 				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
 				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(bpp);
@@ -653,7 +651,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,bpp));
 				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
 				    }
-				    // fake the missing 16 bit resolutions in linux
+				    // fake the missing 16 bit resolutions 
 				    string lookupKey16 = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(16);
 				    if(uniqueResList.find(lookupKey16) == uniqueResList.end()) {
 				    	uniqueResList[lookupKey16] = true;
