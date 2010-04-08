@@ -361,6 +361,10 @@ void Gui::hotKey(char key){
 	}
 }
 
+void Gui::switchToNextDisplayColor(){
+	display.switchColor();
+}
+
 void Gui::onSelectionChanged(){
 	resetState();
 	computeDisplay();

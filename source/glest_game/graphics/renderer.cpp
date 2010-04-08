@@ -689,6 +689,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsole(const Console *console){
+	const Gui *gui= game->getGui();
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
@@ -696,6 +697,7 @@ void Renderer::renderConsole(const Console *console){
 		renderTextShadow(
 			console->getLine(i),
 			CoreData::getInstance().getConsoleFont(),
+			gui->getDisplay()->getColor(),
 			20, i*20+20);
 	}
 
@@ -726,6 +728,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager){
 void Renderer::renderResourceStatus(){
 
 	const Metrics &metrics= Metrics::getInstance();
+	const Gui *gui= game->getGui();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
 
@@ -774,6 +777,7 @@ void Renderer::renderResourceStatus(){
 
 			renderTextShadow(
 				str, CoreData::getInstance().getDisplayFontSmall(),
+				gui->getDisplay()->getColor(),
 				j*100+220, metrics.getVirtualH()-30, false);
 			++j;
 		}
@@ -846,15 +850,18 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &c
 	glPopAttrib();
 }
 
-void Renderer::renderTextShadow(const string &text, const Font2D *font, int x, int y, bool centered){
+void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered){
 	glPushAttrib(GL_CURRENT_BIT);
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer->begin(font);
-	glColor3f(0.0f, 0.0f, 0.0f);
-	textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
-	glColor3f(1.0f, 1.0f, 1.0f);
+	if(color.w<0.5)
+	{
+		textRenderer->begin(font);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
+	}
+	glColor3f(color.x,color.y,color.z);
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
 
@@ -1717,11 +1724,12 @@ void Renderer::renderDisplay(){
 	const Display *display= game->getGui()->getDisplay();
 
 	glPushAttrib(GL_ENABLE_BIT);
-
+	
 	//infoString
 	renderTextShadow(
 		display->getInfoText().c_str(),
 		coreData.getDisplayFont(),
+		display->getColor(),
 		metrics.getDisplayX(),
 		metrics.getDisplayY()+Display::infoStringY);
 
@@ -1729,6 +1737,7 @@ void Renderer::renderDisplay(){
 	renderTextShadow(
 		display->getTitle().c_str(),
 		coreData.getDisplayFont(),
+		display->getColor(),
 		metrics.getDisplayX()+40,
 		metrics.getDisplayY() + metrics.getDisplayH() - 20);
 
@@ -1738,6 +1747,7 @@ void Renderer::renderDisplay(){
 	renderTextShadow(
 		display->getText().c_str(),
 		coreData.getDisplayFont(),
+		display->getColor(),
 		metrics.getDisplayX() -1,
 		metrics.getDisplayY() + metrics.getDisplayH() - 56);
 

@@ -656,7 +656,11 @@ void Game::keyDown(char key){
 				}
 			}
 		}
-
+		//switch display color
+		else if(key=='C'){
+			gui.switchToNextDisplayColor();
+		}
+		
 		//increment speed
 		else if(key==vkAdd){
 			if(speedChangesAllowed){
