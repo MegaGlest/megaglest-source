@@ -213,8 +213,8 @@ void MainWindow::eventKeyDown(char key){
 			// This stupidity only required in win32.
 			// We reload the textures so that 
 #ifdef WIN32
-			Renderer &renderer= Renderer::getInstance();
-			renderer.reinitAll();
+			//Renderer &renderer= Renderer::getInstance();
+			//renderer.reinitAll();
 #endif
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -22,7 +22,7 @@
 #include "noimpl.h"
 #include "util.h"
 #include "window.h"
-
+#include <vector>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
@@ -80,6 +80,19 @@ void PlatformContextGl::swapBuffers() {
 // ======================================
 //	Global Fcs
 // ======================================
+
+#ifdef WIN32
+
+int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe,
+                               NEWTEXTMETRICEX *lpntme,
+                               int FontType,
+                               LPARAM lParam) {
+	std::vector<std::string> *systemFontList = (std::vector<std::string> *)lParam;
+	systemFontList->push_back((char *)lpelfe->elfFullName);
+	return 1; // I want to get all fonts
+}
+
+#endif
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						 int charCount, FontMetrics &metrics) {
@@ -173,16 +186,56 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 #else
     // we badly need a solution portable to more than just glx
 	//NOIMPL;
+
+	std::string useRealFontName = type;
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load useRealFontName [%s], size = %d, width = %d\n",__FILE__,__FUNCTION__,__LINE__,useRealFontName.c_str(),size,width);
+
+	static std::vector<std::string> systemFontList;
+	if(systemFontList.size() == 0) {
+		LOGFONT lf;
+		//POSITION pos;
+
+		lf.lfCharSet = ANSI_CHARSET;
+		lf.lfFaceName[0]='\0';
+
+		HDC hDC = wglGetCurrentDC();
+		::EnumFontFamiliesEx(hDC, 
+						  &lf, 
+						  (FONTENUMPROC) EnumFontFamExProc, 
+						  (LPARAM) &systemFontList, 0);
+
+		for(unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
+			string &fontName = systemFontList[idx];
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found system font [%s]\n",__FILE__,__FUNCTION__,__LINE__,fontName.c_str());
+		}
+	}
+	else {
+		for(unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
+			string &fontName = systemFontList[idx];
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] checking font [%s]\n",__FILE__,__FUNCTION__,__LINE__,fontName.c_str());
+
+			if(_stricmp(useRealFontName.c_str(),fontName.c_str()) != 0) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switch font name from [%s] to [%s]\n",__FILE__,__FUNCTION__,__LINE__,useRealFontName.c_str(),fontName.c_str());
+
+				useRealFontName = fontName;
+				break;
+			}
+		}
+	}
+
+
 	HFONT font= CreateFont(
-		size, 0, 0, 0, width, 0, FALSE, FALSE, ANSI_CHARSET,
-		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-		DEFAULT_PITCH, type.c_str());
+		size, 0, 0, 0, width, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+		OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
+		DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), useRealFontName.c_str());
 
 	assert(font!=NULL);
 
 	HDC dc= wglGetCurrentDC();
 	SelectObject(dc, font);
 	BOOL err= wglUseFontBitmaps(dc, 0, charCount, base);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] wglUseFontBitmaps returned = %d, charCount = %d, base = %d\n",__FILE__,__FUNCTION__,__LINE__,err,charCount,base);
 		
 	FIXED one;
 	one.value= 1;
@@ -197,10 +250,16 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	mat2.eM12= zero;
 	mat2.eM21= zero;
 	mat2.eM22= one;
+	
+	//MAT2 mat2 = {{0,1},{0,0},{0,0},{0,1}};
+
 
 	//metrics
 	GLYPHMETRICS glyphMetrics;
 	int errorCode= GetGlyphOutline(dc, 'a', GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] GetGlyphOutline returned = %d\n",__FILE__,__FUNCTION__,__LINE__,errorCode);
+
 	if(errorCode!=GDI_ERROR){
 		metrics.setHeight(static_cast<float>(glyphMetrics.gmBlackBoxY));
 	}
@@ -208,6 +267,10 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		int errorCode= GetGlyphOutline(dc, i, GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
 		if(errorCode!=GDI_ERROR){
 			metrics.setWidth(i, static_cast<float>(glyphMetrics.gmCellIncX));
+		}
+		else {
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] GetGlyphOutline returned = %d for i = %d\n",__FILE__,__FUNCTION__,__LINE__,errorCode,i);
+			metrics.setWidth(i, static_cast<float>(6));
 		}
 	}
 

@@ -125,7 +125,8 @@ void Game::load(){
 		// try to use a faction related loading screen
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
 		for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
-			if(gameSettings.getFactionControl(i)==ctHuman){
+			if( gameSettings.getFactionControl(i) == ctHuman || 
+				(gameSettings.getFactionControl(i) == ctNetwork && gameSettings.getThisFactionIndex() == i)){
 				vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);	
 				for(int idx = 0; idx < pathList.size(); idx++) {
 					const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ gameSettings.getFactionTypeName(i);
