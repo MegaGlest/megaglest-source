@@ -102,8 +102,9 @@ void Logger::loadLoadingScreen(string filepath){
 
 		loadingTexture=GraphicsInterface::getInstance().getFactory()->newTexture2D();
 		//loadingTexture = renderer.newTexture2D(rsGlobal);
-		loadingTexture->setMipmap(false);
-		loadingTexture->getPixmap()->load(filepath);
+		loadingTexture->setMipmap(true);
+		//loadingTexture->getPixmap()->load(filepath);
+		loadingTexture->load(filepath);
 
 		Renderer &renderer= Renderer::getInstance();
 		renderer.initTexture(rsGlobal,loadingTexture);

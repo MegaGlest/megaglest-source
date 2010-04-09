@@ -107,10 +107,10 @@ void Game::load(){
         }
         // use a scenario based loading screen
         vector<string> loadScreenList;
-        findAll(scenarioDir + "/" + "loading_screen.*", loadScreenList, false, false);
+        findAll(scenarioDir + "loading_screen.*", loadScreenList, false, false);
         if(loadScreenList.size() > 0) {
 			//string senarioLogo = scenarioDir + "/" + "loading_screen.jpg";
-        	string senarioLogo = scenarioDir + "/" + loadScreenList[0];
+        	string senarioLogo = scenarioDir + loadScreenList[0];
 			if(fileExists(senarioLogo) == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",__FILE__,__FUNCTION__,senarioLogo.c_str());
 

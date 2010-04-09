@@ -356,6 +356,8 @@ Pixmap1D::~Pixmap1D(){
 }
 
 void Pixmap1D::load(const string &path){
+	this->path = path;
+
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="bmp"){
 		loadBmp(path);
@@ -369,6 +371,7 @@ void Pixmap1D::load(const string &path){
 }
 
 void Pixmap1D::loadBmp(const string &path){
+    this->path = path;
 
 	PixmapIoBmp plb;
 	plb.openRead(path);
@@ -396,6 +399,7 @@ void Pixmap1D::loadBmp(const string &path){
 }
 
 void Pixmap1D::loadTga(const string &path){
+    this->path = path;
 
 	PixmapIoTga plt;
 	plt.openRead(path);
@@ -464,10 +468,15 @@ Pixmap2D::~Pixmap2D(){
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
-	return FileReader<Pixmap2D>::readPath(path);
+	Pixmap2D *pixmap = FileReader<Pixmap2D>::readPath(path);
+	if(pixmap != NULL) {
+		pixmap->path = path;
+	}
+	return pixmap;
 }
 
 void Pixmap2D::load(const string &path){
+	this->path = path;
 	FileReader<Pixmap2D>::readPath(path,this);
 }
 
@@ -764,6 +773,8 @@ Pixmap3D::~Pixmap3D(){
 }
 
 void Pixmap3D::loadSlice(const string &path, int slice){
+	this->path = path;
+
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="bmp"){
 		loadSliceBmp(path, slice);
@@ -777,6 +788,7 @@ void Pixmap3D::loadSlice(const string &path, int slice){
 }
 
 void Pixmap3D::loadSliceBmp(const string &path, int slice){
+	this->path = path;
 
 	PixmapIoBmp plb;
 	plb.openRead(path);
@@ -796,6 +808,8 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 }
 
 void Pixmap3D::loadSliceTga(const string &path, int slice){
+	this->path = path; 
+
 	PixmapIoTga plt;
 	plt.openRead(path);
 
@@ -834,6 +848,8 @@ void PixmapCube::init(int components){
 
 	//load & save
 void PixmapCube::loadFace(const string &path, int face){
+	this->path[face] = path;
+
 	faces[face].load(path);
 }
 

@@ -102,6 +102,7 @@ protected:
 	int w;
 	int components;
 	uint8 *pixels;
+	string path;
 
 public:
 	//constructor & destructor
@@ -121,6 +122,7 @@ public:
 	int getW() const			{return w;}
 	int getComponents() const	{return components;}
 	uint8 *getPixels() const	{return pixels;}
+	string getPath() const		{ return path;}
 };
 
 // =====================================================
@@ -133,6 +135,7 @@ protected:
 	int w;
 	int components;
 	uint8 *pixels;
+	string path;
 
 public:
 	//constructor & destructor
@@ -193,6 +196,7 @@ public:
 	void lerp(float t, const Pixmap2D *pixmap1, const Pixmap2D *pixmap2);
 	void copy(const Pixmap2D *sourcePixmap);
 	void subCopy(int x, int y, const Pixmap2D *sourcePixmap);
+	string getPath() const		{ return path;}
 
 private:
 	bool doDimensionsAgree(const Pixmap2D *pixmap);
@@ -209,6 +213,7 @@ protected:
 	int d;
 	int components;
 	uint8 *pixels;
+	string path;
 
 public:
 	//constructor & destructor
@@ -231,6 +236,7 @@ public:
 	int getD() const			{return d;}
 	int getComponents() const	{return components;}
 	uint8 *getPixels() const	{return pixels;}
+	string getPath() const		{ return path;}
 };
 
 // =====================================================
@@ -250,6 +256,7 @@ public:
 
 protected:
 	Pixmap2D faces[6];
+	string path[6];
 
 public:
 	//init
@@ -264,6 +271,7 @@ public:
 	//get 
 	Pixmap2D *getFace(int face)				{return &faces[face];}
 	const Pixmap2D *getFace(int face) const	{return &faces[face];}
+	string getPath(int face) const		{ return path[face];}
 };
 
 }}//end namespace

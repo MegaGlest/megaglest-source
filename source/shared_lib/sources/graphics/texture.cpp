@@ -10,8 +10,11 @@
 // ==============================================================
 
 #include "texture.h"
+#include "util.h"
 
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{
 
@@ -37,6 +40,8 @@ Texture::Texture(){
 
 void Texture1D::load(const string &path){
 	this->path= path;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] this->path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->path.c_str());
+
 	if (pixmap.getComponents() == -1) { //TODO: look where you really need that
 		pixmap.init(defaultComponents);
 	}
@@ -49,6 +54,8 @@ void Texture1D::load(const string &path){
 
 void Texture2D::load(const string &path){
 	this->path= path;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] this->path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->path.c_str());
+
 	if (pixmap.getComponents() == -1) {
 		pixmap.init(defaultComponents);
 	}
@@ -61,6 +68,8 @@ void Texture2D::load(const string &path){
 
 void Texture3D::loadSlice(const string &path, int slice){
 	this->path= path;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] this->path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->path.c_str());
+
 	if (pixmap.getComponents() == -1) {
 		pixmap.init(defaultComponents);
 	}
@@ -73,6 +82,8 @@ void Texture3D::loadSlice(const string &path, int slice){
 
 void TextureCube::loadFace(const string &path, int face){
 	this->path= path;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] this->path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->path.c_str());
+
 	if (pixmap.getFace(0)->getComponents() == -1) {
 		pixmap.init(defaultComponents);
 	}
