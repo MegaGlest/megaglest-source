@@ -66,49 +66,49 @@ bool Window::handleEvent() {
 
 	while(SDL_PollEvent(&event)) {
 		try {
-		    //printf("START [%d]\n",event.type);
+			//printf("START [%d]\n",event.type);
 
-            switch(event.type) {
-                case SDL_MOUSEBUTTONDOWN:
-                case SDL_MOUSEBUTTONUP:
-                case SDL_MOUSEMOTION:
+			switch(event.type) {
+				case SDL_MOUSEBUTTONDOWN:
+				case SDL_MOUSEBUTTONUP:
+				case SDL_MOUSEMOTION:
 
-                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
-               		setLastMouseEvent(Chrono::getCurMillis());
-               		setMousePos(Vec2i(event.button.x, event.button.y));
-                    break;
-            }
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+           			setLastMouseEvent(Chrono::getCurMillis());
+           			setMousePos(Vec2i(event.button.x, event.button.y));
+					break;
+			}
 
 			switch(event.type) {
 				case SDL_QUIT:
-                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					return false;
 				case SDL_MOUSEBUTTONDOWN:
-                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
-                    if(global_window) {
-                        global_window->handleMouseDown(event);
-                    }
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					if(global_window) {
+						global_window->handleMouseDown(event);
+					}
 					break;
 				case SDL_MOUSEBUTTONUP: {
-				    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
-				    if(global_window) {
-                        MouseButton b = getMouseButton(event.button.button);
-                        setMouseState(b, false);
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					if(global_window) {
+						MouseButton b = getMouseButton(event.button.button);
+						setMouseState(b, false);
 
-                        global_window->eventMouseUp(event.button.x,
+						global_window->eventMouseUp(event.button.x,
 							event.button.y,getMouseButton(event.button.button));
-				    }
+					}
 					break;
 				}
 				case SDL_MOUSEMOTION: {
-				    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 					//MouseState ms;
 					//ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
 					//ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
 					//ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
-                    setMouseState(mbLeft, event.motion.state & SDL_BUTTON_LMASK);
-                    setMouseState(mbRight, event.motion.state & SDL_BUTTON_RMASK);
-                    setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
+					setMouseState(mbLeft, event.motion.state & SDL_BUTTON_LMASK);
+					setMouseState(mbRight, event.motion.state & SDL_BUTTON_RMASK);
+					setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
 
 					if(global_window) {
 						global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
@@ -116,7 +116,7 @@ bool Window::handleEvent() {
 					break;
 				}
 				case SDL_KEYDOWN:
-                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 					Window::isKeyPressedDown = true;
 					keystate = event.key.keysym;
@@ -128,23 +128,30 @@ bool Window::handleEvent() {
 					}
 					if(global_window) {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                        global_window->eventKeyDown(getKey(event.key.keysym));
-                        global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
+						global_window->eventKeyDown(getKey(event.key.keysym));
+						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 					}
 					break;
 				case SDL_KEYUP:
-                    //printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 					Window::isKeyPressedDown = false;
 					keystate = event.key.keysym;
 
-                    if(global_window) {
-                        global_window->eventKeyUp(getKey(event.key.keysym));
-                    }
+					if(global_window) {
+						global_window->eventKeyUp(getKey(event.key.keysym));
+					}
 					break;
 			}
-		} catch(std::exception& e) {
-			std::cerr << "Couldn't process event: " << e.what() << "\n";
+		} 
+		catch(std::runtime_error& e) {
+			std::cerr << "(a) Couldn't process event: " << e.what() << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a) Couldn't process event: [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+			throw runtime_error(e.what());
+		}
+		catch(std::exception& e) {
+			std::cerr << "(b) Couldn't process event: " << e.what() << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		}
 	}
 

@@ -149,6 +149,8 @@ PlatformExceptionHandler *PlatformExceptionHandler::thisPointer= NULL;
 
 LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	HANDLE hFile = CreateFile(
 		thisPointer->dumpFileName.c_str(),
 		GENERIC_WRITE,
@@ -157,6 +159,8 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		0);
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	MINIDUMP_EXCEPTION_INFORMATION lExceptionInformation;
 
@@ -173,7 +177,11 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 		NULL,
 		NULL );
 
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	thisPointer->handle();
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }

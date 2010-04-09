@@ -58,7 +58,7 @@ public:
 	}
 
 	static void handleRuntimeError(const char *msg) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
 
 		Program *program = Program::getInstance();
         if(program && gameInitialized == true) {
@@ -74,6 +74,7 @@ public:
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
 
         Program *program = Program::getInstance();
         if(program && gameInitialized == true) {
@@ -317,6 +318,18 @@ int glestMain(int argc, char** argv){
 	catch(const exception &e){
 		//exceptionMessage(e);
 		ExceptionHandler::handleRuntimeError(e.what());
+	}
+	catch(const char *e){
+		//exceptionMessage(e);
+		ExceptionHandler::handleRuntimeError(e);
+	}
+	catch(const string &ex){
+		//exceptionMessage(e);
+		ExceptionHandler::handleRuntimeError(ex.c_str());
+	}
+	catch(...){
+		//exceptionMessage(e);
+		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
 
 	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();

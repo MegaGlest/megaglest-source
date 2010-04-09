@@ -234,6 +234,9 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 				0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			GLint error= glGetError();
+
+			//throw runtime_error("TEST!");
+
 			if(error!=GL_NO_ERROR){
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat);
