@@ -3,10 +3,12 @@
 
 !define APNAME Mega-Glest
 
-Name "${APNAME} 3.3.2"
+Name "${APNAME} 3.3.3"
 OutFile "${APNAME}-Installer.exe"
-;Icon "..\glest.ico"
-;UninstallIcon "..\glest.ico"
+Icon "..\glest.ico"
+UninstallIcon "..\glest.ico"
+!define MUI_ICON "..\glest.ico"
+!define MUI_UNICON "..\glest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}"
 ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
