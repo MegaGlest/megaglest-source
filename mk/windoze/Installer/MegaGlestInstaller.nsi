@@ -4,6 +4,8 @@
 !define APNAME Mega-Glest
 
 Name "${APNAME} 3.3.3"
+SetCompressor /FINAL /SOLID lzma
+SetCompressorDictSize 64
 OutFile "${APNAME}-Installer.exe"
 Icon "..\glest.ico"
 UninstallIcon "..\glest.ico"
