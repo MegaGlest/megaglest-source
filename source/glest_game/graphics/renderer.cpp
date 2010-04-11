@@ -689,18 +689,26 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsole(const Console *console){
-	const Gui *gui= game->getGui();
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
+	Vec4f fontColor;
+
+	if(game!=NULL){
+		fontColor=game->getGui()->getDisplay()->getColor();
+	}
+	else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
+	}
 
 	for(int i=0; i<console->getLineCount(); ++i){
 		renderTextShadow(
 			console->getLine(i),
 			CoreData::getInstance().getConsoleFont(),
-			gui->getDisplay()->getColor(),
+			fontColor,
 			20, i*20+20);
 	}
-
+	
 	glPopAttrib();
 }
 
@@ -728,10 +736,9 @@ void Renderer::renderChatManager(const ChatManager *chatManager){
 void Renderer::renderResourceStatus(){
 
 	const Metrics &metrics= Metrics::getInstance();
-	const Gui *gui= game->getGui();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
-
+	const Vec4f fontColor=game->getGui()->getDisplay()->getColor();
 	assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -777,7 +784,7 @@ void Renderer::renderResourceStatus(){
 
 			renderTextShadow(
 				str, CoreData::getInstance().getDisplayFontSmall(),
-				gui->getDisplay()->getColor(),
+				fontColor,
 				j*100+220, metrics.getVirtualH()-30, false);
 			++j;
 		}

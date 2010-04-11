@@ -25,7 +25,7 @@ using namespace Shared::Platform;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.3";
+const string glestVersionString= "v3.3.4-dev";
 
 string getCrashDumpFileName(){
 	return "glest"+glestVersionString+".dmp";
