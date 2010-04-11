@@ -128,8 +128,11 @@ bool Window::handleEvent() {
 					}
 					if(global_window) {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 						global_window->eventKeyDown(getKey(event.key.keysym));
 						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					break;
 				case SDL_KEYUP:
@@ -153,6 +156,11 @@ bool Window::handleEvent() {
 			std::cerr << "(b) Couldn't process event: " << e.what() << "\n";
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		}
+		catch(...) {
+			std::cerr << "(b) Couldn't process event: [UNKNOWN ERROR]\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+
 	}
 
     //printf("END [%d]\n",event.type);

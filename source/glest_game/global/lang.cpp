@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -40,11 +40,15 @@ void Lang::loadStrings(const string &language){
 }
 
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){
-	string path= scenarioDir + "/" + scenarioName + "/" + scenarioName + "_" + language + ".lng";
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
+
+	string scenarioFolder = scenarioDir + "/" + scenarioName + "/";
+	string path = scenarioFolder + scenarioName + "_" + language + ".lng";
 	if(EndsWith(scenarioDir, ".xml") == true) {
-		path= scenarioDir;
-		path = path.erase(path.size()-4,4);
-		path += "_" + language + ".lng";
+		scenarioFolder = extractDirectoryPathFromFile(scenarioDir);
+		path = scenarioFolder + scenarioName + "_" + language + ".lng";
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 	}
 
 	scenarioStrings.clear();
@@ -57,7 +61,9 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 		//try english otherwise
-		string path= scenarioDir + "/" +scenarioName + "/" + scenarioName + "_english.lng";
+		path = scenarioFolder + scenarioName + "_english.lng";
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
 		if(fileExists(path)){
 			scenarioStrings.load(path);
 		}

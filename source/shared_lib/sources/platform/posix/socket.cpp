@@ -975,8 +975,7 @@ void ServerSocket::listen(int connectionQueueSize)
 		throwException(szBuf);
 	}
 
-	broadCastThread = new BroadCastSocketThread();
-	broadCastThread->start();
+	startBroadCastThread();
 
 }
 

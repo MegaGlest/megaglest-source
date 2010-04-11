@@ -125,22 +125,22 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 	for(unsigned int i = 0; i < static_cast<unsigned int> (charCount); ++i) {
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(i < fontInfo->min_char_or_byte2 || i > fontInfo->max_char_or_byte2) {
 
 			float width = static_cast<float>(6);
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] setting size = %f\n",__FILE__,__FUNCTION__,__LINE__,width);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] setting size = %f\n",__FILE__,__FUNCTION__,__LINE__,width);
 
 			metrics.setWidth(i, width);
 		} else {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			int p = i - fontInfo->min_char_or_byte2;
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,p,fontInfo->per_char);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,p,fontInfo->per_char);
 
 			if(fontInfo->per_char == NULL) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),p,fontInfo->per_char);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] p = %d fontInfo->per_char = %p\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),p,fontInfo->per_char);
 
 				XCharStruct *charinfo = &(fontInfo->min_bounds);
 				//int charWidth = charinfo->rbearing - charinfo->lbearing;
@@ -148,11 +148,11 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 			    //int spanLength = (charWidth + 7) / 8;
 
 				if(charinfo != NULL) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] charinfo->width = %d\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),charinfo->width);
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] charinfo->width = %d\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),charinfo->width);
 					metrics.setWidth(i, static_cast<float> (charinfo->width));
 				}
 				else {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] using size 6\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] using size 6\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
 
 					metrics.setWidth(i, static_cast<float>(6));
 				}
@@ -162,7 +162,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 				if(width <= 0) {
 					width = static_cast<float>(6);
 				}
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] using size = %f\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),width);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] using size = %f\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),width);
 				metrics.setWidth(i, width);
 			}
 		}
@@ -178,7 +178,6 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	GLenum glerror = ::glGetError();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] glerror = %d\n",__FILE__,__FUNCTION__,__LINE__,glerror);
-
 
 	XFreeFont(display, fontInfo);
 

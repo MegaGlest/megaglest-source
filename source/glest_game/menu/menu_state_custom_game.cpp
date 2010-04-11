@@ -349,169 +349,187 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 
 void MenuStateCustomGame::render(){
 
-	Renderer &renderer= Renderer::getInstance();
+	try {
+		Renderer &renderer= Renderer::getInstance();
 
-	int i;
+		int i;
 
-	renderer.renderButton(&buttonReturn);
-	renderer.renderButton(&buttonPlayNow);
+		renderer.renderButton(&buttonReturn);
+		renderer.renderButton(&buttonPlayNow);
 
-	for(i=0; i<GameConstants::maxPlayers; ++i){
-		renderer.renderLabel(&labelPlayers[i]);
-        renderer.renderListBox(&listBoxControls[i]);
-		if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-			renderer.renderListBox(&listBoxFactions[i]);
-			renderer.renderListBox(&listBoxTeams[i]);
-			renderer.renderLabel(&labelNetStatus[i]);
+		for(i=0; i<GameConstants::maxPlayers; ++i){
+			renderer.renderLabel(&labelPlayers[i]);
+			renderer.renderListBox(&listBoxControls[i]);
+			if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
+				renderer.renderListBox(&listBoxFactions[i]);
+				renderer.renderListBox(&listBoxTeams[i]);
+				renderer.renderLabel(&labelNetStatus[i]);
+			}
 		}
-    }
-	renderer.renderLabel(&labelMap);
-	renderer.renderLabel(&labelFogOfWar);
-	renderer.renderLabel(&labelTileset);
-	renderer.renderLabel(&labelTechTree);
-	renderer.renderLabel(&labelControl);
-	renderer.renderLabel(&labelFaction);
-	renderer.renderLabel(&labelTeam);
-	renderer.renderLabel(&labelMapInfo);
+		renderer.renderLabel(&labelMap);
+		renderer.renderLabel(&labelFogOfWar);
+		renderer.renderLabel(&labelTileset);
+		renderer.renderLabel(&labelTechTree);
+		renderer.renderLabel(&labelControl);
+		renderer.renderLabel(&labelFaction);
+		renderer.renderLabel(&labelTeam);
+		renderer.renderLabel(&labelMapInfo);
 
-	renderer.renderListBox(&listBoxMap);
-	renderer.renderListBox(&listBoxFogOfWar);
-	renderer.renderListBox(&listBoxTileset);
-	renderer.renderListBox(&listBoxTechTree);
+		renderer.renderListBox(&listBoxMap);
+		renderer.renderListBox(&listBoxFogOfWar);
+		renderer.renderListBox(&listBoxTileset);
+		renderer.renderListBox(&listBoxTechTree);
 
-	renderer.renderChatManager(&chatManager);
-	renderer.renderConsole(&console);
+		renderer.renderChatManager(&chatManager);
+		renderer.renderConsole(&console);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
+	}
 }
 
 void MenuStateCustomGame::update()
 {
-	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	Lang& lang= Lang::getInstance();
+	try {
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    bool haveAtLeastOneNetworkClientConnected = false;
-	Config &config = Config::getInstance();
-	for(int i= 0; i<mapInfo.players; ++i)
-	{
-		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		Lang& lang= Lang::getInstance();
+
+		bool haveAtLeastOneNetworkClientConnected = false;
+		Config &config = Config::getInstance();
+		for(int i= 0; i<mapInfo.players; ++i)
 		{
-		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
-
-			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-
-			assert(connectionSlot!=NULL);
-
-            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
-
-			if(connectionSlot->isConnected())
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 			{
-			    haveAtLeastOneNetworkClientConnected = true;
-			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
 
-                string label = connectionSlot->getName();
-                if(connectionSlot->getAllowDownloadDataSynch() == true &&
-                   connectionSlot->getAllowGameDataSynchCheck() == true)
-                {
-                    if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
-                    {
-                        label = connectionSlot->getName() + " - waiting to synch:";
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
-                        {
-                            label = label + " map";
-                        }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
-                        {
-                            label = label + " tile";
-                        }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
-                        {
-                            label = label + " techtree";
-                        }
-                        //if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                        //{
-                        //    label = label + " FogOfWar == false";
-                        //}
+				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 
-                    }
-                    else
-                    {
-                        label = connectionSlot->getName() + " - data synch is ok";
-                    }
-                }
-                else
-                {
-                    label = connectionSlot->getName();
+				assert(connectionSlot!=NULL);
 
-                    if(connectionSlot->getAllowGameDataSynchCheck() == true &&
-                       connectionSlot->getNetworkGameDataSynchCheckOk() == false)
-                    {
-                        label += " - warning synch mismatch for:";
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
-                        {
-                            label = label + " map";
-                        }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
-                        {
-                            label = label + " tile";
-                        }
-                        if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
-                        {
-                            label = label + " techtree";
-                        }
-                        //if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                        //{
-                        //    label = label + " FogOfWar == false";
-                        //}
-                    }
-                }
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
-			    labelNetStatus[i].setText(label);
-			}
-			else
-			{
-			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
-				string port=intToStr(config.getInt("ServerPort"));
-				if(port!="61357"){
-					port=port +lang.get(" NonStandardPort")+"!";
+				if(connectionSlot->isConnected())
+				{
+					haveAtLeastOneNetworkClientConnected = true;
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
+
+					string label = connectionSlot->getName();
+					if(connectionSlot->getAllowDownloadDataSynch() == true &&
+					   connectionSlot->getAllowGameDataSynchCheck() == true)
+					{
+						if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
+						{
+							label = connectionSlot->getName() + " - waiting to synch:";
+							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
+							{
+								label = label + " map";
+							}
+							if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
+							{
+								label = label + " tile";
+							}
+							if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
+							{
+								label = label + " techtree";
+							}
+							//if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+							//{
+							//    label = label + " FogOfWar == false";
+							//}
+
+						}
+						else
+						{
+							label = connectionSlot->getName() + " - data synch is ok";
+						}
+					}
+					else
+					{
+						label = connectionSlot->getName();
+
+						if(connectionSlot->getAllowGameDataSynchCheck() == true &&
+						   connectionSlot->getNetworkGameDataSynchCheckOk() == false)
+						{
+							label += " - warning synch mismatch for:";
+							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
+							{
+								label = label + " map";
+							}
+							if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
+							{
+								label = label + " tile";
+							}
+							if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
+							{
+								label = label + " techtree";
+							}
+							//if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
+							//{
+							//    label = label + " FogOfWar == false";
+							//}
+						}
+					}
+
+					labelNetStatus[i].setText(label);
 				}
 				else
 				{
-					port=port+")";
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
+					string port=intToStr(config.getInt("ServerPort"));
+					if(port!="61357"){
+						port=port +lang.get(" NonStandardPort")+"!";
+					}
+					else
+					{
+						port=port+")";
+					}
+					port="("+port;
+					labelNetStatus[i].setText("--- "+port);
 				}
-				port="("+port;
-				labelNetStatus[i].setText("--- "+port);
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
 			}
+			else{
+				labelNetStatus[i].setText("");
+			}
+		}
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
+		// Send the game settings to each client if we have at least one networked client
+		if( serverInterface->getAllowGameDataSynchCheck() == true &&
+			haveAtLeastOneNetworkClientConnected == true &&
+			needToSetChangedGameSettings == true &&
+			difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+		{
+			GameSettings gameSettings;
+			loadGameSettings(&gameSettings);
+			serverInterface->setGameSettings(&gameSettings);
+
+			needToSetChangedGameSettings    = false;
+			lastSetChangedGameSettings      = time(NULL);
 		}
-		else{
-			labelNetStatus[i].setText("");
-		}
+
+		//call the chat manager
+		chatManager.updateNetwork();
+
+		//console
+		console.update();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-
-    // Send the game settings to each client if we have at least one networked client
-	if( serverInterface->getAllowGameDataSynchCheck() == true &&
-        haveAtLeastOneNetworkClientConnected == true &&
-	    needToSetChangedGameSettings == true &&
-        difftime(time(NULL),lastSetChangedGameSettings) >= 2)
-    {
-        GameSettings gameSettings;
-        loadGameSettings(&gameSettings);
-        serverInterface->setGameSettings(&gameSettings);
-
-        needToSetChangedGameSettings    = false;
-        lastSetChangedGameSettings      = time(NULL);
-    }
-
-	//call the chat manager
-	chatManager.updateNetwork();
-
-	//console
-	console.update();
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
+	}
 }
 
 void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 {
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
 
@@ -546,7 +564,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ============ PRIVATE ===========================
@@ -555,18 +573,25 @@ bool MenuStateCustomGame::hasNetworkGameSettings()
 {
     bool hasNetworkSlot = false;
 
-    for(int i=0; i<mapInfo.players; ++i)
-    {
-		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-		if(ct != ctClosed)
+    try {
+		for(int i=0; i<mapInfo.players; ++i)
 		{
-			if(ct == ctNetwork)
+			ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+			if(ct != ctClosed)
 			{
-                hasNetworkSlot = true;
-                break;
+				if(ct == ctNetwork)
+				{
+					hasNetworkSlot = true;
+					break;
+				}
 			}
 		}
     }
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
+	}
 
     return hasNetworkSlot;
 }
@@ -641,49 +666,70 @@ void MenuStateCustomGame::reloadFactions(){
 }
 
 void MenuStateCustomGame::updateControlers(){
-	bool humanPlayer= false;
+	try {
+		bool humanPlayer= false;
 
-	for(int i= 0; i<mapInfo.players; ++i){
-		if(listBoxControls[i].getSelectedItemIndex() == ctHuman){
-			humanPlayer= true;
+		for(int i= 0; i<mapInfo.players; ++i){
+			if(listBoxControls[i].getSelectedItemIndex() == ctHuman){
+				humanPlayer= true;
+			}
+		}
+
+		if(!humanPlayer){
+			listBoxControls[0].setSelectedItemIndex(ctHuman);
+		}
+
+		for(int i= mapInfo.players; i<GameConstants::maxPlayers; ++i){
+			listBoxControls[i].setSelectedItemIndex(ctClosed);
 		}
 	}
-
-	if(!humanPlayer){
-		listBoxControls[0].setSelectedItemIndex(ctHuman);
-	}
-
-	for(int i= mapInfo.players; i<GameConstants::maxPlayers; ++i){
-		listBoxControls[i].setSelectedItemIndex(ctClosed);
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
 	}
 }
 
 void MenuStateCustomGame::closeUnusedSlots(){
-	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	for(int i= 0; i<mapInfo.players; ++i){
-		if(listBoxControls[i].getSelectedItemIndex()==ctNetwork){
-			if(!serverInterface->getSlot(i)->isConnected()){
-				listBoxControls[i].setSelectedItemIndex(ctClosed);
+	try {
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		for(int i= 0; i<mapInfo.players; ++i){
+			if(listBoxControls[i].getSelectedItemIndex()==ctNetwork){
+				if(!serverInterface->getSlot(i)->isConnected()){
+					listBoxControls[i].setSelectedItemIndex(ctClosed);
+				}
 			}
 		}
+		updateNetworkSlots();
 	}
-	updateNetworkSlots();
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
+	}
 }
 
 void MenuStateCustomGame::updateNetworkSlots()
 {
-	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	try {
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
-	for(int i= 0; i<GameConstants::maxPlayers; ++i)
-	{
-		if(serverInterface->getSlot(i) == NULL && listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+		for(int i= 0; i<GameConstants::maxPlayers; ++i)
 		{
-			serverInterface->addSlot(i);
+			if(serverInterface->getSlot(i) == NULL && listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+			{
+				serverInterface->addSlot(i);
+			}
+			if(serverInterface->getSlot(i) != NULL && listBoxControls[i].getSelectedItemIndex() != ctNetwork)
+			{
+				serverInterface->removeSlot(i);
+			}
 		}
-		if(serverInterface->getSlot(i) != NULL && listBoxControls[i].getSelectedItemIndex() != ctNetwork)
-		{
-			serverInterface->removeSlot(i);
-		}
+	}
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
 	}
 }
 

@@ -173,10 +173,12 @@ void ServerInterface::update()
                             //teamMessageData.sourceTeamIndex = i;
                             //vctTeamMessages.push_back(teamMessageData);
 
-                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d for SlotIndex# %d\n",__FILE__,__FUNCTION__,chatText.c_str(),chatSender.c_str(),chatTeamIndex,i);
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d for SlotIndex# %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex,i);
 
                             NetworkMessageText networkMessageText(chatText,chatSender,chatTeamIndex);
                             broadcastMessage(&networkMessageText, i);
+
+                            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                             break;
                         }
                     }
@@ -349,12 +351,18 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 }
 
 void ServerInterface::sendTextMessage(const string &text, int teamIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), teamIndex);
 	broadcastMessage(&networkMessageText);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::quitGame(bool userManuallyQuit)
 {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(userManuallyQuit == true)
     {
         string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
@@ -364,11 +372,15 @@ void ServerInterface::quitGame(bool userManuallyQuit)
 
 	NetworkMessageQuit networkMessageQuit;
 	broadcastMessage(&networkMessageQuit);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string ServerInterface::getNetworkStatus() const{
 	Lang &lang= Lang::getInstance();
 	string str;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		ConnectionSlot* connectionSlot= slots[i];
@@ -388,12 +400,17 @@ string ServerInterface::getNetworkStatus() const{
 
 		str+= '\n';
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	return str;
 }
 
 bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     bool bOkToStart = true;
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int i= 0; i<GameConstants::maxPlayers; ++i)
     {
@@ -418,12 +435,14 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
         broadcastMessage(&networkMessageLaunch);
     }
 
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
     return bOkToStart;
 }
 
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
 
-    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)
 	{
@@ -434,7 +453,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 			if(connectionSlot->isConnected())
 			{
 
-			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+			    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
 				connectionSlot->sendMessage(networkMessage);
 			}
 			else if(gameHasBeenInitiated == true)
@@ -452,12 +471,12 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 		}
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot){
 
-    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		ConnectionSlot* connectionSlot= slots[i];
@@ -465,14 +484,14 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* n
 		if(i!= excludeSlot && connectionSlot!= NULL){
 			if(connectionSlot->isConnected()){
 
-			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+			    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
 
 				connectionSlot->sendMessage(networkMessage);
 			}
 		}
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::updateListen()

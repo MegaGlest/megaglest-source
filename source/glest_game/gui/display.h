@@ -71,7 +71,7 @@ public:
 	bool getDownLighted(int index) const			{return downLighted[index];}
 	const CommandType *getCommandType(int i)		{return commandTypes[i];}
 	CommandClass getCommandClass(int i)				{return commandClasses[i];}
-	Vec4f getColor() const							{return colors[currentColor];}
+	Vec4f getColor() const;
 	int getProgressBar() const						{return progressBar;}
 	int getDownSelectedPos() const					{return downSelectedPos;}
 	
