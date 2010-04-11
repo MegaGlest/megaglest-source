@@ -19,6 +19,27 @@
 #include <algorithm>
 #include "util.h"
 #include "platform_util.h"
+//#include <stdio.h>
+
+#ifdef WIN32
+# include <windows.h>
+# include <winsock.h>
+# include <iphlpapi.h>
+#else
+# include <unistd.h>
+# include <stdlib.h>
+# include <sys/socket.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <net/if.h>
+# include <sys/ioctl.h>
+#endif
+
+#include <string.h>
+#include <sys/stat.h>
+
+//typedef unsigned long uint32;
+
 #include "leak_dumper.h"
 
 #define socklen_t int
@@ -209,6 +230,313 @@ Socket::SocketManager::SocketManager(){
 Socket::SocketManager::~SocketManager(){
 	WSACleanup();
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock cleanup complete.\n");
+}
+
+#if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
+# define USE_GETIFADDRS 1
+# include <ifaddrs.h>
+static uint32 SockAddrToUint32(struct sockaddr * a)
+{
+   return ((a)&&(a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in *)a)->sin_addr.s_addr) : 0;
+}
+#endif
+
+// convert a numeric IP address into its string representation
+static void Inet_NtoA(uint32 addr, char * ipbuf)
+{
+   sprintf(ipbuf, "%li.%li.%li.%li", (addr>>24)&0xFF, (addr>>16)&0xFF, (addr>>8)&0xFF, (addr>>0)&0xFF);
+}
+
+// convert a string represenation of an IP address into its numeric equivalent
+static uint32 Inet_AtoN(const char * buf)
+{
+   // net_server inexplicably doesn't have this function; so I'll just fake it
+   uint32 ret = 0;
+   int shift = 24;  // fill out the MSB first
+   bool startQuad = true;
+   while((shift >= 0)&&(*buf))
+   {
+      if (startQuad)
+      {
+         unsigned char quad = (unsigned char) atoi(buf);
+         ret |= (((uint32)quad) << shift);
+         shift -= 8;
+      }
+      startQuad = (*buf == '.');
+      buf++;
+   }
+   return ret;
+}
+
+/*
+static void PrintNetworkInterfaceInfos()
+{
+#if defined(USE_GETIFADDRS)
+   // BSD-style implementation
+   struct ifaddrs * ifap;
+   if (getifaddrs(&ifap) == 0)
+   {
+      struct ifaddrs * p = ifap;
+      while(p)
+      {
+         uint32 ifaAddr  = SockAddrToUint32(p->ifa_addr);
+         uint32 maskAddr = SockAddrToUint32(p->ifa_netmask);
+         uint32 dstAddr  = SockAddrToUint32(p->ifa_dstaddr);
+         if (ifaAddr > 0)
+         {
+            char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
+            char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
+            char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
+            printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+         }
+         p = p->ifa_next;
+      }
+      freeifaddrs(ifap);
+   }
+#elif defined(WIN32)
+   // Windows XP style implementation
+
+   // Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
+   // Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
+   // multiple times in order to deal with potential race conditions properly.
+   MIB_IPADDRTABLE * ipTable = NULL;
+   {
+      ULONG bufLen = 0;
+      for (int i=0; i<5; i++)
+      {
+         DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, false);
+         if (ipRet == ERROR_INSUFFICIENT_BUFFER)
+         {
+            free(ipTable);  // in case we had previously allocated it
+            ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+         }
+         else if (ipRet == NO_ERROR) break;
+         else
+         {
+            free(ipTable);
+            ipTable = NULL;
+            break;
+         }
+     }
+   }
+
+   if (ipTable)
+   {
+      // Try to get the Adapters-info table, so we can given useful names to the IP
+      // addresses we are returning.  Gotta call GetAdaptersInfo() up to 5 times to handle
+      // the potential race condition between the size-query call and the get-data call.
+      // I love a well-designed API :^P
+      IP_ADAPTER_INFO * pAdapterInfo = NULL;
+      {
+         ULONG bufLen = 0;
+         for (int i=0; i<5; i++)
+         {
+            DWORD apRet = GetAdaptersInfo(pAdapterInfo, &bufLen);
+            if (apRet == ERROR_BUFFER_OVERFLOW)
+            {
+               free(pAdapterInfo);  // in case we had previously allocated it
+               pAdapterInfo = (IP_ADAPTER_INFO *) malloc(bufLen);
+            }
+            else if (apRet == ERROR_SUCCESS) break;
+            else
+            {
+               free(pAdapterInfo);
+               pAdapterInfo = NULL;
+               break;
+            }
+         }
+      }
+
+      for (DWORD i=0; i<ipTable->dwNumEntries; i++)
+      {
+         const MIB_IPADDRROW & row = ipTable->table[i];
+
+         // Now lookup the appropriate adaptor-name in the pAdaptorInfos, if we can find it
+         const char * name = NULL;
+         const char * desc = NULL;
+         if (pAdapterInfo)
+         {
+            IP_ADAPTER_INFO * next = pAdapterInfo;
+            while((next)&&(name==NULL))
+            {
+               IP_ADDR_STRING * ipAddr = &next->IpAddressList;
+               while(ipAddr)
+               {
+                  if (Inet_AtoN(ipAddr->IpAddress.String) == ntohl(row.dwAddr))
+                  {
+                     name = next->AdapterName;
+                     desc = next->Description;
+                     break;
+                  }
+                  ipAddr = ipAddr->Next;
+               }
+               next = next->Next;
+            }
+         }
+         char buf[128];
+         if (name == NULL)
+         {
+            sprintf(buf, "unnamed-%i", i);
+            name = buf;
+         }
+
+         uint32 ipAddr  = ntohl(row.dwAddr);
+         uint32 netmask = ntohl(row.dwMask);
+         uint32 baddr   = ipAddr & netmask;
+         if (row.dwBCastAddr) baddr |= ~netmask;
+
+         char ifaAddrStr[32];  Inet_NtoA(ipAddr,  ifaAddrStr);
+         char maskAddrStr[32]; Inet_NtoA(netmask, maskAddrStr);
+         char dstAddrStr[32];  Inet_NtoA(baddr,   dstAddrStr);
+         printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+      }
+
+      free(pAdapterInfo);
+      free(ipTable);
+   }
+#else
+   // Dunno what we're running on here!
+#  error "Don't know how to implement PrintNetworkInterfaceInfos() on this OS!"
+#endif
+}
+*/
+
+string getNetworkInterfaceBroadcastAddress(string ipAddress)
+{
+	string broadCastAddress = "";
+
+#if defined(USE_GETIFADDRS)
+   // BSD-style implementation
+   struct ifaddrs * ifap;
+   if (getifaddrs(&ifap) == 0)
+   {
+      struct ifaddrs * p = ifap;
+      while(p)
+      {
+         uint32 ifaAddr  = SockAddrToUint32(p->ifa_addr);
+         uint32 maskAddr = SockAddrToUint32(p->ifa_netmask);
+         uint32 dstAddr  = SockAddrToUint32(p->ifa_dstaddr);
+         if (ifaAddr > 0)
+         {
+            char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
+            char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
+            char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
+            printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+         }
+         p = p->ifa_next;
+      }
+      freeifaddrs(ifap);
+   }
+#elif defined(WIN32)
+   // Windows XP style implementation
+
+   // Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
+   // Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
+   // multiple times in order to deal with potential race conditions properly.
+   MIB_IPADDRTABLE * ipTable = NULL;
+   {
+      ULONG bufLen = 0;
+      for (int i=0; i<5; i++)
+      {
+         DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, false);
+         if (ipRet == ERROR_INSUFFICIENT_BUFFER)
+         {
+            free(ipTable);  // in case we had previously allocated it
+            ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+         }
+         else if (ipRet == NO_ERROR) break;
+         else
+         {
+            free(ipTable);
+            ipTable = NULL;
+            break;
+         }
+     }
+   }
+
+   if (ipTable)
+   {
+      // Try to get the Adapters-info table, so we can given useful names to the IP
+      // addresses we are returning.  Gotta call GetAdaptersInfo() up to 5 times to handle
+      // the potential race condition between the size-query call and the get-data call.
+      // I love a well-designed API :^P
+      IP_ADAPTER_INFO * pAdapterInfo = NULL;
+      {
+         ULONG bufLen = 0;
+         for (int i=0; i<5; i++)
+         {
+            DWORD apRet = GetAdaptersInfo(pAdapterInfo, &bufLen);
+            if (apRet == ERROR_BUFFER_OVERFLOW)
+            {
+               free(pAdapterInfo);  // in case we had previously allocated it
+               pAdapterInfo = (IP_ADAPTER_INFO *) malloc(bufLen);
+            }
+            else if (apRet == ERROR_SUCCESS) break;
+            else
+            {
+               free(pAdapterInfo);
+               pAdapterInfo = NULL;
+               break;
+            }
+         }
+      }
+
+      for (DWORD i=0; i<ipTable->dwNumEntries; i++)
+      {
+         const MIB_IPADDRROW & row = ipTable->table[i];
+
+         // Now lookup the appropriate adaptor-name in the pAdaptorInfos, if we can find it
+         const char * name = NULL;
+         const char * desc = NULL;
+         if (pAdapterInfo)
+         {
+            IP_ADAPTER_INFO * next = pAdapterInfo;
+            while((next)&&(name==NULL))
+            {
+               IP_ADDR_STRING * ipAddr = &next->IpAddressList;
+               while(ipAddr)
+               {
+                  if (Inet_AtoN(ipAddr->IpAddress.String) == ntohl(row.dwAddr))
+                  {
+                     name = next->AdapterName;
+                     desc = next->Description;
+                     break;
+                  }
+                  ipAddr = ipAddr->Next;
+               }
+               next = next->Next;
+            }
+         }
+         char buf[128];
+         if (name == NULL)
+         {
+            //sprintf(buf, "unnamed-%i", i);
+            name = buf;
+         }
+
+         uint32 ipAddr  = ntohl(row.dwAddr);
+         uint32 netmask = ntohl(row.dwMask);
+         uint32 baddr   = ipAddr & netmask;
+         if (row.dwBCastAddr) baddr |= ~netmask;
+
+         char ifaAddrStr[32];  Inet_NtoA(ipAddr,  ifaAddrStr);
+         char maskAddrStr[32]; Inet_NtoA(netmask, maskAddrStr);
+         char dstAddrStr[32];  Inet_NtoA(baddr,   dstAddrStr);
+         //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+		 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
+			broadCastAddress = dstAddrStr;
+		 }
+      }
+
+      free(pAdapterInfo);
+      free(ipTable);
+   }
+#else
+   // Dunno what we're running on here!
+#  error "Don't know how to implement PrintNetworkInterfaceInfos() on this OS!"
+#endif
+
+	return broadCastAddress;
 }
 
 std::vector<std::string> Socket::getLocalIPAddressList() {
@@ -1141,17 +1469,18 @@ void BroadCastSocketThread::execute() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    unsigned int tbcaddr;       // The broadcast address.
+	const int MAX_NIC_COUNT = 10;
+    //unsigned int tbcaddr;       // The broadcast address.
     short port;                 // The port for the broadcast.
-    struct sockaddr_in bcLocal; // local socket address for the broadcast.
-    struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
-    int bcfd;                // The socket used for the broadcast.
+    struct sockaddr_in bcLocal[MAX_NIC_COUNT]; // local socket address for the broadcast.
+    //struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
+    int bcfd[MAX_NIC_COUNT];                // The socket used for the broadcast.
     bool one = true;            // Parameter for "setscokopt".
     int pn;                     // The number of the packet broadcasted.
     char buff[1024];            // Buffers the data to be broadcasted.
     char myhostname[100];       // hostname of local machine
-    //char subnetmask[100];       // Subnet mask to broadcast to
-    struct in_addr myaddr;      // My host address in net format
+    char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
+    //struct in_addr myaddr;      // My host address in net format
     struct hostent* myhostent;
     char * ptr;                 // some transient vars
     int len,i;
@@ -1160,103 +1489,76 @@ void BroadCastSocketThread::execute() {
     gethostname(myhostname,100);
     myhostent = gethostbyname(myhostname);
 
-    // get only the first host IP address
+    // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();
 
-    /*
-    strcpy(subnetmask, ipList[0].c_str());
-    ptr = &subnetmask[0];
-    len = strlen(ptr);
+	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
+		strcpy(subnetmask[idx], broadCastAddress.c_str());
+	}
 
-    // substitute the address with class C subnet mask x.x.x.255
-    for(i=len;i>0;i--) {
-		if(ptr[i] == '.') {
-			strcpy(&ptr[i+1],"255");
-			break;
-		}
-    }
-    */
+	port = htons( Socket::getBroadCastPort() );
 
-    // Convert the broadcast address from dot notation to a broadcast address.
-    //if( (tbcaddr = inet_addr( subnetmask )) == INADDR_NONE )
-    //{
-    //	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Badly formatted BC address: %d\n", WSAGetLastError());
-    	//exit(-1);
-    //}
-    //else
-    {
-		port = htons( Socket::getBroadCastPort() );
-
+	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
 		// Create the broadcast socket
-		memset( &bcLocal, 0, sizeof( struct sockaddr_in));
-		bcLocal.sin_family = AF_INET;
-		bcLocal.sin_addr.s_addr = htonl( INADDR_BROADCAST );
-		bcLocal.sin_port = port;  // We are letting the OS fill in the port number for the local machine.
-		bcfd  = socket( AF_INET, SOCK_DGRAM, 0 );
-
-		// If there is an error, report it and  terminate.
-		if( bcfd <= 0  ) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket.: %d\n", WSAGetLastError());
+		memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
+		bcLocal[idx].sin_family			= AF_INET;
+		bcLocal[idx].sin_addr.s_addr	= inet_addr(subnetmask[idx]); //htonl( INADDR_BROADCAST );
+		bcLocal[idx].sin_port			= port;  // We are letting the OS fill in the port number for the local machine.
+		bcfd[idx]						= socket( AF_INET, SOCK_DGRAM, 0 );
+		if( bcfd[idx] <= 0  ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %d\n", subnetmask[idx], WSAGetLastError());
 			//exit(-1);
 		}
 		// Mark the socket for broadcast.
-		else if( setsockopt( bcfd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast.: %d\n", WSAGetLastError());
+		else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %d\n", subnetmask[idx], WSAGetLastError());
 			//exit(-1);
 		}
-		// Bind the address to the broadcast socket.
-		else {
 
-			//int val = 1;
-			//setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] setting up broadcast on address [%s]\n",__FILE__,__FUNCTION__,__LINE__,subnetmask[idx]);
+	}
 
-			//if(::bind(bcfd, (struct sockaddr *) &bcLocal, sizeof(struct sockaddr_in)) < 0) {
-			//	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not bind address to BC socket.: %d\n", WSAGetLastError());
-				//exit(-1);
-			//}
-			//else
-			{
-				// Record the broadcast address of the receiver.
-				bcaddr.sin_family = AF_INET;
-				bcaddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);//tbcaddr;
-				bcaddr.sin_port = port;
+	setRunningStatus(true);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
 
-				setRunningStatus(true);
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	time_t elapsed = 0;
+	for( pn = 1; ; pn++ )
+	{
+		for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+			if( bcfd[idx] > 0  ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
 					sprintf(buff,"%s",myhostname);
-					for(int idx = 0; idx < ipList.size(); idx++) {
-						sprintf(buff,"%s:%s",buff,ipList[idx].c_str());
+					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
+						sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
 					}
 
-					time_t elapsed = 0;
-					for( pn = 1; ; pn++ )
-					{
-						if(difftime(time(NULL),elapsed) >= 1) {
-							elapsed = time(NULL);
-							// Broadcast the packet to the subnet
-							if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-							{
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %d\n", WSAGetLastError());
-								//exit(-1);
-							}
-							else {
-								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting to [%s] the message: [%s]\n",subnetmask,buff);
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting on port [%d] the message: [%s]\n",Socket::getBroadCastPort(),buff);
-							}
+					if(difftime(time(NULL),elapsed) >= 1) {
+						elapsed = time(NULL);
+						// Broadcast the packet to the subnet
+						//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
+						if( sendto( bcfd[idx], buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
+						{
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %d\n", WSAGetLastError());
+							//exit(-1);
+						}
+						else {
+							//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting to [%s] the message: [%s]\n",subnetmask,buff);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting on port [%d] the message: [%s]\n",Socket::getBroadCastPort(),buff);
+						}
 
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						}
-						if(getQuitStatus() == true) {
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-							break;
-						}
-						sleep( 100 ); // send out broadcast every 1 seconds
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
+
+					if(getQuitStatus() == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						break;
+					}
+					sleep( 100 ); // send out broadcast every 1 seconds
+					
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 				catch(const exception &ex) {
@@ -1267,12 +1569,21 @@ void BroadCastSocketThread::execute() {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
 					setRunningStatus(false);
 				}
+			}
 
-				setRunningStatus(false);
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is exiting\n");
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
 			}
 		}
-    }
+		if(getQuitStatus() == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			break;
+		}
+	}
+    
+	setRunningStatus(false);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is exiting\n");
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
