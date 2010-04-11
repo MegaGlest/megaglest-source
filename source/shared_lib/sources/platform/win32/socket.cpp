@@ -1052,8 +1052,7 @@ void ServerSocket::listen(int connectionQueueSize){
 	if(err==SOCKET_ERROR){
 		throwException("Error listening socket");
 	}
-	broadCastThread = new BroadCastSocketThread();
-	broadCastThread->start();
+	startBroadCastThread();
 }
 
 Socket *ServerSocket::accept(){

@@ -60,6 +60,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 
 	buttonAutoFindServers.init(595, 300, 125);
 	buttonAutoFindServers.setText(lang.get("FindLANGames"));
+	buttonAutoFindServers.setEnabled(true);
 
 	//server type label
 	labelServerType.init(330, 490);
@@ -131,6 +132,7 @@ MenuStateJoinGame::~MenuStateJoinGame() {
 void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	buttonAutoFindServers.setEnabled(true);
 	if(serverList.size() > 0) {
 		string bestIPMatch = "";
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
@@ -208,18 +210,20 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 			connectToServer();
 		}
 	}
-	else if(buttonAutoFindServers.mouseClick(x, y)) {
+	else if(buttonAutoFindServers.mouseClick(x, y) && buttonAutoFindServers.getEnabled() == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		ClientInterface* clientInterface= networkManager.getClientInterface();
-
 		soundRenderer.playFx(coreData.getClickSoundA());
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		// Triggers a thread which calls back into MenuStateJoinGame::DiscoveredServers
 		// with the results
-		clientInterface->discoverServers(this);
+		if(clientInterface->isConnected() == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			buttonAutoFindServers.setEnabled(false);
+			clientInterface->discoverServers(this);
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -355,7 +359,11 @@ void MenuStateJoinGame::update()
 	else
 	{
 		buttonConnect.setText(lang.get("Connect"));
-		labelStatus.setText(lang.get("NotConnected"));
+		string connectedStatus = lang.get("NotConnected");
+		if(buttonAutoFindServers.getEnabled() == false) {
+			connectedStatus += " - searching for servers, please wait...";
+		}
+		labelStatus.setText(connectedStatus);
 		labelInfo.setText("");
 	}
 
