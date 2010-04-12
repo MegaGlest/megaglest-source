@@ -208,32 +208,42 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	if(buttonReturn.mouseClick(x,y)){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		closeUnusedSlots();
 		soundRenderer.playFx(coreData.getClickSoundC());
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Send the game settings to each client if we have at least one networked client
         if( hasNetworkGameSettings() == true &&
             needToSetChangedGameSettings == true)
         {
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
             serverInterface->setGameSettings(&gameSettings,true);
 
             needToSetChangedGameSettings    = false;
             lastSetChangedGameSettings      = time(NULL);
         }
 
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		bool bOkToStart = serverInterface->launchGame(&gameSettings);
 		if(bOkToStart == true)
 		{
             program->setState(new Game(program, &gameSettings));
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else if(listBoxMap.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
@@ -329,6 +339,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){

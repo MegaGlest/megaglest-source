@@ -1250,7 +1250,7 @@ void ServerSocket::stopBroadCastThread() {
 				break;
 			}
 			sleep(100);
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1270,6 +1270,16 @@ void ServerSocket::startBroadCastThread() {
 	broadCastThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool ServerSocket::isBroadCastThreadRunning() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool isThreadRunning = (broadCastThread != NULL && broadCastThread->getRunningStatus() == true);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] isThreadRunning = %d\n",__FILE__,__FUNCTION__,__LINE__,isThreadRunning);
+
+	return isThreadRunning;
 }
 
 void ServerSocket::bind(int port)
@@ -1302,7 +1312,14 @@ void ServerSocket::listen(int connectionQueueSize)
 		throwException(szBuf);
 	}
 
-	startBroadCastThread();
+	if(connectionQueueSize > 0) {
+		if(isBroadCastThreadRunning() == false) {
+			startBroadCastThread();
+		}
+	}
+	else {
+		stopBroadCastThread();
+	}
 
 }
 

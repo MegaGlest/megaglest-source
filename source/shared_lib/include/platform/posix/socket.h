@@ -181,6 +181,7 @@ protected:
 
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
+	bool isBroadCastThreadRunning();
 
 };
 
