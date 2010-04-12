@@ -190,7 +190,7 @@ void Game::load(){
         }
 	}
 	
-
+	//throw runtime_error("Test!");
 
 	//tileset
     world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);

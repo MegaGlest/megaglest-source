@@ -422,7 +422,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 void ClientInterface::waitUntilReady(Checksum* checksum)
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     Logger &logger= Logger::getInstance();
 
@@ -436,16 +436,36 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 	NetworkMessageReady networkMessageReady;
 	sendMessage(&networkMessageReady);
 
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
     int64 lastMillisCheck = 0;
 	//wait until we get a ready message from the server
 	while(true)
 	{
-		NetworkMessageType networkMessageType = getNextMessageType(true);
+		if(isConnected() == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+			string sErr = "Error, Server has disconnected!";
+            sendTextMessage(sErr,-1);
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+            DisplayErrorMessage(sErr);
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+            quit= true;
+            close();
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+            return;
+		}
+		NetworkMessageType networkMessageType = getNextMessageType(true);
 		if(networkMessageType == nmtReady)
 		{
 			if(receiveMessage(&networkMessageReady))
 			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 		}
@@ -453,12 +473,21 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		{
 			if(chrono.getMillis() > readyWaitTimeout)
 			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				//throw runtime_error("Timeout waiting for server");
 				string sErr = "Timeout waiting for server";
                 sendTextMessage(sErr,-1);
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
                 DisplayErrorMessage(sErr);
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 				quit= true;
 				close();
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
                 return;
 			}
 			else
@@ -475,11 +504,20 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		}
 		else
 		{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
             DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
             quit= true;
             close();
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
             return;
 		}
 
@@ -487,19 +525,31 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		sleep(waitSleepTime);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//check checksum
 	if(networkMessageReady.getChecksum() != checksum->getSum())
-	//if(1)
 	{
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 		string sErr = "Checksum error, you don't have the same data as the server";
 		//throw runtime_error("Checksum error, you don't have the same data as the server");
         sendTextMessage(sErr,-1);
-		if(Config::getInstance().getBool("NetworkConsistencyChecks"))
-        	{// error message and disconnect only if checked
-				DisplayErrorMessage(sErr);
-				quit= true;
-				close();
-        	}
+
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(Config::getInstance().getBool("NetworkConsistencyChecks")) {
+			// error message and disconnect only if checked
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			DisplayErrorMessage(sErr);
+
+			quit= true;
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			close();
+       	}
         return;
 	}
 

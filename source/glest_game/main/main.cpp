@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
@@ -58,9 +57,10 @@ public:
 	}
 
 	static void handleRuntimeError(const char *msg) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
-
 		Program *program = Program::getInstance();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
+
         if(program && gameInitialized == true) {
 			//SystemFlags::Close();
             program->showMessage(msg);
@@ -68,6 +68,7 @@ public:
         else {
             message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
         }
+        showCursor(true);
         restoreVideoMode(true);
 		//SystemFlags::Close();
         exit(0);
@@ -85,6 +86,7 @@ public:
         }
 
         if(exitApp == true) {
+        	showCursor(true);
             restoreVideoMode(true);
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 			//SystemFlags::Close();
@@ -306,12 +308,13 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		gameInitialized = true;
+
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
         //throw runtime_error("test!");
         //ExceptionHandler::DisplayMessage("test!", false);
 
-		gameInitialized = true;
 		//main loop
 		while(Window::handleEvent()){
 			program->loop();

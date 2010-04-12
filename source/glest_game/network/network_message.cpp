@@ -37,67 +37,69 @@ namespace Glest{ namespace Game{
 
 bool NetworkMessage::peek(Socket* socket, void* data, int dataSize)
 {
-    int ipeekdatalen = socket->getDataToRead();
-
-	if(ipeekdatalen >= dataSize)
-	{
-		if(socket->peek(data, dataSize)!=dataSize)
+	if(socket != NULL) {
+		int ipeekdatalen = socket->getDataToRead();
+		if(ipeekdatalen >= dataSize)
 		{
-            if(socket != NULL && socket->getSocketId() > 0)
-            {
-                throw runtime_error("Error peeking NetworkMessage");
-            }
-            else
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
-            }
+			if(socket->peek(data, dataSize)!=dataSize)
+			{
+				if(socket != NULL && socket->getSocketId() > 0)
+				{
+					throw runtime_error("Error peeking NetworkMessage");
+				}
+				else
+				{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
+			else
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+			}
+			return true;
 		}
 		else
 		{
-		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 		}
-		return true;
-	}
-	else
-	{
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 	}
 	return false;
 }
 
 bool NetworkMessage::receive(Socket* socket, void* data, int dataSize)
 {
-    int ipeekdatalen = socket->getDataToRead();
-
-	if(ipeekdatalen >= dataSize)
-	{
-		if(socket->receive(data, dataSize)!=dataSize)
+	if(socket != NULL) {
+		int ipeekdatalen = socket->getDataToRead();
+		if(ipeekdatalen >= dataSize)
 		{
-            if(socket != NULL && socket->getSocketId() > 0)
-            {
-                throw runtime_error("Error receiving NetworkMessage");
-            }
-            else
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
-            }
+			if(socket->receive(data, dataSize)!=dataSize)
+			{
+				if(socket != NULL && socket->getSocketId() > 0)
+				{
+					throw runtime_error("Error receiving NetworkMessage");
+				}
+				else
+				{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
+				}
+			}
+			else
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+			}
+			return true;
 		}
 		else
 		{
-		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 		}
-		return true;
-	}
-	else
-	{
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 	}
 	return false;
 }
 
 void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const
 {
-	if(socket->send(data, dataSize)!=dataSize)
+	if(socket != NULL && socket->send(data, dataSize)!=dataSize)
 	{
 	    if(socket != NULL && socket->getSocketId() > 0)
 	    {
@@ -105,7 +107,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const
 	    }
 	    else
 	    {
-	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
+	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
 	    }
 	}
 }

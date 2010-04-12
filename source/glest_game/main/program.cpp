@@ -81,7 +81,8 @@ void Program::ShowMessageProgramState::render() {
 void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(msgBox.mouseClick(x,y)) {
+	int button= 1;
+	if(msgBox.mouseClick(x,y,button)) {
 
 	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
@@ -235,29 +236,36 @@ void Program::resize(SizeState sizeState){
 
 void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
+	try {
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		if(cleanupOldState == true) {
+			delete this->programState;
+		}
 
-	if(cleanupOldState == true) {
-		delete this->programState;
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		this->programState= programState;
+		programState->load();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		programState->init();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		updateTimer.reset();
+		updateCameraTimer.reset();
+		fpsTimer.reset();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	}
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	this->programState= programState;
-	programState->load();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	programState->init();
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	updateTimer.reset();
-	updateCameraTimer.reset();
-	fpsTimer.reset();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	catch(const exception &e){
+		//exceptionMessage(e);
+		//throw runtime_error(e.what());
+		this->showMessage(e.what());
+		setState(new Intro(this));
+	}
 }
 
 void Program::exit() {
@@ -425,7 +433,8 @@ void Program::showMessage(const char *msg) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	showCursor(Config::getInstance().getBool("Windowed"));
+	//showCursor(Config::getInstance().getBool("Windowed"));
+    showCursor(false);
 
     //MainWindow *mainWindow= new MainWindow(this);
 	init(this->window,false);
