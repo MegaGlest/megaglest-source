@@ -197,6 +197,7 @@ Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned c
 	bytes[3]= byte3;
 }
 
+
 Ip::Ip(const string& ipString){
 	int offset= 0;
 	int byteIndex= 0;
@@ -244,7 +245,7 @@ static uint32 SockAddrToUint32(struct sockaddr * a)
 // convert a numeric IP address into its string representation
 static void Inet_NtoA(uint32 addr, char * ipbuf)
 {
-   sprintf(ipbuf, "%li.%li.%li.%li", (addr>>24)&0xFF, (addr>>16)&0xFF, (addr>>8)&0xFF, (addr>>0)&0xFF);
+   sprintf(ipbuf, "%d.%d.%d.%d", (addr>>24)&0xFF, (addr>>16)&0xFF, (addr>>8)&0xFF, (addr>>0)&0xFF);
 }
 
 // convert a string represenation of an IP address into its numeric equivalent
@@ -421,7 +422,10 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
             char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
             char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
             char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
-            printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+            //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+			 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
+				broadCastAddress = dstAddrStr;
+			 }
          }
          p = p->ifa_next;
       }
@@ -1340,7 +1344,7 @@ void ServerSocket::stopBroadCastThread() {
 				break;
 			}
 			sleep(100);
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1362,7 +1366,18 @@ void ServerSocket::startBroadCastThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ServerSocket::bind(int port){
+bool ServerSocket::isBroadCastThreadRunning() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool isThreadRunning = (broadCastThread != NULL && broadCastThread->getRunningStatus() == true);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] isThreadRunning = %d\n",__FILE__,__FUNCTION__,__LINE__,isThreadRunning);
+
+	return isThreadRunning;
+}
+
+void ServerSocket::bind(int port)
+{
 	//sockaddr structure
 	sockaddr_in addr;
 	addr.sin_family= AF_INET;
@@ -1380,7 +1395,15 @@ void ServerSocket::listen(int connectionQueueSize){
 	if(err==SOCKET_ERROR){
 		throwException("Error listening socket");
 	}
-	startBroadCastThread();
+
+	if(connectionQueueSize > 0) {
+		if(isBroadCastThreadRunning() == false) {
+			startBroadCastThread();
+		}
+	}
+	else {
+		stopBroadCastThread();
+	}
 }
 
 Socket *ServerSocket::accept(){

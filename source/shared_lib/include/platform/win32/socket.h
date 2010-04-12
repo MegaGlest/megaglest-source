@@ -99,7 +99,6 @@ public:
 
 protected:
 	static void throwException(const string &str);
-
 };
 
 class BroadCastClientSocketThread : public Thread
@@ -124,7 +123,6 @@ public:
     bool getRunningStatus();
 };
 
-
 // =====================================================
 //	class ClientSocket
 // =====================================================
@@ -133,9 +131,8 @@ class ClientSocket: public Socket{
 public:
 	ClientSocket();
 	virtual ~ClientSocket();
-	
+
 	void connect(const Ip &ip, int port);
-	static std::vector<string> discoverServers();
 	static void discoverServers(DiscoveredServersInterface *cb);
 
 	static void stopBroadCastClientThread();
@@ -171,11 +168,9 @@ public:
 // =====================================================
 
 class ServerSocket: public Socket{
-
 public:
 	ServerSocket();
 	virtual ~ServerSocket();
-	
 	void bind(int port);
 	void listen(int connectionQueueSize= SOMAXCONN);
 	Socket *accept();
@@ -185,6 +180,7 @@ protected:
 
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
+	bool isBroadCastThreadRunning();
 
 };
 
