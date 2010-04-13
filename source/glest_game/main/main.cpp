@@ -257,6 +257,7 @@ void MainWindow::setProgram(Program *program) {
 // =====================================================
 // Main
 // =====================================================
+SystemFlags debugger;
 
 int glestMain(int argc, char** argv){
 	SystemFlags::enableNetworkDebugInfo = true;

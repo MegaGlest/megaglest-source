@@ -19,20 +19,56 @@
 #include <stdarg.h>
 #include <time.h>
 
+#ifndef WIN32
+  #include <fcntl.h> // for open()
+#else
+  #include <io.h> // for open()
+#endif
+
+#include "platform_util.h"
+#include "conversion.h"
+
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
 bool SystemFlags::enableDebugText           = false;
 bool SystemFlags::enableNetworkDebugInfo    = false;
-const char * SystemFlags::debugLogFile            = NULL;
+const char * SystemFlags::debugLogFile      = NULL;
 ofstream SystemFlags::fileStream;
+int SystemFlags::lockFile					= -1;
+string SystemFlags::lockfilename			= "";
+
+inline bool acquire_file_lock(int hnd)
+{
+   struct ::flock lock;
+   lock.l_type    = F_WRLCK;
+   lock.l_whence  = SEEK_SET;
+   lock.l_start   = 0;
+   lock.l_len     = 0;
+   return -1 != ::fcntl(hnd, F_SETLK, &lock);
+}
+
+SystemFlags::SystemFlags() {
+
+}
+SystemFlags::~SystemFlags() {
+	SystemFlags::Close();
+}
 
 void SystemFlags::Close() {
+	printf("Closing logfile\n");
+
 	if(fileStream.is_open() == true) {
 		SystemFlags::fileStream.close();
+	}
+	if(SystemFlags::lockfilename != "") {
+		close(SystemFlags::lockFile);
+		remove(SystemFlags::lockfilename.c_str());
+		SystemFlags::lockfilename = "";
 	}
 }
 
@@ -58,8 +94,36 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
     // Either output to a logfile or
     if(SystemFlags::debugLogFile != NULL && SystemFlags::debugLogFile[0] != 0) {
         if(fileStream.is_open() == false) {
-            printf("Opening logfile [%s]\n",SystemFlags::debugLogFile);
-            fileStream.open(SystemFlags::debugLogFile, ios_base::out | ios_base::trunc);
+        	string debugLog = SystemFlags::debugLogFile;
+            printf("Opening logfile [%s]\n",debugLog.c_str());
+
+            const string lock_file_name = "debug.lck";
+            string lockfile = extractDirectoryPathFromFile(debugLog);
+            lockfile += lock_file_name;
+            SystemFlags::lockfilename = lockfile;
+
+
+            //SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+            SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR|S_IWUSR);
+            if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
+            	string newlockfile = lockfile;
+            	int idx = 1;
+            	for(idx = 1; idx <= 100; ++idx) {
+                    newlockfile = lockfile + intToStr(idx);
+                    //SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR|S_IWUSR);
+                    if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
+                    	break;
+                    }
+            	}
+
+            	SystemFlags::lockfilename = newlockfile;
+            	debugLog += intToStr(idx);
+
+            	printf("Opening additional logfile [%s]\n",debugLog.c_str());
+            }
+
+            fileStream.open(debugLog.c_str(), ios_base::out | ios_base::trunc);
         }
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
