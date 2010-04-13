@@ -18,11 +18,11 @@
 #include <cstdio>
 #include <stdarg.h>
 #include <time.h>
+#include <fcntl.h> // for open()
 
-#ifndef WIN32
-  #include <fcntl.h> // for open()
-#else
+#ifdef WIN32
   #include <io.h> // for open()
+  #include <sys/stat.h> // for open()
 #endif
 
 #include "platform_util.h"
@@ -44,12 +44,17 @@ string SystemFlags::lockfilename			= "";
 
 inline bool acquire_file_lock(int hnd)
 {
+#ifndef WIN32
    struct ::flock lock;
    lock.l_type    = F_WRLCK;
    lock.l_whence  = SEEK_SET;
    lock.l_start   = 0;
    lock.l_len     = 0;
    return -1 != ::fcntl(hnd, F_SETLK, &lock);
+#else
+   HANDLE hFile = (HANDLE)_get_osfhandle(hnd);
+   return true == ::LockFile(hFile, 0, 0, 0, -0x10000);
+#endif
 }
 
 SystemFlags::SystemFlags() {
@@ -66,7 +71,7 @@ void SystemFlags::Close() {
 		SystemFlags::fileStream.close();
 	}
 	if(SystemFlags::lockfilename != "") {
-		close(SystemFlags::lockFile);
+		_close(SystemFlags::lockFile);
 		remove(SystemFlags::lockfilename.c_str());
 		SystemFlags::lockfilename = "";
 	}
@@ -104,14 +109,14 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
 
 
             //SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-            SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR|S_IWUSR);
+            SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
             if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
             	string newlockfile = lockfile;
             	int idx = 1;
             	for(idx = 1; idx <= 100; ++idx) {
                     newlockfile = lockfile + intToStr(idx);
                     //SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR|S_IWUSR);
+                    SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
                     if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
                     	break;
                     }
