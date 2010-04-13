@@ -22,7 +22,6 @@
   #include <sys/filio.h>
 #endif
 
-#include <net/if.h>
 
 #include "conversion.h"
 #include "util.h"
@@ -34,7 +33,7 @@
   #include <windows.h>
   #include <winsock.h>
   #include <iphlpapi.h>
-  //#include <strstream>
+  #include <strstream>
 
 #else
 
@@ -43,7 +42,7 @@
   #include <sys/socket.h>
   #include <netdb.h>
   #include <netinet/in.h>
-  //#include <net/if.h>
+  #include <net/if.h>
   //#include <sys/ioctl.h>
 
 #endif
@@ -164,7 +163,7 @@ namespace Shared{ namespace Platform{
 	// must copy the data from this function before you call it again.  It
 	// follows that this function is also not thread-safe.
 	const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,
-									   int nErrorID /* = 0 */)
+									   int nErrorID = 0 )
 	{
 		// Build basic error string
 		static char acErrorBuffer[256];
@@ -232,12 +231,12 @@ int getLastSocketError() {
 #endif
 }
 
-char * getLastSocketErrorText(int *errNumber=NULL) {
+const char * getLastSocketErrorText(int *errNumber=NULL) {
 	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
 #ifndef WIN32
 	return strerror(errId);
 #else
-	return WSAGetLastErrorMessage(errId);
+	return WSAGetLastErrorMessage("",errId);
 #endif
 }
 
@@ -1680,8 +1679,8 @@ void BroadCastSocketThread::execute() {
     char myhostname[100];       // hostname of local machine
     char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
     struct hostent* myhostent;
-    char * ptr;                 // some transient vars
-    int len,i;
+    //char * ptr;                 // some transient vars
+    //int len,i;
 
     /* get my host name */
     gethostname(myhostname,100);

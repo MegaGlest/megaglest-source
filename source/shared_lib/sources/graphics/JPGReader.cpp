@@ -147,7 +147,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 			memcpy(pixels+location,row_pointer[0],cinfo.output_width*cinfo.num_components);
 		} else {
 			int r,g,b,a,l;
-			for (int xPic = 0, xFile = 0; xPic < cinfo.output_width*picComponents; xPic+= picComponents, xFile+= cinfo.num_components) {
+			for (unsigned int xPic = 0, xFile = 0; xPic < cinfo.output_width*picComponents; xPic+= picComponents, xFile+= cinfo.num_components) {
 				switch(cinfo.num_components) {
 					case 3:
 						r = row_pointer[0][xFile];

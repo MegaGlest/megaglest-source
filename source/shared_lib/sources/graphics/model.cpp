@@ -177,7 +177,7 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager){
 	readBytes = fread(vertices, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(textures[mtDiffuse]!=NULL){
-		for(int i=0; i<meshHeader.texCoordFrameCount; ++i){
+		for(unsigned int i=0; i<meshHeader.texCoordFrameCount; ++i){
 			readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 		}
 	}
@@ -278,11 +278,11 @@ void Mesh::save(const string &dir, FILE *f){
 void Mesh::computeTangents(){
 	delete [] tangents;
 	tangents= new Vec3f[vertexCount];
-	for(int i=0; i<vertexCount; ++i){
+	for(unsigned int i=0; i<vertexCount; ++i){
 		tangents[i]= Vec3f(0.f);
 	}
 
-	for(int i=0; i<indexCount; i+=3){
+	for(unsigned int i=0; i<indexCount; i+=3){
 		for(int j=0; j<3; ++j){
 			uint32 i0= indices[i+j];
 			uint32 i1= indices[i+(j+1)%3];
@@ -306,7 +306,7 @@ void Mesh::computeTangents(){
 		}
 	}
 
-	for(int i=0; i<vertexCount; ++i){
+	for(unsigned int i=0; i<vertexCount; ++i){
 		/*Vec3f binormal= normals[i].cross(tangents[i]);
 		tangents[i]+= binormal.cross(normals[i]);*/
 		tangents[i].normalize();
@@ -332,19 +332,19 @@ Model::~Model(){
 // ==================== data ====================
 
 void Model::buildInterpolationData() const{
-	for(int i=0; i<meshCount; ++i){
+	for(unsigned int i=0; i<meshCount; ++i){
 		meshes[i].buildInterpolationData();
 	}
 }
 
 void Model::updateInterpolationData(float t, bool cycle) const{
-	for(int i=0; i<meshCount; ++i){
+	for(unsigned int i=0; i<meshCount; ++i){
 		meshes[i].updateInterpolationData(t, cycle);
 	}
 }
 
 void Model::updateInterpolationVertices(float t, bool cycle) const{
-	for(int i=0; i<meshCount; ++i){
+	for(unsigned int i=0; i<meshCount; ++i){
 		meshes[i].updateInterpolationVertices(t, cycle);
 	}
 }

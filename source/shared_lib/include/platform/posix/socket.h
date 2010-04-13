@@ -14,13 +14,8 @@
 
 #include <string>
 
-#include <unistd.h>
 #include <errno.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <fcntl.h>
 #include <map>
 #include <vector>
@@ -29,11 +24,14 @@
 using std::string;
 
 #ifdef WIN32
-	#include <winsock2.h>
+	#include <winsock.h>
 	typedef SOCKET PLATFORM_SOCKET;
-
-	const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,int nErrorID = 0);
 #else
+	#include <unistd.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <netdb.h>
 
 	typedef int PLATFORM_SOCKET;
 
@@ -88,7 +86,7 @@ protected:
 
 protected:
 	PLATFORM_SOCKET sock;
-	long lastDebugEvent;
+	time_t lastDebugEvent;
 	static int broadcast_portno;
 
 public:

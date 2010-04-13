@@ -98,7 +98,7 @@ int ServerInterface::getConnectedSlotCount(){
 
 void ServerInterface::update()
 {
-    std::map<int,bool> socketTriggeredList;
+    std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 	//update all slots
 	for(int i= 0; i < GameConstants::maxPlayers; ++i)
 	{
