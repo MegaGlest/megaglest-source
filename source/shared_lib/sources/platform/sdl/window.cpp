@@ -346,8 +346,8 @@ void Window::toggleFullscreen() {
 		ShowWindow(handle, SW_RESTORE);
 	}
 
-	SDL_Surface *sf = SDL_GetVideoSurface();
-	SDL_SetVideoMode(0, 0, 0, sf->flags ^SDL_FULLSCREEN);
+	//SDL_Surface *sf = SDL_GetVideoSurface();
+	//SDL_SetVideoMode(0, 0, 0, sf->flags ^SDL_FULLSCREEN);
 	
 #else
 	SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
