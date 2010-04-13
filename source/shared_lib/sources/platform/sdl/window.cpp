@@ -405,7 +405,8 @@ MouseButton Window::getMouseButton(int sdlButton) {
         case SDL_BUTTON_WHEELDOWN:
             return mbWheelDown;
 		default:
-			throw std::runtime_error("Mouse Button > 3 not handled.");
+			//throw std::runtime_error("Mouse Button > 3 not handled.");
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Mouse Button [%d] not handled.\n",__FILE__,__FUNCTION__,__LINE__,sdlButton);
 	}
 }
 
