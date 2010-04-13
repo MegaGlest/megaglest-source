@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -69,7 +69,7 @@ Intro::Intro(Program *program):
 	timer=0;
 
 	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), 4000));
-	texts.push_back(Text(glestVersionString, Vec2i(w/2+64, h/2-32), 4000, coreData.getMenuFontNormal()));
+	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), 4000, coreData.getMenuFontNormal()));
 	texts.push_back(Text("www.glest.org", Vec2i(w/2, h/2), 12000, coreData.getMenuFontVeryBig()));
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
