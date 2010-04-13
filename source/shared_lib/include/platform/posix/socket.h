@@ -28,11 +28,22 @@
 
 using std::string;
 
+#ifdef WIN32
+	#include <winsock2.h>
+	typedef SOCKET PLATFORM_SOCKET;
+
+	const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,int nErrorID = 0);
+#else
+
+	typedef int PLATFORM_SOCKET;
+
+#endif
+
 namespace Shared{ namespace Platform{
 
 //
 // This interface describes the methods a callback object must implement
-// when signalled with detected servers
+// when signaled with detected servers
 //
 class DiscoveredServersInterface {
 public:
@@ -42,8 +53,7 @@ public:
 // =====================================================
 //	class IP
 // =====================================================
-
-class Ip{
+class Ip {
 private:
 	unsigned char bytes[4];
 
@@ -61,27 +71,42 @@ public:
 // =====================================================
 
 class Socket {
+
+#ifdef WIN32
+
+private:
+	class SocketManager{
+	public:
+		SocketManager();
+		~SocketManager();
+	};
+
 protected:
-	int sock;
+	static SocketManager socketManager;
+
+#endif
+
+protected:
+	PLATFORM_SOCKET sock;
 	long lastDebugEvent;
 	static int broadcast_portno;
 
 public:
-	Socket(int sock);
+	Socket(PLATFORM_SOCKET sock);
 	Socket();
 	virtual ~Socket();
 
-	static int getBroadCastPort() { return broadcast_portno; }
+	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }
 	static std::vector<std::string> getLocalIPAddressList();
 
     // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
-    static bool hasDataToRead(std::map<int,bool> &socketTriggeredList);
-    static bool hasDataToRead(int socket);
+    static bool hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
+    static bool hasDataToRead(PLATFORM_SOCKET socket);
     bool hasDataToRead();
     void disconnectSocket();
 
-    int getSocketId() const { return sock; }
+    PLATFORM_SOCKET getSocketId() const { return sock; }
 
 	int getDataToRead();
 	int send(const void *data, int dataSize);
@@ -89,7 +114,7 @@ public:
 	int peek(void *data, int dataSize);
 
 	void setBlock(bool block);
-	static void setBlock(bool block, int socket);
+	static void setBlock(bool block, PLATFORM_SOCKET socket);
 
 	bool isReadable();
 	bool isWritable(bool waitOnDelayedResponse);
@@ -97,9 +122,10 @@ public:
 
 	static string getHostName();
 	static string getIp();
+	bool isSocketValid(PLATFORM_SOCKET *validateSocket=NULL) const;
 
 protected:
-	static void throwException(const string &str);
+	static void throwException(string str);
 };
 
 class BroadCastClientSocketThread : public Thread
@@ -127,8 +153,7 @@ public:
 // =====================================================
 //	class ClientSocket
 // =====================================================
-
-class ClientSocket: public Socket{
+class ClientSocket: public Socket {
 public:
 	ClientSocket();
 	virtual ~ClientSocket();
@@ -167,7 +192,6 @@ public:
 // =====================================================
 //	class ServerSocket
 // =====================================================
-
 class ServerSocket: public Socket{
 public:
 	ServerSocket();
