@@ -71,7 +71,11 @@ void SystemFlags::Close() {
 		SystemFlags::fileStream.close();
 	}
 	if(SystemFlags::lockfilename != "") {
+#ifndef WIN32
+		close(SystemFlags::lockFile);
+#else
 		_close(SystemFlags::lockFile);
+#endif
 		remove(SystemFlags::lockfilename.c_str());
 		SystemFlags::lockfilename = "";
 	}
@@ -107,16 +111,23 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
             lockfile += lock_file_name;
             SystemFlags::lockfilename = lockfile;
 
-
+#ifndef WIN32
             //SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+            SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#else
             SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#endif
             if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
             	string newlockfile = lockfile;
             	int idx = 1;
             	for(idx = 1; idx <= 100; ++idx) {
                     newlockfile = lockfile + intToStr(idx);
                     //SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+#ifndef WIN32
+                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#else
                     SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#endif
                     if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
                     	break;
                     }
