@@ -316,7 +316,15 @@ when they are issued a command"/>
 				<variable-name value="ConsoleMaxLines"/>
 				<description value=""/>
 				<default value="10"/>
-				<min value="0"/>
+				<min value="1"/>
+				<max value="50"/>
+			</field>
+			<field type="IntRange">
+				<name value="Maximum stored console lines"/>
+				<variable-name value="ConsoleMaxLinesStored"/>
+				<description value=""/>
+				<default value="20"/>
+				<min value="1"/>
 				<max value="50"/>
 			</field>
 			<field type="IntRange">
