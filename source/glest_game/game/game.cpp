@@ -57,6 +57,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	gameOver= false;
 	renderNetworkStatus= false;
 	speed= sNormal;
+	showFullConsole= false;
 }
 
 Game::~Game(){
@@ -236,6 +237,7 @@ void Game::init()
 	world.init(this, gameSettings.getDefaultUnits());
 	gui.init(this);
 	chatManager.init(&console, world.getThisTeamIndex());
+	console.clearStoredLines();
 	const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
 	gameCamera.init(map->getW(), map->getH());
 	gameCamera.setPos(Vec2f(v.x, v.y));
@@ -597,6 +599,9 @@ void Game::keyDown(char key){
 		if(key=='N'){
 			renderNetworkStatus= true;
 		}
+		else if(key=='M'){
+			showFullConsole= true;
+		}
 		else if(key=='E'){
 			for(int i=0; i<100; ++i){
 				string path= "screens/screen" + intToStr(i) + ".tga";
@@ -725,6 +730,9 @@ void Game::keyUp(char key){
 		switch(key){
 		case 'N':
 			renderNetworkStatus= false;
+			break;
+		case 'M':
+			showFullConsole= false;
 			break;
 		case 'A':
 		case 'D':
@@ -889,7 +897,7 @@ void Game::render2d(){
     //resource info
 	if(!config.getBool("PhotoMode")){
         renderer.renderResourceStatus();
-		renderer.renderConsole(&console);
+		renderer.renderConsole(&console,showFullConsole);
     }
 
     //2d mouse

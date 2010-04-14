@@ -68,6 +68,7 @@ private:
 	bool paused;
 	bool gameOver;
 	bool renderNetworkStatus;
+	bool showFullConsole;
 	float scrollSpeed;
 	Speed speed;
 	GraphicMessageBox mainMessageBox;

@@ -688,7 +688,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
-void Renderer::renderConsole(const Console *console){
+void Renderer::renderConsole(const Console *console,const bool showFullConsole){
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 	Vec4f fontColor;
@@ -700,15 +700,25 @@ void Renderer::renderConsole(const Console *console){
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 	}
-
-	for(int i=0; i<console->getLineCount(); ++i){
-		renderTextShadow(
-			console->getLine(i),
-			CoreData::getInstance().getConsoleFont(),
-			fontColor,
-			20, i*20+20);
-	}
 	
+	if(showFullConsole){
+		for(int i=0; i<console->getStoredLineCount(); ++i){
+			renderTextShadow(
+				console->getStoredLine(i),
+				CoreData::getInstance().getConsoleFont(),
+				fontColor,
+				20, i*20+20);
+		}
+	}
+	else{
+		for(int i=0; i<console->getLineCount(); ++i){
+			renderTextShadow(
+				console->getLine(i),
+				CoreData::getInstance().getConsoleFont(),
+				fontColor,
+				20, i*20+20);
+		}
+	}
 	glPopAttrib();
 }
 

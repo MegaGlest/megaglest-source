@@ -42,21 +42,25 @@ public:
 private:
 	float timeElapsed; 
 	Lines lines;
+	Lines storedLines;
 
 	//this should be deleted from here someday
 	bool won, lost;
 
 	//config
 	int maxLines;
+	int maxStoredLines;
 	float timeout;
 
 public:
 	Console();
 	
+	int getStoredLineCount() const		{return storedLines.size();}
 	int getLineCount() const		{return lines.size();}
 	string getLine(int i) const		{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].first;}
+	string getStoredLine(int i) const		{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].first;}
 
-
+	void clearStoredLines();
 	void addStdMessage(const string &s);
 	void addLine(string line, bool playSound= false);
 	void update();

@@ -100,7 +100,11 @@ void UnitUpdater::updateUnit(Unit *unit){
 
 			//play water sound
 			if(map->getCell(unit->getPos())->getHeight()<map->getWaterLevel() && unit->getCurrField()==fLand){
-				soundRenderer.playFx(CoreData::getInstance().getWaterSound());
+				soundRenderer.playFx(
+					CoreData::getInstance().getWaterSound(),
+					unit->getCurrVector(),
+					gameCamera->getPos()
+				);
 			}
 		}
 	}

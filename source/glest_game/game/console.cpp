@@ -31,6 +31,7 @@ namespace Glest{ namespace Game{
 Console::Console(){
 	//config
 	maxLines= Config::getInstance().getInt("ConsoleMaxLines");
+	maxStoredLines= Config::getInstance().getInt("ConsoleMaxLinesStored");
 	timeout= Config::getInstance().getInt("ConsoleTimeout");
 
 	timeElapsed= 0.0f;
@@ -50,12 +51,22 @@ void Console::addLine(string line, bool playSound){
 		if(lines.size()>maxLines){
 			lines.pop_back();
 		}
+		storedLines.insert(storedLines.begin(), StringTimePair(line, timeElapsed));
+		if(storedLines.size()>maxStoredLines){
+			storedLines.pop_back();
+		}
 	}
 	catch(const exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(szBuf);
 	}
+}
+
+void Console::clearStoredLines(){
+	while(!storedLines.empty()){
+		storedLines.pop_back();
+    }   
 }
 
 void Console::update(){
