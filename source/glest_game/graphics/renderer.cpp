@@ -180,6 +180,9 @@ Renderer::~Renderer(){
 		delete particleManager[i];
 		delete fontManager[i];
 	}
+
+	this->menu = NULL;
+	this->game = NULL;
 }
 
 Renderer &Renderer::getInstance(){
@@ -566,7 +569,22 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade){
     glPopAttrib();
 }
 
-void Renderer::renderMouse3d(){
+void Renderer::renderMouse3d() {
+	if(game == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
+	else if(game->getGui() == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui() == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
+	else if(game->getGui()->getMouse3d() == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 
 	const Gui *gui= game->getGui();
 	const Mouse3d *mouse3d= gui->getMouse3d();
@@ -578,7 +596,6 @@ void Renderer::renderMouse3d(){
 	assertGl();
 
 	if((mouse3d->isEnabled() || gui->isPlacingBuilding()) && gui->isValidPosObjWorld()){
-
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
@@ -589,6 +606,13 @@ void Renderer::renderMouse3d(){
 		glDepthMask(GL_FALSE);
 
 		Vec2i pos= gui->getPosObjWorld();
+
+		if(map == NULL) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",__FILE__,__FUNCTION__,__LINE__);
+			throw runtime_error(szBuf);
+		}
+
 		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 
 		if(gui->isPlacingBuilding()){
@@ -689,6 +713,12 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsole(const Console *console,const bool showFullConsole){
+
+	if(console == NULL) {
+		throw runtime_error("console == NULL");
+	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 	Vec4f fontColor;
@@ -700,7 +730,6 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole){
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 	}
-	
 	if(showFullConsole){
 		for(int i=0; i<console->getStoredLineCount(); ++i){
 			renderTextShadow(
@@ -709,6 +738,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole){
 				fontColor,
 				20, i*20+20);
 		}
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else{
 		for(int i=0; i<console->getLineCount(); ++i){
@@ -868,18 +898,31 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &c
 }
 
 void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(font == NULL) {
+		throw runtime_error("font == NULL");
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	glPushAttrib(GL_CURRENT_BIT);
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	if(color.w<0.5)
 	{
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		textRenderer->begin(font);
 		glColor3f(0.0f, 0.0f, 0.0f);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
 	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glColor3f(color.x,color.y,color.z);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	textRenderer->render(text, pos.x, pos.y);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	textRenderer->end();
 
 	glPopAttrib();
