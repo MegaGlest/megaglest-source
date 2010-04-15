@@ -590,7 +590,7 @@ void Game::keyDown(char key){
 	Lang &lang= Lang::getInstance();
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 
-	//send ley to the chat manager
+	//send key to the chat manager
 	chatManager.keyDown(key);
 
 	if(!chatManager.getEditEnabled()){
@@ -726,7 +726,11 @@ void Game::keyDown(char key){
 
 void Game::keyUp(char key){
 
-	if(!chatManager.getEditEnabled()){
+	if(chatManager.getEditEnabled()){
+		//send key to the chat manager
+		chatManager.keyUp(key);
+	}
+	else{
 		switch(key){
 		case 'N':
 			renderNetworkStatus= false;

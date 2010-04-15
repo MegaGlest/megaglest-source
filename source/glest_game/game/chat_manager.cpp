@@ -44,6 +44,27 @@ void ChatManager::init(Console* console, int thisTeamIndex){
 	this->thisTeamIndex= thisTeamIndex;
 }
 
+void ChatManager::keyUp(char key){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	
+	try {
+		if(editEnabled){
+			if(key==vkEscape)
+			{
+				text.clear();
+				editEnabled= false;
+			}
+		}
+	}
+	catch(const exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		throw runtime_error(szBuf);
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+
 void ChatManager::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -83,6 +104,7 @@ void ChatManager::keyDown(char key){
 				text.erase(text.end() -1);
 			}
 		}
+		
 	}
 	catch(const exception &ex) {
 		char szBuf[1024]="";
