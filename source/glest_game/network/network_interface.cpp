@@ -63,6 +63,9 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() iPeek = %d, messageType = %d\n",__FILE__,__FUNCTION__,iPeek,messageType);
         }
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] PEEK WARNING, socket->getDataToRead() messageType = %d, dataSize = %d\n",__FILE__,__FUNCTION__,messageType,dataSize);
+		}
 
         //sanity check new message type
         if(messageType<0 || messageType>=nmtCount){

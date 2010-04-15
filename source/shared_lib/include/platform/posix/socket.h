@@ -120,7 +120,8 @@ public:
 
 	static string getHostName();
 	static string getIp();
-	bool isSocketValid(PLATFORM_SOCKET *validateSocket=NULL) const;
+	bool isSocketValid() const;
+	static bool isSocketValid(const PLATFORM_SOCKET *validateSocket);
 
 protected:
 	static void throwException(string str);

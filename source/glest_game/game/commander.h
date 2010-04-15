@@ -17,12 +17,14 @@
 #include "vec.h"
 #include "selection.h"
 #include "command_type.h"
+#include "platform_util.h"
 
 using std::vector;
 
 namespace Glest{ namespace Game{
 
 using Shared::Graphics::Vec2i;
+using Shared::Platform::Chrono;
 
 class World;
 class Unit;
@@ -42,6 +44,7 @@ private:
 
 private:
     World *world;
+	Chrono perfTimer;
 
 public:
     void init(World *world);

@@ -77,6 +77,7 @@ private:
 	ParticleSystem *weatherParticleSystem;
 	GameSettings gameSettings;
 	Vec2i lastMousePos;
+	time_t lastRenderLog2d;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);

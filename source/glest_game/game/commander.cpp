@@ -234,13 +234,17 @@ void Commander::updateNetwork(){
 
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
+		perfTimer.start();
 		//update the keyframe
 		gameNetworkInterface->updateKeyframe(world->getFrameCount());
+		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
 
+		perfTimer.start();
 		//give pending commands
 		for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
 			giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis());
 		gameNetworkInterface->clearPendingCommands();
 	}
 }
@@ -254,7 +258,6 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
                 case ncstRotateUnit: {
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
 
-                    //!!!
                     int unitTypeId = networkCommand->getUnitId();
                     int factionIndex = networkCommand->getUnitTypeId();
                     int rotateAmount = networkCommand->getTargetId();

@@ -260,8 +260,9 @@ void MainWindow::setProgram(Program *program) {
 SystemFlags debugger;
 
 int glestMain(int argc, char** argv){
-	SystemFlags::enableNetworkDebugInfo = true;
-    SystemFlags::enableDebugText = true;
+	SystemFlags::enableNetworkDebugInfo		= true;
+    SystemFlags::enableDebugText			= true;
+	SystemFlags::enablePerformanceDebugInfo	= false;
 
 	MainWindow *mainWindow= NULL;
 	Program *program= NULL;
@@ -273,13 +274,14 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","0");
-		SystemFlags::enableDebugText = config.getBool("DebugMode","0");
+		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","false");
+		SystemFlags::enableDebugText = config.getBool("DebugMode","false");
 		debugLogFile = config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
             debugLogFile = getGameReadWritePath() + debugLogFile;
         }
 		SystemFlags::debugLogFile = debugLogFile.c_str();
+		SystemFlags::enablePerformanceDebugInfo	= config.getBool("DebugPerformance","false");
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		

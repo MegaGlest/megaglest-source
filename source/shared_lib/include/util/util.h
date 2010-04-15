@@ -34,11 +34,13 @@ public:
 
     enum DebugType {
         debugSystem,
-        debugNetwork
+        debugNetwork,
+		debugPerformance
     };
 
     static bool enableDebugText;
     static bool enableNetworkDebugInfo;
+	static bool enablePerformanceDebugInfo;
     static const char *debugLogFile;
 
     static void OutputDebug(DebugType type, const char *fmt, ...);

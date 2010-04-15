@@ -36,7 +36,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
-const int ClientInterface::waitSleepTime= 50;
+const int ClientInterface::waitSleepTime= 10;
 
 ClientInterface::ClientInterface(){
 	clientSocket= NULL;
@@ -353,15 +353,23 @@ void ClientInterface::updateKeyframe(int frameCount)
 		{
 			case nmtCommandList:
 			    {
+				Chrono chrono;
+				chrono.start();
+
+				int waitCount = 0;
 				//make sure we read the message
 				NetworkMessageCommandList networkMessageCommandList;
-				while(!receiveMessage(&networkMessageCommandList))
+				while(receiveMessage(&networkMessageCommandList) == false)
 				{
 					sleep(waitSleepTime);
+					waitCount++;
 				}
 
+				SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %d msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+
+				chrono.start();
 				//check that we are in the right frame
-				if(networkMessageCommandList.getFrameCount()!=frameCount)
+				if(networkMessageCommandList.getFrameCount() != frameCount)
 				{
 				    string sErr = "Network synchronization error, frame counts do not match";
 					//throw runtime_error("Network synchronization error, frame counts do not match");
@@ -377,6 +385,8 @@ void ClientInterface::updateKeyframe(int frameCount)
 				{
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				done= true;
 			}
@@ -574,6 +584,7 @@ void ClientInterface::waitForMessage()
 	Chrono chrono;
 	chrono.start();
 
+	int waitLoopCount = 0;
 	while(getNextMessageType(true) == nmtInvalid)
 	{
 		if(!isConnected())
@@ -597,7 +608,10 @@ void ClientInterface::waitForMessage()
 		}
 
 		sleep(waitSleepTime);
+		waitLoopCount++;
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %d msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
 }
 
 void ClientInterface::quitGame(bool userManuallyQuit)

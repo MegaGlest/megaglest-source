@@ -650,17 +650,21 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	return ipList;
 }
 
-bool Socket::isSocketValid(PLATFORM_SOCKET *validateSocket) const {
+bool Socket::isSocketValid() const {
+	return Socket::isSocketValid(&sock);
+}
+
+bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 #ifdef WIN32
 	if(validateSocket == NULL) {
-		return (sock != INVALID_SOCKET);
+		return false;
 	}
 	else {
 		return (*validateSocket != INVALID_SOCKET);
 	}
 #else
 	if(validateSocket == NULL) {
-		return (sock > 0);
+		return false;
 	}
 	else {
 		return (*validateSocket > 0);
@@ -726,7 +730,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             itermap != socketTriggeredList.end(); itermap++)
         {
         	PLATFORM_SOCKET socket = itermap->first;
-            if(socket > 0)
+            if(Socket::isSocketValid(&socket) == true)
             {
                 FD_SET(socket, &rfds);
                 imaxsocket = max(socket,imaxsocket);
@@ -784,7 +788,7 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
 {
     bool bResult = false;
 
-    if(socket > 0)
+    if(Socket::isSocketValid(&socket) == true)
     {
         fd_set rfds;
         struct timeval tv;
@@ -1452,6 +1456,15 @@ void BroadCastClientSocketThread::execute() {
 			setRunningStatus(false);
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
 		}
+
+#ifndef WIN32
+        ::close(bcfd);
+        bcfd = INVALID_SOCKET;
+#else
+        ::closesocket(bcfd);
+        bcfd = -1;
+#endif
+
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1725,7 +1738,7 @@ void BroadCastSocketThread::execute() {
 	for( pn = 1; ; pn++ )
 	{
 		for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
-			if( bcfd[idx] > 0  ) {
+			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
 					sprintf(buff,"%s",myhostname);
@@ -1776,6 +1789,18 @@ void BroadCastSocketThread::execute() {
 		if(getQuitStatus() == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			break;
+		}
+	}
+
+	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+		if( Socket::isSocketValid(&bcfd[idx]) == true ) {
+#ifndef WIN32
+        ::close(bcfd[idx]);
+        bcfd[idx] = INVALID_SOCKET;
+#else
+        ::closesocket(bcfd[idx]);
+        bcfd[idx] = -1;
+#endif
 		}
 	}
 

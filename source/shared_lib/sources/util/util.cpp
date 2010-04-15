@@ -35,12 +35,14 @@ using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
-bool SystemFlags::enableDebugText           = false;
-bool SystemFlags::enableNetworkDebugInfo    = false;
-const char * SystemFlags::debugLogFile      = NULL;
+bool SystemFlags::enableDebugText				= false;
+bool SystemFlags::enableNetworkDebugInfo		= false;
+bool SystemFlags::enablePerformanceDebugInfo	= false;
+
+const char * SystemFlags::debugLogFile			= NULL;
 ofstream SystemFlags::fileStream;
-int SystemFlags::lockFile					= -1;
-string SystemFlags::lockfilename			= "";
+int SystemFlags::lockFile						= -1;
+string SystemFlags::lockfilename				= "";
 
 inline bool acquire_file_lock(int hnd)
 {
@@ -82,8 +84,9 @@ void SystemFlags::Close() {
 }
 
 void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
-    if((type == debugSystem && SystemFlags::enableDebugText == false) ||
-       (type == debugNetwork && SystemFlags::enableNetworkDebugInfo == false)) {
+    if((type == debugSystem		 && SystemFlags::enableDebugText == false) ||
+       (type == debugNetwork	 && SystemFlags::enableNetworkDebugInfo == false ||
+	    type == debugPerformance && SystemFlags::enablePerformanceDebugInfo == false)) {
         return;
     }
 

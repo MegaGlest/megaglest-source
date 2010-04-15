@@ -848,14 +848,14 @@ void Game::render2d(){
 	renderer.renderChatManager(&chatManager);
 
     //debug info
-	if(config.getBool("DebugMode")){
-        string str;
-
-        str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
+	
+    string str;
+	if(config.getBool("DebugMode") || difftime(time(NULL),lastRenderLog2d) >= 1){
+		str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 		str+= "PosObjWord: " + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
-        str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
-        str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
-        str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
+		str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
+		str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
+		str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
 		str+= "Time: "+floatToStr(world.getTimeFlow()->getTime())+"\n";
 		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
@@ -872,15 +872,17 @@ void Game::render2d(){
 		str+= "Visible quad area: " + floatToStr(visibleQuad.area()) +"\n";
 
 		// resources
-        for(int i=0; i<world.getFactionCount(); ++i){
-            str+= "Player "+intToStr(i)+" res: ";
-            for(int j=0; j<world.getTechTree()->getResourceTypeCount(); ++j){
-                str+= intToStr(world.getFaction(i)->getResource(j)->getAmount());
-                str+=" ";
-            }
-            str+="\n";
-        }
+		for(int i=0; i<world.getFactionCount(); ++i){
+			str+= "Player "+intToStr(i)+" res: ";
+			for(int j=0; j<world.getTechTree()->getResourceTypeCount(); ++j){
+				str+= intToStr(world.getFaction(i)->getResource(j)->getAmount());
+				str+=" ";
+			}
+			str+="\n";
+		}
+	}
 
+	if(config.getBool("DebugMode")){
 		renderer.renderText(
 			str, coreData.getMenuFontNormal(),
 			Vec3f(1.0f), 10, 500, false);
@@ -902,6 +904,11 @@ void Game::render2d(){
 
     //2d mouse
 	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
+
+	if(difftime(time(NULL),lastRenderLog2d) >= 1) {
+		lastRenderLog2d = time(NULL);
+		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
+	}
 }
 
 

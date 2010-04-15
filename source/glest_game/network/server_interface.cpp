@@ -227,6 +227,8 @@ void ServerInterface::update()
 }
 
 void ServerInterface::updateKeyframe(int frameCount){
+	Chrono chrono;
+	chrono.start();
 
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
 
@@ -241,8 +243,12 @@ void ServerInterface::updateKeyframe(int frameCount){
 		}
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] build command list took %d msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
+
 	//broadcast commands
 	broadcastMessage(&networkMessageCommandList);
+
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] broadcastMessage took %d msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
 }
 
 void ServerInterface::waitUntilReady(Checksum* checksum){
