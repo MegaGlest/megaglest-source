@@ -318,6 +318,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\main\intro.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\game\script_manager.cpp"
 				>
 			</File>
@@ -435,10 +439,6 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\main\intro.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\main\intro.h"
 				>
 			</File>
 			<File
