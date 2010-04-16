@@ -356,9 +356,6 @@ void Gui::hotKey(char key){
 	else if(key=='S'){
 		clickCommonCommand(ccStop);
 	}
-	else if(key=='M'){
-		clickCommonCommand(ccMove);
-	}
 }
 
 void Gui::switchToNextDisplayColor(){
