@@ -23,7 +23,10 @@ find tutorials/ \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 popd
 
 pushd $RELEASEDIR
-find -name "\.svn" -exec rm -rf {} \;
+
+# remove svn files
+find -name "\.svn" -type d -depth -exec rm -rf {} \;
+
 popd
 
 pushd release
