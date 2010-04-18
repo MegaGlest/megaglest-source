@@ -43,6 +43,8 @@ namespace Glest{ namespace Game{
 
 const float Mouse3d::fadeSpeed= 1.f/50.f;
 
+static const int queueCommandKey = vkShift;
+
 Mouse3d::Mouse3d(){
 	enabled= false;
 	rot= 0;
@@ -371,12 +373,12 @@ void Gui::onSelectionChanged(){
 
 void Gui::giveOneClickOrders(){
 	CommandResult result;
-	bool shiftDown = isKeyDown(vkShift);
+	bool queueKeyDown = isKeyDown(queueCommandKey);
 	if(selection.isUniform()){
-		result= commander->tryGiveCommand(&selection, activeCommandType, Vec2i(0), (Unit*)NULL,  shiftDown);
+		result= commander->tryGiveCommand(&selection, activeCommandType, Vec2i(0), (Unit*)NULL,  queueKeyDown);
 	}
 	else{
-		result= commander->tryGiveCommand(&selection, activeCommandClass, Vec2i(0), (Unit*)NULL, shiftDown);
+		result= commander->tryGiveCommand(&selection, activeCommandClass, Vec2i(0), (Unit*)NULL, queueKeyDown);
 	}
 	addOrdersResultToConsole(activeCommandClass, result);
     activeCommandType= NULL;
@@ -393,9 +395,9 @@ void Gui::giveDefaultOrders(int x, int y){
 		return;
 	}
 
-	bool shiftDown = isKeyDown(vkShift);
+	bool queueKeyDown = isKeyDown(queueCommandKey);
 	//give order
-	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit, shiftDown);
+	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
@@ -426,20 +428,20 @@ void Gui::giveTwoClickOrders(int x, int y){
 		return;
 	}
 
-	bool shiftDown = isKeyDown(vkShift);
+	bool queueKeyDown = isKeyDown(queueCommandKey);
     //give orders to the units of this faction
 	if(!selectingBuilding){
 		if(selection.isUniform()){
-			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit,shiftDown);
+			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit,queueKeyDown);
 		}
 		else{
-			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit,shiftDown);
+			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit,queueKeyDown);
         	}
 	}
 	else{
 		//selecting building
 		result= commander->tryGiveCommand(selection.getFrontUnit(), 
-			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing,shiftDown);
+			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing,queueKeyDown);
     }
 
 	//graphical result
