@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -359,8 +359,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	if(ct == NULL) {
 
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Can not find command type with id = %d in unit = %d [%s]. Game out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->getCommandTypeId(),unit->getId(), unit->getDesc().c_str());
+	    sprintf(szBuf,"In [%s::%s - %d] Can not find command type with id = %d in unit = %d [%s][%s]. Game out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->getCommandTypeId(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
 
 		throw runtime_error(szBuf);
 	}
