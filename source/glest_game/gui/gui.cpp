@@ -371,11 +371,12 @@ void Gui::onSelectionChanged(){
 
 void Gui::giveOneClickOrders(){
 	CommandResult result;
+	bool shiftDown = isKeyDown(vkShift);
 	if(selection.isUniform()){
-		result= commander->tryGiveCommand(&selection, activeCommandType);
+		result= commander->tryGiveCommand(&selection, activeCommandType, Vec2i(0), (Unit*)NULL,  shiftDown);
 	}
 	else{
-		result= commander->tryGiveCommand(&selection, activeCommandClass);
+		result= commander->tryGiveCommand(&selection, activeCommandClass, Vec2i(0), (Unit*)NULL, shiftDown);
 	}
 	addOrdersResultToConsole(activeCommandClass, result);
     activeCommandType= NULL;
@@ -392,8 +393,9 @@ void Gui::giveDefaultOrders(int x, int y){
 		return;
 	}
 
+	bool shiftDown = isKeyDown(vkShift);
 	//give order
-	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit);
+	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit, shiftDown);
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
@@ -424,19 +426,20 @@ void Gui::giveTwoClickOrders(int x, int y){
 		return;
 	}
 
+	bool shiftDown = isKeyDown(vkShift);
     //give orders to the units of this faction
 	if(!selectingBuilding){
 		if(selection.isUniform()){
-			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit);
+			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit,shiftDown);
 		}
 		else{
-			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit);
-        }
+			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit,shiftDown);
+        	}
 	}
 	else{
 		//selecting building
 		result= commander->tryGiveCommand(selection.getFrontUnit(), 
-			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing );
+			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing,shiftDown);
     }
 
 	//graphical result

@@ -17,6 +17,7 @@
 #include "particle.h"
 #include "skill_type.h"
 #include "game_constants.h"
+#include <set>
 
 namespace Glest{ namespace Game{
 
@@ -27,6 +28,8 @@ using Shared::Graphics::Vec2f;
 using Shared::Graphics::Vec3f;
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Model;
+
+using std::set;
 
 class Map;
 class Faction;
@@ -131,9 +134,12 @@ public:
 	static const float highlightTime;
 	static const int invalidId;
 
+	static set<int> livingUnits;
+	static set<Unit*> livingUnitsp;
+
 
 private:
-	int id;
+	const int id;
     int hp;
     int ep;
     int loadCount;
@@ -266,7 +272,7 @@ public:
 	bool anyCommand() const;
 	Command *getCurrCommand() const;
 	unsigned int getCommandSize() const;
-	CommandResult giveCommand(Command *command);		//give a command
+	CommandResult giveCommand(Command *command, bool tryQueue = false);		//give a command
 	CommandResult finishCommand();						//command finished
 	CommandResult cancelCommand();						//cancel canceled
 

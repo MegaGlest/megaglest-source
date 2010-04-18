@@ -51,6 +51,13 @@ enum Clicks{
 	cTwo
 };
 
+enum Queueability {
+	qNever,
+	qOnRequest,
+	qOnlyLast,
+	qAlways
+};
+
 // =====================================================
 // 	class CommandType
 //
@@ -72,7 +79,15 @@ public:
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
 	virtual string toString() const= 0;
 	virtual const ProducibleType *getProduced() const	{return NULL;}
-	virtual bool isQueuable() const						{return false;}
+	virtual Queueability isQueuable() const						{return qOnRequest;}
+	bool isQueuable(bool tryQueue) const {
+		Queueability q = isQueuable();
+		return (q == qAlways) || ((q == qOnRequest || q == qOnlyLast) && tryQueue);
+	}
+	bool isQueueAppendable() const {
+		Queueability q = isQueuable();
+		return (q != qNever) && (q != qOnlyLast);
+	}
 
     //get
     CommandClass getClass() const;
@@ -94,7 +109,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
-
+	virtual Queueability isQueuable() const						{return qNever;}
     //get
 	const StopSkillType *getStopSkillType() const	{return stopSkillType;};
 };
@@ -213,6 +228,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
+	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
 	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;}
@@ -269,7 +285,7 @@ public:
     virtual string getReqDesc() const;
 	virtual string toString() const;
 	virtual const ProducibleType *getProduced() const;
-	virtual bool isQueuable() const						{return true;}
+	virtual Queueability isQueuable() const						{return qAlways;}
 
     //get
 	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
@@ -294,7 +310,7 @@ public:
 	virtual string toString() const;
 	virtual string getReqDesc() const;
 	virtual const ProducibleType *getProduced() const;
-	virtual bool isQueuable() const						{return true;}
+	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}
@@ -319,6 +335,7 @@ public:
 	virtual string toString() const;
 	virtual string getReqDesc() const;
 	virtual const ProducibleType *getProduced() const;
+	Queueability isQueuable() const						{return qOnlyLast;} //After morph anything can happen
 
     //get
 	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}

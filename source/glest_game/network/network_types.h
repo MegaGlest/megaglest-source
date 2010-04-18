@@ -67,6 +67,7 @@ private:
 	int16 positionY;
 	int16 unitTypeId;
 	int16 targetId;
+	int16 wantQueue;
 
 public:
 	NetworkCommand(){};
@@ -78,7 +79,8 @@ public:
 		const Vec2i &pos= Vec2i(0), 
 		int unitTypeId= -1, 
 		int targetId= -1,
-		int facing= -1);
+		int facing= -1,
+		bool wantQueue = false);
 	
 	//NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2=-1);
 
@@ -88,6 +90,7 @@ public:
 	Vec2i getPosition() const							{return Vec2i(positionX, positionY);}
 	int getUnitTypeId() const							{return unitTypeId;}
 	int getTargetId() const								{return targetId;}
+	int getWantQueue() const							{return wantQueue;}
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;

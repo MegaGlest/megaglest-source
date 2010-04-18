@@ -98,13 +98,16 @@ Unit *UnitReference::getUnit() const{
 // =====================================================
 
 const float Unit::speedDivider= 100.f;
-const int Unit::maxDeadCount= 500;	//time in until the corpse disapears
+const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
 const float Unit::highlightTime= 0.5f;
 const int Unit::invalidId= -1;
 
+set<int> Unit::livingUnits;
+set<Unit*> Unit::livingUnitsp;
+
 // ============================ Constructor & destructor =============================
 
-Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing) {
+Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
@@ -116,7 +119,6 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->type=type;
     this->faction=faction;
 	this->map= map;
-	this->id= id;
 	level= NULL;
 
     setModelFacing(placeFacing);
@@ -161,9 +163,22 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->currSkill=getType()->getFirstStOfClass(scStop);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	livingUnits.insert(id);
+	livingUnitsp.insert(this);
 }
 
 Unit::~Unit(){
+	//Just to be sure, should already be removed
+	if (livingUnits.erase(id)) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		//Only an error if not called at end
+	}
+
+	//Just to be sure, should already be removed
+	if (livingUnitsp.erase(this)) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		
+	}
 	//remove commands
 	while(!commands.empty()){
 		delete commands.back();
@@ -453,15 +468,15 @@ unsigned int Unit::getCommandSize() const{
 }
 
 //give one command (clear, and push back)
-CommandResult Unit::giveCommand(Command *command){
+CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	if(command->getCommandType()->isQueuable()){
+	if(command->getCommandType()->isQueuable(tryQueue)){
 		//cancel current command if it is not queuable
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(!commands.empty() && !commands.front()->getCommandType()->isQueuable()){
+		if(!commands.empty() && !commands.back()->getCommandType()->isQueueAppendable()){
 		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cancelCommand();
 		}
@@ -512,6 +527,15 @@ CommandResult Unit::finishCommand(){
 	delete commands.front();
 	commands.erase(commands.begin());
 	unitPath.clear();
+
+	while (!commands.empty()) {
+		if (commands.front()->getUnit() != NULL && livingUnitsp.find(commands.front()->getUnit()) == livingUnitsp.end()) {
+			delete commands.front();
+			commands.erase(commands.begin());
+		} else {
+			break;
+		}
+	}
 
 	return crSuccess;
 }
@@ -578,6 +602,8 @@ void Unit::kill(){
 }
 
 void Unit::undertake(){
+	livingUnits.erase(id);
+	livingUnitsp.erase(this);
 	faction->removeUnit(this);
 }
 

@@ -27,13 +27,14 @@ namespace Glest{ namespace Game{
 //	class NetworkCommand
 // =====================================================
 
-NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId, const Vec2i &pos, int unitTypeId, int targetId, int facing)
+NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId, const Vec2i &pos, int unitTypeId, int targetId, int facing, bool wantQueue)
 		: networkCommandType(networkCommandType)
 		, unitId(unitId)
 		, commandTypeId(commandTypeId)
 		, positionX(pos.x)
 		, positionY(pos.y)
-		, unitTypeId(unitTypeId) {
+		, unitTypeId(unitTypeId)
+		, wantQueue(wantQueue) {
 	assert(targetId == -1 || facing == -1);
 	this->targetId = targetId >= 0 ? targetId : facing;
 
@@ -72,8 +73,8 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 
 string NetworkCommand::toString() const {
     char szBuf[1024]="";
-    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\nthis->positionY = %d\nunitTypeId = %d\ntargetId = %d",
-        networkCommandType,unitId,commandTypeId,positionX,this->positionY,unitTypeId,targetId);
+    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\nthis->positionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d",
+        networkCommandType,unitId,commandTypeId,positionX,this->positionY,unitTypeId,targetId,wantQueue);
 
     string result = szBuf;
     return result;

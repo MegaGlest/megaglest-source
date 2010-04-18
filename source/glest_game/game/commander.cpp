@@ -40,13 +40,14 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing) const{
-	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), facing);
+CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue) const{
+	
+	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), -1, facing, tryQueue);
 	return pushNetworkCommand(&networkCommand);
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit) const{
-
+CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
+	
 	if(!selection->isEmpty()){
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
@@ -61,7 +62,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
 				Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue);
 
 				//every unit is ordered to a different pos
 				CommandResult result= pushNetworkCommand(&networkCommand);
@@ -78,7 +79,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 	}
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos, const Unit *targetUnit) const{
+CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
 	if(!selection->isEmpty() && commandType!=NULL){
 		Vec2i refPos;
 		CommandResultContainer results;
@@ -90,7 +91,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 			int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 			int unitId= selection->getUnit(i)->getId();
 			Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
+			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
 
 			//every unit is ordered to a different position
 			CommandResult result= pushNetworkCommand(&networkCommand);
@@ -105,7 +106,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 }
 
 //auto command
-CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit) const{
+CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
 	if(!selection->isEmpty()){
 
 		Vec2i refPos, currPos;
@@ -125,7 +126,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 			if(commandType!=NULL){
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
 
 				CommandResult result= pushNetworkCommand(&networkCommand);
 				results.push_back(result);
@@ -196,7 +197,7 @@ CommandResult Commander::computeResult(const CommandResultContainer &results) co
 			if(results[i]!=crSuccess){
 				return crSomeFailed;
 			}
-		}
+		}http://de.wikipedia.org/wiki/Iatrogen
 		return crSuccess;
 	}
 }
@@ -309,7 +310,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 
                     Command* command= buildCommand(networkCommand);
-                    unit->giveCommand(command);
+                    unit->giveCommand(command, networkCommand->getWantQueue());
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }
