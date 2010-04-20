@@ -340,6 +340,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	assert(networkCommand->getNetworkCommandType()==nctGiveCommand);
 
+	if(world == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d] world == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+		throw runtime_error(szBuf);
+	}
+
 	Unit* target= NULL;
 	const CommandType* ct= NULL;
 	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
@@ -347,9 +353,17 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	//validate unit
 	if(unit == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Can not find unit with id: %d. Game out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
-
+	    sprintf(szBuf,"In [%s::%s - %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+		throw runtime_error(szBuf);
+	}
+	else if(unit->getType() == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s - %d] unit->getType() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+		throw runtime_error(szBuf);
+	}
+	else if(unit->getFaction() == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s - %d] unit->getFaction() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw runtime_error(szBuf);
 	}
 
@@ -358,10 +372,9 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 
 	//validate command type
 	if(ct == NULL) {
-
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Can not find command type with id = %d in unit = %d [%s][%s]. Game out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->getCommandTypeId(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
+	    sprintf(szBuf,"In [%s::%s - %d] Can not find command type with id = %d\n%s\n in unit = %d [%s][%s].\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->getCommandTypeId(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
 
 		throw runtime_error(szBuf);
 	}
@@ -371,7 +384,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	if (ct->getClass() == ccBuild) {
 		assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
 		facing = CardinalDir(networkCommand->getTargetId());
-	} else if (networkCommand->getTargetId() != Unit::invalidId ) {
+	}
+	else if (networkCommand->getTargetId() != Unit::invalidId ) {
 		target= world->findUnitById(networkCommand->getTargetId());
 	}
 

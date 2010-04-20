@@ -601,7 +601,10 @@ void Unit::kill(){
 	clearCommands();
 }
 
-void Unit::undertake(){
+void Unit::undertake() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",
+			__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
+
 	livingUnits.erase(id);
 	livingUnitsp.erase(this);
 	faction->removeUnit(this);
@@ -1141,83 +1144,5 @@ void Unit::startDamageParticles(){
 
 	}
 }
-#if 0
-bool Unit::getCellMapCell(int x, int y) const {
-    const UnitType *ut= getType();
 
-    if(allowRotateUnits == true && ut != NULL && rotateAmount > 0) {
-        return cellMap[ut->getSize() * y + x];
-    }
-    else if(ut != NULL) {
-        return ut->getCellMapCell(x,y);
-    }
-    else {
-        throw runtime_error("ut == NULL in Unit::getCellMapCell()!");
-    }
-}
-
-void Unit::setRotateAmount(float value) {
-    if(allowRotateUnits == true) {
-        rotateAmount = value;
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d rotate amount = %f cellMap = %s\n",__FILE__,__FUNCTION__,__LINE__, getId(), rotateAmount,(cellMap == NULL ? "NULL" : "Valid"));
-
-        const UnitType *ut= getType();
-        if(ut != NULL && ut->hasCellMap() == true) {
-            int matrixSize = ut->getSize();
-
-            if(rotateAmount > 0) {
-
-                if(cellMap == NULL) delete [] cellMap;
-                cellMap = new bool[matrixSize * matrixSize];
-
-                for(int iRow = 0; iRow < matrixSize; ++iRow) {
-                    for(int iCol = 0; iCol < matrixSize; ++iCol) {
-                        bool getCellResult = ut->getCellMapCell(iCol, iRow);
-                        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
-
-                        int newRow = 0;
-                        int newCol = 0;
-
-                        switch((int)rotateAmount)
-                        {
-                            case 90:
-                                newRow = (matrixSize - iCol - 1);
-                                newCol = iRow;
-                                break;
-                            case 180:
-                                newRow = (matrixSize - iRow - 1);
-                                newCol = (matrixSize - iCol - 1);
-                                break;
-                            case 270:
-                                newRow = iCol;
-                                newCol = (matrixSize - iRow - 1);
-                                break;
-
-                        }
-
-                        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] ABOUT TO Transform to [%d,%d] = %d\n",__FILE__,__FUNCTION__,newRow,newCol,getCellResult);
-
-                        // bool getCellMapCell(int x, int y) const {return cellMap[size*y+x];}
-                        // cellMap[i*size+j]= row[j]=='0'? false: true;
-                        cellMap[matrixSize * newRow + newCol] = getCellResult;
-                    }
-                }
-            }
-
-            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Transformed matrix below:\n",__FILE__,__FUNCTION__);
-            /*
-            for(int iRow = 0; iRow < matrixSize; ++iRow) {
-                for(int iCol = 0; iCol < matrixSize; ++iCol) {
-                    bool getCellResult          = ut->getCellMapCell(iCol, iRow);
-                    bool getCellResultRotated   = getCellMapCell(iRow, iCol);
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] matrix [%d,%d] = %d, rotated = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult,getCellResultRotated);
-                }
-            }
-            */
-        }
-
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d rotate amount = %f\n",__FILE__,__FUNCTION__,__LINE__, getId(),rotateAmount);
-    }
-}
-#endif
 }}//end namespace

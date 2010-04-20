@@ -833,22 +833,39 @@ int Socket::getDataToRead(){
     //if(retval)
     if(isSocketValid() == true)
     {
-        /* ioctl isn't posix, but the following seems to work on all modern
-         * unixes */
-#ifndef WIN32
-    	int err = ioctl(sock, FIONREAD, &size);
-#else
-    	int err= ioctlsocket(sock, FIONREAD, &size);
-#endif
-        if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
-        {
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
-            //throwException(szBuf);
-        }
-        else if(err == 0)
-        {
-            //if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
-        }
+    	int loopCount = 1;
+    	for(time_t elapsed = time(NULL); difftime(time(NULL),elapsed) < 1;) {
+			/* ioctl isn't posix, but the following seems to work on all modern
+			 * unixes */
+	#ifndef WIN32
+			int err = ioctl(sock, FIONREAD, &size);
+	#else
+			int err= ioctlsocket(sock, FIONREAD, &size);
+	#endif
+			if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+				break;
+				//throwException(szBuf);
+			}
+			else if(err == 0)
+			{
+				//if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
+			}
+
+			if(size > 0) {
+				break;
+			}
+			else if(hasDataToRead() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %u, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %u, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				break;
+			}
+
+			loopCount++;
+    	}
     }
 
 	return static_cast<int>(size);

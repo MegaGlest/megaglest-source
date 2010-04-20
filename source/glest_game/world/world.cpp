@@ -135,12 +135,13 @@ void World::update(){
 
 	//undertake the dead
 	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
+		int unitCount = getFaction(i)->getUnitCount();
+		for(int j= unitCount - 1; j >= 0; j--){
 			Unit *unit= getFaction(i)->getUnit(j);
-			if(unit->getToBeUndertaken()){
+			if(unit->getToBeUndertaken()) {
 				unit->undertake();
 				delete unit;
-				j--;
+				//j--;
 			}
 		}
 	}

@@ -569,4 +569,14 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 	return NULL;
 }
 
+string UnitType::getCommandTypeListDesc() const {
+	string desc = "Commands: ";
+	for(int i=0; i<getCommandTypeCount(); ++i){
+		const CommandType* commandType= getCommandType(i);
+		desc += " id = " + intToStr(commandType->getId()); + " toString: " + commandType->toString();
+	}
+	return desc;
+
+}
+
 }}//end namespace

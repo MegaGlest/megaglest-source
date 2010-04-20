@@ -184,6 +184,7 @@ public:
 
 	//find
 	const CommandType* findCommandTypeById(int id) const;
+	string getCommandTypeListDesc() const;
 
     float getRotatedBuildPos() { return rotatedBuildPos; }
     float setRotatedBuildPos(float value) { rotatedBuildPos = value; }
