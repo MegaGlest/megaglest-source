@@ -43,6 +43,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+	networkManager.end();
 
 	serversSavedFile = serverFileName;
     if(getGameReadWritePath() != "") {

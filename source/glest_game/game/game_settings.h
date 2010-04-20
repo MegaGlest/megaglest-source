@@ -46,7 +46,9 @@ private:
 public:
 
 
-    GameSettings() { }
+    GameSettings() { 
+		fogOfWar = true;
+	}
 
 	// default copy constructor will do fine, and will maintain itself ;)
 
