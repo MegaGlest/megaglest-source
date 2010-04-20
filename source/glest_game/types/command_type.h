@@ -310,7 +310,7 @@ public:
 	virtual string toString() const;
 	virtual string getReqDesc() const;
 	virtual const ProducibleType *getProduced() const;
-	virtual Queueability isQueuable() const						{return qOnRequest;}
+	virtual Queueability isQueuable() const						{return qAlways;}
 
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}
