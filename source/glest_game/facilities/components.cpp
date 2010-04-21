@@ -35,6 +35,7 @@ const float GraphicComponent::fadeSpeed= 0.01f;
 
 GraphicComponent::GraphicComponent(){
 	enabled= true;
+	editable= true;
 }
 
 void GraphicComponent::init(int x, int y, int w, int h){
@@ -131,6 +132,12 @@ void GraphicListBox::setSelectedItemIndex(int index){
     assert(index>=0 && index<items.size());
     selectedItemIndex= index;
     setText(getSelectedItem());
+}
+
+void GraphicListBox::setEditable(bool editable){
+    graphButton1.setEditable(editable);
+    graphButton2.setEditable(editable);
+    editable=true;
 }
 
 void GraphicListBox::setSelectedItem(string item){

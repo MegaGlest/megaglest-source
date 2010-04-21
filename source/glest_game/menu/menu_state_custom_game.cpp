@@ -520,7 +520,14 @@ void MenuStateCustomGame::update()
 			serverInterface->setGameSettings(&gameSettings);
 
 			needToSetChangedGameSettings    = false;
-			lastSetChangedGameSettings      = time(NULL);
+		}
+		
+		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+		{
+			GameSettings gameSettings;
+			loadGameSettings(&gameSettings);
+			serverInterface->setGameSettings(&gameSettings);
+			serverInterface->broadcastGameSetup(&gameSettings);
 		}
 
 		//call the chat manager
@@ -529,6 +536,10 @@ void MenuStateCustomGame::update()
 		//console
 		console.update();
 
+		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+		{// reset timer here on bottom becasue used for different things
+			lastSetChangedGameSettings      = time(NULL);
+		}
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const std::exception &ex) {

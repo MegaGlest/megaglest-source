@@ -167,8 +167,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(){
 	data.messageType=-1;
 }
 
-NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings){
-	data.messageType=nmtLaunch;
+NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType){
+	data.messageType=messageType;
 
 	data.description= gameSettings->getDescription();
 	data.map= gameSettings->getMap();
@@ -214,7 +214,6 @@ bool NetworkMessageLaunch::receive(Socket* socket){
 }
 
 void NetworkMessageLaunch::send(Socket* socket) const{
-	assert(data.messageType==nmtLaunch);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 

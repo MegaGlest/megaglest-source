@@ -43,6 +43,7 @@ ClientInterface::ClientInterface(){
 	launchGame= false;
 	introDone= false;
 	playerIndex= -1;
+	gameSettingsReceived=false;
 
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
@@ -321,6 +322,35 @@ void ClientInterface::updateLobby()
                     }
                 }
                 launchGame= true;
+            }
+        }
+        break;
+        case nmtBroadCastSetup:
+        {
+            NetworkMessageLaunch networkMessageLaunch;
+
+            if(receiveMessage(&networkMessageLaunch))
+            {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
+
+                networkMessageLaunch.buildGameSettings(&gameSettings);
+
+                //replace server player by network
+                for(int i= 0; i<gameSettings.getFactionCount(); ++i)
+                {
+                    //replace by network
+                    if(gameSettings.getFactionControl(i)==ctHuman)
+                    {
+                        gameSettings.setFactionControl(i, ctNetwork);
+                    }
+
+                    //set the faction index
+                    if(gameSettings.getStartLocationIndex(i)==playerIndex)
+                    {
+                        gameSettings.setThisFactionIndex(i);
+                    }
+                }
+                gameSettingsReceived=true;
             }
         }
         break;

@@ -11,6 +11,7 @@
 
 #include "menu_state_join_game.h"
 
+#include "menu_state_connected_game.h"
 #include "renderer.h"
 #include "sound_renderer.h"
 #include "core_data.h"
@@ -37,12 +38,14 @@ using namespace Shared::Util;
 const int MenuStateJoinGame::newServerIndex= 0;
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
+
 MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect, Ip serverIp):
 	MenuState(program, mainMenu, "join-game")
 {
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+	networkManager.end();
 
 	serversSavedFile = serverFileName;
     if(getGameReadWritePath() != "") {
@@ -189,7 +192,6 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 		    }
 		    clientInterface->close();
 		}
-
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
 
@@ -315,7 +317,6 @@ void MenuStateJoinGame::update()
             {
                 label += " - data synch is ok";
             }
-
             labelStatus.setText(label);
 		}
 		else
@@ -487,7 +488,9 @@ void MenuStateJoinGame::connectToServer()
 	//save server ip
 	config.setString("ServerIp", serverIp.getString());
 	config.save();
-
+	
+	mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
+	
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 

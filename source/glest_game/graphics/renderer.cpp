@@ -960,6 +960,8 @@ void Renderer::renderButton(const GraphicButton *button){
     int h= button->getH();
     int w= button->getW();
 
+	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
 
 	//background
@@ -996,7 +998,7 @@ void Renderer::renderButton(const GraphicButton *button){
 	float anim= GraphicComponent::getAnim();
 	if(anim>0.5f) anim= 1.f-anim;
 
-	if(button->getLighted()){
+	if(button->getLighted() && button->getEditable()){
 		const int lightSize= 0;
 		const Vec4f color1= Vec4f(1.f, 1.f, 1.f, 0.1f+anim*0.5f);
 		const Vec4f color2= Vec4f(1.f, 1.f, 1.f, 0.3f+anim);
@@ -1029,9 +1031,19 @@ void Renderer::renderButton(const GraphicButton *button){
 
 	Vec2i textPos= Vec2i(x+w/2, y+h/2);
 
-	renderText(
-		button->getText(), button->getFont(), GraphicButton::getFade(),
-		x+w/2, y+h/2, true);
+	if(button->getEditable()){
+		renderText(
+			button->getText(), button->getFont(), GraphicButton::getFade(),
+			x+w/2, y+h/2, true);
+	}
+	else {
+		renderText(
+			button->getText(), button->getFont(),disabledTextColor,
+			x+w/2, y+h/2, true);
+//	renderText(
+//			button->getText(), button->getFont(), 0.2f,
+//			x+w/2, y+h/2, true);
+	}
 
     glPopAttrib();
 }

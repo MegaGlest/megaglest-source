@@ -42,6 +42,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 // ===================== PUBLIC ========================
+MenuState *oldstate=NULL;
 
 MainMenu::MainMenu(Program *program):
 	ProgramState(program)
@@ -154,10 +155,10 @@ void MainMenu::keyPress(char c){
 }
 
 void MainMenu::setState(MenuState *state){
-	delete this->state;
+	if(oldstate!=NULL) delete oldstate;
+	MenuState *oldstate=this->state;
 	this->state= state;
 	GraphicComponent::resetFade();
-
 	menuBackground.setTargetCamera(state->getCamera());
 }
 

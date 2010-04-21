@@ -437,7 +437,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
     {
    		serverSocket.stopBroadCastThread();
 
-        NetworkMessageLaunch networkMessageLaunch(gameSettings);
+        NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtLaunch);
         broadcastMessage(&networkMessageLaunch);
     }
 
@@ -445,6 +445,16 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     return bOkToStart;
 }
+
+void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings){
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    
+    NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtBroadCastSetup);
+    broadcastMessage(&networkMessageLaunch);
+    
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
 

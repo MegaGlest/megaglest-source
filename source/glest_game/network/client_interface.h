@@ -41,6 +41,7 @@ private:
 	bool introDone;
 	bool launchGame;
 	int playerIndex;
+	bool gameSettingsReceived;
 
 	Ip ip;
 	int port;
@@ -70,6 +71,7 @@ public:
 	string getServerName() const			{return serverName;}
 	bool getLaunchGame() const				{return launchGame;}
 	bool getIntroDone() const				{return introDone;}
+	bool getGameSettingsReceived() const	{return gameSettingsReceived;}
 	int getPlayerIndex() const				{return playerIndex;}
 	//const GameSettings *getGameSettings()	{return &gameSettings;}
 
