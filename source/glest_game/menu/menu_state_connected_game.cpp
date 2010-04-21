@@ -430,7 +430,6 @@ void MenuStateConnectedGame::update()
 			vector<string> maps,tilesets,techtree;
 			const GameSettings *gameSettings=clientInterface->getGameSettings();
 			
-	
 			// tileset
 			tilesets.push_back(formatString(gameSettings->getTileset()));
 			listBoxTileset.setItems(tilesets);
@@ -474,6 +473,12 @@ void MenuStateConnectedGame::update()
 				listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i));
 				listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i));
 				listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)));
+			
+				if(gameSettings->getFactionControl(i) == ctNetwork && gameSettings->getThisFactionIndex() == i){
+					// set my current slot to ctHuman
+					listBoxControls[slot].setSelectedItemIndex(ctHuman);
+				}
+			
 			}
 		}
 		//update lobby
