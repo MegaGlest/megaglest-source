@@ -20,16 +20,91 @@ cd $GAMEDIR
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
 # now deal with the openal library [libopenal.so.0]
-hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.0" | cut "-d>" -f2 | cut "-d " -f2`
+OSTYPE=`uname -m`
+
+OPENAL_LINKEDLIBNAME="libopenal.so.0"
+OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
+OPENAL_LIBLOOKUP2="libopenal.so.1"
+
+DIRECTFB_LINKEDLIBNAME="libdirectfb-1.0.so.0"
+DIRECTFB_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+DIRECTFB_LIBLOOKUP2="libdirectfb-1.2.so.0"
+
+FUSION_LINKEDLIBNAME="libfusion-1.0.so.0"
+FUSION_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+FUSION_LIBLOOKUP2="libfusion-1.2.so.0"
+
+DIRECT_LINKEDLIBNAME="libdirect-1.0.so.0"
+DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
+DIRECT_LIBLOOKUP2="libdirect-1.2.so.0"
+
+if [ "$OSTYPE" = "x86_64" ]; then
+  OPENAL_LIBLOOKUP1="${OPENAL_LIBLOOKUP1} (libc6)"
+  OPENAL_LIBLOOKUP2="${OPENAL_LIBLOOKUP2} (libc6)"
+
+  DIRECTFB_LIBLOOKUP1="${DIRECTFB_LIBLOOKUP1} (libc6)"
+  DIRECTFB_LIBLOOKUP2="${DIRECTFB_LIBLOOKUP2} (libc6)"
+
+  FUSION_LIBLOOKUP1="${FUSION_LIBLOOKUP1} (libc6)"
+  FUSION_LIBLOOKUP2="${FUSION_LIBLOOKUP2} (libc6)"
+
+  DIRECT_LIBLOOKUP1="${DIRECT_LIBLOOKUP1} (libc6)"
+  DIRECT_LIBLOOKUP2="${DIRECT_LIBLOOKUP2} (libc6)"
+fi
+
+hasopenal=`ldconfig -p | grep -m 1 "$OPENAL_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
 #echo "openal search = [$hasopenal]"
 if [ -n "$hasopenal" ]; then
   echo "default openal library was found in [$hasopenal]"
 else
   echo "default openal library is missing, attempting to find and link to a newer version if available..."
 
-  hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.1" | cut "-d>" -f2 | cut "-d " -f2`
+  hasopenal=`ldconfig -p | grep -m 1 "$OPENAL_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasopenal" ]; then
-    ln -f -s $hasopenal lib/libopenal.so.0
+    echo "new openal library link = $hasopenal"
+    ln -f -s $hasopenal lib/${OPENAL_LINKEDLIBNAME}
+  fi
+fi
+
+hasdirectfb=`ldconfig -p | grep -m 1 "$DIRECTFB_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+#echo "directfb search = [$hasdirectfb]"
+if [ -n "$hasdirectfb" ]; then
+  echo "default directfb library was found in [$hasdirectfb]"
+else
+  echo "default directfb library is missing, attempting to find and link to a different location if available..."
+
+  hasdirectfb=`ldconfig -p | grep -m 1 "$DIRECTFB_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  if [ -n "$hasdirectfb" ]; then
+    echo "new directfb library link = $hasdirectfb"
+    ln -f -s $hasdirectfb lib/${DIRECTFB_LINKEDLIBNAME}
+  fi
+fi
+
+hasfusion=`ldconfig -p | grep -m 1 "$FUSION_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+#echo "fusion search = [$hasfusion]"
+if [ -n "$hasfusion" ]; then
+  echo "default fusion library was found in [$hasfusion]"
+else
+  echo "default fusion library is missing, attempting to find and link to a different location if available..."
+
+  hasfusion=`ldconfig -p | grep -m 1 "$FUSION_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  if [ -n "$hasfusion" ]; then
+    echo "new fusion library link = $hasfusion"
+    ln -f -s $hasfusion lib/${FUSION_LINKEDLIBNAME}
+  fi
+fi
+
+hasdirect=`ldconfig -p | grep -m 1 "$DIRECT_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+#echo "direct search = [$hasdirect]"
+if [ -n "$hasdirect" ]; then
+  echo "default direct library was found in [$hasdirect]"
+else
+  echo "default direct library is missing, attempting to find and link to a different location if available..."
+
+  hasdirect=`ldconfig -p | grep -m 1 "$DIRECT_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  if [ -n "$hasdirect" ]; then
+    echo "new direct library link = $hasdirect"
+    ln -f -s $hasdirect lib/${DIRECT_LINKEDLIBNAME}
   fi
 fi
 
