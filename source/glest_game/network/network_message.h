@@ -141,6 +141,7 @@ private:
 		NetworkString<maxStringSize> tileset;
 		NetworkString<maxStringSize> tech;
 		NetworkString<maxStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
+		NetworkString<maxStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
 
 		int8 factionControls[GameConstants::maxPlayers];
 

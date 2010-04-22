@@ -57,7 +57,9 @@ class MenuState;
 // =====================================================
 
 class MainMenu: public ProgramState{
+	
 private:
+	static MenuState *oldstate;
 	//up
 	Program *program;
 	

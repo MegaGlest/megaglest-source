@@ -56,6 +56,11 @@ private:
 
 	Console console;
 	ChatManager chatManager;
+	
+	string currentFactionName;
+	string currentMap;
+	bool settingsReceivedFromServer;
+	
 
 public:
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots= false);

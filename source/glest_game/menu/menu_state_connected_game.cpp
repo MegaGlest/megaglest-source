@@ -40,8 +40,6 @@ struct FormatString {
 	}
 };
 
-string currentFactionName="";
-string currentMap="";
 // =====================================================
 // 	class MenuStateConnectedGame
 // =====================================================
@@ -54,6 +52,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     Config &config = Config::getInstance();
 	needToSetChangedGameSettings = false;
 	lastSetChangedGameSettings   = time(NULL);;
+
+
+	currentFactionName="";
+	currentMap="";
+	settingsReceivedFromServer=false;
+
 
 	vector<string> teamItems, controlItems, results;
 	//state
@@ -142,7 +146,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
 		listBoxControls[i].setItems(controlItems);
-		labelNetStatus[i].setText("");
+		labelNetStatus[i].setText("V");
     }
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	labelMap.setText(lang.get("Map"));
@@ -286,6 +290,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateConnectedGame::render(){
 
 	try {
+		if (!settingsReceivedFromServer) return;
 		Renderer &renderer= Renderer::getInstance();
 
 		int i;
@@ -299,7 +304,12 @@ void MenuStateConnectedGame::render(){
 			if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
 				renderer.renderListBox(&listBoxFactions[i]);
 				renderer.renderListBox(&listBoxTeams[i]);
-				renderer.renderLabel(&labelNetStatus[i]);
+				//renderer.renderLabel(&labelNetStatus[i]);
+				
+				if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) ||
+					(listBoxControls[i].getSelectedItemIndex()==ctHuman)){
+					renderer.renderLabel(&labelNetStatus[i]);
+				}
 			}
 		}
 		renderer.renderLabel(&labelStatus);
@@ -420,6 +430,7 @@ void MenuStateConnectedGame::update()
 		    clientInterface->close();
 		}
 		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
+		return;
 	}
 
 	//process network messages
@@ -453,7 +464,6 @@ void MenuStateConnectedGame::update()
 				currentMap=gameSettings->getMap();
 			}
 			
-			
 			// FogOfWar
 			if(gameSettings->getFogOfWar()){
 				listBoxFogOfWar.setSelectedItemIndex(0); 
@@ -473,11 +483,17 @@ void MenuStateConnectedGame::update()
 				listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i));
 				listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i));
 				listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)));
-			
+
+				if(gameSettings->getFactionControl(i) == ctNetwork ){
+					labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
+				}
+				
 				if(gameSettings->getFactionControl(i) == ctNetwork && gameSettings->getThisFactionIndex() == i){
 					// set my current slot to ctHuman
 					listBoxControls[slot].setSelectedItemIndex(ctHuman);
 				}
+				
+				settingsReceivedFromServer=true;
 			
 			}
 		}

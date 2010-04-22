@@ -42,7 +42,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 // ===================== PUBLIC ========================
-MenuState *oldstate=NULL;
+MenuState * MainMenu::oldstate=NULL;
 
 MainMenu::MainMenu(Program *program):
 	ProgramState(program)

@@ -554,6 +554,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	gameSettings->setDescription(formatString(mapFiles[listBoxMap.getSelectedItemIndex()]));
 	gameSettings->setMap(mapFiles[listBoxMap.getSelectedItemIndex()]);
@@ -577,6 +578,26 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 			gameSettings->setTeam(factionCount, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(factionCount, i);
 			gameSettings->setFactionTypeName(factionCount, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+			{
+				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
+				if((connectionSlot!=NULL) && (connectionSlot->isConnected()))
+				{
+					gameSettings->setNetworkPlayerName(factionCount, connectionSlot->getName());
+				}
+				else
+				{
+					gameSettings->setNetworkPlayerName(factionCount, "???");
+				}
+			}
+			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman)
+			{
+				gameSettings->setNetworkPlayerName(factionCount, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+			}
+			else
+			{
+				gameSettings->setNetworkPlayerName(factionCount, "");
+			}
 			factionCount++;
 		}
     }
