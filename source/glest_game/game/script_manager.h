@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -16,7 +16,6 @@
 #include <queue>
 
 #include "lua_script.h"
-#include "vec.h"
 
 #include "components.h"
 #include "game_constants.h"
@@ -122,7 +121,6 @@ public:
 	void onUnitDied(const Unit* unit);
 
 private:
-
 	string wrapString(const string &str, int wrapCount);
 
 	//wrappers, commands
@@ -138,6 +136,7 @@ private:
 	void disableAi(int factionIndex);
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
+	void unfogMap();
 
 	//wrappers, queries
 	Vec2i getStartLocation(int factionIndex);
@@ -164,6 +163,7 @@ private:
 	static int disableAi(LuaHandle* luaHandle);
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
+	static int unfogMap(LuaHandle* luaHandle);
 
 	//callbacks, queries
 	static int getStartLocation(LuaHandle* luaHandle);

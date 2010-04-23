@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -84,6 +84,7 @@ private:
 	int nextUnitId;
 
 	//config
+	bool fogOfWarOverride;
 	bool fogOfWar;
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
@@ -148,6 +149,8 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 	Game * getGame() { return game; }
+
+	void setFogOfWar(bool value);
 
 private:
 

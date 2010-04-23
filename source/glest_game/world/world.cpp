@@ -39,6 +39,8 @@ const float World::airHeight= 5.f;
 World::World(){
 	Config &config= Config::getInstance();
 
+	fogOfWarOverride = false;
+
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
@@ -57,10 +59,22 @@ void World::end(){
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i].end();
 	}
+	fogOfWarOverride = false;
 	//stats will be deleted by BattleEnd
 }
 
 // ========================== init ===============================================
+
+void World::setFogOfWar(bool value) {
+	fogOfWar 		 = value;
+	fogOfWarOverride = true;
+
+	if(game != NULL && game->getGameSettings() != NULL) {
+		game->getGameSettings()->setFogOfWar(fogOfWar);
+		initCells(fogOfWar); //must be done after knowing faction number and dimensions
+		initMinimap();
+	}
+}
 
 void World::init(Game *game, bool createUnits){
 
@@ -70,7 +84,9 @@ void World::init(Game *game, bool createUnits){
 	unitUpdater.init(game);
 
 	GameSettings *gs = game->getGameSettings();
-	fogOfWar = gs->getFogOfWar();
+	if(fogOfWarOverride == false) {
+		fogOfWar = gs->getFogOfWar();
+	}
 	
 	initFactionTypes(gs);
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions

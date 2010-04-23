@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -71,6 +71,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getLastDeadUnitId, "lastDeadUnit");
 	luaScript.registerFunction(getUnitCount, "unitCount");
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
+	luaScript.registerFunction(unfogMap, "unfogMap");
 
 
 	//load code
@@ -393,6 +394,16 @@ int ScriptManager::getUnitCount(LuaHandle* luaHandle){
 int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
+	return luaArguments.getReturnCount();
+}
+
+void ScriptManager::unfogMap() {
+	world->setFogOfWar(false);
+}
+
+int ScriptManager::unfogMap(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->unfogMap();
 	return luaArguments.getReturnCount();
 }
 
