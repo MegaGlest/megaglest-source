@@ -251,6 +251,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
+		updateNetworkSlots();
 
         if(hasNetworkGameSettings() == true)
         {
