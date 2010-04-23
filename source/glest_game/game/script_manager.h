@@ -16,7 +16,6 @@
 #include <queue>
 
 #include "lua_script.h"
-#include "vec.h"
 
 #include "components.h"
 #include "game_constants.h"
@@ -122,7 +121,6 @@ public:
 	void onUnitDied(const Unit* unit);
 
 private:
-
 	string wrapString(const string &str, int wrapCount);
 
 	//wrappers, commands
@@ -138,6 +136,7 @@ private:
 	void disableAi(int factionIndex);
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
+	void unfogMap();
 
 	//wrappers, queries
 	Vec2i getStartLocation(int factionIndex);
@@ -164,6 +163,7 @@ private:
 	static int disableAi(LuaHandle* luaHandle);
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
+	static int unfogMap(LuaHandle* luaHandle);
 
 	//callbacks, queries
 	static int getStartLocation(LuaHandle* luaHandle);

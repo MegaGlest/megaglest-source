@@ -84,6 +84,7 @@ private:
 	int nextUnitId;
 
 	//config
+	bool fogOfWarOverride;
 	bool fogOfWar;
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
@@ -148,6 +149,8 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 	Game * getGame() { return game; }
+
+	void setFogOfWar(bool value);
 
 private:
 
