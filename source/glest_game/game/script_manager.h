@@ -136,7 +136,6 @@ private:
 	void disableAi(int factionIndex);
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
-	void unfogMap();
 
 	//wrappers, queries
 	Vec2i getStartLocation(int factionIndex);
@@ -163,7 +162,6 @@ private:
 	static int disableAi(LuaHandle* luaHandle);
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
-	static int unfogMap(LuaHandle* luaHandle);
 
 	//callbacks, queries
 	static int getStartLocation(LuaHandle* luaHandle);

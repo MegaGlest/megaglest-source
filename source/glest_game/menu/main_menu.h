@@ -46,6 +46,8 @@ struct ScenarioInfo
 	bool defaultVictoryConditions;
 
     string desc;
+
+    bool fogOfWar;
 };
 
 class MenuState;

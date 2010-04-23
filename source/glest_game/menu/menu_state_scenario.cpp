@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -198,6 +198,13 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     scenarioInfo->desc+= lang.get("Map") + ": " + formatString(scenarioInfo->mapName) + "\n";
     scenarioInfo->desc+= lang.get("Tileset") + ": " + formatString(scenarioInfo->tilesetName) + "\n";
 	scenarioInfo->desc+= lang.get("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
+
+	if(scenarioNode->hasChild("fog-of-war") == true) {
+		scenarioInfo->fogOfWar = scenarioNode->getChild("fog-of-war")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		scenarioInfo->fogOfWar = true;
+	}
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
@@ -229,6 +236,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
     }
 
 	gameSettings->setFactionCount(factionCount);
+	gameSettings->setFogOfWar(scenarioInfo->fogOfWar);
 }
 
 ControlType MenuStateScenario::strToControllerType(const string &str){

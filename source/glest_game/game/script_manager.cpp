@@ -71,8 +71,6 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getLastDeadUnitId, "lastDeadUnit");
 	luaScript.registerFunction(getUnitCount, "unitCount");
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
-	luaScript.registerFunction(unfogMap, "unfogMap");
-
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -394,16 +392,6 @@ int ScriptManager::getUnitCount(LuaHandle* luaHandle){
 int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
-	return luaArguments.getReturnCount();
-}
-
-void ScriptManager::unfogMap() {
-	world->setFogOfWar(false);
-}
-
-int ScriptManager::unfogMap(LuaHandle* luaHandle){
-	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unfogMap();
 	return luaArguments.getReturnCount();
 }
 
