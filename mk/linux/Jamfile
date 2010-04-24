@@ -7,6 +7,24 @@ Package license.txt readme.txt ;
 #### Library ####
 SubDir TOP shared_lib sources ;
 
+LIB_STREFLOP_DIRS =
+    streflop/libm/flt-32 
+    streflop/libm/headers
+;
+
+LIB_STREFLOP_INCLUDE_DIRS = ../include/$(LIB_STREFLOP_DIRS) ;
+
+for i in $(LIB_STREFLOP_DIRS) {
+  LIB_STREFLOP_SOURCES += [ Wildcard $(i) : *.c *.cpp *.h ] ;
+}
+
+Library strefloplib : $(LIB_STREFLOP_SOURCES) ;
+ExternalLibs strefloplib :  SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
+IncludeDir strefloplib : $(LIB_STREFLOP_INCLUDE_DIRS) ;
+
+#### Library ####
+SubDir TOP shared_lib sources ;
+
 LIB_DIRS =
 	platform/sdl
 	platform/posix
@@ -18,14 +36,18 @@ LIB_DIRS =
 	xml
 	glew
 	lua
+	streflop
+	streflop/libm_flt32_source
 ;
+
 LIB_INCLUDE_DIRS = ../include/$(LIB_DIRS) ;
 
 for i in $(LIB_DIRS) {
   LIB_SOURCES += [ Wildcard $(i) : *.c *.cpp *.h ] ;
 }
 
-Library glestlib : $(LIB_SOURCES) ;
+Library glestlib : $(LIB_SOURCES)  ;
+LinkWith glestlib : strefloplib ;
 ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
 IncludeDir glestlib : $(LIB_INCLUDE_DIRS) ;
 
@@ -54,7 +76,7 @@ for i in $(GLEST_DIRS) {
 }
 
 Application glest.bin : $(GLEST_SOURCES) ;
-LinkWith glest.bin : glestlib ;
+LinkWith glest.bin : glestlib strefloplib ;
 ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
 IncludeDir glest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
@@ -68,7 +90,7 @@ if $(WX_AVAILABLE) = "yes" {
   }
 
   Application glest_editor : $(GLEST_MAP_SOURCES) ;
-  LinkWith glest_editor : glestlib ;
+  LinkWith glest_editor : glestlib strefloplib ;
   ExternalLibs glest_editor : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL WX ;
   IncludeDir glest_editor : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_MAP_DIRS) ;
 }
@@ -83,7 +105,7 @@ if $(WX_AVAILABLE) = "yes" {
   }
 
   Application glest_g3dviewer : $(GLEST_VIEWER_SOURCES) ;
-  LinkWith glest_g3dviewer : glestlib ;
+  LinkWith glest_g3dviewer : glestlib strefloplib ;
   ExternalLibs glest_g3dviewer : SDL GL GLU WX ;
   IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS) ;
 }
@@ -97,7 +119,7 @@ if $(WX_AVAILABLE) = "yes" {
   }
 
   Application glest_configurator : $(GLEST_CONFIG_SOURCES) ;
-  LinkWith glest_configurator : glestlib ;
+  LinkWith glest_configurator : glestlib strefloplib ;
   ExternalLibs glest_configurator : SDL GL GLU XERCES WX ;
   IncludeDir glest_configurator : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_CONFIG_DIRS) ;
 

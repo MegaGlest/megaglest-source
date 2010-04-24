@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -195,7 +195,7 @@ void Tileset::load(const string &dir, Checksum *checksum){
 		const XmlNode *weatherNode= parametersNode->getChild("weather");
 		float sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
 		float rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
-		float rnd= fabs(random.randRange(-1.f, 1.f));
+		float rnd= streflop::fabs(random.randRange(-1.f, 1.f));
 
 		if(rnd<sunnyProb){
 			weather= wSunny;

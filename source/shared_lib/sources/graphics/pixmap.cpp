@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include "streflop_cond.h"
 #include "pixmap.h"
 
 #include <stdexcept>
@@ -654,11 +655,11 @@ void Pixmap2D::splat(const Pixmap2D *leftUp, const Pixmap2D *rightUp, const Pixm
 			float distRd= splatDist(Vec2i(i, j), Vec2i(w, h));
 
 			const float powFactor= 2.0f;
-			distLu= pow(distLu, powFactor);
-			distRu= pow(distRu, powFactor);
-			distLd= pow(distLd, powFactor);
-			distRd= pow(distRd, powFactor);
-			avg= pow(avg, powFactor);
+			distLu= streflop::pow(distLu, powFactor);
+			distRu= streflop::pow(distRu, powFactor);
+			distLd= streflop::pow(distLd, powFactor);
+			distRd= streflop::pow(distRd, powFactor);
+			avg= streflop::pow(avg, powFactor);
 
 			float lu= distLu>avg? 0: ((avg-distLu))*random.randRange(0.5f, 1.0f);
 			float ru= distRu>avg? 0: ((avg-distRu))*random.randRange(0.5f, 1.0f);

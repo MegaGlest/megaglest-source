@@ -198,6 +198,13 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     scenarioInfo->desc+= lang.get("Map") + ": " + formatString(scenarioInfo->mapName) + "\n";
     scenarioInfo->desc+= lang.get("Tileset") + ": " + formatString(scenarioInfo->tilesetName) + "\n";
 	scenarioInfo->desc+= lang.get("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
+
+	if(scenarioNode->hasChild("fog-of-war") == true) {
+		scenarioInfo->fogOfWar = scenarioNode->getChild("fog-of-war")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		scenarioInfo->fogOfWar = true;
+	}
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
@@ -229,6 +236,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
     }
 
 	gameSettings->setFactionCount(factionCount);
+	gameSettings->setFogOfWar(scenarioInfo->fogOfWar);
 }
 
 ControlType MenuStateScenario::strToControllerType(const string &str){

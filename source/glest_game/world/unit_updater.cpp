@@ -839,7 +839,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr, con
 		for(int j=center.y-range; j<center.y+range+size; ++j){
 
 			//cells insede map and in range
-			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f(i, j))) <= (range+1)){
+			if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f(i, j))) <= (range+1)){
 
 				//all fields
 				for(int k=0; k<fieldCount; k++){

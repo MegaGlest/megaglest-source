@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include "streflop_cond.h"
 #include "particle.h"
 
 #include <cassert>
@@ -262,12 +263,12 @@ void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 	
 	float ang= random.randRange(-2.0f*pi, 2.0f*pi);
-	float mod= fabsf(random.randRange(-radius, radius));
+	float mod= streflop::fabsf(random.randRange(-radius, radius));
 	
-	float x= sinf(ang)*mod;
-	float y= cosf(ang)*mod;
+	float x= streflop::sinf(ang)*mod;
+	float y= streflop::cosf(ang)*mod;
 	
-	float radRatio= sqrtf(sqrtf(mod/radius));
+	float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
 
 	p->color= colorNoEnergy*0.5f + colorNoEnergy*0.5f*radRatio;
 	p->energy= static_cast<int>(maxParticleEnergy*radRatio) + random.randRange(-varParticleEnergy, varParticleEnergy);
@@ -300,9 +301,9 @@ void FireParticleSystem::setRadius(float radius){
 }
 
 void FireParticleSystem::setWind(float windAngle, float windSpeed){
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 }
 
 
@@ -365,12 +366,12 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 	
 	float ang= random.randRange(-2.0f*pi, 2.0f*pi);
-	float mod= fabsf(random.randRange(-radius, radius));
+	float mod= streflop::fabsf(random.randRange(-radius, radius));
 	
-	float x= sinf(ang)*mod;
-	float y= cosf(ang)*mod;
+	float x= streflop::sinf(ang)*mod;
+	float y= streflop::cosf(ang)*mod;
 	
-	float radRatio= sqrtf(sqrtf(mod/radius));
+	float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
 	
 	//p->color= color*0.5f + color*0.5f*radRatio;
 	p->color=color;
@@ -392,9 +393,9 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	else
 	{// rotate it according to rotation
 		float rad=degToRad(rotation);
-		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)+offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)-offset.x*sinf(rad))); 
+		p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(rad)+offset.x*streflop::cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(rad)-offset.x*streflop::sinf(rad)));
 		if(relativeDirection){
-			p->speed=Vec3f(p->speed.z*sinf(rad)+p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)-p->speed.x*sinf(rad)));
+			p->speed=Vec3f(p->speed.z*streflop::sinf(rad)+p->speed.x*streflop::cosf(rad),p->speed.y,(p->speed.z*streflop::cosf(rad)-p->speed.x*streflop::sinf(rad)));
 		}
 	}
 }
@@ -448,9 +449,9 @@ void UnitParticleSystem::setRadius(float radius){
 }
 
 void UnitParticleSystem::setWind(float windAngle, float windSpeed){
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 }
 
 
@@ -498,9 +499,9 @@ void RainParticleSystem::setRadius(float radius){
 }	
 
 void RainParticleSystem::setWind(float windAngle, float windSpeed){
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 }
 
 // ===========================================================================
@@ -542,9 +543,9 @@ void SnowParticleSystem::setRadius(float radius){
 }	
 
 void SnowParticleSystem::setWind(float windAngle, float windSpeed){
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 }
 
 // ===========================================================================
@@ -654,8 +655,8 @@ void ProjectileParticleSystem::update(){
 		case tSpiral:
 			{
 				pos= flatPos;
-				pos+= xVector * cos(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
-				pos+= yVector * sin(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
+				pos+= xVector * streflop::cos(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
+				pos+= yVector * streflop::sin(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
 			}
 			break;
 

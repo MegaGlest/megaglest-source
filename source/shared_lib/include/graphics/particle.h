@@ -21,7 +21,7 @@
 #include "random.h"
 
 using std::list;
-using Shared::Util::Random;
+//using Shared::Util::Random;
 
 namespace Shared{ namespace Graphics{
 
@@ -95,7 +95,7 @@ protected:
 protected:
 	
 	Particle *particles;
-	Random random;
+	Shared::Util::Random random;
 
 	BlendMode blendMode;
 	State state;

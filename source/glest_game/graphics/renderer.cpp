@@ -24,6 +24,8 @@
 #include "opengl.h"
 #include "faction.h"
 #include "factory_repository.h"
+#include <cmath>
+
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -1775,13 +1777,13 @@ void Renderer::renderMinimap(){
 
 	glColor4f(1.f, 1.f, 1.f, 0.0f);
 	glVertex2i(
-		mx + x + static_cast<int>(20*sin(ang-pi/5)),
-		my + mh - (y-static_cast<int>(20*cos(ang-pi/5))));
+		mx + x + static_cast<int>(20*streflop::sin(ang-pi/5)),
+		my + mh - (y-static_cast<int>(20*streflop::cos(ang-pi/5))));
 
 	glColor4f(1.f, 1.f, 1.f, 0.0f);
     glVertex2i(
-		mx + x + static_cast<int>(20*sin(ang+pi/5)),
-		my + mh - (y-static_cast<int>(20*cos(ang+pi/5))));
+		mx + x + static_cast<int>(20*streflop::sin(ang+pi/5)),
+		my + mh - (y-static_cast<int>(20*streflop::cos(ang+pi/5))));
 
     glEnd();
     glPopAttrib();
@@ -2393,12 +2395,12 @@ float Renderer::computeMoonAngle(float time){
 
 Vec4f Renderer::computeSunPos(float time){
 	float ang= computeSunAngle(time);
-	return Vec4f(-cos(ang)*sunDist, sin(ang)*sunDist, 0.f, 0.f);
+	return Vec4f(-streflop::cos(ang)*sunDist, streflop::sin(ang)*sunDist, 0.f, 0.f);
 }
 
 Vec4f Renderer::computeMoonPos(float time){
 	float ang= computeMoonAngle(time);
-	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
+	return Vec4f(-streflop::cos(ang)*moonDist, streflop::sin(ang)*moonDist, 0.f, 0.f);
 }
 
 Vec3f Renderer::computeLightColor(float time){
