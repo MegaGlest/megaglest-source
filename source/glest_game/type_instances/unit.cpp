@@ -23,10 +23,10 @@
 #include "skill_type.h"
 #include "core_data.h"
 #include "renderer.h"
-#include "leak_dumper.h"
-#include <cmath>
-
+//#include <cmath>
 #include "socket.h"
+
+#include "leak_dumper.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -115,7 +115,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 	modelFacing = CardinalDir::NORTH;
 
-    Random random;
+    RandomGen random;
 
 	this->pos=pos;
 	this->type=type;

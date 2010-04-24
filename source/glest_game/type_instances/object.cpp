@@ -18,7 +18,7 @@
 #include "object_type.h"
 #include "resource.h"
 #include "util.h"
-#include "random.h"
+#include "randomgen.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -31,7 +31,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Object::Object(ObjectType *objectType, const Vec3f &pos){
-	Shared::Util::Random random;
+	RandomGen random;
 
 	random.init(static_cast<int>(pos.x*pos.z));
 

@@ -18,10 +18,10 @@
 #include "commander.h"
 #include "console.h"
 #include "selection.h"
-#include "random.h"
+#include "randomgen.h"
 #include <map>
 
-//using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -102,7 +102,7 @@ public:
 
 private:
 	//External objects
-	Shared::Util::Random random;
+	RandomGen random;
 	const Commander *commander;
 	const World *world;
 	GameCamera *gameCamera;

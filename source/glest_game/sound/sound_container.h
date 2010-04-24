@@ -15,10 +15,10 @@
 #include <vector>
 
 #include "sound.h"
-#include "random.h"
+#include "randomgen.h"
 
 using std::vector;
-//using Shared::Util::Random;
+using Shared::Util::RandomGen;
 using Shared::Sound::StaticSound;
 
 namespace Glest{ namespace Game{
@@ -35,7 +35,7 @@ public:
 
 private:
 	Sounds sounds;
-	mutable Shared::Util::Random random;
+	mutable RandomGen random;
 	mutable int lastSound;
 
 public:

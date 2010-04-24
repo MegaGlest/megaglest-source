@@ -15,10 +15,10 @@
 #include "gui.h"
 #include "path_finder.h"
 #include "particle.h"
-#include "random.h"
+#include "randomgen.h"
 
 using Shared::Graphics::ParticleObserver;
-//using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -55,7 +55,7 @@ private:
 	ScriptManager *scriptManager;
 	PathFinder pathFinder;
 	Game *game;
-	Shared::Util::Random random;
+	RandomGen random;
 	bool allowRotateUnits;
 
 public:

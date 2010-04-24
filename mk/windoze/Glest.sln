@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "g3d_viewer.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_configurator", "glest_configurator.vcproj", "{FE5C7C7C-F109-44F5-8329-19A4E24F162D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstreflop", "libstreflop.vcproj", "{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -46,6 +48,10 @@ Global
 		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug|Win32.Build.0 = Debug|Win32
 		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release|Win32.ActiveCfg = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release|Win32.Build.0 = Release|Win32
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Debug|Win32.Build.0 = Debug|Win32
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Release|Win32.ActiveCfg = Release|Win32
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

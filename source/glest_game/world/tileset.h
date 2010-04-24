@@ -18,7 +18,7 @@
 #include "xml_parser.h"
 #include "object_type.h"
 #include "sound.h"
-#include "random.h"
+#include "randomgen.h"
 #include "surface_atlas.h"
 #include "checksum.h"
 
@@ -31,7 +31,7 @@ using Shared::Graphics::Model;
 using Shared::Graphics::Vec3f;
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::Texture3D;
-using Shared::Util::Random;
+using Shared::Util::RandomGen;
 using Shared::Util::Checksum;
 
 using std::map;
@@ -115,7 +115,7 @@ private:
 	SurfProbs surfProbs[surfCount];
 	SurfPixmaps surfPixmaps[surfCount];
 
-	Random random;
+	RandomGen random;
     Texture3D *waterTex;
     bool waterEffects;
     bool fog;
