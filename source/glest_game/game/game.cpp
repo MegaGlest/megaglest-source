@@ -24,6 +24,7 @@
 #include "network_manager.h"
 #include "checksum.h"
 #include "auto_test.h"
+#include "FPUCheck.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -98,6 +99,7 @@ void Game::load(){
 	}
 
     Config &config = Config::getInstance();
+    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -212,6 +214,8 @@ void Game::load(){
 		Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
 		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
 	}
+
+    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Game::init()
@@ -242,6 +246,8 @@ void Game::init()
 	gameCamera.init(map->getW(), map->getH());
 	gameCamera.setPos(Vec2f(v.x, v.y));
 	scriptManager.init(&world, &gameCamera);
+
+    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
 
@@ -279,6 +285,8 @@ void Game::init()
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
+
+    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -356,6 +364,8 @@ void Game::update(){
 			weatherParticleSystem->setPos(gameCamera.getPos());
 		}
 		renderer.updateParticleManager(rsGame);
+
+	    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	//call the chat manager
