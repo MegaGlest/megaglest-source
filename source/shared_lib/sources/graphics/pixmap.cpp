@@ -18,7 +18,7 @@
 
 #include "util.h"
 #include "math_util.h"
-#include "random.h"
+#include "randomgen.h"
 #include "FileReader.h"
 #include "ImageReaders.h"
 
@@ -631,7 +631,7 @@ float splatDist(Vec2i a, Vec2i b){
 
 void Pixmap2D::splat(const Pixmap2D *leftUp, const Pixmap2D *rightUp, const Pixmap2D *leftDown, const Pixmap2D *rightDown){
 
-	Random random;
+	RandomGen random;
 
 	assert(components==3 || components==4);
 

@@ -16,9 +16,10 @@
 #include "menu_state_new_game.h"
 #include "menu_state_scenario.h"
 #include "game.h"
+#include "config.h"
 
 #include "leak_dumper.h"
-#include "config.h"
+
 
 namespace Glest{ namespace Game{
 

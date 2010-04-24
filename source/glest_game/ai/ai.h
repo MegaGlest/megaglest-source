@@ -18,12 +18,12 @@
 #include "world.h"
 #include "commander.h"
 #include "command.h"
-#include "random.h"
+#include "randomgen.h"
 
 using std::deque;
 using std::vector;
 using std::list;
-using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -142,7 +142,7 @@ private:
 	int upgradeCount;
 	Tasks tasks;
 	Positions expansionPositions;
-	Random random;
+	RandomGen random;
 
 public: 
 	int minWarriors;
@@ -152,7 +152,7 @@ public:
 
     //state requests
 	AiInterface *getAiInterface() const		{return aiInterface;}
-	Random* getRandom()						{return &random;}
+	RandomGen* getRandom()						{return &random;}
     int getCountOfType(const UnitType *ut);
 	
 	int getCountOfClass(UnitClass uc);

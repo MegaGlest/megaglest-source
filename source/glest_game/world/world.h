@@ -28,14 +28,14 @@
 #include "water_effects.h"
 #include "faction.h"
 #include "unit_updater.h"
-#include "random.h"
+#include "randomgen.h"
 #include "game_constants.h"
 
 namespace Glest{ namespace Game{
 
 using Shared::Graphics::Quad2i;
 using Shared::Graphics::Rect2i;
-using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 class Faction;
 class Unit;
@@ -74,7 +74,7 @@ private:
 
 	Factions factions;
 
-	Random random;
+	RandomGen random;
 
 	ScriptManager* scriptManager;
 

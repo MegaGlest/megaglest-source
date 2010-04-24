@@ -18,10 +18,10 @@
 #include "vec.h"
 #include "pixmap.h"
 #include "texture_manager.h"
-#include "random.h"
+#include "randomgen.h"
 
 using std::list;
-//using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 namespace Shared{ namespace Graphics{
 
@@ -95,7 +95,7 @@ protected:
 protected:
 	
 	Particle *particles;
-	Shared::Util::Random random;
+	RandomGen random;
 
 	BlendMode blendMode;
 	State state;

@@ -113,11 +113,11 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				WarningLevel="3"
@@ -134,6 +134,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="libstreflop.lib"
+				AdditionalLibraryDirectories=".\"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -162,6 +164,18 @@
 			>
 			<File
 				RelativePath="..\..\source\win32_deps\src\glprocs.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\streflop\Random.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\streflop\SMath.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\streflop\streflopC.cpp"
 				>
 			</File>
 			<Filter
@@ -332,7 +346,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\util\random.cpp"
+					RelativePath="..\..\source\shared_lib\sources\util\randomgen.cpp"
 					>
 				</File>
 				<File
@@ -414,6 +428,42 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\FPUSettings.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\IntegerTypes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\Random.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\SMath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\streflop.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\streflop_cond.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\streflopC.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\System.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\streflop\X87DenormalSquasher.h"
+				>
+			</File>
 			<Filter
 				Name="graphics"
 				>
@@ -726,7 +776,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\include\util\random.h"
+					RelativePath="..\..\source\shared_lib\include\util\randomgen.h"
 					>
 				</File>
 				<File

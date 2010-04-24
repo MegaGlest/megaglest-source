@@ -12,7 +12,7 @@
 #include "sound_player_ds8.h"
 
 #include <cassert>
-//#include <cmath>
+#include <cmath>
 //#include "streflop.h"
 
 #include "util.h"

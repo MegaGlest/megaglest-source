@@ -17,7 +17,7 @@
 #include "vec.h"
 #include "texture.h"
 #include "model.h"
-#include "random.h"
+#include "randomgen.h"
 
 using Shared::Graphics::RainParticleSystem;
 using Shared::Graphics::FireParticleSystem;
@@ -26,7 +26,7 @@ using Shared::Graphics::Vec3f;
 using Shared::Graphics::Vec2f;
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::Model;
-//using Shared::Util::Random;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -67,7 +67,7 @@ private:
 	float t;
 
 	//misc
-	Shared::Util::Random random;
+	RandomGen random;
 	Model *characterModels[characterCount];
 	float anim;
 	float fade;
