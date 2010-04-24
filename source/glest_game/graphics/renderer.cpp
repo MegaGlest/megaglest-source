@@ -24,7 +24,7 @@
 #include "opengl.h"
 #include "faction.h"
 #include "factory_repository.h"
-//#include <cmath>
+#include <cmath>
 
 #include "leak_dumper.h"
 
