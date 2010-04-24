@@ -24,7 +24,10 @@
 #include "opengl.h"
 #include "faction.h"
 #include "factory_repository.h"
-#include <cmath>
+
+#ifndef WIN32
+  #include <cmath>
+#endif
 
 #include "leak_dumper.h"
 
