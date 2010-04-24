@@ -24,6 +24,8 @@
 #include "core_data.h"
 #include "renderer.h"
 #include "leak_dumper.h"
+#include <cmath>
+
 #include "socket.h"
 
 using namespace Shared::Graphics;
@@ -244,7 +246,7 @@ float Unit::getVerticalRotation() const{
 	/*if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
 		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
 		float dist= pos.dist(targetPos);
-		return radToDeg(atan2(heightDiff, dist));
+		return radToDeg(streflop::atan2(heightDiff, dist));
 	}*/
 	return 0.f;
 }
@@ -403,7 +405,7 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 	Vec2i relPos= targetPos - pos;
 	Vec2f relPosf= Vec2f(relPos.x, relPos.y);
-	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
+	targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
 	targetRef= NULL;
 
 	this->targetPos= targetPos;
@@ -979,7 +981,7 @@ void Unit::updateTarget(){
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
 		Vec2f relPosf= Vec2f(relPos.x, relPos.y);
-		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
+		targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
 
 		//update target vec
 		targetVec= target->getCurrVector();

@@ -20,6 +20,12 @@ AC_C_BIGENDIAN()
 # stupid autoconf is adding default -g -O2 flags when we don't want this :-/
 test ".$CXXFLAGS" = "." && CXXFLAGS=" "
 
+# here we define required defines for streflop
+AC_DEFINE([USE_STREFLOP], [], [Define if streflop should be used])
+AC_DEFINE([STREFLOP_SSE], [], [Define type of streflop to use])
+AC_DEFINE([LIBM_COMPILING_FLT32], [], [Define which libm compile type should be used])
+# end
+
 #----------------------------------------------------------------------------
 # Check for build variant (debug, profile, optimize)
 #----------------------------------------------------------------------------

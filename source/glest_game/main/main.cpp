@@ -8,6 +8,10 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#ifdef USE_STREFLOP
+	#include "streflop.h"
+#endif
+
 #include "main.h"
 
 #include <string>
@@ -260,6 +264,13 @@ void MainWindow::setProgram(Program *program) {
 SystemFlags debugger;
 
 int glestMain(int argc, char** argv){
+#ifdef STREFLOP_H
+	streflop_init<streflop::Simple>();
+	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
+#else
+	printf("%s, STREFLOP disabled.\n",getNetworkVersionString().c_str());
+#endif
+
 	SystemFlags::enableNetworkDebugInfo		= true;
     SystemFlags::enableDebugText			= true;
 	SystemFlags::enablePerformanceDebugInfo	= false;

@@ -21,7 +21,7 @@
 #include "random.h"
 #include <map>
 
-using Shared::Util::Random;
+//using Shared::Util::Random;
 
 namespace Glest{ namespace Game{
 
@@ -102,7 +102,7 @@ public:
 
 private:
 	//External objects
-	Random random;
+	Shared::Util::Random random;
 	const Commander *commander;
 	const World *world;
 	GameCamera *gameCamera;
