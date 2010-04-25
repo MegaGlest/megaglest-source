@@ -1,0 +1,1405 @@
+
+Using MojoSetup.
+
+If there are gaps in this documentation, please ask on the MojoSetup mailing
+ list. To subscribe to the list, go here...
+
+   http://icculus.org/mailman/listinfo/mojosetup
+
+ ...and then questions can go to mojosetup@icculus.org. This document will
+ be updated as we see what parts are confusing, so feedback is appreciated.
+
+
+Putting together a MojoSetup installer involves five general steps:
+1) Compile the software.
+2) Set up the installer filesystem structure.
+3) Write a config file.
+4) Add any localized strings.
+5) Package up the final file for distribution.
+
+Each step has a lot of details, but all installers basically follow those same
+ basic development steps.
+
+
+Compile the software:
+
+You will need some tools. First, you'll need your platform's favorite build
+ tools. You'll also need CMake (http://www.cmake.org/), and a Mercurial
+ (http://www.selenic.com/mercurial/) client. These are all available for most
+ popular operating systems, and some not-so-popular ones.
+
+Get the latest version of MojoSetup from Mercurial:
+
+     hg clone http://hg.icculus.org/icculus/mojosetup
+
+
+Then you'll need to point CMake at it:
+
+     cd mojosetup
+     mkdir cmake-build
+     cd cmake-build
+     ccmake ..
+
+Tweak the build settings to your liking. You'll want to set CMAKE_BUILD_TYPE
+ to MinSizeRel, to make the compiled binary be as small as possible, and
+ then trim out features you don't need. For example, you can drop the
+ HTTP and FTP support to save about 25 kilobytes on the binary. You can also
+ drop support for various archive types, pieces of Lua you don't plan to use,
+ etc.
+
+CMake will get you project files for whatever development environment you use
+ (Makefiles, XCode, Visual Studio, etc). Build the project. You should end
+ up with some shared libraries for whatever GUIs you left enabled, and
+ a mojsetup binary. Strip the debug symbols and put these aside for later.
+
+If you are building MojoSetup without the Lua parser, you'll want to build
+ the separate Lua compiler (MOJOSETUP_BUILD_LUAC in ccmake). That will produce
+ a "mojoluac" binary. Put that aside for later, too.
+
+
+Set up the installer filesystem structure:
+
+This is fairly easy. The installer eventually wants to see a directory
+ tree like this:
+
+    data/
+    scripts/
+    guis/
+    meta/
+
+This is called the "Base Archive," even if it's a real directory tree in the
+ physical filesystem and not in an actual archive, such as a .zip file.
+
+"data" is where the installer looks for files included in the installer itself
+ that need installation (as opposed to those being read from the network
+ or a CD-ROM, etc). READMEs and EULAs go in here, too. The installer
+ doesn't care how things under data/ are arranged.
+
+"guis" is where the installer looks for those shared libraries that got
+ built in the first step. Copy them in here, if you built any.
+
+"meta" contains installer metadata: graphics for splash screens, etc. It's sort
+ of a catch-all for things that don't fit elsewhere.
+
+"scripts" is where Lua scripts go. You'll put your config file in here
+ (config.lua), the translation table (localizations.lua), and whatever other
+ scripts come with MojoSetup, which are required application logic. The
+ installer will not work if you don't include all these files! This
+ directory can hold either .lua files (source code), or their .luac
+ equivalents. If you built MojoSetup without the Lua parser to save space,
+ you'll need to compile the .lua sources into .luac objects now, or the
+ installer won't know what to do with them. It's safe to compile them even
+ if you include the parser.
+
+    cd scripts
+    ../mojoluac -o config.luac config.lua
+    cd ..
+
+You can strip debug symbols from the compiled scripts to save more space,
+ but you'll get less useful information if there's a script error:
+
+    cd scripts
+    ../mojoluac -s -o config.luac config.lua
+    cd ..
+
+Once you finish constructing this directory tree, put it aside for later.
+
+
+Write a config file:
+
+This is the complicated part, and where most of your effort will be spent.
+ This document will try to cover all the provided facilities, but as the
+ configuration file also provides a robust programming language, not only
+ is the full scope beyond this document, you can also accomplish all sorts
+ of things we haven't even considered yet.
+
+Configuration files are Lua scripts. The Lua language and runtime library is
+ documented at http://www.lua.org/, and they sell an excellent book called
+ "Programming in Lua" which is a fast read and will demonstrate all manners
+ of wild and interesting features of the language. That being said, most
+ people rolling config files don't need any significant Lua expertise, and
+ basic config files don't need any programming experience at all.
+
+MojoSetup provides some functions for your benefit, if you want to add any
+ programming logic to your config. These are documented below.
+
+The config file is named config.lua, and it must be a text file in UTF-8
+ encoding. If you are doing any programming, you may use any symbol you like,
+ so long as the name isn't "Setup", "MojoSetup", or any of the standard Lua
+ runtime names like "string" or "table".
+
+Configuration files are a hierarchy of elements that take this form:
+
+ Setup.DataType
+ {
+     someattribute = value1,
+     someotherattribute = value2,
+ }
+
+Elements can nest:
+
+ Setup.DataType
+ {
+     someattribute = value1,
+     someotherattribute = value2,
+     Setup.AnotherDataType
+     {
+         something = value3,
+     }
+ }
+
+
+Case is important! Setup.Option and Setup.option are NOT the same thing!
+
+
+Here are the elements, and the attributes they can possess.
+
+ There are some specifiers by the attributes:
+  mustExist: Error if is nil (usually if you don't specify it). The other
+             "mustBe" descriptions consider nil to be valid when mustExist
+             isn't explicitly mentioned.
+  no default: This attribute will not have a default if not specified.
+  default X: This attribute defaults to X if not specified.
+  mustBeString: Error if isn't a string.
+  cantBeEmpty: Error is this string is "". String can be nil, though.
+  mustBeBool: Error if isn't true, false, or nil.
+  mustBeFunction: Error if isn't a function (can be C or Lua).
+  mustBeNumber: Error if isn't a number.
+  mustBeUrl: Error if isn't a string that matches the regexp "^.+://.-/.*".
+  mustBePerms: Error if isn't a valid permissions string for the platform.
+  mustBeStringOrTableOfStrings: Error if isn't a string or an array of strings.
+  mustBeSplashPosition: Error if isn't a string in the set of "top",
+                        "left", "bottom", "right", or "background".
+
+ Attributes that aren't explicitly specified take on their default value. In
+  cases without a default, they are effectively set to Lua's "nil" value.
+  This makes boolean values be treated as "false." Plan accordingly.
+
+
+ Setup.Package:
+
+  All configurations need at least one Setup.Package element. Every other
+  element is added under Setup.Package. One full run of the installer is
+  done for each Setup.Package. You can have multiple packages in one file, and
+  the installer will run through for each one as if the program was started
+  multiple times. If there are multiple packages and an installation failure
+  occurs, all successfully-installed packages will remain. In most cases, you
+  only want one Setup.Package and should use Setup.Option to cull pieces
+  of the package.
+
+  Setup.Package attributes:
+
+   vendor (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a unique identifier for your organization. This should be in the
+    format "companyname.dom" ... the hope is that your primary website is
+    a unique identifier for your company. If your website is www.icculus.org,
+    you'd enter your vendor setting as "icculus.org" ... just the hostname and
+    top-level domain. This is used largely by the OS to maintain packages
+    (Mac OS X application bundles, vendor IDs for Unix desktop menus, etc).
+    This is, in theory, never shown to the user, so you don't need this to
+    actually exist as a website with meaningful content, so long as you can
+    reasonably assure that the string is unique and follows the "host.dom"
+    format.
+
+
+   id (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a unique identifier for your package. Currently it is used as
+    the base of the install path, but future features may use it for other
+    things. Set this to something short, unique, and human-readable, like
+    "mygame".
+
+
+   disabled (no default, mustBeBool)
+
+    If this is true, the entire package will be skipped by the installer. You
+    probably want this to be true, but you might need to programmatically shut
+    off a whole package.
+
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is your product's name. This will be displayed in the title bar, and
+    other locations during installation.
+
+
+   version (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is the version of this package. This is arbitrary, and doesn't matter
+    to the installer what you specify. It's usually a value like "1.0" or
+    "beta3"
+
+    The installer may use this for future features, like upgrading previous
+    installations.
+
+
+   destination (no default, mustBeString, cantBeEmpty)
+
+    This attribute can be used to force the installation into a specific
+    location in the physical filesystem. Unless you are building something
+    very specific (like device drivers for a well-defined platform), you
+    probably should not use this attribute. If destination isn't forced,
+    the installer will prompt the user, possibly recommmending locations
+    to him.
+
+
+   recommended_destinations (no default, mustBeStringOrTableOfStrings)
+
+    This attribute lets you define some favorable places to install the
+    package. You can have a table of strings or a single string:
+
+        recommended_destinations = MojoSetup.info.homedir,
+            ...or...
+        recommended_destinations = { "/usr/local/games", "/opt/games" },
+
+    These strings are presented in the UI to the user when selecting a
+    install destination, but they can override them with their own choice.
+    The "id" attribute is appended to these before displaying to the end
+    user, so they'll see, for example, "/usr/local/games/mygame" and
+    "/opt/games/mygame" ... if a listed directory is determined to be
+    unwritable to the user (lack of permissions), it will be removed from the
+    list before presentation to the user.
+
+
+   precheck (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the installer after the
+    configuration is parsed and the GUI has started, but before the user has
+    interacted with the installer at all. It passes the finalized
+    Setup.Package table as a parameter.
+
+
+   preflight (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the installer after the
+    user has chosen options to install. The heavy-lifting of the installer
+    is about to begin: downloading files and installing the Package. It
+    passes the finalized Setup.Package table as a parameter.
+
+
+   preinstall (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the installer after all
+    needed external files are downloaded and installation of files is about
+    to begin. It passes the finalized Setup.Package table as a parameter.
+
+
+   postinstall (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the installer after the
+    entire package was successfully installed to disk. It passes the finalized
+    Setup.Package table as a parameter.
+
+
+   preuninstall (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the uninstaller after the
+    user confirms that uninstallation is acceptable and deletion of
+    files is about to begin. It passes something like the finalized
+    Setup.Package table as a parameter. This function is serialized for later
+    use, in a different program running in a different context: it may NOT use
+    any Lua upvalues (they will be local variables set to nil when the function
+    runs) and any globals you reference may or may not exist when the
+    function runs. Try to do the bare minimum here if you must use this hook.
+
+
+   postuninstall (no default, mustBeFunction)
+
+    If this attribute is defined, it is called by the uninstaller after the
+    uninstallation has successfully finished. It passes something like the
+    finalized Setup.Package table as a parameter. This function is serialized
+    for later use, in a different program running in a different context: it
+    may NOT use any Lua upvalues (they will be local variables set to nil when
+    the function runs) and any globals you reference may or may not exist when
+    the function runs. Try to do the bare minimum here if you must use this
+    hook.
+
+
+   updateurl (no default, mustBeUrl)
+
+    This is written to the manifest files for the aid of external tools, but
+    isn't currently used by MojoSetup itself.
+
+
+   splash (no default, mustBeString, cantBeEmpty)
+
+    This is the filename of an image file that will be used in the GUI.
+    The file should be placed in the "meta" directory (but you should omit
+    "meta" from this string). Please note that not all GUIs can show graphics,
+    and you must build MojoSetup with support for whatever image format you
+    used for the file.
+    
+
+   splashpos (no default, mustBeSplashPosition)
+
+    This is the location of the splash image that will be used in the GUI.
+    Please note that not all GUIs can show graphics, or handle the position
+    requested, but this makes a best effort. If you specify a splash and no
+    position, the GUI is free to place it wherever it thinks is best.
+
+
+   url (no default, mustBeString, cantBeEmpty)
+
+    (!!! FIXME) This attribute is for future expansion.
+
+
+   once (default true, mustBeBool)
+
+    (!!! FIXME) This attribute is for future expansion.
+
+
+   category (default "Games", mustBeString, cantBeEmpty)
+
+    (!!! FIXME) This attribute is for future expansion.
+
+
+   promptoverwrite (default true, mustBeBool)
+
+    (!!! FIXME) This attribute is for future expansion.
+    Please refer to Setup.File.allowoverwrite for now.
+
+
+   binarypath (no default, mustBeString, cantBeEmpty)
+
+    (!!! FIXME) This attribute is for future expansion.
+
+
+   superuser (default false, mustBeBool)
+
+    (!!! FIXME) This attribute is for future expansion.
+
+
+   write_manifest (default true, mustBeBool)
+
+    If true, MojoSetup will create a hidden metadata directory in the
+    destination folder with lists of all files installed and some other
+    pertinent facts about the installed package. This allows other tools to
+    operate on the installation later, such as a software updater program or
+    an uninstaller. MojoSetup will also install tools in the metadata
+    directory to aid in manifest management and uninstallation.
+
+    Unless your package is a well-defined, static installation, you probably
+    want this. It adds a couple hundred kilobytes to the final install in the
+    filesystem (but not your download package), and puts an extra directory
+    in there (Usually called ".mojosetup", and hidden from the end-user).
+
+
+   support_uninstall (default true, mustBeBool)
+
+    If true, MojoSetup will include a means for the end-user to uninstall
+    this package. On Unix, this takes the form of a shell script in the
+    destination folder, on Windows, this hooks your package into the
+    "Add/Remove Programs" control panel.
+
+    If you enable support_uninstall, you must enable write_manifest, or the
+    installer will refuse to run to alert you to the problem immediately.
+
+    Please note that if you haven't anything outside the destination folder
+    to clean up, uninstall is merely a user-friendly formality; MojoSetup
+    doesn't implicitly write anything to the system outside this folder, so
+    the user can just drag it to the trash in the basic usage scenario. Indeed,
+    on Mac OS X, this is Apple's recommended "uninstall" procedure. On Windows,
+    hooking into Add/Remove Programs is probably desirable in all cases.
+
+    Enabling this option adds very little overhead to the normal install, once
+    you swallow the cost from write_manifest.
+
+
+ Setup.Eula:
+
+  This element can be a child of Setup.Package or Setup.Option. It can be
+  used to display a license agreement to the end user, which they must agree
+  to before installation can proceed. If they refuse the license, the installer
+  terminates without installing anything (or, in the Setup.Option case, steps
+  back in the installation to let them change options, so they can disable the
+  installation of whatever they disagree with). There can be multiple
+  Setup.Eula elements listed, in which case the end user will be asked to
+  agree to each license individually before installation may proceed. The
+  Setup.Package licenses are shown first before any other interaction occurs,
+  and the Setup.Option licenses are shown after the user selects her install
+  options.
+
+  Setup.Eula attributes:
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a brief description of the license, used for title bars and such.
+
+
+   source (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a filename in the Base Archive's "data" directory that contains
+    the license text. Currently this must be a text file in UTF-8 encoding.
+
+
+ Setup.Readme:
+
+  This element is a child of Setup.Package. It can be used to display a
+  information about the package to the end user, such as a welcome message,
+  FAQs, or other orientation information. There can be multiple Setup.Readme
+  elements listed, in which case the end user will be shown each readme
+  individually before installation may proceed. The readmes are shown after
+  any EULA elements in the Setup.Package. EULA elements in a Setup.Option
+  are shown later, however.
+
+  Setup.Readme attributes:
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a brief description of the Readme, used for title bars and such.
+
+
+   source (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a filename in the Base Archive's "data" directory that contains
+    the readme text. Currently this must be a text file in UTF-8 encoding.
+
+
+ Setup.ProductKey:
+
+  This element can be a child of Setup.Package or Setup.Option. It can be
+  used to prompt the user for a "CD key" or some other sort of code that
+  is required to install the product. If they can't enter a valid key,
+  the installer terminates without installing anything (or, in the
+  Setup.Option case, steps back in the installation to let them change options,
+  so they can disable the installation of whatever they don't have keys for).
+  There can be multiple Setup.ProductKey elements listed, in which case the
+  end user will be asked to enter each key individually before installation
+  may proceed. The Setup.Package keys are requested after any global EULAs are
+  agreed to, and the Setup.Option keys are requested after any per-option
+  EULAs.
+
+  Setup.ProductKey attributes:
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a brief description of the key being requested, used for
+    title bars and such.
+
+
+   format (no default, mustBeString, cantBeEmpty)
+
+    This specifies the exact format a key must be. This is a string of
+    characters. The GUI will not allow the user to continue until they either
+    enter a string that matches this format or abort entry.
+
+    The following characters are acceptable in a format string:
+     'X', '#', ' ', '-', '?', '*'
+
+    'X' means "any letter."
+    '#' means "any number."
+    '?' means "any letter or number."
+    '*' means "any character."
+    ' ' and '-' specify new blocks of text.
+
+    Obviously, these are not regular expressions, or filename-style wildcards.
+
+    For example, if you expect a valid product key to be four segments of
+    four numbers, followed by two letters, your format would be this:
+
+      ####-####-####-#### XX
+
+    '-' and ' ' are optional. The GUI may be able to optimize for these cases,
+    such as splitting input into separate text boxes. Users won't have to
+    enter these characters; MojoSetup will fill them in if they are missing.
+
+    If no format is specified, the user may enter any string.
+
+
+   verify (no default, nil, mustBeFunction)
+
+    This function is called after the user finishes typing in their key. It
+    allows the installer to verify that the key is valid before continuing.
+    The function returns true or false, and maybe optionally return a second
+    value that transforms the key, perhaps to encrypt it before writing it
+    to disk.
+
+    Here is a very basic example function in Lua:
+
+      local function verify_cdkey(key)
+          if key == "this-is-a-valid-cdkey" then
+              -- You could just "return true" too, to not change the key.
+              return true, key .. "-some-extra-junk-on-the-end"
+          end
+          return false
+      end
+
+    One could also call into a C function, which can be handy to reuse the
+    same key validation routines that your installed application would use.
+    MojoSetup's license allows for you to statically link such code without
+    releasing the source code to it. To do so, please see the function
+    luahook_verifyproductkey() in lua_glue.c, and change it to fit your needs.
+
+    If no verify function is specified, no verification occurs; MojoSetup
+    assumes that whatever the user entered is okay, only making sure it
+    matched the specified format.
+
+    In the case of a successful verification, MojoSetup will quietly continue
+    on. If you wish to say something to the user here, such as: "don't tell
+    anyone your CD key, we will never ask you for it," then you should call
+    MojoSetup.msgbox() before returning from your verify function (or, in C
+    code: GGui->msgbox("window title", "message to show").
+
+
+   destination (no default, nil, mustBeString, cantBeEmpty)
+
+    This is where MojoSetup should write the product key. It will be a text
+    file with the final ASCII key string.
+
+    If no destination is specified, the product key is not written to disk.
+    This may be desirable if the installer just needs to make sure a key is
+    available and valid.
+
+    On Windows, the destination is allowed to use a magic format for targeting
+    a specific key in the Windows Registry instead of a file, such as:
+
+     "$WINDOWSREGISTRY/HKEY_LOCAL_MACHINE/Software/MyApp/ProductKey"
+
+
+ Setup.Media:
+
+  This element is required if you need to install data from removable media,
+  such as a DVD-ROM drive. The installer needs a means to identify the
+  media as the correct source when it is connected to the system.
+
+  Setup.Media attributes:
+
+   id (no default, mustExist, mustBeString, cantBeEmpty)
+
+    A unique specifier for this media, such as "disc1" or "game-disc". This
+    will be used for Setup.File.source: "media://game-disc/path/filename.zip"
+
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    A human-readable description of this media, such as "MyGame Disc 2". This
+    string will be used when the end user must be prompted to insert a new
+    piece of media to continue the installation.
+
+
+   uniquefile (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a path that is unique to this media, relative to its root
+    directory, such as "sounds/guitar.wav". The installer looks at all
+    media available to the system until it finds this path exists, to
+    determine if the correct media has been made available by the end user.
+
+
+ Setup.Option:
+
+  This element defines an optional section of the install, and is a child
+  of Setup.Package. You must have at least one Setup.Option in your
+  configuration, but you can make it mandatory with the "required" attribute
+  if you don't want it to be actually optional.
+
+  The GUI will show all selectable options to the end user, and they can
+  pick and choose the parts they want. If there are no optional portions of
+  the install, the GUI will skip the option selection screen.
+
+  Setup.Options can nest. If a parent option is unchecked in the GUI, its
+  child options become disabled and will be considered unchecked also when
+  installation proceeds.
+
+      Setup.Option
+      {
+          description = "Wing Commander 1"
+          source = "base:///wc1.zip",
+
+          -- This option can only install if "Wing Commander 1" is checked too.
+          Setup.Option
+          {
+              description = "WC1 Speech Pack",
+              source = "base:///wc1sp.zip",
+          },
+      },
+
+
+  Setup.Option attributes:
+
+   disabled (default false, mustBeBool)
+
+    If true, this whole group (including all children) will be removed from
+    the GUI, and the installer will treat all the child options as unchecked.
+    If an option has both "required" and "disabled" set to true, then
+    "disabled" takes precedence.
+
+
+   value (default false, mustBeBool)
+
+    If true, the checkbox will be checked by default in the GUI. Checked
+    options are installed.
+
+
+   required (default false, mustBeBool)
+
+    If true, the option won't be shown to the end user, but will just be
+    treated as if it was checked when installation proceeds. If an option
+    has both "required" and "disabled" set to true, then "disabled" takes
+    precedence.
+
+
+   bytes (no default, mustExist, mustBeNumber)
+
+    This is the size, in bytes, of files this option will write to disk. The
+    installer uses this to determine space requirements for the total install.
+    If you don't know the size, you should set this to -1, but this will
+    disable some functionality.
+
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This string will be shown to the end user, as a label with the GUI's
+    checkbox.
+
+
+   tooltip (no default, mustBeString, cantBeEmpty)
+
+    This string will be used in mouseover "tooltips" in GUI environments for
+    this option's UI widget. There is no guarantee that they will be shown to
+    a user in any GUI target, so don't rely on them!
+
+
+ Setup.OptionGroup:
+
+  This element can be the parent or child of Setup.Option, or a child of
+  Setup.Package. It contains of a collection of Setup.Option elements.
+  The children Setup.Options will be grouped radio buttons in the GUI instead
+  of individual checkboxes. As such, only one child Setup.Option in an
+  Setup.OptionGroup will be checked in the GUI.
+
+      Setup.OptionGroup
+      {
+          description = "Language",
+          Setup.Option { description = "English", source = "base:///en.zip" },
+          Setup.Option { description = "French", source = "base:///fr.zip" },
+          Setup.Option { description = "German", source = "base:///fr.zip" },
+      },
+
+  Setup.OptionGroup attributes:
+
+   disabled (no default, mustBeBool)
+
+    If true, this option (including all children) will be removed from
+    the GUI, and the installer will treat this and all child options as
+    unchecked.
+
+
+   description (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This string will be shown to the end user, as a label with the GUI's
+    radio button group.
+
+
+   tooltip (no default, mustBeString, cantBeEmpty)
+
+    This string will be used in mouseover "tooltips" in GUI environments for
+    this option's UI widget. There is no guarantee that they will be shown to
+    a user in any GUI target, so don't rely on them!
+
+
+ Setup.File:
+
+  This element specifies a fileset, a collection of files, to install. These
+  are children of Setup.Option, and you can specify as many as you like per
+  option. Each Setup.File represents an "archive," that is, some set of files,
+  such as a .zip file or a directory.
+
+  Setup.File attributes:
+
+   source (no default, mustBeUrl)
+
+    This is a URL that provides the source for this fileset. You can only
+    specify archives (directories and files like .zip, .tar, etc), not
+    specific individual files. If you need a specific file, use its parent
+    directory here and a "wildcards" attribute.
+
+    There are some standard and non-standard URL handlers you can specify:
+
+      base:///path/file.ext
+
+        This references an archive in the Base Archive, where the "data"
+        directory is the root...so the above looks for data/path/file.ext in
+        the Base Archive.
+
+        This can install from an archive inside an archive, like this:
+
+            base:///mydir/outside.zip/internalpath/inside.tar
+
+
+      media://id/path/file.ext
+
+        This references a file on an external media with a specific id,
+        as defined in a Setup.Media element. The user will be prompted for
+        the correct media if the installer can't find it. This can install
+        archives-in-archives, like the base:/// version can.
+
+
+      ftp://hostname.dom/path/file.ext
+      http://hostname.dom/path/file.ext
+
+        The references a file on an FTP or web server. These files will all be
+        downloaded before local files are installed. You may only specify
+        archives at this time, not individual files or directories.
+        MojoSetup must be built with support for the proper network protocol.
+
+
+   destination (no default, mustBeString, cantBeEmpty)
+
+    This attribute lets you, across the board, redirect files in this archive
+    to a specific destination. This is a path relative to the base of the
+    installation destination path. If the user specified an installation
+    destination of "/games/mygame", this attribute is "gamemod", and the
+    source produces a file "maps/level1.map", then the final file written to
+    disk would be "/games/mygame/gamemod/maps/level1.map".
+
+    After the path is prepared with this attribute, it is tested against the
+    "wildcards" attribute, and if it passes there, it is pushed through the
+    "filter" attribute.
+
+
+   wildcards (no default, mustBeStringOrTableOfStrings)
+
+    This is the first step to culling files from an archive or directory.
+    Files are only installed if they match a specified wildcard.
+    Wildcards are simple to use: they only allow '?' for single character
+    matches and '*' to match a sequence of characters. You may specify a
+    single string, or a list of wildcards, like this:
+
+         -- matches sounds/heroes/laser13.wav and sounds/villians/laser02.wav
+         wildcards = "sounds/*/laser??.wav"
+
+             ...or...
+
+         -- everything in the maps, sounds, and graphics directories.
+         --  (this includes subdirs! '*' matches past '/' separators!)
+         wildcards = { "maps/*", "sounds/*", "graphics/*" }
+
+
+   filter (no default, mustBeFunction)
+
+    This is a function that takes one argument, a string that represents the
+    path of a single file relative to the root of the installation destination.
+    This function may return nil to choose not to install this file, which is
+    useful for culling files from an archive, or a string that represents a
+    new destination for the file, which is useful for renaming some files
+    on-the-fly:
+
+         filter = function(dest)
+            if string.match(dest, ".exe$") then
+                return nil   -- skip Windows .exe files on Unix.
+            end
+            if dest == "SOMEFILE.TXT" then
+                return "somefile.txt"  -- force this to lowercase.
+            end
+            return dest    -- everything else can go through as-is.
+         end
+
+    Filters can optionally return a second argument, a string, that defines
+    the destination file's permissions. This can be omitted, or nil, to use
+    the default permissions:
+
+        filter = function(dest)
+            if dest == "mygame-binary" then
+                return dest, "0755"   -- make sure it's executable.
+            end
+            return dest   -- everything else just goes through as-is.
+        end
+
+    Please see the documentation for Setup.File's "permissions" attribute for
+    further discussion.
+
+
+   allowoverwrite (no default, mustBeBool)
+
+    If true, the installer will overwrite existing files without warning. If
+    false, the user will be prompted before overwriting each file.
+
+    Files are actually moved out of the way instead of overwritten, so the
+    installer can restore them if the install is cancelled or fails mid-way.
+    They are deleted only after a successful install.
+
+
+   permissions (no default, mustBePerms)
+
+    Override the permissions with which the files will be created. This is
+    a string, not a number...this allows both for future expansion (non-Unix
+    systems, extended attributes, etc), and works around the fact that Lua
+    does not have syntax for specifying octal numbers directly.
+
+    Currently this string maps to Unix permissions as an octal number:
+    "0644" would be read/write access for the user, and read-only for the
+    group and everyone else.
+
+    If set to nil or not specified, the new file's permissions will be
+    whatever is already associated with the file (such as the Unix permissions
+    in a .tar file's entry).
+
+    Please note that files coming from a real filesystem will have their
+    defaults overridden by MojoSetup (to "0644"), since many operating systems
+    tend to report every file on a CD-ROM as read-only and executable, which
+    is frequently not what you want in the installed copy. Plan accordingly.
+
+    You can return a permissions string as the second value from your filter
+    function as well, which may be more efficient if you only need to change
+    a few files, (each Setup.File has to iterate the whole archive, so you
+    want to avoid specifying multiple Setup.Files for one archive when
+    possible), or need to adjust permissions in only a portion of a downloaded
+    archive. This attribute applies permissions to every file installed
+    through this element. If this attribute is set and the filter returns a
+    non-nil permission, the filter takes precedence.
+
+
+ Setup.DesktopMenuItem:
+
+  This element specifies a menu item that will be installed in the system
+  desktop menu: this might be the "Applications" dropdown in the Gnome panel,
+  or the "Start" bar on Windows, for example. This can be a child of
+  Setup.Option (in which case it is only considered for installation if the
+  option itself is too), or Setup.Package (in which case it is always
+  considered for installation). Some of this element's properties are ignored
+  on some operating systems, but they are still required both for
+  cross-platform safety and future expansion.
+
+  Setup.DesktopMenuItem attributes:
+
+   disabled (no default, mustBeBool)
+
+    If this is true, the menu item will be skipped by the installer. You
+    probably want this to be true, but you might need to programmatically shut
+    off specific menu items.
+
+
+   name (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is the proper name of the item to be installed ("Firefox").
+
+
+   genericname (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is a generic name for the item to be installed ("Web Browser").
+
+
+   tooltip (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is used as a tooltip for the item by the OS when the user hovers
+    the mouse pointer over it.
+
+   builtin_icon (no default, mustBeBool)
+
+    If this is true, then "icon" refers to a platform-dependent standard
+    icon. Currently, this only makes sense on Unix systems that follow
+    the freedesktop.org standards. If this is false, then "icon" refers
+    to a file, relative to the installation's destination directory, which
+    the must be installed through a Setup.File. Most installers should set
+    this to false (the default) unless they know what they are doing.
+
+   icon (no default, mustExist, mustBeString, cantBeEmpty)
+
+    The icon to use with this menu item. Please see builtin_icon for info
+    on what this string means. The format of files that may be used as icons
+    varies from platform to platform; you may need to install a different
+    file programmatically, based on the value of MojoSetup.info.platform.
+
+   commandline (no default, mustExist, mustBeString, cantBeEmpty)
+
+    This is the command line that will be used to launch the application
+    when the end user clicks on the desktop menu item. The string "%0" is
+    replaced with the install destination, so if you need an absolute path
+    to mygame.exe, and the user is installing to /home/user/mygame, you should
+    specify "%0/mygame.exe" to get "/home/user/mygame/mygame.exe".
+
+   category (no default, mustExist, mustBeStringOrTableOfStrings)
+
+    This is a category (or array of categories) that the menu item applies
+    to. You can choose several, but one is usually less confusing. Valid
+    choices are currently: AudioVideo, Development, Education, Game, Graphics, Network,
+    Office, Settings, System, Utility.
+
+   mimetype (no default, mustBeStringOrTableOfStrings)
+
+    This is a MIME type (or array of MIME types) that the menu item can handle.
+    For example, if you are installing an image viewer, you might specify:
+    mimetype={"image/jpeg", "image/png"}; ... this is optional, you don't
+    have to specify any mimetypes at all.
+
+    !!! FIXME: there is currently no way for an installer to inform the system
+    !!! FIXME:  of associations between new file extensions and mimetypes.
+    !!! FIXME:  Things that collect mime info themselves, like web browsers
+    !!! FIXME:  and email clients, can use new apps this way, however.
+
+    !!! FIXME: there is currently no way for an installer to add submenus.
+
+
+
+Add any localized strings:
+
+If you added strings to the installer or your config file that you want
+ translated at runtime, you need to add them to scripts/app_localization.lua.
+ This is a Lua script, too, of course, but you really should treat it like a
+ basic config file.
+
+The format looks something like this:
+
+    ["Yes"] = {
+        es = "Si";
+        fr = "Oui";
+    };
+
+As you can see, the ["Yes"] is a string to translate. These are always English
+ by convention, but this is whatever the string you wish to translate. Please
+ note that the brackets are important, and only used on this specific string.
+
+The fields in this structure are language abbreviations that match a user's
+ locale and the string of translated text.
+
+Please note that you can do locale-specific translations, too:
+
+    ["colors"] = {
+        en_UK = "colours";
+    };
+
+All strings in this file (and all Lua scripts) are UTF-8 encoded. Using a
+ high-ASCII character will not work like you expect at runtime!
+
+These lookup tables are used at runtime to translate strings, both by you and
+ internally by MojoSetup. You can do a translation by calling:
+
+    MojoSetup.translate("colors")
+
+We recommend making a convenience function like this at the top of your
+ config.lua...
+
+    local function _ = MojoSetup.translate
+
+...so that you have a convention for translations that cause minimal clutter:
+
+    Setup.Option {
+        description = _("Level editor utility"),
+        -- ...etc...
+    }
+
+A detailed example of how to do this is scripts/localization.lua, which you
+ should ship with your installer. You probably shouldn't add your strings to
+ localization.lua directly, though. MojoSetup uses this file for text it uses
+ internally, and the file changes a lot. Using app_localization.lua allows
+ your translations to live separately from MojoSetup's, which has two benefits.
+ First, you don't have to merge your translation work with MojoSetup's every
+ time you upgrade. Second, you can override default translations, like this:
+
+    ["Uninstall complete"] = {
+        en = "Uninstall complete. You may also delete '.MyGame' in your home directory to remove personal savegames and settings.",
+        it = "Disinstallazione completata. Se desideri cancellare i salvataggi e le impostazione cancella '.MyGame' nella tua directory home.",
+        -- ...other languages here...
+    };
+
+app_localization.lua's translations will be favored over localization.lua's.
+ In the above example, a language that doesn't have an override may still get
+ a correctly translated "Uninstall complete" without the extras from the base
+ file.
+
+
+Package up the final file for distribution:
+
+Now you have a MojoSetup binary and a directory tree containing your data, GUI
+ plugins, and scripts (including the config.lua you just wrote). Now you just
+ need to glue them together. MojoSetup will attempt to look at itself as an
+ archive on startup, which works in the same way "self-extracting" exe files
+ worked on other operating systems. If you want MojoSetup to be
+ self-extracting, zip your directory tree up and append it to the binary:
+
+     zip -9r mydata.zip data guis scripts
+     cat mydata.zip >> mojosetup
+
+Now rename "mojosetup" to something meaningful (mygame-1.0-linux-x86.bin or
+ whatever), and you've got an installer.
+
+If you have the luxury of a real filesystem (inside a disk image or on a CD
+ you are shipping, for example), MojoSetup will use the binary's directory
+ if it doesn't find a zipfile appended to the binary itself, so you can just
+ have "data", "scripts" and "guis" in the same directory as "mojosetup" to
+ have it work, too.
+
+
+Now you're done! Give your installer to the public.
+
+
+
+MojoSetup-provided globals:
+
+Your config file is a Lua script, and as such, has access to all of Lua's
+ runtime library (presuming you didn't disable it when building MojoSetup)
+ and several other bits of MojoSetup-specific functionality. Everything the
+ installer provides to your script is under the "MojoSetup" table, so as not
+ to pollute the namespace. Also, the config files use the "Setup" table for
+ the basic config schema. Everything else is free game. Here are the globals
+ that MojoSetup provides:
+
+  MojoSetup.format(fmt, ...)
+
+   Format a string, sort of (but not exactly!) like sprintf().
+    The only formatters accepted are %0 through %9 (and %%), which do not
+    have to appear in order in the string, but match the varargs in the
+    order they are passed to the function.
+
+   format('%1 %0 %1 %%', 'X', 'Y', 'Z') will return the string: 'Y X Y %'
+
+
+  MojoSetup.fatal(errstr)
+
+   Display (errstr) to the end user and stop the installation. The installer
+   will attempt to clean up any half-finished installation, including rolling
+   back any files that would have been replaced had the installation succeeded.
+   You should never use error() in the standard Lua runtime; use this instead.
+
+
+  MojoSetup.runfile(script)
+
+   Run the code in a given Lua file. This is JUST the base filename. MojoSetup
+   will look for it in the Base Archive in the scripts/ directory, both as
+   script.luac and script.lua. This code chunk will accept no arguments, and
+   return no results, but it can change the global state and alter tables,
+   etc, so it can have lasting side effects. Will return false if the file
+   couldn't be loaded, or true if the chunk successfully ran. Will not return
+   if there's a runtime error in the chunk, as it will call MojoSetup.fatal()
+   instead. You should use this instead of the "require" function in the Lua
+   runtime, as require() won't respect the Base Archive.
+
+
+  MojoSetup.translate(str)
+
+   Find the proper translation for the end user's locale in the localization
+   table. Returns the translation, or the original string if no translation
+   was available. It's common to use this for shorthand:
+
+     local function _ = MojoSetup.translate
+
+   ...so you can be less verbose:  print(_("translate this string"))
+
+
+  MojoSetup.ticks()
+
+    Return the time, in milliseconds, that the process has been running.
+
+
+  MojoSetup.logwarning(str)
+
+    Write a warning to the installation log, if logging settings permit.
+
+
+  MojoSetup.logerror(str)
+
+    Write an error to the installation log, if logging settings permit.
+
+
+  MojoSetup.loginfo(str)
+
+    Write an info string to the installation log, if logging settings permit.
+
+
+  MojoSetup.logdebug(str)
+
+    Write debug info to the installation log, if logging settings permit.
+
+
+  MojoSetup.launchbrowser(url)
+
+    Launch a web browser to view the URL (url). This will try to launch a
+    new window/tab of the user's preferred handler for the url. Launching
+    "http://" URLs are probably always safe, other protocols, like "ftp://"
+    may or may not work, depending on what the platform offers.
+
+    Returns true if the browser launched, false otherwise. We can't know
+    if the URL actually loaded or rendered, just if the browser launched.
+    The hope is that the browser will inform the user if there's a problem
+    loading the URL.
+
+
+  MojoSetup.msgbox(title, str)
+
+    Show (str) to the user with a GUI message box, and wait until they click
+    an "OK" button. (title) is the message box's title.
+
+
+  MojoSetup.promptyn(title, str, defval)
+
+    Show (str) to the user with a GUI message box, and wait until they click
+    either a "YES" or "NO" button. Returns true if they clicked YES, false
+    if they clicked "NO". (title) is the message box's title.
+    (defval) is an optional boolean value: whether the default action should
+    be "YES" or "NO". If (defval) isn't specified, it defaults to false.
+
+
+  MojoSetup.promptynan(title, str, defval)
+
+    Show (str) to the user with a GUI message box, and wait until they click
+    either a "YES", "NO", "ALWAYS" or "NEVER" button. Returns the string
+    "yes", "no", "always", or "never". (title) is the message box's title.
+    (defval) is an optional boolean value: whether the default action should
+    be "YES" or "NO" ... "always" and "never" can not be the default, since
+    these tend to be destructive actions that the user should consciously
+    choose to do. If (defval) isn't specified, it defaults to false.
+
+
+  MojoSetup.stackwalk()
+
+    This writes a backtrace of the current Lua callstack to the installation
+    log, if logging settings permit debug-level logging.
+
+
+  MojoSetup.cmdline(flag)
+
+    See if a given flag was on the command line for the process.
+    MojoSetup.cmdline("nosound") will return true if "-nosound", "--nosound",
+    etc was on the command line. The option must start with a '-' on the
+    command line to be noticed by this function. Returns true if flag was on
+    the command line, false otherwise.
+
+
+  MojoSetup.cmdlinestr(flag, envr, deflt)
+
+    Get robust command line options, with optional default for missing ones.
+
+    If the command line was ./myapp --a=b -c=d ----e f
+      - cmdlinestr("a") will return "b"
+      - cmdlinestr("c") will return "d"
+      - cmdlinestr("e") will return "f"
+      - cmdlinestr("g") will return the default string.
+
+    Like MojoSetup.cmdline(), the option must start with a '-'.
+
+    (envr) is an optional environment var to check if command line wasn't
+    found. You can call this function without specifying this parameter, or
+    pass a nil here.
+    (deflt) is the return value if (flag) isn't on the command line.
+
+
+  MojoSetup.collectgarbage()
+
+    Do a complete run of the Lua garbage collector. Use this instead of the
+    version in the Lua standard runtime, since this version does better debug
+    logging.
+
+
+  MojoSetup.date()
+
+    Return a string of the current date. This is roughly the same as os.date()
+    in the standard Lua runtime, but we didn't want to add the os table
+    dependencies just to write this string into the log.
+
+
+  MojoSetup.info.uid
+
+    This is a number (not a function!) that lists the user id of the person
+    running the installer. On Unix, this is what getuid() reports (and zero
+    would be the root user).
+
+
+  MojoSetup.info.euid
+
+    This is a number (not a function!) that lists the EFFECTIVE user id of the
+    person running the installer. On Unix, this is what geteuid() reports (and
+    zero would be the root user).
+
+
+  MojoSetup.info.gid
+
+    This is a number (not a function!) that lists the group id of the person
+    running the installer. On Unix, this is what getgid() reports.
+
+
+  MojoSetup.info.locale
+
+    This is a string (not a function!) of the current locale, in the format
+    xx_YY, where "xx" is the language code (en for english, de for German, etc)
+    and "YY" is the country code: "en_US" for American English, fr_CA for
+    Canadian French, etc.
+
+    If MojoSetup can't determine the user's locale, this string is "???".
+
+
+  MojoSetup.info.platform
+
+    This is a string (not a function!) of the current platform. This is
+    currently one of "macosx", "unix", "windows", or "beos", or one of several
+    others, depending on your build and target platform.
+
+
+  MojoSetup.info.arch
+
+    This is a string (not a function!) of the current platform's CPU type.
+    This is currently one of "x86", "x86-64", "powerpc", "powerpc64",
+    or one of several others, depending on your build and target platform.
+
+    Please note that this is the arch of the installer binary...you can run
+    a 32-bit binary on an amd64 chip, in which case it will report "x86"!
+
+
+  MojoSetup.info.ostype
+
+    This is a string (not a function!) of the current platform's operating
+    system. This is currently one of "macosx", "beos", "linux", "freebsd",
+    "netbsd", "openbsd", "bsdi", "aix", "hpux", "irix", or "solaris".
+
+    Please note that this is the OS target of the installer binary...you can
+    run a Linux binary on FreeBSD through the binary compatibility layer,
+    in which case it will still report "linux"!
+
+    On Windows, this is currently either "win9x" or "winnt" to differentiate
+    Windows 95/98/ME from NT/XP/Vista/etc, since their version numbers can
+    overlap. Installers should not rely on there never being a third string
+    some day in the distant future, though.
+
+
+  MojoSetup.info.osversion
+
+    This is a string (not a function!) of the current platform's operating
+    system version. This may not be useful information on many platforms.
+    On Mac OS X, it's the system version (So it might be 10.4.9 on a Tiger
+    install, 10.3.8 on a Panther install, etc).
+
+    On other Unixes, it's the "release" field from uname(), which on Linux
+    gives you the kernel version, which is usually not helpful, but could be
+    on, say, BeOS.
+
+    On Windows, it'll be the Major.Minor.Build version for the OS. This is the
+    same information that the win32 OSVERSIONINFO structure supplies:
+
+      http://msdn2.microsoft.com/en-us/library/ms724834.aspx
+
+    So "5.1.2600" might mean "Windows XP, service pack 1" ... relying on the
+    build number can be very dangerous if you don't know what you're doing,
+    but the major/minor values appear to be reliable to differentiate various
+    flavors of Windows (and MojoSetup.info.ostype can differentiate between
+    the Win95-based and WinNT-based versions).
+
+    On any platform, it would be wise to not rely too heavily on this data:
+    it's frequently better to check for the specific thing you want to know
+    about ("Is DirectX 9 installed?") rather than ask a general question ("Is
+    this Windows XP?"). This prevents problems when unexpected values arise in
+    situations you never expected to handle (for example, if you ran the
+    Windows installer under Wine, it could report that its Windows XP, but
+    there's no DirectX 9 support). Knowing what you really want to know is
+    half the battle.
+
+
+  MojoSetup.info.ui
+
+    This is a string (not a function!) of the UI plugin that MojoSetup chose.
+    This is currently one of "stdio", "ncurses", "macosx", "gtkplus2", "www",
+    or one of several others, depending on your build and target platform.
+    It's best to not rely on this being within a specific set of values.
+    
+
+  MojoSetup.info.buildver
+
+    This is a string (not a function!) of the build identifier for this binary.
+    You can print this string to stdout by running ./mojosetup --buildver
+    at the command line.
+
+
+  MojoSetup.info.loglevel
+
+    This is a string (not a function!) of the logging level that MojoSetup
+    is enforcing. This is currently one of "nothing", "errors", "warnings",
+    "info", "debug", or "everything" ... each level includes the previous
+    level, so "warnings" will also log error messages, but not info or debug
+    messages.
+
+
+  MojoSetup.info.homedir
+
+    This is a string (not a function!) of the "home directory" of the end-user
+    in the physical filesystem. This is useful if you want to determine a sane
+    default location to write files.
+
+
+  MojoSetup.info.argv
+
+    This is a string array (not a function!) of the installer process's
+    command line arguments. You might find MojoSetup.cmdline() or
+    MojoSetup.cmdlinestr() to be more useful.
+
+
+  MojoSetup.info.supportedurls
+
+    This is a string array (not a function!) of URL types the installer
+    supports. You can either iterate it...
+
+        for k,v in pairs(MojoSetup.info.supportedurls) do
+            print("installer supports " .. v .. ":// URLs")
+        end
+
+    ...or you can query it...
+
+        if MojoSetup.info.supportedurls["http"] ~= nil then
+            print("installer supports http:// URLs")
+        end
+
+    "base" and "media" are included in the list, always. The rest are
+    compile-time options.
+
+
+  MojoSetup.destination
+
+    This is a string (not a function!) of the path on the physical filesystem
+    where the package is being installed. This is not available until the
+    user has selected a destination, but could be useful in your postinstall
+    script.
+
+
+  MojoSetup.manifest
+
+    This is a table of tables (not a function!) that is built during the
+    course of the installation. As changes are made to the destination
+    filesystem, they are noted in MojoSetup.manifest, so this will be
+    complete and most useful during a postinstall hook in your config file.
+
+    As with most other globals listed here, MojoSetup depends on this data,
+    so you should treat it as read-only. Modifying this table from your config
+    script will result in undefined (but probably bad) behaviour.
+
+    There is one element in the array for each Setup.Option that generated
+    a change to the filesystem. Each of these elements is an array of tables.
+
+      for option,items in pairs(MojoSetup.manifest) do
+          local desc = option
+          if type(desc) == "table" then  -- could be a string in some cases!
+              desc = desc.description
+          end
+          print("Option: " .. desc)
+          for i,item in ipairs(items) do
+              -- ... do stuff with "item" here ...
+          end
+      end
+
+    The format of the item tables vary depending on type. They all have a
+    "type" field, which is a string. Based on the type, different fields are
+    available:
+
+      if item.type == "file" then
+          print("file created at " .. item.path)
+          print("with permissions" .. item.mode)  -- This is a string!
+
+          -- Checksums may or may not exist in this table, depending on how
+          --  MojoSetup was compiled. You can iterate to find out what's there:
+          print("checksums:")
+          if item.checksums ~= nil then
+              for k,v in pairs(item.checksums) do
+                  print("  " .. k .. ": " .. v)   -- "crc32: 92FAB211E", etc.
+              end
+          end
+      end
+
+      if item.type == "dir" then
+          print("directory created at " .. item.path)
+          print("with permissions" .. item.mode)  -- This is a string!
+      end
+
+      if item.type == "symlink" then
+          print("symbolic link created at " .. item.path)
+          print("pointing to " .. item.linkdest)
+      end
+
+// end of docs.txt ...
+

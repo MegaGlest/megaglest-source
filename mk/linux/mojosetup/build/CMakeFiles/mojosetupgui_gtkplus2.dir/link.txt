@@ -1,0 +1,1 @@
+/usr/bin/gcc  -fPIC   -shared -Wl,-soname,libmojosetupgui_gtkplus2.so -o libmojosetupgui_gtkplus2.so CMakeFiles/mojosetupgui_gtkplus2.dir/gui_gtkplus2.o -lgtk-x11-2.0 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>mojosetup</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.icculus.mojosetup</string>
+	<key>CFBundleIconFile</key>
+	<string>mojosetup.icns</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>MjSt</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>CFBundleName</key>
+	<string>YOUR_APPLICATION_NAME_HERE</string>
+</dict>
+</plist>
+            
