@@ -1,0 +1,5 @@
+/home/softcoder/Code/mojosetup/build/CMakeFiles/lua.dir
+/home/softcoder/Code/mojosetup/build/CMakeFiles/mojoluac.dir
+/home/softcoder/Code/mojosetup/build/CMakeFiles/mojosetup.dir
+/home/softcoder/Code/mojosetup/build/CMakeFiles/mojosetupgui_gtkplus2.dir
+/home/softcoder/Code/mojosetup/build/CMakeFiles/skeleton.dir

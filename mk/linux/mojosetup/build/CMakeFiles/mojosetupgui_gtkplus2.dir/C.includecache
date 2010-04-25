@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/softcoder/Code/mojosetup/gui.h
+universal.h
+/home/softcoder/Code/mojosetup/universal.h
+
+/home/softcoder/Code/mojosetup/gui_gtkplus2.c
+gui.h
+/home/softcoder/Code/mojosetup/gui.h
+gtk/gtk.h
+-
+
+/home/softcoder/Code/mojosetup/universal.h
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+assert.h
+-
+time.h
+-
+malloc.h
+-
+

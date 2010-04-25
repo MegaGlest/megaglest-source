@@ -1,0 +1,145 @@
+#!/bin/sh
+#(obfuscated for size by shrinksh.sh)
+#Copyright 2006, Kevin Krammer <kevin.krammer@gmx.at>
+#Copyright 2006, Jeremy White <jwhite@codeweavers.com>
+#LICENSE:
+#Permission is hereby granted, free of charge, to any person obtaining a
+#copy of this software and associated documentation files (the "Software"),
+#to deal in the Software without restriction, including without limitation
+#the rights to use, copy, modify, merge, publish, distribute, sublicense,
+#and/or sell copies of the Software, and to permit persons to whom the
+#Software is furnished to do so, subject to the following conditions:
+#The above copyright notice and this permission notice shall be included
+#in all copies or substantial portions of the Software.
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+#OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+#OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+#ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+#OTHER DEALINGS IN THE SOFTWARE.
+f1()
+{
+if [ $# -gt 0 ]; then
+echo "$@"
+echo
+fi
+exit 0
+}
+f2()
+{
+exit 1
+}
+f3()
+{
+exit 3
+}
+f4()
+{
+exit 4
+}
+f5()
+{
+if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
+elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
+elif xprop -root _DT_SAVE_MODE | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
+fi
+}
+f6()
+{
+version=`kde-config --version 2>/dev/null | grep KDE`
+major=`echo $version | sed 's/KDE: \([0-9]\).*/\1/'`
+minor=`echo $version | sed 's/KDE: [0-9]*\.\([0-9]\).*/\1/'`
+release=`echo $version | sed 's/KDE: [0-9]*\.[0-9]*\.\([0-9]\).*/\1/'`
+test "$major" -gt 3 && return $1
+test "$minor" -gt 5 && return $1
+test "$release" -gt 4 && return $1
+return 0
+}
+f7()
+{
+kfmclient exec "$1"
+f6 $?
+if [ $? -eq 0 ]; then
+f1
+else
+f4
+fi
+}
+f8()
+{
+gnome-open "$1"
+if [ $? -eq 0 ]; then
+f1
+else
+f4
+fi
+}
+f9()
+{
+exo-open "$1"
+if [ $? -eq 0 ]; then
+f1
+else
+f4
+fi
+}
+f10()
+{
+IFS=":"
+for browser in $BROWSER; do
+if [ x"$browser" != x"" ]; then
+browser_with_arg=`echo "$browser" | sed s#%s#"$1"#`
+if [ x"$browser_with_arg" = x"$browser" ]; then "$browser" "$1";
+else $browser_with_arg;
+fi
+if [ $? -eq 0 ]; then f1;
+fi
+fi
+done
+f3
+}
+[ x"$1" != x"" ] || f2
+url=
+while [ $# -gt 0 ] ; do
+parm="$1"
+shift
+case "$parm" in
+-*)
+f2
+;;
+*)
+if [ -n "$url" ] ; then
+f2
+fi
+url="$parm"
+;;
+esac
+done
+if [ -z "${url}" ] ; then
+f2
+fi
+f5
+if [ x"$DE" = x"" ]; then
+if [ x"$BROWSER" = x"" ]; then
+BROWSER=firefox:mozilla:netscape
+fi
+DE=generic
+fi
+case "$DE" in
+kde)
+f7 "$url"
+;;
+gnome)
+f8 "$url"
+;;
+xfce)
+f9 "$url"
+;;
+generic)
+f10 "$url"
+;;
+*)
+f3
+;;
+esac
