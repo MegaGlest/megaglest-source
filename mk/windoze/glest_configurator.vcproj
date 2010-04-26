@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="glest_configurator"
 	ProjectGUID="{FE5C7C7C-F109-44F5-8329-19A4E24F162D}"
+	RootNamespace="glest_configurator"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
 	>
@@ -117,6 +118,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;"
+				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
