@@ -111,14 +111,18 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;..\..\source\shared_lib\include\streflop\libm\flt-32&quot;;..\..\source\shared_lib\include\streflop\libm\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_X87;LIBM_COMPILING_FLT32"
+				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
-				RuntimeTypeInfo="false"
+				EnableEnhancedInstructionSet="0"
+				FloatingPointModel="0"
+				RuntimeTypeInfo="true"
 				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -159,263 +163,263 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\libm\flt-32\e_acosf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acosf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_acoshf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acoshf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_asinf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_asinf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_atan2f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atan2f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_atanhf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atanhf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_coshf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_coshf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_exp2f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_exp2f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_expf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_expf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_fmodf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_fmodf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_gammaf_r.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_gammaf_r.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_hypotf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_hypotf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_j0f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j0f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_j1f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j1f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_jnf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_jnf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_lgammaf_r.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_lgammaf_r.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_log10f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log10f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_log2f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log2f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_logf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_logf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_powf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_powf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_rem_pio2f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_rem_pio2f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_remainderf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_remainderf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_sinhf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sinhf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\e_sqrtf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sqrtf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\k_cosf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_cosf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\k_rem_pio2f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_rem_pio2f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\k_sinf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_sinf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\k_tanf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_tanf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_asinhf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_asinhf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_atanf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_atanf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_cbrtf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cbrtf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_ceilf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ceilf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_copysignf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_copysignf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_cosf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cosf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_erff.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_erff.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_expm1f.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_expm1f.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_fabsf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fabsf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_finitef.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_finitef.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_floorf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_floorf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_fpclassifyf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fpclassifyf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_frexpf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_frexpf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_ilogbf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ilogbf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_isinff.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isinff.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_isnanf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isnanf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_ldexpf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ldexpf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_llrintf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llrintf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_llroundf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llroundf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_log1pf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_log1pf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_logbf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_logbf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_lrintf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lrintf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_lroundf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lroundf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_modff.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_modff.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_nearbyintf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nearbyintf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_nextafterf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nextafterf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_remquof.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_remquof.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_rintf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_rintf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_roundf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_roundf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_scalblnf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalblnf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_scalbnf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalbnf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_signbitf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_signbitf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_sincosf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sincosf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_sinf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sinf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_tanf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_tanhf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanhf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\s_truncf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_truncf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\libm\flt-32\w_expf.cpp"
+				RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\w_expf.cpp"
 				>
 			</File>
 		</Filter>
@@ -424,38 +428,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\endian.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\features.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\ieee754.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\math.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\math_private.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\SMath.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\flt-32\t_exp2f.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\streflop\libm\headers\wchar.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -464,7 +436,7 @@
 			>
 		</Filter>
 		<File
-			RelativePath="..\libm\flt-32\Makefile"
+			RelativePath="..\..\source\shared_lib\sources\streflop\libm\flt-32\Makefile"
 			>
 		</File>
 	</Files>
