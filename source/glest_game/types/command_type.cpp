@@ -290,7 +290,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
 	}
 
     //attack distance
-    str+= lang.get("AttackDistance")+": "+floatToStr(attackSkillType->getAttackRange());
+    str+= lang.get("AttackDistance")+": "+intToStr(attackSkillType->getAttackRange());
 	if(totalUpgrade->getAttackRange()!=0){
         str+= "+"+intToStr(totalUpgrade->getAttackRange()!=0);
 	}

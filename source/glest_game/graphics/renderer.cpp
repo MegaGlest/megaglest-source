@@ -547,8 +547,8 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade){
 
 	anim= anim*2-maxMouse2dAnim;
 
-    color2= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
-    color1= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+    color2= (abs(anim * (int)fadeFactor) / static_cast<float>(maxMouse2dAnim)) / 2.f + 0.4f;
+    color1= (abs(anim * (int)fadeFactor) / static_cast<float>(maxMouse2dAnim)) / 2.f + 0.8f;
 
     glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
         glEnable(GL_BLEND);
@@ -618,7 +618,7 @@ void Renderer::renderMouse3d() {
 			throw runtime_error(szBuf);
 		}
 
-		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+		Vec3f pos3f= Vec3f((float)pos.x, map->getCell(pos)->getHeight(), (float)pos.y);
 
 		if(gui->isPlacingBuilding()){
 
@@ -921,7 +921,7 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 		textRenderer->begin(font);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
+		textRenderer->render(text, pos.x - 1, pos.y - 1);
 	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glColor3f(color.x,color.y,color.z);
@@ -984,16 +984,16 @@ void Renderer::renderButton(const GraphicButton *button){
 
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(x, y);
+		glVertex2f((float)x, (float)y);
 
 		glTexCoord2f(0.f, 1.f);
-		glVertex2f(x, y+h);
+		glVertex2f((float)x, (float)(y+h));
 
 		glTexCoord2f(1.f, 0.f);
-		glVertex2f(x+w, y);
+		glVertex2f((float)(x+w), (float)y);
 
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(x+w, y+h);
+		glVertex2f((float)(x+w), (float)(y+h));
 
 	glEnd();
 
@@ -1011,25 +1011,25 @@ void Renderer::renderButton(const GraphicButton *button){
 		glBegin(GL_TRIANGLE_FAN);
 
 		glColor4fv(color2.ptr());
-		glVertex2f(x+w/2, y+h/2);
+		glVertex2f((float)(x+w/2), (float)(y+h/2));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x-lightSize, y-lightSize);
+		glVertex2f((float)(x-lightSize), (float)(y-lightSize));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x+w+lightSize, y-lightSize);
+		glVertex2f((float)(x+w+lightSize), (float)(y-lightSize));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x+w+lightSize, y+h+lightSize);
+		glVertex2f((float)(x+w+lightSize), (float)(y+h+lightSize));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x+w+lightSize, y+h+lightSize);
+		glVertex2f((float)(x+w+lightSize), (float)(y+h+lightSize));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x-lightSize, y+h+lightSize);
+		glVertex2f((float)(x-lightSize), (float)(y+h+lightSize));
 
 		glColor4fv(color1.ptr());
-		glVertex2f(x-lightSize, y-lightSize);
+		glVertex2f((float)(x-lightSize), (float)(y-lightSize));
 
 		glEnd();
 	}
@@ -1377,7 +1377,7 @@ void Renderer::renderWater(){
 					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 					computeWaterColor(waterLevel, tc1->getHeight()).ptr());
 				glMultiTexCoord2fv(GL_TEXTURE1, tc1->getFowTexCoord().ptr());
-                glTexCoord3f(i, 1.f, waterAnim);
+                glTexCoord3f((float)i, 1.f, waterAnim);
 				glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
 					waterLevel,
@@ -1388,7 +1388,7 @@ void Renderer::renderWater(){
 					GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 					computeWaterColor(waterLevel, tc0->getHeight()).ptr());
 				glMultiTexCoord2fv(GL_TEXTURE1, tc0->getFowTexCoord().ptr());
-                glTexCoord3f(i, 0.f, waterAnim);
+                glTexCoord3f((float)i, 0.f, waterAnim);
                 glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
 					waterLevel,
@@ -1405,7 +1405,7 @@ void Renderer::renderWater(){
 						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 						computeWaterColor(waterLevel, tc1->getHeight()).ptr());
 					glMultiTexCoord2fv(GL_TEXTURE1, tc1->getFowTexCoord().ptr());
-					glTexCoord3f(i, 1.f, waterAnim);
+					glTexCoord3f((float)i, 1.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
 						waterLevel,
@@ -1416,7 +1416,7 @@ void Renderer::renderWater(){
 						GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 						computeWaterColor(waterLevel, tc0->getHeight()).ptr());
 					glMultiTexCoord2fv(GL_TEXTURE1, tc0->getFowTexCoord().ptr());
-					glTexCoord3f(i, 0.f, waterAnim);
+					glTexCoord3f((float)i, 0.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
 						waterLevel,
@@ -1588,7 +1588,7 @@ void Renderer::renderSelectionEffects(){
 				}
 				else{
 					Vec2i pos= c->getPos();
-					arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+					arrowTarget= Vec3f((float)pos.x, map->getCell(pos)->getHeight(), (float)pos.y);
 				}
 
 				renderArrow(unit->getCurrVectorFlat(), arrowTarget, arrowColor, 0.3f);
@@ -1598,7 +1598,7 @@ void Renderer::renderSelectionEffects(){
 		//meeting point arrow
 		if(unit->getType()->getMeetingPoint()){
 			Vec2i pos= unit->getMeetingPos();
-			Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+			Vec3f arrowTarget= Vec3f((float)pos.x, map->getCell(pos)->getHeight(), (float)pos.y);
 			renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
 		}
 
@@ -1964,9 +1964,9 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 			glBegin(GL_TRIANGLE_STRIP);
 			for(int j=1; j<waterTesselation; ++j){
 				glTexCoord2i(1, 2 % j);
-				glVertex3f(-waterSize+i*waterQuadSize, waterHeight, -waterSize+j*waterQuadSize);
+				glVertex3f((float)(-waterSize+i * waterQuadSize), waterHeight, (float)(-waterSize + j * waterQuadSize));
 				glTexCoord2i(0, 2 % j);
-				glVertex3f(-waterSize+(i+1)*waterQuadSize, waterHeight, -waterSize+j*waterQuadSize);
+				glVertex3f((float)(-waterSize + (i+1) * waterQuadSize), waterHeight, (float)(-waterSize + j * waterQuadSize));
 			}
 			glEnd();
 		}
@@ -2166,7 +2166,7 @@ void Renderer::renderShadowsToTexture(){
 				glRotatef(90, 0, 1, 0);
 				Vec3f pos= game->getGameCamera()->getPos();
 
-				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
+				glTranslatef(static_cast<float>(-pos.x), 0.0f, static_cast<float>(-pos.z));
 
 			}
 			else{
