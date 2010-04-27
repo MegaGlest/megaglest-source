@@ -190,6 +190,8 @@ private:
     bool allowRotateUnits;
 	CardinalDir modelFacing;
 
+	std::string lastSynchDataString;
+
 public:
     Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -259,8 +261,8 @@ public:
 	void setPos(const Vec2i &pos);
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
-	void setTargetVec(const Vec3f &targetVec)			{this->targetVec= targetVec;}
-	void setMeetingPos(const Vec2i &meetingPos)			{this->meetingPos= meetingPos;}
+	void setTargetVec(const Vec3f &targetVec);
+	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
 
 	//render related
@@ -314,6 +316,7 @@ private:
 	CommandResult undoCommand(Command *command);
 	void stopDamageParticles();
 	void startDamageParticles();
+	void logSynchData(string source="");
 };
 
 }}// end namespace

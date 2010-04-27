@@ -35,12 +35,22 @@ using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
-bool SystemFlags::enableDebugText				= false;
-bool SystemFlags::enableNetworkDebugInfo		= false;
-bool SystemFlags::enablePerformanceDebugInfo	= false;
+std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> SystemFlags::debugLogFileList;
 
-const char * SystemFlags::debugLogFile			= NULL;
-ofstream SystemFlags::fileStream;
+void SystemFlags::init() {
+	SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
+	SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
+	SystemFlags::debugLogFileList[SystemFlags::debugPerformance] = SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
+	SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
+}
+
+//bool SystemFlags::enableDebugText				= false;
+//bool SystemFlags::enableNetworkDebugInfo		= false;
+//bool SystemFlags::enablePerformanceDebugInfo	= false;
+//bool SystemFlags::enableWorldSynchDebugInfo		= false;
+
+//const char * SystemFlags::debugLogFile			= NULL;
+//ofstream SystemFlags::fileStream;
 int SystemFlags::lockFile						= -1;
 string SystemFlags::lockfilename				= "";
 
@@ -69,9 +79,17 @@ SystemFlags::~SystemFlags() {
 void SystemFlags::Close() {
 	printf("Closing logfile\n");
 
-	if(fileStream.is_open() == true) {
-		SystemFlags::fileStream.close();
+	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
+		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
+		SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
+		if( currentDebugLog.fileStream != NULL &&
+			currentDebugLog.fileStream->is_open() == true) {
+			currentDebugLog.fileStream->close();
+		}
+		delete currentDebugLog.fileStream;
+		currentDebugLog.fileStream = NULL;
 	}
+
 	if(SystemFlags::lockfilename != "") {
 #ifndef WIN32
 		close(SystemFlags::lockFile);
@@ -84,9 +102,8 @@ void SystemFlags::Close() {
 }
 
 void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
-    if((type == debugSystem		 && SystemFlags::enableDebugText == false) ||
-       (type == debugNetwork	 && SystemFlags::enableNetworkDebugInfo == false ||
-	    type == debugPerformance && SystemFlags::enablePerformanceDebugInfo == false)) {
+	SystemFlags::SystemFlagsType &currentDebugLog = SystemFlags::debugLogFileList[type];
+    if(currentDebugLog.enabled == false) {
         return;
     }
 
@@ -104,10 +121,27 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
     vsprintf(szBuf,fmt, argList);
 
     // Either output to a logfile or
-    if(SystemFlags::debugLogFile != NULL && SystemFlags::debugLogFile[0] != 0) {
-        if(fileStream.is_open() == false) {
-        	string debugLog = SystemFlags::debugLogFile;
-            printf("Opening logfile [%s]\n",debugLog.c_str());
+    if(currentDebugLog.debugLogFileName != "") {
+        if( currentDebugLog.fileStream == NULL ||
+        	currentDebugLog.fileStream->is_open() == false) {
+
+        	// If the file is already open (shared) by another debug type
+        	// do not over-write the file but append
+        	bool appendToFileOnly = false;
+        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
+        		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
+        		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
+
+        		if(	iterMap->first != type &&
+        			currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
+        			currentDebugLog2.fileStream != NULL) {
+        			appendToFileOnly = true;
+        			break;
+        		}
+        	}
+
+        	string debugLog = currentDebugLog.debugLogFileName;
+            printf("Opening logfile [%s] type = %d, appendToFileOnly = %d\n",debugLog.c_str(),type, appendToFileOnly);
 
             const string lock_file_name = "debug.lck";
             string lockfile = extractDirectoryPathFromFile(debugLog);
@@ -142,14 +176,28 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
             	printf("Opening additional logfile [%s]\n",debugLog.c_str());
             }
 
-            fileStream.open(debugLog.c_str(), ios_base::out | ios_base::trunc);
+            if(currentDebugLog.fileStream == NULL) {
+            	currentDebugLog.fileStream = new std::ofstream();
+            }
+            if(appendToFileOnly == false) {
+            	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
+            }
+            else {
+            	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::app);
+            }
+
+            (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
+            (*currentDebugLog.fileStream).flush();
         }
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
 
         //printf("writing to logfile [%s]\n",szBuf);
-        fileStream << "[" << szBuf2 << "] " << szBuf;
-        fileStream.flush();
+
+        assert(currentDebugLog.fileStream != NULL);
+
+        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+        (*currentDebugLog.fileStream).flush();
     }
     // output to console
     else {

@@ -62,12 +62,13 @@ public:
 	CardinalDir() : value(NORTH) {}
 	CardinalDir(Enum v) : value(v) {}
 	explicit CardinalDir(int v) {
-		assert(v >= 0 && v < 4);
+		assertDirValid(v);
 		value = static_cast<Enum>(v);
 	}
 	operator Enum() { return value; }
 	//int asInt() { return (int)value; }
 
+	static void assertDirValid(int v) { assert(v >= 0 && v < 4); }
 	void operator++() {
 		//printf("In [%s::%s] Line: %d BEFORE +: value = %d\n",__FILE__,__FUNCTION__,__LINE__,asInt());
 		value = static_cast<Enum>((value + 1) % 4);

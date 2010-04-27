@@ -14,6 +14,7 @@
 
 #include <string>
 #include <fstream>
+#include <map>
 
 using std::string;
 
@@ -21,28 +22,60 @@ namespace Shared{ namespace Util{
 
 class SystemFlags
 {
+public:
+
+    enum DebugType {
+        debugSystem,
+        debugNetwork,
+		debugPerformance,
+		debugWorldSynch
+    };
+
+	class SystemFlagsType
+	{
+	protected:
+    	DebugType debugType;
+
+	public:
+    	SystemFlagsType() {
+    		this->debugType 		= debugSystem;
+    		this->enabled			= false;
+    		this->fileStream 		= NULL;
+    		this->debugLogFileName	= "";
+    	}
+    	SystemFlagsType(DebugType debugType) {
+    		this->debugType 		= debugType;
+    		this->enabled			= false;
+    		this->fileStream 		= NULL;
+    		this->debugLogFileName	= "";
+    	}
+    	SystemFlagsType(DebugType debugType,bool enabled,
+						std::ofstream *fileStream,std::string debugLogFileName) {
+    		this->debugType 		= debugType;
+    		this->enabled			= enabled;
+    		this->fileStream 		= fileStream;
+    		this->debugLogFileName	= debugLogFileName;
+    	}
+
+    	bool enabled;
+    	std::ofstream *fileStream;
+    	std::string debugLogFileName;
+	};
+
 protected:
-	
+
 	static int lockFile;
 	static string lockfilename;
 
-	static std::ofstream fileStream;
+	static std::map<DebugType,SystemFlagsType> debugLogFileList;
+
 public:
 
 	SystemFlags();
 	~SystemFlags();
 
-    enum DebugType {
-        debugSystem,
-        debugNetwork,
-		debugPerformance
-    };
-
-    static bool enableDebugText;
-    static bool enableNetworkDebugInfo;
-	static bool enablePerformanceDebugInfo;
-    static const char *debugLogFile;
-
+	static void init();
+	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
     static void OutputDebug(DebugType type, const char *fmt, ...);
 	static void Close();
 };

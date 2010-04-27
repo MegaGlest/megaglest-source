@@ -256,7 +256,7 @@ bool NetworkMessageCommandList::receive(Socket* socket){
 		return false;
 	}
 	bool result = NetworkMessage::receive(socket, &data, totalMsgSize);
-	if(SystemFlags::enableNetworkDebugInfo) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
         for(int idx = 0 ; idx < data.commandCount; ++idx) {
             const NetworkCommand &cmd = data.commands[idx];
 
@@ -272,7 +272,7 @@ void NetworkMessageCommandList::send(Socket* socket) const{
 	assert(data.messageType==nmtCommandList);
 	NetworkMessage::send(socket, &data, commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount);
 
-	if(SystemFlags::enableNetworkDebugInfo) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
                 __FILE__,__FUNCTION__,__LINE__,data.messageType,data.frameCount,data.commandCount);
 

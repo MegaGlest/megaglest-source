@@ -171,6 +171,8 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
+
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 Unit::~Unit(){
@@ -403,6 +405,8 @@ void Unit::setPos(const Vec2i &pos){
 	this->lastPos= this->pos;
 	this->pos= pos;
 	this->meetingPos= pos - Vec2i(1);
+
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setTargetPos(const Vec2i &targetPos){
@@ -413,6 +417,8 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 	targetRef= NULL;
 
 	this->targetPos= targetPos;
+
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setVisible(const bool visible){
@@ -989,6 +995,8 @@ void Unit::updateTarget(){
 
 		//update target vec
 		targetVec= target->getCurrVector();
+
+		//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 	}
 }
 
@@ -1148,6 +1156,48 @@ void Unit::startDamageParticles(){
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
 
+	}
+}
+
+void Unit::setTargetVec(const Vec3f &targetVec)	{
+	this->targetVec= targetVec;
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+}
+
+void Unit::setMeetingPos(const Vec2i &meetingPos) {
+	this->meetingPos= meetingPos;
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+}
+
+void Unit::logSynchData(string source) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+
+	    char szBuf[1024]="";
+	    sprintf(szBuf,
+	    		//"Unit = %d [%s] [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%f]\n",
+	    		"Unit = %d [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\n",
+				id,
+				getFullName().c_str(),
+				//getDesc().c_str(),
+				pos.getString().c_str(),
+				lastPos.getString().c_str(),
+				targetPos.getString().c_str(),
+				targetVec.getString().c_str(),
+				meetingPos.getString().c_str(),
+				lastRotation,
+				targetRotation,
+				rotation,
+				progress,
+				progress2);
+
+	    if(lastSynchDataString != string(szBuf)) {
+	    	lastSynchDataString = string(szBuf);
+
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,
+					"%s %s\n",
+					source.c_str(),
+					szBuf);
+	    }
 	}
 }
 

@@ -38,7 +38,6 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-string debugLogFile = "";
 bool gameInitialized = false;
 
 // =====================================================
@@ -271,9 +270,9 @@ int glestMain(int argc, char** argv){
 	printf("%s, STREFLOP disabled.\n",getNetworkVersionString().c_str());
 #endif
 
-	SystemFlags::enableNetworkDebugInfo		= true;
-    SystemFlags::enableDebugText			= true;
-	SystemFlags::enablePerformanceDebugInfo	= false;
+	SystemFlags::init();
+	SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
+	SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;
 
 	MainWindow *mainWindow= NULL;
 	Program *program= NULL;
@@ -285,14 +284,24 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		SystemFlags::enableNetworkDebugInfo = config.getBool("DebugNetwork","false");
-		SystemFlags::enableDebugText = config.getBool("DebugMode","false");
-		debugLogFile = config.getString("DebugLogFile","");
+		SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      = config.getBool("DebugMode","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     = config.getBool("DebugNetwork","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
+
+		string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
+		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
             debugLogFile = getGameReadWritePath() + debugLogFile;
         }
-		SystemFlags::debugLogFile = debugLogFile.c_str();
-		SystemFlags::enablePerformanceDebugInfo	= config.getBool("DebugPerformance","false");
+        if(debugWorldSynchLogFile == "") {
+        	debugWorldSynchLogFile = debugLogFile;
+        }
+
+        SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		
