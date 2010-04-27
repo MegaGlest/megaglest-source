@@ -44,13 +44,6 @@ void SystemFlags::init() {
 	SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
 }
 
-//bool SystemFlags::enableDebugText				= false;
-//bool SystemFlags::enableNetworkDebugInfo		= false;
-//bool SystemFlags::enablePerformanceDebugInfo	= false;
-//bool SystemFlags::enableWorldSynchDebugInfo		= false;
-
-//const char * SystemFlags::debugLogFile			= NULL;
-//ofstream SystemFlags::fileStream;
 int SystemFlags::lockFile						= -1;
 string SystemFlags::lockfilename				= "";
 
@@ -90,14 +83,18 @@ void SystemFlags::Close() {
 		currentDebugLog.fileStream = NULL;
 	}
 
-	if(SystemFlags::lockfilename != "") {
+	if(SystemFlags::lockFile != -1) {
 #ifndef WIN32
 		close(SystemFlags::lockFile);
 #else
 		_close(SystemFlags::lockFile);
 #endif
-		remove(SystemFlags::lockfilename.c_str());
-		SystemFlags::lockfilename = "";
+		SystemFlags::lockFile = -1;
+
+		if(SystemFlags::lockfilename != "") {
+			remove(SystemFlags::lockfilename.c_str());
+			SystemFlags::lockfilename = "";
+		}
 	}
 }
 
@@ -143,38 +140,40 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         	string debugLog = currentDebugLog.debugLogFileName;
             printf("Opening logfile [%s] type = %d, appendToFileOnly = %d\n",debugLog.c_str(),type, appendToFileOnly);
 
-            const string lock_file_name = "debug.lck";
-            string lockfile = extractDirectoryPathFromFile(debugLog);
-            lockfile += lock_file_name;
-            SystemFlags::lockfilename = lockfile;
+			if(SystemFlags::lockFile == -1) {
+				const string lock_file_name = "debug.lck";
+				string lockfile = extractDirectoryPathFromFile(debugLog);
+				lockfile += lock_file_name;
+				SystemFlags::lockfilename = lockfile;
 
 #ifndef WIN32
-            //SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-            SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+				//SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
 #else
-            SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
 #endif
-            if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
-            	string newlockfile = lockfile;
-            	int idx = 1;
-            	for(idx = 1; idx <= 100; ++idx) {
-                    newlockfile = lockfile + intToStr(idx);
-                    //SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+				if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
+            		string newlockfile = lockfile;
+            		int idx = 1;
+            		for(idx = 1; idx <= 100; ++idx) {
+						newlockfile = lockfile + intToStr(idx);
+						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
 #ifndef WIN32
-                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
 #else
-                    SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
 #endif
-                    if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
-                    	break;
-                    }
-            	}
+						if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
+                    		break;
+						}
+            		}
 
-            	SystemFlags::lockfilename = newlockfile;
-            	debugLog += intToStr(idx);
+            		SystemFlags::lockfilename = newlockfile;
+            		debugLog += intToStr(idx);
 
-            	printf("Opening additional logfile [%s]\n",debugLog.c_str());
-            }
+            		printf("Opening additional logfile [%s]\n",debugLog.c_str());
+				}
+			}
 
             if(currentDebugLog.fileStream == NULL) {
             	currentDebugLog.fileStream = new std::ofstream();

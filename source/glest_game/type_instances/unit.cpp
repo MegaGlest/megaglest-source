@@ -413,7 +413,7 @@ void Unit::setPos(const Vec2i &pos){
 void Unit::setTargetPos(const Vec2i &targetPos){
 
 	Vec2i relPos= targetPos - pos;
-	Vec2f relPosf= Vec2f(relPos.x, relPos.y);
+	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 	targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
 	targetRef= NULL;
 
@@ -717,7 +717,7 @@ bool Unit::update(){
 		const int rotFactor= 2;
 		if(progress<1.f/rotFactor){
 			if(type->getFirstStOfClass(scMove)){
-				if(abs(lastRotation-targetRotation)<180)
+				if(abs((int)(lastRotation-targetRotation)) < 180)
 					rotation= lastRotation+(targetRotation-lastRotation)*progress*rotFactor;
 				else{
 					float rotationTerm= targetRotation>lastRotation? -360.f: +360.f;
@@ -991,7 +991,7 @@ void Unit::updateTarget(){
 		//update target pos
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
-		Vec2f relPosf= Vec2f(relPos.x, relPos.y);
+		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 		targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
 
 		//update target vec
