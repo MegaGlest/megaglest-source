@@ -275,6 +275,8 @@ public:
 	static Shadows strToShadows(const string &s);
 	static string shadowsToStr(Shadows shadows);
 
+	const Game * getGame() { return game; }
+
 private:
 	//private misc
 	float computeSunAngle(float time);
