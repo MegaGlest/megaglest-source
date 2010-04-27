@@ -15,6 +15,8 @@
 
 #include "streflop_cond.h"
 //#include <cmath>
+#include <string>
+#include <sstream>
 
 namespace Shared{ namespace Graphics{
 
@@ -132,6 +134,12 @@ public:
 		T m= length(); 
 		x/= m;
 		y/= m;
+	}
+
+	std::string getString() {
+		std::ostringstream streamOut;
+		streamOut << "x [" << x << "] y [" << y << "]";
+		return streamOut.str();
 	}
 };
 
@@ -298,6 +306,12 @@ public:
 		return rv;
 	}
 
+	std::string getString() {
+		std::ostringstream streamOut;
+		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "]";
+		return streamOut.str();
+	}
+
 };
 
 typedef Vec3<int> Vec3i;
@@ -431,6 +445,13 @@ public:
 	T dot(const Vec4<T> &v) const{
 		return x*v.x + y*v.y + z*v.z + w*v.w;
 	}
+
+	std::string getString() {
+		std::ostringstream streamOut;
+		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "] w [" << w << "]";
+		return streamOut.str();
+	}
+
 };
 
 typedef Vec4<int> Vec4i;

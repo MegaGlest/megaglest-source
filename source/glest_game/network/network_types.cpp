@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -47,7 +47,8 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
             const CommandType *ct   = unit->getType()->findCommandTypeById(this->commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
-				assert(facing >= 0 && facing < 4 && targetId == -1);
+                CardinalDir::assertDirValid(facing);
+                assert(targetId == -1);
             }
         }
     }
@@ -62,7 +63,7 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
             const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
             const CommandType *ct   = unit->getType()->findCommandTypeById(commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
-				assert(targetId < 4);
+				CardinalDir::assertDirValid(targetId);
             }
         }
         else {
