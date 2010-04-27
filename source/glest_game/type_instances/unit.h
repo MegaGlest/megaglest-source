@@ -316,7 +316,9 @@ private:
 	CommandResult undoCommand(Command *command);
 	void stopDamageParticles();
 	void startDamageParticles();
+
 	void logSynchData(string source="");
+	int getFrameCount();
 };
 
 }}// end namespace

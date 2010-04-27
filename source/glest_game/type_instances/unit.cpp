@@ -23,6 +23,7 @@
 #include "skill_type.h"
 #include "core_data.h"
 #include "renderer.h"
+#include "game.h"
 
 #ifndef WIN32
   #include <cmath>
@@ -406,7 +407,7 @@ void Unit::setPos(const Vec2i &pos){
 	this->pos= pos;
 	this->meetingPos= pos - Vec2i(1);
 
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setTargetPos(const Vec2i &targetPos){
@@ -418,7 +419,7 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 	this->targetPos= targetPos;
 
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setVisible(const bool visible){
@@ -996,7 +997,10 @@ void Unit::updateTarget(){
 		//update target vec
 		targetVec= target->getCurrVector();
 
-		//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+		if(getFrameCount() % 40 == 0) {
+			//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+			logSynchData();
+		}
 	}
 }
 
@@ -1161,12 +1165,22 @@ void Unit::startDamageParticles(){
 
 void Unit::setTargetVec(const Vec3f &targetVec)	{
 	this->targetVec= targetVec;
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	this->meetingPos= meetingPos;
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+}
+
+int Unit::getFrameCount() {
+	int frameCount = 0;
+	const Game *game = Renderer::getInstance().getGame();
+	if(game != NULL && game->getWorld() != NULL) {
+		frameCount = game->getWorld()->getFrameCount();
+	}
+
+	return frameCount;
 }
 
 void Unit::logSynchData(string source) {
@@ -1175,8 +1189,9 @@ void Unit::logSynchData(string source) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf,
 	    		//"Unit = %d [%s] [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%f]\n",
-	    		"Unit = %d [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\n",
-				id,
+	    		"FrameCount [%d] Unit = %d [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\n",
+	    		getFrameCount(),
+	    		id,
 				getFullName().c_str(),
 				//getDesc().c_str(),
 				pos.getString().c_str(),
@@ -1194,7 +1209,7 @@ void Unit::logSynchData(string source) {
 	    	lastSynchDataString = string(szBuf);
 
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,
-					"%s %s\n",
+					"%s %s",
 					source.c_str(),
 					szBuf);
 	    }
