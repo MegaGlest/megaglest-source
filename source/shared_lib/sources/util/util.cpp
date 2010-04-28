@@ -79,8 +79,11 @@ void SystemFlags::Close() {
 			currentDebugLog.fileStream->is_open() == true) {
 			currentDebugLog.fileStream->close();
 		}
-		delete currentDebugLog.fileStream;
+		if(currentDebugLog.fileStreamOwner == true) {
+			delete currentDebugLog.fileStream;
+		}
 		currentDebugLog.fileStream = NULL;
+		currentDebugLog.fileStreamOwner = false;
 	}
 
 	if(SystemFlags::lockFile != -1) {
@@ -123,8 +126,7 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         	currentDebugLog.fileStream->is_open() == false) {
 
         	// If the file is already open (shared) by another debug type
-        	// do not over-write the file but append
-        	bool appendToFileOnly = false;
+        	// do not over-write the file but share the stream pointer
         	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
         		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
         		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
@@ -132,13 +134,14 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         		if(	iterMap->first != type &&
         			currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
         			currentDebugLog2.fileStream != NULL) {
-        			appendToFileOnly = true;
+					currentDebugLog.fileStream = currentDebugLog2.fileStream;
+					currentDebugLog.fileStreamOwner = false;
         			break;
         		}
         	}
 
         	string debugLog = currentDebugLog.debugLogFileName;
-            printf("Opening logfile [%s] type = %d, appendToFileOnly = %d\n",debugLog.c_str(),type, appendToFileOnly);
+            printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
 
 			if(SystemFlags::lockFile == -1) {
 				const string lock_file_name = "debug.lck";
@@ -177,12 +180,8 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
 
             if(currentDebugLog.fileStream == NULL) {
             	currentDebugLog.fileStream = new std::ofstream();
-            }
-            if(appendToFileOnly == false) {
             	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
-            }
-            else {
-            	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::app);
+				currentDebugLog.fileStreamOwner = true;
             }
 
             (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";

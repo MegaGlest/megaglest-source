@@ -282,18 +282,18 @@ int glestMain(int argc, char** argv){
 	try{
 		Config &config = Config::getInstance();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      = config.getBool("DebugMode","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     = config.getBool("DebugNetwork","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
 
-		string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
 		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
             debugLogFile = getGameReadWritePath() + debugLogFile;
         }
+		string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
         if(debugWorldSynchLogFile == "") {
         	debugWorldSynchLogFile = debugLogFile;
         }
@@ -302,6 +302,12 @@ int glestMain(int argc, char** argv){
         SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
+
+		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d]\n",
+			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
+			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
+			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
+			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		
