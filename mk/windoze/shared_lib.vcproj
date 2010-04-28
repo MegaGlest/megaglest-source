@@ -417,6 +417,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\source\shared_lib\sources\platform\win32\glob.c"
+						>
+					</File>
+					<File
 						RelativePath="..\..\source\shared_lib\sources\platform\win32\platform_util.cpp"
 						>
 					</File>
@@ -730,6 +734,10 @@
 				<Filter
 					Name="win32"
 					>
+					<File
+						RelativePath="..\..\source\shared_lib\include\platform\win32\glob.h"
+						>
+					</File>
 					<File
 						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_definitions.h"
 						>
