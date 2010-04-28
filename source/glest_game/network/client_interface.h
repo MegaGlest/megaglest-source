@@ -72,6 +72,7 @@ public:
 	bool getLaunchGame() const				{return launchGame;}
 	bool getIntroDone() const				{return introDone;}
 	bool getGameSettingsReceived() const	{return gameSettingsReceived;}
+	void setGameSettingsReceived(bool value)	{gameSettingsReceived=value;}
 	int getPlayerIndex() const				{return playerIndex;}
 	//const GameSettings *getGameSettings()	{return &gameSettings;}
 
@@ -80,6 +81,8 @@ public:
 
 	void discoverServers(DiscoveredServersInterface *cb);
 	void stopServerDiscovery();
+	
+	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex, int8 toTeam);
 
 private:
 	void waitForMessage();

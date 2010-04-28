@@ -314,6 +314,22 @@ void ConnectionSlot::update(bool checkForNewClients)
 				}
 				break;
 
+		        case nmtSwitchSetupRequest:
+		        {
+		        	SwitchSetupRequest switchSetupRequest;
+		            if(receiveMessage(&switchSetupRequest))
+		            {
+		            	 if(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]==NULL)
+		            	 {
+		            	 	serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]= new SwitchSetupRequest();
+		            	 }
+		            	 *(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()])=switchSetupRequest;
+		            	 
+		            }
+		           	break;
+		        }
+
+
 				default:
                     {
 					//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));

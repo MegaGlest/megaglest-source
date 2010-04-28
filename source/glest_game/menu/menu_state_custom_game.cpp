@@ -523,6 +523,26 @@ void MenuStateCustomGame::update()
 			needToSetChangedGameSettings    = false;
 		}
 		
+		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
+		for(int i= 0; i<mapInfo.players; ++i)
+		{
+			if(switchSetupRequests[i]!=NULL)
+			{
+				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+				{
+					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
+					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
+					
+					if(switchSetupRequests[i]->getSelectedFactionName()!=""){
+						listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+					}
+					if(switchSetupRequests[i]->getToTeam()!=-1)
+						listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+				}
+				delete switchSetupRequests[i];
+				switchSetupRequests[i]=NULL;
+			}
+		}
 		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{
 			GameSettings gameSettings;
