@@ -200,8 +200,8 @@ void ClientInterface::updateLobby()
                 this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
                 if(this->getNetworkGameDataSynchCheckOkTile() == false)
                 {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d\n",
-                            __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC());
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",
+                            __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
                 }
 
 
@@ -213,8 +213,8 @@ void ClientInterface::updateLobby()
 
                 if(this->getNetworkGameDataSynchCheckOkTech() == false)
                 {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC mismatch, local = %d, remote = %d\n",
-                            __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC());
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC mismatch, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTech() = [%s]\n",
+                            __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC(),networkMessageSynchNetworkGameData.getTech().c_str());
                 }
 
                 //map
@@ -228,8 +228,8 @@ void ClientInterface::updateLobby()
 
                 if(this->getNetworkGameDataSynchCheckOkMap() == false)
                 {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC mismatch, local = %d, remote = %d\n",
-                            __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC());
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC mismatch, local = %d, remote = %d, file = [%s]\n",
+                            __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
                 }
                 NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC);
                 sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
@@ -573,16 +573,22 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		string sErr = "Checksum error, you don't have the same data as the server";
-		//throw runtime_error("Checksum error, you don't have the same data as the server");
         sendTextMessage(sErr,-1);
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
+        sendTextMessage(sErr1,-1);
+
+		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
+        sendTextMessage(sErr2,-1);
+
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
 
 		if(Config::getInstance().getBool("NetworkConsistencyChecks")) {
 			// error message and disconnect only if checked
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-			DisplayErrorMessage(sErr);
+			string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
+			DisplayErrorMessage(niceError);
 
 			quit= true;
 
