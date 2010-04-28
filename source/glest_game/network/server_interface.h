@@ -43,6 +43,7 @@ private:
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
 	int gameSettingsUpdateCount;
+	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
 
 public:
 	ServerInterface();
@@ -66,6 +67,7 @@ public:
 	virtual string getNetworkStatus() const;
 
 	ServerSocket* getServerSocket()		{return &serverSocket;}
+	SwitchSetupRequest** getSwitchSetupRequests() {return &switchSetupRequests[0];}
 	void addSlot(int playerIndex);
 	void removeSlot(int playerIndex);
 	ConnectionSlot* getSlot(int playerIndex);

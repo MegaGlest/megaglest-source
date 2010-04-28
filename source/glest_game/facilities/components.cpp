@@ -137,7 +137,7 @@ void GraphicListBox::setSelectedItemIndex(int index){
 void GraphicListBox::setEditable(bool editable){
     graphButton1.setEditable(editable);
     graphButton2.setEditable(editable);
-    editable=true;
+    GraphicComponent::setEditable(editable);
 }
 
 void GraphicListBox::setSelectedItem(string item){

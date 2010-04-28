@@ -449,4 +449,42 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const
 }
 
 
+
+// =====================================================
+//	class NetworkMessageSynchNetworkGameDataFileGet
+// =====================================================
+
+SwitchSetupRequest::SwitchSetupRequest()
+{
+	data.messageType= nmtSwitchSetupRequest;
+	data.selectedFactionName="";
+	data.currentFactionIndex=-1;
+	data.toFactionIndex=-1;
+    data.toTeam = -1;
+}
+
+
+SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam)
+{
+	data.messageType= nmtSwitchSetupRequest;
+	data.selectedFactionName=selectedFactionName;
+	data.currentFactionIndex=currentFactionIndex;
+	data.toFactionIndex=toFactionIndex;
+    data.toTeam = toTeam;
+}
+
+bool SwitchSetupRequest::receive(Socket* socket)
+{
+	return NetworkMessage::receive(socket, &data, sizeof(data));
+}
+
+void SwitchSetupRequest::send(Socket* socket) const
+{
+	assert(data.messageType==nmtSwitchSetupRequest);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+
+
+
 }}//end namespace

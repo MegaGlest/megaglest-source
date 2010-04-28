@@ -51,8 +51,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
 	needToSetChangedGameSettings = false;
-	lastSetChangedGameSettings   = time(NULL);;
-
+	lastSetChangedGameSettings   = time(NULL);
+	
 
 	currentFactionName="";
 	currentMap="";
@@ -116,6 +116,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxTeams[i].init(600, 550-i*30, 60);
 		listBoxTeams[i].setEditable(false);
 		labelNetStatus[i].init(700, 550-i*30, 60);
+		grabSlotButton[i].init(700, 550-i*30, 30);
+		grabSlotButton[i].setText(">");
     }
 
 	labelControl.init(200, 600, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -214,6 +216,28 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else
 	{
+		for(int i=0; i<GameConstants::maxPlayers; ++i)
+		{
+			if(listBoxFactions[i].getEditable()){
+				if(listBoxFactions[i].mouseClick(x, y)){
+					ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
+					if(clientInterface->isConnected()){
+						clientInterface->setGameSettingsReceived(false);
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),clientInterface->getGameSettings()->getThisFactionIndex(),-1,listBoxTeams[i].getSelectedItemIndex());
+					}
+				}
+			}
+			if(listBoxTeams[i].getEditable()){
+				if(listBoxTeams[i].mouseClick(x, y)){
+					if(clientInterface->isConnected()){
+						clientInterface->setGameSettingsReceived(false);
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),clientInterface->getGameSettings()->getThisFactionIndex(),-1,listBoxTeams[i].getSelectedItemIndex());
+					}
+				}
+			}
+		}
+
+
 //		for(int i=0; i<mapInfo.players; ++i)
 //		{
 //			//ensure thet only 1 human player is present
@@ -306,7 +330,10 @@ void MenuStateConnectedGame::render(){
 				renderer.renderListBox(&listBoxTeams[i]);
 				//renderer.renderLabel(&labelNetStatus[i]);
 				
-				if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) ||
+				if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) && (labelNetStatus[i].getText()=="???")){
+					renderer.renderButton(&grabSlotButton[i]);
+				}
+				else if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) ||
 					(listBoxControls[i].getSelectedItemIndex()==ctHuman)){
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
@@ -476,6 +503,8 @@ void MenuStateConnectedGame::update()
 			// Control
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
 				listBoxControls[i].setSelectedItemIndex(ctClosed);
+				listBoxFactions[i].setEditable(false);
+				listBoxTeams[i].setEditable(false);
 			}
 			
 			for(int i=0; i<gameSettings->getFactionCount(); ++i){
@@ -491,6 +520,8 @@ void MenuStateConnectedGame::update()
 				if(gameSettings->getFactionControl(i) == ctNetwork && gameSettings->getThisFactionIndex() == i){
 					// set my current slot to ctHuman
 					listBoxControls[slot].setSelectedItemIndex(ctHuman);
+					listBoxFactions[slot].setEditable(true);
+					listBoxTeams[slot].setEditable(true);
 				}
 				
 				settingsReceivedFromServer=true;

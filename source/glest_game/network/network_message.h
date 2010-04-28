@@ -38,7 +38,7 @@ enum NetworkMessageType{
 	nmtSynchNetworkGameDataFileCRCCheck,
 	nmtSynchNetworkGameDataFileGet,
 	nmtBroadCastSetup,
-	
+	nmtSwitchSetupRequest,
 
 	nmtCount
 };
@@ -409,6 +409,43 @@ public:
 	virtual void send(Socket* socket) const;
 
 	string getFileName() const		{return data.fileName.getString();}
+};
+
+
+// =====================================================
+//	class SwitchSetupRequest
+//
+//	Message sent from the server to the client
+//	when the client connects and vice versa
+// =====================================================
+
+class SwitchSetupRequest: public NetworkMessage{
+private:
+	static const int maxStringSize= 256;
+
+private:
+	struct Data{
+		int8 messageType;
+		NetworkString<maxStringSize> selectedFactionName; //wanted faction name
+		int8 currentFactionIndex;
+		int8 toFactionIndex;
+		int8 toTeam;
+	};
+
+private:
+	Data data;
+
+public:
+	SwitchSetupRequest();
+	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam);
+
+	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
+	int getCurrentFactionIndex() const	{return data.currentFactionIndex;}
+	int getToFactionIndex() const		{return data.toFactionIndex;}
+	int getToTeam() const					{return data.toTeam;}
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
 };
 
 

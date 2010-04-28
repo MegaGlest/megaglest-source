@@ -40,6 +40,7 @@ ServerInterface::ServerInterface(){
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
+		switchSetupRequests[i]= NULL;
 	}
 	serverSocket.setBlock(false);
 	serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
@@ -50,6 +51,9 @@ ServerInterface::~ServerInterface(){
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		delete slots[i];
+		slots[i]=NULL;
+		delete switchSetupRequests[i];
+		switchSetupRequests[i]=NULL;
 	}
 
 	close();
@@ -217,7 +221,7 @@ void ServerInterface::update()
                                     chatTeamIndex= networkMessageText.getTeamIndex();
                                     break;
                                 }
-                            }
+							}
                         }
                     }
                 }

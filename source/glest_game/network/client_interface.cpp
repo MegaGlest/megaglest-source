@@ -687,6 +687,15 @@ void ClientInterface::stopServerDiscovery() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam)
+{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("string-cuf-tof-team= %s-%d-%d-%d\n",selectedFactionName.c_str(),currentFactionIndex,toFactionIndex,toTeam);
+	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName, currentFactionIndex, toFactionIndex,toTeam);
+	sendMessage(&message);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 /*
 bool ClientInterface::getFogOfWar()
 {

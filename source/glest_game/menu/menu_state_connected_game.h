@@ -49,6 +49,7 @@ private:
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
+	GraphicButton grabSlotButton[GameConstants::maxPlayers];
 	MapInfo mapInfo;
 
 	bool needToSetChangedGameSettings;
@@ -61,7 +62,7 @@ private:
 	string currentMap;
 	bool settingsReceivedFromServer;
 	
-
+	
 public:
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots= false);
 
