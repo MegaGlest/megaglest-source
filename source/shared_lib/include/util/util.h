@@ -42,12 +42,14 @@ public:
     		this->enabled			= false;
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
+			this->fileStreamOwner	= false;
     	}
     	SystemFlagsType(DebugType debugType) {
     		this->debugType 		= debugType;
     		this->enabled			= false;
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
+			this->fileStreamOwner	= false;
     	}
     	SystemFlagsType(DebugType debugType,bool enabled,
 						std::ofstream *fileStream,std::string debugLogFileName) {
@@ -55,11 +57,13 @@ public:
     		this->enabled			= enabled;
     		this->fileStream 		= fileStream;
     		this->debugLogFileName	= debugLogFileName;
+			this->fileStreamOwner	= false;
     	}
 
     	bool enabled;
     	std::ofstream *fileStream;
     	std::string debugLogFileName;
+		bool fileStreamOwner;
 	};
 
 protected:
