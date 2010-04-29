@@ -531,7 +531,7 @@ void ServerInterface::updateListen()
 
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck)
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 
     if(getAllowGameDataSynchCheck() == true)
     {
