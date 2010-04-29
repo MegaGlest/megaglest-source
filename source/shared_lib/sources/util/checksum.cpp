@@ -46,6 +46,10 @@ void Checksum::addString(const string &value){
 }
 
 void Checksum::addFile(const string &path){
+	fileList[path] = 0;
+}
+
+void Checksum::addFileToSum(const string &path){
 
 	FILE* file= fopen(path.c_str(), "rb");
 
@@ -65,6 +69,17 @@ void Checksum::addFile(const string &path){
 		throw runtime_error("Can not open file: " + path);
 	}
 	fclose(file);
+}
+
+int32 Checksum::getSum() {
+	if(fileList.size() > 0) {
+		for(std::map<string,int32>::iterator iterMap = fileList.begin();
+			iterMap != fileList.end(); iterMap++)
+		{
+			addFileToSum(iterMap->first);
+		}
+	}
+	return sum;
 }
 
 }}//end namespace
