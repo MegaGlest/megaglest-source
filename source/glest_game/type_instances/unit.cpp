@@ -407,7 +407,7 @@ void Unit::setPos(const Vec2i &pos){
 	this->pos= pos;
 	this->meetingPos= pos - Vec2i(1);
 
-	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setTargetPos(const Vec2i &targetPos){
@@ -419,7 +419,7 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 	this->targetPos= targetPos;
 
-	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setVisible(const bool visible){
@@ -997,10 +997,10 @@ void Unit::updateTarget(){
 		//update target vec
 		targetVec= target->getCurrVector();
 
-		if(getFrameCount() % 40 == 0) {
+		//if(getFrameCount() % 40 == 0) {
 			//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
-			logSynchData();
-		}
+			//logSynchData();
+		//}
 	}
 }
 
@@ -1165,12 +1165,12 @@ void Unit::startDamageParticles(){
 
 void Unit::setTargetVec(const Vec3f &targetVec)	{
 	this->targetVec= targetVec;
-	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	this->meetingPos= meetingPos;
-	//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
 int Unit::getFrameCount() {
