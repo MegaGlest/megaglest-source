@@ -618,7 +618,7 @@ void Map::computeCellColors(){
 }
 
 // static
-string Map::getMapPath(const string &mapName, string scenarioDir) {
+string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNotFound) {
 
     Config &config = Config::getInstance();
     vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
@@ -635,7 +635,11 @@ string Map::getMapPath(const string &mapName, string scenarioDir) {
         }
     }
 
-    throw runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
+	if(errorOnNotFound == true) {
+		throw runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
+	}
+
+	return "";
 }
 
 // =====================================================

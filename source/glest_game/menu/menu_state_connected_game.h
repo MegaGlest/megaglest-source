@@ -78,7 +78,7 @@ private:
 
     bool hasNetworkGameSettings();
 	void reloadFactions();
-	void loadFactions(const GameSettings *gameSettings);
+	bool loadFactions(const GameSettings *gameSettings);
 };
 
 }}//end namespace

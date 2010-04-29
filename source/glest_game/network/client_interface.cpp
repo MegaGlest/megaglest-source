@@ -181,58 +181,70 @@ void ClientInterface::updateLobby()
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
 
-                Config &config = Config::getInstance();
-                string scenarioDir = "";
-                if(gameSettings.getScenarioDir() != "") {
-                    scenarioDir = gameSettings.getScenarioDir();
-                    if(EndsWith(scenarioDir, ".xml") == true) {
-                        scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
-                        scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings.getScenario().size(), gameSettings.getScenario().size() + 1);
-                    }
+				int32 tilesetCRC = 0;
+				int32 techCRC	 = 0;
+				int32 mapCRC	 = 0;
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
-                }
+				try {
+					Config &config = Config::getInstance();
+					string scenarioDir = "";
+					if(gameSettings.getScenarioDir() != "") {
+						scenarioDir = gameSettings.getScenarioDir();
+						if(EndsWith(scenarioDir, ".xml") == true) {
+							scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
+							scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings.getScenario().size(), gameSettings.getScenario().size() + 1);
+						}
 
-                // check the checksum's
-                //int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + networkMessageSynchNetworkGameData.getTileset() + "/*", ".xml", NULL);
-                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTileset() + string("/*"), ".xml", NULL);
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
+					}
 
-                this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
-                if(this->getNetworkGameDataSynchCheckOkTile() == false)
-                {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC mismatch, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",
-                            __FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
-                }
+					// check the checksum's
+					//int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + networkMessageSynchNetworkGameData.getTileset() + "/*", ".xml", NULL);
+					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTileset() + string("/*"), ".xml", NULL);
+
+					this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
+					//if(this->getNetworkGameDataSynchCheckOkTile() == false)
+					//{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
+					//}
 
 
-                //tech, load before map because of resources
-                //int32 techCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
-                int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTech() + string("/*"), ".xml", NULL);
+					//tech, load before map because of resources
+					//int32 techCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTech() + string("/*"), ".xml", NULL);
 
-                this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
+					this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
 
-                if(this->getNetworkGameDataSynchCheckOkTech() == false)
-                {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC mismatch, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTech() = [%s]\n",
-                            __FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC(),networkMessageSynchNetworkGameData.getTech().c_str());
-                }
+					//if(this->getNetworkGameDataSynchCheckOkTech() == false)
+					//{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTech() = [%s]\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC(),networkMessageSynchNetworkGameData.getTech().c_str());
+					//}
 
-                //map
-                Checksum checksum;
-                string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap(),scenarioDir);
-                checksum.addFile(file);
-                int32 mapCRC = checksum.getSum();
-                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
+					//map
+					Checksum checksum;
+					string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap(),scenarioDir, false);
+					if(file != "") {
+						checksum.addFile(file);
+						mapCRC = checksum.getSum();
+					}
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
 
-                this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
+					this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
 
-                if(this->getNetworkGameDataSynchCheckOkMap() == false)
-                {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC mismatch, local = %d, remote = %d, file = [%s]\n",
-                            __FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
-                }
-                NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC);
-                sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
+					//if(this->getNetworkGameDataSynchCheckOkMap() == false)
+					//{
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC info, local = %d, remote = %d, file = [%s]\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
+					//}
+				}
+				catch(const runtime_error &ex) {
+					string sErr = ex.what();
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] error during processing, sErr = [%s]\n",__FILE__,__FUNCTION__,sErr.c_str());
+
+					DisplayErrorMessage(sErr);
+				}
+
+				NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC);
+				sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
             }
         }
         break;

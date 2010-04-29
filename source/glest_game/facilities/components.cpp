@@ -128,8 +128,8 @@ void GraphicListBox::setItems(const vector<string> &items){
     setSelectedItemIndex(0);
 }
 
-void GraphicListBox::setSelectedItemIndex(int index){
-    assert(index>=0 && index<items.size());
+void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
+    if(errorOnMissing == true) assert(index>=0 && index<items.size());
     selectedItemIndex= index;
     setText(getSelectedItem());
 }
@@ -140,13 +140,15 @@ void GraphicListBox::setEditable(bool editable){
     GraphicComponent::setEditable(editable);
 }
 
-void GraphicListBox::setSelectedItem(string item){
+void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 	vector<string>::iterator iter;        
 
     iter= find(items.begin(), items.end(), item);
 
-	if(iter==items.end()){
-        throw runtime_error("Value not found on list box: "+item);
+	if(iter==items.end()) {
+		if(errorOnMissing == true) {
+			throw runtime_error("Value not found on list box: "+item);
+		}
 	}
 	else {
 		setSelectedItemIndex(iter-items.begin());

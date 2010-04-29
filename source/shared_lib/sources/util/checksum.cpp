@@ -52,11 +52,12 @@ void Checksum::addString(const string &value){
 }
 
 void Checksum::addFile(const string &path){
-	fileList[path] = 0;
+	if(path != "") {
+		fileList[path] = 0;
+	}
 }
 
 void Checksum::addFileToSum(const string &path){
-
 	FILE* file= fopen(path.c_str(), "rb");
 	if(file!=NULL){
 

@@ -142,8 +142,8 @@ public:
 
     void pushBackItem(string item);
     void setItems(const vector<string> &items);
-	void setSelectedItemIndex(int index);
-    void setSelectedItem(string item);
+	void setSelectedItemIndex(int index, bool errorOnMissing=true);
+    void setSelectedItem(string item, bool errorOnMissing=true);
     void setEditable(bool editable);
     
     virtual bool mouseMove(int x, int y);
