@@ -533,12 +533,18 @@ void MenuStateCustomGame::update()
 					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
 					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
 					
-					if(switchSetupRequests[i]->getSelectedFactionName()!=""){
-						listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+					try {
+						if(switchSetupRequests[i]->getSelectedFactionName()!=""){
+							listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+						}
+						if(switchSetupRequests[i]->getToTeam()!=-1)
+							listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
 					}
-					if(switchSetupRequests[i]->getToTeam()!=-1)
-						listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+					catch(const runtime_error &e) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+					}
 				}
+
 				delete switchSetupRequests[i];
 				switchSetupRequests[i]=NULL;
 			}
