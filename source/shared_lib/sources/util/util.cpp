@@ -141,7 +141,6 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         	}
 
         	string debugLog = currentDebugLog.debugLogFileName;
-            printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
 
 			if(SystemFlags::lockFile == -1) {
 				const string lock_file_name = "debug.lck";
@@ -183,6 +182,8 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
             	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
 				currentDebugLog.fileStreamOwner = true;
             }
+
+            printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
 
             (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
             (*currentDebugLog.fileStream).flush();
