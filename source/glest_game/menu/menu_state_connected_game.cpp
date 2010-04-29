@@ -464,6 +464,7 @@ void MenuStateConnectedGame::update()
 	if(clientInterface->isConnected())
 	{
 		if(clientInterface->getGameSettingsReceived()){
+			bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			vector<string> maps,tilesets,techtree;
 			const GameSettings *gameSettings=clientInterface->getGameSettings();
@@ -477,20 +478,25 @@ void MenuStateConnectedGame::update()
 			listBoxTechTree.setItems(techtree);
 			
 			// factions
-			if(currentFactionName!=gameSettings->getTech())
+			bool hasFactions = true;
+			if(currentFactionName != gameSettings->getTech())
 			{
-				currentFactionName=gameSettings->getTech();
-				loadFactions(gameSettings);
+				currentFactionName = gameSettings->getTech();
+				hasFactions = loadFactions(gameSettings);
 			}
 			
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d\n",__FILE__,__FUNCTION__,__LINE__,hasFactions);
+
 			// map
 			maps.push_back(formatString(gameSettings->getMap()));
 			listBoxMap.setItems(maps);
-			if(currentMap!=gameSettings->getMap())
+			if(currentMap != gameSettings->getMap())
 			{// load the setup again
-				currentMap=gameSettings->getMap();
+				currentMap = gameSettings->getMap();
 			}
 			
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			// FogOfWar
 			if(gameSettings->getFogOfWar()){
 				listBoxFogOfWar.setSelectedItemIndex(0); 
@@ -499,7 +505,9 @@ void MenuStateConnectedGame::update()
 			{
 				listBoxFogOfWar.setSelectedItemIndex(1);
 			}
-				
+			
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			// Control
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
 				listBoxControls[i].setSelectedItemIndex(ctClosed);
@@ -507,25 +515,30 @@ void MenuStateConnectedGame::update()
 				listBoxTeams[i].setEditable(false);
 			}
 			
-			for(int i=0; i<gameSettings->getFactionCount(); ++i){
-				int slot=gameSettings->getStartLocationIndex(i);
-				listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i));
-				listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i));
-				listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)));
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				if(gameSettings->getFactionControl(i) == ctNetwork ){
-					labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
+			if(hasFactions == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				for(int i=0; i<gameSettings->getFactionCount(); ++i){
+					int slot=gameSettings->getStartLocationIndex(i);
+					listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
+					listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
+					listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
+
+					if(gameSettings->getFactionControl(i) == ctNetwork ){
+						labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
+					}
+					
+					if(gameSettings->getFactionControl(i) == ctNetwork && gameSettings->getThisFactionIndex() == i){
+						// set my current slot to ctHuman
+						listBoxControls[slot].setSelectedItemIndex(ctHuman);
+						listBoxFactions[slot].setEditable(true);
+						listBoxTeams[slot].setEditable(true);
+					}
+					
+					settingsReceivedFromServer=true;
 				}
-				
-				if(gameSettings->getFactionControl(i) == ctNetwork && gameSettings->getThisFactionIndex() == i){
-					// set my current slot to ctHuman
-					listBoxControls[slot].setSelectedItemIndex(ctHuman);
-					listBoxFactions[slot].setEditable(true);
-					listBoxTeams[slot].setEditable(true);
-				}
-				
-				settingsReceivedFromServer=true;
-			
 			}
 		}
 		//update lobby
@@ -566,7 +579,7 @@ void MenuStateConnectedGame::update()
 }
 
 
-void MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
+bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	vector<string> results;
@@ -584,23 +597,31 @@ void MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
     }
 
     if(results.size() == 0) {
-        throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
-    }
-    factionFiles= results;
-    for(int i= 0; i<results.size(); ++i){
-        results[i]= formatString(results[i]);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",gameSettings->getTech().c_str(),results[i].c_str());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		ClientInterface* clientInterface= networkManager.getClientInterface();
+		if(clientInterface->getAllowGameDataSynchCheck() == false) {
+			throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-    for(int i=0; i<GameConstants::maxPlayers; ++i){
-        listBoxFactions[i].setItems(results);
-    }
+	else {
+		factionFiles= results;
+		for(int i= 0; i<results.size(); ++i){
+			results[i]= formatString(results[i]);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",gameSettings->getTech().c_str(),results[i].c_str());
+		}
+		for(int i=0; i<GameConstants::maxPlayers; ++i){
+			listBoxFactions[i].setItems(results);
+		}
+	}
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    
+
+	return (results.size() > 0);
 }
-
-
-
 
 // ============ PRIVATE ===========================
 
@@ -639,6 +660,8 @@ void MenuStateConnectedGame::reloadFactions(){
 
     Config &config = Config::getInstance();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
@@ -649,6 +672,8 @@ void MenuStateConnectedGame::reloadFactions(){
         }
     }
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(results.size() == 0) {
         throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
     }
@@ -658,11 +683,15 @@ void MenuStateConnectedGame::reloadFactions(){
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
     }
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     for(int i=0; i<GameConstants::maxPlayers; ++i){
         listBoxFactions[i].setItems(results);
         listBoxFactions[i].setSelectedItemIndex(i % results.size());
     }
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 

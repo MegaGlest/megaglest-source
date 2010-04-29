@@ -224,7 +224,7 @@ public:
 	//static
 	static Vec2i toSurfCoords(Vec2i unitPos)		{return unitPos/cellScale;}
 	static Vec2i toUnitCoords(Vec2i surfPos)		{return surfPos*cellScale;}
-	static string getMapPath(const string &mapName, string scenarioDir="");
+	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
 
 private:
 	//compute
