@@ -252,7 +252,10 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 bool isdir(const char *path)
 {
   struct stat stats;
-  bool ret = stat (path, &stats) == 0 && S_ISDIR (stats.st_mode);
+
+  bool ret = stat (path, &stats) == 0 && S_ISDIR(stats.st_mode);
+  if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
+
   return ret;
 }
 
