@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -34,13 +34,16 @@ private:
     int32	c1;
     int32	c2;
 	std::map<string,int32> fileList;
+	static std::map<string,int32> fileListCache;
 
+	void addSum(int32 value);
 	void addFileToSum(const string &path);
 
 public:
 	Checksum();
 
 	int32 getSum();
+	int32 getFinalFileListSum();
 
 	void addByte(int8 value);
 	void addString(const string &value);
