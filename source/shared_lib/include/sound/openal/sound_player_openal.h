@@ -10,6 +10,7 @@
 
 #include "sound_player.h"
 #include "platform_util.h"
+#include "platform_common.h"
 
 #include <SDL.h>
 #include <AL/alc.h>
@@ -18,6 +19,7 @@
 #include <vector>
 
 using std::vector;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Sound{ namespace OpenAL{
 

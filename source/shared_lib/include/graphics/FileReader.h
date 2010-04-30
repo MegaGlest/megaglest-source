@@ -29,7 +29,7 @@ using std::ifstream;
 using std::ios;
 using std::runtime_error;
 
-using Shared::Platform::extractExtension;
+using Shared::PlatformCommon::extractExtension;
 
 #define AS_STRING(...) #__VA_ARGS__
 

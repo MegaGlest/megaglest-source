@@ -26,6 +26,7 @@ IncludeDir strefloplib : $(LIB_STREFLOP_INCLUDE_DIRS) ;
 SubDir TOP shared_lib sources ;
 
 LIB_DIRS =
+    platform/common
 	platform/sdl
 	platform/posix
 	util
