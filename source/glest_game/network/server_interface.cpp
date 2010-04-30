@@ -322,7 +322,8 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 						return;
 					}
 
-					waitingForHosts.push_back(connectionSlot->getHostName());
+					//waitingForHosts.push_back(connectionSlot->getHostName());
+					waitingForHosts.push_back(connectionSlot->getName());
 
 					allReady= false;
 				}

@@ -178,7 +178,8 @@ public:
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage{
 private:
-	static const int maxCommandCount= 16*4;
+	//static const int maxCommandCount= 16*4;
+	static const int maxCommandCount = (16 * 4) * 2;
 
 private:
 	struct Data{
