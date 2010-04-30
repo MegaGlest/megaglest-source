@@ -35,7 +35,7 @@ string getCrashDumpFileName(){
 string getNetworkVersionString() {
 	string version = glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__);
 #if defined(WIN32) && defined(_MSC_VER)
-	version += " MSC_VER " + _MSC_VER;
+	version += " Compiled using MSC_VER: " + intToStr(_MSC_VER);
 #elif defined(__GNUC__)
 
 	#if defined(__GNUC__)
@@ -49,7 +49,7 @@ string getNetworkVersionString() {
 	# endif
 	#endif
 
-	version += " GNUC_VERSION " + intToStr(__GNUC_VERSION__);
+	version += " Compiled using GNUC_VERSION: " + intToStr(__GNUC_VERSION__);
 #endif
 	return version;
 }

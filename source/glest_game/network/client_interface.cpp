@@ -667,7 +667,7 @@ void ClientInterface::waitForMessage()
 			return;
 		}
 
-		if(chrono.getMillis()>messageWaitTimeout)
+		if(chrono.getMillis() > messageWaitTimeout)
 		{
 			//throw runtime_error("Timeout waiting for message");
             sendTextMessage("Timeout waiting for message",-1);
@@ -677,7 +677,7 @@ void ClientInterface::waitForMessage()
             return;
 		}
 
-		sleep(waitSleepTime);
+		//sleep(waitSleepTime);
 		waitLoopCount++;
 	}
 

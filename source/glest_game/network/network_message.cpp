@@ -230,7 +230,7 @@ NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount){
 }
 
 bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand){
-	if(data.commandCount<maxCommandCount){
+	if(data.commandCount < maxCommandCount){
 		data.commands[static_cast<int>(data.commandCount)]= *networkCommand;
 		data.commandCount++;
 		return true;
