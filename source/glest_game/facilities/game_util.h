@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -28,6 +28,7 @@ extern const string networkVersionString;
 
 string getCrashDumpFileName();
 string getNetworkVersionString();
+string getNetworkPlatformFreeVersionString();
 string getAboutString1(int i);
 string getAboutString2(int i);
 string getTeammateName(int i);

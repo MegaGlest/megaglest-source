@@ -138,19 +138,34 @@ void ClientInterface::updateLobby()
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
 
                 //check consistency
-
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString())
-                //if(1)
                 {
-					string sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
-					networkMessageIntro.getVersionString() +
-					"\nClient: " + getNetworkVersionString();
-                    printf("%s\n",sErr.c_str());
+                	bool versionMatched = false;
+                	string platformFreeVersion = getNetworkPlatformFreeVersionString();
+                	string sErr = "";
 
-                    sendTextMessage("Server and client binary mismatch!!",-1);
-                    sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
-                    sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
-					if(Config::getInstance().getBool("NetworkConsistencyChecks"))
+                	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
+    					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
+    					networkMessageIntro.getVersionString() +
+    					"\nClient: " + getNetworkVersionString();
+                        printf("%s\n",sErr.c_str());
+
+                        sendTextMessage("Server and client binary mismatch!!",-1);
+                        sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
+                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
+                	}
+                	else {
+                		versionMatched = true;
+						sErr = "Server and client are using the same version but different platforms.\n\nServer: " +
+										networkMessageIntro.getVersionString() + "\nClient: " + getNetworkVersionString();
+						printf("%s\n",sErr.c_str());
+
+						sendTextMessage("Server and client platform mismatch.",-1);
+						sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
+						sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
+                	}
+
+					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") && versionMatched == false)
             		{// error message and disconnect only if checked
 						DisplayErrorMessage(sErr);
                         quit= true;
@@ -158,7 +173,6 @@ void ClientInterface::updateLobby()
                     	return;
             		}
                 }
-
 
                 //send intro message
                 NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1);
