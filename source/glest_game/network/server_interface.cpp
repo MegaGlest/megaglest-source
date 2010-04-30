@@ -74,6 +74,29 @@ void ServerInterface::addSlot(int playerIndex){
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
+bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	bool result=false;
+	assert(fromPlayerIndex>=0 && fromPlayerIndex<GameConstants::maxPlayers);
+	assert(toPlayerIndex>=0 && toPlayerIndex<GameConstants::maxPlayers);
+	if(fromPlayerIndex==toPlayerIndex) return false;// doubleclicked or whatever
+
+	//printf(" checking if slot %d is free?\n",toPlayerIndex);
+	if( !slots[toPlayerIndex]->isConnected()) {
+		//printf(" yes, its free :)\n");
+		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
+		ConnectionSlot *tmp=slots[toPlayerIndex];
+		slots[toPlayerIndex]= slots[fromPlayerIndex];
+		slots[fromPlayerIndex]=tmp;
+		PlayerIndexMessage playerIndexMessage(toPlayerIndex);
+        slots[toPlayerIndex]->sendMessage(&playerIndexMessage);
+		result=true;
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	return result;
+}
+
 void ServerInterface::removeSlot(int playerIndex){
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);

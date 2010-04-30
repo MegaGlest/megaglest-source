@@ -39,6 +39,7 @@ enum NetworkMessageType{
 	nmtSynchNetworkGameDataFileGet,
 	nmtBroadCastSetup,
 	nmtSwitchSetupRequest,
+	nmtPlayerIndexMessage,
 
 	nmtCount
 };
@@ -448,6 +449,32 @@ public:
 	virtual void send(Socket* socket) const;
 };
 
+// =====================================================
+//	class SwitchSetupRequest
+//
+//	Message sent from the server to the client
+//	when the client connects and vice versa
+// =====================================================
+
+class PlayerIndexMessage: public NetworkMessage{
+
+private:
+	struct Data{
+		int8 messageType;
+		int16 playerIndex;
+	};
+
+private:
+	Data data;
+
+public:
+	PlayerIndexMessage( int16 playerIndex);
+
+	int16 getPlayerIndex() const	{return data.playerIndex;}
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+};
 
 }}//end namespace
 

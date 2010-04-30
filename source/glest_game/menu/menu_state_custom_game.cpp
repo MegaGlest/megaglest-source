@@ -412,6 +412,57 @@ void MenuStateCustomGame::update()
 
 		bool haveAtLeastOneNetworkClientConnected = false;
 		Config &config = Config::getInstance();
+		
+		
+		// handle setting changes from clients
+		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
+		for(int i= 0; i<mapInfo.players; ++i)
+		{
+			if(switchSetupRequests[i]!=NULL)
+			{
+				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+				{
+					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
+					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
+					
+					if(switchSetupRequests[i]->getToFactionIndex()!=-1)
+					{
+						//printf("switchSlot request from %d to %d\n",switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex());
+						if(serverInterface->switchSlot(switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex())){
+							int k=switchSetupRequests[i]->getToFactionIndex();
+							try {
+								if(switchSetupRequests[i]->getSelectedFactionName()!=""){
+									listBoxFactions[k].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+								}
+								if(switchSetupRequests[i]->getToTeam()!=-1)
+									listBoxTeams[k].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+							}
+							catch(const runtime_error &e) {
+								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+							}
+							
+						}
+					}
+					else
+					{
+						try {
+							if(switchSetupRequests[i]->getSelectedFactionName()!=""){
+								listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+							}
+							if(switchSetupRequests[i]->getToTeam()!=-1)
+								listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+						}
+						catch(const runtime_error &e) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+						}
+					}
+				}
+
+				delete switchSetupRequests[i];
+				switchSetupRequests[i]=NULL;
+			}
+		}
+		
 		for(int i= 0; i<mapInfo.players; ++i)
 		{
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
@@ -523,32 +574,6 @@ void MenuStateCustomGame::update()
 			needToSetChangedGameSettings    = false;
 		}
 		
-		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
-		for(int i= 0; i<mapInfo.players; ++i)
-		{
-			if(switchSetupRequests[i]!=NULL)
-			{
-				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
-				{
-					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
-					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
-					
-					try {
-						if(switchSetupRequests[i]->getSelectedFactionName()!=""){
-							listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
-						}
-						if(switchSetupRequests[i]->getToTeam()!=-1)
-							listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
-					}
-					catch(const runtime_error &e) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-					}
-				}
-
-				delete switchSetupRequests[i];
-				switchSetupRequests[i]=NULL;
-			}
-		}
 		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{
 			GameSettings gameSettings;

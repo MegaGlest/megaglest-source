@@ -366,7 +366,15 @@ void ClientInterface::updateLobby()
             }
         }
         break;
-
+		case nmtPlayerIndexMessage:
+		{
+			PlayerIndexMessage playerIndexMessage(-1);
+			if(receiveMessage(&playerIndexMessage))
+            {
+				playerIndex= playerIndexMessage.getPlayerIndex();
+            }
+		}
+		break;
         default:
             {
             string sErr = string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);

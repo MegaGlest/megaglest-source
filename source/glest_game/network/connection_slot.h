@@ -46,6 +46,8 @@ public:
 
     void update(bool checkForNewClients);
 	virtual void update();
+	void setPlayerIndex(int value) { playerIndex = value; }
+	int getPlayerIndex() {return playerIndex;}
 
 	void setReady()					{ready= true;}
 	const string &getName() const	{return name;}

@@ -69,6 +69,7 @@ public:
 	ServerSocket* getServerSocket()		{return &serverSocket;}
 	SwitchSetupRequest** getSwitchSetupRequests() {return &switchSetupRequests[0];}
 	void addSlot(int playerIndex);
+	bool switchSlot(int fromPlayerIndex,int toPlayerIndex);
 	void removeSlot(int playerIndex);
 	ConnectionSlot* getSlot(int playerIndex);
 	int getConnectedSlotCount();
