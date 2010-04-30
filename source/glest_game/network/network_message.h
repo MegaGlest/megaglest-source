@@ -18,6 +18,7 @@
 
 using Shared::Platform::Socket;
 using Shared::Platform::int8;
+using Shared::Platform::uint8;
 using Shared::Platform::int16;
 
 namespace Glest{ namespace Game{
@@ -184,7 +185,7 @@ private:
 private:
 	struct Data{
 		int8 messageType;
-		int8 commandCount;
+		uint8 commandCount;
 		int32 frameCount;
 		NetworkCommand commands[maxCommandCount];
 	};
