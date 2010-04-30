@@ -28,11 +28,15 @@ const string mailString= "contact_game@glest.org";
 const string glestVersionString= "v3.3.5-dev";
 
 string getCrashDumpFileName(){
-	return "glest"+glestVersionString+".dmp";
+	return "glest" + glestVersionString + ".dmp";
 }
 
-string getNetworkVersionString(){
-	return glestVersionString + " - " + string(__DATE__) + " - " + string(__TIME__);
+string getNetworkVersionString() {
+	return glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__);
+}
+
+string getNetworkPlatformFreeVersionString() {
+	return glestVersionString;
 }
 
 string getAboutString1(int i){
