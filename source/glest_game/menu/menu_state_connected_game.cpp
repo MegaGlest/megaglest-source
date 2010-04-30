@@ -174,6 +174,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
+	if (!settingsReceivedFromServer) return;
+	
 	if(buttonDisconnect.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -216,23 +218,46 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else
 	{
+		int myCurrentIndex=-1;
+		for(int i=0; i<GameConstants::maxPlayers; ++i)
+		{// find my current index by looking at editable listBoxes
+			if(listBoxFactions[i].getEditable()){
+				myCurrentIndex=i;
+			}
+		}
+		if (myCurrentIndex!=-1)
 		for(int i=0; i<GameConstants::maxPlayers; ++i)
 		{
 			if(listBoxFactions[i].getEditable()){
 				if(listBoxFactions[i].mouseClick(x, y)){
+					soundRenderer.playFx(coreData.getClickSoundA());
 					ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 					if(clientInterface->isConnected()){
 						clientInterface->setGameSettingsReceived(false);
-						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),clientInterface->getGameSettings()->getThisFactionIndex(),-1,listBoxTeams[i].getSelectedItemIndex());
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),i,-1,listBoxTeams[i].getSelectedItemIndex());
 					}
+					break;
 				}
 			}
 			if(listBoxTeams[i].getEditable()){
 				if(listBoxTeams[i].mouseClick(x, y)){
+					soundRenderer.playFx(coreData.getClickSoundA());
 					if(clientInterface->isConnected()){
 						clientInterface->setGameSettingsReceived(false);
-						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),clientInterface->getGameSettings()->getThisFactionIndex(),-1,listBoxTeams[i].getSelectedItemIndex());
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),i,-1,listBoxTeams[i].getSelectedItemIndex());
 					}
+					break;
+				}
+			}
+			if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) && (labelNetStatus[i].getText()=="???")){
+				if(grabSlotButton[i].mouseClick(x, y) )
+				{
+					soundRenderer.playFx(coreData.getClickSoundA());
+					clientInterface->setGameSettingsReceived(false);
+					settingsReceivedFromServer=false;
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
+					clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),myCurrentIndex,i,listBoxTeams[myCurrentIndex].getSelectedItemIndex());
+					break;
 				}
 			}
 		}
@@ -304,6 +329,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
         listBoxControls[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
+		grabSlotButton[i].mouseMove(x, y);
     }
 	listBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
@@ -320,7 +346,7 @@ void MenuStateConnectedGame::render(){
 		int i;
 
 		renderer.renderButton(&buttonDisconnect);
-		renderer.renderButton(&buttonPlayNow);
+		//renderer.renderButton(&buttonPlayNow);
 
 		for(i=0; i<GameConstants::maxPlayers; ++i){
 			renderer.renderLabel(&labelPlayers[i]);

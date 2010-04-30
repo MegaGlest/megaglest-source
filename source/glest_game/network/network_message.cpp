@@ -491,6 +491,27 @@ void SwitchSetupRequest::send(Socket* socket) const
 }
 
 
+// =====================================================
+//	class PlayerIndexMessage
+// =====================================================
+
+
+PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex)
+{
+	data.messageType= nmtPlayerIndexMessage;
+	data.playerIndex=playerIndex;
+}
+
+bool PlayerIndexMessage::receive(Socket* socket)
+{
+	return NetworkMessage::receive(socket, &data, sizeof(data));
+}
+
+void PlayerIndexMessage::send(Socket* socket) const
+{
+	assert(data.messageType==nmtPlayerIndexMessage);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
 
 
 }}//end namespace
