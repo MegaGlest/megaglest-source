@@ -156,7 +156,7 @@ void ClientInterface::updateLobby()
                 	}
                 	else {
                 		versionMatched = true;
-						sErr = "Server and client are using the same version but different platforms.\n\nServer: " +
+						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +
 										networkMessageIntro.getVersionString() + "\nClient: " + getNetworkVersionString();
 						printf("%s\n",sErr.c_str());
 
