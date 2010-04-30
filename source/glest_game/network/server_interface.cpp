@@ -86,12 +86,14 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
 	if( !slots[toPlayerIndex]->isConnected()) {
 		//printf(" yes, its free :)\n");
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
+		slots[toPlayerIndex]->setPlayerIndex(fromPlayerIndex);
 		ConnectionSlot *tmp=slots[toPlayerIndex];
 		slots[toPlayerIndex]= slots[fromPlayerIndex];
 		slots[fromPlayerIndex]=tmp;
 		PlayerIndexMessage playerIndexMessage(toPlayerIndex);
         slots[toPlayerIndex]->sendMessage(&playerIndexMessage);
 		result=true;
+		updateListen();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	return result;
