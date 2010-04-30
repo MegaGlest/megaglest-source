@@ -708,6 +708,14 @@
 				Name="platform"
 				>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\base_thread.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\cache_manager.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\platform\sdl\gl_wrap.h"
 					>
 				</File>
@@ -725,6 +733,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\platform\sdl\sdl_private.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\simple_threads.cpp"
 					>
 				</File>
 				<File

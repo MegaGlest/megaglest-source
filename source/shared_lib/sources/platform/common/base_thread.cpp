@@ -11,7 +11,9 @@
 // ==============================================================
 
 #include "base_thread.h"
+#include "platform_common.h"
 #include "util.h"
+#include <time.h>
 
 using namespace Shared::Util;
 

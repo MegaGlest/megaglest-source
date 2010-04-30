@@ -60,7 +60,7 @@ inline bool acquire_file_lock(int hnd)
    return -1 != ::fcntl(hnd, F_SETLK, &lock);
 #else
    HANDLE hFile = (HANDLE)_get_osfhandle(hnd);
-   return true == ::LockFile(hFile, 0, 0, 0, -0x10000);
+   return TRUE == ::LockFile(hFile, 0, 0, 0, -0x10000);
 #endif
 }
 
