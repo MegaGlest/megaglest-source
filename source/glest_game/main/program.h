@@ -24,7 +24,7 @@ using Shared::Graphics::Context;
 using Shared::Platform::WindowGl;
 using Shared::Platform::SizeState;
 using Shared::Platform::MouseState;
-using Shared::Platform::PerformanceTimer;
+using Shared::PlatformCommon::PerformanceTimer;
 using Shared::Platform::Ip;
 
 namespace Glest{ namespace Game{

@@ -26,12 +26,14 @@
 #endif
 
 #include "platform_util.h"
+#include "platform_common.h"
 #include "conversion.h"
 
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Util{
 

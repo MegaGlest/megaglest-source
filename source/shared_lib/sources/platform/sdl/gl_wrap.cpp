@@ -43,7 +43,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int flags = SDL_OPENGL;
-	if(Private::shouldBeFullscreen) {
+	if(PlatformCommon::Private::shouldBeFullscreen) {
 		flags |= SDL_FULLSCREEN;
 		Window::setIsFullScreen(true);
 	}
@@ -51,8 +51,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 		Window::setIsFullScreen(false);
 	}
 
-	int resW = Private::ScreenWidth;
-	int resH = Private::ScreenHeight;
+	int resW = PlatformCommon::Private::ScreenWidth;
+	int resH = PlatformCommon::Private::ScreenHeight;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",__FILE__,__FUNCTION__,__LINE__,resW,resH,colorBits);
 

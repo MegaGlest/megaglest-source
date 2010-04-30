@@ -1,0 +1,811 @@
+// ==============================================================
+//This file is part of Glest Shared Library (www.glest.org)
+//Copyright (C) 2005 Matthias Braun <matze@braunis.de>
+
+//You can redistribute this code and/or modify it under
+//the terms of the GNU General Public License as published by the Free Software
+//Foundation; either version 2 of the License, or (at your option) any later
+//version.
+#include "platform_common.h"
+
+#ifdef WIN32
+
+#include <io.h>
+#include <DbgHelp.h>
+
+#define S_ISDIR(mode) ((mode) & _S_IFDIR)
+
+#endif
+
+#include <iostream>
+#include <sstream>
+#include <cassert>
+
+#include <glob.h>
+#include <errno.h>
+#include <string.h>
+
+#include <SDL.h>
+
+#include "util.h"
+#include "conversion.h"
+#include "leak_dumper.h"
+#include "sdl_private.h"
+#include "window.h"
+#include "noimpl.h"
+
+#include "checksum.h"
+#include "socket.h"
+#include <algorithm>
+#include <unistd.h>
+#include <map>
+
+#include "leak_dumper.h"
+
+using namespace Shared::Platform;
+using namespace Shared::Util;
+using namespace std;
+
+namespace Shared { namespace PlatformCommon {
+
+namespace Private {
+
+bool shouldBeFullscreen = false;
+int ScreenWidth;
+int ScreenHeight;
+
+}
+
+// =====================================
+//          PerformanceTimer
+// =====================================
+
+void PerformanceTimer::init(float fps, int maxTimes){
+	times= 0;
+	this->maxTimes= maxTimes;
+
+	lastTicks= SDL_GetTicks();
+
+	updateTicks= static_cast<int>(1000./fps);
+}
+
+bool PerformanceTimer::isTime(){
+	Uint32 thisTicks = SDL_GetTicks();
+
+	if((thisTicks-lastTicks)>=updateTicks && times<maxTimes){
+		lastTicks+= updateTicks;
+		times++;
+		return true;
+	}
+	times= 0;
+	return false;
+}
+
+void PerformanceTimer::reset(){
+	lastTicks= SDL_GetTicks();
+}
+
+// =====================================
+//         Chrono
+// =====================================
+
+Chrono::Chrono() {
+	freq = 1000;
+	stopped= true;
+	accumCount= 0;
+}
+
+void Chrono::start() {
+	stopped= false;
+	startCount = SDL_GetTicks();
+}
+
+void Chrono::stop() {
+	Uint32 endCount;
+	endCount = SDL_GetTicks();
+	accumCount += endCount-startCount;
+	stopped= true;
+}
+
+int64 Chrono::getMicros() const {
+	return queryCounter(1000000);
+}
+
+int64 Chrono::getMillis() const {
+	return queryCounter(1000);
+}
+
+int64 Chrono::getSeconds() const {
+	return queryCounter(1);
+}
+
+int64 Chrono::queryCounter(int multiplier) const {
+	if(stopped) {
+		return multiplier*accumCount/freq;
+	} else {
+		Uint32 endCount;
+		endCount = SDL_GetTicks();
+		return multiplier*(accumCount+endCount-startCount)/freq;
+	}
+}
+
+int64 Chrono::getCurMillis() {
+    return SDL_GetTicks();
+}
+int64 Chrono::getCurTicks() {
+    return SDL_GetTicks();
+}
+
+
+
+// =====================================
+//         Misc
+// =====================================
+
+void Tokenize(const string& str,vector<string>& tokens,const string& delimiters) {
+    // Skip delimiters at beginning.
+    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (string::npos != pos || string::npos != lastPos) {
+        // Found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
+        // Find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+    }
+}
+
+void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound) {
+    results.clear();
+    size_t pathCount = paths.size();
+    for(unsigned int idx = 0; idx < pathCount; idx++) {
+        string path = paths[idx] + "/*.";
+        vector<string> current_results;
+        findAll(path, current_results, false, errorOnNotFound);
+        if(current_results.size() > 0) {
+            for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
+                const string current_folder = current_results[folder_index];
+                const string current_folder_path = paths[idx] + "/" + current_folder;
+
+                if(isdir(current_folder_path.c_str()) == true) {
+                    if(std::find(results.begin(),results.end(),current_folder) == results.end()) {
+                        results.push_back(current_folder);
+                    }
+                }
+            }
+        }
+    }
+
+    std::sort(results.begin(),results.end());
+}
+
+void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension, bool errorOnNotFound) {
+    results.clear();
+    size_t pathCount = paths.size();
+    for(unsigned int idx = 0; idx < pathCount; idx++) {
+        string path = paths[idx] + "/" + fileFilter;
+        vector<string> current_results;
+        findAll(path, current_results, cutExtension, errorOnNotFound);
+        if(current_results.size() > 0) {
+            for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
+                string &current_file = current_results[folder_index];
+                if(std::find(results.begin(),results.end(),current_file) == results.end()) {
+                    results.push_back(current_file);
+                }
+            }
+        }
+    }
+
+    std::sort(results.begin(),results.end());
+}
+
+//finds all filenames like path and stores them in resultys
+void findAll(const string &path, vector<string> &results, bool cutExtension, bool errorOnNotFound) {
+	results.clear();
+
+	std::string mypath = path;
+	/** Stupid win32 is searching for all files without extension when *. is
+	 * specified as wildcard
+	 */
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,mypath.c_str());
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		const char* begin = p;
+		for( ; *p != 0; ++p) {
+			// strip the path component
+			if(*p == '/')
+				begin = p+1;
+		}
+		if(!(strcmp(".", begin)==0 || strcmp("..", begin)==0 || strcmp(".svn", begin)==0)) {
+			results.push_back(begin);
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,begin);
+		}
+	}
+
+	globfree(&globbuf);
+
+	if(results.size() == 0 && errorOnNotFound == true) {
+		throw runtime_error("No files found in: " + mypath);
+	}
+
+	if(cutExtension) {
+		for (size_t i=0; i<results.size(); ++i){
+			results.at(i)=cutLastExt(results.at(i));
+		}
+	}
+}
+
+bool isdir(const char *path)
+{
+  struct stat stats;
+
+  bool ret = stat (path, &stats) == 0 && S_ISDIR(stats.st_mode);
+  //if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
+
+  return ret;
+}
+
+bool EndsWith(const string &str, const string& key)
+{
+    bool result = false;
+    if (str.length() > key.length()) {
+    	result = (0 == str.compare (str.length() - key.length(), key.length(), key));
+    }
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] result [%d] str = [%s] key = [%s]\n",__FILE__,__FUNCTION__,result,str.c_str(),key.c_str());
+    return result;
+}
+
+//finds all filenames like path and gets their checksum of all files combined
+int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	static std::map<string,int32> crcTreeCache;
+
+	string cacheKey = "";
+	int count = paths.size();
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+
+		cacheKey += path + "_" + filterFileExt + "_";
+	}
+	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		return crcTreeCache[cacheKey];
+	}
+
+	Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s], filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
+
+		getFolderTreeContentsCheckSumRecursively(path, filterFileExt, &checksum);
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getSum());
+
+	if(recursiveChecksum != NULL) {
+		*recursiveChecksum = checksum;
+	}
+
+	crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
+	return crcTreeCache[cacheKey];
+}
+
+//finds all filenames like path and gets their checksum of all files combined
+int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum) {
+
+	string cacheKey = path + "_" + filterFileExt;
+	static std::map<string,int32> crcTreeCache;
+	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
+		return crcTreeCache[cacheKey];
+	}
+    Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] starting checksum = %d\n",__FILE__,__FUNCTION__,path.c_str(),checksum.getSum());
+
+	std::string mypath = path;
+	/** Stupid win32 is searching for all files without extension when *. is
+	 * specified as wildcard
+	 */
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		/*
+		const char* begin = p;
+		for( ; *p != 0; ++p) {
+			// strip the path component
+			if(*p == '/')
+				begin = p+1;
+		}
+		*/
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] examining file [%s]\n",__FILE__,__FUNCTION__,p);
+
+		if(isdir(p) == false)
+		{
+            bool addFile = true;
+            if(filterFileExt != "")
+            {
+                addFile = EndsWith(p, filterFileExt);
+            }
+
+            if(addFile)
+            {
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+
+                checksum.addFile(p);
+            }
+		}
+	}
+
+	globfree(&globbuf);
+
+    // Look recursively for sub-folders
+	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		/*
+		const char* begin = p;
+		for( ; *p != 0; ++p) {
+			// strip the path component
+			if(*p == '/')
+				begin = p+1;
+		}
+		*/
+
+        getFolderTreeContentsCheckSumRecursively(string(p) + "/*", filterFileExt, &checksum);
+	}
+
+	globfree(&globbuf);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d\n",__FILE__,__FUNCTION__,path.c_str(),checksum.getSum());
+
+	if(recursiveChecksum != NULL) {
+		*recursiveChecksum = checksum;
+	}
+
+	crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
+
+    return crcTreeCache[cacheKey];
+}
+
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
+
+	string cacheKey = "";
+	int count = paths.size();
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+
+		cacheKey += path + "_" + filterFileExt + "_";
+	}
+	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
+		return crcTreeCache[cacheKey];
+	}
+
+	vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
+	for(int idx = 0; idx < count; ++idx) {
+		string path = paths[idx] + pathSearchString;
+		getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	crcTreeCache[cacheKey] = checksumFiles;
+	return crcTreeCache[cacheKey];
+}
+
+//finds all filenames like path and gets the checksum of each file
+vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
+
+	string cacheKey = path + "_" + filterFileExt;
+	static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
+	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] FOUND CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str());
+		return crcTreeCache[cacheKey];
+	}
+
+    vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+
+	std::string mypath = path;
+	/** Stupid win32 is searching for all files without extension when *. is
+	 * specified as wildcard
+	 */
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		/*
+		const char* begin = p;
+		for( ; *p != 0; ++p) {
+			// strip the path component
+			if(*p == '/')
+				begin = p+1;
+		}
+		*/
+
+		if(isdir(p) == false)
+		{
+            bool addFile = true;
+            if(filterFileExt != "")
+            {
+                addFile = EndsWith(p, filterFileExt);
+            }
+
+            if(addFile)
+            {
+                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+
+                Checksum checksum;
+                checksum.addFile(p);
+
+                checksumFiles.push_back(std::pair<string,int32>(p,checksum.getSum()));
+            }
+		}
+	}
+
+	globfree(&globbuf);
+
+    // Look recursively for sub-folders
+	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+		/*
+		const char* begin = p;
+		for( ; *p != 0; ++p) {
+			// strip the path component
+			if(*p == '/')
+				begin = p+1;
+		}
+		*/
+
+        checksumFiles = getFolderTreeContentsCheckSumListRecursively(string(p) + "/*", filterFileExt, &checksumFiles);
+	}
+
+	globfree(&globbuf);
+
+	crcTreeCache[cacheKey] = checksumFiles;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str());
+
+    return crcTreeCache[cacheKey];
+}
+
+string extractDirectoryPathFromFile(string filename)
+{
+    return filename.substr( 0, filename.rfind("/")+1 );
+}
+
+string extractExtension(const string& filepath) {
+	size_t lastPoint = filepath.find_last_of('.');
+	size_t lastDirectory_Win = filepath.find_last_of('\\');
+	size_t lastDirectory_Lin = filepath.find_last_of('/');
+	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
+
+	if (lastPoint == string::npos || (lastDirectory != string::npos && lastDirectory > lastPoint)) {
+		return "";
+	}
+	return filepath.substr(lastPoint+1);
+}
+
+void createDirectoryPaths(string Path)
+{
+ char DirName[256]="";
+ const char *path = Path.c_str();
+ char *dirName = DirName;
+ while(*path)
+ {
+   //if (('\\' == *path) || ('/' == *path))
+   if ('/' == *path)
+   {
+     //if (':' != *(path-1))
+     {
+#ifdef WIN32
+    	_mkdir(DirName);
+#else
+        mkdir(DirName, S_IRWXO);
+#endif
+     }
+   }
+   *dirName++ = *path++;
+   *dirName = '\0';
+ }
+ mkdir(DirName, S_IRWXO);
+}
+
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
+    // Get the current video hardware information
+    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+    //screenWidth    = vidInfo->current_w;
+    //screenHeight   = vidInfo->current_h;
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    /* Get available fullscreen/hardware modes */
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+
+    /* Check if there are any modes available */
+    if (modes == (SDL_Rect**)0) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   /* Check if our resolution is restricted */
+   else if (modes == (SDL_Rect**)-1) {
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+       colorBits      = vidInfo->vfmt->BitsPerPixel;
+       screenWidth    = vidInfo->current_w;
+       screenHeight   = vidInfo->current_h;
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+   }
+   else{
+       /* Print valid modes */
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+       int bestW = -1;
+       int bestH = -1;
+       for(int i=0; modes[i]; ++i) {
+           SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
+
+           if(bestW < modes[i]->w) {
+               bestW = modes[i]->w;
+               bestH = modes[i]->h;
+           }
+       }
+
+       if(bestW > screenWidth) {
+           screenWidth = bestW;
+           screenHeight = bestH;
+       }
+
+       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+  }
+}
+
+
+void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
+    // Get the current video hardware information
+    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+    //screenWidth    = vidInfo->current_w;
+    //screenHeight   = vidInfo->current_h;
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    SDL_PixelFormat format;
+  	SDL_Rect **modes;
+  	int loops(0);
+	int bpp(0);
+	std::map<std::string,bool> uniqueResList;
+
+	do
+	{
+			//format.BitsPerPixel seems to get zeroed out on my windows box
+			switch(loops)
+			{
+				case 0://32 bpp
+					format.BitsPerPixel = 32;
+					bpp = 32;
+					break;
+				case 1://24 bpp
+					format.BitsPerPixel = 24;
+					bpp = 24;
+					break;
+				case 2://16 bpp
+					format.BitsPerPixel = 16;
+					bpp = 16;
+					break;
+			}
+
+			/* Get available fullscreen/hardware modes */
+			//SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
+			SDL_Rect**modes = SDL_ListModes(&format, SDL_FULLSCREEN);
+
+			/* Check if there are any modes available */
+			if (modes == (SDL_Rect**)0) {
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
+		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+		    	   uniqueResList[lookupKey] = true;
+		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+		       }
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
+		   }
+		   /* Check if our resolution is restricted */
+		   else if (modes == (SDL_Rect**)-1) {
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+
+			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
+		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+		    	   uniqueResList[lookupKey] = true;
+		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
+		       }
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
+		   }
+		   else{
+			   /* Print valid modes */
+			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+
+			   for(int i=0; modes[i]; ++i) {
+				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
+				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(bpp);
+				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+				    	uniqueResList[lookupKey] = true;
+				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,bpp));
+				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
+				    }
+				    // fake the missing 16 bit resolutions
+				    string lookupKey16 = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(16);
+				    if(uniqueResList.find(lookupKey16) == uniqueResList.end()) {
+				    	uniqueResList[lookupKey16] = true;
+				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,16));
+				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,16);
+				    }
+			   }
+		  }
+	} while(++loops != 3);
+}
+
+
+
+bool changeVideoMode(int resW, int resH, int colorBits, int ) {
+	Private::shouldBeFullscreen = true;
+	return true;
+}
+
+void restoreVideoMode(bool exitingApp) {
+    SDL_Quit();
+}
+
+int getScreenW() {
+	return SDL_GetVideoSurface()->w;
+}
+
+int getScreenH() {
+	return SDL_GetVideoSurface()->h;
+}
+
+void sleep(int millis) {
+	SDL_Delay(millis);
+}
+
+void showCursor(bool b) {
+	SDL_ShowCursor(b ? SDL_ENABLE : SDL_DISABLE);
+}
+
+bool isKeyDown(int virtualKey) {
+	char key = static_cast<char> (virtualKey);
+	const Uint8* keystate = SDL_GetKeyState(0);
+
+	// kinda hack and wrong...
+	if(key >= 0) {
+		return keystate[key];
+	}
+	switch(key) {
+		case vkAdd:
+			return keystate[SDLK_PLUS] | keystate[SDLK_KP_PLUS];
+		case vkSubtract:
+			return keystate[SDLK_MINUS] | keystate[SDLK_KP_MINUS];
+		case vkAlt:
+			return keystate[SDLK_LALT] | keystate[SDLK_RALT];
+		case vkControl:
+			return keystate[SDLK_LCTRL] | keystate[SDLK_RCTRL];
+		case vkShift:
+			return keystate[SDLK_LSHIFT] | keystate[SDLK_RSHIFT];
+		case vkEscape:
+			return keystate[SDLK_ESCAPE];
+		case vkUp:
+			return keystate[SDLK_UP];
+		case vkLeft:
+			return keystate[SDLK_LEFT];
+		case vkRight:
+			return keystate[SDLK_RIGHT];
+		case vkDown:
+			return keystate[SDLK_DOWN];
+		case vkReturn:
+			return keystate[SDLK_RETURN] | keystate[SDLK_KP_ENTER];
+		case vkBack:
+			return keystate[SDLK_BACKSPACE];
+		default:
+			std::cerr << "isKeyDown called with unknown key.\n";
+			break;
+	}
+	return false;
+}
+
+
+// =====================================
+//         ModeInfo
+// =====================================
+
+ModeInfo::ModeInfo(int w, int h, int d) {
+	width=w;
+	height=h;
+	depth=d;
+}
+
+string ModeInfo::getString() const{
+	return intToStr(width)+"x"+intToStr(height)+"-"+intToStr(depth);
+}
+
+}}//end namespace

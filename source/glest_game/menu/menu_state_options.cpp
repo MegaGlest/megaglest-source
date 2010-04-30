@@ -34,7 +34,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	//modeinfos=list<ModeInfo> ();
-	Shared::Platform::getFullscreenVideoModes(&modeInfos);
+	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
 	
 	int leftline=670;
