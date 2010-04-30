@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #include <map>
 #include <vector>
-#include "thread.h"
+#include "base_thread.h"
 
 using std::string;
 
@@ -36,6 +36,8 @@ using std::string;
 	typedef int PLATFORM_SOCKET;
 
 #endif
+
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Platform{
 
@@ -127,26 +129,14 @@ protected:
 	static void throwException(string str);
 };
 
-class BroadCastClientSocketThread : public Thread
+class BroadCastClientSocketThread : public BaseThread
 {
 private:
-	Mutex mutexRunning;
-	Mutex mutexQuit;
-
-	bool quit;
-	bool running;
-
 	DiscoveredServersInterface *discoveredServersCB;
-
-	void setRunningStatus(bool value);
-	void setQuitStatus(bool value);
 
 public:
 	BroadCastClientSocketThread(DiscoveredServersInterface *cb);
     virtual void execute();
-    void signalQuit();
-    bool getQuitStatus();
-    bool getRunningStatus();
 };
 
 // =====================================================
@@ -168,24 +158,13 @@ protected:
 	static void startBroadCastClientThread(DiscoveredServersInterface *cb);
 };
 
-class BroadCastSocketThread : public Thread
+class BroadCastSocketThread : public BaseThread
 {
 private:
-	Mutex mutexRunning;
-	Mutex mutexQuit;
-
-	bool quit;
-	bool running;
-
-	void setRunningStatus(bool value);
-	void setQuitStatus(bool value);
 
 public:
 	BroadCastSocketThread();
     virtual void execute();
-    void signalQuit();
-    bool getQuitStatus();
-    bool getRunningStatus();
 };
 
 // =====================================================

@@ -12,7 +12,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
-//#include <sstream>
 
 #if defined(HAVE_SYS_IOCTL_H)
   #define BSD_COMP /* needed for FIONREAD on Solaris2 */
@@ -1153,7 +1152,6 @@ void Socket::throwException(string str){
 ClientSocket::ClientSocket() : Socket() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//broadCastClientThread = NULL;
 	stopBroadCastClientThread();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1310,69 +1308,13 @@ void ClientSocket::connect(const Ip &ip, int port)
 // Description:		Runs in its own thread to listen for broadcasts from
 //					other servers
 //
-BroadCastClientSocketThread::BroadCastClientSocketThread(DiscoveredServersInterface *cb) {
+BroadCastClientSocketThread::BroadCastClientSocketThread(DiscoveredServersInterface *cb) : BaseThread() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	setQuitStatus(false);
-	setRunningStatus(false);
 	discoveredServersCB = cb;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void BroadCastClientSocketThread::signalQuit() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	setQuitStatus(true);
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void BroadCastClientSocketThread::setQuitStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	mutexQuit.p();
-	quit = value;
-	mutexQuit.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-bool BroadCastClientSocketThread::getQuitStatus() {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool retval = false;
-	mutexQuit.p();
-	retval = quit;
-	mutexQuit.v();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	return retval;
-}
-
-bool BroadCastClientSocketThread::getRunningStatus() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool retval = false;
-	mutexRunning.p();
-	retval = running;
-	mutexRunning.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,retval);
-
-	return retval;
-}
-
-void BroadCastClientSocketThread::setRunningStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
-
-	mutexRunning.p();
-	running = value;
-	mutexRunning.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 }
 
 //=======================================================================
@@ -1624,68 +1566,8 @@ Socket *ServerSocket::accept()
 	return new Socket(newSock);
 }
 
-BroadCastSocketThread::BroadCastSocketThread() {
-
+BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	setQuitStatus(false);
-	setRunningStatus(false);
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void BroadCastSocketThread::signalQuit() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	setQuitStatus(true);
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void BroadCastSocketThread::setQuitStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	mutexQuit.p();
-	quit = value;
-	mutexQuit.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-bool BroadCastSocketThread::getQuitStatus() {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool retval = false;
-	mutexQuit.p();
-	retval = quit;
-	mutexQuit.v();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	return retval;
-}
-
-bool BroadCastSocketThread::getRunningStatus() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool retval = false;
-	mutexRunning.p();
-	retval = running;
-	mutexRunning.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,retval);
-
-	return retval;
-}
-
-void BroadCastSocketThread::setRunningStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
-
-	mutexRunning.p();
-	running = value;
-	mutexRunning.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 }
 
 //=======================================================================
@@ -1829,4 +1711,3 @@ void BroadCastSocketThread::execute() {
 
 
 }}//end namespace
-
