@@ -7,6 +7,7 @@
 //Foundation; either version 2 of the License, or (at your option) any later
 //version.
 #include "platform_common.h"
+#include "cache_manager.h"
 
 #ifdef WIN32
 
@@ -290,6 +291,8 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	static std::map<string,int32> crcTreeCache;
+	//string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
+	//std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem(cacheLookupId);
 
 	string cacheKey = "";
 	size_t count = paths.size();
