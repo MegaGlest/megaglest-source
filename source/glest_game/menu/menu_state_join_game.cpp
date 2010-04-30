@@ -36,6 +36,9 @@ using namespace Shared::Util;
 // ===============================
 
 const int MenuStateJoinGame::newServerIndex= 0;
+const int MenuStateJoinGame::newPrevServerIndex= 1;
+const int MenuStateJoinGame::foundServersIndex= 2;
+
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
 
@@ -73,6 +76,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	listBoxServerType.init(465, 490);
 	listBoxServerType.pushBackItem(lang.get("ServerTypeNew"));
 	listBoxServerType.pushBackItem(lang.get("ServerTypePrevious"));
+	listBoxServerType.pushBackItem(lang.get("ServerTypeFound"));
 
 	//server label
 	labelServer.init(330, 460);
@@ -83,6 +87,9 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	for(int i= 0; i<servers.getPropertyCount(); ++i){
 		listBoxServers.pushBackItem(servers.getKey(i));
 	}
+
+	// found servers listbox
+	listBoxFoundServers.init(465, 460);
 
 	//server ip
 	labelServerIp.init(465, 460);
@@ -100,8 +107,6 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 		port=port +" ("+lang.get("StandardPort")+")";
 	}	
 	labelServerPort.setText(port);
-
-
 
 	labelStatus.init(330, 400);
 	labelStatus.setText("");
@@ -135,10 +140,16 @@ MenuStateJoinGame::~MenuStateJoinGame() {
 void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	// Testing multi-server
+	//serverList.push_back("test1");
+	//serverList.push_back("test2");
+	//
+
 	buttonAutoFindServers.setEnabled(true);
 	if(serverList.size() > 0) {
 		string bestIPMatch = "";
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
+
 		for(int idx = 0; idx < serverList.size(); idx++) {
 			bestIPMatch = serverList[idx];
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
@@ -148,7 +159,14 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 		}
 
 		labelServerIp.setText(bestIPMatch);
-		connectToServer();
+
+		if(serverList.size() > 1) {
+			listBoxServerType.setSelectedItemIndex(MenuStateJoinGame::foundServersIndex);
+			listBoxFoundServers.setItems(serverList);
+		}
+		else {
+			connectToServer();
+		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -162,18 +180,22 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
-	if(!clientInterface->isConnected()){
+	if(clientInterface->isConnected() == false) {
 		//server type
 		if(listBoxServerType.mouseClick(x, y)){
 			if(!listBoxServers.getText().empty()){
 				labelServerIp.setText(servers.getString(listBoxServers.getText())+"_");
 			}
 		}
-
 		//server list
-		else if(listBoxServerType.getSelectedItemIndex()!=newServerIndex){
-			if(listBoxServers.mouseClick(x, y)){
+		else if(listBoxServerType.getSelectedItemIndex() == newPrevServerIndex){
+			if(listBoxServers.mouseClick(x, y)) {
 				labelServerIp.setText(servers.getString(listBoxServers.getText())+"_");
+			}
+		}
+		else if(listBoxServerType.getSelectedItemIndex() == foundServersIndex){
+			if(listBoxFoundServers.mouseClick(x, y)) {
+				labelServerIp.setText(listBoxFoundServers.getText());
 			}
 		}
 	}
@@ -239,11 +261,14 @@ void MenuStateJoinGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxServerType.mouseMove(x, y);
 
 	//hide-show options depending on the selection
-	if(listBoxServers.getSelectedItemIndex()==newServerIndex){
+	if(listBoxServers.getSelectedItemIndex() == newServerIndex) {
 		labelServerIp.mouseMove(x, y);
 	}
-	else{
+	else if(listBoxServers.getSelectedItemIndex() == newPrevServerIndex) {
 		listBoxServers.mouseMove(x, y);
+	}
+	else {
+		listBoxFoundServers.mouseMove(x, y);
 	}
 }
 
@@ -261,12 +286,14 @@ void MenuStateJoinGame::render(){
 	renderer.renderButton(&buttonAutoFindServers);
 	renderer.renderListBox(&listBoxServerType);
 
-	if(listBoxServerType.getSelectedItemIndex()==newServerIndex){
+	if(listBoxServerType.getSelectedItemIndex() == newServerIndex) {
 		renderer.renderLabel(&labelServerIp);
 	}
-	else
-	{
+	else if(listBoxServerType.getSelectedItemIndex() == newPrevServerIndex) {
 		renderer.renderListBox(&listBoxServers);
+	}
+	else {
+		renderer.renderListBox(&listBoxFoundServers);
 	}
 
 	renderer.renderChatManager(&chatManager);
@@ -308,10 +335,6 @@ void MenuStateJoinGame::update()
                 {
                     label = label + " techtree";
                 }
-                //if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                //{
-                //    label = label + " FogOfWar == false";
-                //}
             }
             else if(clientInterface->getAllowGameDataSynchCheck() == true)
             {
@@ -344,10 +367,6 @@ void MenuStateJoinGame::update()
                 {
                     label = label + " techtree";
                 }
-                //if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-                //{
-                //    label = label + " FogOfWar == false";
-                //}
             }
             else if(clientInterface->getAllowGameDataSynchCheck() == true)
             {

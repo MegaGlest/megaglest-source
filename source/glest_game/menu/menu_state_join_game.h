@@ -31,6 +31,8 @@ class NetworkMessageIntro;
 class MenuStateJoinGame: public MenuState, public DiscoveredServersInterface {
 private:
 	static const int newServerIndex;
+	static const int newPrevServerIndex;
+	static const int foundServersIndex;
 	static const string serverFileName;
 
 private:
@@ -44,6 +46,7 @@ private:
 	GraphicLabel labelInfo;
 	GraphicListBox listBoxServerType;
 	GraphicListBox listBoxServers;
+	GraphicListBox listBoxFoundServers;
 	GraphicLabel labelServerPort;
 	GraphicLabel labelServerPortLabel;
 

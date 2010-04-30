@@ -29,6 +29,7 @@
 #include "sound_renderer.h"
 #include "ImageReaders.h"
 #include "renderer.h"
+#include "thread.h"
 
 #include "leak_dumper.h"
 
@@ -99,6 +100,157 @@ public:
 	    return 0;
 	}
 };
+
+class FileCRCPreCacheThread : public Thread
+{
+private:
+	Mutex mutexRunning;
+	Mutex mutexQuit;
+
+	bool quit;
+	bool running;
+
+	void setRunningStatus(bool value);
+	void setQuitStatus(bool value);
+
+public:
+	FileCRCPreCacheThread();
+    virtual void execute();
+    void signalQuit();
+    bool getQuitStatus();
+    bool getRunningStatus();
+    static void shutdownAndWait(FileCRCPreCacheThread *pThread);
+};
+
+FileCRCPreCacheThread::FileCRCPreCacheThread() {
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setQuitStatus(false);
+	setRunningStatus(false);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void FileCRCPreCacheThread::signalQuit() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setQuitStatus(true);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void FileCRCPreCacheThread::setQuitStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	mutexQuit.p();
+	quit = value;
+	mutexQuit.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool FileCRCPreCacheThread::getQuitStatus() {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool retval = false;
+	mutexQuit.p();
+	retval = quit;
+	mutexQuit.v();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return retval;
+}
+
+bool FileCRCPreCacheThread::getRunningStatus() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool retval = false;
+	mutexRunning.p();
+	retval = running;
+	mutexRunning.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,retval);
+
+	return retval;
+}
+
+void FileCRCPreCacheThread::setRunningStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	mutexRunning.p();
+	running = value;
+	mutexRunning.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+}
+
+void FileCRCPreCacheThread::execute() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setRunningStatus(true);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is running\n");
+
+	try
+	{
+		Config &config = Config::getInstance();
+		vector<string> techDataPaths = config.getPathListForType(ptTechs);
+	    //tech Tree listBox
+		vector<string> techPaths;
+	    findDirs(techDataPaths, techPaths);
+		if(techPaths.empty() == false) {
+			for(int idx = 0; idx < techPaths.size(); idx++) {
+				string &techPath = techPaths[idx];
+				for(int idx2 = 0; idx2 < techPaths.size(); idx2++) {
+					string techName = techPaths[idx2];
+
+					printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
+					int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
+					printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC);
+
+					if(getQuitStatus() == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						break;
+					}
+					sleep( 100 );
+				}
+				if(getQuitStatus() == true) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
+			}
+		}
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		setRunningStatus(false);
+	}
+	catch(...) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+		setRunningStatus(false);
+	}
+
+	setRunningStatus(false);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is exiting\n");
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void FileCRCPreCacheThread::shutdownAndWait(FileCRCPreCacheThread *pThread) {
+	if(pThread != NULL) {
+		pThread->signalQuit();
+		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 10; ) {
+			if(pThread->getRunningStatus() == false) {
+				break;
+			}
+			sleep(50);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
 
 // =====================================================
 // 	class MainWindow
@@ -279,6 +431,8 @@ int glestMain(int argc, char** argv){
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
+	FileCRCPreCacheThread preCacheThread;
+
 	try{
 		Config &config = Config::getInstance();
 
@@ -339,6 +493,10 @@ int glestMain(int argc, char** argv){
 
 		gameInitialized = true;
 
+		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
+			preCacheThread.start();
+		}
+
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
         //throw runtime_error("test!");
@@ -350,21 +508,27 @@ int glestMain(int argc, char** argv){
 		}
 	}
 	catch(const exception &e){
+		FileCRCPreCacheThread::shutdownAndWait(&preCacheThread);
 		//exceptionMessage(e);
 		ExceptionHandler::handleRuntimeError(e.what());
 	}
 	catch(const char *e){
 		//exceptionMessage(e);
+		FileCRCPreCacheThread::shutdownAndWait(&preCacheThread);
 		ExceptionHandler::handleRuntimeError(e);
 	}
 	catch(const string &ex){
 		//exceptionMessage(e);
+		FileCRCPreCacheThread::shutdownAndWait(&preCacheThread);
 		ExceptionHandler::handleRuntimeError(ex.c_str());
 	}
 	catch(...){
 		//exceptionMessage(e);
+		FileCRCPreCacheThread::shutdownAndWait(&preCacheThread);
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
+
+	FileCRCPreCacheThread::shutdownAndWait(&preCacheThread);
 
 	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	//soundRenderer.stopAllSounds();

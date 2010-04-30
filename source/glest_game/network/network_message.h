@@ -72,8 +72,8 @@ protected:
 
 class NetworkMessageIntro: public NetworkMessage{
 private:
-	static const int maxVersionStringSize= 64;
-	static const int maxNameSize= 16;
+	static const int maxVersionStringSize= 128;
+	static const int maxNameSize= 32;
 
 private:
 	struct Data{
