@@ -200,22 +200,6 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundC());	
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	else if(listBoxMap.mouseClick(x, y)){
-		
-	}
-	else if (listBoxFogOfWar.mouseClick(x, y)) {
-	}
-	else if(listBoxTileset.mouseClick(x, y)){
-	}
-	else if(listBoxTechTree.mouseClick(x, y)){
-		//reloadFactions();
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);;
-        }
-	}
 	else
 	{
 		int myCurrentIndex=-1;
