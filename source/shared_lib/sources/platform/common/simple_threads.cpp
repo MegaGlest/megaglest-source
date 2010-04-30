@@ -33,9 +33,9 @@ void FileCRCPreCacheThread::execute() {
 		vector<string> techPaths;
 	    findDirs(techDataPaths, techPaths);
 		if(techPaths.empty() == false) {
-			for(int idx = 0; idx < techPaths.size(); idx++) {
+			for(unsigned int idx = 0; idx < techPaths.size(); idx++) {
 				string &techPath = techPaths[idx];
-				for(int idx2 = 0; idx2 < techPaths.size(); idx2++) {
+				for(unsigned int idx2 = 0; idx2 < techPaths.size(); idx2++) {
 					string techName = techPaths[idx2];
 
 					printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());

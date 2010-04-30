@@ -116,7 +116,7 @@ private:
 	static SDL_keysym keystate;
 	
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
-    static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
+    static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}
 
     static const MouseState &getMouseState() 				    {return Window::mouseState;}
     static void setMouseState(MouseButton b, bool state)		{Window::mouseState.set(b, state);}
