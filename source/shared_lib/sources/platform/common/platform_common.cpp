@@ -12,8 +12,15 @@
 
 #include <io.h>
 #include <DbgHelp.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <direct.h>
 
 #define S_ISDIR(mode) ((mode) & _S_IFDIR)
+
+#else
+
+#include <unistd.h>
 
 #endif
 
@@ -37,8 +44,9 @@
 #include "checksum.h"
 #include "socket.h"
 #include <algorithm>
-#include <unistd.h>
 #include <map>
+
+
 
 #include "leak_dumper.h"
 
@@ -226,7 +234,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		throw runtime_error(msg.str());
 	}
 
-	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		const char* begin = p;
 		for( ; *p != 0; ++p) {
@@ -284,8 +292,8 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	static std::map<string,int32> crcTreeCache;
 
 	string cacheKey = "";
-	int count = paths.size();
-	for(int idx = 0; idx < count; ++idx) {
+	size_t count = paths.size();
+	for(size_t idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
 
 		cacheKey += path + "_" + filterFileExt + "_";
@@ -296,7 +304,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	}
 
 	Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
-	for(int idx = 0; idx < count; ++idx) {
+	for(size_t idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s], filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
@@ -345,7 +353,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		throw runtime_error(msg.str());
 	}
 
-	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		/*
 		const char* begin = p;
@@ -385,7 +393,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		throw runtime_error(msg.str());
 	}
 
-	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		/*
 		const char* begin = p;
@@ -420,8 +428,8 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 	static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
 
 	string cacheKey = "";
-	int count = paths.size();
-	for(int idx = 0; idx < count; ++idx) {
+	size_t count = paths.size();
+	for(size_t idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
 
 		cacheKey += path + "_" + filterFileExt + "_";
@@ -432,7 +440,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 	}
 
 	vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
-	for(int idx = 0; idx < count; ++idx) {
+	for(size_t idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
 		getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
 	}
@@ -475,7 +483,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 		throw runtime_error(msg.str());
 	}
 
-	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		/*
 		const char* begin = p;
@@ -516,7 +524,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 		throw runtime_error(msg.str());
 	}
 
-	for(size_t i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		/*
 		const char* begin = p;
@@ -578,7 +586,13 @@ void createDirectoryPaths(string Path)
    *dirName++ = *path++;
    *dirName = '\0';
  }
+#ifdef WIN32
+ _mkdir(DirName);
+#else
+
  mkdir(DirName, S_IRWXO);
+
+#endif
 }
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
@@ -650,7 +664,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     SDL_PixelFormat format;
-  	SDL_Rect **modes;
+  	//SDL_Rect **modes;
   	int loops(0);
 	int bpp(0);
 	std::map<std::string,bool> uniqueResList;
