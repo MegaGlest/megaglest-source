@@ -18,7 +18,13 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
-//#include "SDL_syswm.h"
+
+#ifdef WIN32
+
+#include "SDL_syswm.h"
+
+#endif
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;

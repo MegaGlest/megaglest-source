@@ -167,6 +167,7 @@
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
 				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
