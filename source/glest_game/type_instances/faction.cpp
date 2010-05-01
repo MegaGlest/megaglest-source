@@ -296,11 +296,12 @@ void Faction::applyCostsOnInterval(){
 	}
 	
 	//decrement consumables
-	if(!getCpuControl() ||
-		getCpuControl() && !scriptManager->getPlayerModifiers(this->thisFaction)->getAiEnabled())
+	if((getCpuControl() == true) ||
+		(getCpuControl() == true && scriptManager->getPlayerModifiers(this->thisFaction)->getAiEnabled() == false))
 	{
 		for(int j=0; j<getUnitCount(); ++j){
 			Unit *unit= getUnit(j);
+			assert(unit != NULL);
 			if(unit->isOperative()){
 				for(int k=0; k<unit->getType()->getCostCount(); ++k){
 					const Resource *resource= unit->getType()->getCost(k);

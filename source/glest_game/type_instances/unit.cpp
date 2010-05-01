@@ -418,7 +418,11 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 	Vec2i relPos= targetPos - pos;
 	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+#ifdef USE_STREFLOP
 	targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
+#else
+	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
+#endif
 	targetRef= NULL;
 
 	this->targetPos= targetPos;
@@ -1006,8 +1010,11 @@ void Unit::updateTarget(){
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
 		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+#ifdef USE_STREFLOP
 		targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
-
+#else
+		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
+#endif
 		//update target vec
 		targetVec= target->getCurrVector();
 

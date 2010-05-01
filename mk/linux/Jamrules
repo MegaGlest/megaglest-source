@@ -22,12 +22,13 @@ if $(USE_STLPORT_DEBUG)
 # if using streflop then add some special compiler defines
 if $(USE_STREFLOP)
 {
-   CPPFLAGS += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp ;
+   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
+   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
 }
 
 COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare ;
-COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG ;
-COMPILER_CXXFLAGS_optimize += -O -DNDEBUG ;
+COMPILER_CFLAGS_optimize   += -O2 -DNDEBUG -Wall -W -Wno-unused -Wno-sign-compare ;
+COMPILER_CXXFLAGS_optimize += -O2 -DNDEBUG -Wall -W -Wno-unused -Wno-sign-compare ;
 COMPILER_LIBS_optimize     += ;
 COMPILER_CFLAGS_debug      += -DDEBUG -g3 ;
 COMPILER_CXXFLAGS_debug    += -DDEBUG -g3 ;

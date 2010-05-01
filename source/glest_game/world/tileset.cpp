@@ -195,8 +195,11 @@ void Tileset::load(const string &dir, Checksum *checksum){
 		const XmlNode *weatherNode= parametersNode->getChild("weather");
 		float sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
 		float rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
+#ifdef USE_STREFLOP
 		float rnd= streflop::fabs(random.randRange(-1.f, 1.f));
-
+#else
+		float rnd= fabs(random.randRange(-1.f, 1.f));
+#endif
 		if(rnd<sunnyProb){
 			weather= wSunny;
 		}

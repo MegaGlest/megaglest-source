@@ -667,7 +667,11 @@ bool PosCircularIterator::next(){
 		if(pos.y>center.y+radius)
 			return false;
 	}
+#ifdef USE_STREFLOP
 	while(streflop::floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos));
+#else
+	while(floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos));
+#endif
 	//while(!(pos.dist(center) <= radius && map->isInside(pos)));
 
 	return true;

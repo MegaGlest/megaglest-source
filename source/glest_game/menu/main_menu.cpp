@@ -155,8 +155,19 @@ void MainMenu::keyPress(char c){
 }
 
 void MainMenu::setState(MenuState *state){
-	if(oldstate!=NULL) delete oldstate;
-	oldstate=this->state;
+	if(oldstate != NULL && oldstate != state) {
+		delete oldstate;
+
+		if(oldstate != this->state) {
+			oldstate=this->state;
+		}
+		else {
+			oldstate = NULL;
+		}
+	}
+	else {
+		oldstate=this->state;
+	}
 	this->state= state;
 	GraphicComponent::resetFade();
 	menuBackground.setTargetCamera(state->getCamera());

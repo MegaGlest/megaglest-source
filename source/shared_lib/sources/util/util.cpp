@@ -88,7 +88,7 @@ void SystemFlags::Close() {
 		}
 		currentDebugLog.fileStream = NULL;
 		currentDebugLog.fileStreamOwner = false;
-		currentDebugLog.mutex = NULL;
+		//currentDebugLog.mutex = NULL;
 	}
 
 	if(SystemFlags::lockFile != -1) {

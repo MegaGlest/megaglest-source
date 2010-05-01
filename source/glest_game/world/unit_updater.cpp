@@ -708,7 +708,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance){
 
 	//get vars
-	int damage= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
+	float damage= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
 	int var= ast->getAttackVar();
 	int armor= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
 	float damageMultiplier= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
@@ -839,8 +839,11 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr, con
 		for(int j=center.y-range; j<center.y+range+size; ++j){
 
 			//cells insede map and in range
+#ifdef USE_STREFLOP
 			if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
-
+#else
+			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#endif
 				//all fields
 				for(int k=0; k<fieldCount; k++){
 					Field f= static_cast<Field>(k);

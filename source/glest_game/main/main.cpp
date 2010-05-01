@@ -8,10 +8,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#ifdef USE_STREFLOP
-	#include "streflop.h"
-#endif
-
+#include "math_wrapper.h"
 #include "main.h"
 
 #include <string>
@@ -270,11 +267,12 @@ int glestMain(int argc, char** argv){
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
-#ifdef STREFLOP_H
-	streflop_init<streflop::Simple>();
+#ifdef USE_STREFLOP
+
+	//streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
 #else
-	printf("%s, STREFLOP disabled.\n",getNetworkVersionString().c_str());
+	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
 #endif
 
 	SystemFlags::init();

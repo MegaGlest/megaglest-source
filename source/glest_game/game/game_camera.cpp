@@ -142,49 +142,22 @@ void GameCamera::update(){
 }
 
 Quad2i GameCamera::computeVisibleQuad() const{
-	/*
-	//maxRenderDistance
-	float flatDist = maxRenderDistance * -streflop::cos(degToRad(vAng + fov / 2.f));
-	Vec3f p1(flatDist * sin(degToRad(hAng + fov / 2.f)), maxRenderDistance * sin(degToRad(vAng + fov / 2.f)), flatDist  * -streflop::cos(degToRad(hAng + fov / 2.f)));
-	Vec3f p2(flatDist * sin(degToRad(hAng - fov / 2.f)), maxRenderDistance * sin(degToRad(vAng + fov / 2.f)), flatDist  * -streflop::cos(degToRad(hAng - fov / 2.f)));
-	flatDist = maxRenderDistance * -cos(degToRad(vAng - fov / 2.f));
-	Vec3f p3(flatDist * sin(degToRad(hAng + fov / 2.f)), maxRenderDistance * sin(degToRad(vAng - fov / 2.f)), flatDist  * -streflop::cos(degToRad(hAng + fov / 2.f)));
-	Vec3f p4(flatDist * sin(degToRad(hAng - fov / 2.f)), maxRenderDistance * sin(degToRad(vAng - fov / 2.f)), flatDist  * -streflop::cos(degToRad(hAng - fov / 2.f)));
-	// find the floor
-	if(-p1.y > pos.y) {
-		p1 = p1 * pos.y / abs(p1.y);
-	}
-	if(-p2.y > pos.y) {
-		p2 = p2 * pos.y / abs(p2.y);
-	}
-	if(-p3.y > pos.y) {
-		p3 = p3 * pos.y / abs(p3.y);
-	}
-	if(-p4.y > pos.y) {
-		p4 = p4 * pos.y / abs(p4.y);
-	}
-	Vec2i pi1(p1.x, p1.z), pi2(p2.x, p2.z), pi3(p3.x, p3.z), pi4(p4.x, p4.z);
-
-	if(hAng>=135 && hAng<=225){
-		return Quad2i(pi1, pi2, pi3, pi4);
-	}
-	if(hAng>=45 && hAng<=135){
-		return Quad2i(pi3, pi1, pi4, pi2);
-	}
-	if(hAng>=225 && hAng<=315) {
-		return Quad2i(pi2, pi4, pi1, pi3);
-	}
-	return Quad2i(pi4, pi3, pi2, pi1);
-	*/
 
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
 	float fov = Config::getInstance().getFloat("CameraFov","45");
 
+#ifdef USE_STREFLOP
 	Vec2f v(streflop::sinf(degToRad(180 - hAng)), streflop::cosf(degToRad(180 - hAng)));
 	Vec2f v1(streflop::sinf(degToRad(180 - hAng - fov)), streflop::cosf(degToRad(180 - hAng - fov)));
 	Vec2f v2(streflop::sinf(degToRad(180 - hAng + fov)), streflop::cosf(degToRad(180 - hAng + fov)));
+#else
+	Vec2f v(sinf(degToRad(180 - hAng)), cosf(degToRad(180 - hAng)));
+	Vec2f v1(sinf(degToRad(180 - hAng - fov)), cosf(degToRad(180 - hAng - fov)));
+	Vec2f v2(sinf(degToRad(180 - hAng + fov)), cosf(degToRad(180 - hAng + fov)));
+#endif
+
 	v.normalize();
 	v1.normalize();
 	v2.normalize();
@@ -246,8 +219,14 @@ void GameCamera::transitionVH(float v, float h) {
 }
 
 void GameCamera::zoom(float dist) {
+#ifdef USE_STREFLOP
 	float flatDist = dist * streflop::cosf(degToRad(vAng));
 	Vec3f offset(flatDist * streflop::sinf(degToRad(hAng)), dist * streflop::sinf(degToRad(vAng)), flatDist  * -streflop::cosf(degToRad(hAng)));
+#else
+	float flatDist = dist * cosf(degToRad(vAng));
+	Vec3f offset(flatDist * sinf(degToRad(hAng)), dist * sinf(degToRad(vAng)), flatDist  * -cosf(degToRad(hAng)));
+#endif
+
 	destPos += offset;
 }
 
@@ -308,7 +287,11 @@ void GameCamera::clampAng() {
 
 //move camera forwad but never change heightFactor
 void GameCamera::moveForwardH(float d, float response) {
+#ifdef USE_STREFLOP
 	Vec3f offset(streflop::sinf(degToRad(hAng)) * d, 0.f, -streflop::cosf(degToRad(hAng)) * d);
+#else
+	Vec3f offset(sinf(degToRad(hAng)) * d, 0.f, -cosf(degToRad(hAng)) * d);
+#endif
 	destPos += offset;
 	pos.x += offset.x * response;
 	pos.z += offset.z * response;
@@ -316,7 +299,11 @@ void GameCamera::moveForwardH(float d, float response) {
 
 //move camera to a side but never change heightFactor
 void GameCamera::moveSideH(float d, float response){
+#ifdef USE_STREFLOP
 	Vec3f offset(streflop::sinf(degToRad(hAng+90)) * d, 0.f, -streflop::cosf(degToRad(hAng+90)) * d);
+#else
+	Vec3f offset(sinf(degToRad(hAng+90)) * d, 0.f, -cosf(degToRad(hAng+90)) * d);
+#endif
 	destPos += offset;
 	pos.x += (destPos.x - pos.x) * response;
 	pos.z += (destPos.z - pos.z) * response;
