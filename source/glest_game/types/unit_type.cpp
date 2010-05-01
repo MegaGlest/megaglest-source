@@ -393,8 +393,9 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(firstCommandTypeOfClass[commandClass] == NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",__FILE__,__FUNCTION__,__LINE__,commandClass);
 
+		/*
 	    for(int j=0; j<ccCount; ++j){
 	        for(int i=0; i<commandTypes.size(); ++i){
 	            if(commandTypes[i]->getClass()== CommandClass(j)){
@@ -402,6 +403,7 @@ const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	            }
 	        }
 	    }
+	    */
 
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -410,8 +412,9 @@ const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 
 const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 	if(firstSkillTypeOfClass[skillClass] == NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] skillClass = %d\n",__FILE__,__FUNCTION__,__LINE__,skillClass);
 
+		/*
 		for(int j= 0; j<scCount; ++j){
 	        for(int i= 0; i<skillTypes.size(); ++i){
 	            if(skillTypes[i]->getClass()== SkillClass(j)){
@@ -419,6 +422,7 @@ const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 	            }
 	        }
 	    }
+	    */
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
     return firstSkillTypeOfClass[skillClass];
