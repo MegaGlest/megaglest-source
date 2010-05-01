@@ -120,6 +120,8 @@ void Program::ShowMessageProgramState::update() {
 Program::Program() {
 	programState= NULL;
 	singleton = this;
+
+	soundThreadManager = NULL;
 }
 
 void Program::initNormal(WindowGl *window){
@@ -161,6 +163,10 @@ Program::~Program(){
 	//restore video mode
 	restoreDisplaySettings();
 	singleton = NULL;
+
+	BaseThread::shutdownAndWait(soundThreadManager);
+	delete soundThreadManager; 
+	soundThreadManager = NULL;
 }
 
 void Program::keyDown(char key){
@@ -199,7 +205,7 @@ void Program::loop(){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		SoundRenderer::getInstance().update();
+		//!!!SoundRenderer::getInstance().update();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -356,6 +362,11 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(initSound == true && toggleFullScreen == false) {
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         soundRenderer.init(window);
+
+		BaseThread::shutdownAndWait(soundThreadManager);
+		delete soundThreadManager; 
+		soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
+		soundThreadManager->start();
 	}
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","0"));

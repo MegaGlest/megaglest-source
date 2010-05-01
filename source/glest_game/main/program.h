@@ -18,6 +18,7 @@
 #include "socket.h"
 #include "components.h"
 #include "window.h"
+#include "simple_threads.h"
 
 using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;
@@ -26,6 +27,7 @@ using Shared::Platform::SizeState;
 using Shared::Platform::MouseState;
 using Shared::PlatformCommon::PerformanceTimer;
 using Shared::Platform::Ip;
+using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
 
@@ -77,6 +79,7 @@ public:
 class Program{
 private:
 	static const int maxTimes;
+	SimpleTaskThread *soundThreadManager;
 
 	class ShowMessageProgramState : public ProgramState {
 		GraphicMessageBox msgBox;
