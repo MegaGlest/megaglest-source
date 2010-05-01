@@ -63,4 +63,42 @@ void FileCRCPreCacheThread::execute() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+
+SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface, 
+									unsigned int executionCount,
+									unsigned int millisecsBetweenExecutions) {
+	this->simpleTaskInterface		 = simpleTaskInterface;
+	this->executionCount			 = executionCount;
+	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
+}
+
+void SimpleTaskThread::execute() {
+	try {
+		setRunningStatus(true);
+
+		unsigned int idx = 0;
+		for(;this->simpleTaskInterface != NULL;) {
+			this->simpleTaskInterface->simpleTask();
+			if(this->executionCount > 0) {
+				idx++;
+				if(idx >= this->executionCount) {
+					break;
+				}
+			}
+			if(getQuitStatus() == true) {
+				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			sleep(this->millisecsBetweenExecutions);
+		}
+	}
+	catch(const exception &ex) {
+		setRunningStatus(false);
+
+		throw runtime_error(ex.what());
+	}
+	setRunningStatus(false);
+}
+
 }}//end namespace

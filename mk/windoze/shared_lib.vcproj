@@ -394,11 +394,23 @@
 				Name="platform"
 				>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\base_thread.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\cache_manager.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\common\platform_common.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\common\simple_threads.cpp"
 					>
 				</File>
 				<File
@@ -708,11 +720,11 @@
 				Name="platform"
 				>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\common\base_thread.cpp"
+					RelativePath="..\..\source\shared_lib\include\platform\common\base_thread.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\common\cache_manager.cpp"
+					RelativePath="..\..\source\shared_lib\include\platform\common\cache_manager.h"
 					>
 				</File>
 				<File
@@ -736,7 +748,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\common\simple_threads.cpp"
+					RelativePath="..\..\source\shared_lib\include\platform\common\simple_threads.h"
 					>
 				</File>
 				<File
