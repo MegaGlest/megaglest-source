@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -43,6 +43,8 @@ CommandClass CommandType::getClass() const{
 }
 
 void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->id= id;
 	name= n->getChild("name")->getAttribute("value")->getRestrictedValue();
 
@@ -66,6 +68,8 @@ void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTr
 		string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 		upgradeReqs.push_back(ft->getUpgradeType(name));
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // =====================================================
@@ -336,6 +340,8 @@ void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 }
 
 void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     CommandType::load(id, n, dir, tt, ft, ut);
 
 	//move
@@ -379,6 +385,8 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const T
 			builtSounds[i]= sound;
 		}
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -492,6 +500,8 @@ void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 
 void RepairCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	CommandType::load(id, n, dir, tt, ft, ut);
 
 	//move
@@ -508,6 +518,8 @@ void RepairCommandType::load(int id, const XmlNode *n, const string &dir, const 
 		const XmlNode *unitNode= unitsNode->getChild("unit", i);
 		repairableUnits.push_back(ft->getUnitType(unitNode->getAttribute("name")->getRestrictedValue()));
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -558,7 +570,9 @@ void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 }
 
 void ProduceCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-    CommandType::load(id, n, dir, tt, ft, ut);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	CommandType::load(id, n, dir, tt, ft, ut);
 
 	//produce
    	string skillName= n->getChild("produce-skill")->getAttribute("value")->getRestrictedValue();
@@ -566,6 +580,8 @@ void ProduceCommandType::load(int id, const XmlNode *n, const string &dir, const
 
     string producedUnitName= n->getChild("produced-unit")->getAttribute("name")->getRestrictedValue();
 	producedUnit= ft->getUnitType(producedUnitName);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -671,7 +687,9 @@ void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 }
 
 void MorphCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-    CommandType::load(id, n, dir, tt, ft, ut);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	CommandType::load(id, n, dir, tt, ft, ut);
 
 	//morph skill
    	string skillName= n->getChild("morph-skill")->getAttribute("value")->getRestrictedValue();
@@ -683,6 +701,8 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir, const T
 
     //discount
 	discount= n->getChild("discount")->getAttribute("value")->getIntValue();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{

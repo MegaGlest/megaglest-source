@@ -332,6 +332,8 @@ bool World::toRenderUnit(const Unit *unit) const{
 }
 
 void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+
 	if(factionIndex<factions.size()){
 		Faction* faction= &factions[factionIndex];
 		const FactionType* ft= faction->getType();
@@ -352,6 +354,8 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 	{
 		throw runtime_error("Invalid faction index in createUnitAtPosition: " + intToStr(factionIndex));
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::giveResource(const string &resourceName, int factionIndex, int amount){

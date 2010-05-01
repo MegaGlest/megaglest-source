@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -48,6 +48,8 @@ void UpgradeType::preLoad(const string &dir){
 }
 
 void UpgradeType::load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	string path;
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
@@ -123,6 +125,8 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 	catch(const exception &e){
 		throw runtime_error("Error loading UpgradeType: "+ dir + "\n" +e.what());
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string UpgradeType::getReqDesc() const{
