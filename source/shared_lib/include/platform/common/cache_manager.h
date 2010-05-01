@@ -31,7 +31,6 @@ class CacheManager
 {
 protected:
 	static Mutex mutexCache;
-	static std::map<std::string, bool> masterCacheList;
 
 	typedef enum {
 		cacheItemGet,
@@ -40,13 +39,23 @@ protected:
 
 	template <typename T>
 	static T & manageCachedItem(string cacheKey, T *value,CacheAccessorType accessor) {
+		// Here is the actual type-safe instantiation
 		static std::map<string, T > itemCache;
-
 		if(accessor == cacheItemSet) {
 			if(value == NULL) {
-				throw runtime_error("Unexpected NULL object setting cache value!");
+				try {
+					mutexCache.p();
+					if(itemCache.find(cacheKey) != itemCache.end()) {
+						itemCache.erase(cacheKey);
+					}
+					mutexCache.v();
+				}
+				catch(const std::exception &ex) {
+					mutexCache.v();
+					throw runtime_error(ex.what());
+				}
+
 			}
-			masterCacheList[cacheKey] = true;
 			try {
 				mutexCache.p();
 				itemCache[cacheKey] = *value;
@@ -57,17 +66,14 @@ protected:
 				throw runtime_error(ex.what());
 			}
 		}
+		// If this is the first access we return a default object of the type
 		return itemCache[cacheKey];
 	}
 
 public:
 
-	CacheManager() {
-
-	}
-	~CacheManager() {
-
-	}
+	CacheManager() { }
+	~CacheManager() { }
 
 	template <typename T>
 	static void setCachedItem(string cacheKey, const T value) {
@@ -76,6 +82,10 @@ public:
 	template <typename T>
 	static T & getCachedItem(string cacheKey) {
 		return manageCachedItem<T>(cacheKey,NULL,cacheItemGet);
+	}
+	template <typename T>
+	static void clearCachedItem(string cacheKey) {
+		return manageCachedItem<T>(cacheKey,NULL,cacheItemSet);
 	}
 
 };
