@@ -59,6 +59,14 @@ UnitType::UnitType(){
     multiSelect= false;
 	armorType= NULL;
 
+    for(int i=0; i<ccCount; ++i){
+        firstCommandTypeOfClass[i]= NULL;
+    }
+
+    for(int i=0; i<scCount; ++i){
+    	firstSkillTypeOfClass[i] = NULL;
+    }
+
 	for(int i=0; i<pCount; ++i){
 		properties[i]= false;
 	}
@@ -379,15 +387,41 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 // ==================== get ====================
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(firstCommandTypeOfClass[commandClass] == NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	    for(int j=0; j<ccCount; ++j){
+	        for(int i=0; i<commandTypes.size(); ++i){
+	            if(commandTypes[i]->getClass()== CommandClass(j)){
+	                return commandTypes[i];
+	            }
+	        }
+	    }
+
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
     return firstCommandTypeOfClass[commandClass];
 }
 
 const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
+	if(firstSkillTypeOfClass[skillClass] == NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		for(int j= 0; j<scCount; ++j){
+	        for(int i= 0; i<skillTypes.size(); ++i){
+	            if(skillTypes[i]->getClass()== SkillClass(j)){
+	                return skillTypes[i];
+	            }
+	        }
+	    }
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
     return firstSkillTypeOfClass[skillClass];
 }
 
 const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *resourceType) const{
-	for(int i=0; i<commandTypes.size(); ++i){
+	for(int i=0; i<commandTypes.size(); ++i) {
 		if(commandTypes[i]->getClass()== ccHarvest){
 			const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(commandTypes[i]);
 			if(hct->canHarvest(resourceType)){
@@ -546,7 +580,7 @@ void UnitType::computeFirstStOfClass(){
 }
 
 void UnitType::computeFirstCtOfClass(){
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int j=0; j<ccCount; ++j){
         firstCommandTypeOfClass[j]= NULL;

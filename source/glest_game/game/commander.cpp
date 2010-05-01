@@ -310,6 +310,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 
                     Command* command= buildCommand(networkCommand);
+
                     unit->giveCommand(command, networkCommand->getWantQueue());
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());

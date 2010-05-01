@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -13,6 +13,9 @@
 
 #include "command_type.h"
 #include "leak_dumper.h"
+#include "util.h"
+
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -21,6 +24,8 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Command::Command(const CommandType *ct, const Vec2i &pos){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
+
     this->commandType= ct;  
     this->pos= pos;
 	unitType= NULL;

@@ -381,7 +381,9 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 			throw runtime_error("Invalid position commmand: " + commandName);
 		}
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
 
@@ -396,7 +398,9 @@ void World::giveProductionCommand(int unitId, const string &producedName){
 			if(ct->getClass()==ccProduce){
 				const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
 				if(pct->getProducedUnit()->getName()==producedName){
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(pct));
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
 			}
@@ -415,7 +419,9 @@ void World::giveUpgradeCommand(int unitId, const string &upgradeName){
 			if(ct->getClass()==ccUpgrade){
 				const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 				if(uct->getProducedUpgrade()->getName()==upgradeName){
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(uct));
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
 			}
