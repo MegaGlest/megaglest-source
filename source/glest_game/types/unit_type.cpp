@@ -100,6 +100,8 @@ void UnitType::preLoad(const string &dir){
 
 void UnitType::load(int id,const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum){
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->id= id;
     string path;
 
@@ -382,6 +384,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 	catch(const exception &e){
 		throw runtime_error("Error loading UnitType: " + path + "\n" + e.what());
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== get ====================

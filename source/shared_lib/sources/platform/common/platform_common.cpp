@@ -47,8 +47,6 @@
 #include <algorithm>
 #include <map>
 
-
-
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;

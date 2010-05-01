@@ -186,6 +186,7 @@ private:
 	struct Data{
 		int8 messageType;
 		uint8 commandCount;
+		//int8 commandCount;
 		int32 frameCount;
 		NetworkCommand commands[maxCommandCount];
 	};
@@ -216,7 +217,7 @@ public:
 
 class NetworkMessageText: public NetworkMessage{
 private:
-	static const int maxStringSize= 64;
+	static const int maxStringSize= 128;
 
 private:
 	struct Data{
