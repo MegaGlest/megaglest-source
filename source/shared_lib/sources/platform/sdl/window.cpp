@@ -41,7 +41,7 @@ namespace Shared{ namespace Platform{
 // Matze: hack for now...
 static Window* global_window = 0;
 static int oldX=0,oldY=0;
-int64 Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;

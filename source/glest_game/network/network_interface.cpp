@@ -176,8 +176,9 @@ void FileTransferSocketThread::execute()
 
                 clientSocket->send(data,256);
                 clientSocket->receive(data,256);
-                if(*data != ACK)
-                   ;//transfer error
+                if(*data != ACK) {
+                   //transfer error
+                }
 
                 int remain=file.filesize % 512 ;
                 int packs=(file.filesize-remain)/512;
@@ -191,8 +192,9 @@ void FileTransferSocketThread::execute()
                     //    ; //read error
                     clientSocket->send(data,512);
                     clientSocket->receive(data,256);
-                    if(*data!=ACK)
-                           ;//transfer error
+                    if(*data!=ACK) {
+                           //transfer error
+                    }
                 }
 
                 infile.read(data,remain);
@@ -203,8 +205,9 @@ void FileTransferSocketThread::execute()
 
                 clientSocket->send(data,remain);
                 clientSocket->receive(data,256);
-                if(*data!=ACK)
-                   ;//transfer error
+                if(*data!=ACK) {
+                   //transfer error
+                }
 
                 infile.close();
             }
@@ -238,8 +241,9 @@ void FileTransferSocketThread::execute()
 
                 clientSocket.send(data,256);
                 clientSocket.receive(data,256);
-                if(*data!=ACK)
-                  ;//transfer error
+                if(*data!=ACK) {
+                  //transfer error
+                }
 
                 clientSocket.receive(data,256);
                 if(*data == SEND_FILE)

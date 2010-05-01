@@ -187,7 +187,7 @@ public:
 	string getCommandTypeListDesc() const;
 
     float getRotatedBuildPos() { return rotatedBuildPos; }
-    float setRotatedBuildPos(float value) { rotatedBuildPos = value; }
+    void setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
 private:
     void computeFirstStOfClass();

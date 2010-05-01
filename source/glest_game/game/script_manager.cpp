@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -19,6 +19,7 @@
 
 using namespace Shared::Platform;
 using namespace Shared::Lua;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -171,6 +172,7 @@ void ScriptManager::setCameraPosition(const Vec2i &pos){
 }
 
 void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i pos){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 	world->createUnit(unitName, factionIndex, pos);
 }
 
@@ -275,6 +277,9 @@ int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 
 int ScriptManager::createUnit(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
+
 	thisScriptManager->createUnit(
 		luaArguments.getString(-3),
 		luaArguments.getInt(-2),

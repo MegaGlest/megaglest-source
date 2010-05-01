@@ -13,8 +13,7 @@
 #ifndef _SHARED_GRAPHICS_VEC_H_
 #define _SHARED_GRAPHICS_VEC_H_
 
-#include "streflop_cond.h"
-//#include <cmath>
+#include "math_wrapper.h"
 #include <string>
 #include <sstream>
 
@@ -127,7 +126,11 @@ public:
 	}
 
 	float length() const{
+#ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(static_cast<float>(x*x + y*y)));
+#else
+		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
+#endif
 	}
 
 	void normalize(){
@@ -266,7 +269,11 @@ public:
 	}
 
 	float length() const{
+#ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(x*x + y*y + z*z));
+#else
+		return static_cast<float>(sqrt(x*x + y*y + z*z));
+#endif
 	}
 
 	void normalize(){

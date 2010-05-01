@@ -82,6 +82,7 @@ Game::~Game(){
 // ==================== init and load ====================
 
 void Game::load(){
+
 	Logger &logger= Logger::getInstance();
 	string mapName= gameSettings.getMap();
 	string tilesetName= gameSettings.getTileset();
@@ -99,7 +100,7 @@ void Game::load(){
 	}
 
     Config &config = Config::getInstance();
-    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -215,7 +216,7 @@ void Game::load(){
 		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
 	}
 
-    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Game::init()
@@ -247,7 +248,7 @@ void Game::init()
 	gameCamera.setPos(Vec2f(v.x, v.y));
 	scriptManager.init(&world, &gameCamera);
 
-    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
 
@@ -286,7 +287,7 @@ void Game::init()
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
 
-    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -365,7 +366,7 @@ void Game::update(){
 		}
 		renderer.updateParticleManager(rsGame);
 
-	    good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+	    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	//call the chat manager

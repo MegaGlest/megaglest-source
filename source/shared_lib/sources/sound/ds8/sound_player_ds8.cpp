@@ -13,7 +13,6 @@
 
 #include <cassert>
 #include <cmath>
-//#include "streflop.h"
 
 #include "util.h"
 #include "leak_dumper.h"

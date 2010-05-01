@@ -29,6 +29,8 @@ int MessageBox(int handle, const char *msg, const char *title, int buttons) {
     int ret = system(cmd);
         //exit(0);
     //}
+
+    return ret;
 }
 
 void message(string message) {

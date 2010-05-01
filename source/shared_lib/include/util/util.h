@@ -15,10 +15,10 @@
 #include <string>
 #include <fstream>
 #include <map>
-#include "thread.h"
+//#include "thread.h"
 
 using std::string;
-using namespace Shared::Platform;
+//using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
@@ -45,7 +45,7 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
-			this->mutex				= NULL;
+			//this->mutex				= NULL;
     	}
     	SystemFlagsType(DebugType debugType) {
     		this->debugType 		= debugType;
@@ -53,7 +53,7 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
-			this->mutex				= NULL;
+			//this->mutex				= NULL;
     	}
     	SystemFlagsType(DebugType debugType,bool enabled,
 						std::ofstream *fileStream,std::string debugLogFileName) {
@@ -62,14 +62,14 @@ public:
     		this->fileStream 		= fileStream;
     		this->debugLogFileName	= debugLogFileName;
 			this->fileStreamOwner	= false;
-			this->mutex				= mutex;
+			//this->mutex				= mutex;
     	}
 
     	bool enabled;
     	std::ofstream *fileStream;
     	std::string debugLogFileName;
 		bool fileStreamOwner;
-		Mutex *mutex;
+		//Mutex *mutex;
 	};
 
 protected:
@@ -122,6 +122,7 @@ template<typename T>
 void deleteMapValues(T beginIt, T endIt){
 	for(T it= beginIt; it!=endIt; ++it){
 		delete it->second;
+		it->second = NULL;
 	}
 }
 

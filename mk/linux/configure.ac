@@ -23,6 +23,8 @@ test ".$CXXFLAGS" = "." && CXXFLAGS=" "
 # here we define required defines for streflop
 AC_DEFINE([USE_STREFLOP], [], [Define if streflop should be used])
 AC_DEFINE([STREFLOP_SSE], [], [Define type of streflop to use])
+#AC_DEFINE([STREFLOP_X87], [], [Define type of streflop to use])
+#AC_DEFINE([STREFLOP_SOFT], [], [Define type of streflop to use])
 AC_DEFINE([LIBM_COMPILING_FLT32], [], [Define which libm compile type should be used])
 # end
 

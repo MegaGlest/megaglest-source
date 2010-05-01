@@ -5,6 +5,7 @@ UseAutoconf ;
 Package license.txt readme.txt ;
 
 #### Library ####
+
 SubDir TOP shared_lib sources ;
 
 LIB_STREFLOP_DIRS =
