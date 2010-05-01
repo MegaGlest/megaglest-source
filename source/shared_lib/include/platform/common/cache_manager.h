@@ -14,7 +14,11 @@
 #define _SHARED_PLATFORMCOMMON_CACHEMANAGER_H_
 
 #include "thread.h"
+#include <map>
+#include <string>
+#include <stdexcept>
 
+using namespace std;
 using namespace Shared::Platform;
 
 namespace Shared { namespace PlatformCommon {
@@ -26,9 +30,8 @@ namespace Shared { namespace PlatformCommon {
 class CacheManager
 {
 protected:
-	Mutex mutexCache;
-
-	static std::map<string, bool> masterCacheList;
+	static Mutex mutexCache;
+	static std::map<std::string, bool> masterCacheList;
 
 	typedef enum {
 		cacheItemGet,
@@ -36,12 +39,23 @@ protected:
 	} CacheAccessorType;
 
 	template <typename T>
-	static T manageCachedItem(string cacheKey, T *value,CacheAccessorType accessor) {
-		static std::map<string, T> itemCache;
+	static T & manageCachedItem(string cacheKey, T *value,CacheAccessorType accessor) {
+		static std::map<string, T > itemCache;
 
 		if(accessor == cacheItemSet) {
+			if(value == NULL) {
+				throw runtime_error("Unexpected NULL object setting cache value!");
+			}
 			masterCacheList[cacheKey] = true;
-			itemCache[cacheKey] = *value;
+			try {
+				mutexCache.p();
+				itemCache[cacheKey] = *value;
+				mutexCache.v();
+			}
+			catch(const std::exception &ex) {
+				mutexCache.v();
+				throw runtime_error(ex.what());
+			}
 		}
 		return itemCache[cacheKey];
 	}
@@ -56,11 +70,11 @@ public:
 	}
 
 	template <typename T>
-	static T setCachedItem(string cacheKey, T value) {
+	static void setCachedItem(string cacheKey, const T value) {
 		manageCachedItem<T>(cacheKey,value,cacheItemSet);
 	}
 	template <typename T>
-	static T getCachedItem(string cacheKey) {
+	static T & getCachedItem(string cacheKey) {
 		return manageCachedItem<T>(cacheKey,NULL,cacheItemGet);
 	}
 

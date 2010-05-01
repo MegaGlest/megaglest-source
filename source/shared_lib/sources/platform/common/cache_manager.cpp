@@ -9,3 +9,11 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
+#include "cache_manager.h"
+
+namespace Shared { namespace PlatformCommon {
+
+Mutex CacheManager::mutexCache;
+std::map<string, bool> CacheManager::masterCacheList;
+
+}}//end namespace
