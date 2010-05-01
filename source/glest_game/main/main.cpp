@@ -30,6 +30,7 @@
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
+#include <memory>
 
 #include "leak_dumper.h"
 
@@ -264,6 +265,11 @@ void MainWindow::setProgram(Program *program) {
 SystemFlags debugger;
 
 int glestMain(int argc, char** argv){
+
+#ifdef SL_LEAK_DUMP
+	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
+#endif
+
 #ifdef STREFLOP_H
 	streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
@@ -280,9 +286,8 @@ int glestMain(int argc, char** argv){
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
-	FileCRCPreCacheThread preCacheThread;
-
 	try{
+		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -344,8 +349,9 @@ int glestMain(int argc, char** argv){
 
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
-			preCacheThread.setTechDataPaths(techDataPaths);
-			preCacheThread.start();
+			preCacheThread.reset(new FileCRCPreCacheThread());
+			preCacheThread->setTechDataPaths(techDataPaths);
+			preCacheThread->start();
 		}
 
         // test
@@ -357,34 +363,30 @@ int glestMain(int argc, char** argv){
 		while(Window::handleEvent()){
 			program->loop();
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
-		preCacheThread.shutdownAndWait();
-		//exceptionMessage(e);
 		ExceptionHandler::handleRuntimeError(e.what());
 	}
 	catch(const char *e){
-		//exceptionMessage(e);
-		preCacheThread.shutdownAndWait();
 		ExceptionHandler::handleRuntimeError(e);
 	}
 	catch(const string &ex){
-		//exceptionMessage(e);
-		preCacheThread.shutdownAndWait();
 		ExceptionHandler::handleRuntimeError(ex.c_str());
 	}
 	catch(...){
-		//exceptionMessage(e);
-		preCacheThread.shutdownAndWait();
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
 
-	preCacheThread.shutdownAndWait();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	//soundRenderer.stopAllSounds();
 
 	delete mainWindow;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//SystemFlags::Close();
 

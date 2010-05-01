@@ -72,20 +72,23 @@ SystemFlags::~SystemFlags() {
 }
 
 void SystemFlags::Close() {
-	printf("Closing logfile\n");
+	printf("START Closing logfiles\n");
 
 	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
 		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
 		SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
-		if( currentDebugLog.fileStream != NULL &&
-			currentDebugLog.fileStream->is_open() == true) {
-			currentDebugLog.fileStream->close();
-		}
+
 		if(currentDebugLog.fileStreamOwner == true) {
+			if( currentDebugLog.fileStream != NULL &&
+				currentDebugLog.fileStream->is_open() == true) {
+				currentDebugLog.fileStream->close();
+			}
 			delete currentDebugLog.fileStream;
+			delete currentDebugLog.mutex;
 		}
 		currentDebugLog.fileStream = NULL;
 		currentDebugLog.fileStreamOwner = false;
+		currentDebugLog.mutex = NULL;
 	}
 
 	if(SystemFlags::lockFile != -1) {
@@ -101,6 +104,8 @@ void SystemFlags::Close() {
 			SystemFlags::lockfilename = "";
 		}
 	}
+
+	printf("END Closing logfiles\n");
 }
 
 void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
@@ -138,6 +143,7 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
         			currentDebugLog2.fileStream != NULL) {
 					currentDebugLog.fileStream = currentDebugLog2.fileStream;
 					currentDebugLog.fileStreamOwner = false;
+					currentDebugLog.mutex			= currentDebugLog2.mutex;
         			break;
         		}
         	}
@@ -183,12 +189,17 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
             	currentDebugLog.fileStream = new std::ofstream();
             	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
 				currentDebugLog.fileStreamOwner = true;
+				currentDebugLog.mutex			= new Mutex();
             }
 
             printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
 
+			currentDebugLog.mutex->p();
+
             (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
             (*currentDebugLog.fileStream).flush();
+
+			currentDebugLog.mutex->v();
         }
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
@@ -197,8 +208,12 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
 
         assert(currentDebugLog.fileStream != NULL);
 
+		currentDebugLog.mutex->p();
+
         (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
         (*currentDebugLog.fileStream).flush();
+
+		currentDebugLog.mutex->v();
     }
     // output to console
     else {
