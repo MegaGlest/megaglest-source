@@ -120,7 +120,6 @@ void Program::ShowMessageProgramState::update() {
 Program::Program() {
 	programState= NULL;
 	singleton = this;
-
 	soundThreadManager = NULL;
 }
 
@@ -165,7 +164,7 @@ Program::~Program(){
 	singleton = NULL;
 
 	BaseThread::shutdownAndWait(soundThreadManager);
-	delete soundThreadManager; 
+	delete soundThreadManager;
 	soundThreadManager = NULL;
 }
 
@@ -205,7 +204,9 @@ void Program::loop(){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//!!!SoundRenderer::getInstance().update();
+		if(soundThreadManager == NULL) {
+			SoundRenderer::getInstance().update();
+		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -363,10 +364,13 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         soundRenderer.init(window);
 
-		BaseThread::shutdownAndWait(soundThreadManager);
-		delete soundThreadManager; 
-		soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
-		soundThreadManager->start();
+		// Run sound streaming in a background thread if enabled
+		if(config.getBool("ThreadedSoundStream","true") == true) {
+			BaseThread::shutdownAndWait(soundThreadManager);
+			delete soundThreadManager;
+			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
+			soundThreadManager->start();
+		}
 	}
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","0"));

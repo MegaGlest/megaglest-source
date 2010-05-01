@@ -19,8 +19,7 @@ using namespace Shared::Util;
 
 namespace Shared { namespace PlatformCommon {
 
-BaseThread::BaseThread() {
-
+BaseThread::BaseThread() : Thread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	setQuitStatus(false);
@@ -88,7 +87,7 @@ void BaseThread::setRunningStatus(bool value) {
 }
 
 void BaseThread::shutdownAndWait(BaseThread *pThread) {
-	if(pThread != NULL) {
+	if(pThread != NULL && pThread->getRunningStatus() == true) {
 		pThread->signalQuit();
 		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 10; ) {
 			if(pThread->getRunningStatus() == false) {

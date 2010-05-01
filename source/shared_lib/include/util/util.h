@@ -15,8 +15,10 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include "thread.h"
 
 using std::string;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
@@ -35,7 +37,7 @@ public:
 	{
 	protected:
     	DebugType debugType;
-
+		
 	public:
     	SystemFlagsType() {
     		this->debugType 		= debugSystem;
@@ -43,6 +45,7 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
+			this->mutex				= NULL;
     	}
     	SystemFlagsType(DebugType debugType) {
     		this->debugType 		= debugType;
@@ -50,6 +53,7 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
+			this->mutex				= NULL;
     	}
     	SystemFlagsType(DebugType debugType,bool enabled,
 						std::ofstream *fileStream,std::string debugLogFileName) {
@@ -58,12 +62,14 @@ public:
     		this->fileStream 		= fileStream;
     		this->debugLogFileName	= debugLogFileName;
 			this->fileStreamOwner	= false;
+			this->mutex				= mutex;
     	}
 
     	bool enabled;
     	std::ofstream *fileStream;
     	std::string debugLogFileName;
 		bool fileStreamOwner;
+		Mutex *mutex;
 	};
 
 protected:

@@ -42,7 +42,7 @@ public:
     void signalQuit();
     bool getQuitStatus();
     bool getRunningStatus();
-    static void shutdownAndWait(BaseThread *pThread);
+    static void shutdownAndWait(BaseThread *ppThread);
     void shutdownAndWait();
 };
 
