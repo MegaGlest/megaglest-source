@@ -269,7 +269,7 @@ int glestMain(int argc, char** argv){
 
 #ifdef USE_STREFLOP
 
-	streflop_init<streflop::Simple>();
+	streflop_init<streflop::Double>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
 #else
 	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
