@@ -34,24 +34,17 @@ void FileCRCPreCacheThread::execute() {
 	    findDirs(techDataPaths, techPaths);
 		if(techPaths.empty() == false) {
 			for(unsigned int idx = 0; idx < techPaths.size(); idx++) {
-				string &techPath = techPaths[idx];
-				for(unsigned int idx2 = 0; idx2 < techPaths.size(); idx2++) {
-					string techName = techPaths[idx2];
+				string techName = techPaths[idx];
 
-					printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
-					int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
-					printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC);
+				printf("In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,techPaths.size());
+				int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
+				printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,techPaths.size());
 
-					if(getQuitStatus() == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						break;
-					}
-					sleep( 100 );
-				}
 				if(getQuitStatus() == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
+				sleep( 100 );
 			}
 		}
 	}
