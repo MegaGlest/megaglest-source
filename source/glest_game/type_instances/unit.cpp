@@ -116,7 +116,8 @@ set<Unit*> Unit::livingUnitsp;
 
 Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 	modelFacing = CardinalDir::NORTH;
 
@@ -169,11 +170,14 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	//starting skill
 	this->currSkill=getType()->getFirstStOfClass(scStop);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
 
 	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 Unit::~Unit(){
@@ -484,6 +488,16 @@ unsigned int Unit::getCommandSize() const{
 CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+    assert(command != NULL);
+
+    assert(command->getCommandType() != NULL);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,command->getCommandType()->getId());
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(command->getCommandType()->isQueuable(tryQueue)){
 		//cancel current command if it is not queuable
