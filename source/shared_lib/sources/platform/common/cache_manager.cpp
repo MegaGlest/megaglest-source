@@ -14,6 +14,5 @@
 namespace Shared { namespace PlatformCommon {
 
 Mutex CacheManager::mutexCache;
-std::map<string, bool> CacheManager::masterCacheList;
 
 }}//end namespace
