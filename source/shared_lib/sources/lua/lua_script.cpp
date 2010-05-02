@@ -51,7 +51,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 	int errorCode= luaL_loadbuffer(luaState, code.c_str(), code.size(), name.c_str());
 	if(errorCode!=0){
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 		throw runtime_error("Error loading lua code: " + errorToString(errorCode));
 	}
@@ -60,12 +60,12 @@ void LuaScript::loadCode(const string &code, const string &name){
 	errorCode= lua_pcall(luaState, 0, 0, 0)!=0;
 	if(errorCode!=0){
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 		throw runtime_error("Error initializing lua: " + errorToString(errorCode));
 	}
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -76,7 +76,7 @@ void LuaScript::beginCall(const string& functionName){
 	lua_getglobal(luaState, functionName.c_str());
 	argumentCount= 0;
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -86,7 +86,7 @@ void LuaScript::endCall(){
 #endif
 	lua_pcall(luaState, argumentCount, 0, 0);
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -97,7 +97,7 @@ void LuaScript::registerFunction(LuaFunction luaFunction, const string &function
     lua_pushcfunction(luaState, luaFunction);
 	lua_setglobal(luaState, functionName.c_str());
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -138,7 +138,7 @@ LuaArguments::LuaArguments(lua_State *luaState){
 	this->luaState= luaState;
 	returnCount= 0;
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -148,13 +148,13 @@ int LuaArguments::getInt(int argumentIndex) const{
 #endif
 	if(!lua_isnumber(luaState, argumentIndex)){
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 		throwLuaError("Can not get int from Lua state");
 	}
 	int result = luaL_checkint(luaState, argumentIndex);
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 	return result;
 }
@@ -174,14 +174,14 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	
 	if(!lua_istable(luaState, argumentIndex)){
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 		throwLuaError("Can not get vec2i from Lua state, value on the stack is not a table");
 	}
 
 	if(luaL_getn(luaState, argumentIndex)!=2){
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 		throwLuaError("Can not get vec2i from Lua state, array size not 2");
 	}
@@ -195,7 +195,7 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	lua_pop(luaState, 1);
 
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 	return v;
 }
@@ -207,7 +207,7 @@ void LuaArguments::returnInt(int value){
 	++returnCount;
 	lua_pushinteger(luaState, value);
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -230,7 +230,7 @@ void LuaArguments::returnVec2i(const Vec2i &value){
 	lua_pushnumber(luaState, value.y);
 	lua_rawseti(luaState, -2, 2);
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 }
 
@@ -261,7 +261,7 @@ void LuaArguments::throwLuaError(const string &message) const{
 	}
 	
 #ifdef USE_STREFLOP
-	//streflop_init<streflop::Simple>();
+	streflop_init<streflop::Simple>();
 #endif
 	throw runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
 }
