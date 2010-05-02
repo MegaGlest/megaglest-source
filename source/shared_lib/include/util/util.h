@@ -15,10 +15,10 @@
 #include <string>
 #include <fstream>
 #include <map>
-//#include "thread.h"
+#include "thread.h"
 
 using std::string;
-//using namespace Shared::Platform;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
@@ -45,7 +45,7 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
-			//this->mutex				= NULL;
+			this->mutex				= NULL;
     	}
     	SystemFlagsType(DebugType debugType) {
     		this->debugType 		= debugType;
@@ -53,8 +53,11 @@ public:
     		this->fileStream 		= NULL;
     		this->debugLogFileName	= "";
 			this->fileStreamOwner	= false;
-			//this->mutex				= NULL;
+			this->mutex				= NULL;
     	}
+		~SystemFlagsType() {
+			Close();
+		}
     	SystemFlagsType(DebugType debugType,bool enabled,
 						std::ofstream *fileStream,std::string debugLogFileName) {
     		this->debugType 		= debugType;
@@ -62,14 +65,28 @@ public:
     		this->fileStream 		= fileStream;
     		this->debugLogFileName	= debugLogFileName;
 			this->fileStreamOwner	= false;
-			//this->mutex				= mutex;
+			this->mutex				= NULL;
     	}
+
+		void Close() {
+			if(this->fileStreamOwner == true) {
+				if( this->fileStream != NULL &&
+					this->fileStream->is_open() == true) {
+					this->fileStream->close();
+				}
+				delete this->fileStream;
+				delete this->mutex;
+			}
+			this->fileStream = NULL;
+			this->fileStreamOwner = false;
+			this->mutex = NULL;
+		}
 
     	bool enabled;
     	std::ofstream *fileStream;
     	std::string debugLogFileName;
 		bool fileStreamOwner;
-		//Mutex *mutex;
+		Mutex *mutex;
 	};
 
 protected:

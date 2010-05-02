@@ -44,14 +44,14 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;../../source/shared_lib/include/sound/openal;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;$(NOINHERIT)"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;XML_LIBRARY;NO_GL_ASSERTIONS;USE_PCH=1"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;XML_LIBRARY;NO_GL_ASSERTIONS;USE_PCH=1;USE_STREFLOP;STREFLOP_X87;LIBM_COMPILING_FLT32"
 				StringPooling="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
@@ -73,8 +73,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib zlib.lib lua5.1.lib xerces-c_3D.lib Dbghelp.lib libpng.lib jpeg.lib"
-				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;"
+				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib openal32.lib iphlpapi.lib libstreflop.lib"
+				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -128,6 +128,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/arch:SSE2"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -169,7 +170,7 @@
 				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				TargetMachine="1"
+				TargetMachine="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
