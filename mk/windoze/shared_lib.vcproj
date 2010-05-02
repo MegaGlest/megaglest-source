@@ -40,13 +40,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;NO_GL_ASSERTIONS;USE_PCH=1"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/libpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;NO_GL_ASSERTIONS;USE_PCH=1;USE_STREFLOP;STREFLOP_X87;LIBM_COMPILING_FLT32"
 				StringPooling="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
@@ -109,6 +109,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/arch:SSE2"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -729,6 +730,10 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\platform\sdl\gl_wrap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\common\math_wrapper.h"
 					>
 				</File>
 				<File
