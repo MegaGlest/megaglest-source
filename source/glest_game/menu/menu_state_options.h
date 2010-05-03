@@ -55,6 +55,9 @@ private:
 	GraphicListBox listBoxScreenModes;
 	list<ModeInfo> modeInfos;
 	
+	GraphicLabel labelFullscreenWindowed;
+	GraphicListBox listBoxFullscreenWindowed;
+	
 	GraphicLabel labelVideoSection;
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
