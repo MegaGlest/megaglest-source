@@ -193,8 +193,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	if(systemFontList.size() == 0) {
 		LOGFONT lf;
 		//POSITION pos;
-
-		lf.lfCharSet = ANSI_CHARSET;
+		//lf.lfCharSet = ANSI_CHARSET;
+		lf.lfCharSet = (BYTE)charSet;
 		lf.lfFaceName[0]='\0';
 
 		HDC hDC = wglGetCurrentDC();
@@ -222,9 +222,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		}
 	}
 
-
 	HFONT font= CreateFont(
-		size, 0, 0, 0, width, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+		size, 0, 0, 0, width, FALSE, FALSE, FALSE, charSet,
 		OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
 		DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), useRealFontName.c_str());
 

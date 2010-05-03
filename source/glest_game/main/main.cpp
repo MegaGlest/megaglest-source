@@ -28,12 +28,14 @@
 #include "renderer.h"
 #include "simple_threads.h"
 #include <memory>
+#include "font.h"
 
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
+using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
@@ -318,6 +320,17 @@ int glestMain(int argc, char** argv){
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		// 256 for English
+		// 30000 for Chinese
+		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(256).c_str());
+		Font::fontTypeName = config.getString("FONT_TYPENAME","Times New Roman");
+		// Example values:
+		// DEFAULT_CHARSET (English) = 1
+		// GB2312_CHARSET (Chinese)  = 134
+		Shared::Platform::charSet = config.getInt("FONT_CHARSET",intToStr(DEFAULT_CHARSET).c_str());
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
 
 		//showCursor(config.getBool("Windowed"));
 		showCursor(false);
