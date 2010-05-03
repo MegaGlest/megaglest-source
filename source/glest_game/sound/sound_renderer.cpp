@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -37,6 +37,7 @@ SoundRenderer::SoundRenderer(){
     soundPlayer = NULL;
 	loadConfig();
 
+	runThreadSafe = false;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -46,6 +47,7 @@ void SoundRenderer::init(Window *window){
 	SoundInterface &si= SoundInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
+	runThreadSafe = config.getBool("ThreadedSoundStream","false");
 
     //if(soundPlayer == NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -85,7 +87,9 @@ SoundRenderer &SoundRenderer::getInstance(){
 
 void SoundRenderer::update(){
     if(soundPlayer != NULL) {
+    	if(runThreadSafe == true) mutex.p();
         soundPlayer->updateStreams();
+        if(runThreadSafe == true) mutex.v();
     }
 }
 
@@ -95,16 +99,20 @@ void SoundRenderer::playMusic(StrSound *strSound){
 	strSound->setVolume(musicVolume);
 	strSound->restart();
 	if(soundPlayer != NULL) {
+		if(runThreadSafe == true) mutex.p();
         soundPlayer->play(strSound);
+        if(runThreadSafe == true) mutex.v();
 	}
 }
 
 void SoundRenderer::stopMusic(StrSound *strSound){
     if(soundPlayer != NULL) {
+    	if(runThreadSafe == true) mutex.p();
         soundPlayer->stop(strSound);
 		if(strSound->getNext() != NULL) {
 			soundPlayer->stop(strSound->getNext());
 		}
+		if(runThreadSafe == true) mutex.v();
     }
 }
 
@@ -114,13 +122,15 @@ void SoundRenderer::playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPo
 	if(staticSound!=NULL){
 		float d= soundPos.dist(camPos);
 
-		if(d<audibleDist){
+		if(d < audibleDist){
 			float vol= (1.f-d/audibleDist)*fxVolume;
 			float correctedVol= log10(log10(vol*9+1)*9+1);
 			staticSound->setVolume(correctedVol);
 
 			if(soundPlayer != NULL) {
+				if(runThreadSafe == true) mutex.p();
                 soundPlayer->play(staticSound);
+                if(runThreadSafe == true) mutex.v();
 			}
 		}
 	}
@@ -130,7 +140,9 @@ void SoundRenderer::playFx(StaticSound *staticSound){
 	if(staticSound!=NULL){
 		staticSound->setVolume(fxVolume);
 		if(soundPlayer != NULL) {
+			if(runThreadSafe == true) mutex.p();
             soundPlayer->play(staticSound);
+            if(runThreadSafe == true) mutex.v();
 		}
 	}
 }
@@ -140,13 +152,17 @@ void SoundRenderer::playFx(StaticSound *staticSound){
 void SoundRenderer::playAmbient(StrSound *strSound){
 	strSound->setVolume(ambientVolume);
 	if(soundPlayer != NULL) {
+		if(runThreadSafe == true) mutex.p();
         soundPlayer->play(strSound, ambientFade);
+        if(runThreadSafe == true) mutex.v();
 	}
 }
 
 void SoundRenderer::stopAmbient(StrSound *strSound){
     if(soundPlayer != NULL) {
+    	if(runThreadSafe == true) mutex.p();
         soundPlayer->stop(strSound, ambientFade);
+        if(runThreadSafe == true) mutex.v();
     }
 }
 
@@ -154,7 +170,9 @@ void SoundRenderer::stopAmbient(StrSound *strSound){
 
 void SoundRenderer::stopAllSounds(){
     if(soundPlayer != NULL) {
+    	mutex.p();
         soundPlayer->stopAllSounds();
+        mutex.v();
     }
 }
 

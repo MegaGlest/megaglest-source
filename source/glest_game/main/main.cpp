@@ -323,12 +323,12 @@ int glestMain(int argc, char** argv){
 
 		// 256 for English
 		// 30000 for Chinese
-		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(256).c_str());
-		Font::fontTypeName = config.getString("FONT_TYPENAME","Times New Roman");
+		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
+		Font::fontTypeName = config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
 		// GB2312_CHARSET (Chinese)  = 134
-		Shared::Platform::charSet = config.getInt("FONT_CHARSET",intToStr(DEFAULT_CHARSET).c_str());
+		Shared::Platform::charSet = config.getInt("FONT_CHARSET",intToStr(Shared::Platform::charSet).c_str());
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
 

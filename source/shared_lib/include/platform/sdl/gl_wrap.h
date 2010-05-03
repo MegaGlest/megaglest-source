@@ -64,7 +64,11 @@ public:
 // Example values:
 // DEFAULT_CHARSET (English) = 1
 // GB2312_CHARSET (Chinese)  = 134
+#ifdef WIN32
 static DWORD charSet = DEFAULT_CHARSET;
+#else
+static int charSet = 1;
+#endif
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics);
 void createGlFontOutlines(uint32 &base, const string &type, int width, float depth, int charCount, FontMetrics &metrics);

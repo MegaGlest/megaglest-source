@@ -2150,7 +2150,10 @@ void Renderer::renderShadowsToTexture(){
 				//directional light
 
 				//light pos
+				assert(game != NULL);
+				assert(game->getWorld() != NULL);
 				const TimeFlow *tf= game->getWorld()->getTimeFlow();
+				assert(tf != NULL);
 				float ang= tf->isDay()? computeSunAngle(tf->getTime()): computeMoonAngle(tf->getTime());
 				ang= radToDeg(ang);
 
@@ -2462,7 +2465,9 @@ Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight){
 
 //render units for selection purposes
 void Renderer::renderUnitsFast(){
+	assert(game != NULL);
 	const World *world= game->getWorld();
+	assert(world != NULL);
 
 	assertGl();
 

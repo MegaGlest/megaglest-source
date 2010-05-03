@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -42,6 +42,7 @@ void TechTree::loadTech(const vector<string> pathList, const string &techName, s
 }
 
 void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string str;
     vector<string> filenames;
@@ -122,10 +123,12 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	catch(const exception &e){
 		throw runtime_error("Error loading Faction Types: "+ dir + "\n" + e.what());
     }
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 }
 
 TechTree::~TechTree(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Tech tree", true);
 }
 
@@ -133,8 +136,10 @@ TechTree::~TechTree(){
 // ==================== get ====================
 
 const FactionType *TechTree::getType(const string &name) const{
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
      for(int i=0; i<factionTypes.size(); ++i){
           if(factionTypes[i].getName()==name){
+        	   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                return &factionTypes[i];
           }
      }
@@ -142,9 +147,9 @@ const FactionType *TechTree::getType(const string &name) const{
 }
 
 const ResourceType *TechTree::getTechResourceType(int i) const{
-
      for(int j=0; j<getResourceTypeCount(); ++j){
           const ResourceType *rt= getResourceType(j);
+          assert(rt != NULL);
           if(rt->getResourceNumber()==i && rt->getClass()==rcTech)
                return getResourceType(j);
      }
@@ -155,6 +160,7 @@ const ResourceType *TechTree::getTechResourceType(int i) const{
 const ResourceType *TechTree::getFirstTechResourceType() const{
      for(int i=0; i<getResourceTypeCount(); ++i){
           const ResourceType *rt= getResourceType(i);
+          assert(rt != NULL);
           if(rt->getResourceNumber()==1 && rt->getClass()==rcTech)
                return getResourceType(i);
      }

@@ -196,19 +196,29 @@ void Game::load(){
 	
 	//throw runtime_error("Test!");
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//tileset
     world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	set<string> factions;
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     //tech, load before map because of resources
     world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
 	
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     //map
 	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //scenario
 	if(!scenarioName.empty()){
@@ -216,12 +226,13 @@ void Game::load(){
 		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Game::init()
 {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -230,7 +241,7 @@ void Game::init()
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	logger.setState(lang.get("Initializing"));
 
 	//mesage box
@@ -318,7 +329,7 @@ void Game::init()
 
 	logger.add("Launching game");
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 
@@ -326,6 +337,7 @@ void Game::init()
 
 //update
 void Game::update(){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// a) Updates non dependant on speed
 
@@ -336,14 +348,18 @@ void Game::update(){
 	//console
 	console.update();
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	// b) Updates depandant on speed
 
 	int updateLoops= getUpdateLoops();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//update
 	for(int i=0; i<updateLoops; ++i){
 		Renderer &renderer= Renderer::getInstance();
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//AiInterface
 		for(int i=0; i<world.getFactionCount(); ++i){
 			if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
@@ -351,24 +367,31 @@ void Game::update(){
 			}
 		}
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//World
 		world.update();
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		// Commander
 		commander.updateNetwork();
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//Gui
 		gui.update();
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//Particle systems
 		if(weatherParticleSystem != NULL){
 			weatherParticleSystem->setPos(gameCamera.getPos());
 		}
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		renderer.updateParticleManager(rsGame);
 
 	    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 	}
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//call the chat manager
 	chatManager.updateNetwork();
 
@@ -381,6 +404,8 @@ void Game::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateGame(this);
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Game::updateCamera(){
@@ -392,10 +417,20 @@ void Game::updateCamera(){
 
 //render
 void Game::render(){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	renderFps++;
 	render3d();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	render2d();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Renderer::getInstance().swapBuffers();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== tick ====================
@@ -785,41 +820,54 @@ void Game::quitGame(){
 // ==================== render ====================
 
 void Game::render3d(){
-
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Renderer &renderer= Renderer::getInstance();
 
 	//init
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.reset3d();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.computeVisibleQuad();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.loadGameCameraMatrix();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.setupLighting();
 
 	//shadow map
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderShadowsToTexture();
 
 	//clear buffers
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.clearBuffers();
 
 	//surface
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderSurface();
 
 	//selection circles
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderSelectionEffects();
 
 	//units
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderUnits();
 
 	//objects
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderObjects();
 
 	//water
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderWater();
 	renderer.renderWaterEffects();
 
 	//particles
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderParticleManager(rsGame);
 
 	//mouse 3d
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderMouse3d();
 }
 

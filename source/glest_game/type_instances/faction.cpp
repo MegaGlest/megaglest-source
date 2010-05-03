@@ -35,6 +35,8 @@ void Faction::init(
 	const FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)
 {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->control= control;
 	this->factionType= factionType;
 	this->startLocationIndex= startLocationIndex;
@@ -56,10 +58,14 @@ void Faction::init(
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
 	texture->load("data/core/faction_textures/faction"+intToStr(index)+".tga");
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Faction::end(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	deleteValues(units.begin(), units.end());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ================== get ==================
@@ -109,7 +115,7 @@ void Faction::finishUpgrade(const UpgradeType *ut){
 
 //checks if all required units and upgrades are present
 bool Faction::reqsOk(const RequirableType *rt) const{
-
+	assert(rt != NULL);
 	//required units
     for(int i=0; i<rt->getUnitReqCount(); ++i){
         bool found=false;
@@ -137,7 +143,7 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 }
 
 bool Faction::reqsOk(const CommandType *ct) const{
-
+	assert(ct != NULL);
 	if(ct->getProduced()!=NULL && !reqsOk(ct->getProduced())){
 		return false;
 	}
@@ -161,6 +167,7 @@ bool Faction::applyCosts(const ProducibleType *p){
 		return false;
 	}
 
+	assert(p != NULL);
 	//for each unit cost spend it
     //pass 2, decrease resources, except negative static costs (ie: farms)
 	for(int i=0; i<p->getCostCount(); ++i)
@@ -179,10 +186,12 @@ bool Faction::applyCosts(const ProducibleType *p){
 //apply discount (when a morph ends)
 void Faction::applyDiscount(const ProducibleType *p, int discount)
 {
+	assert(p != NULL);
 	//increase resources
 	for(int i=0; i<p->getCostCount(); ++i)
 	{
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
         int cost= p->getCost(i)->getAmount();
 		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
 		{
@@ -194,10 +203,12 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 //apply static production (for starting units)
 void Faction::applyStaticCosts(const ProducibleType *p)
 {
+	assert(p != NULL);
 	//decrease static resources
     for(int i=0; i<p->getCostCount(); ++i)
     {
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
         if(rt->getClass() == rcStatic)
         {
             int cost= p->getCost(i)->getAmount();
@@ -212,10 +223,12 @@ void Faction::applyStaticCosts(const ProducibleType *p)
 //apply static production (when a mana source is done)
 void Faction::applyStaticProduction(const ProducibleType *p)
 {
+	assert(p != NULL);
 	//decrease static resources
     for(int i=0; i<p->getCostCount(); ++i)
     {
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
         if(rt->getClass() == rcStatic)
         {
             int cost= p->getCost(i)->getAmount();
@@ -230,10 +243,12 @@ void Faction::applyStaticProduction(const ProducibleType *p)
 //deapply all costs except static production (usually when a building is cancelled)
 void Faction::deApplyCosts(const ProducibleType *p)
 {
+	assert(p != NULL);
 	//increase resources
 	for(int i=0; i<p->getCostCount(); ++i)
 	{
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
         int cost= p->getCost(i)->getAmount();
 		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
 		{
@@ -246,10 +261,12 @@ void Faction::deApplyCosts(const ProducibleType *p)
 //deapply static costs (usually when a unit dies)
 void Faction::deApplyStaticCosts(const ProducibleType *p)
 {
+	assert(p != NULL);
     //decrease resources
 	for(int i=0; i<p->getCostCount(); ++i)
 	{
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
 		if(rt->getClass() == rcStatic)
 		{
 		    if(rt->getRecoup_cost() == true)
@@ -264,10 +281,12 @@ void Faction::deApplyStaticCosts(const ProducibleType *p)
 //deapply static costs, but not negative costs, for when building gets killed
 void Faction::deApplyStaticConsumption(const ProducibleType *p)
 {
+	assert(p != NULL);
     //decrease resources
 	for(int i=0; i<p->getCostCount(); ++i)
 	{
 		const ResourceType *rt= p->getCost(i)->getType();
+		assert(rt != NULL);
 		if(rt->getClass() == rcStatic)
 		{
             int cost= p->getCost(i)->getAmount();
@@ -329,14 +348,14 @@ void Faction::applyCostsOnInterval(){
 }
 
 bool Faction::checkCosts(const ProducibleType *pt){
-
+	assert(pt != NULL);
 	//for each unit cost check if enough resources
 	for(int i=0; i<pt->getCostCount(); ++i){
 		const ResourceType *rt= pt->getCost(i)->getType();
 		int cost= pt->getCost(i)->getAmount();
-		if(cost>0){
+		if(cost > 0) {
 			int available= getResource(rt)->getAmount();
-			if(cost>available){
+			if(cost > available){
 				return false;
 			}
 		}
@@ -348,6 +367,7 @@ bool Faction::checkCosts(const ProducibleType *pt){
 // ================== diplomacy ==================
 
 bool Faction::isAlly(const Faction *faction){
+	assert(faction != NULL);
 	return teamIndex==faction->getTeam();
 }
 
@@ -409,6 +429,7 @@ void Faction::removeUnit(Unit *unit){
 }
 
 void Faction::addStore(const UnitType *unitType){
+	assert(unitType != NULL);
 	for(int i=0; i<unitType->getStoredResourceCount(); ++i){
 		const Resource *r= unitType->getStoredResource(i);
 		for(int j=0; j<store.size(); ++j){
@@ -421,6 +442,7 @@ void Faction::addStore(const UnitType *unitType){
 }
 
 void Faction::removeStore(const UnitType *unitType){
+	assert(unitType != NULL);
 	for(int i=0; i<unitType->getStoredResourceCount(); ++i){
 		const Resource *r= unitType->getStoredResource(i);
 		for(int j=0; j<store.size(); ++j){
