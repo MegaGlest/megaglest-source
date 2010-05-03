@@ -48,11 +48,12 @@ float FontMetrics::getHeight() const{
 //	class Font
 // ===============================================
 
-const int Font::charCount= 256;
+int Font::charCount= 256;
+std::string Font::fontTypeName = "Times New Roman";
 
 Font::Font(){
 	inited= false;
-	type= "Times New Roman";
+	type= fontTypeName;
 	width= 400;
 }
 
