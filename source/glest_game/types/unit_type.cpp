@@ -25,7 +25,6 @@
 #include "game_util.h"
 #include "leak_dumper.h"
 #include "unit_particle_type.h"
-//#include "socket.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
@@ -91,7 +90,6 @@ UnitType::~UnitType(){
 		delete damageParticleSystemTypes.back();
 		damageParticleSystemTypes.pop_back();
 	}
-
 }
 
 void UnitType::preLoad(const string &dir){
@@ -102,15 +100,15 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	string path = dir + "/" + name + ".xml";
+
 	this->id= id;
-    string path;
 
 	try{
 
 		Logger::getInstance().add("Unit type: " + formatString(name), true);
 
 		//file load
-		path= dir+"/"+name+".xml";
 		checksum->addFile(path);
 
 		XmlTree xmlTree;
@@ -170,21 +168,6 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					cellMap[i*size+j]= row[j]=='0'? false: true;
 				}
 			}
-
-            /*
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Original Unit cellmap matrix below [%s] [%s]:\n",__FILE__,__FUNCTION__,getName().c_str(),path.c_str());
-            for(int iRow = 0; iRow < size; ++iRow) {
-				const XmlNode *rowNode= cellMapNode->getChild("row", iRow);
-				string row= rowNode->getAttribute("value")->getRestrictedValue();
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] row = %s\n",__FILE__,__FUNCTION__,row.c_str());
-
-                for(int iCol = 0; iCol < size; ++iCol) {
-                    bool getCellResult          = getCellMapCell(iCol, iRow);
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] matrix [%d,%d] = %d\n",__FILE__,__FUNCTION__,iRow,iCol,getCellResult);
-                }
-            }
-            */
-
 		}
 
 		//levels

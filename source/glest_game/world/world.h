@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -63,7 +63,8 @@ private:
 
 	Map map;
 	Tileset tileset;
-	TechTree techTree;
+	//TechTree techTree;
+	TechTree *techTree;
 	TimeFlow timeFlow;
 	Scenario scenario;
 
@@ -93,6 +94,7 @@ private:
 
 public:
 	World();
+	~World();
 	void end(); //to die before selection does
 
 	//get
@@ -103,7 +105,7 @@ public:
 	int getFactionCount() const						{return factions.size();}
 	const Map *getMap() const 						{return &map;}
 	const Tileset *getTileset() const 				{return &tileset;}
-	const TechTree *getTechTree() const 			{return &techTree;}
+	const TechTree *getTechTree() const 			{return techTree;}
 	const Scenario *getScenario() const 			{return &scenario;}
 	const TimeFlow *getTimeFlow() const				{return &timeFlow;}
 	Tileset *getTileset() 							{return &tileset;}

@@ -21,6 +21,7 @@
 #include "logger.h"
 #include "sound_renderer.h"
 #include "game_settings.h"
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -37,8 +38,10 @@ const float World::airHeight= 5.f;
 // ===================== PUBLIC ========================
 
 World::World(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
+	techTree = NULL;
 	fogOfWarOverride = false;
 
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
@@ -51,9 +54,18 @@ World::World(){
 	this->game = NULL;
 
 	allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+World::~World() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	delete techTree;
+	techTree = NULL;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::end(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add("World", true);
 
 	for(int i= 0; i<factions.size(); ++i){
@@ -61,6 +73,7 @@ void World::end(){
 	}
 	fogOfWarOverride = false;
 	//stats will be deleted by BattleEnd
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ========================== init ===============================================
@@ -77,6 +90,8 @@ void World::setFogOfWar(bool value) {
 }
 
 void World::init(Game *game, bool createUnits){
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     this->game = game;
 	scriptManager= game->getScriptManager();
@@ -100,34 +115,59 @@ void World::init(Game *game, bool createUnits){
 	}
 	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
 	computeFow();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //load tileset
 void World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tileset.loadTileset(pathList, tilesetName, checksum);
 	timeFlow.init(&tileset);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::loadTileset(const string &dir, Checksum *checksum){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tileset.load(dir, checksum);
 	timeFlow.init(&tileset);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //load tech
 void World::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum *checksum){
-	techTree.loadTech(pathList, techName, factions, checksum);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	/*
+	std::map<string,TechTree *> &techCache = Shared::PlatformCommon::CacheManager::getCachedItem< std::map<string,TechTree *> >("techCache");
+	if(techCache.find(techName) != techCache.end()) {
+		techTree = new TechTree();
+		*techTree =	*techCache[techName];
+		return;
+	}
+	*/
+
+	techTree = new TechTree();
+	techTree->loadTech(pathList, techName, factions, checksum);
+
+	//techCache[techName] = techTree;
 }
 
 //load map
 void World::loadMap(const string &path, Checksum *checksum){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	checksum->addFile(path);
-	map.load(path, &techTree, &tileset);
+	map.load(path, techTree, &tileset);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //load map
 void World::loadScenario(const string &path, Checksum *checksum){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	checksum->addFile(path);
 	scenario.load(path);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== misc ====================
@@ -163,8 +203,8 @@ void World::update(){
 	}
 
 	//food costs
-	for(int i=0; i<techTree.getResourceTypeCount(); ++i){
-		const ResourceType *rt= techTree.getResourceType(i);
+	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+		const ResourceType *rt= techTree->getResourceType(i);
 		if(rt->getClass()==rcConsumable && frameCount % (rt->getInterval()*GameConstants::updateFps)==0){
 			for(int i=0; i<getFactionCount(); ++i){
 				getFaction(i)->applyCostsOnInterval();
@@ -202,8 +242,8 @@ void World::tick(){
 		Faction *faction= getFaction(k);
 
 		//for each resource
-		for(int i=0; i<techTree.getResourceTypeCount(); ++i){
-			const ResourceType *rt= techTree.getResourceType(i);
+		for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+			const ResourceType *rt= techTree->getResourceType(i);
 
 			//if consumable
 			if(rt->getClass()==rcConsumable){
@@ -361,7 +401,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 void World::giveResource(const string &resourceName, int factionIndex, int amount){
 	if(factionIndex<factions.size()){
 		Faction* faction= &factions[factionIndex];
-		const ResourceType* rt= techTree.getResourceType(resourceName);
+		const ResourceType* rt= techTree->getResourceType(resourceName);
 		faction->incResourceAmount(rt, amount);
 	}
 	else
@@ -437,7 +477,7 @@ void World::giveUpgradeCommand(int unitId, const string &upgradeName){
 int World::getResourceAmount(const string &resourceName, int factionIndex){
 	if(factionIndex<factions.size()){
 		Faction* faction= &factions[factionIndex];
-		const ResourceType* rt= techTree.getResourceType(resourceName);
+		const ResourceType* rt= techTree->getResourceType(resourceName);
 		return faction->getResource(rt)->getAmount();
 	}
 	else
@@ -517,6 +557,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName){
 
 //init basic cell state
 void World::initCells(bool fogOfWar){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Logger::getInstance().add("State cells", true);
     for(int i=0; i<map.getSurfaceW(); ++i){
@@ -534,10 +575,12 @@ void World::initCells(bool fogOfWar){
 			}
 		}
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //init surface textures
 void World::initSplattedTextures(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	for(int i=0; i<map.getSurfaceW()-1; ++i){
         for(int j=0; j<map.getSurfaceH()-1; ++j){
 			Vec2f coord;
@@ -556,10 +599,12 @@ void World::initSplattedTextures(){
 			sc00->setSurfaceTexture(texture);
 		}
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //creates each faction looking at each faction name contained in GameSettings
 void World::initFactionTypes(GameSettings *gs){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Faction types", true);
 
 	if(gs->getFactionCount() > map.getMaxPlayers()){
@@ -573,9 +618,9 @@ void World::initFactionTypes(GameSettings *gs){
 	this->thisFactionIndex= gs->getThisFactionIndex();
 	factions.resize(gs->getFactionCount());
 	for(int i=0; i<factions.size(); ++i){
-		const FactionType *ft= techTree.getType(gs->getFactionTypeName(i));
+		const FactionType *ft= techTree->getType(gs->getFactionTypeName(i));
 		factions[i].init(
-			ft, gs->getFactionControl(i), &techTree, game, i, gs->getTeam(i),
+			ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
 			gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
 
 		stats.setTeam(i, gs->getTeam(i));
@@ -584,16 +629,19 @@ void World::initFactionTypes(GameSettings *gs){
 	}
 
 	thisTeamIndex= getFaction(thisFactionIndex)->getTeam();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::initMinimap(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
 	Logger::getInstance().add("Compute minimap surface", true);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //place units randomly aroud start location
 void World::initUnits(){
-
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Generate elements", true);
 
 	//put starting units
@@ -623,10 +671,13 @@ void World::initUnits(){
 	}
 	map.computeNormals();
 	map.computeInterpolatedHeights();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::initMap(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	map.init();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== exploration ====================

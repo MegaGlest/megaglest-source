@@ -183,17 +183,20 @@ void Program::keyPress(char c){
 
 void Program::loop(){
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//render
+    assert(programState != NULL);
 	programState->render();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//update camera
 	while(updateCameraTimer.isTime()){
 		programState->updateCamera();
 	}
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//update world
 	while(updateTimer.isTime()){
@@ -244,18 +247,18 @@ void Program::resize(SizeState sizeState){
 void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
 	try {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 		if(cleanupOldState == true) {
 			delete this->programState;
 		}
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		this->programState= programState;
 		programState->load();
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		programState->init();
 
@@ -265,7 +268,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	}
 	catch(const exception &e){
 		//exceptionMessage(e);
@@ -365,7 +368,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
         soundRenderer.init(window);
 
 		// Run sound streaming in a background thread if enabled
-		if(config.getBool("ThreadedSoundStream","true") == true) {
+		if(config.getBool("ThreadedSoundStream","false") == true) {
 			BaseThread::shutdownAndWait(soundThreadManager);
 			delete soundThreadManager;
 			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
@@ -373,8 +376,8 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 		}
 	}
 
-	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","0"));
-	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","0"));
+	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","false"));
+	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","false"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
