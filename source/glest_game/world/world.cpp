@@ -334,7 +334,7 @@ void World::moveUnitCells(Unit *unit){
 		if(map.getSubmerged(map.getCell(unit->getLastPos()))){
 			for(int i=0; i<3; ++i){
 				waterEffects.addWaterSplash(
-					Vec2f(unit->getLastPos().x+random.randRange(-0.4f, 0.4f), unit->getLastPos().y+random.randRange(-0.4f, 0.4f)));
+					Vec2f(unit->getLastPos().x+random.randRange(-0.4f, 0.4f), unit->getLastPos().y+random.randRange(-0.4f, 0.4f)), unit->getType()->getSize());
 			}
 		}
 	}

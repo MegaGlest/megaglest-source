@@ -1658,7 +1658,7 @@ void Renderer::renderWaterEffects(){
 			Vec2i intPos= Vec2i(static_cast<int>(ws->getPos().x), static_cast<int>(ws->getPos().y));
 			if(map->getSurfaceCell(Map::toSurfCoords(intPos))->isVisible(world->getThisTeamIndex())){
 
-				float scale= ws->getAnim();
+				float scale= ws->getAnim()*ws->getSize();
 
 				glColor4f(1.f, 1.f, 1.f, 1.f-ws->getAnim());
 				glBegin(GL_TRIANGLE_STRIP);

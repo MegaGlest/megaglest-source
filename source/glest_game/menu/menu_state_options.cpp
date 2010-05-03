@@ -160,6 +160,16 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxScreenModes.setSelectedItem(currentResString);
 	leftline-=30;
 	
+	
+	//FullscreenWindowed
+	labelFullscreenWindowed.init(leftLabelStart, leftline);
+	listBoxFullscreenWindowed.init(leftColumnStart, leftline, 80);
+	labelFullscreenWindowed.setText(lang.get("Windowed"));
+	listBoxFullscreenWindowed.pushBackItem(lang.get("No"));
+	listBoxFullscreenWindowed.pushBackItem(lang.get("Yes"));
+	listBoxFullscreenWindowed.setSelectedItemIndex(clamp(config.getBool("Windowed"), false, true));
+	leftline-=30;
+	
 	//filter
 	labelFilter.init(leftLabelStart, leftline);
 	labelFilter.setText(lang.get("Filter"));
@@ -279,6 +289,15 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			return;
 		}
 		
+		bool currentFullscreenWindowed=config.getBool("Windowed");
+		bool selectedFullscreenWindowed=listBoxFullscreenWindowed.getSelectedItemIndex();
+		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
+			return;
+		}
+		
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
@@ -308,6 +327,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxVolumeMusic.mouseClick(x, y);
 		listBoxScreenModes.mouseClick(x, y);
 		listFontSizeAdjustment.mouseClick(x, y);
+		listBoxFullscreenWindowed.mouseClick(x, y);
 	}
 }
 
@@ -402,6 +422,8 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelServerPort);
 		renderer.renderListBox(&listFontSizeAdjustment);
 		renderer.renderLabel(&labelFontSizeAdjustment);
+		renderer.renderLabel(&labelFullscreenWindowed);
+		renderer.renderListBox(&listBoxFullscreenWindowed);
 	}
 }
 
@@ -421,6 +443,7 @@ void MenuStateOptions::saveConfig(){
 	int index= listBoxShadows.getSelectedItemIndex();
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
 
+	config.setBool("Windowed", listBoxFullscreenWindowed.getSelectedItemIndex());
 	config.setString("Filter", listBoxFilter.getSelectedItem());
 	config.setBool("Textures3D", listBoxTextures3D.getSelectedItemIndex());
 	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
@@ -431,7 +454,6 @@ void MenuStateOptions::saveConfig(){
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 	
-	//just for the moment ....
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
 	if(currentResolution!=selectedResolution){
