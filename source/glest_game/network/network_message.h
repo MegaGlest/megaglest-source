@@ -419,8 +419,8 @@ public:
 // =====================================================
 //	class SwitchSetupRequest
 //
-//	Message sent from the server to the client
-//	when the client connects and vice versa
+//	Message sent from the client to the server
+//	to switch its settings
 // =====================================================
 
 class SwitchSetupRequest: public NetworkMessage{
@@ -453,10 +453,10 @@ public:
 };
 
 // =====================================================
-//	class SwitchSetupRequest
+//	class PlayerIndexMessage
 //
-//	Message sent from the server to the client
-//	when the client connects and vice versa
+//	Message sent from the server to the clients
+//	to tell them about a slot change ( caused by another client )
 // =====================================================
 
 class PlayerIndexMessage: public NetworkMessage{

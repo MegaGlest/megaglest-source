@@ -308,6 +308,13 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType(true);
 					NetworkMessageReady networkMessageReady;
 
+					// consume old messages from the setup
+					while(networkMessageType == nmtSwitchSetupRequest)
+					{
+						SwitchSetupRequest switchSetupRequest;
+						connectionSlot->receiveMessage(&switchSetupRequest);
+						networkMessageType= connectionSlot->getNextMessageType(true);
+					}
 					if(networkMessageType == nmtReady &&
 					   connectionSlot->receiveMessage(&networkMessageReady))
 					{
