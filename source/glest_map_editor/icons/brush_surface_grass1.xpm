@@ -3,7 +3,7 @@ static const char *brush_surface_grass1[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
 "  c #000000",
-". c #00FF00",
+". c #00a000",
 "X c None",
 /* pixels */
 "XXXXXXXXXXXXXXXX",
