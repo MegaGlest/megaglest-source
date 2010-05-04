@@ -2,7 +2,7 @@
 static const char *brush_resource_1_gold[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 2 1",
-"  c #808000",
+"  c #dddd00",
 ". c None",
 /* pixels */
 "................",

@@ -3,7 +3,7 @@ static const char *brush_surface_custom[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
 "  c #000000",
-". c #808000",
+". c #7c4645",
 "X c None",
 /* pixels */
 "XXXXXXXXXXXXXXXX",

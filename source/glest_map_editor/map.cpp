@@ -31,7 +31,7 @@ Map::Map() {
 	waterLevel = 4;
 	cells = NULL;
 	startLocations = NULL;
-	reset(64, 64, 10.f, 1);
+	reset(128, 128, 10.f, 1);
 	resetFactions(8);
 	title = "";
 	desc = "";

@@ -42,7 +42,7 @@ wxString ToUnicode(const string& str) {
 // ===============================================
 
 MainWindow::MainWindow()
-		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxDefaultPosition, wxSize(800, 600))
+		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxDefaultPosition, wxSize(1024, 768))
 		, lastX(0), lastY(0)
 		, currentBrush(btHeight)
 		, height(0)
@@ -475,8 +475,8 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Altitude", "10");
 	simpleDialog.addValue("Surface", "1");
-	simpleDialog.addValue("Width", "64");
-	simpleDialog.addValue("Height", "64");
+	simpleDialog.addValue("Width", "128");
+	simpleDialog.addValue("Height", "128");
 	simpleDialog.show();
 
 	try {
@@ -510,8 +510,8 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Altitude", "10");
 	simpleDialog.addValue("Surface", "1");
-	simpleDialog.addValue("Height", "64");
-	simpleDialog.addValue("Width", "64");
+	simpleDialog.addValue("Height", "128");
+	simpleDialog.addValue("Width", "128");
 	simpleDialog.show();
 
 	try {
