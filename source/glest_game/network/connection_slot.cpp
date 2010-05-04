@@ -328,8 +328,11 @@ void ConnectionSlot::update(bool checkForNewClients)
 		            }
 		           	break;
 		        }
-
-
+		        case nmtReady:
+		        {
+		        	// its simply ignored here. Probably we are starting a game 
+		        	break;
+		        }
 				default:
                     {
 					//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
