@@ -25,7 +25,7 @@ namespace Glest{ namespace Game{
 
 class GameSettings;
 
-enum NetworkMessageType{
+enum NetworkMessageType {
 	nmtInvalid,
 	nmtIntro,
 	nmtPing,
@@ -51,7 +51,7 @@ const int32 commandListHeaderSize = 6;
 //	class NetworkMessage
 // =====================================================
 
-class NetworkMessage{
+class NetworkMessage {
 public:
 	virtual ~NetworkMessage(){}
 	virtual bool receive(Socket* socket)= 0;
