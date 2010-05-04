@@ -82,6 +82,7 @@ private:
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
 	void updateListen();
 	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
+	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
 };
 
 }}//end namespace

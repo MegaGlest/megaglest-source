@@ -280,6 +280,79 @@ void ServerInterface::updateKeyframe(int frameCount){
 	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] broadcastMessage took %d msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
 }
 
+bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,
+												  ConnectionSlot* connectionSlot) {
+	bool discard = false;
+	if(connectionSlot != NULL) {
+		switch(networkMessageType) {
+			case nmtIntro:
+				{
+				discard = true;
+				NetworkMessageIntro msg = NetworkMessageIntro();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtLaunch:
+				{
+				discard = true;
+				NetworkMessageLaunch msg = NetworkMessageLaunch();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtText:
+				{
+				discard = true;
+				NetworkMessageText msg = NetworkMessageText();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtSynchNetworkGameData:
+				{
+				discard = true;
+				NetworkMessageSynchNetworkGameData msg = NetworkMessageSynchNetworkGameData();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtSynchNetworkGameDataStatus:
+				{
+				discard = true;
+				NetworkMessageSynchNetworkGameDataStatus msg = NetworkMessageSynchNetworkGameDataStatus();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtSynchNetworkGameDataFileCRCCheck:
+				{
+				discard = true;
+				NetworkMessageSynchNetworkGameDataFileCRCCheck msg = NetworkMessageSynchNetworkGameDataFileCRCCheck();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtSynchNetworkGameDataFileGet:
+				{
+				discard = true;
+				NetworkMessageSynchNetworkGameDataFileGet msg = NetworkMessageSynchNetworkGameDataFileGet();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtSwitchSetupRequest:
+				{
+				discard = true;
+				SwitchSetupRequest msg = SwitchSetupRequest();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+			case nmtPlayerIndexMessage:
+				{
+				discard = true;
+				PlayerIndexMessage msg = PlayerIndexMessage(0);
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+		}
+	}
+	return discard;
+}
+
 void ServerInterface::waitUntilReady(Checksum* checksum){
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] START\n",__FUNCTION__);
@@ -293,44 +366,33 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 	chrono.start();
 
 	//wait until we get a ready message from all clients
-	while(allReady == false)
-	{
+	while(allReady == false) {
 	    vector<string> waitingForHosts;
 		allReady= true;
-		for(int i= 0; i<GameConstants::maxPlayers; ++i)
-		{
+		for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
 			ConnectionSlot* connectionSlot= slots[i];
-
-			if(connectionSlot != NULL && connectionSlot->isConnected() == true)
-			{
-				if(connectionSlot->isReady() == false)
-				{
+			if(connectionSlot != NULL && connectionSlot->isConnected() == true)	{
+				if(connectionSlot->isReady() == false) {
 					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType(true);
-					NetworkMessageReady networkMessageReady;
 
-					// consume old messages from the setup
-					while(networkMessageType == nmtSwitchSetupRequest)
-					{
-						SwitchSetupRequest switchSetupRequest;
-						connectionSlot->receiveMessage(&switchSetupRequest);
-						networkMessageType= connectionSlot->getNextMessageType(true);
-					}
-					if(networkMessageType == nmtReady &&
-					   connectionSlot->receiveMessage(&networkMessageReady))
-					{
-					    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] networkMessageType==nmtReady\n",__FUNCTION__);
+					// consume old messages from the lobby
+					bool discarded = shouldDiscardNetworkMessage(networkMessageType,connectionSlot);
+					if(discarded == false) {
+						NetworkMessageReady networkMessageReady;
+						if(networkMessageType == nmtReady &&
+						   connectionSlot->receiveMessage(&networkMessageReady)) {
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] networkMessageType==nmtReady\n",__FUNCTION__);
 
-						connectionSlot->setReady();
+							connectionSlot->setReady();
+						}
+						else if(networkMessageType != nmtInvalid) {
+							//throw runtime_error("Unexpected network message: " + intToStr(networkMessageType));
+							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
+							sendTextMessage(sErr,-1);
+							DisplayErrorMessage(sErr);
+							return;
+						}
 					}
-					else if(networkMessageType != nmtInvalid)
-					{
-						//throw runtime_error("Unexpected network message: " + intToStr(networkMessageType));
-                        string sErr = "Unexpected network message: " + intToStr(networkMessageType);
-                        sendTextMessage(sErr,-1);
-                        DisplayErrorMessage(sErr);
-						return;
-					}
-
 					//waitingForHosts.push_back(connectionSlot->getHostName());
 					waitingForHosts.push_back(connectionSlot->getName());
 
@@ -340,25 +402,19 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 		}
 
 		//check for timeout
-		if(allReady == false)
-		{
-            if(chrono.getMillis() > readyWaitTimeout)
-            {
+		if(allReady == false) {
+            if(chrono.getMillis() > readyWaitTimeout) {
                 //throw runtime_error("Timeout waiting for clients");
                 string sErr = "Timeout waiting for clients.";
                 sendTextMessage(sErr,-1);
                 DisplayErrorMessage(sErr);
                 return;
             }
-            else
-            {
-                if(chrono.getMillis() % 1000 == 0)
-                {
+            else {
+                if(chrono.getMillis() % 1000 == 0) {
                     string waitForHosts = "";
-                    for(int i = 0; i < waitingForHosts.size(); i++)
-                    {
-                        if(waitForHosts != "")
-                        {
+                    for(int i = 0; i < waitingForHosts.size(); i++) {
+                        if(waitForHosts != "") {
                             waitForHosts += ", ";
                         }
                         waitForHosts += waitingForHosts[i];
@@ -372,20 +428,16 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 		}
 	}
 
-
 	// FOR TESTING ONLY - delay to see the client count up while waiting
 	//sleep(5000);
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] PART B (telling client we are ready!\n",__FUNCTION__);
 
 	//send ready message after, so clients start delayed
-	for(int i= 0; i < GameConstants::maxPlayers; ++i)
-	{
-		NetworkMessageReady networkMessageReady(checksum->getSum());
-
+	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		ConnectionSlot* connectionSlot= slots[i];
-		if(connectionSlot!=NULL)
-		{
+		if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+			NetworkMessageReady networkMessageReady(checksum->getSum());
 			connectionSlot->sendMessage(&networkMessageReady);
 		}
 	}

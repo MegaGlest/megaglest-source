@@ -405,7 +405,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 {
 	bool done= false;
 
-	while(!done)
+	while(done == false)
 	{
 		//wait for the next message
 		waitForMessage();
@@ -489,13 +489,17 @@ void ClientInterface::updateKeyframe(int frameCount)
                 DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
 				quit= true;
 				close();
+				done= true;
                 }
+		}
+
+		if(isConnected() == false && quit == true) {
+			done = true;
 		}
 	}
 }
 
-void ClientInterface::waitUntilReady(Checksum* checksum)
-{
+void ClientInterface::waitUntilReady(Checksum* checksum) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     Logger &logger= Logger::getInstance();
@@ -514,15 +518,15 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 
     int64 lastMillisCheck = 0;
 	//wait until we get a ready message from the server
-	while(true)
-	{
+	while(true)	{
+
 		if(isConnected() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 			string sErr = "Error, Server has disconnected!";
-            sendTextMessage(sErr,-1);
+            //sendTextMessage(sErr,-1);
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+            //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
             DisplayErrorMessage(sErr);
 
@@ -535,18 +539,14 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
             return;
 		}
 		NetworkMessageType networkMessageType = getNextMessageType(true);
-		if(networkMessageType == nmtReady)
-		{
-			if(receiveMessage(&networkMessageReady))
-			{
+		if(networkMessageType == nmtReady) {
+			if(receiveMessage(&networkMessageReady)) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 		}
-		else if(networkMessageType == nmtInvalid)
-		{
-			if(chrono.getMillis() > readyWaitTimeout)
-			{
+		else if(networkMessageType == nmtInvalid) {
+			if(chrono.getMillis() > readyWaitTimeout) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				//throw runtime_error("Timeout waiting for server");
 				string sErr = "Timeout waiting for server";
@@ -564,10 +564,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
                 return;
 			}
-			else
-			{
-                if(chrono.getMillis() / 1000 > lastMillisCheck)
-                {
+			else {
+                if(chrono.getMillis() / 1000 > lastMillisCheck) {
                     lastMillisCheck = (chrono.getMillis() / 1000);
 
                     char szBuf[1024]="";
@@ -576,8 +574,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
                 }
 			}
 		}
-		else
-		{
+		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
@@ -602,8 +599,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//check checksum
-	if(networkMessageReady.getChecksum() != checksum->getSum())
-	{
+	if(networkMessageReady.getChecksum() != checksum->getSum()) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		string sErr = "Checksum error, you don't have the same data as the server";
@@ -633,8 +629,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum)
         return;
 	}
 
-
-	//delay the start a bit, so clients have nore room to get messages
+	//delay the start a bit, so clients have more room to get messages
 	sleep(GameConstants::networkExtraLatency);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
@@ -657,11 +652,11 @@ void ClientInterface::waitForMessage()
 	int waitLoopCount = 0;
 	while(getNextMessageType(true) == nmtInvalid)
 	{
-		if(!isConnected())
+		if(isConnected() == false)
 		{
 			//throw runtime_error("Disconnected");
-            sendTextMessage("Disconnected",-1);
-            DisplayErrorMessage("Disconnected");
+            sendTextMessage("Server has Disconnected.",-1);
+            DisplayErrorMessage("Server has Disconnected.");
             quit= true;
             close();
 			return;
