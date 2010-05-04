@@ -558,9 +558,32 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
     return crcTreeCache[cacheKey];
 }
 
+string extractFileFromDirectoryPath(string filename)
+{
+	size_t lastDirectory_Win = filename.find_last_of('\\');
+	size_t lastDirectory_Lin = filename.find_last_of('/');
+	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
+
+    //return filename.substr( 0, filename.rfind("/")+1 );
+	if (lastDirectory == string::npos) {
+		return filename;
+	}
+
+	return filename.erase( 0, lastDirectory + 1);
+}
+
 string extractDirectoryPathFromFile(string filename)
 {
-    return filename.substr( 0, filename.rfind("/")+1 );
+	size_t lastDirectory_Win = filename.find_last_of('\\');
+	size_t lastDirectory_Lin = filename.find_last_of('/');
+	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
+
+    //return filename.substr( 0, filename.rfind("/")+1 );
+	if (lastDirectory == string::npos) {
+		return "";
+	}
+
+	return filename.substr( 0, lastDirectory + 1);
 }
 
 string extractExtension(const string& filepath) {

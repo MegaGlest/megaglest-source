@@ -10,15 +10,14 @@
 // ==============================================================
 
 #include "main.h"
-
 #include <ctime>
-
 #include "conversion.h"
-
 #include "icons.h"
-
+#include "platform_common.h"
+#include <iostream>
 
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 using namespace std;
 
 namespace MapEditor {
@@ -288,10 +287,10 @@ MainWindow::MainWindow()
 	this->panel->SetSizer(boxsizer);
 	this->Layout();
 
-#ifndef WIN32
+//#ifndef WIN32
 	timer = new wxTimer(this);
 	timer->Start(100);
-#endif
+//#endif
 	glCanvas->SetFocus();
 }
 
@@ -301,13 +300,14 @@ void MainWindow::onToolPlayer(wxCommandEvent& event){
 
 void MainWindow::init(string fname) {
 	glCanvas->SetCurrent();
+
 	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
 	fileName = "New (unsaved) Map";
 	if (!fname.empty() && fileExists(fname)) {
 		program->loadMap(fname);
 		currentFile = fname;
-		fileName = cutLastExt(basename(fname.c_str()));
+		fileName = cutLastExt(extractFileFromDirectoryPath(fname.c_str()));
 	}
 	SetTitle(ToUnicode(winHeader + "; " + currentFile));
 	setDirty(false);
@@ -355,6 +355,9 @@ void MainWindow::setExtension() {
 void MainWindow::onTimer(wxTimerEvent &event) {
 	wxPaintEvent paintEvent;
 	onPaint(paintEvent);
+#ifdef WIN32
+	Update();
+#endif
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
@@ -414,7 +417,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 	if (fileDialog.ShowModal() == wxID_OK) {
 		currentFile = fileDialog.GetPath().ToAscii();
 		program->loadMap(currentFile);
-		fileName = cutLastExt(basename(currentFile.c_str()));
+		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
 		setDirty(false);
 		setExtension();
 		SetTitle(ToUnicode(winHeader + "; " + currentFile));
@@ -439,7 +442,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		currentFile = fileDialog.GetPath().ToAscii();
 		setExtension();
 		program->saveMap(currentFile);
-		fileName = cutLastExt(basename(currentFile.c_str()));
+		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
 		setDirty(false);
 	}
 	SetTitle(ToUnicode(winHeader + "; " + currentFile));
@@ -910,6 +913,7 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+
 BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
 	EVT_KEY_DOWN(GlCanvas::onKeyDown)
 
@@ -926,7 +930,7 @@ void SimpleDialog::addValue(const string &key, const string &value) {
 }
 
 string SimpleDialog::getValue(const string &key) {
-	for (int i = 0; i < values.size(); ++i) {
+	for (unsigned int i = 0; i < values.size(); ++i) {
 		if (values[i].first == key) {
 			return values[i].second;
 		}
@@ -952,7 +956,7 @@ void SimpleDialog::show() {
 
 	ShowModal();
 
-	for (int i = 0; i < texts.size(); ++i) {
+	for (unsigned int i = 0; i < texts.size(); ++i) {
 		values[i].second = texts[i]->GetValue().ToAscii();
 	}
 }
@@ -970,6 +974,15 @@ bool App::OnInit() {
 	mainWindow = new MainWindow();
 	mainWindow->Show();
 	mainWindow->init(fileparam);
+	mainWindow->Update();
+	
+#ifdef WIN32
+	wxPoint pos = mainWindow->GetScreenPosition();
+	wxSize size = mainWindow->GetSize();
+	mainWindow->SetSize(pos.x, pos.y, size.x-1, size.y, wxSIZE_FORCE);
+	mainWindow->Update();
+#endif
+
 	return true;
 }
 

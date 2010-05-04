@@ -22,11 +22,10 @@
 #include <stdexcept>
 #include <list>
 
-#include <SDL.h>
-
 #include "types.h"
 #include "checksum.h"
 #include <utility>
+#include <SDL.h>
 
 using std::string;
 using std::vector;
@@ -112,6 +111,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
 
 void createDirectoryPaths(string  Path);
+string extractFileFromDirectoryPath(string filename);
 string extractDirectoryPathFromFile(string filename);
 string extractExtension(const string& filename);
 
