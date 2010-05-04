@@ -1,0 +1,25 @@
+/* XPM */
+static const char *brush_object_bush[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"  c #008000",
+". c #00FF00",
+"X c None",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXX . X XXXXX",
+"XXXXX . . ..XXXX",
+"XXXXX. . . .XXXX",
+"XXXX .X X X  XXX",
+"XXXX. . .  X XXX",
+"XXXX . X .. XXXX",
+"XXXXX X .  .XXXX",
+"X              X",
+"XXXXXXXXXXXXXXXX"
+};

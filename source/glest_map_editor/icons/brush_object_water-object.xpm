@@ -1,0 +1,26 @@
+/* XPM */
+static const char *brush_object_water_object[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #008000",
+". c #0000FF",
+"X c #00FFFF",
+"o c None",
+/* pixels */
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"ooooooo oooooooo",
+"ooooooo ooo oooo",
+"ooooo o o o oooo",
+"ooooo o  o ooooo",
+"ooooo oo o ooooo",
+"oooooo o  oooooo",
+"XXXXXXX  XXXXXXX",
+"X.XXX.XXX.XXX.XX",
+".X.X.X.X.X.X.X.X",
+"................"
+};

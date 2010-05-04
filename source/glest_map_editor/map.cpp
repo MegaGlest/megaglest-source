@@ -122,7 +122,9 @@ void Map::pirateChangeHeight(int x, int y, int height, int radius) {
 
 	// If the radius is 1 don't bother doing any calculations
 	if (radius == 1) {
-		cells[x][y].height = goalAlt;
+		if(inside(x, y)){
+			cells[x][y].height = goalAlt;
+		}
 		return;
 	}
 
@@ -583,7 +585,7 @@ void Map::loadFromFile(const string &path) {
 
 		//read header
 		MapFileHeader header;
-		size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f1);
+		fread(&header, sizeof(MapFileHeader), 1, f1);
 
 		altFactor = header.altFactor;
 		waterLevel = header.waterLevel;
@@ -594,22 +596,22 @@ void Map::loadFromFile(const string &path) {
 		//read start locations
 		resetFactions(header.maxFactions);
 		for (int i = 0; i < maxFactions; ++i) {
-			readBytes = fread(&startLocations[i].x, sizeof(int32), 1, f1);
-			readBytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
+			fread(&startLocations[i].x, sizeof(int32), 1, f1);
+			fread(&startLocations[i].y, sizeof(int32), 1, f1);
 		}
 
 		//read Heights
 		reset(header.width, header.height, 10, 1);
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
-				readBytes = fread(&cells[i][j].height, sizeof(float), 1, f1);
+				fread(&cells[i][j].height, sizeof(float), 1, f1);
 			}
 		}
 
 		//read surfaces
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
-				readBytes = fread(&cells[i][j].surface, sizeof(int8), 1, f1);
+				fread(&cells[i][j].surface, sizeof(int8), 1, f1);
 			}
 		}
 
@@ -617,7 +619,7 @@ void Map::loadFromFile(const string &path) {
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
 				int8 obj;
-				readBytes = fread(&obj, sizeof(int8), 1, f1);
+				fread(&obj, sizeof(int8), 1, f1);
 				if (obj <= 10) {
 					cells[i][j].object = obj;
 				} else {

@@ -1,0 +1,25 @@
+/* XPM */
+static const char *brush_object_c5_blocking[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"  c #008000",
+". c #C0C0C0",
+"X c None",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XX............XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"XX.XXXXXXXXXX.XX",
+"                "
+};

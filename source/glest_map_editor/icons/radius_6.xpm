@@ -1,0 +1,26 @@
+/* XPM */
+static const char *radius_6[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #000000",
+". c #808080",
+"X c #C0C0C0",
+"o c None",
+/* pixels */
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"ooooooX..Xoooooo",
+"ooooo.    .ooooo",
+"oooo.      .oooo",
+"oooX        Xooo",
+"ooo.        .ooo",
+"ooo.        .ooo",
+"oooX        Xooo",
+"oooo.      .oooo",
+"ooooo.    .ooooo",
+"ooooooX..Xoooooo",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"oooooooooooooooo"
+};

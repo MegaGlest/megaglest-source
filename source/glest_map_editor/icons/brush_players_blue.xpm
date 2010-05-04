@@ -1,0 +1,26 @@
+/* XPM */
+static const char *brush_players_blue[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #000000",
+". c #000080",
+"X c #0000FF",
+"o c None",
+/* pixels */
+"oo            oo",
+"oo .......... oo",
+"oo XXXXXXXXXX oo",
+"oo XX.XXXX.XX oo",
+"oo X...XX...X oo",
+"oo XX.XXXX.XX oo",
+"oo XXXXXXXXXX oo",
+"oo XXXXXXXXXX oo",
+"oo X........X oo",
+"oo XXXXXXXXXX oo",
+"oo XXXXXXXXXX oo",
+"oo XXXX..XXXX oo",
+"ooo XX....XX ooo",
+"ooo X......X ooo",
+"oooo  ....  oooo",
+"oooooo    oooooo"
+};
