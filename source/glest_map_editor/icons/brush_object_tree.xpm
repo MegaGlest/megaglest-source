@@ -1,0 +1,26 @@
+/* XPM */
+static const char *brush_object_tree[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #800000",
+". c #008000",
+"X c #00FF00",
+"o c None",
+/* pixels */
+"ooooooo..ooooooo",
+"ooooo......ooooo",
+"oooo....X...oooo",
+"oooo........oooo",
+"ooo.X..XX..X.ooo",
+"ooo......X...ooo",
+"oooo...X....oooo",
+"oooo........oooo",
+"ooooo......ooooo",
+"oooooo .. oooooo",
+"oooooo    oooooo",
+"oooooo    oooooo",
+"oooooo    oooooo",
+"oooooo    oooooo",
+"ooooo      ooooo",
+"oooo         ooo"
+};

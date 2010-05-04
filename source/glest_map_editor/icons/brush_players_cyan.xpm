@@ -1,0 +1,26 @@
+/* XPM */
+static const char *brush_players_cyan[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #000000",
+". c #008080",
+"X c #00FFFF",
+"o c None",
+/* pixels */
+"oo            oo",
+"oo .......... oo",
+"oo ....XX.... oo",
+"oo ...XXXX... oo",
+"oo ...XXXX... oo",
+"oo ....XX.... oo",
+"oo .......... oo",
+"oo .XX....XX. oo",
+"oo ..XXXXXX.. oo",
+"oo ...XXXX... oo",
+"oo .......... oo",
+"oo .......... oo",
+"ooo ........ ooo",
+"ooo ........ ooo",
+"oooo  ....  oooo",
+"oooooo    oooooo"
+};

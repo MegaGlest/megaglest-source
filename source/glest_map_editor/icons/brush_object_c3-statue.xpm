@@ -1,0 +1,27 @@
+/* XPM */
+static const char *brush_object_c3_statue[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+"  c #008000",
+". c #808000",
+"X c #808080",
+"o c #C0C0C0",
+"O c None",
+/* pixels */
+"OOOOOOOOOOOOOOOO",
+"OOOOOoOOOOOOOOOO",
+"OOOOOOoXXOOOOOOO",
+"OOOOOOOoXOOOOOOO",
+"OOOOO...oXOOOOOO",
+"OOOOO.o.XoXOOOOO",
+"OOOOO...XOOOOOOO",
+"OOOOOOXXXOOOOOOO",
+"OOOOOOXXXOOOOOOO",
+"OOOOOOXOXOOOOOOO",
+"OOOOOOXOOXOOOOOO",
+"OOOOOOXOOXOOOOOO",
+"OOOOOooooooOOOOO",
+"OOOOOOXXXXOOOOOO",
+"OOOOOOXXXXOOOOOO",
+"                "
+};

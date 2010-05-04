@@ -1,0 +1,25 @@
+/* XPM */
+static const char *radius_3[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"  c #000000",
+". c #808080",
+"X c None",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXX.  .XXXXXX",
+"XXXXX.    .XXXXX",
+"XXXXX      XXXXX",
+"XXXXX      XXXXX",
+"XXXXX.    .XXXXX",
+"XXXXXX.  .XXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX"
+};

@@ -1,0 +1,25 @@
+/* XPM */
+static const char *brush_height_p3[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"  c #000000",
+". c #0000FF",
+"X c None",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXX    X",
+"XXXXXXXXXXXXXX X",
+"XXXXXXXXXXX    X",
+"XXXXXXXXXXXXXX X",
+"XXXXXXXXXXX    X",
+"XXX       XXXXXX",
+"XXX.......XXXXXX",
+"XXX.......XXXXXX",
+"   .......      ",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................"
+};
