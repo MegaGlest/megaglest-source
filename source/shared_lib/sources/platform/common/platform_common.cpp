@@ -574,16 +574,18 @@ string extractFileFromDirectoryPath(string filename)
 
 string extractDirectoryPathFromFile(string filename)
 {
-	size_t lastDirectory_Win = filename.find_last_of('\\');
-	size_t lastDirectory_Lin = filename.find_last_of('/');
-	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
+	size_t lastDirectory     = filename.find_last_of("/\\");
+	//printf("In [%s::%s Line: %d] filename = [%s] lastDirectory= %u\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),lastDirectory);
 
+	string path = "";
     //return filename.substr( 0, filename.rfind("/")+1 );
-	if (lastDirectory == string::npos) {
-		return "";
+	if (lastDirectory != string::npos) {
+		path = filename.substr( 0, lastDirectory + 1);
 	}
 
-	return filename.substr( 0, lastDirectory + 1);
+	//printf("In [%s::%s Line: %d] filename = [%s] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),path.c_str());
+
+	return path;
 }
 
 string extractExtension(const string& filepath) {

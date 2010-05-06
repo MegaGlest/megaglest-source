@@ -305,10 +305,18 @@ int glestMain(int argc, char** argv){
         if(debugWorldSynchLogFile == "") {
         	debugWorldSynchLogFile = debugLogFile;
         }
+		string debugPerformanceLogFile = config.getString("DebugLogFilePerformance","");
+        if(debugPerformanceLogFile == "") {
+        	debugPerformanceLogFile = debugLogFile;
+        }
+		string debugNetworkLogFile = config.getString("DebugLogFileNetwork","");
+        if(debugNetworkLogFile == "") {
+        	debugNetworkLogFile = debugLogFile;
+        }
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
 
 		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d]\n",
