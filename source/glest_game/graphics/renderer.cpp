@@ -1241,12 +1241,18 @@ void Renderer::renderSurface(){
 }
 
 void Renderer::renderObjects(){
+	Chrono chrono;
+	chrono.start();
+
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
     assertGl();
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
 	Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	chrono.start();
 
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
@@ -1259,15 +1265,22 @@ void Renderer::renderObjects(){
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 		enableProjectiveTexturing();
 	}
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	chrono.start();
 
 	glActiveTexture(baseTexUnit);
 
 	glEnable(GL_COLOR_MATERIAL);
     glAlphaFunc(GL_GREATER, 0.5f);
 
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	chrono.start();
+
 	modelRenderer->begin(true, true, false);
 	int thisTeamIndex= world->getThisTeamIndex();
 
+	int loopCount1 = 0;
+	int loopCount2 = 0;
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
 		const Vec2i pos= pqi.getPos();
@@ -1300,16 +1313,23 @@ void Renderer::renderObjects(){
 				pointCount+= objModel->getVertexCount();
 
 				glPopMatrix();
-
+				loopCount2++;
 			}
 		}
+
+		loopCount1++;
 	}
 
 	modelRenderer->end();
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d loopCount1 = %d loopCount2 = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,loopCount1,loopCount2,chrono.getMillis());
+	chrono.start();
+
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 	glPopAttrib();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void Renderer::renderWater(){
@@ -2119,12 +2139,17 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(){
+	Chrono chrono;
+	chrono.start();
 
 	if(shadows==sProjected || shadows==sShadowMapping){
 
 		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
 
 		if(shadowMapFrame==0){
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
 
 			assertGl();
 
@@ -2140,6 +2165,9 @@ void Renderer::renderShadowsToTexture(){
 				glDisable(GL_DEPTH_TEST);
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
 
 			//clear color buffer
 			//
@@ -2181,6 +2209,8 @@ void Renderer::renderShadowsToTexture(){
 
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
 
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				chrono.start();
 			}
 			else{
 				//non directional light
@@ -2197,20 +2227,34 @@ void Renderer::renderShadowsToTexture(){
 				glLoadIdentity();
 				glRotatef(-90, -1, 0, 0);
 				glTranslatef(-nearestLightPos.x, -nearestLightPos.y-2, -nearestLightPos.z);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				chrono.start();
 			}
 
 			if(shadows==sShadowMapping){
 				glEnable(GL_POLYGON_OFFSET_FILL);
 				glPolygonOffset(1.0f, 0.001f);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				chrono.start();
 			}
 
 			//render 3d
 			renderUnitsFast();
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
+
 			renderObjectsFast();
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
 
 			//read color buffer
 			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, shadowTextureSize, shadowTextureSize);
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
 
 			//get elemental matrices
 			Matrix4f matrix1;
@@ -2233,6 +2277,9 @@ void Renderer::renderShadowsToTexture(){
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();
 
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
+
 			//compute texture matrix
 			glLoadMatrixf(matrix1.ptr());
 			glMultMatrixf(matrix2.ptr());
@@ -2245,8 +2292,13 @@ void Renderer::renderShadowsToTexture(){
 			glPopAttrib();
 
 			assertGl();
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			chrono.start();
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 

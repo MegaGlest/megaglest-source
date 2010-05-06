@@ -182,23 +182,25 @@ void Program::keyPress(char c){
 }
 
 void Program::loop(){
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	Chrono chrono;
+	chrono.start();
 
 	//render
     assert(programState != NULL);
 	programState->render();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//update camera
+	chrono.start();
 	while(updateCameraTimer.isTime()){
 		programState->updateCamera();
 	}
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->updateCamera took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//update world
+	chrono.start();
 	while(updateTimer.isTime()){
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -218,14 +220,15 @@ void Program::loop(){
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//fps timer
+	chrono.start();
 	while(fpsTimer.isTime()){
 		programState->tick();
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void Program::resize(SizeState sizeState){

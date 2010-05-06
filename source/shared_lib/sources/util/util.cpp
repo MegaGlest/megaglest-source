@@ -203,12 +203,12 @@ void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
 
         assert(currentDebugLog.fileStream != NULL);
 
-		//currentDebugLog.mutex->p();
+		currentDebugLog.mutex->p();
 
         (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
         (*currentDebugLog.fileStream).flush();
 
-		//currentDebugLog.mutex->v();
+		currentDebugLog.mutex->v();
     }
     // output to console
     else {

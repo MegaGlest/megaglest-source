@@ -96,6 +96,8 @@ int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe,
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						 int charCount, FontMetrics &metrics) {
+// -adecw-screen-medium-r-normal--18-180-75-75-m-160-gb2312.1980-1	 this is a Chinese font
+
 #ifdef X11_AVAILABLE
 	Display* display = glXGetCurrentDisplay();
 	if(display == 0) {
