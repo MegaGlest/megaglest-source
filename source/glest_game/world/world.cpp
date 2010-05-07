@@ -332,9 +332,10 @@ void World::moveUnitCells(Unit *unit){
 	//water splash
 	if(tileset.getWaterEffects() && unit->getCurrField()==fLand){
 		if(map.getSubmerged(map.getCell(unit->getLastPos()))){
+			int unitSize=unit->getType()->getSize();
 			for(int i=0; i<3; ++i){
 				waterEffects.addWaterSplash(
-					Vec2f(unit->getLastPos().x+random.randRange(-0.4f, 0.4f), unit->getLastPos().y+random.randRange(-0.4f, 0.4f)), unit->getType()->getSize());
+					Vec2f(unit->getLastPos().x+(float)unitSize/2.0f+random.randRange(-0.9f, -0.1f), unit->getLastPos().y+random.randRange(-0.9f, -0.1f)+(float)unitSize/2.0f), unit->getType()->getSize());
 			}
 		}
 	}
