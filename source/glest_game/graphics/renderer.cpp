@@ -1281,15 +1281,39 @@ void Renderer::renderObjects(){
 
 	int loopCount1 = 0;
 	int loopCount2 = 0;
+
+	Chrono chrono2;
+	int64 sectionA = 0;
+	int64 sectionB = 0;
+	int64 sectionC = 0;
+	int64 sectionD = 0;
+	int64 sectionE = 0;
+	int64 sectionF = 0;
+	int64 sectionG = 0;
+	int64 sectionH = 0;
+
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
-		const Vec2i pos= pqi.getPos();
 
-		if(map->isInside(pos)){
+		chrono2.start();
+
+		const Vec2i pos= pqi.getPos();
+		bool isPosVisible = map->isInside(pos);
+
+		sectionG += chrono2.getMillis();
+		chrono2.start();
+
+		if(isPosVisible == true) {
 
 			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 			Object *o= sc->getObject();
-			if(sc->isExplored(thisTeamIndex) && o!=NULL){
+			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
+
+			sectionH += chrono2.getMillis();
+			chrono2.start();
+
+			if(isExplored == true) {
+				chrono2.start();
 
 				const Model *objModel= sc->getObject()->getModel();
 				Vec3f v= o->getPos();
@@ -1301,18 +1325,34 @@ void Renderer::renderObjects(){
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
 				glFogfv(GL_FOG_COLOR, (baseFogColor*fowFactor).ptr());
 
+				sectionA += chrono2.getMillis();
+				chrono2.start();
+
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 				glTranslatef(v.x, v.y, v.z);
 				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
+				sectionB += chrono2.getMillis();
+				chrono2.start();
+
 				objModel->updateInterpolationData(0.f, true);
+
+				sectionC += chrono2.getMillis();
+				chrono2.start();
+
 				modelRenderer->render(objModel);
+
+				sectionD += chrono2.getMillis();
+				chrono2.start();
 
 				triangleCount+= objModel->getTriangleCount();
 				pointCount+= objModel->getVertexCount();
 
 				glPopMatrix();
+
+				sectionF += chrono2.getMillis();
+
 				loopCount2++;
 			}
 		}
@@ -1322,7 +1362,7 @@ void Renderer::renderObjects(){
 
 	modelRenderer->end();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d loopCount1 = %d loopCount2 = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,loopCount1,loopCount2,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d loopCount1 = %d loopCount2 = %d took msecs: %d [%d,%d,%d,%d,%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,loopCount1,loopCount2,chrono.getMillis(),sectionG,sectionH,sectionA,sectionB,sectionC,sectionD,sectionE,sectionF);
 	chrono.start();
 
 	//restore

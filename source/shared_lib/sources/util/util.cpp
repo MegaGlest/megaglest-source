@@ -100,7 +100,7 @@ void SystemFlags::Close() {
 	printf("END Closing logfiles\n");
 }
 
-void SystemFlags::OutputDebug(DebugType type, const char *fmt, ...) {
+void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 	if(SystemFlags::debugLogFileList.size() == 0) {
 		SystemFlags::init();
 	}

@@ -121,6 +121,7 @@ Program::Program() {
 	programState= NULL;
 	singleton = this;
 	soundThreadManager = NULL;
+	loopThreadManager = NULL;
 }
 
 void Program::initNormal(WindowGl *window){
@@ -166,6 +167,10 @@ Program::~Program(){
 	BaseThread::shutdownAndWait(soundThreadManager);
 	delete soundThreadManager;
 	soundThreadManager = NULL;
+
+	BaseThread::shutdownAndWait(loopThreadManager);
+	delete loopThreadManager;
+	loopThreadManager = NULL;
 }
 
 void Program::keyDown(char key){
@@ -181,15 +186,34 @@ void Program::keyPress(char c){
 	programState->keyPress(c);
 }
 
-void Program::loop(){
+void Program::simpleTask() {
+	loopWorker();
+}
+
+void Program::loop() {
+	if(loopThreadManager == NULL) {
+		loopWorker();
+	}
+	else {
+		loopThreadManager->setTaskSignalled(true);
+	}
+}
+
+void Program::loopWorker() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Chrono chrono;
 	chrono.start();
+
+	getWindow()->makeCurrentGl();
 
 	//render
     assert(programState != NULL);
 	programState->render();
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//update camera
 	chrono.start();
@@ -197,7 +221,9 @@ void Program::loop(){
 		programState->updateCamera();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->updateCamera took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->updateCamera took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//update world
 	chrono.start();
@@ -220,7 +246,9 @@ void Program::loop(){
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//fps timer
 	chrono.start();
@@ -228,7 +256,7 @@ void Program::loop(){
 		programState->tick();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void Program::resize(SizeState sizeState){
@@ -378,6 +406,11 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			soundThreadManager->start();
 		}
 	}
+
+	BaseThread::shutdownAndWait(loopThreadManager);
+	delete loopThreadManager;
+	//loopThreadManager = new SimpleTaskThread(this,0,5,true);
+	//loopThreadManager->start();
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","false"));
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","false"));

@@ -429,7 +429,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					waitCount++;
 				}
 
-				SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %d msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %d msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
 
 				chrono.start();
 				//check that we are in the right frame
@@ -450,7 +450,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
 
-				SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				done= true;
 			}
@@ -676,7 +676,7 @@ void ClientInterface::waitForMessage()
 		waitLoopCount++;
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %d msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %d msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
 }
 
 void ClientInterface::quitGame(bool userManuallyQuit)

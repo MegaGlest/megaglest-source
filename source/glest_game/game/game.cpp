@@ -59,6 +59,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	renderNetworkStatus= false;
 	speed= sNormal;
 	showFullConsole= false;
+	render3DThreadManager = NULL;
 }
 
 Game::~Game(){
@@ -68,6 +69,10 @@ Game::~Game(){
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
+
+	BaseThread::shutdownAndWait(render3DThreadManager);
+	delete render3DThreadManager;
+	render3DThreadManager = NULL;
 
 	renderer.endGame();
 	SoundRenderer::getInstance().stopAllSounds();
@@ -329,9 +334,17 @@ void Game::init()
 
 	logger.add("Launching game");
 
+	BaseThread::shutdownAndWait(render3DThreadManager);
+	delete render3DThreadManager;
+	//render3DThreadManager = new SimpleTaskThread(this,0,5,true);
+	//render3DThreadManager->start();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void Game::simpleTask() {
+	renderWorker();
+}
 
 // ==================== update ====================
 
@@ -417,26 +430,41 @@ void Game::updateCamera(){
 
 //render
 void Game::render() {
+	//SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps);
+
+	renderFps++;
+	if(render3DThreadManager == NULL) {
+		renderWorker();
+	}
+	else {
+		render3DThreadManager->setTaskSignalled(true);
+	}
+	//SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps);
+}
+
+void Game::renderWorker() {
 	Chrono chrono;
 	chrono.start();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	renderFps++;
+	//program->getWindow()->makeCurrentGl();
+
+	//renderFps++;
 	render3d();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d render3d() took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	chrono.start();
 	render2d();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d render3d() took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	chrono.start();
 	Renderer::getInstance().swapBuffers();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d render3d() took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

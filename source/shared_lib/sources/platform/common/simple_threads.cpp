@@ -66,19 +66,41 @@ void FileCRCPreCacheThread::execute() {
 
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface, 
 									unsigned int executionCount,
-									unsigned int millisecsBetweenExecutions) {
+									unsigned int millisecsBetweenExecutions,
+									bool needTaskSignal) {
 	this->simpleTaskInterface		 = simpleTaskInterface;
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
+	this->needTaskSignal			 = needTaskSignal;
+	setTaskSignalled(false);
 }
 
 void SimpleTaskThread::execute() {
 	try {
 		setRunningStatus(true);
 
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		unsigned int idx = 0;
 		for(;this->simpleTaskInterface != NULL;) {
-			this->simpleTaskInterface->simpleTask();
+
+			bool runTask = true;
+			if(needTaskSignal == true) {
+				runTask = getTaskSignalled();
+				if(runTask == true) {
+					setTaskSignalled(false);
+				}
+			}
+
+			if(getQuitStatus() == true) {
+				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			if(runTask == true) {
+				this->simpleTaskInterface->simpleTask();
+			}
+
 			if(this->executionCount > 0) {
 				idx++;
 				if(idx >= this->executionCount) {
@@ -92,13 +114,40 @@ void SimpleTaskThread::execute() {
 
 			sleep(this->millisecsBetweenExecutions);
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
 		setRunningStatus(false);
 
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		throw runtime_error(ex.what());
 	}
 	setRunningStatus(false);
+}
+
+void SimpleTaskThread::setTaskSignalled(bool value) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	mutexTaskSignaller.p();
+	taskSignalled = value;
+	mutexTaskSignaller.v();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool SimpleTaskThread::getTaskSignalled() {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	bool retval = false;
+	mutexTaskSignaller.p();
+	retval = taskSignalled;
+	mutexTaskSignaller.v();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return retval;
 }
 
 }}//end namespace

@@ -238,14 +238,14 @@ void Commander::updateNetwork(){
 		perfTimer.start();
 		//update the keyframe
 		gameNetworkInterface->updateKeyframe(world->getFrameCount());
-		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
+		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
 
 		perfTimer.start();
 		//give pending commands
 		for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
 			giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
 		}
-		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis());
+		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis());
 		gameNetworkInterface->clearPendingCommands();
 	}
 }
