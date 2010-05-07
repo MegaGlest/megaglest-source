@@ -109,14 +109,24 @@ public:
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);
 
+// If logging is enabled then define the logging method
 #ifndef UNDEF_DEBUG
 
+#ifndef WIN32
 #define OutputDebug(type, fmt, ...) SystemFlags::handleDebug (type, fmt, ##__VA_ARGS__)
-
 #else
+#define OutputDebug(type, fmt, ...) handleDebug (type, fmt, ##__VA_ARGS__)
+#endif
 
+// stub out logging
+#else
 // stub out debugging completely
-#define OutputDebug(type, fmt, ...) type
+#ifndef WIN32
+	#define OutputDebug(type, fmt, ...) type
+#else
+	static void nothing() {}
+	#define OutputDebug(type, fmt, ...) nothing()
+#endif
 
 #endif
 
