@@ -20,6 +20,8 @@
 using std::string;
 using namespace Shared::Platform;
 
+//#define UNDEF_DEBUG
+
 namespace Shared{ namespace Util{
 
 class SystemFlags
@@ -103,7 +105,21 @@ public:
 
 	static void init();
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
-    static void OutputDebug(DebugType type, const char *fmt, ...);
+
+	// Let the macro call into this when require.. NEVER call it automatically.
+	static void handleDebug(DebugType type, const char *fmt, ...);
+
+#ifndef UNDEF_DEBUG
+
+#define OutputDebug(type, fmt, ...) SystemFlags::handleDebug (type, fmt, ##__VA_ARGS__)
+
+#else
+
+// stub out debugging completely
+#define OutputDebug(type, fmt, ...) type
+
+#endif
+
 	static void Close();
 };
 

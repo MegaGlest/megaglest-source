@@ -56,12 +56,19 @@ protected:
 	unsigned int executionCount;
 	unsigned int millisecsBetweenExecutions;
 
+	Mutex mutexTaskSignaller;
+	bool taskSignalled;
+	bool needTaskSignal;
+
 public:
 	SimpleTaskThread();
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface, 
 					 unsigned int executionCount=0, 
-					 unsigned int millisecsBetweenExecutions=0);
+					 unsigned int millisecsBetweenExecutions=0,
+					 bool needTaskSignal = false);
     virtual void execute();
+    void setTaskSignalled(bool value);
+    bool getTaskSignalled();
 };
 
 }}//end namespace

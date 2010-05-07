@@ -76,7 +76,7 @@ public:
 // 	class Program
 // ===============================
 
-class Program{
+class Program : public SimpleTaskCallbackInterface {
 private:
 	static const int maxTimes;
 	SimpleTaskThread *soundThreadManager;
@@ -110,6 +110,7 @@ private:
 
     WindowGl *window;
     static Program *singleton;
+    SimpleTaskThread *loopThreadManager;
 
 public:
     Program();
@@ -127,6 +128,7 @@ public:
     void keyPress(char c);
 
 	void loop();
+	void loopWorker();
 	void resize(SizeState sizeState);
 	void showMessage(const char *msg);
 
@@ -136,6 +138,8 @@ public:
 	WindowGl * getWindow() { return window; }
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
+
+	virtual void simpleTask();
 
 private:
 	

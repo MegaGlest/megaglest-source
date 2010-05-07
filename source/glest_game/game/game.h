@@ -22,8 +22,10 @@
 #include "chat_manager.h"
 #include "script_manager.h"
 #include "game_settings.h"
+#include "simple_threads.h"
 
 using std::vector;
+using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
 
@@ -35,7 +37,7 @@ class GraphicMessageBox;
 //	Main game class
 // =====================================================
 
-class Game: public ProgramState{
+class Game: public ProgramState, public SimpleTaskCallbackInterface {
 public:
 	enum Speed{
 		sFast,
@@ -57,6 +59,7 @@ private:
     Console console;
 	ChatManager chatManager;
 	ScriptManager scriptManager;
+	SimpleTaskThread *render3DThreadManager;
 
 	//misc
 	Checksum checksum;
@@ -117,6 +120,9 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
 
 	void quitGame();
+
+	virtual void simpleTask();
+
 private:
 	//render
     void render3d();
@@ -133,6 +139,7 @@ private:
 	void showLoseMessageBox();
 	void showWinMessageBox();
 	void showMessageBox(const string &text, const string &header, bool toggle);
+	void renderWorker();
 };
 
 }}//end namespace
