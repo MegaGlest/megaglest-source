@@ -419,6 +419,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\sdl\thread.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\sdl\window.cpp"
 					>
 				</File>
@@ -439,10 +443,6 @@
 					</File>
 					<File
 						RelativePath="..\..\source\shared_lib\sources\platform\win32\platform_util.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\sources\platform\win32\thread.cpp"
 						>
 					</File>
 				</Filter>
@@ -761,6 +761,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\include\platform\sdl\thread.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\platform\sdl\window.h"
 					>
 				</File>
@@ -780,15 +784,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_menu.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_util.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\thread.h"
 						>
 					</File>
 					<File
