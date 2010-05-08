@@ -49,7 +49,7 @@ Object::~Object(){
 }
 
 const Model *Object::getModel() const{
-	return objectType==NULL? resource->getType()->getModel(): objectType->getModel(variation);
+	return objectType==NULL ?  (resource != NULL && resource->getType() != NULL ? resource->getType()->getModel() : NULL ) : objectType->getModel(variation);
 }
 
 bool Object::getWalkable() const{

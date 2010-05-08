@@ -67,7 +67,7 @@ void FileCRCPreCacheThread::execute() {
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface, 
 									unsigned int executionCount,
 									unsigned int millisecsBetweenExecutions,
-									bool needTaskSignal) {
+									bool needTaskSignal) : BaseThread() {
 	this->simpleTaskInterface		 = simpleTaskInterface;
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
@@ -79,7 +79,7 @@ void SimpleTaskThread::execute() {
 	try {
 		setRunningStatus(true);
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		unsigned int idx = 0;
 		for(;this->simpleTaskInterface != NULL;) {
@@ -93,7 +93,7 @@ void SimpleTaskThread::execute() {
 			}
 
 			if(getQuitStatus() == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
@@ -108,19 +108,19 @@ void SimpleTaskThread::execute() {
 				}
 			}
 			if(getQuitStatus() == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
 			sleep(this->millisecsBetweenExecutions);
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
 		setRunningStatus(false);
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw runtime_error(ex.what());
 	}
@@ -128,24 +128,24 @@ void SimpleTaskThread::execute() {
 }
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mutexTaskSignaller.p();
 	taskSignalled = value;
 	mutexTaskSignaller.v();
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 bool SimpleTaskThread::getTaskSignalled() {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
 	mutexTaskSignaller.p();
 	retval = taskSignalled;
 	mutexTaskSignaller.v();
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return retval;
 }
