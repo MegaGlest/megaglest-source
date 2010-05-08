@@ -106,6 +106,93 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 }
 
 // ===========================================================
+//	class InterpolateTaskThread
+// ===========================================================
+
+InterpolateTaskThread::InterpolateTaskThread(InterpolateTaskCallbackInterface *interpolateTaskInterface)
+: BaseThread() {
+	this->interpolateTaskInterface = interpolateTaskInterface;
+	nullEntityList();
+	this->taskSignalled = false;
+}
+
+void InterpolateTaskThread::setQuitStatus(bool value) {
+	BaseThread::setQuitStatus(value);
+	if(value == true) {
+		semaphoreTaskSignaller.signal();
+	}
+}
+void InterpolateTaskThread::setRunningStatus(bool value) {
+	BaseThread::setRunningStatus(value);
+	if(value == false) {
+		semaphoreTaskSignaller.signal();
+	}
+}
+
+void InterpolateTaskThread::setTaskSignalled(std::vector<RenderEntity> *vctEntity) {
+	mutexTaskSignaller.p();
+	this->vctEntity = vctEntity;
+	mutexTaskSignaller.v();
+
+	if(this->vctEntity != NULL) {
+		semaphoreTaskSignaller.signal();
+	}
+}
+
+bool InterpolateTaskThread::getTaskSignalled() {
+	bool result = false;
+	mutexTaskSignaller.p();
+	result = (vctEntity != NULL && vctEntity->size() > 0);
+	mutexTaskSignaller.v();
+	return result;
+}
+
+void InterpolateTaskThread::nullEntityList() {
+	mutexTaskSignaller.p();
+	this->vctEntity = NULL;
+	mutexTaskSignaller.v();
+}
+
+void InterpolateTaskThread::execute() {
+	try {
+		setRunningStatus(true);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		for(;this->interpolateTaskInterface != NULL;) {
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			int semValue = semaphoreTaskSignaller.waitTillSignalled();
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			if(getTaskSignalled() == true) {
+				if(vctEntity != NULL) {
+					this->interpolateTaskInterface->interpolateTask(*vctEntity);
+					nullEntityList();
+				}
+			}
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	catch(const exception &ex) {
+		setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ex.what() = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+
+		throw runtime_error(ex.what());
+	}
+	setRunningStatus(false);
+}
+
+// ===========================================================
 //	class Renderer
 // ===========================================================
 
@@ -171,9 +258,16 @@ Renderer::Renderer(){
 	}
 
 	allowRotateUnits = config.getBool("AllowRotateUnits","0");
+
+	interpolateThread = new InterpolateTaskThread(this);
+	interpolateThread->start();
 }
 
 Renderer::~Renderer(){
+	BaseThread::shutdownAndWait(interpolateThread);
+	delete interpolateThread;
+	interpolateThread = NULL;
+
 	delete modelRenderer;
 	delete textRenderer;
 	delete particleRenderer;
@@ -1240,19 +1334,13 @@ void Renderer::renderSurface(){
 	assertGl();
 }
 
-void Renderer::renderObjects(){
-	Chrono chrono;
-	chrono.start();
-
+void Renderer::renderObjects() {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
     assertGl();
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
 	Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	chrono.start();
 
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
@@ -1265,111 +1353,188 @@ void Renderer::renderObjects(){
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 		enableProjectiveTexturing();
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	chrono.start();
 
 	glActiveTexture(baseTexUnit);
 
 	glEnable(GL_COLOR_MATERIAL);
     glAlphaFunc(GL_GREATER, 0.5f);
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	chrono.start();
-
-	modelRenderer->begin(true, true, false);
+	//modelRenderer->begin(true, true, false);
 	int thisTeamIndex= world->getThisTeamIndex();
 
-	int loopCount1 = 0;
-	int loopCount2 = 0;
-
-	Chrono chrono2;
-	int64 sectionA = 0;
-	int64 sectionB = 0;
-	int64 sectionC = 0;
-	int64 sectionD = 0;
-	int64 sectionE = 0;
-	int64 sectionF = 0;
-	int64 sectionG = 0;
-	int64 sectionH = 0;
+	std::vector<RenderEntity> vctEntity;
 
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
-
-		chrono2.start();
-
-		const Vec2i pos= pqi.getPos();
-		bool isPosVisible = map->isInside(pos);
-
-		sectionG += chrono2.getMillis();
-		chrono2.start();
-
+		const Vec2i &pos= pqi.getPos();
+		bool isPosVisible = map->isInside(pos.x, pos.y);
 		if(isPosVisible == true) {
-
-			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
+			Vec2i mapPos = Map::toSurfCoords(pos);
+			SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
 			Object *o= sc->getObject();
 			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-
-			sectionH += chrono2.getMillis();
-			chrono2.start();
-
 			if(isExplored == true) {
-				chrono2.start();
 
-				const Model *objModel= sc->getObject()->getModel();
-				Vec3f v= o->getPos();
+/*
+				const Model *objModel= o->getModel();
+				const Vec3f &v= o->getConstPos();
 
 				//ambient and diffuse color is taken from cell color
-				float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+				//!!!float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+				float fowFactor= fowTex->getPixmap()->getPixelf(mapPos.x,mapPos.y);
+
 				Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
 				glColor4fv(color.ptr());
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
 				glFogfv(GL_FOG_COLOR, (baseFogColor*fowFactor).ptr());
-
-				sectionA += chrono2.getMillis();
-				chrono2.start();
 
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 				glTranslatef(v.x, v.y, v.z);
 				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-				sectionB += chrono2.getMillis();
-				chrono2.start();
-
 				objModel->updateInterpolationData(0.f, true);
 
-				sectionC += chrono2.getMillis();
-				chrono2.start();
-
 				modelRenderer->render(objModel);
-
-				sectionD += chrono2.getMillis();
-				chrono2.start();
 
 				triangleCount+= objModel->getTriangleCount();
 				pointCount+= objModel->getVertexCount();
 
 				glPopMatrix();
+*/
 
-				sectionF += chrono2.getMillis();
-
-				loopCount2++;
+				//renderObject(RenderEntity(o,mapPos),baseFogColor);
+				vctEntity.push_back(RenderEntity(o,mapPos));
 			}
 		}
-
-		loopCount1++;
 	}
 
+	modelRenderer->begin(true, true, false);
+	renderObjectList(vctEntity,baseFogColor);
 	modelRenderer->end();
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d loopCount1 = %d loopCount2 = %d took msecs: %d [%d,%d,%d,%d,%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,loopCount1,loopCount2,chrono.getMillis(),sectionG,sectionH,sectionA,sectionB,sectionC,sectionD,sectionE,sectionF);
-	chrono.start();
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 	glPopAttrib();
+}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+void Renderer::interpolateTask(std::vector<RenderEntity> &vctEntity) {
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		prepareObjectForRender(vctEntity[idx]);
+	}
+}
+
+void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	// Run interpolation threaded if the thread is created
+	if(interpolateThread != NULL) {
+		interpolateThread->setTaskSignalled(&vctEntity);
+	}
+	else {
+		interpolateTask(vctEntity);
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	std::map<int,bool> entityPendingLookup;
+
+	int renderedObjectCount = 0;
+	for(bool done = false; done == false;) {
+		done = true;
+		for(int idx=0; idx < vctEntity.size(); ++idx) {
+			// already done, don't waste time
+			if(entityPendingLookup[idx] == true) {
+				continue;
+			}
+			RenderEntity &entity = vctEntity[idx];
+			if(entity.getState() == resInterpolated) {
+				done = false;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
+
+				renderObject(entity,baseFogColor);
+				entityPendingLookup[idx] = true;
+				renderedObjectCount++;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
+			}
+			else if(entity.getState() == resNone) {
+				done = false;
+			}
+		}
+		if(done == false) {
+			sleep(0);
+		}
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+}
+
+void Renderer::prepareObjectForRender(RenderEntity &entity) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Object *o = entity.o;
+	if(o != NULL) {
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		const Model *objModel= o->getModel();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(objModel != NULL) {
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			objModel->updateInterpolationData(0.f, true);
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			entity.setState(resInterpolated);
+		}
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor) {
+	Object *o = entity.o;
+	Vec2i &mapPos = entity.mapPos;
+	if(o != NULL) {
+		const Model *objModel= o->getModel();
+		if(objModel != NULL) {
+			//objModel->updateInterpolationData(0.f, true);
+
+			const Vec3f &v= o->getConstPos();
+
+			//ambient and diffuse color is taken from cell color
+			const World *world= game->getWorld();
+			const Texture2D *fowTex= world->getMinimap()->getFowTexture();
+
+			//!!!float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+			float fowFactor= fowTex->getPixmap()->getPixelf(mapPos.x,mapPos.y);
+
+			Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
+			glColor4fv(color.ptr());
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
+			glFogfv(GL_FOG_COLOR, (baseFogColor * fowFactor).ptr());
+
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glTranslatef(v.x, v.y, v.z);
+			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+
+			//objModel->updateInterpolationData(0.f, true);
+
+			modelRenderer->render(objModel);
+
+			triangleCount+= objModel->getTriangleCount();
+			pointCount+= objModel->getVertexCount();
+
+			glPopMatrix();
+
+			entity.setState(resRendered);
+		}
+	}
 }
 
 void Renderer::renderWater(){

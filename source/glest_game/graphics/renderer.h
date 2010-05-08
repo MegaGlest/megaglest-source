@@ -26,6 +26,8 @@
 #include "graphics_factory_gl.h"
 #include "font_manager.h"
 #include "camera.h"
+#include <vector>
+#include "base_thread.h"
 
 namespace Glest{ namespace Game{
 
@@ -49,6 +51,8 @@ using Shared::Graphics::ParticleSystem;
 using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Camera;
 
+using namespace Shared::PlatformCommon;
+
 //non shared classes
 class Config;
 class Game;
@@ -57,6 +61,7 @@ class Console;
 class MenuBackground;
 class ChatManager;
 class Texture;
+class Object;
 
 enum ResourceScope{
 	rsGlobal,
@@ -72,7 +77,96 @@ enum ResourceScope{
 ///	OpenGL renderer, uses the shared library
 // ===========================================================
 
-class Renderer{
+enum RenderEntityState {
+	resNone,
+	resInterpolated,
+	resRendered
+};
+
+class RenderEntity {
+protected:
+	Mutex mutex;
+	RenderEntityState state;
+
+	void CopyAll(const RenderEntity &obj) {
+		// Mutex doesn't like being copied.. DON'T do it
+		// Mutex mutex;
+		this->state = obj.state;
+		this->o = obj.o;
+		this->mapPos = obj.mapPos;
+	}
+
+public:
+
+	RenderEntity() {
+		this->o = NULL;
+		setState(resNone);
+	}
+	RenderEntity(Object *o, Vec2i &mapPos) {
+		this->o = o;
+		this->mapPos = mapPos;
+		setState(resNone);
+	}
+	RenderEntity(const RenderEntity &obj) {
+		CopyAll(obj);
+	}
+	RenderEntity & operator=(const RenderEntity &obj) {
+		CopyAll(obj);
+		return *this;
+	}
+
+	Object *o;
+	Vec2i mapPos;
+
+	RenderEntityState getState() {
+		RenderEntityState result;
+		mutex.p();
+		result = this->state;
+		mutex.v();
+
+		return result;
+	}
+	void setState(RenderEntityState value) {
+		mutex.p();
+		this->state = value;
+		mutex.v();
+	}
+
+};
+
+//
+// This interface describes the methods a callback object must implement
+//
+class InterpolateTaskCallbackInterface {
+public:
+	virtual void interpolateTask(std::vector<RenderEntity> &vctEntity) = 0;
+};
+
+class InterpolateTaskThread : public BaseThread
+{
+protected:
+
+	InterpolateTaskCallbackInterface *interpolateTaskInterface;
+
+	Semaphore semaphoreTaskSignaller;
+	Mutex mutexTaskSignaller;
+	bool taskSignalled;
+	std::vector<RenderEntity> *vctEntity;
+
+	virtual void setQuitStatus(bool value);
+	virtual void setRunningStatus(bool value);
+	void nullEntityList();
+
+public:
+
+	InterpolateTaskThread(InterpolateTaskCallbackInterface *interpolateTaskInterface);
+    virtual void execute();
+    void setTaskSignalled(std::vector<RenderEntity> *vctEntity);
+    bool getTaskSignalled();
+};
+
+
+class Renderer : public InterpolateTaskCallbackInterface {
 public:
 	//progress bar
 	static const int maxProgressBar;
@@ -169,6 +263,7 @@ private:
 	float waterAnim;
 
 	bool allowRotateUnits;
+	InterpolateTaskThread *interpolateThread;
 
 private:
 	Renderer();
@@ -242,6 +337,12 @@ public:
     //complex rendering
     void renderSurface();
 	void renderObjects();
+	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor);
+	void prepareObjectForRender(RenderEntity &entity);
+	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor);
+
+	virtual void interpolateTask(std::vector<RenderEntity> &vctEntity);
+
 	void renderWater();
     void renderUnits();
 	void renderSelectionEffects();

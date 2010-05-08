@@ -205,7 +205,7 @@ void Program::loopWorker() {
 	Chrono chrono;
 	chrono.start();
 
-	getWindow()->makeCurrentGl();
+	//getWindow()->makeCurrentGl();
 
 	//render
     assert(programState != NULL);

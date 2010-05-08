@@ -31,19 +31,19 @@ protected:
 	bool quit;
 	bool running;
 
-	void setRunningStatus(bool value);
-	void setQuitStatus(bool value);
+	virtual void setRunningStatus(bool value);
+	virtual void setQuitStatus(bool value);
 
 public:
 	BaseThread();
 	~BaseThread();
 	virtual void execute()=0;
 
-    void signalQuit();
-    bool getQuitStatus();
-    bool getRunningStatus();
+	virtual void signalQuit();
+	virtual bool getQuitStatus();
+	virtual bool getRunningStatus();
     static void shutdownAndWait(BaseThread *ppThread);
-    void shutdownAndWait();
+    virtual void shutdownAndWait();
 };
 
 }}//end namespace
