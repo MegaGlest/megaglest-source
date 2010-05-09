@@ -17,6 +17,14 @@
 
 namespace Glest{ namespace Game{
 
+enum JoinMenu{
+	jmSimple,
+	jmMasterserver,
+
+	jmCount
+};
+
+
 // ===============================
 // 	class MenuStateConnectedGame
 // ===============================
@@ -60,11 +68,12 @@ private:
 	
 	string currentFactionName;
 	string currentMap;
+	JoinMenu returnMenuInfo;
 	bool settingsReceivedFromServer;
 	
 	
 public:
-	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots= false);
+	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -79,6 +88,7 @@ private:
     bool hasNetworkGameSettings();
 	void reloadFactions();
 	bool loadFactions(const GameSettings *gameSettings);
+	void returnToJoinMenu();
 };
 
 }}//end namespace
