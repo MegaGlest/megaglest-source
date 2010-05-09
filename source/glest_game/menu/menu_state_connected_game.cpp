@@ -12,6 +12,7 @@
 #include "menu_state_connected_game.h"
 
 #include "menu_state_join_game.h"
+#include "menu_state_masterserver.h"
 #include "renderer.h"
 #include "sound_renderer.h"
 #include "core_data.h"
@@ -44,9 +45,10 @@ struct FormatString {
 // 	class MenuStateConnectedGame
 // =====================================================
 
-MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots):
+MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "join-game")
 {
+	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
@@ -193,7 +195,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		networkManager.end();
 		currentFactionName="";
 		currentMap="";
-		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
+		returnToJoinMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -303,6 +305,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
+
+void MenuStateConnectedGame::returnToJoinMenu(){
+	if(returnMenuInfo==jmSimple)
+	{
+		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
+	}
+	else
+	{
+		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+	}
+}
+
 
 void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 
@@ -466,7 +480,7 @@ void MenuStateConnectedGame::update()
 		{
 		    clientInterface->close();
 		}
-		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
+		returnToJoinMenu();
 		return;
 	}
 
