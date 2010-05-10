@@ -99,7 +99,7 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 // ===========================================================
 //	class InterpolateTaskThread
 // ===========================================================
-
+/*
 InterpolateTaskThread::InterpolateTaskThread(InterpolateTaskCallbackInterface *interpolateTaskInterface)
 : BaseThread() {
 	this->interpolateTaskInterface = interpolateTaskInterface;
@@ -182,7 +182,7 @@ void InterpolateTaskThread::execute() {
 	}
 	setRunningStatus(false);
 }
-
+*/
 // ===========================================================
 //	class Renderer
 // ===========================================================
@@ -250,18 +250,18 @@ Renderer::Renderer(){
 
 	allowRotateUnits = config.getBool("AllowRotateUnits","0");
 
-	interpolateThread = NULL;
+	//interpolateThread = NULL;
 	// Run interpolation calcs in a background thread if enabled
-	if(config.getBool("ThreadedInterpolation","false") == true) {
-		interpolateThread = new InterpolateTaskThread(this);
-		interpolateThread->start();
-	}
+	//if(config.getBool("ThreadedInterpolation","false") == true) {
+	//	interpolateThread = new InterpolateTaskThread(this);
+	//	interpolateThread->start();
+	//}
 }
 
 Renderer::~Renderer(){
-	BaseThread::shutdownAndWait(interpolateThread);
-	delete interpolateThread;
-	interpolateThread = NULL;
+	//BaseThread::shutdownAndWait(interpolateThread);
+	//delete interpolateThread;
+	//interpolateThread = NULL;
 
 	delete modelRenderer;
 	delete textRenderer;
@@ -1432,12 +1432,12 @@ void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
 	// Run interpolation threaded if the thread is created
-	if(interpolateThread != NULL) {
-		interpolateThread->setTaskSignalled(&vctEntity);
-	}
-	else {
-		interpolateTask(vctEntity);
-	}
+	//if(interpolateThread != NULL) {
+	//	interpolateThread->setTaskSignalled(&vctEntity);
+	//}
+	//else {
+	interpolateTask(vctEntity);
+	//}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
@@ -1744,12 +1744,12 @@ void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackT
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
 	// Run interpolation threaded if the thread is created
-	if(interpolateThread != NULL) {
-		interpolateThread->setTaskSignalled(&vctEntity);
-	}
-	else {
-		interpolateTask(vctEntity);
-	}
+	//if(interpolateThread != NULL) {
+	//	interpolateThread->setTaskSignalled(&vctEntity);
+	//}
+	//else {
+	interpolateTask(vctEntity);
+	//}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
@@ -2879,12 +2879,12 @@ void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
 	// Run interpolation threaded if the thread is created
-	if(interpolateThread != NULL) {
-		interpolateThread->setTaskSignalled(&vctEntity);
-	}
-	else {
-		interpolateTask(vctEntity);
-	}
+	//if(interpolateThread != NULL) {
+	//	interpolateThread->setTaskSignalled(&vctEntity);
+	//}
+	//else {
+	interpolateTask(vctEntity);
+	//}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 

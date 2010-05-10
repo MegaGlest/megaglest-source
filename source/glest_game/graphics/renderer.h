@@ -27,7 +27,7 @@
 #include "font_manager.h"
 #include "camera.h"
 #include <vector>
-#include "base_thread.h"
+//#include "base_thread.h"
 #include "model_renderer.h"
 #include "model.h"
 
@@ -55,7 +55,7 @@ using Shared::Graphics::Camera;
 using Shared::Graphics::MeshCallback;
 using Shared::Graphics::Mesh;
 
-using namespace Shared::PlatformCommon;
+//using namespace Shared::PlatformCommon;
 
 // =====================================================
 // 	class MeshCallbackTeamColor
@@ -168,6 +168,7 @@ public:
 	}
 };
 
+/*
 //
 // This interface describes the methods a callback object must implement
 //
@@ -198,9 +199,10 @@ public:
     void setTaskSignalled(std::vector<RenderEntity> *vctEntity);
     bool getTaskSignalled();
 };
+*/
 
-
-class Renderer : public InterpolateTaskCallbackInterface {
+//class Renderer : public InterpolateTaskCallbackInterface {
+class Renderer  {
 public:
 	//progress bar
 	static const int maxProgressBar;
@@ -297,7 +299,7 @@ private:
 	float waterAnim;
 
 	bool allowRotateUnits;
-	InterpolateTaskThread *interpolateThread;
+	//InterpolateTaskThread *interpolateThread;
 
 private:
 	Renderer();
