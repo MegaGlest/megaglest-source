@@ -1194,6 +1194,10 @@ void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
+bool Unit::isMeetingPointSettable() const {
+	return (type != NULL ? type->getMeetingPoint() : false);
+}
+
 int Unit::getFrameCount() {
 	int frameCount = 0;
 	const Game *game = Renderer::getInstance().getGame();

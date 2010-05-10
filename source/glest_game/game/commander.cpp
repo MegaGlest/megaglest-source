@@ -107,39 +107,60 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 
 //auto command
 CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
-	if(!selection->isEmpty()){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	CommandResult result = crFailUndefined;
+
+	if(selection->isEmpty() == false){
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
 		//give orders to all selected units
 		refPos= computeRefPos(selection);
-		for(int i=0; i<selection->getCount(); ++i){
-
+		for(int i=0; i<selection->getCount(); ++i) {
 			//every unit is ordered to a different pos
-			currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
+			const Unit *unit = selection->getUnit(i);
+			assert(unit != NULL);
+
+			currPos= computeDestPos(refPos, unit->getPos(), pos);
 
 			//get command type
-			const CommandType *commandType= selection->getUnit(i)->computeCommandType(pos, targetUnit);
+			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = [%s] commandType = %p\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(), commandType);
 
 			//give commands
-			if(commandType!=NULL){
+			if(commandType!=NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandType->toString() [%s]\n",__FILE__,__FUNCTION__,__LINE__,commandType->toString().c_str());
+
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
-				int unitId= selection->getUnit(i)->getId();
+				int unitId= unit->getId();
 				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
 
 				CommandResult result= pushNetworkCommand(&networkCommand);
 				results.push_back(result);
 			}
-			else{
+			else if(unit->isMeetingPointSettable() == true) {
+				NetworkCommand command(this->world,nctSetMeetingPoint, unit->getId(), -1, currPos);
+
+				CommandResult result= pushNetworkCommand(&command);
+				results.push_back(result);
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				results.push_back(crFailUndefined);
 			}
 		}
-		return computeResult(results);
+		result = computeResult(results);
 	}
-	else{
-		return crFailUndefined;
-	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+	return result;
 }
 
 CommandResult Commander::tryCancelCommand(const Selection *selection) const{
