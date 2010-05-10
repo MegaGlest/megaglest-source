@@ -41,15 +41,6 @@ namespace Glest { namespace Game{
 // 	class MeshCallbackTeamColor
 // =====================================================
 
-class MeshCallbackTeamColor: public MeshCallback{
-private:
-	const Texture *teamTexture;
-
-public:
-	void setTeamTexture(const Texture *teamTexture)	{this->teamTexture= teamTexture;}
-	virtual void execute(const Mesh *mesh);
-};
-
 void MeshCallbackTeamColor::execute(const Mesh *mesh){
 
 	//team color
@@ -1687,7 +1678,7 @@ void Renderer::renderUnits(){
 	std::vector<RenderEntity> vctEntity;
 
 	for(int i=0; i<world->getFactionCount(); ++i){
-		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
+//		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
@@ -1728,7 +1719,7 @@ void Renderer::renderUnits(){
 				unit->setVisible(true);
 */
 
-				vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit));
+				vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,world->getFaction(i)->getTexture()));
 			}
 			else
 			{
@@ -1738,7 +1729,7 @@ void Renderer::renderUnits(){
 	}
 
 	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
-	renderUnitList(vctEntity);
+	renderUnitList(vctEntity,&meshCallbackTeamColor);
 	modelRenderer->end();
 
 	//restore
@@ -1749,7 +1740,7 @@ void Renderer::renderUnits(){
 	assertGl();
 }
 
-void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity) {
+void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 
 	// Run interpolation threaded if the thread is created
@@ -1778,7 +1769,7 @@ void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity) {
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
 
-				renderUnit(entity);
+				renderUnit(entity,meshCallbackTeamColor);
 				entityPendingLookup[idx] = true;
 				renderedUnitCount++;
 
@@ -1796,9 +1787,13 @@ void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 }
 
-void Renderer::renderUnit(RenderEntity &entity) {
+void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor) {
 	Unit *unit = entity.unit;
 	if(unit != NULL) {
+		if(meshCallbackTeamColor != NULL) {
+			meshCallbackTeamColor->setTeamTexture(entity.teamTexture);
+		}
+
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 
