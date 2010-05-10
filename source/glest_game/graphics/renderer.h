@@ -83,6 +83,12 @@ enum RenderEntityState {
 	resRendered
 };
 
+enum RenderEntityType {
+	retObject,
+	retUnit,
+	retUnitFast
+};
+
 class RenderEntity {
 protected:
 	Mutex mutex;
@@ -91,20 +97,26 @@ protected:
 	void CopyAll(const RenderEntity &obj) {
 		// Mutex doesn't like being copied.. DON'T do it
 		// Mutex mutex;
-		this->state = obj.state;
-		this->o = obj.o;
+		this->type   = obj.type;
+		this->state  = obj.state;
+		this->o 	 = obj.o;
 		this->mapPos = obj.mapPos;
+		this->unit	 = obj.unit;
 	}
 
 public:
 
 	RenderEntity() {
-		this->o = NULL;
+		this->type = retObject;
+		this->o    = NULL;
+		this->unit = NULL;
 		setState(resNone);
 	}
-	RenderEntity(Object *o, Vec2i &mapPos) {
-		this->o = o;
+	RenderEntity(RenderEntityType type,Object *o, Vec2i mapPos, Unit *unit) {
+		this->type   = type;
+		this->o 	 = o;
 		this->mapPos = mapPos;
+		this->unit 	 = unit;
 		setState(resNone);
 	}
 	RenderEntity(const RenderEntity &obj) {
@@ -115,8 +127,10 @@ public:
 		return *this;
 	}
 
+	RenderEntityType type;
 	Object *o;
-	Vec2i mapPos;
+	Vec2i  mapPos;
+	Unit   *unit;
 
 	RenderEntityState getState() {
 		RenderEntityState result;
@@ -131,7 +145,6 @@ public:
 		this->state = value;
 		mutex.v();
 	}
-
 };
 
 //
@@ -345,6 +358,10 @@ public:
 
 	void renderWater();
     void renderUnits();
+    void prepareUnitForRender(RenderEntity &entity);
+    void renderUnitList(std::vector<RenderEntity> &vctEntity);
+    void renderUnit(RenderEntity &entity);
+
 	void renderSelectionEffects();
 	void renderWaterEffects();
 	void renderMinimap();
@@ -390,7 +407,11 @@ private:
 
 	//selection render
 	void renderObjectsFast();
+	void renderObjectFastList(std::vector<RenderEntity> &vctEntity);
 	void renderUnitsFast();
+	void renderUnitFastList(std::vector<RenderEntity> &vctEntity);
+	void renderUnitFast(RenderEntity &entity);
+	void prepareUnitFastForRender(RenderEntity &entity);
 
 	//gl requirements
 	void checkGlCaps();
