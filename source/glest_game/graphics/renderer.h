@@ -28,6 +28,8 @@
 #include "camera.h"
 #include <vector>
 #include "base_thread.h"
+#include "model_renderer.h"
+#include "model.h"
 
 namespace Glest{ namespace Game{
 
@@ -50,8 +52,23 @@ using Shared::Graphics::Model;
 using Shared::Graphics::ParticleSystem;
 using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Camera;
+using Shared::Graphics::MeshCallback;
+using Shared::Graphics::Mesh;
 
 using namespace Shared::PlatformCommon;
+
+// =====================================================
+// 	class MeshCallbackTeamColor
+// =====================================================
+
+class MeshCallbackTeamColor: public MeshCallback{
+private:
+	const Texture *teamTexture;
+
+public:
+	void setTeamTexture(const Texture *teamTexture)	{this->teamTexture= teamTexture;}
+	virtual void execute(const Mesh *mesh);
+};
 
 //non shared classes
 class Config;
@@ -102,6 +119,7 @@ protected:
 		this->o 	 = obj.o;
 		this->mapPos = obj.mapPos;
 		this->unit	 = obj.unit;
+		this->teamTexture = obj.teamTexture;;
 	}
 
 public:
@@ -110,13 +128,15 @@ public:
 		this->type = retObject;
 		this->o    = NULL;
 		this->unit = NULL;
+		this->teamTexture = NULL;
 		setState(resNone);
 	}
-	RenderEntity(RenderEntityType type,Object *o, Vec2i mapPos, Unit *unit) {
+	RenderEntity(RenderEntityType type,Object *o, Vec2i mapPos, Unit *unit,const Texture2D *teamTexture=NULL) {
 		this->type   = type;
 		this->o 	 = o;
 		this->mapPos = mapPos;
 		this->unit 	 = unit;
+		this->teamTexture = teamTexture;
 		setState(resNone);
 	}
 	RenderEntity(const RenderEntity &obj) {
@@ -131,6 +151,7 @@ public:
 	Object *o;
 	Vec2i  mapPos;
 	Unit   *unit;
+	const Texture2D *teamTexture;
 
 	RenderEntityState getState() {
 		RenderEntityState result;
@@ -359,8 +380,8 @@ public:
 	void renderWater();
     void renderUnits();
     void prepareUnitForRender(RenderEntity &entity);
-    void renderUnitList(std::vector<RenderEntity> &vctEntity);
-    void renderUnit(RenderEntity &entity);
+    void renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor);
+    void renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor);
 
 	void renderSelectionEffects();
 	void renderWaterEffects();
