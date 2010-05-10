@@ -259,8 +259,12 @@ Renderer::Renderer(){
 
 	allowRotateUnits = config.getBool("AllowRotateUnits","0");
 
-	interpolateThread = new InterpolateTaskThread(this);
-	interpolateThread->start();
+	interpolateThread = NULL;
+	// Run interpolation calcs in a background thread if enabled
+	if(config.getBool("ThreadedInterpolation","false") == true) {
+		interpolateThread = new InterpolateTaskThread(this);
+		interpolateThread->start();
+	}
 }
 
 Renderer::~Renderer(){
@@ -1380,7 +1384,7 @@ void Renderer::renderObjects() {
 				const Vec3f &v= o->getConstPos();
 
 				//ambient and diffuse color is taken from cell color
-				//!!!float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+				//float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
 				float fowFactor= fowTex->getPixmap()->getPixelf(mapPos.x,mapPos.y);
 
 				Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
@@ -1404,7 +1408,7 @@ void Renderer::renderObjects() {
 */
 
 				//renderObject(RenderEntity(o,mapPos),baseFogColor);
-				vctEntity.push_back(RenderEntity(o,mapPos));
+				vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
 			}
 		}
 	}
@@ -1420,7 +1424,16 @@ void Renderer::renderObjects() {
 
 void Renderer::interpolateTask(std::vector<RenderEntity> &vctEntity) {
 	for(int idx=0; idx < vctEntity.size(); ++idx) {
-		prepareObjectForRender(vctEntity[idx]);
+		RenderEntity &entity = vctEntity[idx];
+		if(entity.type == retObject) {
+			prepareObjectForRender(entity);
+		}
+		else if(entity.type == retUnit) {
+			prepareUnitForRender(entity);
+		}
+		else if(entity.type == retUnitFast) {
+			prepareUnitFastForRender(entity);
+		}
 	}
 }
 
@@ -1472,28 +1485,14 @@ void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f
 }
 
 void Renderer::prepareObjectForRender(RenderEntity &entity) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	Object *o = entity.o;
 	if(o != NULL) {
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		const Model *objModel= o->getModel();
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		if(objModel != NULL) {
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			objModel->updateInterpolationData(0.f, true);
-
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			entity.setState(resInterpolated);
 		}
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	entity.setState(resInterpolated);
 }
 
 void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor) {
@@ -1662,6 +1661,7 @@ void Renderer::renderWater(){
 	assertGl();
 }
 
+//!!!
 void Renderer::renderUnits(){
 	Unit *unit;
 	const World *world= game->getWorld();
@@ -1684,7 +1684,7 @@ void Renderer::renderUnits(){
 	}
 	glActiveTexture(baseTexUnit);
 
-	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+	std::vector<RenderEntity> vctEntity;
 
 	for(int i=0; i<world->getFactionCount(); ++i){
 		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
@@ -1692,6 +1692,7 @@ void Renderer::renderUnits(){
 			unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
 
+/*
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 
@@ -1725,6 +1726,9 @@ void Renderer::renderUnits(){
 
 				glPopMatrix();
 				unit->setVisible(true);
+*/
+
+				vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit));
 			}
 			else
 			{
@@ -1732,6 +1736,9 @@ void Renderer::renderUnits(){
 			}
 		}
 	}
+
+	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+	renderUnitList(vctEntity);
 	modelRenderer->end();
 
 	//restore
@@ -1740,6 +1747,102 @@ void Renderer::renderUnits(){
 
 	//assert
 	assertGl();
+}
+
+void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	// Run interpolation threaded if the thread is created
+	if(interpolateThread != NULL) {
+		interpolateThread->setTaskSignalled(&vctEntity);
+	}
+	else {
+		interpolateTask(vctEntity);
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	std::map<int,bool> entityPendingLookup;
+
+	int renderedUnitCount = 0;
+	for(bool done = false; done == false;) {
+		done = true;
+		for(int idx=0; idx < vctEntity.size(); ++idx) {
+			// already done, don't waste time
+			if(entityPendingLookup[idx] == true) {
+				continue;
+			}
+			RenderEntity &entity = vctEntity[idx];
+			if(entity.getState() == resInterpolated) {
+				done = false;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
+
+				renderUnit(entity);
+				entityPendingLookup[idx] = true;
+				renderedUnitCount++;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
+			}
+			else if(entity.getState() == resNone) {
+				done = false;
+			}
+		}
+		if(done == false) {
+			sleep(0);
+		}
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+}
+
+void Renderer::renderUnit(RenderEntity &entity) {
+	Unit *unit = entity.unit;
+	if(unit != NULL) {
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+
+		//translate
+		Vec3f currVec= unit->getCurrVectorFlat();
+		glTranslatef(currVec.x, currVec.y, currVec.z);
+
+		//rotate
+		glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+		glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
+
+		//dead alpha
+		float alpha= 1.0f;
+		const SkillType *st= unit->getCurrSkill();
+		if(st->getClass()==scDie && static_cast<const DieSkillType*>(st)->getFade()){
+			alpha= 1.0f-unit->getAnimProgress();
+			glDisable(GL_COLOR_MATERIAL);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
+		}
+		else{
+			glEnable(GL_COLOR_MATERIAL);
+		}
+
+		//render
+		const Model *model= unit->getCurrentModel();
+		//model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+
+		modelRenderer->render(model);
+		triangleCount+= model->getTriangleCount();
+		pointCount+= model->getVertexCount();
+
+		glPopMatrix();
+		unit->setVisible(true);
+
+		entity.setState(resRendered);
+	}
+}
+
+void Renderer::prepareUnitForRender(RenderEntity &entity) {
+	if(entity.unit != NULL) {
+		const Model *model= entity.unit->getCurrentModel();
+		model->updateInterpolationData(entity.unit->getAnimProgress(), entity.unit->isAlive());
+	}
+	entity.setState(resInterpolated);
 }
 
 void Renderer::renderSelectionEffects(){
@@ -2732,14 +2835,17 @@ void Renderer::renderUnitsFast(){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
-	modelRenderer->begin(false, false, false);
-	glInitNames();
+	std::vector<RenderEntity> vctEntity;
+
+//	modelRenderer->begin(false, false, false);
+//	glInitNames();
 	for(int i=0; i<world->getFactionCount(); ++i){
-		glPushName(i);
+//		glPushName(i);
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-			glPushName(j);
+//			glPushName(j);
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+/*
 				glMatrixMode(GL_MODELVIEW);
 
 				//debuxar modelo
@@ -2758,15 +2864,108 @@ void Renderer::renderUnitsFast(){
 				modelRenderer->render(model);
 
 				glPopMatrix();
+*/
+				vctEntity.push_back(RenderEntity(retUnitFast,NULL,Vec2i(i,j),unit));
 
 			}
-			glPopName();
+			//glPopName();
 		}
-		glPopName();
+//		glPopName();
 	}
+
+	modelRenderer->begin(false, false, false);
+	renderUnitFastList(vctEntity);
 	modelRenderer->end();
 
 	glPopAttrib();
+}
+
+void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	// Run interpolation threaded if the thread is created
+	if(interpolateThread != NULL) {
+		interpolateThread->setTaskSignalled(&vctEntity);
+	}
+	else {
+		interpolateTask(vctEntity);
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+
+	std::map<int,bool> entityPendingLookup;
+
+	glInitNames();
+
+	int renderedUnitCount = 0;
+	for(bool done = false; done == false;) {
+		done = true;
+		for(int idx=0; idx < vctEntity.size(); ++idx) {
+			// already done, don't waste time
+			if(entityPendingLookup[idx] == true) {
+				continue;
+			}
+			RenderEntity &entity = vctEntity[idx];
+			if(entity.getState() == resInterpolated) {
+				done = false;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
+
+				renderUnitFast(entity);
+				entityPendingLookup[idx] = true;
+				renderedUnitCount++;
+
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
+			}
+			else if(entity.getState() == resNone) {
+				done = false;
+			}
+		}
+		if(done == false) {
+			sleep(0);
+		}
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
+}
+
+void Renderer::renderUnitFast(RenderEntity &entity) {
+	Unit *unit = entity.unit;
+	if(unit != NULL) {
+		glPushName(entity.mapPos.x);
+		glPushName(entity.mapPos.y);
+
+		glMatrixMode(GL_MODELVIEW);
+
+		//debuxar modelo
+		glPushMatrix();
+
+		//translate
+		Vec3f currVec= unit->getCurrVectorFlat();
+		glTranslatef(currVec.x, currVec.y, currVec.z);
+
+		//rotate
+		glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+		//render
+		const Model *model= unit->getCurrentModel();
+		//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+		modelRenderer->render(model);
+
+		glPopMatrix();
+		glPopName();
+		glPopName();
+
+		entity.setState(resRendered);
+	}
+}
+
+void Renderer::prepareUnitFastForRender(RenderEntity &entity) {
+	if(entity.unit != NULL) {
+		const Model *model= entity.unit->getCurrentModel();
+		model->updateInterpolationVertices(entity.unit->getAnimProgress(), entity.unit->isAlive());
+	}
+	entity.setState(resInterpolated);
 }
 
 //render objects for selection purposes
@@ -2796,13 +2995,14 @@ void Renderer::renderObjectsFast(){
 	modelRenderer->begin(false, true, false);
 	int thisTeamIndex= world->getThisTeamIndex();
 
+//	std::vector<RenderEntity> vctEntity;
+
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
-		const Vec2i pos= pqi.getPos();
-
+		const Vec2i &pos= pqi.getPos();
 		if(map->isInside(pos)){
-
-			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
+			Vec2i mapPos = Map::toSurfCoords(pos);
+			SurfaceCell *sc= map->getSurfaceCell(mapPos);
 			Object *o= sc->getObject();
 			if(sc->isExplored(thisTeamIndex) && o!=NULL){
 
@@ -2818,15 +3018,36 @@ void Renderer::renderObjectsFast(){
 
 				glPopMatrix();
 
+//				vctEntity.push_back(RenderEntity(o,mapPos));
 			}
 		}
 	}
 
+//	modelRenderer->begin(false, true, false);
+//	renderObjectFastList(vctEntity);
 	modelRenderer->end();
 
 	glPopAttrib();
 
 	assertGl();
+}
+
+void Renderer::renderObjectFastList(std::vector<RenderEntity> &vctEntity) {
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		RenderEntity &entity = vctEntity[idx];
+
+		const Model *objModel= entity.o->getModel();
+		Vec3f v= entity.o->getPos();
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(v.x, v.y, v.z);
+		glRotatef(entity.o->getRotation(), 0.f, 1.f, 0.f);
+
+		modelRenderer->render(objModel);
+
+		glPopMatrix();
+	}
 }
 
 // ==================== gl caps ====================

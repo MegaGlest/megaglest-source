@@ -139,7 +139,7 @@ public:
 		y/= m;
 	}
 
-	std::string getString() {
+	std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x << "] y [" << y << "]";
 		return streamOut.str();
@@ -313,7 +313,7 @@ public:
 		return rv;
 	}
 
-	std::string getString() {
+	std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "]";
 		return streamOut.str();
@@ -453,7 +453,7 @@ public:
 		return x*v.x + y*v.y + z*v.z + w*v.w;
 	}
 
-	std::string getString() {
+	std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "] w [" << w << "]";
 		return streamOut.str();

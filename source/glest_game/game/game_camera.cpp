@@ -142,11 +142,40 @@ void GameCamera::update(){
 }
 
 Quad2i GameCamera::computeVisibleQuad() const{
+/*
+	class cacheLookup {
+		public:
+			cacheLookup(float fov,float hAng,Vec3f pos) {
+				this->fov	= fov;
+				this->hAng	= hAng;
+				this->pos	= pos;
+			}
+			std::string getString() const {
+				std::ostringstream streamOut;
+				streamOut << fov << "_" << hAng << "_" << pos.getString();
+				return streamOut.str();
+			}
+
+			float fov;
+			float hAng;
+			Vec3f pos;
+
+	};
+
+	cacheLookup lookup(fov, hAng,pos);
+	string lookupKey = lookup.getString();
+
+	static std::map<string,  Quad2i> cacheQuad;
+	if(cacheQuad.find(lookupKey) != cacheQuad.end()) {
+		return cacheQuad[lookupKey];
+	}
+	//
+*/
 
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
-	float fov = Config::getInstance().getFloat("CameraFov","45");
+	//float fov = Config::getInstance().getFloat("CameraFov","45");
 
 #ifdef USE_STREFLOP
 	Vec2f v(streflop::sinf(degToRad(180 - hAng)), streflop::cosf(degToRad(180 - hAng)));
@@ -177,6 +206,10 @@ Quad2i GameCamera::computeVisibleQuad() const{
 	if (hAng >= 225 && hAng <= 315) {
 		return Quad2i(p2, p4, p1, p3);
 	}
+
+//	cacheQuad[lookupKey] = Quad2i(p4, p3, p2, p1);
+//	return cacheQuad[lookupKey];
+
 	return Quad2i(p4, p3, p2, p1);
 }
 
