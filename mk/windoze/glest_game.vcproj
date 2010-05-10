@@ -526,6 +526,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_masterserver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_masterserver.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_new_game.cpp"
 				>
 			</File>
