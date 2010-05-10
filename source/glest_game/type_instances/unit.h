@@ -309,6 +309,8 @@ public:
 	void setModelFacing(CardinalDir value);
 	CardinalDir getModelFacing() { return modelFacing; }
 
+	bool isMeetingPointSettable() const;
+
 private:
 	float computeHeight(const Vec2i &pos) const;
 	void updateTarget();
