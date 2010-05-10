@@ -200,7 +200,7 @@ void Program::loop() {
 }
 
 void Program::loopWorker() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Chrono chrono;
 	chrono.start();
@@ -213,7 +213,7 @@ void Program::loopWorker() {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//update camera
 	chrono.start();
@@ -221,7 +221,7 @@ void Program::loopWorker() {
 		programState->updateCamera();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->updateCamera took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -248,7 +248,7 @@ void Program::loopWorker() {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//fps timer
 	chrono.start();
