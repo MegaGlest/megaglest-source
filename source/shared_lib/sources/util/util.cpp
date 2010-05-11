@@ -37,7 +37,63 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Util{
 
+// Init statics
 std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> SystemFlags::debugLogFileList;
+int SystemFlags::lockFile				= -1;
+string SystemFlags::lockfilename		= "";
+CURL *SystemFlags::curl_handle			= NULL;
+//
+
+static void *myrealloc(void *ptr, size_t size)
+{
+  /* There might be a realloc() out there that doesn't like reallocing
+     NULL pointers, so we take care of it here */
+  if(ptr)
+    return realloc(ptr, size);
+  else
+    return malloc(size);
+}
+
+size_t SystemFlags::httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+  size_t realsize = size * nmemb;
+  struct httpMemoryStruct *mem = (struct httpMemoryStruct *)data;
+
+  mem->memory = (char *)myrealloc(mem->memory, mem->size + realsize + 1);
+  if (mem->memory) {
+    memcpy(&(mem->memory[mem->size]), ptr, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+  }
+  return realsize;
+}
+
+std::string SystemFlags::getHTTP(std::string URL) {
+	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_URL, URL.c_str());
+
+	/* send all data to this function  */
+	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_WRITEFUNCTION, SystemFlags::httpWriteMemoryCallback);
+
+	struct SystemFlags::httpMemoryStruct chunk;
+	chunk.memory=NULL; /* we expect realloc(NULL, size) to work */
+	chunk.size = 0;    /* no data at this point */
+
+	/* we pass our 'chunk' struct to the callback function */
+	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+
+	/* some servers don't like requests that are made without a user-agent
+	   field, so we provide one */
+	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_USERAGENT, "mega-glest-agent/1.0");
+
+	/* get contents from the URL */
+	curl_easy_perform(SystemFlags::curl_handle);
+	std::string serverResponse = chunk.memory;
+	if(chunk.memory) {
+		free(chunk.memory);
+	}
+
+	return serverResponse;
+}
 
 void SystemFlags::init() {
 	if(SystemFlags::debugLogFileList.size() == 0) {
@@ -46,10 +102,12 @@ void SystemFlags::init() {
 		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] = SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
 		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
 	}
-}
 
-int SystemFlags::lockFile						= -1;
-string SystemFlags::lockfilename				= "";
+	if(curl_handle == NULL) {
+		curl_global_init(CURL_GLOBAL_ALL);
+		curl_handle = curl_easy_init();
+	}
+}
 
 inline bool acquire_file_lock(int hnd)
 {
@@ -71,6 +129,12 @@ SystemFlags::SystemFlags() {
 }
 SystemFlags::~SystemFlags() {
 	SystemFlags::Close();
+
+	if(curl_handle != NULL) {
+		curl_easy_cleanup(curl_handle);
+		curl_handle = NULL;
+	    curl_global_cleanup();
+	}
 }
 
 void SystemFlags::Close() {

@@ -23,6 +23,7 @@
 #include "auto_test.h"
 #include "socket.h"
 #include "masterserver_info.h"
+#include <curl/curl.h>
 
 #include "leak_dumper.h"
 
@@ -221,9 +222,44 @@ void MenuStateMasterserver::render(){
 void MenuStateMasterserver::update(){
 }
 
-void MenuStateMasterserver::updateServerInfo(){
+void MenuStateMasterserver::updateServerInfo() {
 	//MasterServerInfos masterServerInfos;
 	clearServerLines();
+
+	std::string serverInfo = SystemFlags::getHTTP("http://soft-haus.com/glest/cgi-bin/mega-glest-master-query.php");
+
+	std::vector<std::string> serverList;
+	Tokenize(serverInfo,serverList,"\n");
+	for(int i=0; i < serverList.size(); i++) {
+		string &server = serverList[i];
+		std::vector<std::string> serverEntities;
+		Tokenize(server,serverEntities,"|");
+
+		const int MIN_FIELDS_EXPECTED = 11;
+		if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+			MasterServerInfo *masterServerInfo=new MasterServerInfo();
+
+			//general info:
+			masterServerInfo->setGlestVersion(serverEntities[0]);
+			masterServerInfo->setPlatform(serverEntities[1]);
+			masterServerInfo->setBinaryCompileDate(serverEntities[2]);
+
+			//game info:
+			masterServerInfo->setServerTitle(serverEntities[3]);
+			masterServerInfo->setIpAddress(serverEntities[4]);
+
+			//game setup info:
+			masterServerInfo->setTech(serverEntities[5]);
+			masterServerInfo->setMap(serverEntities[6]);
+			masterServerInfo->setTileset(serverEntities[7]);
+			masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
+			masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
+			masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+
+			serverLines.push_back(new ServerLine( masterServerInfo, i));
+		}
+	}
+/*
 	for(int i=0; i<10;i++){
 		MasterServerInfo *masterServerInfo=new MasterServerInfo();
 		
@@ -248,6 +284,7 @@ void MenuStateMasterserver::updateServerInfo(){
 		
 		serverLines.push_back(new ServerLine( masterServerInfo, i));
 	}
+*/
 	
 	//masterServerInfos.push_back(masterServerInfo);
 }

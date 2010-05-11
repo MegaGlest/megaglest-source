@@ -16,6 +16,7 @@
 #include <fstream>
 #include <map>
 #include "thread.h"
+#include <curl/curl.h>
 
 using std::string;
 using namespace Shared::Platform;
@@ -27,6 +28,11 @@ namespace Shared{ namespace Util{
 class SystemFlags
 {
 public:
+
+	struct httpMemoryStruct {
+	  char *memory;
+	  size_t size;
+	};
 
     enum DebugType {
         debugSystem,
@@ -100,11 +106,15 @@ protected:
 
 public:
 
+	static CURL *curl_handle;
+
 	SystemFlags();
 	~SystemFlags();
 
 	static void init();
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
+	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
+	static std::string getHTTP(std::string URL);
 
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);

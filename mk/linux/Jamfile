@@ -20,7 +20,7 @@ for i in $(LIB_STREFLOP_DIRS) {
 }
 
 Library strefloplib : $(LIB_STREFLOP_SOURCES) ;
-ExternalLibs strefloplib :  SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
+ExternalLibs strefloplib :  SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL ;
 IncludeDir strefloplib : $(LIB_STREFLOP_INCLUDE_DIRS) ;
 
 #### Library ####
@@ -50,7 +50,7 @@ for i in $(LIB_DIRS) {
 
 Library glestlib : $(LIB_SOURCES)  ;
 LinkWith glestlib : strefloplib ;
-ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
+ExternalLibs glestlib : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL ;
 IncludeDir glestlib : $(LIB_INCLUDE_DIRS) ;
 
 #### Game ####
@@ -79,7 +79,7 @@ for i in $(GLEST_DIRS) {
 
 Application glest.bin : $(GLEST_SOURCES) ;
 LinkWith glest.bin : glestlib strefloplib ;
-ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG ;
+ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL ;
 IncludeDir glest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
 #### Editor ####
@@ -93,7 +93,7 @@ if $(WX_AVAILABLE) = "yes" {
 
   Application glest_editor : $(GLEST_MAP_SOURCES) ;
   LinkWith glest_editor : glestlib strefloplib ;
-  ExternalLibs glest_editor : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL WX ;
+  ExternalLibs glest_editor : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL WX CURL ;
   IncludeDir glest_editor : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_MAP_DIRS) ;
 }
 
@@ -108,7 +108,7 @@ if $(WX_AVAILABLE) = "yes" {
 
   Application glest_g3dviewer : $(GLEST_VIEWER_SOURCES) ;
   LinkWith glest_g3dviewer : glestlib strefloplib ;
-  ExternalLibs glest_g3dviewer : SDL GL GLU WX ;
+  ExternalLibs glest_g3dviewer : SDL GL GLU WX CURL ;
   IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS) ;
 }
 
@@ -122,6 +122,6 @@ if $(WX_AVAILABLE) = "yes" {
 
   Application glest_configurator : $(GLEST_CONFIG_SOURCES) ;
   LinkWith glest_configurator : glestlib strefloplib ;
-  ExternalLibs glest_configurator : SDL GL GLU XERCES WX ;
+  ExternalLibs glest_configurator : SDL GL GLU XERCES WX CURL ;
   IncludeDir glest_configurator : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_CONFIG_DIRS) ;
 
