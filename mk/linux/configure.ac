@@ -130,6 +130,14 @@ NP_FINDLIB([PNG], [LibPng], [LibPNG],
 		[AC_MSG_ERROR([Please intall libpng])],
 		[], [])
 
+NP_FINDLIB([CURL], [LibCurl], [LibCurl],
+		NP_LANG_PROGRAM([#include <curl/curl.h>],
+			[curl_easy_init();]),
+		[], [-lcurl],
+		[],
+		[AC_MSG_ERROR([Please intall libcurl])],
+		[], [])
+
 CHECK_LUA([], [AC_MSG_ERROR([Please install lua 5.1])])
 
 AX_CHECK_GL

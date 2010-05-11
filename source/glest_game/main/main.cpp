@@ -29,6 +29,7 @@
 #include "simple_threads.h"
 #include <memory>
 #include "font.h"
+#include <curl/curl.h>
 
 #include "leak_dumper.h"
 
