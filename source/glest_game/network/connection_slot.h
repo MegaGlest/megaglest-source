@@ -13,10 +13,9 @@
 #define _GLEST_GAME_CONNECTIONSLOT_H_
 
 #include <vector>
-
 #include "socket.h"
-
 #include "network_interface.h"
+#include <time.h>
 
 using Shared::Platform::ServerSocket;
 using Shared::Platform::Socket;
@@ -39,6 +38,8 @@ private:
 	bool ready;
 	vector<std::pair<string,int32> > vctFileList;
 	bool receivedNetworkGameStatus;
+	time_t connectedTime;
+	bool gotIntro;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);

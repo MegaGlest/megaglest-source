@@ -181,6 +181,7 @@ public:
 
 protected:
 
+	int boundPort;
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
 	bool isBroadCastThreadRunning();

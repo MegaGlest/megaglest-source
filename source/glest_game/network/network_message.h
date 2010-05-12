@@ -45,6 +45,14 @@ enum NetworkMessageType {
 	nmtCount
 };
 
+enum NetworkGameStateType {
+	nmgstInvalid,
+	nmgstOk,
+	nmgstNoSlots,
+
+	nmgstCount
+};
+
 const int32 commandListHeaderSize = 6;
 
 // =====================================================
@@ -81,6 +89,7 @@ private:
 		NetworkString<maxVersionStringSize> versionString;
 		NetworkString<maxNameSize> name;
 		int16 playerIndex;
+		int8 gameState;
 	};
 
 private:
@@ -88,11 +97,12 @@ private:
 
 public:
 	NetworkMessageIntro();
-	NetworkMessageIntro(const string &versionString, const string &name, int playerIndex);
+	NetworkMessageIntro(const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState);
 
-	string getVersionString() const		{return data.versionString.getString();}
-	string getName() const				{return data.name.getString();}
-	int getPlayerIndex() const			{return data.playerIndex;}
+	string getVersionString() const				{ return data.versionString.getString(); }
+	string getName() const						{ return data.name.getString(); }
+	int getPlayerIndex() const					{ return data.playerIndex; }
+	NetworkGameStateType getGameState() const 	{ return static_cast<NetworkGameStateType>(data.gameState); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

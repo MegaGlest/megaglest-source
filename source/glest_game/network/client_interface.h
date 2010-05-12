@@ -42,6 +42,8 @@ private:
 	bool launchGame;
 	int playerIndex;
 	bool gameSettingsReceived;
+	time_t connectedTime;
+	bool gotIntro;
 
 	Ip ip;
 	int port;

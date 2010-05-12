@@ -39,6 +39,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->playerIndex= playerIndex;
 	socket= NULL;
 	ready= false;
+	gotIntro = false;
 
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
@@ -77,20 +78,36 @@ void ConnectionSlot::update(bool checkForNewClients)
 	    //if(serverInterface->getServerSocket()->isReadable() == true)
 	    if(checkForNewClients == true)
 	    {
-            socket = serverInterface->getServerSocket()->accept();
+	    	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
+	    	bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
+	    	if(serverInterface->getServerSocket()->hasDataToRead() == true) {
+				socket = serverInterface->getServerSocket()->accept();
+				serverInterface->updateListen();
+	    	}
+			//send intro message when connected
+			if(socket != NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
+				connectedTime = time(NULL);
 
-            //send intro message when connected
-            if(socket != NULL)
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection\n",__FILE__,__FUNCTION__);
+				chatText.clear();
+				chatSender.clear();
+				chatTeamIndex= -1;
 
-                chatText.clear();
-                chatSender.clear();
-                chatTeamIndex= -1;
+				if(hasOpenSlots == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
 
-                NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex);
-                sendMessage(&networkMessageIntro);
-            }
+					NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstNoSlots);
+					sendMessage(&networkMessageIntro);
+
+					close();
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__);
+
+					NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstOk);
+					sendMessage(&networkMessageIntro);
+				}
+			}
 	    }
 	}
 	else
@@ -144,12 +161,12 @@ void ConnectionSlot::update(bool checkForNewClients)
 				//process intro messages
 				case nmtIntro:
 				{
-
 				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtIntro\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageIntro networkMessageIntro;
 					if(receiveMessage(&networkMessageIntro))
 					{
+						gotIntro = true;
 						name= networkMessageIntro.getName();
 
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s]\n",__FILE__,__FUNCTION__,name.c_str());
@@ -189,11 +206,7 @@ void ConnectionSlot::update(bool checkForNewClients)
                         }
 
                     	//tileset
-                        //world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
-
-						//int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", NULL);
                         int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), ".xml", NULL);
-						//int32 techCRC    = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
                         int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
                         Checksum checksum;
                         string file = Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir);
@@ -342,6 +355,11 @@ void ConnectionSlot::update(bool checkForNewClients)
                     return;
                     }
 			}
+
+			if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %d\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+				close();
+			}
 		}
 		else
 		{
@@ -362,6 +380,10 @@ void ConnectionSlot::close()
     chatText.clear();
     chatSender.clear();
     chatTeamIndex= -1;
+    ready = false;
+    gotIntro = false;
+
+    serverInterface->updateListen();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
