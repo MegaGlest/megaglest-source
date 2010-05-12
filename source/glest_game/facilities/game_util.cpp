@@ -54,6 +54,10 @@ string getNetworkVersionString() {
 	return version;
 }
 
+string getCompileDateTime() {
+	return string(__DATE__) + " " + string(__TIME__);
+}
+
 string getNetworkPlatformFreeVersionString() {
 	return glestVersionString;
 }
