@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -47,9 +47,13 @@ private:
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
+	
+	GraphicLabel labelPublishServer;
+	GraphicListBox listBoxPublishServer;
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
+	time_t lastMasterserverPublishing;
 
 	Console console;
 	ChatManager chatManager;
@@ -74,6 +78,8 @@ private:
 	void updateControlers();
 	void closeUnusedSlots();
 	void updateNetworkSlots();
+	void publishToMasterserver();
+	string escapeURL(string in);
 };
 
 }}//end namespace

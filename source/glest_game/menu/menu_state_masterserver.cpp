@@ -226,7 +226,7 @@ void MenuStateMasterserver::updateServerInfo() {
 	//MasterServerInfos masterServerInfos;
 	clearServerLines();
 
-	std::string serverInfo = SystemFlags::getHTTP("http://soft-haus.com/glest/cgi-bin/mega-glest-master-query.php");
+	std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
 
 	std::vector<std::string> serverList;
 	Tokenize(serverInfo,serverList,"\n");
