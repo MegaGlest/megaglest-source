@@ -602,7 +602,6 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* n
 void ServerInterface::updateListen()
 {
 	int openSlotCount= 0;
-
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)
 	{
 		if(slots[i] != NULL && slots[i]->isConnected() == false)
@@ -612,6 +611,20 @@ void ServerInterface::updateListen()
 	}
 
 	serverSocket.listen(openSlotCount);
+}
+
+int ServerInterface::getOpenSlotCount() {
+	int openSlotCount= 0;
+
+	for(int i= 0; i<GameConstants::maxPlayers; ++i)
+	{
+		if(slots[i] != NULL && slots[i]->isConnected() == false)
+		{
+			++openSlotCount;
+		}
+	}
+
+	return openSlotCount;
 }
 
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck)

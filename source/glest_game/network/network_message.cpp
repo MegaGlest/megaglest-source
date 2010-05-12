@@ -119,13 +119,15 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const
 NetworkMessageIntro::NetworkMessageIntro(){
 	data.messageType= -1;
 	data.playerIndex= -1;
+	data.gameState	= nmgstInvalid;
 }
 
-NetworkMessageIntro::NetworkMessageIntro(const string &versionString, const string &name, int playerIndex){
-	data.messageType=nmtIntro;
-	data.versionString= versionString;
-	data.name= name;
-	data.playerIndex= static_cast<int16>(playerIndex);
+NetworkMessageIntro::NetworkMessageIntro(const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState) {
+	data.messageType	= nmtIntro;
+	data.versionString	= versionString;
+	data.name			= name;
+	data.playerIndex	= static_cast<int16>(playerIndex);
+	data.gameState		= static_cast<int8>(gameState);
 }
 
 bool NetworkMessageIntro::receive(Socket* socket){

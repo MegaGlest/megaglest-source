@@ -1504,6 +1504,7 @@ bool ServerSocket::isBroadCastThreadRunning() {
 
 void ServerSocket::bind(int port)
 {
+	boundPort = port;
 	//sockaddr structure
 	sockaddr_in addr;
 	addr.sin_family= AF_INET;
@@ -1527,14 +1528,31 @@ void ServerSocket::bind(int port)
 	}
 }
 
-void ServerSocket::listen(int connectionQueueSize)
-{
-	int err= ::listen(sock, connectionQueueSize);
-	if(err < 0)
-	{
-	    char szBuf[1024]="";
-	    sprintf(szBuf, "In [%s::%s] Error listening socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
-		throwException(szBuf);
+void ServerSocket::listen(int connectionQueueSize) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d connectionQueueSize = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionQueueSize);
+
+	if(connectionQueueSize > 0) {
+		if(isSocketValid() == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			if(isSocketValid() == false) {
+				throwException("Error creating socket");
+			}
+			setBlock(false);
+			bind(boundPort);
+		}
+
+		int err= ::listen(sock, connectionQueueSize);
+		if(err < 0) {
+			char szBuf[1024]="";
+			sprintf(szBuf, "In [%s::%s] Error listening socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+			throwException(szBuf);
+		}
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		disconnectSocket();
 	}
 
 	if(connectionQueueSize > 0) {
@@ -1545,7 +1563,6 @@ void ServerSocket::listen(int connectionQueueSize)
 	else {
 		stopBroadCastThread();
 	}
-
 }
 
 Socket *ServerSocket::accept()
@@ -1555,6 +1572,7 @@ Socket *ServerSocket::accept()
 	{
 	    char szBuf[1024]="";
 	    sprintf(szBuf, "In [%s::%s] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 		if(getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)
 		{
@@ -1562,6 +1580,9 @@ Socket *ServerSocket::accept()
 		}
 		throwException(szBuf);
 
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d\n",__FILE__,__FUNCTION__,__LINE__,newSock);
 	}
 	return new Socket(newSock);
 }

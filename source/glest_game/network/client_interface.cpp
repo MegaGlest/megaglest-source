@@ -44,6 +44,7 @@ ClientInterface::ClientInterface(){
 	introDone= false;
 	playerIndex= -1;
 	gameSettingsReceived=false;
+	gotIntro = false;
 
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
@@ -78,6 +79,7 @@ void ClientInterface::connect(const Ip &ip, int port)
 	clientSocket= new ClientSocket();
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
+	connectedTime = time(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
 }
@@ -133,13 +135,13 @@ void ClientInterface::updateLobby()
         {
             NetworkMessageIntro networkMessageIntro;
 
-            if(receiveMessage(&networkMessageIntro))
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro\n",__FILE__,__FUNCTION__);
+            if(receiveMessage(&networkMessageIntro)) {
+            	gotIntro = true;
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d\n",__FILE__,__FUNCTION__,networkMessageIntro.getGameState());
 
                 //check consistency
-                if(networkMessageIntro.getVersionString() != getNetworkVersionString())
-                {
+                if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
                 	bool versionMatched = false;
                 	string platformFreeVersion = getNetworkPlatformFreeVersionString();
                 	string sErr = "";
@@ -165,8 +167,8 @@ void ClientInterface::updateLobby()
 						sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
                 	}
 
-					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") && versionMatched == false)
-            		{// error message and disconnect only if checked
+					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
+					   versionMatched == false) { // error message and disconnect only if checked
 						DisplayErrorMessage(sErr);
                         quit= true;
                         close();
@@ -174,15 +176,31 @@ void ClientInterface::updateLobby()
             		}
                 }
 
-                //send intro message
-                NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1);
+                if(networkMessageIntro.getGameState() == nmgstOk) {
+					//send intro message
+					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1, nmgstOk);
 
-                playerIndex= networkMessageIntro.getPlayerIndex();
-                serverName= networkMessageIntro.getName();
-                sendMessage(&sendNetworkMessageIntro);
+					playerIndex= networkMessageIntro.getPlayerIndex();
+					serverName= networkMessageIntro.getName();
+					sendMessage(&sendNetworkMessageIntro);
 
-                assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
-                introDone= true;
+					assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+					introDone= true;
+                }
+                else if(networkMessageIntro.getGameState() == nmgstNoSlots) {
+                	string sErr = "Cannot join the server because there are no open slots for new players.";
+					DisplayErrorMessage(sErr);
+                    quit= true;
+                    close();
+                	return;
+                }
+                else {
+                	string sErr = "Unknown response from server: " + intToStr(networkMessageIntro.getGameState());
+					DisplayErrorMessage(sErr);
+                    quit= true;
+                    close();
+                	return;
+                }
             }
         }
         break;
@@ -399,6 +417,11 @@ void ClientInterface::updateLobby()
             close();
             }
     }
+
+	if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %d\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+		close();
+	}
 }
 
 void ClientInterface::updateKeyframe(int frameCount)
@@ -699,6 +722,9 @@ void ClientInterface::close()
 
 	delete clientSocket;
 	clientSocket= NULL;
+
+	connectedTime = 0;
+	gotIntro = false;
 }
 
 void ClientInterface::discoverServers(DiscoveredServersInterface *cb) {

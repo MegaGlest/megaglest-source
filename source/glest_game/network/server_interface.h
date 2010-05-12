@@ -73,14 +73,15 @@ public:
 	void removeSlot(int playerIndex);
 	ConnectionSlot* getSlot(int playerIndex);
 	int getConnectedSlotCount();
+	int getOpenSlotCount();
 
 	bool launchGame(const GameSettings* gameSettings);
 	virtual void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck = false);
 	void broadcastGameSetup(const GameSettings* gameSettings);
+	void updateListen();
 
 private:
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
-	void updateListen();
 	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
 };
