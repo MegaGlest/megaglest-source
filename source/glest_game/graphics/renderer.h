@@ -27,7 +27,6 @@
 #include "font_manager.h"
 #include "camera.h"
 #include <vector>
-//#include "base_thread.h"
 #include "model_renderer.h"
 #include "model.h"
 
@@ -54,8 +53,6 @@ using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Camera;
 using Shared::Graphics::MeshCallback;
 using Shared::Graphics::Mesh;
-
-//using namespace Shared::PlatformCommon;
 
 // =====================================================
 // 	class MeshCallbackTeamColor
@@ -108,12 +105,9 @@ enum RenderEntityType {
 
 class RenderEntity {
 protected:
-	Mutex mutex;
 	RenderEntityState state;
 
 	void CopyAll(const RenderEntity &obj) {
-		// Mutex doesn't like being copied.. DON'T do it
-		// Mutex mutex;
 		this->type   = obj.type;
 		this->state  = obj.state;
 		this->o 	 = obj.o;
@@ -123,6 +117,8 @@ protected:
 	}
 
 public:
+
+	static bool forceRenderWithIterpolation;
 
 	RenderEntity() {
 		this->type = retObject;
@@ -154,54 +150,13 @@ public:
 	const Texture2D *teamTexture;
 
 	RenderEntityState getState() {
-		RenderEntityState result;
-		mutex.p();
-		result = this->state;
-		mutex.v();
-
-		return result;
+		return this->state;
 	}
 	void setState(RenderEntityState value) {
-		mutex.p();
 		this->state = value;
-		mutex.v();
 	}
 };
 
-/*
-//
-// This interface describes the methods a callback object must implement
-//
-class InterpolateTaskCallbackInterface {
-public:
-	virtual void interpolateTask(std::vector<RenderEntity> &vctEntity) = 0;
-};
-
-class InterpolateTaskThread : public BaseThread
-{
-protected:
-
-	InterpolateTaskCallbackInterface *interpolateTaskInterface;
-
-	Semaphore semaphoreTaskSignaller;
-	Mutex mutexTaskSignaller;
-	bool taskSignalled;
-	std::vector<RenderEntity> *vctEntity;
-
-	virtual void setQuitStatus(bool value);
-	virtual void setRunningStatus(bool value);
-	void nullEntityList();
-
-public:
-
-	InterpolateTaskThread(InterpolateTaskCallbackInterface *interpolateTaskInterface);
-    virtual void execute();
-    void setTaskSignalled(std::vector<RenderEntity> *vctEntity);
-    bool getTaskSignalled();
-};
-*/
-
-//class Renderer : public InterpolateTaskCallbackInterface {
 class Renderer  {
 public:
 	//progress bar
@@ -299,7 +254,6 @@ private:
 	float waterAnim;
 
 	bool allowRotateUnits;
-	//InterpolateTaskThread *interpolateThread;
 
 private:
 	Renderer();
@@ -376,8 +330,6 @@ public:
 	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor);
 	void prepareObjectForRender(RenderEntity &entity);
 	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor);
-
-	virtual void interpolateTask(std::vector<RenderEntity> &vctEntity);
 
 	void renderWater();
     void renderUnits();
