@@ -32,12 +32,23 @@ string getCrashDumpFileName(){
 	return "glest" + glestVersionString + ".dmp";
 }
 
-string getNetworkVersionString() {
-	string version = glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__);
-#if defined(WIN32) && defined(_MSC_VER)
-	version += " Compiled using MSC_VER: " + intToStr(_MSC_VER);
+string getPlatformNameString() {
+	string platform = "";
+#if defined(WIN32)
+	platform = "Windows";
 #elif defined(__GNUC__)
+	platform = "GNU";
+#else
+	platform = "???";
+#endif
+	return platform;
+}
 
+string getCompilerNameString() {
+	string version = "";
+#if defined(WIN32) && defined(_MSC_VER)
+	version = "VC++: " + intToStr(_MSC_VER);
+#elif defined(__GNUC__)
 	#if defined(__GNUC__)
 	# if defined(__GNUC_PATCHLEVEL__)
 	#  define __GNUC_VERSION__ (__GNUC__ * 10000 \
@@ -48,9 +59,16 @@ string getNetworkVersionString() {
 								+ __GNUC_MINOR__ * 100)
 	# endif
 	#endif
-
-	version += " Compiled using GNUC_VERSION: " + intToStr(__GNUC_VERSION__);
+	version = "GNUC: " + intToStr(__GNUC_VERSION__);
+#else
+	version = "???";
 #endif
+	return version;
+}
+
+string getNetworkVersionString() {
+	string version = glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__);
+	version += " Compiled with " + getCompilerNameString();
 	return version;
 }
 
