@@ -23,8 +23,10 @@
 #include "conversion.h"
 #include "socket.h"
 #include "game.h"
+#include "util.h"
 #include <algorithm>
 #include <time.h>
+#include <curl/curl.h>
 
 #include "leak_dumper.h"
 
@@ -51,7 +53,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     Config &config = Config::getInstance();
 
 	needToSetChangedGameSettings = false;
-	lastSetChangedGameSettings   = time(NULL);;
+	lastSetChangedGameSettings   = time(NULL);
+	lastMasterserverPublishing = time(NULL);
 
 	vector<string> teamItems, controlItems, results;
 
@@ -81,7 +84,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     listBoxMap.setItems(results);
 	labelMap.init(100, 290);
 	labelMapInfo.init(100, 230, 200, 40);
-	
+		
 	// fog - o - war
 	// @350 ? 300 ?
 	labelFogOfWar.init(350, 290, 100);
@@ -111,6 +114,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxTechTree.init(700, 260, 150);
     listBoxTechTree.setItems(results);
 	labelTechTree.init(700, 290);
+
+
+	labelPublishServer.init(350, 90, 100);
+	labelPublishServer.setText(lang.get("Publish Server"));
+	listBoxPublishServer.init(350, 60, 100);
+	listBoxPublishServer.pushBackItem(lang.get("Yes"));
+	listBoxPublishServer.pushBackItem(lang.get("No"));
+	listBoxPublishServer.setSelectedItemIndex(1);
+
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -283,6 +295,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);;
         }
 	}
+	else if(listBoxPublishServer.mouseClick(x, y)&&listBoxPublishServer.getEditable()){
+		soundRenderer.playFx(coreData.getClickSoundC());
+	}
 	else
 	{
 		for(int i=0; i<mapInfo.players; ++i)
@@ -357,6 +372,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxFogOfWar.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
+	listBoxPublishServer.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -394,6 +410,11 @@ void MenuStateCustomGame::render(){
 
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console);
+		if(listBoxPublishServer.getEditable())
+		{
+			renderer.renderListBox(&listBoxPublishServer);
+			renderer.renderLabel(&labelPublishServer);
+		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -411,6 +432,7 @@ void MenuStateCustomGame::update()
 		Lang& lang= Lang::getInstance();
 
 		bool haveAtLeastOneNetworkClientConnected = false;
+		bool hasOneNetworkSlotOpen = false;
 		Config &config = Config::getInstance();
 		
 		
@@ -468,10 +490,10 @@ void MenuStateCustomGame::update()
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 			{
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
-
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-
 				assert(connectionSlot!=NULL);
+				
+				hasOneNetworkSlotOpen=true;
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
@@ -574,6 +596,25 @@ void MenuStateCustomGame::update()
 			needToSetChangedGameSettings    = false;
 		}
 		
+		if(hasOneNetworkSlotOpen)
+		{
+			//listBoxPublishServer.setSelectedItemIndex(0);
+			listBoxPublishServer.setEditable(true);
+		}
+		else
+		{
+			listBoxPublishServer.setSelectedItemIndex(1);
+			listBoxPublishServer.setEditable(false);
+		}
+		
+		if(listBoxPublishServer.getEditable() && listBoxPublishServer.getSelectedItemIndex()==0 && (difftime(time(NULL),lastMasterserverPublishing) >= 5) ){
+			// give it to me baby, aha aha ...
+			lastMasterserverPublishing = time(NULL);
+			publishToMasterserver();
+		}
+		
+		
+		
 		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{
 			GameSettings gameSettings;
@@ -599,6 +640,73 @@ void MenuStateCustomGame::update()
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(szBuf);
 	}
+}
+
+void MenuStateCustomGame::publishToMasterserver()
+{
+	int slotCountUsed=0;
+	int slotCountHumans=0;
+	int slotCountConnectedPlayers=0;
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	GameSettings gameSettings;
+	loadGameSettings(&gameSettings);
+	string serverinfo="";
+	
+	for(int i= 0; i<mapInfo.players; ++i)
+	{
+		if(listBoxControls[i].getSelectedItemIndex() != ctClosed)
+		{
+			slotCountUsed++;
+		}
+		
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
+		{
+			slotCountHumans++;
+			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
+			if((connectionSlot!=NULL) && (connectionSlot->isConnected()))
+			{
+				slotCountConnectedPlayers++;
+			}	
+		}
+		else if(listBoxControls[i].getSelectedItemIndex() == ctHuman)
+		{
+			slotCountHumans++;
+			slotCountConnectedPlayers++;
+		}	
+	}
+	//?status=waiting&system=linux&info=titus
+	serverinfo+="glestVersion="+escapeURL(glestVersionString)+"&";
+	serverinfo+="platform=xxx&";
+	serverinfo+="binaryCompileDate="+escapeURL(getCompileDateTime())+"&";
+	
+	//game info:
+	serverinfo+="serverTitle="+escapeURL(Config::getInstance().getString("NetPlayerName")+"'s game")+"&";
+	//ip is automatically set
+	
+	//game setup info:
+	serverinfo+="tech="+escapeURL(listBoxTechTree.getSelectedItem())+"&";
+	serverinfo+="map="+escapeURL(listBoxMap.getSelectedItem())+"&"; 
+	serverinfo+="tileset="+escapeURL(listBoxTileset.getSelectedItem())+"&";
+	serverinfo+="activeSlots="+intToStr(slotCountUsed)+"&";
+	serverinfo+="networkSlots="+intToStr(slotCountHumans)+"&";
+	serverinfo+="connectedClients="+intToStr(slotCountConnectedPlayers);
+	
+	string request = Config::getInstance().getString("Masterserver")+"addServerInfo.php?"+serverinfo;
+	printf("the request is:\n%s\n",request.c_str());
+	
+	
+	std::string serverInfo = SystemFlags::getHTTP(request);
+	
+}
+
+string MenuStateCustomGame::escapeURL(string in)
+{
+	char *escaped=curl_easy_escape(SystemFlags::curl_handle,in.c_str(),0);
+	if(escaped==NULL)
+	abort();
+	string out=escaped;
+	curl_free(escaped);
+	return out;
 }
 
 void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
