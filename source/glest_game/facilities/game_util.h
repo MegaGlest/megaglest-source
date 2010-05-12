@@ -27,6 +27,8 @@ extern const string glestVersionString;
 extern const string networkVersionString;
 
 string getCrashDumpFileName();
+string getPlatformNameString();
+string getCompilerNameString();
 string getNetworkVersionString();
 string getNetworkPlatformFreeVersionString();
 string getAboutString1(int i);
