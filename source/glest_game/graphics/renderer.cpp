@@ -97,93 +97,6 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 }
 
 // ===========================================================
-//	class InterpolateTaskThread
-// ===========================================================
-/*
-InterpolateTaskThread::InterpolateTaskThread(InterpolateTaskCallbackInterface *interpolateTaskInterface)
-: BaseThread() {
-	this->interpolateTaskInterface = interpolateTaskInterface;
-	nullEntityList();
-	this->taskSignalled = false;
-}
-
-void InterpolateTaskThread::setQuitStatus(bool value) {
-	BaseThread::setQuitStatus(value);
-	if(value == true) {
-		semaphoreTaskSignaller.signal();
-	}
-}
-void InterpolateTaskThread::setRunningStatus(bool value) {
-	BaseThread::setRunningStatus(value);
-	if(value == false) {
-		semaphoreTaskSignaller.signal();
-	}
-}
-
-void InterpolateTaskThread::setTaskSignalled(std::vector<RenderEntity> *vctEntity) {
-	mutexTaskSignaller.p();
-	this->vctEntity = vctEntity;
-	mutexTaskSignaller.v();
-
-	if(this->vctEntity != NULL) {
-		semaphoreTaskSignaller.signal();
-	}
-}
-
-bool InterpolateTaskThread::getTaskSignalled() {
-	bool result = false;
-	mutexTaskSignaller.p();
-	result = (vctEntity != NULL && vctEntity->size() > 0);
-	mutexTaskSignaller.v();
-	return result;
-}
-
-void InterpolateTaskThread::nullEntityList() {
-	mutexTaskSignaller.p();
-	this->vctEntity = NULL;
-	mutexTaskSignaller.v();
-}
-
-void InterpolateTaskThread::execute() {
-	try {
-		setRunningStatus(true);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		for(;this->interpolateTaskInterface != NULL;) {
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
-
-			int semValue = semaphoreTaskSignaller.waitTillSignalled();
-
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
-
-			if(getTaskSignalled() == true) {
-				if(vctEntity != NULL) {
-					this->interpolateTaskInterface->interpolateTask(*vctEntity);
-					nullEntityList();
-				}
-			}
-		}
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	}
-	catch(const exception &ex) {
-		setRunningStatus(false);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ex.what() = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-
-		throw runtime_error(ex.what());
-	}
-	setRunningStatus(false);
-}
-*/
-// ===========================================================
 //	class Renderer
 // ===========================================================
 
@@ -249,20 +162,9 @@ Renderer::Renderer(){
 	}
 
 	allowRotateUnits = config.getBool("AllowRotateUnits","0");
-
-	//interpolateThread = NULL;
-	// Run interpolation calcs in a background thread if enabled
-	//if(config.getBool("ThreadedInterpolation","false") == true) {
-	//	interpolateThread = new InterpolateTaskThread(this);
-	//	interpolateThread->start();
-	//}
 }
 
 Renderer::~Renderer(){
-	//BaseThread::shutdownAndWait(interpolateThread);
-	//delete interpolateThread;
-	//interpolateThread = NULL;
-
 	delete modelRenderer;
 	delete textRenderer;
 	delete particleRenderer;
@@ -1398,7 +1300,6 @@ void Renderer::renderObjects() {
 				glPopMatrix();
 */
 
-				//renderObject(RenderEntity(o,mapPos),baseFogColor);
 				vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
 			}
 		}
@@ -1413,66 +1314,12 @@ void Renderer::renderObjects() {
 	glPopAttrib();
 }
 
-void Renderer::interpolateTask(std::vector<RenderEntity> &vctEntity) {
+void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor) {
 	for(int idx=0; idx < vctEntity.size(); ++idx) {
 		RenderEntity &entity = vctEntity[idx];
-		if(entity.type == retObject) {
-			prepareObjectForRender(entity);
-		}
-		else if(entity.type == retUnit) {
-			prepareUnitForRender(entity);
-		}
-		else if(entity.type == retUnitFast) {
-			prepareUnitFastForRender(entity);
-		}
+		prepareObjectForRender(entity);
+		renderObject(entity,baseFogColor);
 	}
-}
-
-void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	// Run interpolation threaded if the thread is created
-	//if(interpolateThread != NULL) {
-	//	interpolateThread->setTaskSignalled(&vctEntity);
-	//}
-	//else {
-	interpolateTask(vctEntity);
-	//}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	std::map<int,bool> entityPendingLookup;
-
-	int renderedObjectCount = 0;
-	for(bool done = false; done == false;) {
-		done = true;
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			// already done, don't waste time
-			if(entityPendingLookup[idx] == true) {
-				continue;
-			}
-			RenderEntity &entity = vctEntity[idx];
-			if(entity.getState() == resInterpolated) {
-				done = false;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
-
-				renderObject(entity,baseFogColor);
-				entityPendingLookup[idx] = true;
-				renderedObjectCount++;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
-			}
-			else if(entity.getState() == resNone) {
-				done = false;
-			}
-		}
-		if(done == false) {
-			sleep(0);
-		}
-	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 }
 
 void Renderer::prepareObjectForRender(RenderEntity &entity) {
@@ -1499,8 +1346,6 @@ void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor) {
 			//ambient and diffuse color is taken from cell color
 			const World *world= game->getWorld();
 			const Texture2D *fowTex= world->getMinimap()->getFowTexture();
-
-			//!!!float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
 			float fowFactor= fowTex->getPixmap()->getPixelf(mapPos.x,mapPos.y);
 
 			Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
@@ -1652,7 +1497,6 @@ void Renderer::renderWater(){
 	assertGl();
 }
 
-//!!!
 void Renderer::renderUnits(){
 	Unit *unit;
 	const World *world= game->getWorld();
@@ -1741,50 +1585,11 @@ void Renderer::renderUnits(){
 }
 
 void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	// Run interpolation threaded if the thread is created
-	//if(interpolateThread != NULL) {
-	//	interpolateThread->setTaskSignalled(&vctEntity);
-	//}
-	//else {
-	interpolateTask(vctEntity);
-	//}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	std::map<int,bool> entityPendingLookup;
-
-	int renderedUnitCount = 0;
-	for(bool done = false; done == false;) {
-		done = true;
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			// already done, don't waste time
-			if(entityPendingLookup[idx] == true) {
-				continue;
-			}
-			RenderEntity &entity = vctEntity[idx];
-			if(entity.getState() == resInterpolated) {
-				done = false;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
-
-				renderUnit(entity,meshCallbackTeamColor);
-				entityPendingLookup[idx] = true;
-				renderedUnitCount++;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
-			}
-			else if(entity.getState() == resNone) {
-				done = false;
-			}
-		}
-		if(done == false) {
-			sleep(0);
-		}
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		RenderEntity &entity = vctEntity[idx];
+		prepareUnitForRender(entity);
+		renderUnit(entity,meshCallbackTeamColor);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 }
 
 void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor) {
@@ -2868,6 +2673,8 @@ void Renderer::renderUnitsFast(){
 //		glPopName();
 	}
 
+	glInitNames();
+
 	modelRenderer->begin(false, false, false);
 	renderUnitFastList(vctEntity);
 	modelRenderer->end();
@@ -2876,52 +2683,11 @@ void Renderer::renderUnitsFast(){
 }
 
 void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	// Run interpolation threaded if the thread is created
-	//if(interpolateThread != NULL) {
-	//	interpolateThread->setTaskSignalled(&vctEntity);
-	//}
-	//else {
-	interpolateTask(vctEntity);
-	//}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
-
-	std::map<int,bool> entityPendingLookup;
-
-	glInitNames();
-
-	int renderedUnitCount = 0;
-	for(bool done = false; done == false;) {
-		done = true;
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			// already done, don't waste time
-			if(entityPendingLookup[idx] == true) {
-				continue;
-			}
-			RenderEntity &entity = vctEntity[idx];
-			if(entity.getState() == resInterpolated) {
-				done = false;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d\n",__FILE__,__FUNCTION__,__LINE__,idx);
-
-				renderUnitFast(entity);
-				entityPendingLookup[idx] = true;
-				renderedUnitCount++;
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d renderedObjectCount = %d\n",__FILE__,__FUNCTION__,__LINE__,idx,renderedObjectCount);
-			}
-			else if(entity.getState() == resNone) {
-				done = false;
-			}
-		}
-		if(done == false) {
-			sleep(0);
-		}
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		RenderEntity &entity = vctEntity[idx];
+		prepareUnitFastForRender(entity);
+		renderUnitFast(entity);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctEntity.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,vctEntity.size());
 }
 
 void Renderer::renderUnitFast(RenderEntity &entity) {
