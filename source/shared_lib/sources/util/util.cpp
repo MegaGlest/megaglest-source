@@ -68,6 +68,18 @@ size_t SystemFlags::httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb
   return realsize;
 }
 
+std::string SystemFlags::escapeURL(std::string URL)
+{
+	string result = URL;
+
+	char *escaped=curl_easy_escape(SystemFlags::curl_handle,URL.c_str(),0);
+	if(escaped != NULL) {
+		result = escaped;
+		curl_free(escaped);
+	}
+	return result;
+}
+
 std::string SystemFlags::getHTTP(std::string URL) {
 	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_URL, URL.c_str());
 
