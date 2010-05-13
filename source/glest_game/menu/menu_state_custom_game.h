@@ -56,6 +56,7 @@ private:
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
 	bool needToRepublishToMasterserver;
+	bool needToBroadcastServerSettings;
 	string publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
 
