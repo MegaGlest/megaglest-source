@@ -64,6 +64,7 @@ public:
 	void setReceivedNetworkGameStatus(bool value) { receivedNetworkGameStatus = value; }
 
 	bool hasValidSocketId();
+	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 };
 
 }}//end namespace

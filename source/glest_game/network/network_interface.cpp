@@ -68,8 +68,13 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
 		}
 
         //sanity check new message type
-        if(messageType<0 || messageType>=nmtCount){
-            throw runtime_error("Invalid message type: " + intToStr(messageType));
+        if(messageType < 0 || messageType >= nmtCount) {
+        	if(getConnectHasHandshaked() == true) {
+        		throw runtime_error("Invalid message type: " + intToStr(messageType));
+        	}
+        	else {
+        		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",__FILE__,__FUNCTION__,__LINE__,messageType);
+        	}
         }
     }
 
