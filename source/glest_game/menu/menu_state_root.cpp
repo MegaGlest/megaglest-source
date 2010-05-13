@@ -38,7 +38,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "root")
 {
 	Lang &lang= Lang::getInstance();
-	int i=390;
+	int i=375;
 	buttonNewGame.init(425, i, 150);
 	i-=40;
     buttonJoinGame.init(425, i, 150);

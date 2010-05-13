@@ -46,7 +46,7 @@ struct FormatString {
 // =====================================================
 
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
-	MenuState(program, mainMenu, "join-game")
+	MenuState(program, mainMenu, "join-game") //← set on connected-game 
 {
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
