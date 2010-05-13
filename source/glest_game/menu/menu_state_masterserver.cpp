@@ -122,7 +122,7 @@ void ServerLine::render(){
 // =====================================================
 
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "root")
+	MenuState(program, mainMenu, "root") //← set on masterserver
 {
 	Lang &lang= Lang::getInstance();
 
