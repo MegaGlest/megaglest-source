@@ -40,7 +40,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	index=lineIndex;
 	int lineOffset=25*lineIndex;
 	masterServerInfo=mServerInfo;
-	int i=50;
+	int i=10;
 	int startOffset=650;
 	
 	//general info:
@@ -55,16 +55,16 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	binaryCompileDateLabel.setText(masterServerInfo->getBinaryCompileDate());
 	
 	//game info:
-	i+=70;
+	i+=130;
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(masterServerInfo->getServerTitle());
 	
-	i+=150;
+	i+=160;
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(masterServerInfo->getIpAddress());
 	
 	//game setup info:
-	i+=100;
+	i+=70;
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(masterServerInfo->getTech());
 	
@@ -258,34 +258,7 @@ void MenuStateMasterserver::updateServerInfo() {
 
 			serverLines.push_back(new ServerLine( masterServerInfo, i));
 		}
-	}
-/*
-	for(int i=0; i<10;i++){
-		MasterServerInfo *masterServerInfo=new MasterServerInfo();
-		
-		
-			//general info:
-		masterServerInfo->setGlestVersion("3.3.5-dev");
-		masterServerInfo->setPlatform("Linux");
-		masterServerInfo->setBinaryCompileDate("11.05.69");
-		
-		//game info:
-		masterServerInfo->setServerTitle("Titis Server");
-		masterServerInfo->setIpAddress("172.20.100.101");
-		
-		//game setup info:
-		masterServerInfo->setTech("Indian");
-		masterServerInfo->setMap("Conflict"); 
-		masterServerInfo->setTileset("Autumn");
-		masterServerInfo->setActiveSlots(8);
-		masterServerInfo->setNetworkSlots(4);
-		masterServerInfo->setConnectedClients(0);
-		
-		
-		serverLines.push_back(new ServerLine( masterServerInfo, i));
-	}
-*/
-	
+	}	
 	//masterServerInfos.push_back(masterServerInfo);
 }
 
