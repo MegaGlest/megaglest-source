@@ -54,7 +54,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 
 	buttonNewGame.setText(lang.get("NewGame"));
 	buttonJoinGame.setText(lang.get("JoinGame"));
-	buttonMasterserverGame.setText(lang.get("JoinInternetGame(work in progress!!)"));
+	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About")); 
 	buttonExit.setText(lang.get("Exit"));
