@@ -132,12 +132,12 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	// header
 	labelTitle.init(330, 700);
-	labelTitle.setText(lang.get("Available Servers"));
+	labelTitle.setText(lang.get("AvailableServers"));
 
     buttonRefresh.init(450, 70, 150);
     buttonReturn.init(150, 70, 150);
 
-	buttonRefresh.setText(lang.get("Refresh List"));
+	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
 
 	NetworkManager::getInstance().end();

@@ -118,7 +118,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 
 	labelPublishServer.init(350, 690, 100);
-	labelPublishServer.setText(lang.get("Publish Server"));
+	labelPublishServer.setText(lang.get("PublishServer"));
 	listBoxPublishServer.init(350, 660, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
@@ -244,6 +244,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		*/
 
+		BaseThread::shutdownAndWait(publishToMasterserverThread);
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -282,6 +283,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				publishToMasterserver();
 				simpleTask();
 			}
+			BaseThread::shutdownAndWait(publishToMasterserverThread);
             program->setState(new Game(program, &gameSettings));
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
