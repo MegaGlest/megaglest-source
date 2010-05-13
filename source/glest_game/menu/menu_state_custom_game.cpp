@@ -116,9 +116,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTechTree.init(700, 290);
 
 
-	labelPublishServer.init(350, 90, 100);
+	labelPublishServer.init(350, 690, 100);
 	labelPublishServer.setText(lang.get("Publish Server"));
-	listBoxPublishServer.init(350, 60, 100);
+	listBoxPublishServer.init(350, 660, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	listBoxPublishServer.setSelectedItemIndex(1);
@@ -607,7 +607,7 @@ void MenuStateCustomGame::update()
 			listBoxPublishServer.setEditable(false);
 		}
 		
-		if(listBoxPublishServer.getEditable() && listBoxPublishServer.getSelectedItemIndex()==0 && (difftime(time(NULL),lastMasterserverPublishing) >= 5) ){
+		if(listBoxPublishServer.getEditable() && listBoxPublishServer.getSelectedItemIndex()==0 && (difftime(time(NULL),lastMasterserverPublishing) >= 15) ){
 			// give it to me baby, aha aha ...
 			lastMasterserverPublishing = time(NULL);
 			publishToMasterserver();
@@ -676,7 +676,7 @@ void MenuStateCustomGame::publishToMasterserver()
 	}
 	//?status=waiting&system=linux&info=titus
 	serverinfo+="glestVersion="+escapeURL(glestVersionString)+"&";
-	serverinfo+="platform=xxx&";
+	serverinfo+="platform="+escapeURL(getPlatformNameString())+"&";
 	serverinfo+="binaryCompileDate="+escapeURL(getCompileDateTime())+"&";
 	
 	//game info:
