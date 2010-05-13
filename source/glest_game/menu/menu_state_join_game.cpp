@@ -49,6 +49,8 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	Config &config= Config::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	networkManager.end();
+	networkManager.init(nrClient);
+	abortAutoFind = false;
 
 	serversSavedFile = serverFileName;
     if(getGameReadWritePath() != "") {
@@ -114,7 +116,6 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	labelInfo.init(330, 370);
 	labelInfo.setText("");
 
-	networkManager.init(nrClient);
 	connected= false;
 	playerIndex= -1;
 
@@ -132,14 +133,15 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	chatManager.init(&console, -1);
 }
 MenuStateJoinGame::~MenuStateJoinGame() {
-	NetworkManager &networkManager= NetworkManager::getInstance();
-	ClientInterface* clientInterface= networkManager.getClientInterface();
-	clientInterface->stopServerDiscovery();
+	abortAutoFind = true;
 }
 
 void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(abortAutoFind == true) {
+		return;
+	}
 	// Testing multi-server
 	//serverList.push_back("test1");
 	//serverList.push_back("test2");
@@ -205,6 +207,8 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 	{
 		soundRenderer.playFx(coreData.getClickSoundA());
 
+		clientInterface->stopServerDiscovery();
+
 		if(clientInterface->getSocket() != NULL)
 		{
 		    if(clientInterface->isConnected() == true)
@@ -214,6 +218,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 		    }
 		    clientInterface->close();
 		}
+		abortAutoFind = true;
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
 
@@ -417,6 +422,8 @@ void MenuStateJoinGame::update()
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - B\n",__FILE__,__FUNCTION__);
 
+			abortAutoFind = true;
+			clientInterface->stopServerDiscovery();
 			program->setState(new Game(program, clientInterface->getGameSettings()));
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
@@ -508,6 +515,8 @@ void MenuStateJoinGame::connectToServer()
 	config.setString("ServerIp", serverIp.getString());
 	config.save();
 	
+	abortAutoFind = true;
+	clientInterface->stopServerDiscovery();
 	mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
 	
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);

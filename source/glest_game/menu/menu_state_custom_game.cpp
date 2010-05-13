@@ -219,6 +219,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 }
 
 MenuStateCustomGame::~MenuStateCustomGame() {
+	needToBroadcastServerSettings = false;
+	needToRepublishToMasterserver = false;
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
@@ -245,6 +247,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		*/
 
+		needToBroadcastServerSettings = false;
+		needToRepublishToMasterserver = false;
 		BaseThread::shutdownAndWait(publishToMasterserverThread);
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
@@ -284,6 +288,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				publishToMasterserver();
 				simpleTask();
 			}
+			needToBroadcastServerSettings = false;
+			needToRepublishToMasterserver = false;
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
             program->setState(new Game(program, &gameSettings));
 		}
