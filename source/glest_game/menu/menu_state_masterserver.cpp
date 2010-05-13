@@ -151,6 +151,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 MenuStateMasterserver::~MenuStateMasterserver() {
 	clearServerLines();
+
+	BaseThread::shutdownAndWait(updateFromMasterserverThread);
+	delete updateFromMasterserverThread;
+	updateFromMasterserverThread = NULL;
 }
 
 void MenuStateMasterserver::clearServerLines(){
@@ -183,6 +187,8 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     }
     else if(buttonReturn.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
+
+		BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
     else{ 
