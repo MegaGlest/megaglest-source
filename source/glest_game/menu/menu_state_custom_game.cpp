@@ -654,6 +654,7 @@ void MenuStateCustomGame::update()
 			publishToMasterserver();
 		}
 		
+		/*
 		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{
 			GameSettings gameSettings;
@@ -661,6 +662,7 @@ void MenuStateCustomGame::update()
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);
 		}
+		*/
 
 		//call the chat manager
 		chatManager.updateNetwork();
@@ -735,14 +737,26 @@ void MenuStateCustomGame::publishToMasterserver()
 
 void MenuStateCustomGame::simpleTask() {
 	if( needToRepublishToMasterserver == true &&
-		difftime(time(NULL),lastMasterserverPublishing) >= 5) {
+		difftime(time(NULL),lastMasterserverPublishing) >= 5 &&
+		publishToServerInfo != "") {
 
 		needToRepublishToMasterserver = false;
 		lastMasterserverPublishing = time(NULL);
 		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + publishToServerInfo;
+		publishToServerInfo = "";
+
 		printf("the request is:\n%s\n",request.c_str());
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
+	}
+	if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+	{
+		lastSetChangedGameSettings = time(NULL);
+		GameSettings gameSettings;
+		loadGameSettings(&gameSettings);
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		serverInterface->setGameSettings(&gameSettings);
+		serverInterface->broadcastGameSetup(&gameSettings);
 	}
 }
 

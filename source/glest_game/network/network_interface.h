@@ -48,7 +48,6 @@ protected:
 	bool networkGameDataSynchCheckOkMap;
 	bool networkGameDataSynchCheckOkTile;
 	bool networkGameDataSynchCheckOkTech;
-	//bool networkGameDataSynchCheckOkFogOfWar;
 
 	string chatText;
 	string chatSender;
@@ -99,6 +98,8 @@ public:
 	const string getChatText() const							{return chatText;}
 	const string getChatSender() const							{return chatSender;}
 	int getChatTeamIndex() const								{return chatTeamIndex;}
+
+	virtual bool getConnectHasHandshaked() const= 0;
 };
 
 // =====================================================

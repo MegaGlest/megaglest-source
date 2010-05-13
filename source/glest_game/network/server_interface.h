@@ -79,6 +79,7 @@ public:
 	virtual void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck = false);
 	void broadcastGameSetup(const GameSettings* gameSettings);
 	void updateListen();
+	virtual bool getConnectHasHandshaked() const { return false; }
 
 private:
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
