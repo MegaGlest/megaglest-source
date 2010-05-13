@@ -115,6 +115,7 @@ public:
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 	static std::string getHTTP(std::string URL);
+	static std::string escapeURL(std::string URL);
 
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);

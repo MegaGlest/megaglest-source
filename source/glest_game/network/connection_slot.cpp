@@ -348,11 +348,17 @@ void ConnectionSlot::update(bool checkForNewClients)
 		        }
 				default:
                     {
-					//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
-					string sErr = "Unexpected message in connection slot: " + intToStr(networkMessageType);
-                    //sendTextMessage(sErr,-1);
-                    DisplayErrorMessage(sErr);
-                    return;
+						if(gotIntro == true) {
+							//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
+							string sErr = "Unexpected message in connection slot: " + intToStr(networkMessageType);
+							//sendTextMessage(sErr,-1);
+							DisplayErrorMessage(sErr);
+							return;
+						}
+						else {
+						    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got invalid message type before intro, disconnecting socket.\n",__FILE__,__FUNCTION__,__LINE__);
+							close();
+						}
                     }
 			}
 

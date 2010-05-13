@@ -14,6 +14,7 @@
 
 #include "main_menu.h"
 #include "masterserver_info.h"
+#include "simple_threads.h"
 
 namespace Glest{ namespace Game{
 
@@ -63,7 +64,7 @@ public:
 typedef vector<ServerLine*> ServerLines;
 typedef vector<MasterServerInfo*> MasterServerInfos;
 
-class MenuStateMasterserver: public MenuState{
+class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface {
 private:
 	GraphicButton buttonRefresh;
 	GraphicButton buttonReturn;
@@ -73,6 +74,8 @@ private:
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	
+	bool needUpdateFromServer;
+	SimpleTaskThread *updateFromMasterserverThread;
 
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);
@@ -82,6 +85,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();
+
+	virtual void simpleTask();
 
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);

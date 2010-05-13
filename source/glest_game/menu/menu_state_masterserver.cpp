@@ -142,7 +142,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
-	updateServerInfo();
+	//updateServerInfo();
+
+	needUpdateFromServer = true;
+	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
+	updateFromMasterserverThread->start();
 }
 
 MenuStateMasterserver::~MenuStateMasterserver() {
@@ -174,7 +178,8 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(buttonRefresh.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		updateServerInfo();
+		//updateServerInfo();
+		needUpdateFromServer = true;
     }
     else if(buttonReturn.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -222,7 +227,14 @@ void MenuStateMasterserver::render(){
 void MenuStateMasterserver::update(){
 }
 
+void MenuStateMasterserver::simpleTask() {
+	if(needUpdateFromServer == true) {
+		updateServerInfo();
+	}
+}
+
 void MenuStateMasterserver::updateServerInfo() {
+	needUpdateFromServer = false;
 	//MasterServerInfos masterServerInfos;
 	clearServerLines();
 
