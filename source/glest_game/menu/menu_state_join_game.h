@@ -59,6 +59,7 @@ private:
 	ChatManager chatManager;
 
 	string serversSavedFile;
+	bool abortAutoFind;
 
 public:
 	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip());
