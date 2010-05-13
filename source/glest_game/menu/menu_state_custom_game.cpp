@@ -54,6 +54,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
+	needToBroadcastServerSettings = false;
 	lastSetChangedGameSettings   = time(NULL);
 	lastMasterserverPublishing = time(NULL);
 
@@ -648,6 +649,11 @@ void MenuStateCustomGame::update()
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
 		}
+		
+		if(difftime(time(NULL),lastMasterserverPublishing) >= 5 ){
+			needToRepublishToMasterserver = true;
+			lastMasterserverPublishing = time(NULL);
+		}
 
 		if(listBoxPublishServer.getEditable() &&
 		   listBoxPublishServer.getSelectedItemIndex() == 0 &&
@@ -656,15 +662,10 @@ void MenuStateCustomGame::update()
 			publishToMasterserver();
 		}
 		
-		/*
 		if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{
-			GameSettings gameSettings;
-			loadGameSettings(&gameSettings);
-			serverInterface->setGameSettings(&gameSettings);
-			serverInterface->broadcastGameSetup(&gameSettings);
+			needToBroadcastServerSettings=true;
 		}
-		*/
 
 		//call the chat manager
 		chatManager.updateNetwork();
@@ -738,12 +739,10 @@ void MenuStateCustomGame::publishToMasterserver()
 }
 
 void MenuStateCustomGame::simpleTask() {
-	if( needToRepublishToMasterserver == true &&
-		difftime(time(NULL),lastMasterserverPublishing) >= 5 &&
+	if( needToRepublishToMasterserver == true  &&
 		publishToServerInfo != "") {
 
 		needToRepublishToMasterserver = false;
-		lastMasterserverPublishing = time(NULL);
 		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + publishToServerInfo;
 		publishToServerInfo = "";
 
@@ -751,9 +750,9 @@ void MenuStateCustomGame::simpleTask() {
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
 	}
-	if(difftime(time(NULL),lastSetChangedGameSettings) >= 2)
+	if(needToBroadcastServerSettings)
 	{
-		lastSetChangedGameSettings = time(NULL);
+		needToBroadcastServerSettings=false;
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
