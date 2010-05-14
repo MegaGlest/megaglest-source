@@ -395,7 +395,7 @@ const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 
 const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 	if(firstSkillTypeOfClass[skillClass] == NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] skillClass = %d\n",__FILE__,__FUNCTION__,__LINE__,skillClass);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] skillClass = %d\n",__FILE__,__FUNCTION__,__LINE__,skillClass);
 
 		/*
 		for(int j= 0; j<scCount; ++j){
@@ -406,7 +406,7 @@ const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 	        }
 	    }
 	    */
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
     return firstSkillTypeOfClass[skillClass];
 }

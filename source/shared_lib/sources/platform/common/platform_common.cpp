@@ -326,6 +326,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
 
 	// !!! OLD local CACHE
 	//static std::map<string,int32> crcTreeCache;
@@ -337,6 +338,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
+	bool topLevelCaller = (recursiveChecksum == NULL);
     Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] starting checksum = %d\n",__FILE__,__FUNCTION__,path.c_str(),checksum.getSum());
@@ -359,34 +361,29 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		throw runtime_error(msg.str());
 	}
 
+	int fileLoopCount = 0;
+	int fileMatchCount = 0;
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
-		/*
-		const char* begin = p;
-		for( ; *p != 0; ++p) {
-			// strip the path component
-			if(*p == '/')
-				begin = p+1;
-		}
-		*/
-
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] examining file [%s]\n",__FILE__,__FUNCTION__,p);
 
-		if(isdir(p) == false)
-		{
+		if(isdir(p) == false) {
             bool addFile = true;
-            if(filterFileExt != "")
-            {
+            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
+            	addFile = false;
+            }
+            else if(filterFileExt != "") {
                 addFile = EndsWith(p, filterFileExt);
             }
 
-            if(addFile)
-            {
+            if(addFile) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
 
                 checksum.addFile(p);
+                fileMatchCount++;
             }
 		}
+		fileLoopCount++;
 	}
 
 	globfree(&globbuf);
@@ -401,15 +398,6 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
-		/*
-		const char* begin = p;
-		for( ; *p != 0; ++p) {
-			// strip the path component
-			if(*p == '/')
-				begin = p+1;
-		}
-		*/
-
         getFolderTreeContentsCheckSumRecursively(string(p) + "/*", filterFileExt, &checksum);
 	}
 
@@ -421,11 +409,15 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		*recursiveChecksum = checksum;
 	}
 
-	crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
+	if(topLevelCaller == true) {
+		crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
-
-    return crcTreeCache[cacheKey];
+		return crcTreeCache[cacheKey];
+	}
+	else {
+		return 0;
+	}
 }
 
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
@@ -461,6 +453,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 
 //finds all filenames like path and gets the checksum of each file
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
 
 	//static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
 	string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
@@ -496,25 +489,17 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
-		/*
-		const char* begin = p;
-		for( ; *p != 0; ++p) {
-			// strip the path component
-			if(*p == '/')
-				begin = p+1;
-		}
-		*/
 
-		if(isdir(p) == false)
-		{
+		if(isdir(p) == false) {
             bool addFile = true;
-            if(filterFileExt != "")
-            {
+            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
+            	addFile = false;
+            }
+            else if(filterFileExt != "") {
                 addFile = EndsWith(p, filterFileExt);
             }
 
-            if(addFile)
-            {
+            if(addFile) {
                 //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
 
                 Checksum checksum;
@@ -537,15 +522,6 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
-		/*
-		const char* begin = p;
-		for( ; *p != 0; ++p) {
-			// strip the path component
-			if(*p == '/')
-				begin = p+1;
-		}
-		*/
-
         checksumFiles = getFolderTreeContentsCheckSumListRecursively(string(p) + "/*", filterFileExt, &checksumFiles);
 	}
 
@@ -558,12 +534,8 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
     return crcTreeCache[cacheKey];
 }
 
-string extractFileFromDirectoryPath(string filename)
-{
-	size_t lastDirectory_Win = filename.find_last_of('\\');
-	size_t lastDirectory_Lin = filename.find_last_of('/');
-	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
-
+string extractFileFromDirectoryPath(string filename) {
+	size_t lastDirectory     = filename.find_last_of("/\\");
     //return filename.substr( 0, filename.rfind("/")+1 );
 	if (lastDirectory == string::npos) {
 		return filename;
@@ -572,8 +544,7 @@ string extractFileFromDirectoryPath(string filename)
 	return filename.erase( 0, lastDirectory + 1);
 }
 
-string extractDirectoryPathFromFile(string filename)
-{
+string extractDirectoryPathFromFile(string filename) {
 	size_t lastDirectory     = filename.find_last_of("/\\");
 	//printf("In [%s::%s Line: %d] filename = [%s] lastDirectory= %u\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),lastDirectory);
 
@@ -582,17 +553,14 @@ string extractDirectoryPathFromFile(string filename)
 	if (lastDirectory != string::npos) {
 		path = filename.substr( 0, lastDirectory + 1);
 	}
-
 	//printf("In [%s::%s Line: %d] filename = [%s] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),path.c_str());
 
 	return path;
 }
 
 string extractExtension(const string& filepath) {
-	size_t lastPoint = filepath.find_last_of('.');
-	size_t lastDirectory_Win = filepath.find_last_of('\\');
-	size_t lastDirectory_Lin = filepath.find_last_of('/');
-	size_t lastDirectory = (lastDirectory_Win<lastDirectory_Lin)?lastDirectory_Lin:lastDirectory_Win;
+	size_t lastPoint 		= filepath.find_last_of('.');
+	size_t lastDirectory    = filepath.find_last_of("/\\");
 
 	if (lastPoint == string::npos || (lastDirectory != string::npos && lastDirectory > lastPoint)) {
 		return "";
