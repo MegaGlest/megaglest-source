@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
@@ -1061,36 +1060,43 @@ void Game::checkWinner(){
 void Game::checkWinnerStandard(){
 	//lose
 	bool lose= false;
-	if(!hasBuilding(world.getThisFaction())){
+	if(hasBuilding(world.getThisFaction()) == false) {
 		lose= true;
-		for(int i=0; i<world.getFactionCount(); ++i){
-			if(!world.getFaction(i)->isAlly(world.getThisFaction())){
+		for(int i=0; i<world.getFactionCount(); ++i) {
+			if(world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
 				world.getStats()->setVictorious(i);
 			}
 		}
 		gameOver= true;
+		// Let the poor user watch everything unfold
+		world.setFogOfWar(false);
+		// but don't let him cheat via teamchat
+		chatManager.setDisableTeamMode(true);
 		showLoseMessageBox();
 	}
 
 	//win
-	if(!lose){
+	if(lose == false) {
 		bool win= true;
-		for(int i=0; i<world.getFactionCount(); ++i){
+		for(int i=0; i<world.getFactionCount(); ++i) {
 			if(i!=world.getThisFactionIndex()){
-				if(hasBuilding(world.getFaction(i)) && !world.getFaction(i)->isAlly(world.getThisFaction())){
+				if(hasBuilding(world.getFaction(i)) && world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
 					win= false;
 				}
 			}
 		}
 
 		//if win
-		if(win){
-			for(int i=0; i< world.getFactionCount(); ++i){
-				if(world.getFaction(i)->isAlly(world.getThisFaction())){
+		if(win) {
+			for(int i=0; i< world.getFactionCount(); ++i) {
+				if(world.getFaction(i)->isAlly(world.getThisFaction())) {
 					world.getStats()->setVictorious(i);
 				}
 			}
 			gameOver= true;
+			// Let the happy winner view everything left in the world
+			world.setFogOfWar(false);
+
 			showWinMessageBox();
 		}
 	}
@@ -1169,7 +1175,14 @@ int Game::getUpdateLoops(){
 
 void Game::showLoseMessageBox(){
 	Lang &lang= Lang::getInstance();
-	showMessageBox(lang.get("YouLose")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	if(networkManager.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer) {
+		showMessageBox(lang.get("YouLose")+", "+lang.get("ExitGameServer?"), lang.get("BattleOver"), false);
+	}
+	else {
+		showMessageBox(lang.get("YouLose")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+	}
 }
 
 void Game::showWinMessageBox(){

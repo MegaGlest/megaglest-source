@@ -375,17 +375,17 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	//validate unit
 	if(unit == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw runtime_error(szBuf);
 	}
 	else if(unit->getType() == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] unit->getType() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    sprintf(szBuf,"In [%s::%s Line: %d] unit->getType() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw runtime_error(szBuf);
 	}
 	else if(unit->getFaction() == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] unit->getFaction() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    sprintf(szBuf,"In [%s::%s Line: %d] unit->getFaction() == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw runtime_error(szBuf);
 	}
 
@@ -395,8 +395,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	//validate command type
 	if(ct == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Can not find command type with id = %d\n%s\n in unit = %d [%s][%s].\nGame out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->getCommandTypeId(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
+	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find command type for network command = [%s]\n%s\n in unit = %d [%s][%s].\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
 
 		throw runtime_error(szBuf);
 	}

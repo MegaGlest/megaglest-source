@@ -37,6 +37,7 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 		, wantQueue(wantQueue) {
 	assert(targetId == -1 || facing == -1);
 	this->targetId = targetId >= 0 ? targetId : facing;
+	this->fromFactionIndex = world->getThisFactionIndex();
 
     if(this->networkCommandType == nctGiveCommand) {
         const Unit *unit= world->findUnitById(this->unitId);
@@ -74,8 +75,8 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 
 string NetworkCommand::toString() const {
     char szBuf[1024]="";
-    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\nthis->positionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d",
-        networkCommandType,unitId,commandTypeId,positionX,this->positionY,unitTypeId,targetId,wantQueue);
+    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\npositionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d\nfromFactionIndex = %d",
+        networkCommandType,unitId,commandTypeId,positionX,this->positionY,unitTypeId,targetId,wantQueue,fromFactionIndex);
 
     string result = szBuf;
     return result;
