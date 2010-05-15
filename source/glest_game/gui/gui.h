@@ -133,6 +133,8 @@ private:
 	CardinalDir selectedBuildingFacing;
     bool allowRotateUnits;
 
+    bool showDebugUI;
+
 public:
 	Gui();
 	void init(Game *game);
@@ -176,6 +178,8 @@ public:
 	//misc
 	void switchToNextDisplayColor();
 	void onSelectionChanged();
+
+	bool getShowDebugUI() { return showDebugUI; }
 
 private:
 

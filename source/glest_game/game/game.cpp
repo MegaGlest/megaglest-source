@@ -1011,14 +1011,13 @@ void Game::render2d(){
 		}
 	}
 
-	if(config.getBool("DebugMode")){
-		renderer.renderText(
-			str, coreData.getMenuFontNormal(),
-			Vec3f(1.0f), 10, 500, false);
+	if(config.getBool("DebugMode") && gui.getShowDebugUI() == true) {
+		renderer.renderText(str, coreData.getMenuFontNormal(),
+							Vec3f(1.0f), 10, 500, false);
 	}
 
 	//network status
-	if(renderNetworkStatus){
+	if(renderNetworkStatus) {
 		renderer.renderText(
 			NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 			coreData.getMenuFontNormal(),
@@ -1026,7 +1025,7 @@ void Game::render2d(){
 	}
 
     //resource info
-	if(!config.getBool("PhotoMode")){
+	if(!config.getBool("PhotoMode")) {
         renderer.renderResourceStatus();
 		renderer.renderConsole(&console,showFullConsole);
     }
