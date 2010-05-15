@@ -428,8 +428,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 {
 	bool done= false;
 
-	while(done == false)
-	{
+	while(done == false) {
 		//wait for the next message
 		waitForMessage();
 
@@ -446,9 +445,10 @@ void ClientInterface::updateKeyframe(int frameCount)
 				int waitCount = 0;
 				//make sure we read the message
 				NetworkMessageCommandList networkMessageCommandList;
-				while(receiveMessage(&networkMessageCommandList) == false)
-				{
-					sleep(waitSleepTime);
+				while(receiveMessage(&networkMessageCommandList) == false &&
+					  isConnected() == true) {
+					//sleep(waitSleepTime);
+					sleep(0);
 					waitCount++;
 				}
 
@@ -456,8 +456,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 				chrono.start();
 				//check that we are in the right frame
-				if(networkMessageCommandList.getFrameCount() != frameCount)
-				{
+				if(networkMessageCommandList.getFrameCount() != frameCount) {
 				    string sErr = "Network synchronization error, frame counts do not match";
 					//throw runtime_error("Network synchronization error, frame counts do not match");
                     sendTextMessage(sErr,-1);
@@ -468,8 +467,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				}
 
 				// give all commands
-				for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i)
-				{
+				for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
 
@@ -482,10 +480,12 @@ void ClientInterface::updateKeyframe(int frameCount)
 			case nmtQuit:
 			{
 				NetworkMessageQuit networkMessageQuit;
-				if(receiveMessage(&networkMessageQuit))
-				{
-					quit= true;
+				//if(receiveMessage(&networkMessageQuit)) {
+				while(receiveMessage(&networkMessageQuit) == false &&
+					  isConnected() == true) {
+					sleep(0);
 				}
+				quit= true;
 				done= true;
 			}
 			break;
@@ -493,12 +493,14 @@ void ClientInterface::updateKeyframe(int frameCount)
 			case nmtText:
 			{
 				NetworkMessageText networkMessageText;
-				if(receiveMessage(&networkMessageText))
-				{
-					chatText      = networkMessageText.getText();
-					chatSender    = networkMessageText.getSender();
-					chatTeamIndex = networkMessageText.getTeamIndex();
+				while(receiveMessage(&networkMessageText) == false &&
+					  isConnected() == true) {
+					sleep(0);
 				}
+
+				chatText      = networkMessageText.getText();
+				chatSender    = networkMessageText.getSender();
+				chatTeamIndex = networkMessageText.getTeamIndex();
 			}
 			break;
             case nmtInvalid:
@@ -673,10 +675,8 @@ void ClientInterface::waitForMessage()
 	chrono.start();
 
 	int waitLoopCount = 0;
-	while(getNextMessageType(true) == nmtInvalid)
-	{
-		if(isConnected() == false)
-		{
+	while(getNextMessageType(true) == nmtInvalid) {
+		if(isConnected() == false) {
 			//throw runtime_error("Disconnected");
             sendTextMessage("Server has Disconnected.",-1);
             DisplayErrorMessage("Server has Disconnected.");
@@ -685,8 +685,7 @@ void ClientInterface::waitForMessage()
 			return;
 		}
 
-		if(chrono.getMillis() > messageWaitTimeout)
-		{
+		if(chrono.getMillis() > messageWaitTimeout) {
 			//throw runtime_error("Timeout waiting for message");
             sendTextMessage("Timeout waiting for message",-1);
             DisplayErrorMessage("Timeout waiting for message");

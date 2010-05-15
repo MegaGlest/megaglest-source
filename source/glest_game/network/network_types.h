@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -68,6 +68,7 @@ private:
 	int16 unitTypeId;
 	int16 targetId;
 	int16 wantQueue;
+	int16 fromFactionIndex;
 
 public:
 	NetworkCommand(){};
@@ -91,6 +92,7 @@ public:
 	int getUnitTypeId() const							{return unitTypeId;}
 	int getTargetId() const								{return targetId;}
 	int getWantQueue() const							{return wantQueue;}
+	int getFromFactionIndex() const						{return fromFactionIndex;}
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;

@@ -60,15 +60,12 @@ ConnectionSlot::~ConnectionSlot()
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ConnectionSlot::update()
-{
+void ConnectionSlot::update() {
     update(true);
 }
 
-void ConnectionSlot::update(bool checkForNewClients)
-{
-	if(socket == NULL)
-	{
+void ConnectionSlot::update(bool checkForNewClients) {
+	if(socket == NULL) {
         if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
         if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
         if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
@@ -76,8 +73,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 
         // Is the listener socket ready to be read?
 	    //if(serverInterface->getServerSocket()->isReadable() == true)
-	    if(checkForNewClients == true)
-	    {
+	    if(checkForNewClients == true) {
 	    	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 	    	bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
 	    	if(serverInterface->getServerSocket()->hasDataToRead() == true) {
@@ -110,10 +106,8 @@ void ConnectionSlot::update(bool checkForNewClients)
 			}
 	    }
 	}
-	else
-	{
-		if(socket->isConnected())
-		{
+	else {
+		if(socket->isConnected()) {
             chatText.clear();
             chatSender.clear();
             chatTeamIndex= -1;
@@ -121,7 +115,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 			NetworkMessageType networkMessageType= getNextMessageType();
 
 			//process incoming commands
-			switch(networkMessageType){
+			switch(networkMessageType) {
 
 				case nmtInvalid:
 					break;
@@ -131,8 +125,7 @@ void ConnectionSlot::update(bool checkForNewClients)
                     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
                     NetworkMessageText networkMessageText;
-                    if(receiveMessage(&networkMessageText))
-                    {
+                    if(receiveMessage(&networkMessageText)) {
                         chatText      = networkMessageText.getText();
                         chatSender    = networkMessageText.getSender();
                         chatTeamIndex = networkMessageText.getTeamIndex();
@@ -148,10 +141,8 @@ void ConnectionSlot::update(bool checkForNewClients)
 				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtCommandList\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageCommandList networkMessageCommandList;
-					if(receiveMessage(&networkMessageCommandList))
-					{
-						for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i)
-						{
+					if(receiveMessage(&networkMessageCommandList)) {
+						for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
 							serverInterface->requestCommand(networkMessageCommandList.getCommand(i));
 						}
 					}
@@ -222,19 +213,15 @@ void ConnectionSlot::update(bool checkForNewClients)
 
 						if( networkGameDataSynchCheckOkMap      == true &&
                             networkGameDataSynchCheckOkTile     == true &&
-                            networkGameDataSynchCheckOkTech     == true) // &&
-                            //networkGameDataSynchCheckOkFogOfWar == true)
-                        {
+                            networkGameDataSynchCheckOkTech     == true) {
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client data synch ok\n",__FILE__,__FUNCTION__);
                         }
-                        else
-                        {
+                        else {
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameDataStatus.getMapCRC());
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameDataStatus.getTilesetCRC());
                             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC = %d, remote = %d\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameDataStatus.getTechCRC());
 
-                            if(allowDownloadDataSynch == true)
-                            {
+                            if(allowDownloadDataSynch == true) {
                                 // Now get all filenames with their CRC values and send to the client
                                 vctFileList.clear();
 
@@ -250,34 +237,27 @@ void ConnectionSlot::update(bool checkForNewClients)
                                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getGameSettings()->getScenarioDir().c_str(),serverInterface->getGameSettings()->getScenario().c_str(),scenarioDir.c_str());
                                 }
 
-                                if(networkGameDataSynchCheckOkTile == false)
-                                {
-                                    if(tilesetCRC == 0)
-                                    {
+                                if(networkGameDataSynchCheckOkTile == false) {
+                                    if(tilesetCRC == 0) {
                                         //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", "", &vctFileList);
                                     	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), "", &vctFileList);
                                     }
-                                    else
-                                    {
+                                    else {
                                         //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_tilesets) + "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", &vctFileList);
                                     	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTilesets,scenarioDir), "/" + serverInterface->getGameSettings()->getTileset() + "/*", ".xml", &vctFileList);
                                     }
                                 }
-                                if(networkGameDataSynchCheckOkTech == false)
-                                {
-                                    if(techCRC == 0)
-                                    {
+                                if(networkGameDataSynchCheckOkTech == false) {
+                                    if(techCRC == 0) {
                                         //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
                                     	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
                                     }
-                                    else
-                                    {
+                                    else {
                                         //vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
                                     	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
                                     }
                                 }
-                                if(networkGameDataSynchCheckOkMap == false)
-                                {
+                                if(networkGameDataSynchCheckOkMap == false) {
                                     vctFileList.push_back(std::pair<string,int32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir),mapCRC));
                                 }
 
@@ -313,8 +293,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 				    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__);
 
 					NetworkMessageSynchNetworkGameDataFileGet networkMessageSynchNetworkGameDataFileGet;
-					if(receiveMessage(&networkMessageSynchNetworkGameDataFileGet))
-					{
+					if(receiveMessage(&networkMessageSynchNetworkGameDataFileGet)) {
                         FileTransferInfo fileInfo;
                         fileInfo.hostType   = eServer;
                         //fileInfo.serverIP   = this->ip.getString();
@@ -330,10 +309,8 @@ void ConnectionSlot::update(bool checkForNewClients)
 		        case nmtSwitchSetupRequest:
 		        {
 		        	SwitchSetupRequest switchSetupRequest;
-		            if(receiveMessage(&switchSetupRequest))
-		            {
-		            	 if(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]==NULL)
-		            	 {
+		            if(receiveMessage(&switchSetupRequest)) {
+		            	 if(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]==NULL) {
 		            	 	serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]= new SwitchSetupRequest();
 		            	 }
 		            	 *(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()])=switchSetupRequest;
@@ -367,8 +344,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 				close();
 			}
 		}
-		else
-		{
+		else {
 		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling close...\n",__FILE__,__FUNCTION__);
 
 			close();
@@ -376,8 +352,7 @@ void ConnectionSlot::update(bool checkForNewClients)
 	}
 }
 
-void ConnectionSlot::close()
-{
+void ConnectionSlot::close() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete socket;
@@ -394,15 +369,7 @@ void ConnectionSlot::close()
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-/*
-bool ConnectionSlot::getFogOfWar()
-{
-    return networkGameDataSynchCheckOkFogOfWar;
-}
-*/
-
-bool ConnectionSlot::hasValidSocketId()
-{
+bool ConnectionSlot::hasValidSocketId() {
     bool result = (socket != NULL && socket->getSocketId() > 0);
     return result;
 }

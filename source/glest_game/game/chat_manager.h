@@ -31,6 +31,7 @@ private:
 private:
 	bool editEnabled;
 	bool teamMode;
+	bool disableTeamMode;
 	Console* console;
 	string text;
 	int thisTeamIndex;
@@ -47,6 +48,9 @@ public:
 	bool getEditEnabled() const	{return editEnabled;}
 	bool getTeamMode() const	{return teamMode;}
 	string getText() const		{return text;}
+
+	bool getDisableTeamMode() const { return disableTeamMode; }
+	void setDisableTeamMode(bool value);
 };
 
 }}//end namespace

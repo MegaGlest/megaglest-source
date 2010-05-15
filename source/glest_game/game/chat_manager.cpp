@@ -37,11 +37,13 @@ ChatManager::ChatManager(){
 	editEnabled= false;
 	teamMode= false;
 	thisTeamIndex= -1;
+	disableTeamMode = false;
 }
 
 void ChatManager::init(Console* console, int thisTeamIndex){
 	this->console= console;
 	this->thisTeamIndex= thisTeamIndex;
+	this->disableTeamMode= false;
 }
 
 void ChatManager::keyUp(char key){
@@ -64,6 +66,13 @@ void ChatManager::keyUp(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ChatManager::setDisableTeamMode(bool value) {
+	disableTeamMode = value;
+
+	if(disableTeamMode == true) {
+		teamMode = false;
+	}
+}
 
 void ChatManager::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -72,7 +81,7 @@ void ChatManager::keyDown(char key){
 		Lang &lang= Lang::getInstance();
 
 		//toggle team mode
-		if(!editEnabled && key=='H'){
+		if(editEnabled == false && disableTeamMode == false && key=='H') {
 			if(teamMode){
 				teamMode= false;
 				console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
