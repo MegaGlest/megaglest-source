@@ -68,6 +68,9 @@ class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterfa
 private:
 	GraphicButton buttonRefresh;
 	GraphicButton buttonReturn;
+	GraphicButton buttonCreateGame;
+	GraphicLabel labelAutoRefresh;
+	GraphicListBox listBoxAutoRefresh;
 	GraphicLabel labelTitle;
 	ServerLines serverLines;
 	
@@ -75,6 +78,8 @@ private:
 	int mainMessageBoxState;
 	
 	bool needUpdateFromServer;
+	int autoRefreshTime;
+	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
 
 public:

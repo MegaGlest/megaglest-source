@@ -16,6 +16,7 @@
 #include "core_data.h"
 #include "config.h"
 #include "menu_state_connected_game.h"
+#include "menu_state_custom_game.h"
 #include "menu_state_root.h"
 #include "metrics.h"
 #include "network_manager.h"
@@ -64,7 +65,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	ipAddressLabel.setText(masterServerInfo->getIpAddress());
 	
 	//game setup info:
-	i+=70;
+	i+=100;
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(masterServerInfo->getTech());
 	
@@ -125,20 +126,35 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	MenuState(program, mainMenu, "root") //← set on masterserver
 {
 	Lang &lang= Lang::getInstance();
+	
+	autoRefreshTime=0;
 
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
+	lastRefreshTimer= time(NULL);	
 	mainMessageBoxState=0;
 
 	// header
 	labelTitle.init(330, 700);
 	labelTitle.setText(lang.get("AvailableServers"));
 
-    buttonRefresh.init(450, 70, 150);
-    buttonReturn.init(150, 70, 150);
+	// bottom
+    
+    buttonReturn.init(50, 70, 150);
+    buttonCreateGame.init(300, 70, 150);
+    buttonRefresh.init(550, 70, 150);
 
 	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
+	buttonCreateGame.setText(lang.get("CustomGame"));
+	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
+	labelAutoRefresh.init(800,100);
+	listBoxAutoRefresh.init(800,70);
+	listBoxAutoRefresh.pushBackItem(lang.get("off"));
+	listBoxAutoRefresh.pushBackItem("1");
+	listBoxAutoRefresh.pushBackItem("2");
+	listBoxAutoRefresh.pushBackItem("3");
+	listBoxAutoRefresh.setSelectedItemIndex(0);
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
@@ -191,6 +207,16 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
+    else if(buttonCreateGame.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundB());
+
+		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		mainMenu->setState(new MenuStateCustomGame(program, mainMenu));
+    }
+    else if(listBoxAutoRefresh.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundA());
+		autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
+    }
     else{ 
 	    for(int i=0; i<serverLines.size(); ++i){
 	    	if(serverLines[i]->buttonMouseClick(x, y)){
@@ -208,6 +234,9 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 	}
     buttonRefresh.mouseMove(x, y);
     buttonReturn.mouseMove(x, y);
+    buttonCreateGame.mouseMove(x, y);
+    listBoxAutoRefresh.mouseMove(x, y);
+        
     for(int i=0; i<serverLines.size(); ++i){
     	serverLines[i]->buttonMouseMove(x, y);
     }
@@ -224,6 +253,10 @@ void MenuStateMasterserver::render(){
 		renderer.renderButton(&buttonRefresh);
 		renderer.renderButton(&buttonReturn);
 		renderer.renderLabel(&labelTitle);
+		renderer.renderLabel(&labelAutoRefresh);
+		renderer.renderButton(&buttonCreateGame);
+		renderer.renderListBox(&listBoxAutoRefresh);
+		
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
 	    }
@@ -231,6 +264,10 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update(){
+	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ){
+			needUpdateFromServer = true;
+			lastRefreshTimer= time(NULL);
+		}
 }
 
 void MenuStateMasterserver::simpleTask() {
