@@ -118,6 +118,7 @@ void Gui::init(Game *game){
 	this->console= game->getConsole();
 	this->world= game->getWorld();
 	selection.init(this, world->getThisFactionIndex());
+	this->showDebugUI = false;
 }
 
 void Gui::end(){
@@ -337,6 +338,9 @@ void Gui::hotKey(char key){
 	}
 	else if(key=='B'){
 		selectInterestingUnit(iutBuiltBuilding);
+	}
+	else if(key=='?') {
+		this->showDebugUI = !this->showDebugUI;
 	}
 	else if(key=='R'){
 	    // Here the user triggers a unit rotation while placing a unit
