@@ -138,8 +138,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	labelTitle.init(330, 700);
 	labelTitle.setText(lang.get("AvailableServers"));
 
+	if(Config::getInstance().getString("Masterserver","") == "") {
+		labelTitle.setText("*** " + lang.get("AvailableServers"));
+	}
+
 	// bottom
-    
     buttonReturn.init(50, 70, 150);
     buttonCreateGame.init(300, 70, 150);
     buttonRefresh.init(550, 70, 150);
@@ -277,44 +280,53 @@ void MenuStateMasterserver::simpleTask() {
 }
 
 void MenuStateMasterserver::updateServerInfo() {
-	needUpdateFromServer = false;
-	//MasterServerInfos masterServerInfos;
-	clearServerLines();
+	try {
+		needUpdateFromServer = false;
+		//MasterServerInfos masterServerInfos;
+		clearServerLines();
 
-	std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
+		if(Config::getInstance().getString("Masterserver","") != "") {
+			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
 
-	std::vector<std::string> serverList;
-	Tokenize(serverInfo,serverList,"\n");
-	for(int i=0; i < serverList.size(); i++) {
-		string &server = serverList[i];
-		std::vector<std::string> serverEntities;
-		Tokenize(server,serverEntities,"|");
+			std::vector<std::string> serverList;
+			Tokenize(serverInfo,serverList,"\n");
+			for(int i=0; i < serverList.size(); i++) {
+				string &server = serverList[i];
+				std::vector<std::string> serverEntities;
+				Tokenize(server,serverEntities,"|");
 
-		const int MIN_FIELDS_EXPECTED = 11;
-		if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
-			MasterServerInfo *masterServerInfo=new MasterServerInfo();
+				const int MIN_FIELDS_EXPECTED = 11;
+				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+					MasterServerInfo *masterServerInfo=new MasterServerInfo();
 
-			//general info:
-			masterServerInfo->setGlestVersion(serverEntities[0]);
-			masterServerInfo->setPlatform(serverEntities[1]);
-			masterServerInfo->setBinaryCompileDate(serverEntities[2]);
+					//general info:
+					masterServerInfo->setGlestVersion(serverEntities[0]);
+					masterServerInfo->setPlatform(serverEntities[1]);
+					masterServerInfo->setBinaryCompileDate(serverEntities[2]);
 
-			//game info:
-			masterServerInfo->setServerTitle(serverEntities[3]);
-			masterServerInfo->setIpAddress(serverEntities[4]);
+					//game info:
+					masterServerInfo->setServerTitle(serverEntities[3]);
+					masterServerInfo->setIpAddress(serverEntities[4]);
 
-			//game setup info:
-			masterServerInfo->setTech(serverEntities[5]);
-			masterServerInfo->setMap(serverEntities[6]);
-			masterServerInfo->setTileset(serverEntities[7]);
-			masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
-			masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
-			masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+					//game setup info:
+					masterServerInfo->setTech(serverEntities[5]);
+					masterServerInfo->setMap(serverEntities[6]);
+					masterServerInfo->setTileset(serverEntities[7]);
+					masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
+					masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
+					masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
 
-			serverLines.push_back(new ServerLine( masterServerInfo, i));
+					serverLines.push_back(new ServerLine( masterServerInfo, i));
+				}
+			}
 		}
-	}	
-	//masterServerInfos.push_back(masterServerInfo);
+		//masterServerInfos.push_back(masterServerInfo);
+	}
+	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+
+		throw runtime_error(e.what());
+	}
 }
 
 
