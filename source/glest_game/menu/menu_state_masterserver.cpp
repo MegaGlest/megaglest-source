@@ -134,8 +134,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
-	lastRefreshTimer= time(NULL);	
 	mainMessageBoxState=0;
+	
+	lastRefreshTimer= time(NULL);	
+	
 
 	// header
 	labelTitle.init(330, 700);

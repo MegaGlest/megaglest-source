@@ -57,9 +57,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
 	needToBroadcastServerSettings = false;
+	showMasterserverError = false;
+	masterServererErrorToShow = "---";
 	lastSetChangedGameSettings   = time(NULL);
 	lastMasterserverPublishing = time(NULL);
 	soundConnectionCount=0;
+
+	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.setEnabled(false);
+	mainMessageBoxState=0;
 
 	vector<string> teamItems, controlItems, results;
 
@@ -250,8 +256,18 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-
-	if(buttonReturn.mouseClick(x,y)){
+	if(mainMessageBox.getEnabled()){
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button))
+		{
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(button==1)
+			{
+				mainMessageBox.setEnabled(false);
+			}
+		}
+	}
+	else if(buttonReturn.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -423,7 +439,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
-
+	if (mainMessageBox.getEnabled()) {
+		mainMessageBox.mouseMove(x, y);
+	}
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 
@@ -444,40 +462,45 @@ void MenuStateCustomGame::render(){
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
-		int i;
-
-		renderer.renderButton(&buttonReturn);
-		renderer.renderButton(&buttonPlayNow);
-
-		for(i=0; i<GameConstants::maxPlayers; ++i){
-			renderer.renderLabel(&labelPlayers[i]);
-			renderer.renderListBox(&listBoxControls[i]);
-			if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-				renderer.renderListBox(&listBoxFactions[i]);
-				renderer.renderListBox(&listBoxTeams[i]);
-				renderer.renderLabel(&labelNetStatus[i]);
-			}
+		if(mainMessageBox.getEnabled()){
+		renderer.renderMessageBox(&mainMessageBox);
 		}
-		renderer.renderLabel(&labelMap);
-		renderer.renderLabel(&labelFogOfWar);
-		renderer.renderLabel(&labelTileset);
-		renderer.renderLabel(&labelTechTree);
-		renderer.renderLabel(&labelControl);
-		renderer.renderLabel(&labelFaction);
-		renderer.renderLabel(&labelTeam);
-		renderer.renderLabel(&labelMapInfo);
-
-		renderer.renderListBox(&listBoxMap);
-		renderer.renderListBox(&listBoxFogOfWar);
-		renderer.renderListBox(&listBoxTileset);
-		renderer.renderListBox(&listBoxTechTree);
-
-		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console);
-		if(listBoxPublishServer.getEditable())
+		else
 		{
-			renderer.renderListBox(&listBoxPublishServer);
-			renderer.renderLabel(&labelPublishServer);
+			int i;
+			renderer.renderButton(&buttonReturn);
+			renderer.renderButton(&buttonPlayNow);
+	
+			for(i=0; i<GameConstants::maxPlayers; ++i){
+				renderer.renderLabel(&labelPlayers[i]);
+				renderer.renderListBox(&listBoxControls[i]);
+				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
+					renderer.renderListBox(&listBoxFactions[i]);
+					renderer.renderListBox(&listBoxTeams[i]);
+					renderer.renderLabel(&labelNetStatus[i]);
+				}
+			}
+			renderer.renderLabel(&labelMap);
+			renderer.renderLabel(&labelFogOfWar);
+			renderer.renderLabel(&labelTileset);
+			renderer.renderLabel(&labelTechTree);
+			renderer.renderLabel(&labelControl);
+			renderer.renderLabel(&labelFaction);
+			renderer.renderLabel(&labelTeam);
+			renderer.renderLabel(&labelMapInfo);
+	
+			renderer.renderListBox(&listBoxMap);
+			renderer.renderListBox(&listBoxFogOfWar);
+			renderer.renderListBox(&listBoxTileset);
+			renderer.renderListBox(&listBoxTechTree);
+	
+			renderer.renderChatManager(&chatManager);
+			renderer.renderConsole(&console);
+			if(listBoxPublishServer.getEditable())
+			{
+				renderer.renderListBox(&listBoxPublishServer);
+				renderer.renderLabel(&labelPublishServer);
+			}
 		}
 	}
 	catch(const std::exception &ex) {
@@ -500,6 +523,17 @@ void MenuStateCustomGame::update()
 		int currentConnectionCount=0;
 		Config &config = Config::getInstance();
 		
+		if(showMasterserverError)
+		{
+			if(masterServererErrorToShow=="wrong router setup")
+			{
+				masterServererErrorToShow=lang.get(" wrong router setup");
+			}
+			showMasterserverError=true;
+			listBoxPublishServer.setSelectedItemIndex(1);
+			mainMessageBoxState=1;
+			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
+		}
 		
 		// handle setting changes from clients
 		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
@@ -777,6 +811,13 @@ void MenuStateCustomGame::simpleTask() {
 		printf("the request is:\n%s\n",request.c_str());
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
+		printf("the result is:\n'%s'\n",serverInfo.c_str());
+// uncomment to enable router setup check of this server
+//		if(serverInfo!="OK")
+//		{
+//			showMasterserverError=true;
+//			masterServererErrorToShow=serverInfo;
+//		}
 	}
 	if(needToBroadcastServerSettings)
 	{
@@ -1026,5 +1067,21 @@ void MenuStateCustomGame::keyPress(char c)
 {
 	chatManager.keyPress(c);
 }
+
+void MenuStateCustomGame::showMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(!mainMessageBox.getEnabled()){
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
+	}
+}
+
 
 }}//end namespace
