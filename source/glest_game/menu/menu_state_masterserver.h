@@ -15,6 +15,7 @@
 #include "main_menu.h"
 #include "masterserver_info.h"
 #include "simple_threads.h"
+#include "network_interface.h"
 
 namespace Glest{ namespace Game{
 
@@ -82,6 +83,9 @@ private:
 	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
 
+	static DisplayMessageFunction pCB_DisplayMessage;
+	std::string threadedErrorMsg;
+
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);
 	virtual ~MenuStateMasterserver();
@@ -92,6 +96,8 @@ public:
 	void render();
 
 	virtual void simpleTask();
+
+	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);

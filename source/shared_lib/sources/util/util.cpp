@@ -99,7 +99,7 @@ std::string SystemFlags::getHTTP(std::string URL) {
 
 	/* get contents from the URL */
 	curl_easy_perform(SystemFlags::curl_handle);
-	std::string serverResponse = chunk.memory;
+	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
 	if(chunk.memory) {
 		free(chunk.memory);
 	}
