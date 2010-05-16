@@ -17,7 +17,6 @@
 #include "simple_threads.h"
 
 namespace Glest{ namespace Game{
-
 // ===============================
 // 	class MenuStateCustomGame
 // ===============================
@@ -59,12 +58,15 @@ private:
 	bool needToBroadcastServerSettings;
 	string publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
+	
+	bool parentMenuIsMs;
+	bool soundConnectionCount;
 
 	Console console;
 	ChatManager chatManager;
 
 public:
-	MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots= false);
+	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
 	~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -87,6 +89,7 @@ private:
 	void closeUnusedSlots();
 	void updateNetworkSlots();
 	void publishToMasterserver();
+	void returnToParentMenu();
 };
 
 }}//end namespace

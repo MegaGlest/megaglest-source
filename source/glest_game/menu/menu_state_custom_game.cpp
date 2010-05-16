@@ -16,6 +16,7 @@
 #include "core_data.h"
 #include "config.h"
 #include "menu_state_new_game.h"
+#include "menu_state_masterserver.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -45,18 +46,20 @@ struct FormatString {
 // 	class MenuStateCustomGame
 // =====================================================
 
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots):
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver):
 	MenuState(program, mainMenu, "new-game")
 {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
+    parentMenuIsMs=parentMenuIsMasterserver;
 
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
 	needToBroadcastServerSettings = false;
 	lastSetChangedGameSettings   = time(NULL);
 	lastMasterserverPublishing = time(NULL);
+	soundConnectionCount=0;
 
 	vector<string> teamItems, controlItems, results;
 
@@ -226,6 +229,22 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	publishToMasterserverThread = NULL;
 }
 
+
+void MenuStateCustomGame::returnToParentMenu(){
+	needToBroadcastServerSettings = false;
+	needToRepublishToMasterserver = false;
+	BaseThread::shutdownAndWait(publishToMasterserverThread);
+	if(parentMenuIsMs)
+	{
+		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+	}
+	else
+	{
+		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+	}
+}
+
+
 void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData= CoreData::getInstance();
@@ -246,11 +265,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			simpleTask();
 		}
 		*/
-
-		needToBroadcastServerSettings = false;
-		needToRepublishToMasterserver = false;
-		BaseThread::shutdownAndWait(publishToMasterserverThread);
-		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+		returnToParentMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -482,6 +497,7 @@ void MenuStateCustomGame::update()
 
 		bool haveAtLeastOneNetworkClientConnected = false;
 		bool hasOneNetworkSlotOpen = false;
+		int currentConnectionCount=0;
 		Config &config = Config::getInstance();
 		
 		
@@ -549,6 +565,7 @@ void MenuStateCustomGame::update()
 				if(connectionSlot->isConnected())
 				{
 					haveAtLeastOneNetworkClientConnected = true;
+					currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
 					string label = connectionSlot->getName();
@@ -684,6 +701,11 @@ void MenuStateCustomGame::update()
 			lastSetChangedGameSettings      = time(NULL);
 		}
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(currentConnectionCount>soundConnectionCount){
+			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+		}
+		soundConnectionCount=currentConnectionCount;
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";

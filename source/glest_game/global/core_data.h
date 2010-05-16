@@ -39,7 +39,8 @@ private:
     StrSound menuMusic;
 	StaticSound clickSoundA;
     StaticSound clickSoundB;
-    StaticSound clickSoundC;
+    StaticSound clickSoundC;    
+    StaticSound attentionSound;
 	SoundContainer waterSounds;
 	
 	Texture2D *logoTexture;
@@ -78,6 +79,7 @@ public:
     StaticSound *getClickSoundA()			{return &clickSoundA;}
     StaticSound *getClickSoundB()			{return &clickSoundB;}
     StaticSound *getClickSoundC()			{return &clickSoundC;}
+    StaticSound *getAttentionSound()		{return &attentionSound;}
 	StaticSound *getWaterSound()			{return waterSounds.getRandSound();}
 
 	Font2D *getDisplayFont() const			{return displayFont;}
