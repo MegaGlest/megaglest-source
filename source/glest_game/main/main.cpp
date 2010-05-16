@@ -30,6 +30,7 @@
 #include <memory>
 #include "font.h"
 #include <curl/curl.h>
+#include "menu_state_masterserver.h"
 
 #include "leak_dumper.h"
 
@@ -327,6 +328,7 @@ int glestMain(int argc, char** argv){
 			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
+		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

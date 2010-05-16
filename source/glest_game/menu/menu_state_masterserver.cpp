@@ -30,6 +30,8 @@
 
 namespace Glest{ namespace Game{
 
+DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
+
 // =====================================================
 // 	class ServerLine
 // =====================================================
@@ -267,10 +269,23 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update(){
-	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ){
+	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
 			needUpdateFromServer = true;
 			lastRefreshTimer= time(NULL);
+	}
+
+	if(threadedErrorMsg != "") {
+		std::string sError = threadedErrorMsg;
+		threadedErrorMsg = "";
+
+		if(pCB_DisplayMessage != NULL) {
+			pCB_DisplayMessage(sError.c_str(),false);
 		}
+		else {
+			throw runtime_error(sError.c_str());
+		}
+	}
+
 }
 
 void MenuStateMasterserver::simpleTask() {
@@ -285,6 +300,7 @@ void MenuStateMasterserver::updateServerInfo() {
 		//MasterServerInfos masterServerInfos;
 		clearServerLines();
 
+		//throw runtime_error("test");
 		if(Config::getInstance().getString("Masterserver","") != "") {
 			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
 
@@ -325,7 +341,7 @@ void MenuStateMasterserver::updateServerInfo() {
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 
-		throw runtime_error(e.what());
+		threadedErrorMsg = e.what();
 	}
 }
 
