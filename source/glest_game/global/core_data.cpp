@@ -148,6 +148,7 @@ void CoreData::load(){
     clickSoundA.load(dir+"/menu/sound/click_a.wav");
     clickSoundB.load(dir+"/menu/sound/click_b.wav");
     clickSoundC.load(dir+"/menu/sound/click_c.wav");
+    attentionSound.load(dir+"/menu/sound/attention.wav");
 	introMusic.open(dir+"/menu/music/intro_music.ogg");
 	introMusic.setNext(&menuMusic);
 	menuMusic.open(dir+"/menu/music/menu_music.ogg");

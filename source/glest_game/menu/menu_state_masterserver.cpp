@@ -125,12 +125,13 @@ void ServerLine::render(){
 // =====================================================
 
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "root") //← set on masterserver
+	MenuState(program, mainMenu, "masterserver") 
 {
 	Lang &lang= Lang::getInstance();
 	
 	autoRefreshTime=0;
-
+	playServerFoundSound=false;
+	
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	lastRefreshTimer= time(NULL);	
@@ -155,10 +156,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
 	labelAutoRefresh.init(800,100);
 	listBoxAutoRefresh.init(800,70);
-	listBoxAutoRefresh.pushBackItem(lang.get("off"));
-	listBoxAutoRefresh.pushBackItem("1");
-	listBoxAutoRefresh.pushBackItem("2");
-	listBoxAutoRefresh.pushBackItem("3");
+	listBoxAutoRefresh.pushBackItem(lang.get("Off"));
+	listBoxAutoRefresh.pushBackItem("10 s");
+	listBoxAutoRefresh.pushBackItem("20 s");
+	listBoxAutoRefresh.pushBackItem("30 s");
 	listBoxAutoRefresh.setSelectedItemIndex(0);
 
 	NetworkManager::getInstance().end();
@@ -216,7 +217,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
-		mainMenu->setState(new MenuStateCustomGame(program, mainMenu));
+		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,true));
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -273,6 +274,12 @@ void MenuStateMasterserver::update(){
 			needUpdateFromServer = true;
 			lastRefreshTimer= time(NULL);
 	}
+	
+	if(playServerFoundSound)
+	{
+		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+		playServerFoundSound=false;
+	}
 
 	if(threadedErrorMsg != "") {
 		std::string sError = threadedErrorMsg;
@@ -297,10 +304,11 @@ void MenuStateMasterserver::simpleTask() {
 void MenuStateMasterserver::updateServerInfo() {
 	try {
 		needUpdateFromServer = false;
-		//MasterServerInfos masterServerInfos;
+
+		int numberOfOldServerLines=serverLines.size();
 		clearServerLines();
 
-		//throw runtime_error("test");
+
 		if(Config::getInstance().getString("Masterserver","") != "") {
 			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
 
@@ -336,7 +344,11 @@ void MenuStateMasterserver::updateServerInfo() {
 				}
 			}
 		}
-		//masterServerInfos.push_back(masterServerInfo);
+		
+		if(serverLines.size()>numberOfOldServerLines)
+		{
+			playServerFoundSound=true;
+		}
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());

@@ -82,6 +82,7 @@ private:
 	int autoRefreshTime;
 	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
+	bool playServerFoundSound;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;
