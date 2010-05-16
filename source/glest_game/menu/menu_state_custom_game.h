@@ -50,6 +50,10 @@ private:
 	
 	GraphicLabel labelPublishServer;
 	GraphicListBox listBoxPublishServer;
+	
+	GraphicMessageBox mainMessageBox;
+	int mainMessageBoxState;
+	
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
@@ -61,7 +65,10 @@ private:
 	
 	bool parentMenuIsMs;
 	bool soundConnectionCount;
-
+	
+	bool showMasterserverError;
+	string masterServererErrorToShow;
+	
 	Console console;
 	ChatManager chatManager;
 
@@ -90,6 +97,7 @@ private:
 	void updateNetworkSlots();
 	void publishToMasterserver();
 	void returnToParentMenu();
+	void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 }}//end namespace
