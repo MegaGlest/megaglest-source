@@ -64,7 +64,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	lastMasterserverPublishing 	= 0;
 	soundConnectionCount=0;
 
-	mainMessageBox.init(lang.get("Ok"),lang.get("Return"));
+	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -265,10 +265,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			if(button==1)
 			{
 				mainMessageBox.setEnabled(false);
-			}
-			else if(button==2)
-			{
-				returnToParentMenu();
 			}
 		}
 	}
@@ -534,7 +530,7 @@ void MenuStateCustomGame::update()
 			{
 				masterServererErrorToShow=lang.get("wrong router setup");
 			}
-			showMasterserverError=true;
+			showMasterserverError=false;
 			listBoxPublishServer.setSelectedItemIndex(1);
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
@@ -609,7 +605,8 @@ void MenuStateCustomGame::update()
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
 					haveAtLeastOneNetworkClientConnected = true;
-					currentConnectionCount++;
+					if(connectionSlot->getName()!="")
+						currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
 					string label = connectionSlot->getName();
