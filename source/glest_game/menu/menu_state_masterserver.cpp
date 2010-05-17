@@ -390,6 +390,7 @@ void MenuStateMasterserver::connectToServer(string ipString)
 		//config.setString("ServerIp", serverIp.getString());
 		//config.save();
 		
+		BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
 		
 	}
