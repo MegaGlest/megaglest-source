@@ -297,7 +297,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
                         FileTransferInfo fileInfo;
                         fileInfo.hostType   = eServer;
                         //fileInfo.serverIP   = this->ip.getString();
-                        fileInfo.serverPort = GameConstants::serverPort;
+                        fileInfo.serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
                         fileInfo.fileName   = networkMessageSynchNetworkGameDataFileGet.getFileName();
 
                         FileTransferSocketThread *fileXferThread = new FileTransferSocketThread(fileInfo);

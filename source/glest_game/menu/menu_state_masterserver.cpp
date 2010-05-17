@@ -368,8 +368,9 @@ void MenuStateMasterserver::connectToServer(string ipString)
 	Config& config= Config::getInstance();
 	Ip serverIp(ipString);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
-	clientInterface->connect(serverIp, GameConstants::serverPort);
+	int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s] serverPort = %d\n",__FILE__,__FUNCTION__,serverIp.getString().c_str(),serverPort);
+	clientInterface->connect(serverIp, serverPort);
 	if(!clientInterface->isConnected())
 	{
 		NetworkManager::getInstance().end();
