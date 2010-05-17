@@ -275,7 +275,7 @@ bool isdir(const char *path)
 bool EndsWith(const string &str, const string& key)
 {
     bool result = false;
-    if (str.length() > key.length()) {
+    if (str.length() >= key.length()) {
     	result = (0 == str.compare (str.length() - key.length(), key.length(), key));
     }
 
