@@ -49,6 +49,7 @@ struct FormatString {
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver):
 	MenuState(program, mainMenu, "new-game")
 {
+	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
@@ -545,8 +546,11 @@ void MenuStateCustomGame::update()
 		{
 			if(switchSetupRequests[i]!=NULL)
 			{
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 				{
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
 					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
 					
@@ -602,6 +606,8 @@ void MenuStateCustomGame::update()
 
 				if(connectionSlot->isConnected())
 				{
+					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
+
 					haveAtLeastOneNetworkClientConnected = true;
 					currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
@@ -827,11 +833,16 @@ void MenuStateCustomGame::simpleTask() {
 	if(needToBroadcastServerSettings)
 	{
 		needToBroadcastServerSettings=false;
-		GameSettings gameSettings;
-		loadGameSettings(&gameSettings);
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		serverInterface->setGameSettings(&gameSettings);
-		serverInterface->broadcastGameSetup(&gameSettings);
+		if(serverInterface->hasClientConnection() == true) {
+			//printf("Sending game settings broadcast since we have at least 1 client connected'\n");
+
+			GameSettings gameSettings;
+			loadGameSettings(&gameSettings);
+
+			serverInterface->setGameSettings(&gameSettings);
+			serverInterface->broadcastGameSetup(&gameSettings);
+		}
 	}
 }
 

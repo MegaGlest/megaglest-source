@@ -1567,7 +1567,9 @@ void ServerSocket::listen(int connectionQueueSize) {
 
 Socket *ServerSocket::accept()
 {
-	PLATFORM_SOCKET newSock= ::accept(sock, NULL, NULL);
+	struct sockaddr_in cli_addr;
+	socklen_t clilen = sizeof(cli_addr);
+	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
 	if(isSocketValid(&newSock) == false)
 	{
 	    char szBuf[1024]="";
@@ -1582,7 +1584,9 @@ Socket *ServerSocket::accept()
 
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d\n",__FILE__,__FUNCTION__,__LINE__,newSock);
+		char client_host[100]="";
+		sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
 	}
 	return new Socket(newSock);
 }

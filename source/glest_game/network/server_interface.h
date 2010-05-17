@@ -121,6 +121,7 @@ public:
 	virtual bool getConnectHasHandshaked() const { return false; }
 
 	virtual void slotUpdateTask(ConnectionSlotEvent *event);
+	bool hasClientConnection();
 
 private:
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
