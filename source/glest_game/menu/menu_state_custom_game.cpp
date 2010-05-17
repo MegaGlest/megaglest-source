@@ -60,8 +60,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	needToBroadcastServerSettings = false;
 	showMasterserverError = false;
 	masterServererErrorToShow = "---";
-	lastSetChangedGameSettings   = time(NULL);
-	lastMasterserverPublishing = time(NULL);
+	lastSetChangedGameSettings  = 0;
+	lastMasterserverPublishing 	= 0;
 	soundConnectionCount=0;
 
 	mainMessageBox.init(lang.get("Ok"),lang.get("Return"));
@@ -695,7 +695,7 @@ void MenuStateCustomGame::update()
 
 		// Send the game settings to each client if we have at least one networked client
 		if( serverInterface->getAllowGameDataSynchCheck() == true &&
-			haveAtLeastOneNetworkClientConnected == true &&
+			//haveAtLeastOneNetworkClientConnected == true &&
 			needToSetChangedGameSettings == true &&
 			difftime(time(NULL),lastSetChangedGameSettings) >= 2)
 		{

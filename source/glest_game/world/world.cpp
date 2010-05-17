@@ -85,7 +85,9 @@ void World::setFogOfWar(bool value) {
 	if(game != NULL && game->getGameSettings() != NULL) {
 		game->getGameSettings()->setFogOfWar(fogOfWar);
 		initCells(fogOfWar); //must be done after knowing faction number and dimensions
-		initMinimap();
+		//initMinimap();
+		minimap.setFogOfWar(fogOfWar);
+		computeFow();
 	}
 }
 
