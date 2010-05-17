@@ -237,6 +237,18 @@ ConnectionSlot* ServerInterface::getSlot(int playerIndex){
 	return slots[playerIndex];
 }
 
+bool ServerInterface::hasClientConnection() {
+	bool result = false;
+
+	for(int i= 0; i<GameConstants::maxPlayers; ++i){
+		if(slots[i] != NULL && slots[i]->isConnected() == true) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
 int ServerInterface::getConnectedSlotCount(){
 	int connectedSlotCount= 0;
 
