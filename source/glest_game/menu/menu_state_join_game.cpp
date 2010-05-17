@@ -504,7 +504,7 @@ void MenuStateJoinGame::connectToServer()
 	Config& config= Config::getInstance();
 	Ip serverIp(labelServerIp.getText());
 
-	clientInterface->connect(serverIp, GameConstants::serverPort);
+	clientInterface->connect(serverIp, Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] server - [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
 
