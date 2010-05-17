@@ -63,7 +63,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	lastMasterserverPublishing = time(NULL);
 	soundConnectionCount=0;
 
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.get("Ok"),lang.get("Return"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -264,6 +264,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			if(button==1)
 			{
 				mainMessageBox.setEnabled(false);
+			}
+			else if(button==2)
+			{
+				returnToParentMenu();
 			}
 		}
 	}
@@ -525,9 +529,9 @@ void MenuStateCustomGame::update()
 		
 		if(showMasterserverError)
 		{
-			if(masterServererErrorToShow=="wrong router setup")
+			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true)
 			{
-				masterServererErrorToShow=lang.get(" wrong router setup");
+				masterServererErrorToShow=lang.get("wrong router setup");
 			}
 			showMasterserverError=true;
 			listBoxPublishServer.setSelectedItemIndex(1);
@@ -812,12 +816,13 @@ void MenuStateCustomGame::simpleTask() {
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
 		printf("the result is:\n'%s'\n",serverInfo.c_str());
-// uncomment to enable router setup check of this server
-//		if(serverInfo!="OK")
-//		{
-//			showMasterserverError=true;
-//			masterServererErrorToShow=serverInfo;
-//		}
+		// uncomment to enable router setup check of this server
+		//if(serverInfo!="OK")
+		if(EndsWith(serverInfo, "OK") == false)
+		{
+			showMasterserverError=true;
+			masterServererErrorToShow=serverInfo;
+		}
 	}
 	if(needToBroadcastServerSettings)
 	{
