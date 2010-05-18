@@ -12,8 +12,9 @@
 #include "command.h"
 
 #include "command_type.h"
-#include "leak_dumper.h"
 #include "util.h"
+#include "conversion.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Util;
 
@@ -61,6 +62,12 @@ void Command::setPos(const Vec2i &pos){
 
 void Command::setUnit(Unit *unit){
      this->unitRef= unit;
+}
+
+std::string Command::toString() const {
+	std::string result;
+	result = "commandType = " + commandType->toString() + " pos = " + pos.getString() + " facing = " + intToStr(facing.asInt());
+	return result;
 }
 
 }}//end namespace

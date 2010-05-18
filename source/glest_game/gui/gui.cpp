@@ -342,6 +342,10 @@ void Gui::hotKey(char key){
 	else if(key=='?') {
 		this->showDebugUI = !this->showDebugUI;
 	}
+	else if(key=='|') {
+		std::string worldLog = world->DumpWorldToLog();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
+	}
 	else if(key=='R'){
 	    // Here the user triggers a unit rotation while placing a unit
 	    if(allowRotateUnits == true && isPlacingBuilding()) {

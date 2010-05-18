@@ -478,4 +478,40 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 	assert(false);
 }
 
+std::string Faction::toString() const {
+	std::string result = "";
+
+    result = "FactionIndex = " + intToStr(this->index) + "\n";
+    result += "teamIndex = " + intToStr(this->teamIndex) + "\n";
+    result += "startLocationIndex = " + intToStr(this->startLocationIndex) + "\n";
+    result += "thisFaction = " + intToStr(this->thisFaction) + "\n";
+    result += "control = " + intToStr(this->control) + "\n";
+
+	result += this->factionType->toString() + "\n";
+
+	result += this->upgradeManager.toString() + "\n";
+
+	result += "ResourceCount = " + intToStr(resources.size()) + "\n";
+	for(int idx = 0; idx < resources.size(); idx ++) {
+		result += "index = " + intToStr(idx) + " " + resources[idx].getDescription() + "\n";
+	}
+
+	result += "StoreCount = " + intToStr(store.size()) + "\n";
+	for(int idx = 0; idx < store.size(); idx ++) {
+		result += "index = " + intToStr(idx) + " " + store[idx].getDescription()  + "\n";
+	}
+
+	result += "Allies = " + intToStr(allies.size()) + "\n";
+	for(int idx = 0; idx < allies.size(); idx ++) {
+		result += "index = " + intToStr(idx) + " name: " + allies[idx]->factionType->getName() + " factionindex = " + intToStr(allies[idx]->index)  + "\n";
+	}
+
+	result += "Units = " + intToStr(units.size()) + "\n";
+	for(int idx = 0; idx < units.size(); idx ++) {
+		result += units[idx]->toString() + "\n";
+	}
+
+	return result;
+}
+
 }}//end namespace

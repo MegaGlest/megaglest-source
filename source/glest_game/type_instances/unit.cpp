@@ -73,6 +73,17 @@ Vec2i UnitPath::pop(){
 	return p;
 }
 
+std::string UnitPath::toString() const {
+	std::string result = "";
+
+	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
+	for(int idx = 0; idx < pathQueue.size(); idx++) {
+		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
+	}
+
+	return result;
+}
+
 // =====================================================
 // 	class UnitReference
 // =====================================================
@@ -128,6 +139,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
     this->faction=faction;
 	this->map= map;
 	level= NULL;
+	loadType= NULL;
 
     setModelFacing(placeFacing);
 
@@ -1239,6 +1251,82 @@ void Unit::logSynchData(string source) {
 					szBuf);
 	    }
 	}
+}
+
+std::string Unit::toString() const {
+	std::string result = "";
+
+/*
+	result += "id = " + intToStr(this->id);
+	result += " name [" + this->getFullName() + "]";
+	result += " desc: " + this->getDesc();
+*/
+	result += "id = " + intToStr(this->id);
+	if(this->type != NULL) {
+		result += " name [" + this->type->getName() + "]";
+	}
+	result += " hp = " + intToStr(this->hp);
+	result += " ep = " + intToStr(this->ep);
+	result += " loadCount = " + intToStr(this->loadCount);
+	result += " deadCount = " + intToStr(this->deadCount);
+	result += " progress = " + floatToStr(this->progress);
+	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress);
+	result += " animProgress = " + floatToStr(this->animProgress);
+	result += " highlight = " + floatToStr(this->highlight);
+	result += " progress2 = " + intToStr(this->progress2);
+	result += " kills = " + intToStr(this->kills);
+
+	if(this->targetRef.getUnit() != NULL) {
+		result += " targetRef = " + this->targetRef.getUnit()->toString();
+	}
+	result += " currField = " + intToStr(this->currField);
+	result += " targetField = " + intToStr(this->targetField);
+	if(level != NULL) {
+		result += " level = " + level->getName();
+	}
+
+	result += " pos = " + pos.getString();
+	result += " lastPos = " + lastPos.getString();
+	result += " targetPos = " + targetPos.getString();
+	result += " targetVec = " + targetVec.getString();
+	result += " meetingPos = " + meetingPos.getString();
+
+	result += " lastRotation = " + floatToStr(this->lastRotation);
+	result += " targetRotation = " + floatToStr(this->targetRotation);
+	result += " rotation = " + floatToStr(this->rotation);
+
+    if(loadType != NULL) {
+    	result += " loadType = " + loadType->getName();
+    }
+
+    if(currSkill != NULL) {
+    	result += " currSkill = " + currSkill->getName();
+    }
+
+    result += " toBeUndertaken = " + intToStr(this->toBeUndertaken);
+    result += " alive = " + intToStr(this->alive);
+    result += " showUnitParticles = " + intToStr(this->showUnitParticles);
+
+    result += " totalUpgrade = " + totalUpgrade.toString();
+
+    result += " " + unitPath.toString() + "\n";
+
+    result += "Command count = " + intToStr(commands.size()) + "\n";
+
+    int cmdIdx = 0;
+    for(Commands::const_iterator iterList = commands.begin(); iterList != commands.end(); ++iterList) {
+    	result += " index = " + intToStr(cmdIdx) + " ";
+    	const Command *cmd = *iterList;
+    	if(cmd != NULL) {
+    		result += cmd->toString() + "\n";
+    	}
+    	cmdIdx++;
+    }
+
+    result += "allowRotateUnits = " + intToStr(allowRotateUnits) + "\n";
+    result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
+
+	return result;
 }
 
 }}//end namespace

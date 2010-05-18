@@ -18,6 +18,7 @@
 #include "resource.h"
 #include "platform_util.h"
 #include "game_util.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -166,6 +167,24 @@ int FactionType::getStartingResourceAmount(const ResourceType *resourceType) con
 		}
 	}
 	return 0;
+}
+
+std::string FactionType::toString() const {
+	std::string result = "";
+
+	result = "Faction Name: " + name + "\n";
+
+	result += "Unit Type List count = " + intToStr(this->getUnitTypeCount()) + "\n";
+    for(int i=0; i<unitTypes.size();i++) {
+		result += unitTypes[i].toString() + "\n";
+    }
+
+	result += "Upgrade Type List count = " + intToStr(this->getUpgradeTypeCount()) + "\n";
+    for(int i=0; i<upgradeTypes.size();i++) {
+		result += "index: " + intToStr(i) + " " + upgradeTypes[i].getReqDesc() + "\n";
+    }
+
+	return result;
 }
 
 }}//end namespace
