@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Marti�o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -500,6 +500,11 @@ unsigned int Unit::getCommandSize() const{
 	return commands.size();
 }
 
+#define deleteSingleCommand(command) {\
+	undoCommand(command);\
+	delete command;\
+}
+
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 
@@ -515,7 +520,18 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(command->getCommandType()->isQueuable(tryQueue)){
+    const int command_priority = command->getCommandType()->getPriority();
+
+	if(command->getCommandType()->isQueuable(tryQueue) && (commands.empty() || (command_priority >= commands.back()->getCommandType()->getPriority()))){
+		//Delete all lower-prioirty commands
+		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
+			if ((*i)->getCommandType()->getPriority() < command_priority) {
+				deleteSingleCommand(*i);
+				i = commands.erase(i);
+			} else {
+				++i;
+			}
+		}
 		//cancel current command if it is not queuable
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
