@@ -48,6 +48,8 @@ bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
 
+bool Window::isActive = false;
+
 // ========== PUBLIC ==========
 
 Window::Window()  {
@@ -55,6 +57,7 @@ Window::Window()  {
 
 	assert(global_window == 0);
 	global_window = this;
+	Window::isActive = true;
 
 	lastMouseEvent = 0;
 	mousePos = Vec2i(0);
@@ -151,6 +154,60 @@ bool Window::handleEvent() {
 						global_window->eventKeyUp(getKey(event.key.keysym));
 					}
 					break;
+				case SDL_ACTIVEEVENT:
+				{
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT.\n",__FILE__,__FUNCTION__,__LINE__);
+
+					// Check if the program has lost keyboard focus
+					if (event.active.state == SDL_APPINPUTFOCUS) {
+						if (event.active.gain == 0) {
+							Window::isActive = false;
+						}
+						else if (event.active.gain == 1) {
+							Window::isActive = true;
+						}
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+						showCursor(!Window::isActive);
+					}
+					// Check if the program has lost window focus
+					else if (event.active.state == SDL_APPACTIVE) {
+						if (event.active.gain == 0) {
+							Window::isActive = false;
+						}
+						else if (event.active.gain == 1) {
+							Window::isActive = true;
+						}
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+						showCursor(!Window::isActive);
+					}
+					// Check if the program has lost window focus
+					else if (event.active.state == SDL_APPMOUSEFOCUS) {
+						if (event.active.gain == 0) {
+							Window::isActive = false;
+						}
+						else if (event.active.gain == 1) {
+							Window::isActive = true;
+						}
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+						showCursor(!Window::isActive);
+					}
+					else {
+						if (event.active.gain == 0) {
+							Window::isActive = false;
+						}
+						else if (event.active.gain == 1) {
+							Window::isActive = true;
+						}
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
+						showCursor(!Window::isActive);
+					}
+
+				} 
+				break;
 			}
 		} 
 		catch(std::runtime_error& e) {
@@ -346,10 +403,12 @@ void Window::toggleFullscreen() {
 	if(Window::isFullScreen == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
 		ShowWindow(handle, SW_MAXIMIZE);
+		showCursor(false);
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
 		ShowWindow(handle, SW_RESTORE);
+		showCursor(true);
 	}
 
 	//SDL_Surface *sf = SDL_GetVideoSurface();

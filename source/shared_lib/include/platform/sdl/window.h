@@ -128,6 +128,7 @@ private:
 
 protected:
 	int w, h;
+	static bool isActive;
 
 public:
 	static bool handleEvent();
