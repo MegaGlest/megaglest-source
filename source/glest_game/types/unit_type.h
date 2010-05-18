@@ -189,6 +189,8 @@ public:
     float getRotatedBuildPos() { return rotatedBuildPos; }
     void setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
+    std::string toString() const;
+
 private:
     void computeFirstStOfClass();
     void computeFirstCtOfClass();

@@ -398,7 +398,9 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find command type for network command = [%s]\n%s\n in unit = %d [%s][%s].\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
 
-		throw runtime_error(szBuf);
+	    std::string worldLog = world->DumpWorldToLog();
+	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+		throw runtime_error(sError);
 	}
 
 	CardinalDir facing;

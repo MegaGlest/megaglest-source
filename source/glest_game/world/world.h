@@ -153,6 +153,7 @@ public:
 	Game * getGame() { return game; }
 
 	void setFogOfWar(bool value);
+	std::string DumpWorldToLog() const;
 
 private:
 

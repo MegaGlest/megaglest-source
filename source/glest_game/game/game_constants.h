@@ -66,8 +66,8 @@ public:
 		assertDirValid(v);
 		value = static_cast<Enum>(v);
 	}
-	operator Enum() { return value; }
-	//int asInt() { return (int)value; }
+	operator Enum() const { return value; }
+	int asInt() const { return (int)value; }
 
 	static void assertDirValid(int v) { assert(v >= 0 && v < 4); }
 	void operator++() {

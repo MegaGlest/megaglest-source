@@ -133,6 +133,8 @@ public:
 	void incResourceAmount(const ResourceType *rt, int amount);
 	void setResourceBalance(const ResourceType *rt, int balance);
 
+	std::string toString() const;
+
 private:
 	void limitResourcesToStore();
 	void resetResourceAmount(const ResourceType *rt);

@@ -604,4 +604,69 @@ string UnitType::getCommandTypeListDesc() const {
 
 }
 
+std::string UnitType::toString() const {
+	std::string result = "";
+
+	result = "Unit Name: [" + name + "] id = " + intToStr(id);
+	result += " maxHp = " + intToStr(maxHp);
+	result += " hpRegeneration = " + intToStr(hpRegeneration);
+	result += " maxEp = " + intToStr(maxEp);
+	result += " epRegeneration = " + intToStr(epRegeneration);
+
+	for(int i = 0; i < fieldCount; i++) {
+		result += " fields index = " + intToStr(i) + " value = " + intToStr(fields[i]);
+	}
+	for(int i = 0; i < pCount; i++) {
+		result += " properties index = " + intToStr(i) + " value = " + intToStr(properties[i]);
+	}
+
+	result += " armor = " + intToStr(armor);
+
+	if(armorType != NULL) {
+		result += " armorType Name: [" + armorType->getName() + " id = " +  intToStr(armorType->getId());
+	}
+
+	result += " light = " + intToStr(light);
+	result += " lightColor = " + lightColor.getString();
+	result += " multiSelect = " + intToStr(multiSelect);
+	result += " sight = " + intToStr(sight);
+	result += " size = " + intToStr(size);
+	result += " height = " + intToStr(height);
+	result += " rotatedBuildPos = " + floatToStr(rotatedBuildPos);
+	result += " rotationAllowed = " + intToStr(rotationAllowed);
+
+	if(cellMap != NULL) {
+		result += " cellMap:";
+		for(int i = 0; i < size; ++i) {
+			for(int j = 0; j < size; ++j){
+				result += " i = " + intToStr(i) + " j = " + intToStr(j) + " value = " + intToStr(cellMap[i*size+j]);
+			}
+		}
+	}
+
+	result += " skillTypes:";
+	for(int i = 0; i < skillTypes.size(); ++i) {
+		result += " i = " + intToStr(i) + " " + skillTypes[i]->toString();
+	}
+
+	result += " commandTypes:";
+	for(int i = 0; i < commandTypes.size(); ++i) {
+		result += " i = " + intToStr(i) + " " + commandTypes[i]->toString();
+	}
+
+	result += " storedResources:";
+	for(int i = 0; i < storedResources.size(); ++i) {
+		result += " i = " + intToStr(i) + " " + storedResources[i].getDescription();
+	}
+
+	result += " levels:";
+	for(int i = 0; i < levels.size(); ++i) {
+		result += " i = " + intToStr(i) + " " + levels[i].getName();
+	}
+
+	result += " meetingPoint = " + intToStr(meetingPoint);
+
+	return result;
+}
+
 }}//end namespace

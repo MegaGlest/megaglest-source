@@ -800,4 +800,41 @@ void World::computeFow(){
 	}
 }
 
+std::string World::DumpWorldToLog() const {
+	string debugWorldLogFile = Config::getInstance().getString("DebugWorldLogFile","debugWorld.log");
+    if(getGameReadWritePath() != "") {
+    	debugWorldLogFile = getGameReadWritePath() + debugWorldLogFile;
+    }
+
+    std::ofstream logFile;
+    logFile.open(debugWorldLogFile.c_str(), ios_base::out | ios_base::trunc);
+
+    logFile << "World debug information:"  << std::endl;
+    logFile << "========================"  << std::endl;
+
+	//factions (and their related info)
+	for(int i = 0; i < getFactionCount(); ++i) {
+		logFile << "Faction detail for index: " << i << std::endl;
+		logFile << "--------------------------" << std::endl;
+		logFile << getFaction(i)->toString() << std::endl;
+	}
+
+	//undertake the dead
+	logFile << "Undertake stats:" << std::endl;
+	for(int i = 0; i < getFactionCount(); ++i){
+		logFile << "Faction: " << getFaction(i)->getType()->getName() << std::endl;
+		int unitCount = getFaction(i)->getUnitCount();
+		for(int j= unitCount - 1; j >= 0; j--){
+			Unit *unit= getFaction(i)->getUnit(j);
+			if(unit->getToBeUndertaken()) {
+				logFile << "Undertake unit index = " << j << unit->getFullName() << std::endl;
+			}
+		}
+	}
+
+    logFile.close();
+
+    return debugWorldLogFile;
+}
+
 }}//end namespace

@@ -114,6 +114,8 @@ public:
 	void incBlockCount();
 	void push(const Vec2i &path);
 	Vec2i pop();
+
+	std::string toString() const;
 };
 
 // ===============================
@@ -310,6 +312,8 @@ public:
 	CardinalDir getModelFacing() { return modelFacing; }
 
 	bool isMeetingPointSettable() const;
+
+	std::string toString() const;
 
 private:
 	float computeHeight(const Vec2i &pos) const;
