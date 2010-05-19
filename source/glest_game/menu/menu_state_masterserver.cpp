@@ -86,6 +86,11 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	i+=50;
 	selectButton.init(i, startOffset-lineOffset, 30);
 	selectButton.setText(">");
+	if(glestVersionString!=masterServerInfo->getGlestVersion())
+	{
+		selectButton.setEnabled(false);
+		selectButton.setEditable(false);
+	}
 }
 
 ServerLine::~ServerLine(){
