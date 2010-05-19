@@ -605,7 +605,7 @@ void MenuStateCustomGame::update()
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
 					haveAtLeastOneNetworkClientConnected = true;
-					if(connectionSlot->getName()!="")
+					if(connectionSlot->getConnectHasHandshaked())
 						currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
@@ -744,6 +744,7 @@ void MenuStateCustomGame::update()
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(currentConnectionCount>soundConnectionCount){
+			soundConnectionCount=currentConnectionCount;
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 		}
 		soundConnectionCount=currentConnectionCount;

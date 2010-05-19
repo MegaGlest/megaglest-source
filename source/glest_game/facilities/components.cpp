@@ -56,7 +56,10 @@ bool GraphicComponent::mouseMove(int x, int y){
 }
 
 bool GraphicComponent::mouseClick(int x, int y){
-    return mouseMove(x, y);
+	if(getEnabled()&&getEditable())
+    	return mouseMove(x, y);
+    else
+    	return false;
 }
 
 void GraphicComponent::update(){
