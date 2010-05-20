@@ -22,6 +22,7 @@
 #include "sound_renderer.h"
 #include "game_settings.h"
 #include "cache_manager.h"
+#include <iostream>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -800,40 +801,60 @@ void World::computeFow(){
 	}
 }
 
-std::string World::DumpWorldToLog() const {
+std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
+	
 	string debugWorldLogFile = Config::getInstance().getString("DebugWorldLogFile","debugWorld.log");
-    if(getGameReadWritePath() != "") {
-    	debugWorldLogFile = getGameReadWritePath() + debugWorldLogFile;
-    }
-
-    std::ofstream logFile;
-    logFile.open(debugWorldLogFile.c_str(), ios_base::out | ios_base::trunc);
-
-    logFile << "World debug information:"  << std::endl;
-    logFile << "========================"  << std::endl;
-
-	//factions (and their related info)
-	for(int i = 0; i < getFactionCount(); ++i) {
-		logFile << "Faction detail for index: " << i << std::endl;
-		logFile << "--------------------------" << std::endl;
-		logFile << getFaction(i)->toString() << std::endl;
+	if(getGameReadWritePath() != "") {
+		debugWorldLogFile = getGameReadWritePath() + debugWorldLogFile;
 	}
 
-	//undertake the dead
-	logFile << "Undertake stats:" << std::endl;
-	for(int i = 0; i < getFactionCount(); ++i){
-		logFile << "Faction: " << getFaction(i)->getType()->getName() << std::endl;
-		int unitCount = getFaction(i)->getUnitCount();
-		for(int j= unitCount - 1; j >= 0; j--){
-			Unit *unit= getFaction(i)->getUnit(j);
-			if(unit->getToBeUndertaken()) {
-				logFile << "Undertake unit index = " << j << unit->getFullName() << std::endl;
-			}
+	if(consoleBasicInfoOnly == true) {
+		std::cout << "World debug information:"  << std::endl;
+		std::cout << "========================"  << std::endl;
+
+		//factions (and their related info)
+		for(int i = 0; i < getFactionCount(); ++i) {
+			std::cout << "Faction detail for index: " << i << std::endl;
+			std::cout << "--------------------------" << std::endl;
+			
+			std::cout << "FactionName = " << getFaction(i)->getType()->getName() << std::endl;
+			std::cout << "FactionIndex = " << intToStr(getFaction(i)->getIndex()) << std::endl;
+			std::cout << "teamIndex = " << intToStr(getFaction(i)->getTeam()) << std::endl;
+			std::cout << "startLocationIndex = " << intToStr(getFaction(i)->getStartLocationIndex()) << std::endl;
+			std::cout << "thisFaction = " << intToStr(getFaction(i)->getThisFaction()) << std::endl;
+			std::cout << "control = " << intToStr(getFaction(i)->getControlType()) << std::endl;
 		}
 	}
+	else {
 
-    logFile.close();
+		std::ofstream logFile;
+		logFile.open(debugWorldLogFile.c_str(), ios_base::out | ios_base::trunc);
 
+		logFile << "World debug information:"  << std::endl;
+		logFile << "========================"  << std::endl;
+
+		//factions (and their related info)
+		for(int i = 0; i < getFactionCount(); ++i) {
+			logFile << "Faction detail for index: " << i << std::endl;
+			logFile << "--------------------------" << std::endl;
+			logFile << getFaction(i)->toString() << std::endl;
+		}
+
+		//undertake the dead
+		logFile << "Undertake stats:" << std::endl;
+		for(int i = 0; i < getFactionCount(); ++i){
+			logFile << "Faction: " << getFaction(i)->getType()->getName() << std::endl;
+			int unitCount = getFaction(i)->getUnitCount();
+			for(int j= unitCount - 1; j >= 0; j--){
+				Unit *unit= getFaction(i)->getUnit(j);
+				if(unit->getToBeUndertaken()) {
+					logFile << "Undertake unit index = " << j << unit->getFullName() << std::endl;
+				}
+			}
+		}
+
+		logFile.close();
+	}
     return debugWorldLogFile;
 }
 
