@@ -98,6 +98,7 @@ public:
 	const UpgradeManager *getUpgradeManager() const		{return &upgradeManager;}
 	const Texture2D *getTexture() const					{return texture;}
 	int getStartLocationIndex() const					{return startLocationIndex;}
+	bool getThisFaction() const							{return thisFaction;}
 
 	//upgrades
 	void startUpgrade(const UpgradeType *ut);

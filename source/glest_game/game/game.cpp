@@ -326,6 +326,8 @@ void Game::init()
 	logger.add("Waiting for network", true);
 	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
+    std::string worldLog = world.DumpWorldToLog(true);
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Starting music stream\n",__FILE__,__FUNCTION__);
 	logger.add("Starting music stream", true);
 	StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
