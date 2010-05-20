@@ -468,8 +468,9 @@ void MenuStateOptions::saveConfig(){
 	}
 	
 	config.save();
-	Renderer::getInstance().loadConfig();
 	SoundRenderer::getInstance().loadConfig();
+	SoundRenderer::getInstance().setMusicVolume(CoreData::getInstance().getMenuMusic());
+	Renderer::getInstance().loadConfig();
 }
 
 void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable)

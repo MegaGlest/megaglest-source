@@ -200,7 +200,10 @@ void StreamSoundSource::update()
 	}
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	if(fadeState == NoFading){
+		alSourcef(source, AL_GAIN, sound->getVolume());
+	}
+	
 	ALint processed = 0;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 	while(processed > 0) {
