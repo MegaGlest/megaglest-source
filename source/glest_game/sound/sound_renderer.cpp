@@ -105,6 +105,10 @@ void SoundRenderer::playMusic(StrSound *strSound){
 	}
 }
 
+void SoundRenderer::setMusicVolume(StrSound *strSound){
+	strSound->setVolume(musicVolume);
+}
+
 void SoundRenderer::stopMusic(StrSound *strSound){
     if(soundPlayer != NULL) {
     	if(runThreadSafe == true) mutex.p();

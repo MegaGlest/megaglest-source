@@ -62,6 +62,7 @@ public:
 
 	//music
 	void playMusic(StrSound *strSound);
+	void setMusicVolume(StrSound *strSound);
 	void stopMusic(StrSound *strSound);
 	
 	//fx
