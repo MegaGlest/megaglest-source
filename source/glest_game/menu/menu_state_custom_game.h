@@ -64,7 +64,7 @@ private:
 	SimpleTaskThread *publishToMasterserverThread;
 	
 	bool parentMenuIsMs;
-	bool soundConnectionCount;
+	int soundConnectionCount;
 	
 	bool showMasterserverError;
 	string masterServererErrorToShow;
