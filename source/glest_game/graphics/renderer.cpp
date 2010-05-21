@@ -41,10 +41,13 @@ namespace Glest { namespace Game{
 // 	class MeshCallbackTeamColor
 // =====================================================
 
+bool MeshCallbackTeamColor::noTeamColors = false;
+
 void MeshCallbackTeamColor::execute(const Mesh *mesh){
 
 	//team color
-	if(mesh->getCustomTexture() && teamTexture!=NULL){
+	if( mesh->getCustomTexture() && teamTexture != NULL &&
+		MeshCallbackTeamColor::noTeamColors == false) {
 		//texture 0
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 

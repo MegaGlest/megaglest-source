@@ -65,6 +65,8 @@ private:
 public:
 	void setTeamTexture(const Texture *teamTexture)	{this->teamTexture= teamTexture;}
 	virtual void execute(const Mesh *mesh);
+
+	static bool noTeamColors;
 };
 
 //non shared classes

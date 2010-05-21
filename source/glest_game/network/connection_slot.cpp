@@ -374,4 +374,8 @@ bool ConnectionSlot::hasValidSocketId() {
     return result;
 }
 
+Mutex * ConnectionSlot::getServerSynchAccessor() {
+	return (serverInterface != NULL ? serverInterface->getServerSynchAccessor() : NULL);
+}
+
 }}//end namespace
