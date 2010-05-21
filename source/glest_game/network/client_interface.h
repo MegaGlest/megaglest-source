@@ -87,7 +87,12 @@ public:
 	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex, int8 toTeam);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 
+protected:
+
+	Mutex * getServerSynchAccessor() { return NULL; }
+
 private:
+
 	void waitForMessage();
 };
 

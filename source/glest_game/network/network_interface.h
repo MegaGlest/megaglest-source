@@ -55,6 +55,8 @@ protected:
 	static DisplayMessageFunction pCB_DisplayMessage;
 	void DisplayErrorMessage(string sErr, bool closeSocket=true);
 
+	virtual Mutex * getServerSynchAccessor() = 0;
+
 public:
 	static const int readyWaitTimeout;
 	GameSettings gameSettings;

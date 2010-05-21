@@ -65,6 +65,10 @@ public:
 
 	bool hasValidSocketId();
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
+
+protected:
+
+	Mutex * getServerSynchAccessor();
 };
 
 }}//end namespace

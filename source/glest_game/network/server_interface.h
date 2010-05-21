@@ -123,7 +123,12 @@ public:
 	virtual void slotUpdateTask(ConnectionSlotEvent *event);
 	bool hasClientConnection();
 
+public:
+
+	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
+
 private:
+
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
 	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);

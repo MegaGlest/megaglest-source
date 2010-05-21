@@ -346,6 +346,10 @@ int glestMain(int argc, char** argv){
 		//showCursor(config.getBool("Windowed"));
 		showCursor(false);
 
+		if(config.getBool("noTeamColors","false") == true) {
+			MeshCallbackTeamColor::noTeamColors = true;
+		}
+
 		program= new Program();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
