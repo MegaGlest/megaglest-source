@@ -7,11 +7,15 @@
 #include "graphics_interface.h"
 #include "util.h"
 #include "conversion.h"
+#include "platform_common.h"
+#include "xml_parser.h"
 
 using namespace Shared::Platform;
+using namespace Shared::PlatformCommon;
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
+using namespace Shared::Xml;
 
 using namespace std;
 
@@ -42,7 +46,9 @@ MainWindow::MainWindow(const string &modelPath)
 {
     //getGlPlatformExtensions();
 	renderer= Renderer::getInstance();
-	this->modelPath= modelPath;
+	if(modelPath != "") {
+		this->modelPathList.push_back(modelPath);
+	}
 	model= NULL;
 	playerColor= Renderer::pcRed;
 
@@ -60,6 +66,7 @@ MainWindow::MainWindow(const string &modelPath)
 	//menu
 	menuFile= new wxMenu();
 	menuFile->Append(miFileLoad, wxT("Load"));
+	menuFile->Append(miFileLoadParticleXML, wxT("Load Particle XML"));
 	menu->Append(menuFile, wxT("File"));
 
 	//mode
@@ -116,16 +123,7 @@ void MainWindow::init(){
 	glCanvas->SetCurrent();
 	renderer->init();
 
-	if(!modelPath.empty()){
-		Model *tmpModel= new ModelGl();
-
-		printf("In [%s::%s] modelPath = [%s]\n",__FILE__,__FUNCTION__,modelPath.c_str());
-
-		renderer->loadTheModel(tmpModel, modelPath);
-		model= tmpModel;
-
-		GetStatusBar()->SetStatusText(ToUnicode(getModelInfo().c_str()));
-	}
+	loadModel("");
 
     //SetTitle(ToUnicode(winHeader + "; " + modelPath));
 }
@@ -137,6 +135,14 @@ void MainWindow::onPaint(wxPaintEvent &event){
 	renderer->renderGrid();
 
 	renderer->renderTheModel(model, anim);
+
+	//int updateLoops = 100;
+	int updateLoops = 1;
+	for(int i=0; i< updateLoops; ++i) {
+		renderer->updateParticleManager();
+	}
+
+	renderer->renderParticleManager();
 
 	glCanvas->SwapBuffers();
 }
@@ -170,11 +176,95 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	wxFileDialog fileDialog(this);
 	fileDialog.SetWildcard(wxT("G3D files (*.g3d)|*.g3d"));
 	if(fileDialog.ShowModal()==wxID_OK){
+		modelPathList.clear();
+		loadModel((const char*)wxFNCONV(fileDialog.GetPath().c_str()));
+	}
+}
+
+void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
+	string fileName;
+	wxFileDialog fileDialog(this);
+	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+	if(fileDialog.ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+		loadParticle(path);
+	}
+}
+
+void MainWindow::loadModel(string path) {
+	if(path != "" && fileExists(path) == true) {
+		this->modelPathList.push_back(path);
+	}
+
+	for(int idx =0; idx < this->modelPathList.size(); idx++) {
+		string modelPath = this->modelPathList[idx];
+
+		//this->modelPath = path;
 		delete model;
 		Model *tmpModel= new ModelGl();
-		renderer->loadTheModel(tmpModel, (const char*)wxFNCONV(fileDialog.GetPath().c_str()));
+		renderer->loadTheModel(tmpModel, modelPath);
 		model= tmpModel;
 		GetStatusBar()->SetStatusText(ToUnicode(getModelInfo().c_str()));
+	}
+}
+
+void MainWindow::loadParticle(string path) {
+	if(path != "" && fileExists(path) == true) {
+		this->particlePathList.push_back(path);
+	}
+
+	if(this->particlePathList.size() > 0) {
+		for(int idx = 0; idx < this->particlePathList.size(); idx++) {
+			string particlePath = this->particlePathList[idx];
+			string dir= extractDirectoryPathFromFile(particlePath);
+
+			size_t pos = dir.find_last_of("/");
+			if(pos == dir.length()-1) {
+				dir.erase(dir.length() -1);
+			}
+
+			particlePath= extractFileFromDirectoryPath(particlePath);
+
+			std::string unitXML = dir + "/" + extractFileFromDirectoryPath(dir) + ".xml";
+
+			int size   = -1;
+			int height = -1;
+
+			if(fileExists(unitXML) == true) {
+				XmlTree xmlTree;
+				xmlTree.load(unitXML);
+				const XmlNode *unitNode= xmlTree.getRootNode();
+				const XmlNode *parametersNode= unitNode->getChild("parameters");
+				//size
+				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+				//height
+				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+			}
+
+			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+
+			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+			unitParticleSystemType->load(dir,  dir + "/" + particlePath, renderer->getNewTexture2D());
+			unitParticleSystemTypes.push_back(unitParticleSystemType);
+
+			for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
+				UnitParticleSystem *ups= new UnitParticleSystem(200);
+				(*it)->setValues(ups);
+				if(size > 0) {
+					//getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
+					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+					ups->setPos(vec);
+				}
+				//ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+				ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+				unitParticleSystems.push_back(ups);
+				renderer->manageParticleSystem(ups);
+
+				ups->setVisible(true);
+			}
+
+			renderer->initTextureManager();
+		}
 	}
 }
 
@@ -256,10 +346,124 @@ string MainWindow::getModelInfo(){
 	return str;
 }
 
+void MainWindow::onKeyDown(wxKeyEvent &e) {
+/*
+	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
+ 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
+ 			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
+ 			if (e.GetModifiers() == wxMOD_CONTROL) { // Ctrl means negative
+ 				height  = -height ;
+ 			}
+ 			int id_offset = heightCount / 2 + height + 1;
+ 			if (currentBrush == btHeight) {
+ 				wxCommandEvent evt(wxEVT_NULL, miBrushHeight + id_offset);
+ 				onMenuBrushHeight(evt);
+ 			} else {
+ 				wxCommandEvent evt(wxEVT_NULL, miBrushGradient + id_offset);
+ 				onMenuBrushGradient(evt);
+ 			}
+ 			return;
+ 		}
+ 	}
+ 	if (currentBrush == btSurface) { // surface texture
+ 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '5') {
+ 			surface = e.GetKeyCode() - 48; // '1'-'5' == 1-5
+ 			wxCommandEvent evt(wxEVT_NULL, miBrushSurface + surface);
+ 			onMenuBrushSurface(evt);
+ 			return;
+ 		}
+ 	}
+ 	if (currentBrush == btObject) {
+ 		bool valid = true;
+ 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '9') {
+ 			object = e.GetKeyCode() - 48; // '1'-'9' == 1-9
+ 		} else if (e.GetKeyCode() == '0') { // '0' == 10
+ 			object = 10;
+ 		} else if (e.GetKeyCode() == '-') {	// '-' == 0
+ 			object = 0;
+ 		} else {
+ 			valid = false;
+ 		}
+ 		if (valid) {
+ 			wxCommandEvent evt(wxEVT_NULL, miBrushObject + object + 1);
+ 			onMenuBrushObject(evt);
+ 			return;
+ 		}
+ 	}
+ 	if (currentBrush == btResource) {
+ 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
+ 			resource = e.GetKeyCode() - 48;	// '0'-'5' == 0-5
+ 			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resource + 1);
+ 			onMenuBrushResource(evt);
+ 			return;
+ 		}
+ 	}
+ 	if (currentBrush == btStartLocation) {
+ 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '8') {
+ 			startLocation = e.GetKeyCode() - 48; // '1'-'8' == 0-7
+ 			wxCommandEvent evt(wxEVT_NULL, miBrushStartLocation + startLocation);
+ 			onMenuBrushStartLocation(evt);
+ 			return;
+ 		}
+ 	}
+ 	if (e.GetKeyCode() == 'H') {
+ 		wxCommandEvent evt(wxEVT_NULL, miBrushHeight + height + heightCount / 2 + 1);
+ 		onMenuBrushHeight(evt);
+ 	} else if (e.GetKeyCode() == ' ') {
+		if (resourceUnderMouse != 0) {
+			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resourceUnderMouse + 1);
+ 			onMenuBrushResource(evt);
+		} else {
+			wxCommandEvent evt(wxEVT_NULL, miBrushObject + objectUnderMouse + 1);
+ 			onMenuBrushObject(evt);
+		}
+ 	} else if (e.GetKeyCode() == 'G') {
+ 		wxCommandEvent evt(wxEVT_NULL, miBrushGradient + height + heightCount / 2 + 1);
+ 		onMenuBrushGradient(evt);
+ 	} else if (e.GetKeyCode() == 'S') {
+		wxCommandEvent evt(wxEVT_NULL, miBrushSurface + surface);
+		onMenuBrushSurface(evt);
+ 	} else if (e.GetKeyCode() == 'O') {
+ 		wxCommandEvent evt(wxEVT_NULL, miBrushObject + object + 1);
+ 		onMenuBrushObject(evt);
+ 	} else if (e.GetKeyCode() == 'R') {
+ 		wxCommandEvent evt(wxEVT_NULL, miBrushResource + resource + 1);
+ 		onMenuBrushResource(evt);
+ 	} else if (e.GetKeyCode() == 'L') {
+ 		wxCommandEvent evt(wxEVT_NULL, miBrushStartLocation + startLocation + 1);
+ 		onMenuBrushStartLocation(evt);
+ 	} else {
+ 		e.Skip();
+	}
+*/
+
+	if (e.GetKeyCode() == 'R') {
+		renderer->end();
+
+		for(int idx = 0; idx < unitParticleSystems.size(); ++idx) {
+			//UnitParticleSystem *ups = unitParticleSystems[idx];
+			//delete ups;
+			//ups = NULL;
+		}
+		unitParticleSystems.clear();
+
+		for(int idx = 0; idx < unitParticleSystemTypes.size(); ++idx) {
+			//UnitParticleSystemType *unitParticleSystemType = unitParticleSystemTypes[idx];
+			//delete unitParticleSystemType;
+			//unitParticleSystemType = NULL;
+		}
+		unitParticleSystemTypes.clear();
+
+		loadModel("");
+		loadParticle("");
+	}
+}
+
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TIMER(-1, MainWindow::onTimer)
 	EVT_CLOSE(MainWindow::onClose)
 	EVT_MENU(miFileLoad, MainWindow::onMenuFileLoad)
+	EVT_MENU(miFileLoadParticleXML, MainWindow::onMenuFileLoadParticleXML)
 
 	EVT_MENU(miModeWireframe, MainWindow::onMenuModeWireframe)
 	EVT_MENU(miModeNormals, MainWindow::onMenuModeNormals)
@@ -278,6 +482,15 @@ END_EVENT_TABLE()
 //	class GlCanvas
 // =====================================================
 
+void translateCoords(wxWindow *wnd, int &x, int &y) {
+#ifdef WIN32
+	int cx, cy;
+	wnd->GetPosition(&cx, &cy);
+	x += cx;
+	y += cy;
+#endif
+}
+
 GlCanvas::GlCanvas(MainWindow *	mainWindow):
     wxGLCanvas(mainWindow, -1, wxDefaultPosition)
 {
@@ -288,8 +501,16 @@ void GlCanvas::onMouseMove(wxMouseEvent &event){
     mainWindow->onMouseMove(event);
 }
 
+void GlCanvas::onKeyDown(wxKeyEvent &event) {
+	int x, y;
+	event.GetPosition(&x, &y);
+	translateCoords(this, x, y);
+	mainWindow->onKeyDown(event);
+}
+
 BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
     EVT_MOTION(GlCanvas::onMouseMove)
+    EVT_KEY_DOWN(GlCanvas::onKeyDown)
 END_EVENT_TABLE()
 
 // ===============================================

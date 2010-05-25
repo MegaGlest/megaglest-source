@@ -65,10 +65,13 @@ public:
 
 	bool hasValidSocketId();
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
+	std::vector<std::string> getThreadErrorList() const { return threadErrorList; }
+	void clearThreadErrorList() { threadErrorList.clear(); }
 
 protected:
 
 	Mutex * getServerSynchAccessor();
+	std::vector<std::string> threadErrorList;
 };
 
 }}//end namespace

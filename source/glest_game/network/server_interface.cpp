@@ -414,6 +414,18 @@ void ServerInterface::update() {
     			// Examine all threads for completion of delegation
     			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
     				if(slotThreads[i] != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
+    					ConnectionSlot* connectionSlot= slots[i];
+    					if(connectionSlot != NULL) {
+							std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+							if(errorList.size() > 0) {
+								for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+									string &sErr = errorList[iErrIdx];
+									DisplayErrorMessage(sErr);
+								}
+								connectionSlot->clearThreadErrorList();
+							}
+    					}
+
     					if(slotThreads[i]->isSignalCompleted() == false &&
     					   slotThreads[i]->getQuitStatus() == false &&
     					   slotThreads[i]->getRunningStatus() == true) {

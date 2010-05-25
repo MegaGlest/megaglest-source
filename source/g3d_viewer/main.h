@@ -8,8 +8,11 @@
 
 #include "renderer.h"
 #include "util.h"
+#include "particle_type.h"
+#include "unit_particle_type.h"
 
 using std::string;
+using namespace Glest::Game;
 
 namespace Shared{ namespace G3dViewer{
 
@@ -29,6 +32,7 @@ public:
 
 	enum MenuId{
 		miFileLoad,
+		miFileLoadParticleXML,
 		miModeWireframe,
 		miModeNormals,
 		miModeGrid,
@@ -53,13 +57,23 @@ private:
 	wxMenu *menuCustomColor;
 
 	Model *model;
-	string modelPath;
+
+	//string modelPath;
+	//string ParticlePath;
+	std::vector<string> modelPathList;
+	std::vector<string> particlePathList;
 
 	float speed;
 	float anim;
 	float rotX, rotY, zoom;
 	int lastX, lastY;
 	Renderer::PlayerColor playerColor;
+
+	std::vector<UnitParticleSystemType *> unitParticleSystemTypes;
+	std::vector<UnitParticleSystem *> unitParticleSystems;
+
+	void loadModel(string path);
+	void loadParticle(string path);
 
 public:
 	MainWindow(const string &modelPath);
@@ -71,6 +85,7 @@ public:
 	void onPaint(wxPaintEvent &event);
 	void onClose(wxCloseEvent &event);
 	void onMenuFileLoad(wxCommandEvent &event);
+	void onMenuFileLoadParticleXML(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);
 	void onMenuModeWireframe(wxCommandEvent &event);
 	void onMenuModeGrid(wxCommandEvent &event);
@@ -82,6 +97,8 @@ public:
 	void onMenuColorGreen(wxCommandEvent &event);
 	void onMouseMove(wxMouseEvent &event);
 	void onTimer(wxTimerEvent &event);
+
+	void onKeyDown(wxKeyEvent &e);
 
 	string getModelInfo();
 };
@@ -99,6 +116,7 @@ public:
 
 	void onMouseMove(wxMouseEvent &event);
 	void onPaint(wxPaintEvent &event);
+	void onKeyDown(wxKeyEvent &event);
 
 private:
 	MainWindow *mainWindow;

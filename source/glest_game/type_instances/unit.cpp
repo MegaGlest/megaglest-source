@@ -23,6 +23,7 @@
 #include "skill_type.h"
 #include "core_data.h"
 #include "renderer.h"
+
 #include "game.h"
 
 #ifndef WIN32

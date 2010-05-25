@@ -64,8 +64,8 @@ protected:
 
 public:
 	UnitParticleSystemType();
-	void load(const XmlNode *particleSystemNode, const string &dir);
-	void load(const string &dir, const string &path);
+	void load(const XmlNode *particleSystemNode, const string &dir, Texture2D *newTexture);
+	void load(const string &dir, const string &path, Texture2D *newTexture);
 	void setValues(UnitParticleSystem *uts);
 };
 
