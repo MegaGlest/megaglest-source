@@ -9,6 +9,7 @@
 #include "conversion.h"
 #include "platform_common.h"
 #include "xml_parser.h"
+#include <iostream>
 
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
