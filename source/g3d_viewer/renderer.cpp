@@ -77,11 +77,17 @@ Renderer::Renderer(){
 	grid= true;
 	modelRenderer = NULL;
 	textureManager = NULL;
+	particleRenderer = NULL;
+	particleManager = NULL;
 }
 
 Renderer::~Renderer(){
 	delete modelRenderer;
 	delete textureManager;
+	delete particleRenderer;
+
+	//resources
+	delete particleManager;
 }
 
 Renderer * Renderer::getInstance(){
@@ -130,6 +136,11 @@ void Renderer::checkExtension(const string &extension, const string &msg){
 	}
 }
 
+Texture2D * Renderer::getNewTexture2D() {
+	Texture2D *newTexture = textureManager->newTexture2D();
+	return newTexture;
+}
+
 void Renderer::init(){
 	assertGl();
 
@@ -141,6 +152,10 @@ void Renderer::init(){
 
 	modelRenderer= gf->newModelRenderer();
 	textureManager= gf->newTextureManager();
+	particleRenderer= gf->newParticleRenderer();
+
+	//resources
+	particleManager= gf->newParticleManager();
 
 	//red tex
 	customTextureRed= textureManager->newTexture2D();
@@ -297,6 +312,53 @@ void Renderer::renderTheModel(Model *model, float f){
 
 		modelRenderer->end();
 	}
+}
+
+void Renderer::manageParticleSystem(ParticleSystem *particleSystem){
+	particleManager->manage(particleSystem);
+}
+
+void Renderer::updateParticleManager(){
+	particleManager->update();
+}
+
+void Renderer::renderParticleManager(){
+	glPushAttrib(GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
+	glDepthFunc(GL_LESS);
+	particleRenderer->renderManager(particleManager, modelRenderer);
+	glPopAttrib();
+}
+
+Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
+	Texture2D *customTexture;
+	switch(playerColor){
+	case pcRed:
+		customTexture= customTextureRed;
+		break;
+	case pcBlue:
+		customTexture= customTextureBlue;
+		break;
+	case pcYellow:
+		customTexture= customTextureYellow;
+		break;
+	case pcGreen:
+		customTexture= customTextureGreen;
+		break;
+	default:
+		assert(false);
+	}
+
+	return customTexture;
+}
+
+void Renderer::initTextureManager() {
+	textureManager->init();
+}
+
+void Renderer::end() {
+	//delete resources
+	//textureManager->end();
+	particleManager->end();
 }
 
 }}//end namespace

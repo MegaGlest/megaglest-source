@@ -101,15 +101,19 @@ if $(WX_AVAILABLE) = "yes" {
 if $(WX_AVAILABLE) = "yes" {
   SubDir TOP g3d_viewer ;
 
-  GLEST_VIEWER_DIRS = . ;
-  for i in $(GLEST_DIRS) {
+  GLEST_VIEWER_DIRS = 
+    . 
+
+;
+
+  for i in $(GLEST_VIEWER_DIRS) {
     GLEST_VIEWER_SOURCES += [ Wildcard $(i) : *.cpp *.h ] ;
   }
 
-  Application glest_g3dviewer : $(GLEST_VIEWER_SOURCES) ;
+  Application glest_g3dviewer : $(GLEST_VIEWER_SOURCES) ../glest_game/graphics/unit_particle_type.cpp ;
   LinkWith glest_g3dviewer : glestlib strefloplib ;
-  ExternalLibs glest_g3dviewer : SDL GL GLU WX CURL ;
-  IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS) ;
+  ExternalLibs glest_g3dviewer : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL WX ;
+  IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS)  ../glest_game/graphics ../glest_game/global ../glest_game/sound ../glest_game/game ;
 }
 
 ### Configurator ###

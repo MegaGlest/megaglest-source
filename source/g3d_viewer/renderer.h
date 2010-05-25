@@ -12,6 +12,9 @@
 #include "texture_manager.h"
 #include "model.h"
 #include "texture.h"
+
+#include "particle_renderer.h"
+
 //#include "model_manager.h"
 //#include "graphics_factory_gl.h"
 
@@ -19,7 +22,9 @@ using Shared::Graphics::ModelRenderer;
 using Shared::Graphics::TextureManager;
 using Shared::Graphics::Model;
 using Shared::Graphics::Texture2D;
-
+using Shared::Graphics::ParticleRenderer;
+using Shared::Graphics::ParticleManager;
+using Shared::Graphics::ParticleSystem;
 //#include "model_renderer.h"
 
 using Shared::Graphics::MeshCallback;
@@ -67,6 +72,10 @@ private:
 
 	ModelRenderer *modelRenderer;
 	TextureManager *textureManager;
+	ParticleRenderer *particleRenderer;
+
+	ParticleManager *particleManager;
+
 	Texture2D *customTextureRed;
 	Texture2D *customTextureBlue;
 	Texture2D *customTextureYellow;
@@ -96,6 +105,14 @@ public:
 
 	void loadTheModel(Model *model, string file);
 	void renderTheModel(Model *model, float f);
+
+	void manageParticleSystem(ParticleSystem *particleSystem);
+	void updateParticleManager();
+	void renderParticleManager();
+	Texture2D *getPlayerColorTexture(PlayerColor playerColor);
+	Texture2D * getNewTexture2D();
+	void initTextureManager();
+	void end();
 };
 
 }}//end namespace

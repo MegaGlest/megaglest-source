@@ -222,7 +222,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-					unitParticleSystemType->load(dir,  dir + "/" + path);
+
+					unitParticleSystemType->load(dir,  dir + "/" + path, Renderer::getInstance().newTexture2D(rsGame));
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
 				}
 			}
