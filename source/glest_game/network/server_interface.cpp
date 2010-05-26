@@ -440,6 +440,20 @@ void ServerInterface::update() {
     			sleep(0);
             }
 
+			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+				ConnectionSlot* connectionSlot= slots[i];
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+					connectionSlot->getPendingNetworkCommandList().size() > 0) {
+					vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
+
+					for(int idx = 0; idx < vctPendingNetworkCommandList.size(); ++idx) {
+						NetworkCommand &cmd = vctPendingNetworkCommandList[idx];
+						this->requestCommand(&cmd);
+					}
+					connectionSlot->clearPendingNetworkCommandList();
+				}
+			}
+
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
             //process text messages
