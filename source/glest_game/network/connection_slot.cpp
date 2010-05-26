@@ -147,7 +147,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						NetworkMessageCommandList networkMessageCommandList;
 						if(receiveMessage(&networkMessageCommandList)) {
 							for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
-								serverInterface->requestCommand(networkMessageCommandList.getCommand(i));
+								//serverInterface->requestCommand(networkMessageCommandList.getCommand(i));
+								vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 							}
 						}
 					}

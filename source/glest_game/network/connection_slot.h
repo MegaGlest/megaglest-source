@@ -40,6 +40,7 @@ private:
 	bool receivedNetworkGameStatus;
 	time_t connectedTime;
 	bool gotIntro;
+	vector<NetworkCommand> vctPendingNetworkCommandList;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -67,6 +68,9 @@ public:
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::vector<std::string> getThreadErrorList() const { return threadErrorList; }
 	void clearThreadErrorList() { threadErrorList.clear(); }
+
+	vector<NetworkCommand> getPendingNetworkCommandList() { return vctPendingNetworkCommandList; }
+	void clearPendingNetworkCommandList() { vctPendingNetworkCommandList.clear(); }
 
 protected:
 
