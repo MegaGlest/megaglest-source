@@ -126,6 +126,7 @@ void World::init(Game *game, bool createUnits){
 void World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tileset.loadTileset(pathList, tilesetName, checksum);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -133,6 +134,7 @@ void World::loadTileset(const vector<string> pathList, const string &tilesetName
 void World::loadTileset(const string &dir, Checksum *checksum){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tileset.load(dir, checksum);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
