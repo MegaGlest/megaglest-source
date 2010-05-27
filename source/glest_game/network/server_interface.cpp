@@ -30,113 +30,6 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-ConnectionSlotThread::ConnectionSlotThread() : BaseThread() {
-	this->slotInterface = NULL;
-}
-
-ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface) : BaseThread() {
-	this->slotInterface = slotInterface;
-}
-
-void ConnectionSlotThread::setQuitStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
-
-	BaseThread::setQuitStatus(value);
-	if(value == true) {
-		signalUpdate(NULL);
-	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(event != NULL) {
-		triggerIdMutex.p();
-		this->event = event;
-		triggerIdMutex.v();
-	}
-	semTaskSignalled.signal();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(event != NULL) {
-		triggerIdMutex.p();
-		event->eventCompleted = true;
-		triggerIdMutex.v();
-	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-bool ConnectionSlotThread::isSignalCompleted() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	triggerIdMutex.p();
-	bool result = this->event->eventCompleted;
-	triggerIdMutex.v();
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	return result;
-}
-
-void ConnectionSlotThread::execute() {
-	try {
-		setRunningStatus(true);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		unsigned int idx = 0;
-		for(;this->slotInterface != NULL;) {
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			semTaskSignalled.waitTillSignalled();
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			this->slotInterface->slotUpdateTask(this->event);
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
-
-			setTaskCompleted(this->event);
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-		}
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	}
-	catch(const exception &ex) {
-		setRunningStatus(false);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		throw runtime_error(ex.what());
-	}
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	setRunningStatus(false);
-}
-
 // =====================================================
 //	class ServerInterface
 // =====================================================
@@ -148,7 +41,7 @@ ServerInterface::ServerInterface(){
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
 		switchSetupRequests[i]= NULL;
-		slotThreads[i] = NULL;
+		//slotThreads[i] = NULL;
 	}
 	serverSocket.setBlock(false);
 	serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
@@ -158,9 +51,9 @@ ServerInterface::~ServerInterface(){
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
-		BaseThread::shutdownAndWait(slotThreads[i]);
-		delete slotThreads[i];
-		slotThreads[i] = NULL;
+		//BaseThread::shutdownAndWait(slotThreads[i]);
+		//delete slotThreads[i];
+		//slotThreads[i] = NULL;
 
 		delete slots[i];
 		slots[i]=NULL;
@@ -183,8 +76,8 @@ void ServerInterface::addSlot(int playerIndex){
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
 	updateListen();
 
-	slotThreads[playerIndex] = new ConnectionSlotThread(this);
-	slotThreads[playerIndex]->start();
+	//slotThreads[playerIndex] = new ConnectionSlotThread(this);
+	//slotThreads[playerIndex]->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -270,6 +163,10 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+//
+// WARNING!!! This method is executed from the slot worker threads so be careful
+// what we do here (things need to be thread safe)
+//
 void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -294,20 +191,6 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 				// This means no clients are trying to connect at the moment
 				if(connectionSlot != NULL && connectionSlot->getSocket() == NULL) {
 					checkForNewClients = false;
-				}
-
-				if(connectionSlot != NULL &&
-				   connectionSlot->getChatText().empty() == false) {
-					chatText        = connectionSlot->getChatText();
-					chatSender      = connectionSlot->getChatSender();
-					chatTeamIndex   = connectionSlot->getChatTeamIndex();
-
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
-
-					NetworkMessageText networkMessageText(chatText,chatSender,chatTeamIndex);
-					broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
-
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 			}
 		}
@@ -348,7 +231,7 @@ void ServerInterface::update() {
             //update all slots
             bool checkForNewClients = true;
             for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-                ConnectionSlot* connectionSlot= slots[i];
+                ConnectionSlot* connectionSlot = slots[i];
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -360,10 +243,12 @@ void ServerInterface::update() {
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-                if(slotThreads[i] != NULL) {
-                	slotThreads[i]->signalUpdate(&event);
+                // Step #1 tell all connection slot worker threads to receive socket data
+                if(connectionSlot != NULL) {
+                	connectionSlot->signalUpdate(&event);
                 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
                 }
+
                 //updateSlot(event);
 
 /*
@@ -408,27 +293,24 @@ void ServerInterface::update() {
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+            // Step #2 check all connection slot worker threads for completed status
             std::map<int,bool> slotsCompleted;
             for(bool threadsDone = false; threadsDone == false;) {
             	threadsDone = true;
     			// Examine all threads for completion of delegation
     			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-    				if(slotThreads[i] != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
-    					ConnectionSlot* connectionSlot= slots[i];
-    					if(connectionSlot != NULL) {
-							std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
-							if(errorList.size() > 0) {
-								for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
-									string &sErr = errorList[iErrIdx];
-									DisplayErrorMessage(sErr);
-								}
-								connectionSlot->clearThreadErrorList();
+    				ConnectionSlot* connectionSlot = slots[i];
+    				if(connectionSlot != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
+						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+						if(errorList.size() > 0) {
+							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+								string &sErr = errorList[iErrIdx];
+								DisplayErrorMessage(sErr);
 							}
-    					}
+							connectionSlot->clearThreadErrorList();
+						}
 
-    					if(slotThreads[i]->isSignalCompleted() == false &&
-    					   slotThreads[i]->getQuitStatus() == false &&
-    					   slotThreads[i]->getRunningStatus() == true) {
+    					if(connectionSlot->updateCompleted() == false) {
     						threadsDone = false;
     						break;
     					}
@@ -440,6 +322,7 @@ void ServerInterface::update() {
     			sleep(0);
             }
 
+            // Step #3 dispatch network commands to the pending list so that they are done in proper order
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 				ConnectionSlot* connectionSlot= slots[i];
 				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
@@ -455,6 +338,26 @@ void ServerInterface::update() {
 			}
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+            // Step #4 dispatch pending chat messages
+			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+				ConnectionSlot* connectionSlot= slots[i];
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+				   connectionSlot->getChatText().empty() == false) {
+					chatText        = connectionSlot->getChatText();
+					chatSender      = connectionSlot->getChatSender();
+					chatTeamIndex   = connectionSlot->getChatTeamIndex();
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+
+					NetworkMessageText networkMessageText(chatText,chatSender,chatTeamIndex);
+					broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
             //process text messages
             if(chatText.empty() == true) {

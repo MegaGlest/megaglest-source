@@ -18,55 +18,11 @@
 #include "network_interface.h"
 #include "connection_slot.h"
 #include "socket.h"
-#include "base_thread.h"
 
 using std::vector;
 using Shared::Platform::ServerSocket;
 
 namespace Glest{ namespace Game{
-
-
-// =====================================================
-//	class ConnectionSlotThread
-// =====================================================
-
-class ConnectionSlotEvent {
-public:
-
-	int64 triggerId;
-	ConnectionSlot* connectionSlot;
-	bool socketTriggered;
-	bool eventCompleted;
-};
-
-//
-// This interface describes the methods a callback object must implement
-//
-class ConnectionSlotCallbackInterface {
-public:
-	virtual void slotUpdateTask(ConnectionSlotEvent *event) = 0;
-};
-
-class ConnectionSlotThread : public BaseThread
-{
-protected:
-
-	ConnectionSlotCallbackInterface *slotInterface;
-	Semaphore semTaskSignalled;
-	Mutex triggerIdMutex;
-	ConnectionSlotEvent *event;
-
-	virtual void setQuitStatus(bool value);
-	virtual void setTaskCompleted(ConnectionSlotEvent *event);
-
-public:
-	ConnectionSlotThread();
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface);
-    virtual void execute();
-    void signalUpdate(ConnectionSlotEvent *event);
-    bool isSignalCompleted();
-
-};
 
 // =====================================================
 //	class ServerInterface
@@ -82,7 +38,7 @@ private:
 	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
 	Mutex serverSynchAccessor;
 
-	ConnectionSlotThread* slotThreads[GameConstants::maxPlayers];
+	//ConnectionSlotThread* slotThreads[GameConstants::maxPlayers];
 
 public:
 	ServerInterface();

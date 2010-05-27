@@ -30,16 +30,131 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 // =====================================================
-//	class ClientConnection
+//	class ConnectionSlotThread
+// =====================================================
+
+ConnectionSlotThread::ConnectionSlotThread() : BaseThread() {
+	this->slotInterface = NULL;
+}
+
+ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface) : BaseThread() {
+	this->slotInterface = slotInterface;
+}
+
+void ConnectionSlotThread::setQuitStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	BaseThread::setQuitStatus(value);
+	if(value == true) {
+		signalUpdate(NULL);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(event != NULL) {
+		triggerIdMutex.p();
+		this->event = event;
+		triggerIdMutex.v();
+	}
+	semTaskSignalled.signal();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(event != NULL) {
+		triggerIdMutex.p();
+		event->eventCompleted = true;
+		triggerIdMutex.v();
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool ConnectionSlotThread::isSignalCompleted() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	triggerIdMutex.p();
+	bool result = this->event->eventCompleted;
+	triggerIdMutex.v();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return result;
+}
+
+void ConnectionSlotThread::execute() {
+	try {
+		setRunningStatus(true);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		unsigned int idx = 0;
+		for(;this->slotInterface != NULL;) {
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			semTaskSignalled.waitTillSignalled();
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			this->slotInterface->slotUpdateTask(this->event);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			setTaskCompleted(this->event);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	catch(const exception &ex) {
+		setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw runtime_error(ex.what());
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	setRunningStatus(false);
+}
+
+// =====================================================
+//	class ConnectionSlot
 // =====================================================
 
 ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex)
 {
-	this->serverInterface= serverInterface;
-	this->playerIndex= playerIndex;
-	socket= NULL;
-	ready= false;
-	gotIntro = false;
+	this->serverInterface	= serverInterface;
+	this->playerIndex		= playerIndex;
+	this->socket		   	= NULL;
+	this->slotThreadWorker 	= NULL;
+	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface);
+	this->slotThreadWorker->start();
+
+	this->ready= false;
+	this->gotIntro = false;
 
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
@@ -54,6 +169,10 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 ConnectionSlot::~ConnectionSlot()
 {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+
+	BaseThread::shutdownAndWait(slotThreadWorker);
+	delete slotThreadWorker;
+	slotThreadWorker = NULL;
 
 	close();
 
@@ -109,6 +228,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			}
 		}
 		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			if(socket->isConnected()) {
 				chatText.clear();
 				chatSender.clear();
@@ -116,10 +237,13 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 				NetworkMessageType networkMessageType= getNextMessageType();
 
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				//process incoming commands
 				switch(networkMessageType) {
 
 					case nmtInvalid:
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtInvalid\n",__FILE__,__FUNCTION__,__LINE__);
 						break;
 
 					case nmtText:
@@ -181,7 +305,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					//process datasynch messages
 					case nmtSynchNetworkGameDataStatus:
 					{
-
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__);
 
 						NetworkMessageSynchNetworkGameDataStatus networkMessageSynchNetworkGameDataStatus;
@@ -334,6 +457,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					}
 					default:
 						{
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 							if(gotIntro == true) {
 								//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
 								string sErr = "Unexpected message in connection slot: " + intToStr(networkMessageType);
@@ -369,10 +494,18 @@ void ConnectionSlot::update(bool checkForNewClients) {
 }
 
 void ConnectionSlot::close() {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	BaseThread::shutdownAndWait(slotThreadWorker);
+	delete slotThreadWorker;
+	slotThreadWorker = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete socket;
 	socket= NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     chatText.clear();
     chatSender.clear();
@@ -392,6 +525,21 @@ bool ConnectionSlot::hasValidSocketId() {
 
 Mutex * ConnectionSlot::getServerSynchAccessor() {
 	return (serverInterface != NULL ? serverInterface->getServerSynchAccessor() : NULL);
+}
+
+void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
+	assert(slotThreadWorker != NULL);
+
+	slotThreadWorker->signalUpdate(event);
+}
+
+bool ConnectionSlot::updateCompleted() {
+	assert(slotThreadWorker != NULL);
+
+	bool waitingForThread = (slotThreadWorker->isSignalCompleted() 	== false &&
+							 slotThreadWorker->getQuitStatus() 		== false &&
+							 slotThreadWorker->getRunningStatus() 	== true);
+	return (waitingForThread == false);
 }
 
 }}//end namespace
