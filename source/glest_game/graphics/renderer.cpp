@@ -24,10 +24,7 @@
 #include "opengl.h"
 #include "faction.h"
 #include "factory_repository.h"
-
-#ifndef WIN32
-  #include <cmath>
-#endif
+#include <cstdlib>
 
 #include "leak_dumper.h"
 
@@ -541,8 +538,8 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade){
 
 	anim= anim*2-maxMouse2dAnim;
 
-    color2= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
-    color1= (abs(anim*fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+    color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
+    color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
 
     glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
         glEnable(GL_BLEND);

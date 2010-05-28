@@ -23,13 +23,7 @@
 #include "skill_type.h"
 #include "core_data.h"
 #include "renderer.h"
-
 #include "game.h"
-
-#ifndef WIN32
-  #include <cmath>
-#endif
-
 #include "socket.h"
 
 #include "leak_dumper.h"

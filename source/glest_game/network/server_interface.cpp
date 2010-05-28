@@ -41,7 +41,6 @@ ServerInterface::ServerInterface(){
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
 		switchSetupRequests[i]= NULL;
-		//slotThreads[i] = NULL;
 	}
 	serverSocket.setBlock(false);
 	serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
@@ -51,10 +50,6 @@ ServerInterface::~ServerInterface(){
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
-		//BaseThread::shutdownAndWait(slotThreads[i]);
-		//delete slotThreads[i];
-		//slotThreads[i] = NULL;
-
 		delete slots[i];
 		slots[i]=NULL;
 		delete switchSetupRequests[i];
@@ -75,9 +70,6 @@ void ServerInterface::addSlot(int playerIndex){
 	delete slots[playerIndex];
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
 	updateListen();
-
-	//slotThreads[playerIndex] = new ConnectionSlotThread(this);
-	//slotThreads[playerIndex]->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -108,12 +100,6 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
 }
 
 void ServerInterface::removeSlot(int playerIndex) {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
-
-    //BaseThread::shutdownAndWait(slotThreads[playerIndex]);
-    //delete slotThreads[playerIndex];
-    //slotThreads[playerIndex] = NULL;
-
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 	delete slots[playerIndex];
@@ -650,7 +636,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    serverSynchAccessor.p();
+    //serverSynchAccessor.p();
 
     for(int i= 0; i<GameConstants::maxPlayers; ++i)
     {
@@ -667,7 +653,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
         }
     }
 
-    serverSynchAccessor.v();
+    //serverSynchAccessor.v();
 
     if(bOkToStart == true)
     {
@@ -749,36 +735,34 @@ void ServerInterface::updateListen() {
 		return;
 	}
 
-	serverSynchAccessor.p();
-
 	int openSlotCount= 0;
-	for(int i= 0; i<GameConstants::maxPlayers; ++i)
-	{
-		if(slots[i] != NULL && slots[i]->isConnected() == false)
-		{
+	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
+		serverSynchAccessor.p();
+		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
+		serverSynchAccessor.v();
+
+		if(isSlotOpen == true) {
 			++openSlotCount;
 		}
 	}
 
+	serverSynchAccessor.p();
 	serverSocket.listen(openSlotCount);
-
 	serverSynchAccessor.v();
 }
 
 int ServerInterface::getOpenSlotCount() {
 	int openSlotCount= 0;
 
-	serverSynchAccessor.p();
+	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
+		serverSynchAccessor.p();
+		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
+		serverSynchAccessor.v();
 
-	for(int i= 0; i<GameConstants::maxPlayers; ++i)
-	{
-		if(slots[i] != NULL && slots[i]->isConnected() == false)
-		{
+		if(isSlotOpen == true) {
 			++openSlotCount;
 		}
 	}
-
-	serverSynchAccessor.v();
 
 	return openSlotCount;
 }

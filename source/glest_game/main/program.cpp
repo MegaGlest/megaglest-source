@@ -121,7 +121,6 @@ Program::Program() {
 	programState= NULL;
 	singleton = this;
 	soundThreadManager = NULL;
-	loopThreadManager = NULL;
 }
 
 void Program::initNormal(WindowGl *window){
@@ -167,10 +166,6 @@ Program::~Program(){
 	BaseThread::shutdownAndWait(soundThreadManager);
 	delete soundThreadManager;
 	soundThreadManager = NULL;
-
-	BaseThread::shutdownAndWait(loopThreadManager);
-	delete loopThreadManager;
-	loopThreadManager = NULL;
 }
 
 void Program::keyDown(char key){
@@ -191,12 +186,7 @@ void Program::simpleTask() {
 }
 
 void Program::loop() {
-	if(loopThreadManager == NULL) {
-		loopWorker();
-	}
-	else {
-		loopThreadManager->setTaskSignalled(true);
-	}
+	loopWorker();
 }
 
 void Program::loopWorker() {
@@ -406,11 +396,6 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			soundThreadManager->start();
 		}
 	}
-
-	BaseThread::shutdownAndWait(loopThreadManager);
-	delete loopThreadManager;
-	//loopThreadManager = new SimpleTaskThread(this,0,5,true);
-	//loopThreadManager->start();
 
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","false"));
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","false"));

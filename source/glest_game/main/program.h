@@ -110,7 +110,6 @@ private:
 
     WindowGl *window;
     static Program *singleton;
-    SimpleTaskThread *loopThreadManager;
 
 public:
     Program();

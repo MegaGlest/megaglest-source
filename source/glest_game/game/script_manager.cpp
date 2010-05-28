@@ -23,6 +23,25 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+//
+// This class wraps streflop for the Lua ScriptMAnager. We need to toggle the data type
+// for streflop to use when calling into glest from LUA as streflop may corrupt some
+// numeric values passed from Lua otherwise
+//
+class ScriptManager_STREFLOP_Wrapper {
+public:
+	ScriptManager_STREFLOP_Wrapper() {
+#ifdef USE_STREFLOP
+	streflop_init<streflop::Simple>();
+#endif
+	}
+	~ScriptManager_STREFLOP_Wrapper() {
+#ifdef USE_STREFLOP
+	streflop_init<streflop::Double>();
+#endif
+	}
+};
+
 // =====================================================
 //	class PlayerModifiers
 // =====================================================
@@ -131,6 +150,7 @@ void ScriptManager::onUnitDied(const Unit* unit){
 // ========================== lua wrappers ===============================================
 
 string ScriptManager::wrapString(const string &str, int wrapCount){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
 	string returnString;
 
@@ -151,6 +171,8 @@ string ScriptManager::wrapString(const string &str, int wrapCount){
 }
 
 void ScriptManager::showMessage(const string &text, const string &header){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
 	Lang &lang= Lang::getInstance();
 
 	messageQueue.push(ScriptManagerMessage(text, header));
@@ -164,88 +186,108 @@ void ScriptManager::clearDisplayText(){
 }
 
 void ScriptManager::setDisplayText(const string &text){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
 }
 
 void ScriptManager::setCameraPosition(const Vec2i &pos){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameCamera->centerXZ(pos.x, pos.y);
 }
 
 void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i pos){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->createUnit(unitName, factionIndex, pos);
 }
 
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveResource(resourceName, factionIndex, amount);
 }
 
 void ScriptManager::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->givePositionCommand(unitId, commandName, pos);
 }
 
 void ScriptManager::giveProductionCommand(int unitId, const string &producedName){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveProductionCommand(unitId, producedName);
 }
 
 void ScriptManager::giveUpgradeCommand(int unitId, const string &producedName){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveUpgradeCommand(unitId, producedName);
 }
 
 void ScriptManager::disableAi(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableAi();
 	}
 }
 
 void ScriptManager::setPlayerAsWinner(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].setAsWinner();
 	}
 }
 
 void ScriptManager::endGame(){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameOver= true;
 }
 
 Vec2i ScriptManager::getStartLocation(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getStartLocation(factionIndex);
 }
 
 
 Vec2i ScriptManager::getUnitPosition(int unitId){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitPosition(unitId);
 }
 
 int ScriptManager::getUnitFaction(int unitId){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitFactionIndex(unitId);
 }
 
 int ScriptManager::getResourceAmount(const string &resourceName, int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getResourceAmount(resourceName, factionIndex);
 }
 
 const string &ScriptManager::getLastCreatedUnitName(){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastCreatedUnitName;
 }
 
 int ScriptManager::getLastCreatedUnitId(){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastCreatedUnitId;
 }
 
 const string &ScriptManager::getLastDeadUnitName(){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastDeadUnitName;
 }
 
 int ScriptManager::getLastDeadUnitId(){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastDeadUnitId;
 }
 
 int ScriptManager::getUnitCount(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitCount(factionIndex);
 }
 
 int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
 
