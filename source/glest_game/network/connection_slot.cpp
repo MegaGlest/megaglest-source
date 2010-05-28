@@ -144,8 +144,10 @@ void ConnectionSlotThread::execute() {
 //	class ConnectionSlot
 // =====================================================
 
-ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex)
-{
+ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
 	this->socket		   	= NULL;
@@ -153,8 +155,8 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface);
 	this->slotThreadWorker->start();
 
-	this->ready= false;
-	this->gotIntro = false;
+	this->ready		= false;
+	this->gotIntro 	= false;
 
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
@@ -256,7 +258,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							chatSender    = networkMessageText.getSender();
 							chatTeamIndex = networkMessageText.getTeamIndex();
 
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 						}
 					}
 					break;
@@ -480,7 +482,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 				}
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling close...\n",__FILE__,__FUNCTION__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] calling close...\n",__FILE__,__FUNCTION__,__LINE__);
 
 				close();
 			}
@@ -496,9 +498,14 @@ void ConnectionSlot::update(bool checkForNewClients) {
 void ConnectionSlot::close() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	BaseThread::shutdownAndWait(slotThreadWorker);
-	delete slotThreadWorker;
-	slotThreadWorker = NULL;
+    // In case we are closing from within the context of the thread
+    // only signal it to quit here
+    //if(slotThreadWorker != NULL) {
+    //	slotThreadWorker->signalQuit();
+    //}
+	//BaseThread::shutdownAndWait(slotThreadWorker);
+	//delete slotThreadWorker;
+	//slotThreadWorker = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -507,13 +514,17 @@ void ConnectionSlot::close() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    chatText.clear();
-    chatSender.clear();
-    chatTeamIndex= -1;
+    //chatText.clear();
+    //chatSender.clear();
+    //chatTeamIndex= -1;
+
+    if(ready == false) {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	serverInterface->updateListen();
+    }
+
     ready = false;
     gotIntro = false;
-
-    serverInterface->updateListen();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }

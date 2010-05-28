@@ -199,9 +199,9 @@ void ServerInterface::update() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    chatText.clear();
-    chatSender.clear();
-    chatTeamIndex= -1;
+    //chatText.clear();
+    //chatSender.clear();
+    //chatTeamIndex= -1;
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -328,18 +328,26 @@ void ServerInterface::update() {
             // Step #4 dispatch pending chat messages
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 				ConnectionSlot* connectionSlot= slots[i];
-				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+				if(connectionSlot != NULL &&
 				   connectionSlot->getChatText().empty() == false) {
-					chatText        = connectionSlot->getChatText();
-					chatSender      = connectionSlot->getChatSender();
-					chatTeamIndex   = connectionSlot->getChatTeamIndex();
+					string newChatText     = connectionSlot->getChatText().c_str();
+					string newChatSender   = connectionSlot->getChatSender().c_str();
+					int newChatTeamIndex   = connectionSlot->getChatTeamIndex();
 
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
 
-					NetworkMessageText networkMessageText(chatText,chatSender,chatTeamIndex);
+					NetworkMessageText networkMessageText(newChatText,newChatSender,newChatTeamIndex);
 					broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+
+					connectionSlot->clearChatInfo();
+
+					chatText        = newChatText.c_str();
+					chatSender      = newChatSender.c_str();
+					chatTeamIndex   = newChatTeamIndex;
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 				}
 			}
 
@@ -347,9 +355,10 @@ void ServerInterface::update() {
 
             //process text messages
             if(chatText.empty() == true) {
-                chatText.clear();
-                chatSender.clear();
-                chatTeamIndex= -1;
+            	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                //chatText.clear();
+                //chatSender.clear();
+                //chatTeamIndex= -1;
 
                 for(int i= 0; i< GameConstants::maxPlayers; ++i) {
                     ConnectionSlot* connectionSlot= slots[i];

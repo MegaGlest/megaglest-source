@@ -101,6 +101,8 @@ public:
 	const string getChatSender() const							{return chatSender;}
 	int getChatTeamIndex() const								{return chatTeamIndex;}
 
+	void clearChatInfo();
+
 	virtual bool getConnectHasHandshaked() const= 0;
 };
 

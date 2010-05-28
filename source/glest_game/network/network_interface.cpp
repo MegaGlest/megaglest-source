@@ -108,8 +108,14 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
     else {
         throw runtime_error(sErr);
     }
+}
 
+void NetworkInterface::clearChatInfo() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    chatText.clear();
+    chatSender.clear();
+    chatTeamIndex= -1;
 }
 
 // =====================================================
