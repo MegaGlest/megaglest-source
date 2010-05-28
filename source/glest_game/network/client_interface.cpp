@@ -687,6 +687,9 @@ void ClientInterface::waitForMessage()
 
 		if(chrono.getMillis() > messageWaitTimeout) {
 			//throw runtime_error("Timeout waiting for message");
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
             sendTextMessage("Timeout waiting for message",-1);
             DisplayErrorMessage("Timeout waiting for message");
             quit= true;
@@ -703,16 +706,17 @@ void ClientInterface::waitForMessage()
 
 void ClientInterface::quitGame(bool userManuallyQuit)
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] userManuallyQuit = %d\n",__FILE__,__FUNCTION__,__LINE__,userManuallyQuit);
 
     if(clientSocket != NULL && userManuallyQuit == true)
     {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ClientInterface::close()

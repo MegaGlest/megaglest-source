@@ -69,6 +69,8 @@ private:
 	int16 targetId;
 	int16 wantQueue;
 	int16 fromFactionIndex;
+	int16 unitFactionUnitCount;
+	int16 unitFactionIndex;
 
 public:
 	NetworkCommand(){};

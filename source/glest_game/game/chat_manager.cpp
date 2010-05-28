@@ -133,16 +133,16 @@ void ChatManager::keyPress(char c){
 	}
 }
 
-void ChatManager::updateNetwork()
-{
+void ChatManager::updateNetwork() {
 	try {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 		string text;
 		string sender;
 		Config &config= Config::getInstance();
 
-		if(!gameNetworkInterface->getChatText().empty())
-		{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
+
+		if(gameNetworkInterface->getChatText().empty() == false) {
 			int teamIndex= gameNetworkInterface->getChatTeamIndex();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,gameNetworkInterface->getChatText().c_str(),teamIndex);
@@ -152,6 +152,10 @@ void ChatManager::updateNetwork()
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			gameNetworkInterface->clearChatInfo();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
