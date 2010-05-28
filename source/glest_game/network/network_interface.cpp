@@ -32,7 +32,7 @@ namespace Glest{ namespace Game{
 //	class NetworkInterface
 // =====================================================
 
-const int NetworkInterface::readyWaitTimeout= 60000;	//1 minute
+const int NetworkInterface::readyWaitTimeout= 120000;	// 2 minutes
 
 bool NetworkInterface::allowGameDataSynchCheck  = false;
 bool NetworkInterface::allowDownloadDataSynch   = false;
