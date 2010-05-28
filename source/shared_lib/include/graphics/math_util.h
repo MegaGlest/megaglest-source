@@ -12,8 +12,6 @@
 #ifndef _SHARED_GRAPHICS_MATHUTIL_H_
 #define _SHARED_GRAPHICS_MATHUTIL_H_
 
-//#include <cmath>
-
 #include "vec.h"
 
 namespace Shared{ namespace Graphics{

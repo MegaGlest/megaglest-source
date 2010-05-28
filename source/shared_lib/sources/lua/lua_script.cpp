@@ -22,11 +22,32 @@ using namespace Shared::Util;
 
 namespace Shared{ namespace Lua{
 
+//
+// This class wraps streflop for LuaScript. We need to toggle the data type
+// for streflop to use when calling into LUA as streflop may corrupt some
+// numeric values passed from Lua otherwise
+//
+class Lua_STREFLOP_Wrapper {
+public:
+	Lua_STREFLOP_Wrapper() {
+#ifdef USE_STREFLOP
+	streflop_init<streflop::Double>();
+#endif
+	}
+	~Lua_STREFLOP_Wrapper() {
+#ifdef USE_STREFLOP
+	streflop_init<streflop::Simple>();
+#endif
+	}
+};
+
 // =====================================================
 //	class LuaScript
 // =====================================================
 
-LuaScript::LuaScript(){
+LuaScript::LuaScript() {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	luaState= luaL_newstate();
 
 	luaL_openlibs(luaState);
@@ -38,73 +59,51 @@ LuaScript::LuaScript(){
 	argumentCount= -1;
 }
 
-LuaScript::~LuaScript(){
+LuaScript::~LuaScript() {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	lua_close(luaState);
 }
 
 void LuaScript::loadCode(const string &code, const string &name){
-
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	int errorCode= luaL_loadbuffer(luaState, code.c_str(), code.size(), name.c_str());
 	if(errorCode!=0){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 		throw runtime_error("Error loading lua code: " + errorToString(errorCode));
 	}
 
 	//run code
 	errorCode= lua_pcall(luaState, 0, 0, 0)!=0;
 	if(errorCode!=0){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 		throw runtime_error("Error initializing lua: " + errorToString(errorCode));
 	}
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 void LuaScript::beginCall(const string& functionName){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	lua_getglobal(luaState, functionName.c_str());
 	argumentCount= 0;
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 void LuaScript::endCall(){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	lua_pcall(luaState, argumentCount, 0, 0);
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
-    lua_pushcfunction(luaState, luaFunction);
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	lua_pushcfunction(luaState, luaFunction);
 	lua_setglobal(luaState, functionName.c_str());
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
-string LuaScript::errorToString(int errorCode){
+string LuaScript::errorToString(int errorCode) {
+	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	string error;
-		
 	switch(errorCode){
 		case LUA_ERRSYNTAX: 
 			error+= "Syntax error"; 
@@ -132,34 +131,25 @@ string LuaScript::errorToString(int errorCode){
 // =====================================================
 
 LuaArguments::LuaArguments(lua_State *luaState){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	this->luaState= luaState;
 	returnCount= 0;
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 int LuaArguments::getInt(int argumentIndex) const{
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
-	if(!lua_isnumber(luaState, argumentIndex)){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	if(!lua_isnumber(luaState, argumentIndex)) {
 		throwLuaError("Can not get int from Lua state");
 	}
 	int result = luaL_checkint(luaState, argumentIndex);
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 	return result;
 }
 
 string LuaArguments::getString(int argumentIndex) const{
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	if(!lua_isstring(luaState, argumentIndex)){
 		throwLuaError("Can not get string from Lua state");
 	}
@@ -167,22 +157,15 @@ string LuaArguments::getString(int argumentIndex) const{
 }
 
 Vec2i LuaArguments::getVec2i(int argumentIndex) const{
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	Vec2i v;
 	
 	if(!lua_istable(luaState, argumentIndex)){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 		throwLuaError("Can not get vec2i from Lua state, value on the stack is not a table");
 	}
 
 	if(luaL_getn(luaState, argumentIndex)!=2){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 		throwLuaError("Can not get vec2i from Lua state, array size not 2");
 	}
 
@@ -194,32 +177,26 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	v.y= luaL_checkint(luaState, argumentIndex);
 	lua_pop(luaState, 1);
 
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 	return v;
 }
 
 void LuaArguments::returnInt(int value){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	++returnCount;
 	lua_pushinteger(luaState, value);
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 void LuaArguments::returnString(const string &value){
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	++returnCount;
 	lua_pushstring(luaState, value.c_str());
 }
 
 void LuaArguments::returnVec2i(const Vec2i &value){
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	++returnCount;
 
 	lua_newtable(luaState);
@@ -229,15 +206,11 @@ void LuaArguments::returnVec2i(const Vec2i &value){
 
 	lua_pushnumber(luaState, value.y);
 	lua_rawseti(luaState, -2, 2);
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 }
 
 void LuaArguments::throwLuaError(const string &message) const{
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
-#endif
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	string stackString;
 	int stackSize = lua_gettop(luaState);
 
@@ -260,9 +233,6 @@ void LuaArguments::throwLuaError(const string &message) const{
 		stackString+= "\n";
 	}
 	
-#ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
-#endif
 	throw runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
 }
 

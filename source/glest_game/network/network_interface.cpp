@@ -121,17 +121,18 @@ GameNetworkInterface::GameNetworkInterface(){
 }
 
 void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, bool insertAtStart) {
-	Mutex *mutex = getServerSynchAccessor();
+	assert(networkCommand != NULL);
+	//Mutex *mutex = getServerSynchAccessor();
 
     if(insertAtStart == false) {
-    	if(mutex != NULL) mutex->p();
+    	//if(mutex != NULL) mutex->p();
         requestedCommands.push_back(*networkCommand);
-        if(mutex != NULL) mutex->v();
+        //if(mutex != NULL) mutex->v();
     }
     else {
-    	if(mutex != NULL) mutex->p();
+    	//if(mutex != NULL) mutex->p();
         requestedCommands.insert(requestedCommands.begin(),*networkCommand);
-        if(mutex != NULL) mutex->v();
+        //if(mutex != NULL) mutex->v();
     }
 }
 
