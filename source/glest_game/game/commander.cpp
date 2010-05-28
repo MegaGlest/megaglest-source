@@ -332,6 +332,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     Command* command= buildCommand(networkCommand);
 
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
                     unit->giveCommand(command, networkCommand->getWantQueue());
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
@@ -362,6 +364,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	assert(networkCommand->getNetworkCommandType()==nctGiveCommand);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(world == NULL) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d] world == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
@@ -371,6 +375,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	Unit* target= NULL;
 	const CommandType* ct= NULL;
 	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//validate unit
 	if(unit == NULL) {
@@ -405,6 +411,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 		throw runtime_error(sError);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	CardinalDir facing;
 	// get facing/target ... the target might be dead due to lag, cope with it
 	if (ct->getClass() == ccBuild) {
@@ -414,6 +422,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	else if (networkCommand->getTargetId() != Unit::invalidId ) {
 		target= world->findUnitById(networkCommand->getTargetId());
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//create command
 	Command *command= NULL;
@@ -426,6 +436,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	else{
 		command= new Command(ct, target);
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//issue command
 	return command;
