@@ -693,7 +693,7 @@ void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
 
 
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
-	serverSynchAccessor.p();
+	//serverSynchAccessor.p();
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
@@ -718,13 +718,13 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 		}
 	}
 
-	serverSynchAccessor.v();
+	//serverSynchAccessor.v();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot){
-	serverSynchAccessor.p();
+	//serverSynchAccessor.p();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -741,7 +741,7 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* n
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	serverSynchAccessor.v();
+	//serverSynchAccessor.v();
 }
 
 void ServerInterface::updateListen() {
