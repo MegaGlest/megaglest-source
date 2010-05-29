@@ -185,7 +185,7 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 }
 
 void ServerInterface::update() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 	//update all slots
@@ -197,16 +197,16 @@ void ServerInterface::update() {
 		}
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     //chatText.clear();
     //chatSender.clear();
     //chatTeamIndex= -1;
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
-        if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList.size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
+        //if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList.size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
 
         std::map<int,ConnectionSlotEvent> eventList;
         bool hasData = Socket::hasDataToRead(socketTriggeredList);
@@ -390,7 +390,7 @@ void ServerInterface::update() {
         }
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::updateKeyframe(int frameCount){
@@ -689,7 +689,7 @@ void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
 
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
 	//serverSynchAccessor.p();
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     try {
 		for(int i= 0; i<GameConstants::maxPlayers; ++i) {
@@ -720,7 +720,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
     }
 	//serverSynchAccessor.v();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot){
