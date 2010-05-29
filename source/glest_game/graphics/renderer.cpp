@@ -145,6 +145,7 @@ Renderer::Renderer(){
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
+	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
 
@@ -1632,8 +1633,10 @@ void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallba
 
 		glPopMatrix();
 		unit->setVisible(true);
-		// Add to the pending render unit title list
-		renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+		if(allowRenderUnitTitles == true) {
+			// Add to the pending render unit title list
+			renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+		}
 
 		entity.setState(resRendered);
 	}
@@ -3344,6 +3347,13 @@ Texture2D::Filter Renderer::strToTextureFilter(const string &s){
 	}
 
 	throw runtime_error("Error converting from string to FilterType, found: "+s);
+}
+
+void Renderer::setAllowRenderUnitTitles(bool value) {
+	allowRenderUnitTitles = value;
+	if(allowRenderUnitTitles == false) {
+		renderUnitTitleList.clear();
+	}
 }
 
 // This method renders titles for units
