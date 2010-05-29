@@ -98,7 +98,7 @@ public:
 /// Holds the next cells of a Unit movement
 // =====================================================
 
-class UnitPath{
+class UnitPath {
 private:
 	static const int maxBlockCount;
 
@@ -107,6 +107,7 @@ private:
 	vector<Vec2i> pathQueue;
 
 public:
+	UnitPath();
 	bool isBlocked();
 	bool isEmpty();
 
