@@ -548,7 +548,7 @@ bool UnitType::isOfClass(UnitClass uc) const{
 	case ucWarrior:
 		return hasSkillClass(scAttack) && !hasSkillClass(scHarvest);
 	case ucWorker:
-		return hasSkillClass(scBuild) || hasSkillClass(scRepair);
+		return hasSkillClass(scBuild) || hasSkillClass(scRepair)|| hasSkillClass(scHarvest);
 	case ucBuilding:
 		return hasSkillClass(scBeBuilt);
 	default:
