@@ -179,7 +179,7 @@ public:
 	void switchToNextDisplayColor();
 	void onSelectionChanged();
 
-	bool getShowDebugUI() { return showDebugUI; }
+	bool getShowDebugUI() const { return showDebugUI; }
 
 private:
 

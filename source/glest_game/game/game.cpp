@@ -1016,6 +1016,8 @@ void Game::render2d(){
 	if(config.getBool("DebugMode") && gui.getShowDebugUI() == true) {
 		renderer.renderText(str, coreData.getMenuFontNormal(),
 							Vec3f(1.0f), 10, 500, false);
+
+		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
 
 	//network status

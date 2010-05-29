@@ -1267,15 +1267,15 @@ void Unit::logSynchData(string source) {
 std::string Unit::toString() const {
 	std::string result = "";
 
-/*
-	result += "id = " + intToStr(this->id);
-	result += " name [" + this->getFullName() + "]";
-	result += " desc: " + this->getDesc();
-*/
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	result += "id = " + intToStr(this->id);
 	if(this->type != NULL) {
 		result += " name [" + this->type->getName() + "]";
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	result += " hp = " + intToStr(this->hp);
 	result += " ep = " + intToStr(this->ep);
 	result += " loadCount = " + intToStr(this->loadCount);
@@ -1287,9 +1287,14 @@ std::string Unit::toString() const {
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(this->targetRef.getUnit() != NULL) {
 		result += " targetRef = " + this->targetRef.getUnit()->toString();
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	result += " currField = " + intToStr(this->currField);
 	result += " targetField = " + intToStr(this->targetField);
 	if(level != NULL) {
@@ -1306,6 +1311,8 @@ std::string Unit::toString() const {
 	result += " targetRotation = " + floatToStr(this->targetRotation);
 	result += " rotation = " + floatToStr(this->rotation);
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(loadType != NULL) {
     	result += " loadType = " + loadType->getName();
     }
@@ -1318,11 +1325,17 @@ std::string Unit::toString() const {
     result += " alive = " + intToStr(this->alive);
     result += " showUnitParticles = " + intToStr(this->showUnitParticles);
 
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     result += " totalUpgrade = " + totalUpgrade.toString();
 
     result += " " + unitPath.toString() + "\n";
 
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     result += "Command count = " + intToStr(commands.size()) + "\n";
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     int cmdIdx = 0;
     for(Commands::const_iterator iterList = commands.begin(); iterList != commands.end(); ++iterList) {
@@ -1334,8 +1347,15 @@ std::string Unit::toString() const {
     	cmdIdx++;
     }
 
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     result += "allowRotateUnits = " + intToStr(allowRotateUnits) + "\n";
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return result;
 }
