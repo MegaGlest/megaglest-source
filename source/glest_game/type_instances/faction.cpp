@@ -487,7 +487,9 @@ std::string Faction::toString() const {
     result += "thisFaction = " + intToStr(this->thisFaction) + "\n";
     result += "control = " + intToStr(this->control) + "\n";
 
-	result += this->factionType->toString() + "\n";
+    if(this->factionType != NULL) {
+    	result += this->factionType->toString() + "\n";
+    }
 
 	result += this->upgradeManager.toString() + "\n";
 

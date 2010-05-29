@@ -587,8 +587,12 @@ void UnitUpdater::updateProduce(Unit *unit){
             unit->setCurrSkill(scStop);
 			produced= new Unit(world->getNextUnitId(), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
 
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,produced->toString().c_str());
+
 			//place unit creates the unit
-			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)){
+			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,produced->getId());
+
 				delete produced;
 			}
 			else{
