@@ -69,6 +69,8 @@ public:
 	virtual void close()= 0;
 
     static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
+    static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }
+
 	string getIp() const		{return getSocket()->getIp();}
 	string getHostName() const	{return getSocket()->getHostName();}
 

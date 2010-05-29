@@ -23,6 +23,7 @@
 #include "script_manager.h"
 #include "game_settings.h"
 #include "simple_threads.h"
+#include "network_interface.h"
 
 using std::vector;
 using namespace Shared::PlatformCommon;
@@ -81,6 +82,7 @@ private:
 	GameSettings gameSettings;
 	Vec2i lastMousePos;
 	time_t lastRenderLog2d;
+	DisplayMessageFunction originalDisplayMsgCallback;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);
@@ -140,6 +142,7 @@ private:
 	void showWinMessageBox();
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void renderWorker();
+	static int ErrorDisplayMessage(const char *msg, bool exitApp);
 };
 
 }}//end namespace

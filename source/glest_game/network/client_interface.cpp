@@ -671,6 +671,15 @@ string ClientInterface::getNetworkStatus() const{
 
 void ClientInterface::waitForMessage()
 {
+	// Debug!
+/*
+    sendTextMessage("Timeout waiting for message",-1);
+    DisplayErrorMessage("Timeout waiting for message");
+    quit= true;
+    close();
+    return;
+*/
+
 	Chrono chrono;
 	chrono.start();
 
@@ -686,6 +695,7 @@ void ClientInterface::waitForMessage()
 		}
 
 		if(chrono.getMillis() > messageWaitTimeout) {
+		//if(1) {
 			//throw runtime_error("Timeout waiting for message");
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

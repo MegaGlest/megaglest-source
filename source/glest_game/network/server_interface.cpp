@@ -691,28 +691,33 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 	//serverSynchAccessor.p();
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-		ConnectionSlot* connectionSlot= slots[i];
+    try {
+		for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+			ConnectionSlot* connectionSlot= slots[i];
 
-		if(i != excludeSlot && connectionSlot != NULL) {
-			if(connectionSlot->isConnected()) {
+			if(i != excludeSlot && connectionSlot != NULL) {
+				if(connectionSlot->isConnected()) {
 
-			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
-				connectionSlot->sendMessage(networkMessage);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+					connectionSlot->sendMessage(networkMessage);
+				}
+				else if(gameHasBeenInitiated == true) {
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+					removeSlot(i);
+				}
 			}
-			else if(gameHasBeenInitiated == true) {
-
-			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+			else if(i == excludeSlot && gameHasBeenInitiated == true &&
+					connectionSlot != NULL && connectionSlot->isConnected() == false) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
 				removeSlot(i);
 			}
 		}
-		else if(i == excludeSlot && gameHasBeenInitiated == true &&
-		        connectionSlot != NULL && connectionSlot->isConnected() == false) {
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
-            removeSlot(i);
-		}
-	}
-
+    }
+    catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+    	throw runtime_error(ex.what());
+    }
 	//serverSynchAccessor.v();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
