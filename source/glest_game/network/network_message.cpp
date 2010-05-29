@@ -243,7 +243,7 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 bool NetworkMessageCommandList::receive(Socket* socket){
     // _peek_ type, commandCount & frame num first.
 	if (!NetworkMessage::peek(socket, &data, commandListHeaderSize)) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
@@ -253,7 +253,7 @@ bool NetworkMessageCommandList::receive(Socket* socket){
 	// read header + data.commandCount commands.
 	int totalMsgSize = commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount;
 	if (socket->getDataToRead() < totalMsgSize) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] Insufficient data to read entire command list [need %d bytes, only %d available].\n",
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
 			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
 		return false;
 	}
@@ -262,9 +262,8 @@ bool NetworkMessageCommandList::receive(Socket* socket){
         for(int idx = 0 ; idx < data.commandCount; ++idx) {
             const NetworkCommand &cmd = data.commands[idx];
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, networkCommandType = %d, unitId = %d, commandTypeId = %d, positionX = %d, positionY = %d, unitTypeId = %d, targetId = %d\n",
-                    __FILE__,__FUNCTION__,__LINE__,idx, cmd.getNetworkCommandType(),cmd.getUnitId(), cmd.getCommandTypeId(),
-                    cmd.getPosition().x,cmd.getPosition().y, cmd.getUnitTypeId(), cmd.getTargetId());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, received networkCommand [%s]\n",
+                    __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
         }
 	}
 	return result;
@@ -282,9 +281,8 @@ void NetworkMessageCommandList::send(Socket* socket) const{
             for(int idx = 0 ; idx < data.commandCount; ++idx) {
                 const NetworkCommand &cmd = data.commands[idx];
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, networkCommandType = %d, unitId = %d, commandTypeId = %d, positionX = %d, positionY = %d, unitTypeId = %d, targetId = %d\n",
-                        __FILE__,__FUNCTION__,__LINE__,idx, cmd.getNetworkCommandType(),cmd.getUnitId(), cmd.getCommandTypeId(),
-                        cmd.getPosition().x,cmd.getPosition().y, cmd.getUnitTypeId(), cmd.getTargetId());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, sent networkCommand [%s]\n",
+                        __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
             }
         }
 	}

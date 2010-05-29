@@ -140,7 +140,7 @@ void ChatManager::updateNetwork() {
 		string sender;
 		Config &config= Config::getInstance();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
 		if(gameNetworkInterface->getChatText().empty() == false) {
 			int teamIndex= gameNetworkInterface->getChatTeamIndex();
