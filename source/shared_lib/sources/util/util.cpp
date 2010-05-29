@@ -195,7 +195,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     va_list argList;
     va_start(argList, fmt);
 
-    char szBuf[1024]="";
+    char szBuf[4096]="";
     vsprintf(szBuf,fmt, argList);
 
     // Either output to a logfile or

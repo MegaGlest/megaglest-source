@@ -257,6 +257,9 @@ private:
 
 	bool allowRotateUnits;
 
+	//std::vector<Unit *> renderUnitTitleList;
+	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
+
 private:
 	Renderer();
 	~Renderer();
@@ -371,6 +374,8 @@ public:
 	static string shadowsToStr(Shadows shadows);
 
 	const Game * getGame() { return game; }
+	void renderUnitTitles(Font2D *font, Vec3f color);
+	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
 private:
 	//private misc

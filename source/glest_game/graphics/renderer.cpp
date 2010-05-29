@@ -1632,6 +1632,8 @@ void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallba
 
 		glPopMatrix();
 		unit->setVisible(true);
+		// Add to the pending render unit title list
+		renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
 
 		entity.setState(resRendered);
 	}
@@ -2194,6 +2196,38 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
 
 	//clamp coords to map size
 	return map->isInside(worldPos);
+}
+
+// This method takes world co-ordinates and translates them to screen co-ords
+Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
+	assertGl();
+
+	const Metrics &metrics= Metrics::getInstance();
+	GLint viewport[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	GLdouble worldX = worldPos.x;
+	GLdouble worldY = worldPos.y;
+	GLdouble worldZ = worldPos.z;
+
+	//load matrices
+	loadProjectionMatrix();
+    loadGameCameraMatrix();
+
+	//get matrices
+	GLdouble modelviewMatrix[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);
+	GLdouble projectionMatrix[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+
+	//get the screen coordinates
+	GLdouble screenX;
+	GLdouble screenY;
+	GLdouble screenZ;
+	gluProject(worldX, worldY, worldZ,
+		modelviewMatrix, projectionMatrix, viewport,
+		&screenX, &screenY, &screenZ);
+
+	Vec3f screenPos(screenX,screenY,screenZ);
+	return screenPos;
 }
 
 void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &posDown, const Vec2i &posUp){
@@ -3310,6 +3344,24 @@ Texture2D::Filter Renderer::strToTextureFilter(const string &s){
 	}
 
 	throw runtime_error("Error converting from string to FilterType, found: "+s);
+}
+
+// This method renders titles for units
+void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
+	if(renderUnitTitleList.size() > 0) {
+		for(int idx = 0; idx < renderUnitTitleList.size(); idx++) {
+			std::pair<Unit *,Vec3f> &unitInfo = renderUnitTitleList[idx];
+			Unit *unit = unitInfo.first;
+			if(unit != NULL) {
+				string str = unit->getFullName() + " - " + intToStr(unit->getId());
+				//get the screen coordinates
+				Vec3f &screenPos = unitInfo.second;
+				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+			}
+		}
+		renderUnitTitleList.clear();
+	}
 }
 
 }}//end namespace
