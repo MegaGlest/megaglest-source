@@ -1279,6 +1279,16 @@ std::string Unit::toString() const {
 		result += " name [" + this->type->getName() + "]";
 	}
 
+	if(this->faction != NULL) {
+	    result = "FactionIndex = " + intToStr(this->faction->getIndex()) + "\n";
+	    result += "teamIndex = " + intToStr(this->faction->getTeam()) + "\n";
+	    result += "startLocationIndex = " + intToStr(this->faction->getStartLocationIndex()) + "\n";
+	    result += "thisFaction = " + intToStr(this->faction->getThisFaction()) + "\n";
+	    result += "control = " + intToStr(this->faction->getControlType()) + "\n";
+	    if(this->faction->getType() != NULL) {
+	    	result += "factionName = " + this->faction->getType()->getName() + "\n";
+	    }
+	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	result += " hp = " + intToStr(this->hp);

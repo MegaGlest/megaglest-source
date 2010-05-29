@@ -70,8 +70,11 @@ void Command::setUnit(Unit *unit){
 }
 
 std::string Command::toString() const {
-	std::string result;
+	std::string result = "";
 	result = "commandType = " + commandType->toString() + " pos = " + pos.getString() + " facing = " + intToStr(facing.asInt());
+	if(unitType != NULL) {
+		result += " unitTypeId = " + intToStr(unitType->getId()) + " unitTypeDesc = " + unitType->getReqDesc();
+	}
 	return result;
 }
 
