@@ -32,6 +32,8 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
+Game *thisGamePtr = NULL;
+
 // =====================================================
 // 	class Game
 // =====================================================
@@ -41,6 +43,9 @@ namespace Glest{ namespace Game{
 Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program), lastMousePos(0)
 {
+	originalDisplayMsgCallback = NULL;
+	thisGamePtr = this;
+
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 
@@ -80,12 +85,30 @@ Game::~Game(){
 
 	gui.end();		//selection must be cleared before deleting units
 	world.end();	//must die before selection because of referencers
+
+	thisGamePtr = NULL;
+	if(originalDisplayMsgCallback != NULL) {
+		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
+	}
 }
 
 
 // ==================== init and load ====================
 
+int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
+
+	if(thisGamePtr != NULL) {
+		string text = msg;
+		thisGamePtr->showMessageBox(text, "Error detected", false);
+	}
+
+    return 0;
+}
+
 void Game::load(){
+	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
+	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
 	Logger &logger= Logger::getInstance();
 	string mapName= gameSettings.getMap();
@@ -410,7 +433,8 @@ void Game::update(){
 	chatManager.updateNetwork();
 
 	//check for quiting status
-	if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit()){
+	if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() && mainMessageBox.getEnabled() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		quitGame();
 	}
 
@@ -418,6 +442,8 @@ void Game::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateGame(this);
 	}
+
+	//throw runtime_error("Test!");
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -539,15 +565,14 @@ void Game::mouseDownLeft(int x, int y){
 	//exit message box, has to be the last thing to do in this function
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
-			if(button==1)
-			{
+		if(mainMessageBox.mouseClick(x, y, button)) {
+			if(button==1) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				networkManager.getGameNetworkInterface()->quitGame(true);
 				quitGame();
 			}
-			else
-			{
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				//close message box
 				mainMessageBox.setEnabled(false);
 			}
@@ -849,6 +874,7 @@ void Game::keyPress(char c){
 }
 
 void Game::quitGame(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	program->setState(new BattleEnd(program, world.getStats()));
 }
 
