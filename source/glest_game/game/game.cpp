@@ -1043,7 +1043,15 @@ void Game::render2d(){
 		renderer.renderText(str, coreData.getMenuFontNormal(),
 							Vec3f(1.0f), 10, 500, false);
 
+		if(renderer.getAllowRenderUnitTitles() == false) {
+			renderer.setAllowRenderUnitTitles(true);
+		}
 		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
+	}
+	else {
+		if(renderer.getAllowRenderUnitTitles() == true) {
+			renderer.setAllowRenderUnitTitles(false);
+		}
 	}
 
 	//network status
