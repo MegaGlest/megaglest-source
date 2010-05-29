@@ -398,11 +398,14 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
     const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 	ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 
+	// debug test!
+	//throw runtime_error("Test missing command type!");
+
 	//validate command type
 	if(ct == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find command type for\nnetwork command = [%s]\n%s\n in unit = %d [%s][%s].\nGame out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str());
+	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
