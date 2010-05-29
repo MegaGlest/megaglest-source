@@ -395,6 +395,18 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 		throw runtime_error(szBuf);
 	}
 
+	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
+
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+
+	    std::string worldLog = world->DumpWorldToLog();
+	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+		throw runtime_error(sError);
+	}
+
     const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 	ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 

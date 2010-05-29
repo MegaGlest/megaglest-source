@@ -95,6 +95,8 @@ public:
 	int getTargetId() const								{return targetId;}
 	int getWantQueue() const							{return wantQueue;}
 	int getFromFactionIndex() const						{return fromFactionIndex;}
+	int getUnitFactionUnitCount() const					{return unitFactionUnitCount;}
+	int getUnitFactionIndex() const						{return unitFactionIndex;}
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;
