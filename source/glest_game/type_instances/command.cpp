@@ -14,6 +14,7 @@
 #include "command_type.h"
 #include "util.h"
 #include "conversion.h"
+#include "unit_type.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -48,6 +49,10 @@ Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitTy
     this->pos= pos;
 	this->unitType= unitType;
 	this->facing = facing;
+
+	if(this->unitType != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->unitType->toString().c_str());
+	}
 }
 
 // =============== set ===============

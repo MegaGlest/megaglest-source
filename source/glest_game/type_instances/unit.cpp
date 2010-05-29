@@ -40,6 +40,11 @@ namespace Glest{ namespace Game{
 
 const int UnitPath::maxBlockCount= 10;
 
+UnitPath::UnitPath() {
+	this->blockCount = 0;
+	this->pathQueue.clear();
+}
+
 bool UnitPath::isEmpty(){
 	return pathQueue.empty();
 }

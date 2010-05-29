@@ -40,8 +40,12 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue) const{
-	
+CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue) const {
+	assert(this->world != NULL);
+	assert(unit != NULL);
+	assert(commandType != NULL);
+	assert(unitType != NULL);
+
 	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), -1, facing, tryQueue);
 	return pushNetworkCommand(&networkCommand);
 }
@@ -364,7 +368,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	assert(networkCommand->getNetworkCommandType()==nctGiveCommand);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkCommand [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str());
 
 	if(world == NULL) {
 	    char szBuf[1024]="";
@@ -396,7 +400,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	}
 
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
-	    char szBuf[1024]="";
+	    char szBuf[4096]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
@@ -415,7 +419,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 
 	//validate command type
 	if(ct == NULL) {
-	    char szBuf[1024]="";
+	    char szBuf[4096]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
