@@ -382,10 +382,17 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 
 	if(factionIndex<factions.size()){
 		Faction* faction= &factions[factionIndex];
+
+		if(faction->getIndex() != factionIndex) {
+			throw runtime_error("faction->getIndex() != factionIndex");
+		}
+
 		const FactionType* ft= faction->getType();
 		const UnitType* ut= ft->getUnitType(unitName);
 
 		Unit* unit= new Unit(getNextUnitId(), pos, ut, faction, &map, CardinalDir::NORTH);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
 		if(placeUnit(pos, generationArea, unit, true)){
 			unit->create(true);
@@ -395,6 +402,8 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		else{
 			throw runtime_error("Unit cant be placed");
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 	}
 	else
 	{
@@ -672,6 +681,8 @@ void World::initUnits(){
 				if(unit->getType()->hasSkillClass(scBeBuilt)){
                     map.flatternTerrain(unit);
 				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
             }
 		}
 	}

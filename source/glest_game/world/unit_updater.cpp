@@ -316,6 +316,8 @@ void UnitUpdater::updateBuild(Unit *unit){
 						unit->getCurrVector(),
 						gameCamera->getPos());
 				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
 			}
             else{
                 //if there are no free cells
