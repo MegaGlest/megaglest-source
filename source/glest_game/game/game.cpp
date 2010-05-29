@@ -376,76 +376,85 @@ void Game::simpleTask() {
 void Game::update(){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	// a) Updates non dependent on speed
+	try {
 
-	//misc
-	updateFps++;
-	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
+		// a) Updates non dependent on speed
 
-	//console
-	console.update();
+		//misc
+		updateFps++;
+		mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	// b) Updates depandant on speed
-
-	int updateLoops= getUpdateLoops();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//update
-	for(int i=0; i<updateLoops; ++i){
-		Renderer &renderer= Renderer::getInstance();
+		//console
+		console.update();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//AiInterface
-		for(int i=0; i<world.getFactionCount(); ++i){
-			if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
-				aiInterfaces[i]->update();
+		// b) Updates depandant on speed
+
+		int updateLoops= getUpdateLoops();
+
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//update
+		for(int i=0; i<updateLoops; ++i){
+			Renderer &renderer= Renderer::getInstance();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//AiInterface
+			for(int i=0; i<world.getFactionCount(); ++i){
+				if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
+					aiInterfaces[i]->update();
+				}
 			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//World
+			world.update();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			// Commander
+			commander.updateNetwork();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//Gui
+			gui.update();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//Particle systems
+			if(weatherParticleSystem != NULL){
+				weatherParticleSystem->setPos(gameCamera.getPos());
+			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			renderer.updateParticleManager(rsGame);
+
+			//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//World
-		world.update();
+		//call the chat manager
+		chatManager.updateNetwork();
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		// Commander
-		commander.updateNetwork();
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//Gui
-		gui.update();
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//Particle systems
-		if(weatherParticleSystem != NULL){
-			weatherParticleSystem->setPos(gameCamera.getPos());
+		//check for quiting status
+		if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() && mainMessageBox.getEnabled() == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			quitGame();
 		}
 
+		//update auto test
+		if(Config::getInstance().getBool("AutoTest")){
+			AutoTest::getInstance().updateGame(this);
+		}
+
+		//throw runtime_error("Test!");
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		renderer.updateParticleManager(rsGame);
-
-	    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	//call the chat manager
-	chatManager.updateNetwork();
-
-	//check for quiting status
-	if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() && mainMessageBox.getEnabled() == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		quitGame();
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
 	}
-
-	//update auto test
-	if(Config::getInstance().getBool("AutoTest")){
-		AutoTest::getInstance().updateGame(this);
-	}
-
-	//throw runtime_error("Test!");
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Game::updateCamera(){
@@ -514,358 +523,420 @@ void Game::tick(){
 
 void Game::mouseDownLeft(int x, int y){
 
-	Map *map= world.getMap();
-	const Metrics &metrics= Metrics::getInstance();
-	NetworkManager &networkManager= NetworkManager::getInstance();
-	bool messageBoxClick= false;
+	try {
+		Map *map= world.getMap();
+		const Metrics &metrics= Metrics::getInstance();
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		bool messageBoxClick= false;
 
-	//scrip message box, only if the exit box is not enabled
-	if(!mainMessageBox.getEnabled() && scriptManager.getMessageBox()->getEnabled()){
-		int button= 1;
-		if(scriptManager.getMessageBox()->mouseClick(x, y, button)){
-			scriptManager.onMessageBoxOk();
-			messageBoxClick= true;
+		//scrip message box, only if the exit box is not enabled
+		if(!mainMessageBox.getEnabled() && scriptManager.getMessageBox()->getEnabled()){
+			int button= 1;
+			if(scriptManager.getMessageBox()->mouseClick(x, y, button)){
+				scriptManager.onMessageBoxOk();
+				messageBoxClick= true;
+			}
 		}
-	}
 
-	//minimap panel
-	if(!messageBoxClick){
-		if(metrics.isInMinimap(x, y) && !gui.isSelectingPos()){
+		//minimap panel
+		if(!messageBoxClick){
+			if(metrics.isInMinimap(x, y) && !gui.isSelectingPos()){
 
-			int xm= x - metrics.getMinimapX();
-			int ym= y - metrics.getMinimapY();
-			int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
-			int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
+				int xm= x - metrics.getMinimapX();
+				int ym= y - metrics.getMinimapY();
+				int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
+				int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
 
-			if(map->isInside(xCell, yCell)){
-				if(!gui.isSelectingPos()){
-					gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+				if(map->isInside(xCell, yCell)){
+					if(!gui.isSelectingPos()){
+						gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+					}
 				}
 			}
-		}
 
-		//display panel
-		else if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
-			int xd= x - metrics.getDisplayX();
-			int yd= y - metrics.getDisplayY();
-			if(gui.mouseValid(xd, yd)){
-				gui.mouseDownLeftDisplay(xd, yd);
+			//display panel
+			else if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
+				int xd= x - metrics.getDisplayX();
+				int yd= y - metrics.getDisplayY();
+				if(gui.mouseValid(xd, yd)){
+					gui.mouseDownLeftDisplay(xd, yd);
+				}
+				else{
+					gui.mouseDownLeftGraphics(x, y);
+				}
 			}
+
+			//graphics panel
 			else{
 				gui.mouseDownLeftGraphics(x, y);
 			}
 		}
 
-		//graphics panel
-		else{
-			gui.mouseDownLeftGraphics(x, y);
+		//exit message box, has to be the last thing to do in this function
+		if(mainMessageBox.getEnabled()){
+			int button= 1;
+			if(mainMessageBox.mouseClick(x, y, button)) {
+				if(button==1) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					networkManager.getGameNetworkInterface()->quitGame(true);
+					quitGame();
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					//close message box
+					mainMessageBox.setEnabled(false);
+				}
+			}
 		}
 	}
-
-	//exit message box, has to be the last thing to do in this function
-	if(mainMessageBox.getEnabled()){
-		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button)) {
-			if(button==1) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				networkManager.getGameNetworkInterface()->quitGame(true);
-				quitGame();
-			}
-			else {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				//close message box
-				mainMessageBox.setEnabled(false);
-			}
-		}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
 	}
 }
 
 void Game::mouseDownRight(int x, int y){
-	gui.mouseDownRightGraphics(x, y);
+	try {
+		gui.mouseDownRightGraphics(x, y);
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
+	}
 }
 
 void Game::mouseUpLeft(int x, int y){
-	gui.mouseUpLeftGraphics(x, y);
+	try {
+		gui.mouseUpLeftGraphics(x, y);
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
+	}
 }
 
 void Game::mouseDoubleClickLeft(int x, int y){
-	const Metrics &metrics= Metrics::getInstance();
+	try {
+		const Metrics &metrics= Metrics::getInstance();
 
-	//display panel
-	if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
-		int xd= x - metrics.getDisplayX();
-		int yd= y - metrics.getDisplayY();
-		if(gui.mouseValid(xd, yd)){
-			return;
+		//display panel
+		if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
+			int xd= x - metrics.getDisplayX();
+			int yd= y - metrics.getDisplayY();
+			if(gui.mouseValid(xd, yd)){
+				return;
+			}
 		}
-	}
 
-	//graphics panel
-	gui.mouseDoubleClickLeftGraphics(x, y);
+		//graphics panel
+		gui.mouseDoubleClickLeftGraphics(x, y);
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
+	}
 }
 
 void Game::mouseMove(int x, int y, const MouseState *ms){
-	const Metrics &metrics = Metrics::getInstance();
+	try {
+		const Metrics &metrics = Metrics::getInstance();
 
-	mouseX = x;
-	mouseY = y;
+		mouseX = x;
+		mouseY = y;
 
- 	if (ms->get(mbCenter)) {
-		//if (input.isCtrlDown()) {
-		//	float speed = input.isShiftDown() ? 1.f : 0.125f;
-		//	float response = input.isShiftDown() ? 0.1875f : 0.0625f;
-		//	gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
-		//	gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
-		//} else
-        {
-			//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
-			//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
-			float ymult = 0.2f;
-			float xmult = 0.2f;
+		if (ms->get(mbCenter)) {
+			//if (input.isCtrlDown()) {
+			//	float speed = input.isShiftDown() ? 1.f : 0.125f;
+			//	float response = input.isShiftDown() ? 0.1875f : 0.0625f;
+			//	gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
+			//	gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
+			//} else
+			{
+				//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
+				//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
+				float ymult = 0.2f;
+				float xmult = 0.2f;
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
-			mouseX=lastMousePos.x;
-			mouseY=lastMousePos.y;
-			Window::revertMousePos();
+				gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+				mouseX=lastMousePos.x;
+				mouseY=lastMousePos.y;
+				Window::revertMousePos();
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			return;
+				return;
+			}
 		}
+		else {
+			//main window
+			if(Window::isKeyDown() == false) {
+				if (y < 10) {
+					gameCamera.setMoveZ(-scrollSpeed);
+				}
+				else if (y > metrics.getVirtualH() - 10) {
+					gameCamera.setMoveZ(scrollSpeed);
+				}
+				else {
+					gameCamera.setMoveZ(0);
+				}
+
+				if (x < 10) {
+					gameCamera.setMoveX(-scrollSpeed);
+				}
+				else if (x > metrics.getVirtualW() - 10) {
+					gameCamera.setMoveX(scrollSpeed);
+				}
+				else {
+					gameCamera.setMoveX(0);
+				}
+			}
+
+			if (mainMessageBox.getEnabled()) {
+				mainMessageBox.mouseMove(x, y);
+			}
+			if (scriptManager.getMessageBox()->getEnabled()) {
+				scriptManager.getMessageBox()->mouseMove(x, y);
+			}
+			//else if (saveBox) {
+			//	saveBox->mouseMove(x, y);
+			//} else {
+			//	//graphics
+			gui.mouseMoveGraphics(x, y);
+			//}
+		}
+
+		//display
+		if (metrics.isInDisplay(x, y) && !gui.isSelecting() && !gui.isSelectingPos()) {
+			if (!gui.isSelectingPos()) {
+				gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
+			}
+		}
+
+		lastMousePos.x = mouseX;
+		lastMousePos.y = mouseY;
 	}
-	else {
-		//main window
-		if(Window::isKeyDown() == false) {
-			if (y < 10) {
-				gameCamera.setMoveZ(-scrollSpeed);
-			}
-			else if (y > metrics.getVirtualH() - 10) {
-				gameCamera.setMoveZ(scrollSpeed);
-			}
-			else {
-				gameCamera.setMoveZ(0);
-			}
-
-			if (x < 10) {
-				gameCamera.setMoveX(-scrollSpeed);
-			}
-			else if (x > metrics.getVirtualW() - 10) {
-				gameCamera.setMoveX(scrollSpeed);
-			}
-			else {
-				gameCamera.setMoveX(0);
-			}
-		}
-
-		if (mainMessageBox.getEnabled()) {
-			mainMessageBox.mouseMove(x, y);
-		}
-	    if (scriptManager.getMessageBox()->getEnabled()) {
-			scriptManager.getMessageBox()->mouseMove(x, y);
-		}
-		//else if (saveBox) {
-		//	saveBox->mouseMove(x, y);
-		//} else {
-		//	//graphics
-		gui.mouseMoveGraphics(x, y);
-		//}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
 	}
-
-	//display
-	if (metrics.isInDisplay(x, y) && !gui.isSelecting() && !gui.isSelectingPos()) {
-		if (!gui.isSelectingPos()) {
-			gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
-		}
-	}
-
-	lastMousePos.x = mouseX;
-	lastMousePos.y = mouseY;
 }
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
-	gameCamera.zoom((float)zDelta / 60.0f);
-	//gameCamera.setMoveY(1);
+	try {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
+		gameCamera.zoom((float)zDelta / 60.0f);
+		//gameCamera.setMoveY(1);
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
+	}
 }
 
 void Game::keyDown(char key){
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
-
-	Lang &lang= Lang::getInstance();
-	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
-
-	//send key to the chat manager
-	chatManager.keyDown(key);
-
-	if(!chatManager.getEditEnabled()){
+	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
-		if(key=='N'){
-			renderNetworkStatus= true;
-		}
-		else if(key=='M'){
-			showFullConsole= true;
-		}
-		else if(key=='E'){
-			for(int i=0; i<100; ++i){
-				string path= "screens/screen" + intToStr(i) + ".tga";
+		Lang &lang= Lang::getInstance();
+		bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 
-				FILE *f= fopen(path.c_str(), "rb");
-				if(f==NULL){
-					Renderer::getInstance().saveScreen(path);
-					break;
-				}
-				else{
-					fclose(f);
-				}
-			}
-		}
+		//send key to the chat manager
+		chatManager.keyDown(key);
 
-		//move camera left
-		else if(key==vkLeft){
-			gameCamera.setMoveX(-1);
-		}
-
-		//move camera right
-		else if(key==vkRight){
-			gameCamera.setMoveX(1);
-		}
-
-		//move camera up
-		else if(key==vkUp){
-			gameCamera.setMoveZ(1);
-		}
-
-		//move camera down
-		else if(key==vkDown){
-			gameCamera.setMoveZ(-1);
-		}
-
-		//change camera mode
-		else if(key=='F'){
-			gameCamera.switchState();
-			string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
-			console.addLine(lang.get("CameraModeSet")+" "+ stateString);
-		}
-		
-		//reset camera mode to normal
-		else if(key==' '){
-			gameCamera.resetPosition();
-		}
-		//pause
-		else if(key=='P'){
-			if(speedChangesAllowed){
-				if(paused){
-					console.addLine(lang.get("GameResumed"));
-					paused= false;
-				}
-				else{
-					console.addLine(lang.get("GamePaused"));
-					paused= true;
-				}
-			}
-		}
-		//switch display color
-		else if(key=='C'){
-			gui.switchToNextDisplayColor();
-		}
-		
-		//increment speed
-		else if(key==vkAdd){
-			if(speedChangesAllowed){
-				incSpeed();
-			}
-		}
-
-		//decrement speed
-		else if(key==vkSubtract){
-			if(speedChangesAllowed){
-				decSpeed();
-			}
-		}
-
-		//exit
-		else if(key==vkEscape){
-			showMessageBox(lang.get("ExitGame?"), "", true);
-		}
-
-		//group
-		else if(key>='0' && key<'0'+Selection::maxGroups){
+		if(!chatManager.getEditEnabled()){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
-			gui.groupKey(key-'0');
+			if(key=='N'){
+				renderNetworkStatus= true;
+			}
+			else if(key=='M'){
+				showFullConsole= true;
+			}
+			else if(key=='E'){
+				for(int i=0; i<100; ++i){
+					string path= "screens/screen" + intToStr(i) + ".tga";
+
+					FILE *f= fopen(path.c_str(), "rb");
+					if(f==NULL){
+						Renderer::getInstance().saveScreen(path);
+						break;
+					}
+					else{
+						fclose(f);
+					}
+				}
+			}
+
+			//move camera left
+			else if(key==vkLeft){
+				gameCamera.setMoveX(-1);
+			}
+
+			//move camera right
+			else if(key==vkRight){
+				gameCamera.setMoveX(1);
+			}
+
+			//move camera up
+			else if(key==vkUp){
+				gameCamera.setMoveZ(1);
+			}
+
+			//move camera down
+			else if(key==vkDown){
+				gameCamera.setMoveZ(-1);
+			}
+
+			//change camera mode
+			else if(key=='F'){
+				gameCamera.switchState();
+				string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
+				console.addLine(lang.get("CameraModeSet")+" "+ stateString);
+			}
+
+			//reset camera mode to normal
+			else if(key==' '){
+				gameCamera.resetPosition();
+			}
+			//pause
+			else if(key=='P'){
+				if(speedChangesAllowed){
+					if(paused){
+						console.addLine(lang.get("GameResumed"));
+						paused= false;
+					}
+					else{
+						console.addLine(lang.get("GamePaused"));
+						paused= true;
+					}
+				}
+			}
+			//switch display color
+			else if(key=='C'){
+				gui.switchToNextDisplayColor();
+			}
+
+			//increment speed
+			else if(key==vkAdd){
+				if(speedChangesAllowed){
+					incSpeed();
+				}
+			}
+
+			//decrement speed
+			else if(key==vkSubtract){
+				if(speedChangesAllowed){
+					decSpeed();
+				}
+			}
+
+			//exit
+			else if(key==vkEscape){
+				showMessageBox(lang.get("ExitGame?"), "", true);
+			}
+
+			//group
+			else if(key>='0' && key<'0'+Selection::maxGroups){
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
+				gui.groupKey(key-'0');
+			}
+
+			//hotkeys
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameCamera.getState());
+
+			if(gameCamera.getState() == GameCamera::sGame){
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
+				gui.hotKey(key);
+			}
+			else{
+				//rotate camera leftt
+				if(key=='A'){
+					gameCamera.setRotate(-1);
+				}
+
+				//rotate camera right
+				else if(key=='D'){
+					gameCamera.setRotate(1);
+				}
+
+				//camera up
+				else if(key=='S'){
+					gameCamera.setMoveY(1);
+				}
+
+				//camera down
+				else if(key=='W'){
+					gameCamera.setMoveY(-1);
+				}
+			}
 		}
-
-		//hotkeys
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameCamera.getState());
-
-		if(gameCamera.getState() == GameCamera::sGame){
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
-
-			gui.hotKey(key);
-		}
-		else{
-			//rotate camera leftt
-			if(key=='A'){
-				gameCamera.setRotate(-1);
-			}
-
-			//rotate camera right
-			else if(key=='D'){
-				gameCamera.setRotate(1);
-			}
-
-			//camera up
-			else if(key=='S'){
-				gameCamera.setMoveY(1);
-			}
-
-			//camera down
-			else if(key=='W'){
-				gameCamera.setMoveY(-1);
-			}
-		}
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
 	}
 }
 
 void Game::keyUp(char key){
-
-	if(chatManager.getEditEnabled()){
-		//send key to the chat manager
-		chatManager.keyUp(key);
-	}
-	else{
-		switch(key){
-		case 'N':
-			renderNetworkStatus= false;
-			break;
-		case 'M':
-			showFullConsole= false;
-			break;
-		case 'A':
-		case 'D':
-			gameCamera.setRotate(0);
-			break;
-
-		case 'W':
-		case 'S':
-			gameCamera.setMoveY(0);
-			break;
-
-		case vkUp:
-		case vkDown:
-			gameCamera.setMoveZ(0);
-			break;
-
-		case vkLeft:
-		case vkRight:
-			gameCamera.setMoveX(0);
-			break;
+	try {
+		if(chatManager.getEditEnabled()){
+			//send key to the chat manager
+			chatManager.keyUp(key);
 		}
+		else{
+			switch(key){
+			case 'N':
+				renderNetworkStatus= false;
+				break;
+			case 'M':
+				showFullConsole= false;
+				break;
+			case 'A':
+			case 'D':
+				gameCamera.setRotate(0);
+				break;
+
+			case 'W':
+			case 'S':
+				gameCamera.setMoveY(0);
+				break;
+
+			case vkUp:
+			case vkDown:
+				gameCamera.setMoveZ(0);
+				break;
+
+			case vkLeft:
+			case vkRight:
+				gameCamera.setMoveX(0);
+				break;
+			}
+		}
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.getGameNetworkInterface()->quitGame(true);
+		ErrorDisplayMessage(ex.what(),true);
 	}
 }
 
