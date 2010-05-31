@@ -49,6 +49,8 @@ struct FormatString {
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver):
 	MenuState(program, mainMenu, "new-game")
 {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -215,6 +217,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	labelMapInfo.setText(mapInfo.desc);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//initialize network interface
 	networkManager.init(nrServer);
 
@@ -231,28 +235,43 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	updateControlers();
 	updateNetworkSlots();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	// Ensure we have set the gamesettings at least once
 	GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
 	if(gameSettings.getMap() == "") {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		loadGameSettings(&gameSettings);
 	}
 
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	serverInterface->setGameSettings(&gameSettings,false);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1);
 
-	publishToMasterserverThread = new SimpleTaskThread(this,0,100);
+	publishToMasterserverThread = new SimpleTaskThread(this,0,150);
 	publishToMasterserverThread->start();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateCustomGame::~MenuStateCustomGame() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 
@@ -337,10 +356,14 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			if( listBoxPublishServer.getEditable() &&
 				listBoxPublishServer.getSelectedItemIndex() == 0) {
 
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				needToRepublishToMasterserver = true;
 				lastMasterserverPublishing = 0;
 				publishToMasterserver();
 				simpleTask();
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
@@ -508,7 +531,7 @@ void MenuStateCustomGame::render(){
 		Renderer &renderer= Renderer::getInstance();
 
 		if(mainMessageBox.getEnabled()){
-		renderer.renderMessageBox(&mainMessageBox);
+			renderer.renderMessageBox(&mainMessageBox);
 		}
 		else
 		{
@@ -560,7 +583,7 @@ void MenuStateCustomGame::render(){
 void MenuStateCustomGame::update()
 {
 	try {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
@@ -582,6 +605,8 @@ void MenuStateCustomGame::update()
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
 		}
 		
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		// handle setting changes from clients
 		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
 		for(int i= 0; i<mapInfo.players; ++i)
@@ -634,14 +659,21 @@ void MenuStateCustomGame::update()
 			}
 		}
 		
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
+
 		for(int i= 0; i<mapInfo.players; ++i)
 		{
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 			{
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START - ctNetwork\n",__FILE__,__FUNCTION__);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 				assert(connectionSlot!=NULL);
 				
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				hasOneNetworkSlotOpen=true;
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
@@ -727,6 +759,8 @@ void MenuStateCustomGame::update()
 			}
 		}
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		// Send the game settings to each client if we have at least one networked client
 		if( serverInterface->getAllowGameDataSynchCheck() == true &&
 			//haveAtLeastOneNetworkClientConnected == true &&
@@ -740,6 +774,8 @@ void MenuStateCustomGame::update()
 			needToSetChangedGameSettings    = false;
 		}
 		
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(hasOneNetworkSlotOpen)
 		{
 			//listBoxPublishServer.setSelectedItemIndex(0);
@@ -778,7 +814,7 @@ void MenuStateCustomGame::update()
 		{// reset timer here on bottom becasue used for different things
 			lastSetChangedGameSettings      = time(NULL);
 		}
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(currentConnectionCount>soundConnectionCount){
 			soundConnectionCount=currentConnectionCount;
@@ -846,8 +882,13 @@ void MenuStateCustomGame::publishToMasterserver()
 }
 
 void MenuStateCustomGame::simpleTask() {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if( needToRepublishToMasterserver == true  &&
 		publishToServerInfo != "") {
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		needToRepublishToMasterserver = false;
 		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + publishToServerInfo;
@@ -865,8 +906,13 @@ void MenuStateCustomGame::simpleTask() {
 			masterServererErrorToShow=serverInfo;
 		}
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(needToBroadcastServerSettings)
 	{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		needToBroadcastServerSettings=false;
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		if(serverInterface->hasClientConnection() == true) {
@@ -879,6 +925,8 @@ void MenuStateCustomGame::simpleTask() {
 			serverInterface->broadcastGameSetup(&gameSettings);
 		}
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
@@ -1031,11 +1079,12 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-		Lang &lang= Lang::getInstance();
-
 		string mapFile = gameSettings.getMap();
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
+
+		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
+		labelMapInfo.setText(mapInfo.desc);
 
 		string tilesetFile = gameSettings.getTileset();
 		tilesetFile = formatString(tilesetFile);
@@ -1053,6 +1102,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//gameSettings->setDefaultResources(true);
 		//gameSettings->setDefaultVictoryConditions(true);
 
+		Lang &lang= Lang::getInstance();
 		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 
@@ -1073,6 +1123,17 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 			listBoxFactions[i].setSelectedItem(factionName);
 		}
+
+		updateControlers();
+		updateNetworkSlots();
+		needToRepublishToMasterserver = true;
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+
 		//!!!
     }
     catch(const exception &ex) {
