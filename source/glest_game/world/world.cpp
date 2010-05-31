@@ -49,7 +49,7 @@ World::World(){
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
 	frameCount= 0;
-	nextUnitId= 0;
+	//nextUnitId= 0;
 
 	scriptManager= NULL;
 	this->game = NULL;
@@ -390,7 +390,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		const FactionType* ft= faction->getType();
 		const UnitType* ut= ft->getUnitType(unitName);
 
-		Unit* unit= new Unit(getNextUnitId(), pos, ut, faction, &map, CardinalDir::NORTH);
+		Unit* unit= new Unit(getNextUnitId(faction), pos, ut, faction, &map, CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
@@ -667,7 +667,7 @@ void World::initUnits(){
 			const UnitType *ut= ft->getStartingUnit(j);
 			int initNumber= ft->getStartingUnitAmount(j);
 			for(int l=0; l<initNumber; l++){
-				Unit *unit= new Unit(getNextUnitId(), Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+				Unit *unit= new Unit(getNextUnitId(f), Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 
 				int startLocationIndex= f->getStartLocationIndex();
 
@@ -812,6 +812,13 @@ void World::computeFow(){
 			}
 		}
 	}
+}
+
+int World::getNextUnitId(Faction *faction)	{
+	if(mapFactionNextUnitId.find(faction->getIndex()) == mapFactionNextUnitId.end()) {
+		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 3000;
+	}
+	return mapFactionNextUnitId[faction->getIndex()]++;
 }
 
 std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {

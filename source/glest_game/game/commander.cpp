@@ -336,7 +336,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     Command* command= buildCommand(networkCommand);
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
 
                     unit->giveCommand(command, networkCommand->getWantQueue());
 

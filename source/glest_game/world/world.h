@@ -82,7 +82,8 @@ private:
 	int thisFactionIndex;
 	int thisTeamIndex;
 	int frameCount;
-	int nextUnitId;
+	//int nextUnitId;
+	std::map<int,int> mapFactionNextUnitId;
 
 	//config
 	bool fogOfWarOverride;
@@ -116,7 +117,7 @@ public:
 	const Stats *getStats() const					{return &stats;};
 	Stats *getStats()								{return &stats;};
 	const WaterEffects *getWaterEffects() const		{return &waterEffects;}
-	int getNextUnitId()								{return nextUnitId++;}
+	int getNextUnitId(Faction *faction);
 	int getFrameCount() const						{return frameCount;}
 
 	//init & load

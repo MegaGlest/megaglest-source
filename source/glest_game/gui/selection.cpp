@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -15,6 +15,7 @@
 
 #include "unit_type.h"
 #include "gui.h"
+#include "config.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -37,7 +38,8 @@ Selection::~Selection(){
 void Selection::select(Unit *unit){
 
 	//check size
-	if(selectedUnits.size()>=maxUnits){
+	//if(selectedUnits.size() >= maxUnits){
+	if(selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
 		return;
 	}
 
@@ -72,6 +74,8 @@ void Selection::select(Unit *unit){
 	if(selectedUnits.size()==1 && !selectedUnits.front()->getType()->getMultiSelect()){
 		clear();
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit selected [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
 	unit->addObserver(this);
 	selectedUnits.push_back(unit);
