@@ -238,7 +238,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	serverInterface->setGameSettings(&gameSettings,true);
+	serverInterface->setGameSettings(&gameSettings,false);
 
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1);
@@ -286,6 +286,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				mainMessageBox.setEnabled(false);
 			}
 		}
+		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(buttonReturn.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -301,6 +302,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			simpleTask();
 		}
 		*/
+
+		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 		returnToParentMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -342,6 +345,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
 
+			saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
             program->setState(new Game(program, &gameSettings));
 		}
@@ -361,6 +365,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if (listBoxFogOfWar.mouseClick(x, y)) {
 		needToRepublishToMasterserver = true;
@@ -370,6 +375,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if (listBoxEnableObserverMode.mouseClick(x, y)) {
 		needToRepublishToMasterserver = true;
@@ -379,6 +385,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxTileset.mouseClick(x, y)){
 		needToRepublishToMasterserver = true;
@@ -388,6 +395,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxTechTree.mouseClick(x, y)){
 		reloadFactions();
@@ -399,10 +407,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxPublishServer.mouseClick(x, y)&&listBoxPublishServer.getEditable()){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
+		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else
 	{
@@ -443,6 +453,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
+                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 			else if(listBoxFactions[i].mouseClick(x, y)){
 				needToRepublishToMasterserver = true;
@@ -452,6 +463,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
+                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 			else if(listBoxTeams[i].mouseClick(x, y))
 			{
@@ -462,11 +474,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
+                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 		}
 	}
-
-	saveGameSettingsToFile("lastCustomGamSettings.mgg");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -875,6 +886,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	int factionCount= 0;
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	gameSettings->setDescription(formatString(mapFiles[listBoxMap.getSelectedItemIndex()]));
 	gameSettings->setMap(mapFiles[listBoxMap.getSelectedItemIndex()]);
