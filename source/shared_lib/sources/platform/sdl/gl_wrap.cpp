@@ -103,7 +103,9 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	if(display == 0) {
 		throw std::runtime_error("Couldn't create font: display is 0");
 	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load font %s\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
+
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(!fontInfo) {
 		fontInfo = XLoadQueryFont(display, "fixed");
@@ -121,7 +123,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	}
 	metrics.setHeight(height);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] height = %f\n",__FILE__,__FUNCTION__,__LINE__,height);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] height = %f\n",__FILE__,__FUNCTION__,__LINE__,height);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -171,15 +173,15 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	glXUseXFont(fontInfo->fid, 0, charCount, base);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	GLenum glerror = ::glGetError();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] glerror = %d\n",__FILE__,__FUNCTION__,__LINE__,glerror);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] glerror = %d\n",__FILE__,__FUNCTION__,__LINE__,glerror);
 
 	XFreeFont(display, fontInfo);
 

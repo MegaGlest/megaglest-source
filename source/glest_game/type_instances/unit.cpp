@@ -506,19 +506,15 @@ unsigned int Unit::getCommandSize() const{
 }
 
 //give one command (clear, and push back)
-CommandResult Unit::giveCommand(Command *command, bool tryQueue){
+CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",__FILE__,__FUNCTION__, __LINE__,this->id,this->type->getName().c_str(), command->toString().c_str(),tryQueue);
 
     assert(command != NULL);
 
     assert(command->getCommandType() != NULL);
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,command->getCommandType()->getId());
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const int command_priority = command->getCommandType()->getPriority();
 
@@ -528,7 +524,8 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 			if ((*i)->getCommandType()->getPriority() < command_priority) {
 				deleteSingleCommand(*i);
 				i = commands.erase(i);
-			} else {
+			}
+			else {
 				++i;
 			}
 		}
@@ -540,7 +537,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 			cancelCommand();
 		}
 	}
-	else{
+	else {
 		//empty command queue
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		clearCommands();
@@ -552,7 +549,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue){
 	//check command
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
-	if(result==crSuccess){
+	if(result == crSuccess) {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		applyCommand(command);
 	}
@@ -560,16 +557,16 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue){
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B\n",__FILE__,__FUNCTION__);
 
 	//push back command
-	if(result== crSuccess){
+	if(result == crSuccess) {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		commands.push_back(command);
 	}
-	else{
+	else {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		delete command;
 	}
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 	return result;
 }
@@ -1280,7 +1277,7 @@ std::string Unit::toString() const {
 	}
 
 	if(this->faction != NULL) {
-	    result = "FactionIndex = " + intToStr(this->faction->getIndex()) + "\n";
+	    result += "\nFactionIndex = " + intToStr(this->faction->getIndex()) + "\n";
 	    result += "teamIndex = " + intToStr(this->faction->getTeam()) + "\n";
 	    result += "startLocationIndex = " + intToStr(this->faction->getStartLocationIndex()) + "\n";
 	    result += "thisFaction = " + intToStr(this->faction->getThisFaction()) + "\n";

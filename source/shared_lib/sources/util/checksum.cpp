@@ -89,7 +89,7 @@ int32 Checksum::getSum() {
 				fileResult.addFileToSum(iterMap->first);
 				Checksum::fileListCache[iterMap->first] = fileResult.getSum();
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] iterMap->first [%s] has CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] iterMap->first [%s] has CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
 			}
 			newResult.addSum(Checksum::fileListCache[iterMap->first]);
 		}
