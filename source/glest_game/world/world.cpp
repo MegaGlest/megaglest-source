@@ -814,9 +814,15 @@ void World::computeFow(){
 	}
 }
 
+// WARNING! This id is critical! MAke sure it fits inside the network packet
+// (currently cannot be larger than 2,147,483,647)
+// Make sure each faction has their own unique section of id #'s for proper
+// multi-platform play
+// Calculates the unit unit ID for each faction
+//
 int World::getNextUnitId(Faction *faction)	{
 	if(mapFactionNextUnitId.find(faction->getIndex()) == mapFactionNextUnitId.end()) {
-		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 3000;
+		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 100000;
 	}
 	return mapFactionNextUnitId[faction->getIndex()]++;
 }

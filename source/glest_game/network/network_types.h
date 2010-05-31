@@ -61,12 +61,12 @@ enum NetworkCommandType {
 class NetworkCommand{
 private:
 	int16 networkCommandType;
-	int16 unitId;
+	int32 unitId;
 	int16 commandTypeId;
 	int16 positionX;
 	int16 positionY;
 	int16 unitTypeId;
-	int16 targetId;
+	int32 targetId;
 	int16 wantQueue;
 	int16 fromFactionIndex;
 	int16 unitFactionUnitCount;
