@@ -1176,10 +1176,12 @@ void Game::checkWinnerStandard(){
 			}
 		}
 		gameOver= true;
-		// Let the poor user watch everything unfold
-		world.setFogOfWar(false);
-		// but don't let him cheat via teamchat
-		chatManager.setDisableTeamMode(true);
+		if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+			// Let the poor user watch everything unfold
+			world.setFogOfWar(false);
+			// but don't let him cheat via teamchat
+			chatManager.setDisableTeamMode(true);
+		}
 		showLoseMessageBox();
 	}
 
@@ -1202,8 +1204,10 @@ void Game::checkWinnerStandard(){
 				}
 			}
 			gameOver= true;
-			// Let the happy winner view everything left in the world
-			world.setFogOfWar(false);
+			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+				// Let the happy winner view everything left in the world
+				world.setFogOfWar(false);
+			}
 
 			showWinMessageBox();
 		}

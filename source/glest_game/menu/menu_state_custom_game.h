@@ -33,10 +33,12 @@ private:
 	GraphicLabel labelTechTree;
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
+	GraphicLabel labelEnableObserverMode;
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
+	GraphicListBox listBoxEnableObserverMode;
 	vector<string> mapFiles;
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;

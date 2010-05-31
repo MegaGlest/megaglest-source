@@ -99,11 +99,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(350, 290, 100);
-	listBoxFogOfWar.init(350, 260, 100);
+	labelFogOfWar.init(320, 290, 65);
+	listBoxFogOfWar.init(320, 260, 65);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
+
+	// Enable Observer Mode
+	// @350 ? 300 ?
+	labelEnableObserverMode.init(390, 290, 80);
+	listBoxEnableObserverMode.init(390, 260, 80);
+	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
+	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
+	listBoxEnableObserverMode.setSelectedItemIndex(0);
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
@@ -200,6 +208,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelControl.setText(lang.get("Control"));
     labelFaction.setText(lang.get("Faction"));
     labelTeam.setText(lang.get("Team"));
+
+    labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
 	loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 
@@ -358,6 +368,15 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
+	else if (listBoxEnableObserverMode.mouseClick(x, y)) {
+		needToRepublishToMasterserver = true;
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+	}
 	else if(listBoxTileset.mouseClick(x, y)){
 		needToRepublishToMasterserver = true;
 
@@ -463,6 +482,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPublishServer.mouseMove(x, y);
+	listBoxEnableObserverMode.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -496,11 +516,13 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelFaction);
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
+			renderer.renderLabel(&labelEnableObserverMode);
 	
 			renderer.renderListBox(&listBoxMap);
 			renderer.renderListBox(&listBoxFogOfWar);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxTechTree);
+			renderer.renderListBox(&listBoxEnableObserverMode);
 	
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console);
@@ -635,11 +657,6 @@ void MenuStateCustomGame::update()
 							{
 								label = label + " techtree";
 							}
-							//if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-							//{
-							//    label = label + " FogOfWar == false";
-							//}
-
 						}
 						else
 						{
@@ -666,10 +683,6 @@ void MenuStateCustomGame::update()
 							{
 								label = label + " techtree";
 							}
-							//if(connectionSlot->getNetworkGameDataSynchCheckOkFogOfWar() == false)
-							//{
-							//    label = label + " FogOfWar == false";
-							//}
 						}
 					}
 
@@ -866,6 +879,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 	gameSettings->setDefaultResources(true);
 	gameSettings->setDefaultVictoryConditions(true);
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0);
+	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 
     for(int i=0; i<mapInfo.players; ++i)
     {
