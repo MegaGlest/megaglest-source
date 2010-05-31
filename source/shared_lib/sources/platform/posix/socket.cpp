@@ -872,32 +872,26 @@ int Socket::getDataToRead(){
 
 int Socket::send(const void *data, int dataSize) {
 	ssize_t bytesSent= 0;
-	if(isSocketValid() == true)
-	{
+	if(isSocketValid() == true)	{
         bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 	}
-	if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
-	{
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,bytesSent,getLastSocketErrorFormattedText().c_str());
+	if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 	}
-	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)
-	{
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__);
+	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    time_t tStartTimer = time(NULL);
-	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
-	    {
-	        if(Socket::isWritable(true) == true)
-	        {
+	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	        if(Socket::isWritable(true) == true) {
                 bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        }
 	    }
 	}
-	if(bytesSent <= 0)
-	{
+	if(bytesSent <= 0) {
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
@@ -914,24 +908,19 @@ int Socket::receive(void *data, int dataSize)
 {
 	ssize_t bytesReceived = 0;
 
-	if(isSocketValid() == true)
-	{
+	if(isSocketValid() == true)	{
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	}
-	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
-	{
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,bytesReceived,getLastSocketErrorFormattedText().c_str());
+	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 	}
-	else if(bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)
-	{
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__);
+	else if(bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    time_t tStartTimer = time(NULL);
-	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
-	    {
-	        if(Socket::isReadable() == true)
-	        {
+	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	        if(Socket::isReadable() == true) {
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
@@ -939,8 +928,7 @@ int Socket::receive(void *data, int dataSize)
 	    }
 	}
 
-	if(bytesReceived <= 0)
-	{
+	if(bytesReceived <= 0) {
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
@@ -952,26 +940,21 @@ int Socket::receive(void *data, int dataSize)
 
 int Socket::peek(void *data, int dataSize){
 	ssize_t err = 0;
-	if(isSocketValid() == true)
-	{
+	if(isSocketValid() == true) {
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
-	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
-	{
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 
 		disconnectSocket();
 	}
-	else if(err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)
-	{
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__);
+	else if(err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    time_t tStartTimer = time(NULL);
-	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5))
-	    {
-	        if(Socket::isReadable() == true)
-	        {
+	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	        if(Socket::isReadable() == true) {
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
@@ -979,8 +962,7 @@ int Socket::peek(void *data, int dataSize){
 	    }
 	}
 
-	if(err <= 0)
-	{
+	if(err <= 0) {
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
@@ -1007,8 +989,7 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
 	}
 }
 
-bool Socket::isReadable()
-{
+bool Socket::isReadable() {
     if(isSocketValid() == false) return false;
 #ifndef WIN32
 	struct timeval tv;
@@ -1023,10 +1004,8 @@ bool Socket::isReadable()
 	FD_SET(sock, &set);
 
 	int i= select(sock+1, &set, NULL, NULL, &tv);
-	if(i < 0)
-	{
-        if(difftime(time(NULL),lastDebugEvent) >= 1)
-        {
+	if(i < 0) {
+        if(difftime(time(NULL),lastDebugEvent) >= 1) {
             lastDebugEvent = time(NULL);
 
             //throwException("Error selecting socket");
@@ -1037,8 +1016,7 @@ bool Socket::isReadable()
 	return (i == 1);
 }
 
-bool Socket::isWritable(bool waitOnDelayedResponse)
-{
+bool Socket::isWritable(bool waitOnDelayedResponse) {
     if(isSocketValid() == false) return false;
 
 #ifndef WIN32
@@ -1057,10 +1035,8 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
     do
     {
         int i = select(sock+1, NULL, &set, NULL, &tv);
-        if(i < 0 )
-        {
-            if(difftime(time(NULL),lastDebugEvent) >= 1)
-            {
+        if(i < 0 ) {
+            if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
@@ -1069,21 +1045,17 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
 
             //throwException("Error selecting socket");
         }
-        else if(i == 0)
-        {
-            if(difftime(time(NULL),lastDebugEvent) >= 1)
-            {
+        else if(i == 0) {
+            if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
             }
 
-            if(waitOnDelayedResponse == false)
-            {
+            if(waitOnDelayedResponse == false) {
                 result = true;
             }
         }
-        else
-        {
+        else {
             result = true;
         }
     } while(waitOnDelayedResponse == true && result == false);
@@ -1092,17 +1064,14 @@ bool Socket::isWritable(bool waitOnDelayedResponse)
 	return result;
 }
 
-bool Socket::isConnected()
-{
+bool Socket::isConnected() {
 	//if the socket is not writable then it is not conencted
-	if(isWritable(false) == false)
-	{
+	if(isWritable(false) == false) {
 		return false;
 	}
 
 	//if the socket is readable it is connected if we can read a byte from it
-	if(isReadable())
-	{
+	if(isReadable()) {
 		char tmp;
 		int err = peek(&tmp, sizeof(tmp));
 		return (err > 0);

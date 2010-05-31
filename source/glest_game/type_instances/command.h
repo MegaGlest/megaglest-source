@@ -34,7 +34,7 @@ class Command{
 private:
     const CommandType *commandType;
     Vec2i pos;
-	UnitReference unitRef;		//target unit, used to move and attack optinally
+	UnitReference unitRef;		//target unit, used to move and attack optionally
 	CardinalDir facing;			// facing, for build command
 	const UnitType *unitType;	//used for build
 

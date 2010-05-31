@@ -233,9 +233,9 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	CommandResult cr= crSuccess;
 
 	//validate unit
-	if(unit==NULL){
+	if(unit == NULL) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Command refers to non existant unit id = %d. Game out of synch.",
+	    sprintf(szBuf,"In [%s::%s - %d] Command refers to non existent unit id = %d. Game out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw runtime_error(szBuf);
 	}
@@ -244,7 +244,7 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	gameNetworkInterface->requestCommand(networkCommand);
 
 	//calculate the result of the command
-	if(networkCommand->getNetworkCommandType()==nctGiveCommand){
+	if(networkCommand->getNetworkCommandType() == nctGiveCommand) {
 		Command* command= buildCommand(networkCommand);
 		cr= unit->checkCommand(command);
 		delete command;

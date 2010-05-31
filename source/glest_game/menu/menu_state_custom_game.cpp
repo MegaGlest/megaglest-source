@@ -221,6 +221,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	updateControlers();
 	updateNetworkSlots();
 
+	// Esnure we have set the gamesettings at least once
+	GameSettings gameSettings;
+	loadGameSettings(&gameSettings);
+
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	serverInterface->setGameSettings(&gameSettings,true);
+
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1);
 

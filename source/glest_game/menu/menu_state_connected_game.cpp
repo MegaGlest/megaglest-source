@@ -509,7 +509,7 @@ void MenuStateConnectedGame::update()
 				hasFactions = loadFactions(gameSettings);
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d\n",__FILE__,__FUNCTION__,__LINE__,hasFactions);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d\n",__FILE__,__FUNCTION__,__LINE__,hasFactions);
 
 			// map
 			maps.push_back(formatString(gameSettings->getMap()));
@@ -519,7 +519,7 @@ void MenuStateConnectedGame::update()
 				currentMap = gameSettings->getMap();
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// FogOfWar
 			if(gameSettings->getFogOfWar()){
@@ -530,7 +530,7 @@ void MenuStateConnectedGame::update()
 				listBoxFogOfWar.setSelectedItemIndex(1);
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// Control
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -539,10 +539,10 @@ void MenuStateConnectedGame::update()
 				listBoxTeams[i].setEditable(false);
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(hasFactions == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				for(int i=0; i<gameSettings->getFactionCount(); ++i){
 					int slot=gameSettings->getStartLocationIndex(i);

@@ -243,17 +243,17 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 bool NetworkMessageCommandList::receive(Socket* socket){
     // _peek_ type, commandCount & frame num first.
 	if (!NetworkMessage::peek(socket, &data, commandListHeaderSize)) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
         __FILE__,__FUNCTION__,__LINE__,data.messageType,data.frameCount,data.commandCount);
 
 	// read header + data.commandCount commands.
 	int totalMsgSize = commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount;
 	if (socket->getDataToRead() < totalMsgSize) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
 			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
 		return false;
 	}
@@ -262,7 +262,7 @@ bool NetworkMessageCommandList::receive(Socket* socket){
         for(int idx = 0 ; idx < data.commandCount; ++idx) {
             const NetworkCommand &cmd = data.commands[idx];
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, received networkCommand [%s]\n",
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, received networkCommand [%s]\n",
                     __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
         }
 	}
@@ -274,14 +274,14 @@ void NetworkMessageCommandList::send(Socket* socket) const{
 	NetworkMessage::send(socket, &data, commandListHeaderSize + sizeof(NetworkCommand) * data.commandCount);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
                 __FILE__,__FUNCTION__,__LINE__,data.messageType,data.frameCount,data.commandCount);
 
-        if (data.commandCount) {
+        if (data.commandCount > 0) {
             for(int idx = 0 ; idx < data.commandCount; ++idx) {
                 const NetworkCommand &cmd = data.commands[idx];
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s %d] index = %d, sent networkCommand [%s]\n",
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, sent networkCommand [%s]\n",
                         __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
             }
         }
