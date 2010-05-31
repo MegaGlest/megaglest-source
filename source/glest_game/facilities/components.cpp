@@ -17,10 +17,11 @@
 #include "metrics.h"
 #include "core_data.h"
 #include "platform_util.h"
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -150,6 +151,9 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 
 	if(iter==items.end()) {
 		if(errorOnMissing == true) {
+			for(int idx = 0; idx < items.size(); idx++) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] idx = %d items[idx] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,idx,items[idx].c_str());
+			}
 			throw runtime_error("Value not found on list box: "+item);
 		}
 	}
