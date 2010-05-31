@@ -44,12 +44,14 @@ private:
 	bool defaultVictoryConditions;
 
 	bool fogOfWar;
+	bool enableObserverModeAtEndGame;
 
 public:
 
 
     GameSettings() {		
     	fogOfWar = true;
+    	enableObserverModeAtEndGame = false;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -75,6 +77,7 @@ public:
 	bool getDefaultVictoryConditions() const	{return defaultVictoryConditions;}
 
 	bool getFogOfWar() const					{return fogOfWar;}
+	bool getEnableObserverModeAtEndGame() const {return enableObserverModeAtEndGame;}
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -96,7 +99,8 @@ public:
 	void setDefaultResources(bool defaultResources) 				{this->defaultResources= defaultResources;}
 	void setDefaultVictoryConditions(bool defaultVictoryConditions) {this->defaultVictoryConditions= defaultVictoryConditions;}
 
-	void setFogOfWar(bool fogOfWar)		{this->fogOfWar = fogOfWar;}
+	void setFogOfWar(bool fogOfWar)									{this->fogOfWar = fogOfWar;}
+	void setEnableObserverModeAtEndGame(bool value) 				{this->enableObserverModeAtEndGame = value;}
 };
 
 }}//end namespace
