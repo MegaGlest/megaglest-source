@@ -508,7 +508,8 @@ unsigned int Unit::getCommandSize() const{
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",__FILE__,__FUNCTION__, __LINE__,this->id,this->type->getName().c_str(), command->toString().c_str(),tryQueue);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
+    		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
 
     assert(command != NULL);
 

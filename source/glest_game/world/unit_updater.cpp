@@ -296,7 +296,7 @@ void UnitUpdater::updateBuild(Unit *unit){
             if(map->isFreeCells(command->getPos(), ut->getSize(), fLand)){
 				const UnitType *builtUnitType= command->getUnitType();
 				CardinalDir facing = command->getFacing();
-				Unit *builtUnit= new Unit(world->getNextUnitId(), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
+				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
 				builtUnit->create();
 
 				if(!builtUnitType->hasSkillClass(scBeBuilt)){
@@ -587,7 +587,7 @@ void UnitUpdater::updateProduce(Unit *unit){
         if(unit->getProgress2()>pct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
-			produced= new Unit(world->getNextUnitId(), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
+			produced= new Unit(world->getNextUnitId(unit->getFaction()), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,produced->toString().c_str());
 
