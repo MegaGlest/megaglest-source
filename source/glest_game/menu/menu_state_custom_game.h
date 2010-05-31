@@ -100,6 +100,9 @@ private:
 	void publishToMasterserver();
 	void returnToParentMenu();
 	void showMessageBox(const string &text, const string &header, bool toggle);
+
+	void saveGameSettingsToFile(std::string fileName);
+	GameSettings loadGameSettingsFromFile(std::string fileName);
 };
 
 }}//end namespace

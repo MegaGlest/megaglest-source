@@ -88,8 +88,8 @@ public:
 	void setScenarioDir(const string& scenarioDir)						{this->scenarioDir= scenarioDir;}
 
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
-	void setNetworkPlayerName(int factionIndex,const string& playername)     {this->networkPlayerNames[factionIndex]= playername;}
-	void setFactionControl(int factionIndex, ControlType controller)			{this->factionControls[factionIndex]= controller;}
+	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
+	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)								{this->teams[factionIndex]= team;}

@@ -231,9 +231,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	updateControlers();
 	updateNetworkSlots();
 
-	// Esnure we have set the gamesettings at least once
-	GameSettings gameSettings;
-	loadGameSettings(&gameSettings);
+	// Ensure we have set the gamesettings at least once
+	GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
+	if(gameSettings.getMap() == "") {
+		loadGameSettings(&gameSettings);
+	}
 
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	serverInterface->setGameSettings(&gameSettings,true);
@@ -339,6 +341,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
+
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
             program->setState(new Game(program, &gameSettings));
 		}
@@ -462,6 +465,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
+
+	saveGameSettingsToFile("lastCustomGamSettings.mgg");
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -864,8 +870,7 @@ void MenuStateCustomGame::simpleTask() {
 	}
 }
 
-void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
-{
+void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
@@ -922,6 +927,147 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings)
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(getGameReadWritePath() != "") {
+    	fileName = getGameReadWritePath() + fileName;
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+	GameSettings gameSettings;
+	loadGameSettings(&gameSettings);
+
+    std::ofstream saveGameFile;
+    saveGameFile.open(fileName.c_str(), ios_base::out | ios_base::trunc);
+
+	//int factionCount= 0;
+	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+	saveGameFile << "Description=" << gameSettings.getDescription() << std::endl;
+
+	saveGameFile << "Map=" << gameSettings.getMap() << std::endl;
+	saveGameFile << "Tileset=" << gameSettings.getTileset() << std::endl;
+	saveGameFile << "TechTree=" << gameSettings.getTech() << std::endl;
+	saveGameFile << "DefaultUnits=" << gameSettings.getDefaultUnits() << std::endl;
+	saveGameFile << "DefaultResources=" << gameSettings.getDefaultResources() << std::endl;
+	saveGameFile << "DefaultVictoryConditions=" << gameSettings.getDefaultVictoryConditions() << std::endl;
+	saveGameFile << "FogOfWar=" << gameSettings.getFogOfWar() << std::endl;
+	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
+
+	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
+	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
+
+    for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+		saveGameFile << "FactionControlForIndex" << i << "=" << gameSettings.getFactionControl(i) << std::endl;
+		saveGameFile << "FactionTeamForIndex" << i << "=" << gameSettings.getTeam(i) << std::endl;
+		saveGameFile << "FactionStartLocationForIndex" << i << "=" << gameSettings.getStartLocationIndex(i) << std::endl;
+		saveGameFile << "FactionTypeNameForIndex" << i << "=" << gameSettings.getFactionTypeName(i) << std::endl;
+		saveGameFile << "FactionPlayerNameForIndex" << i << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
+    }
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    GameSettings gameSettings;
+
+    if(getGameReadWritePath() != "") {
+    	fileName = getGameReadWritePath() + fileName;
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+    if(fileExists(fileName) == false) {
+    	return gameSettings;
+    }
+
+    try {
+		Properties properties;
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+		properties.load(fileName);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+		gameSettings.setDescription(properties.getString("Description"));
+		gameSettings.setMap(properties.getString("Map"));
+		gameSettings.setTileset(properties.getString("Tileset"));
+		gameSettings.setTech(properties.getString("TechTree"));
+		gameSettings.setDefaultUnits(properties.getBool("DefaultUnits"));
+		gameSettings.setDefaultResources(properties.getBool("DefaultResources"));
+		gameSettings.setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
+		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
+		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
+
+		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
+		gameSettings.setFactionCount(properties.getInt("FactionCount"));
+
+		for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i)) );
+			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i)) );
+			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i)) );
+			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i)) );
+			gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i)) );
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Lang &lang= Lang::getInstance();
+
+		string mapFile = gameSettings.getMap();
+		mapFile = formatString(mapFile);
+		listBoxMap.setSelectedItem(mapFile);
+
+		string tilesetFile = gameSettings.getTileset();
+		tilesetFile = formatString(tilesetFile);
+
+		listBoxTileset.setSelectedItem(tilesetFile);
+
+		string techtreeFile = gameSettings.getTech();
+		techtreeFile = formatString(techtreeFile);
+
+		listBoxTechTree.setSelectedItem(techtreeFile);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//gameSettings->setDefaultUnits(true);
+		//gameSettings->setDefaultResources(true);
+		//gameSettings->setDefaultVictoryConditions(true);
+
+		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
+		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		reloadFactions();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
+
+		for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
+
+			string factionName = gameSettings.getFactionTypeName(i);
+			factionName = formatString(factionName);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,factionName.c_str());
+
+			listBoxFactions[i].setSelectedItem(factionName);
+		}
+		//!!!
+    }
+    catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+    	showMessageBox( ex.what(), "Error", false);
+
+    	gameSettings = GameSettings();
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1117,6 +1263,5 @@ void MenuStateCustomGame::showMessageBox(const string &text, const string &heade
 		mainMessageBox.setEnabled(false);
 	}
 }
-
 
 }}//end namespace
