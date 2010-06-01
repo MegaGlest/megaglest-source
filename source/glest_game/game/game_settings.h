@@ -64,9 +64,19 @@ public:
 	const string &getScenario() const							{return scenario;}
 	const string &getScenarioDir() const						{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
-	const string &getNetworkPlayerName(int factionIndex) const    {return networkPlayerNames[factionIndex];}
+	const string &getNetworkPlayerName(int factionIndex) const  {return networkPlayerNames[factionIndex];}
 	ControlType getFactionControl(int factionIndex) const		{return factionControls[factionIndex];}
 
+	bool isNetworkGame() const {
+		bool result = false;
+		for(int idx = 0; idx < GameConstants::maxPlayers; ++idx) {
+			if(factionControls[idx] == ctNetwork) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
 	int getThisFactionIndex() const						{return thisFactionIndex;}
 	int getFactionCount() const							{return factionCount;}
 	int getTeam(int factionIndex) const					{return teams[factionIndex];}
