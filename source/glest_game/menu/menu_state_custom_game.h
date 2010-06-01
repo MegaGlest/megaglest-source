@@ -25,6 +25,7 @@ class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface
 private:
 	GraphicButton buttonReturn;
 	GraphicButton buttonPlayNow;
+	GraphicButton buttonRestoreLastSettings;
 	GraphicLabel labelControl;
 	GraphicLabel labelFaction;
 	GraphicLabel labelTeam;

@@ -73,8 +73,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	vector<string> teamItems, controlItems, results;
 
 	//create
-	buttonReturn.init(350, 180, 125);
-	buttonPlayNow.init(525, 180, 125);
+	buttonReturn.init(300, 180, 125);
+	buttonRestoreLastSettings.init(440, 180, 125);
+	buttonPlayNow.init(580, 180, 125);
+
 
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
@@ -162,6 +164,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	//texts
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
+	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
 
     controlItems.push_back(lang.get("Closed"));
 	controlItems.push_back(lang.get("CpuEasy"));
@@ -238,13 +241,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// Ensure we have set the gamesettings at least once
-	GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
-	if(gameSettings.getMap() == "") {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		loadGameSettings(&gameSettings);
-	}
-
+	GameSettings gameSettings;
+	loadGameSettings(&gameSettings);
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	serverInterface->setGameSettings(&gameSettings,false);
 
@@ -305,7 +303,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				mainMessageBox.setEnabled(false);
 			}
 		}
-		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(buttonReturn.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -322,7 +319,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		*/
 
-		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 		returnToParentMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -373,6 +369,26 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             program->setState(new Game(program, &gameSettings));
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+		// Ensure we have set the gamesettings at least once
+		GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
+		if(gameSettings.getMap() == "") {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			loadGameSettings(&gameSettings);
+		}
+
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		serverInterface->setGameSettings(&gameSettings,false);
+
+		needToRepublishToMasterserver = true;
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
 	}
 	else if(listBoxMap.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
@@ -511,6 +527,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	}
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
+	buttonRestoreLastSettings.mouseMove(x, y);
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
         listBoxControls[i].mouseMove(x, y);
@@ -538,6 +555,7 @@ void MenuStateCustomGame::render(){
 			int i;
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
+			renderer.renderButton(&buttonRestoreLastSettings);
 	
 			for(i=0; i<GameConstants::maxPlayers; ++i){
 				renderer.renderLabel(&labelPlayers[i]);
