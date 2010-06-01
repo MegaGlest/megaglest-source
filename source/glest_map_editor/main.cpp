@@ -15,6 +15,7 @@
 #include "icons.h"
 #include "platform_common.h"
 #include <iostream>
+#include "math_wrapper.h"
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -966,6 +967,14 @@ void SimpleDialog::show() {
 // ===============================================
 
 bool App::OnInit() {
+#ifdef USE_STREFLOP
+
+	streflop_init<streflop::Simple>();
+	printf("STREFLOP enabled.\n");
+#else
+	printf("STREFLOP NOT enabled.\n");
+#endif
+
 	string fileparam;
 	if(argc==2){
 		fileparam = wxFNCONV(argv[1]);
