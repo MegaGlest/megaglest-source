@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -12,7 +12,7 @@
 #ifndef _SHARED_UTIL_RANDOM_H_
 #define _SHARED_UTIL_RANDOM_H_
 
-#include "math_wrapper.h"
+//#include "math_wrapper.h"
 
 namespace Shared { namespace Util {
 
@@ -28,9 +28,9 @@ private:
 
 private:
 	int lastNumber;
-#ifdef USE_STREFLOP	
-	streflop::RandomState randomState;
-#endif
+//#ifdef USE_STREFLOP
+//	streflop::RandomState randomState;
+//#endif
 
 public:
 	RandomGen();
