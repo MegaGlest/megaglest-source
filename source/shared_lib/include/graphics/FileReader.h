@@ -140,11 +140,17 @@ public:
 
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath) {
+	//try to assign file
+	ifstream file(filepath.c_str(), ios::in | ios::binary);
+	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+		throw runtime_error("Could not open file " + filepath);
+	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
 		T* ret = NULL;
+		file.seekg(0, ios::beg); //Set position to first
 		try {
 			FileReader<T> const * reader = *i;		
-			ret = reader->read(filepath); //It is guaranteed that at least the filepath matches ...
+			ret = reader->read(file, filepath); //It is guaranteed that at least the filepath matches ...
 		} catch (...) { //TODO: Specific exceptions
 			continue;
 		}
@@ -157,11 +163,17 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath, T* object) {
+	//try to assign file
+	ifstream file(filepath.c_str(), ios::in | ios::binary);
+	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+		throw runtime_error("Could not open file " + filepath);
+	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
 		T* ret = NULL;
+		file.seekg(0, ios::beg); //Set position to first
 		try {
 			FileReader<T> const * reader = *i;
-			ret = reader->read(filepath, object); //It is guaranteed that at least the filepath matches ...
+			ret = reader->read(file, filepath, object); //It is guaranteed that at least the filepath matches ...
 		} catch (...) { //TODO: Specific exceptions
 			continue;
 		}
