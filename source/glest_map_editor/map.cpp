@@ -12,8 +12,7 @@
 
 #include "map.h"
 
-//#include <cmath>
-#include "math_wrapper.h"
+#include <cmath>
 #include <stdexcept>
 
 using namespace Shared::Util;
@@ -77,11 +76,7 @@ static int get_dist(int delta_x, int delta_y) {
 	float dx = delta_x;
 	float dy = delta_y;
 
-#ifdef USE_STREFLOP
-	return static_cast<int>(streflop::sqrtf(dx * dx + dy * dy));
-#else
 	return static_cast<int>(sqrtf(dx * dx + dy * dy));
-#endif
 }
 
 void Map::glestChangeHeight(int x, int y, int height, int radius) {
