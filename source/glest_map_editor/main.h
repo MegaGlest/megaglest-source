@@ -19,7 +19,6 @@
 #include <wx/glcanvas.h>
 
 #include "program.h"
-
 #include "util.h"
 
 using std::string;
