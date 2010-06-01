@@ -29,7 +29,9 @@ BaseThread::BaseThread() : Thread() {
 }
 
 BaseThread::~BaseThread() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	shutdownAndWait();
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void BaseThread::signalQuit() {
@@ -87,17 +89,20 @@ void BaseThread::setRunningStatus(bool value) {
 }
 
 void BaseThread::shutdownAndWait(BaseThread *pThread) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(pThread != NULL && pThread->getRunningStatus() == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		pThread->signalQuit();
 		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 10; ) {
 			if(pThread->getRunningStatus() == false) {
 				break;
 			}
-			sleep(50);
+			sleep(10);
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
-		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void BaseThread::shutdownAndWait() {

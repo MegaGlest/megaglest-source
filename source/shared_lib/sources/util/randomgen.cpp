@@ -15,21 +15,21 @@ const int RandomGen::b= 150889;
 
 RandomGen::RandomGen(){
 
-#ifdef USE_STREFLOP
-	lastNumber = streflop::RandomInit(0); // streflop
-#else
+//#ifdef USE_STREFLOP
+//	lastNumber = streflop::RandomInit(0); // streflop
+//#else
 	lastNumber= 0;
-#endif
+//#endif
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 }
 
 void RandomGen::init(int seed){
 
-#ifdef USE_STREFLOP
-	lastNumber = streflop::RandomInit(seed); // streflop
-#else
+//#ifdef USE_STREFLOP
+//	lastNumber = streflop::RandomInit(seed); // streflop
+//#else
 	lastNumber= seed % m;
-#endif
+//#endif
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] seed = %d, lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,seed,lastNumber);
 }
@@ -47,12 +47,12 @@ int RandomGen::rand() {
 int RandomGen::randRange(int min, int max){
 	assert(min<=max);
 
-#ifdef USE_STREFLOP
-	int res = streflop::Random<true, false, float>(min, max); // streflop
-#else
+//#ifdef USE_STREFLOP
+//	int res = streflop::Random<true, false, float>(min, max); // streflop
+//#else
 	int diff= max-min;
 	int res= min + static_cast<int>((static_cast<float>(diff+1)*RandomGen::rand()) / m);
-#endif
+//#endif
 	assert(res>=min && res<=max);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %d, max = %d, res = %d\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
@@ -63,12 +63,12 @@ int RandomGen::randRange(int min, int max){
 float RandomGen::randRange(float min, float max){
 	assert(min<=max);
 
-#ifdef USE_STREFLOP
-	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
-#else
+//#ifdef USE_STREFLOP
+//	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
+//#else
 	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
 	float res= min+((max-min)*rand01);
-#endif
+//#endif
 
 	assert(res>=min && res<=max);
 

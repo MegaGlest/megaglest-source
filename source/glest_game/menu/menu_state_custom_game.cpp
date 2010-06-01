@@ -251,7 +251,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1);
 
-	publishToMasterserverThread = new SimpleTaskThread(this,0,150);
+	publishToMasterserverThread = new SimpleTaskThread(this,0,50);
 	publishToMasterserverThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -366,6 +366,18 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			delete publishToMasterserverThread;
+			publishToMasterserverThread = NULL;
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			assert(program != NULL);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
             program->setState(new Game(program, &gameSettings));
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);

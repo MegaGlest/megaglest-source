@@ -268,32 +268,38 @@ void Program::resize(SizeState sizeState){
 void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(cleanupOldState == true) {
-			delete this->programState;
+			if(this->programState != programState) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				delete this->programState;
+				this->programState = NULL;
+			}
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		this->programState= programState;
 		programState->load();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		programState->init();
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		updateTimer.reset();
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
 		//exceptionMessage(e);
 		//throw runtime_error(e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s LineL: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		this->showMessage(e.what());
 		setState(new Intro(this));
 	}
