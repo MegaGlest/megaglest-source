@@ -1,6 +1,7 @@
 #include "randomgen.h"
 #include <cassert>
 #include "util.h"
+#include "math_wrapper.h"
 #include "leak_dumper.h"
 
 namespace Shared { namespace Util {
@@ -14,15 +15,19 @@ const int RandomGen::a= 1366;
 const int RandomGen::b= 150889;
 
 RandomGen::RandomGen(){
-	lastNumber= 0;
 
+#ifdef USE_STREFLOP
+	lastNumber = streflop::RandomInit(0); // streflop
+#else
+	lastNumber= 0;
+#endif
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 }
 
 void RandomGen::init(int seed){
 
-#ifdef STREFLOP_H
-	lastNumber = math::RandomInit(seed); // streflop
+#ifdef USE_STREFLOP
+	lastNumber = streflop::RandomInit(seed); // streflop
 #else
 	lastNumber= seed % m;
 #endif
@@ -33,7 +38,7 @@ void RandomGen::init(int seed){
 int RandomGen::rand() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
-	lastNumber= (a*lastNumber + b) % m;
+	lastNumber= ((a*lastNumber) + b) % m;
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
@@ -43,11 +48,11 @@ int RandomGen::rand() {
 int RandomGen::randRange(int min, int max){
 	assert(min<=max);
 
-#ifdef STREFLOP_H
-	int res = math::Random<true, false, float>(min, max); // streflop
+#ifdef USE_STREFLOP
+	int res = streflop::Random<true, false, float>(min, max); // streflop
 #else
 	int diff= max-min;
-	int res= min + static_cast<int>(static_cast<float>(diff+1)*RandomGen::rand() / m);
+	int res= min + static_cast<int>((static_cast<float>(diff+1)*RandomGen::rand()) / m);
 #endif
 	assert(res>=min && res<=max);
 
@@ -59,11 +64,11 @@ int RandomGen::randRange(int min, int max){
 float RandomGen::randRange(float min, float max){
 	assert(min<=max);
 
-#ifdef STREFLOP_H
-	float res = math::Random<true, false, float>(min, max); // streflop
+#ifdef USE_STREFLOP
+	float res = streflop::Random<true, false, float>(min, max); // streflop
 #else
 	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
-	float res= min+(max-min)*rand01;
+	float res= min+((max-min)*rand01);
 #endif
 
 	assert(res>=min && res<=max);
