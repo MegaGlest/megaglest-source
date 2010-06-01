@@ -12,6 +12,8 @@
 #ifndef _SHARED_UTIL_RANDOM_H_
 #define _SHARED_UTIL_RANDOM_H_
 
+#include "math_wrapper.h"
+
 namespace Shared { namespace Util {
 
 // =====================================================
@@ -26,7 +28,10 @@ private:
 
 private:
 	int lastNumber;
-	
+#ifdef USE_STREFLOP	
+	streflop::RandomState randomState;
+#endif
+
 public:
 	RandomGen();
 	void init(int seed);

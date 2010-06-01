@@ -1,7 +1,6 @@
 #include "randomgen.h"
 #include <cassert>
 #include "util.h"
-#include "math_wrapper.h"
 #include "leak_dumper.h"
 
 namespace Shared { namespace Util {
@@ -65,7 +64,7 @@ float RandomGen::randRange(float min, float max){
 	assert(min<=max);
 
 #ifdef USE_STREFLOP
-	float res = streflop::Random<true, false, float>(min, max); // streflop
+	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
 #else
 	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
 	float res= min+((max-min)*rand01);
