@@ -22,7 +22,7 @@
 #include "chat_manager.h"
 #include "script_manager.h"
 #include "game_settings.h"
-#include "simple_threads.h"
+//#include "simple_threads.h"
 #include "network_interface.h"
 
 using std::vector;
@@ -38,7 +38,8 @@ class GraphicMessageBox;
 //	Main game class
 // =====================================================
 
-class Game: public ProgramState, public SimpleTaskCallbackInterface {
+//class Game: public ProgramState, public SimpleTaskCallbackInterface {
+class Game: public ProgramState {
 public:
 	enum Speed{
 		sFast,
@@ -60,7 +61,6 @@ private:
     Console console;
 	ChatManager chatManager;
 	ScriptManager scriptManager;
-	SimpleTaskThread *render3DThreadManager;
 
 	//misc
 	Checksum checksum;
@@ -122,8 +122,6 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
 
 	void quitGame();
-
-	virtual void simpleTask();
 
 private:
 	//render

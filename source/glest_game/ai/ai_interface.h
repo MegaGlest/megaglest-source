@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -17,6 +17,7 @@
 #include "command.h"
 #include "conversion.h"
 #include "ai.h"
+#include "game_settings.h"
 
 using Shared::Util::intToStr;
 
@@ -33,6 +34,8 @@ private:
     World *world;
     Commander *commander;
     Console *console;
+    GameSettings *gameSettings;
+
     Ai ai;
 
     int timer;
@@ -42,6 +45,8 @@ private:
 	//config
 	bool redir;
     int logLevel;
+
+    static bool enableServerControlledAI;
 
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex);
@@ -83,6 +88,8 @@ public:
 	bool reqsOk(const CommandType *ct); 
     bool checkCosts(const ProducibleType *pt);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
+
+	static bool getEnableServerControlledAI() { return enableServerControlledAI; }
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}

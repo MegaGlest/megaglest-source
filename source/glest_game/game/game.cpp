@@ -43,11 +43,15 @@ Game *thisGamePtr = NULL;
 Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program), lastMousePos(0)
 {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
 
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mouseX=0;
 	mouseY=0;
@@ -63,10 +67,13 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	renderNetworkStatus= false;
 	speed= sNormal;
 	showFullConsole= false;
-	render3DThreadManager = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 Game::~Game(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
 	
@@ -74,24 +81,25 @@ Game::~Game(){
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
 
-	BaseThread::shutdownAndWait(render3DThreadManager);
-	delete render3DThreadManager;
-	render3DThreadManager = NULL;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	renderer.endGame();
 	SoundRenderer::getInstance().stopAllSounds();
 
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	gui.end();		//selection must be cleared before deleting units
 	world.end();	//must die before selection because of referencers
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	thisGamePtr = NULL;
 	if(originalDisplayMsgCallback != NULL) {
 		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
 	}
 }
-
 
 // ==================== init and load ====================
 
@@ -346,7 +354,7 @@ void Game::init()
 	}
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
-	logger.add("Waiting for network", true);
+	logger.add("Waiting for network players", true);
 	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
     std::string worldLog = world.DumpWorldToLog(true);
@@ -358,16 +366,7 @@ void Game::init()
 
 	logger.add("Launching game");
 
-	BaseThread::shutdownAndWait(render3DThreadManager);
-	delete render3DThreadManager;
-	//render3DThreadManager = new SimpleTaskThread(this,0,5,true);
-	//render3DThreadManager->start();
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void Game::simpleTask() {
-	renderWorker();
 }
 
 // ==================== update ====================
@@ -394,15 +393,20 @@ void Game::update(){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		NetworkManager &networkManager= NetworkManager::getInstance();
 		//update
 		for(int i=0; i<updateLoops; ++i){
 			Renderer &renderer= Renderer::getInstance();
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			//AiInterface
-			for(int i=0; i<world.getFactionCount(); ++i){
-				if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
-					aiInterfaces[i]->update();
+			if( AiInterface::getEnableServerControlledAI() == false ||
+				this->gameSettings.isNetworkGame()         == false ||
+				(this->gameSettings.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer)) {
+				//AiInterface
+				for(int i=0; i<world.getFactionCount(); ++i){
+					if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
+						aiInterfaces[i]->update();
+					}
 				}
 			}
 
@@ -469,12 +473,7 @@ void Game::render() {
 	//SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps);
 
 	renderFps++;
-	if(render3DThreadManager == NULL) {
-		renderWorker();
-	}
-	else {
-		render3DThreadManager->setTaskSignalled(true);
-	}
+	renderWorker();
 	//SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps);
 }
 
