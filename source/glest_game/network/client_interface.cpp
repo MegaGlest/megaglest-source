@@ -655,7 +655,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	}
 
 	//delay the start a bit, so clients have more room to get messages
-	sleep(GameConstants::networkExtraLatency);
+	//sleep(GameConstants::networkExtraLatency);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
