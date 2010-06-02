@@ -24,6 +24,7 @@ if $(USE_STREFLOP)
 {
 #   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
 #   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
+   COMPILER_CFLAGS          += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
    COMPILER_CFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
    COMPILER_CXXFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 
