@@ -56,9 +56,9 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(event != NULL) {
-		triggerIdMutex.p();
+		MutexSafeWrapper safeMutex(&triggerIdMutex);
 		this->event = event;
-		triggerIdMutex.v();
+		safeMutex.ReleaseLock();
 	}
 	semTaskSignalled.signal();
 
@@ -69,9 +69,9 @@ void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(event != NULL) {
-		triggerIdMutex.p();
+		MutexSafeWrapper safeMutex(&triggerIdMutex);
 		event->eventCompleted = true;
-		triggerIdMutex.v();
+		safeMutex.ReleaseLock();
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -80,9 +80,9 @@ void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
 bool ConnectionSlotThread::isSignalCompleted() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	triggerIdMutex.p();
-	bool result = this->event->eventCompleted;
-	triggerIdMutex.v();
+	MutexSafeWrapper safeMutex(&triggerIdMutex);
+	bool result = (this->event != NULL ? this->event->eventCompleted : true);
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
