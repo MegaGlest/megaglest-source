@@ -135,9 +135,9 @@ void SimpleTaskThread::execute() {
 void SimpleTaskThread::setTaskSignalled(bool value) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	mutexTaskSignaller.p();
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller);
 	taskSignalled = value;
-	mutexTaskSignaller.v();
+	safeMutex.ReleaseLock();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -146,9 +146,9 @@ bool SimpleTaskThread::getTaskSignalled() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	mutexTaskSignaller.p();
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller);
 	retval = taskSignalled;
-	mutexTaskSignaller.v();
+	safeMutex.ReleaseLock();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

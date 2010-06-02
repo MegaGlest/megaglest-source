@@ -645,8 +645,6 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //serverSynchAccessor.p();
-
     for(int i= 0; i<GameConstants::maxPlayers; ++i)
     {
         ConnectionSlot *connectionSlot= slots[i];
@@ -661,8 +659,6 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
             }
         }
     }
-
-    //serverSynchAccessor.v();
 
     if(bOkToStart == true)
     {
@@ -688,7 +684,6 @@ void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
 
 
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
-	//serverSynchAccessor.p();
     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     try {
@@ -724,8 +719,6 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 }
 
 void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot){
-	//serverSynchAccessor.p();
-
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
@@ -741,7 +734,6 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* n
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	//serverSynchAccessor.v();
 }
 
 void ServerInterface::updateListen() {
@@ -751,27 +743,23 @@ void ServerInterface::updateListen() {
 
 	int openSlotCount= 0;
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
-		serverSynchAccessor.p();
 		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
-		serverSynchAccessor.v();
 
 		if(isSlotOpen == true) {
 			++openSlotCount;
 		}
 	}
 
-	serverSynchAccessor.p();
+	MutexSafeWrapper safeMutex(&serverSynchAccessor);
 	serverSocket.listen(openSlotCount);
-	serverSynchAccessor.v();
+	safeMutex.ReleaseLock();
 }
 
 int ServerInterface::getOpenSlotCount() {
 	int openSlotCount= 0;
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
-		serverSynchAccessor.p();
 		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
-		serverSynchAccessor.v();
 
 		if(isSlotOpen == true) {
 			++openSlotCount;

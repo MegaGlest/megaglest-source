@@ -51,7 +51,7 @@ private:
 //	class Mutex
 // =====================================================
 
-class Mutex{
+class Mutex {
 private:
 	SDL_mutex* mutex;
 
@@ -60,6 +60,28 @@ public:
 	~Mutex();
 	void p();
 	void v();
+};
+
+class MutexSafeWrapper {
+protected:
+	Mutex *mutex;
+public:
+
+	MutexSafeWrapper(Mutex *mutex) {
+		this->mutex = mutex;
+		if(this->mutex != NULL) {
+			this->mutex->p();
+		}
+	}
+	~MutexSafeWrapper() {
+		ReleaseLock();
+	}
+	void ReleaseLock() {
+		if(this->mutex != NULL) {
+			this->mutex->v();
+			this->mutex = NULL;
+		}
+	}
 };
 
 // =====================================================

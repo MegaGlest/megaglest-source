@@ -44,25 +44,23 @@ protected:
 		if(accessor == cacheItemSet) {
 			if(value == NULL) {
 				try {
-					mutexCache.p();
+					MutexSafeWrapper safeMutex(&mutexCache);
 					if(itemCache.find(cacheKey) != itemCache.end()) {
 						itemCache.erase(cacheKey);
 					}
-					mutexCache.v();
+					safeMutex.ReleaseLock();
 				}
 				catch(const std::exception &ex) {
-					mutexCache.v();
 					throw runtime_error(ex.what());
 				}
 
 			}
 			try {
-				mutexCache.p();
+				MutexSafeWrapper safeMutex(&mutexCache);
 				itemCache[cacheKey] = *value;
-				mutexCache.v();
+				safeMutex.ReleaseLock();
 			}
 			catch(const std::exception &ex) {
-				mutexCache.v();
 				throw runtime_error(ex.what());
 			}
 		}

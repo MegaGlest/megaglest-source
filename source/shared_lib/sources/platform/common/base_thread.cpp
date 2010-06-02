@@ -45,9 +45,9 @@ void BaseThread::signalQuit() {
 void BaseThread::setQuitStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	mutexQuit.p();
+	MutexSafeWrapper safeMutex(&mutexQuit);
 	quit = value;
-	mutexQuit.v();
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -56,9 +56,9 @@ bool BaseThread::getQuitStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	mutexQuit.p();
+	MutexSafeWrapper safeMutex(&mutexQuit);
 	retval = quit;
-	mutexQuit.v();
+	safeMutex.ReleaseLock();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -69,9 +69,9 @@ bool BaseThread::getRunningStatus() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	mutexRunning.p();
+	MutexSafeWrapper safeMutex(&mutexRunning);
 	retval = running;
-	mutexRunning.v();
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,retval);
 
@@ -81,9 +81,9 @@ bool BaseThread::getRunningStatus() {
 void BaseThread::setRunningStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 
-	mutexRunning.p();
+	MutexSafeWrapper safeMutex(&mutexRunning);
 	running = value;
-	mutexRunning.v();
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] running = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 }
