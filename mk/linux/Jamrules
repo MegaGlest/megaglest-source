@@ -24,13 +24,15 @@ if $(USE_STREFLOP)
 {
 #   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
 #   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
+   CPPFLAGS                 += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
    COMPILER_CFLAGS          += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
    COMPILER_CFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
    COMPILER_CXXFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 
 }
 
-COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare ;
+CPPFLAGS                   += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
+COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 COMPILER_CXXFLAGS_optimize += -O3 -DNDEBUG -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 COMPILER_LIBS_optimize     += ;
