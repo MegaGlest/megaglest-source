@@ -81,7 +81,7 @@ std::string Command::toString() const {
 	if(unitRef.getUnitId() >= 0) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
-		result += ", unitRef.getUnit() id = " + unitRef.getUnitId();
+		result += ", unitRef.getUnit() id = " + intToStr(unitRef.getUnitId());
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
