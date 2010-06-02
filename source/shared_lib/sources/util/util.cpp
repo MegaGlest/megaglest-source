@@ -265,12 +265,12 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
             printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
 
-            currentDebugLog.mutex->p();
+            MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
             (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
             (*currentDebugLog.fileStream).flush();
 
-			currentDebugLog.mutex->v();
+            safeMutex.ReleaseLock();
         }
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
@@ -279,12 +279,12 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
         assert(currentDebugLog.fileStream != NULL);
 
-		currentDebugLog.mutex->p();
+        MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
         (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
         (*currentDebugLog.fileStream).flush();
 
-		currentDebugLog.mutex->v();
+        safeMutex.ReleaseLock();
     }
     // output to console
     else {

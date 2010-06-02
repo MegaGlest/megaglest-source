@@ -90,6 +90,9 @@ public:
 
 	void operator=(const Unit *unit);
 	Unit *getUnit() const;
+
+	int getUnitId() const			{ return id; }
+	Faction *getUnitFaction() const	{ return faction; }
 };
 
 // =====================================================

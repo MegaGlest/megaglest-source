@@ -70,16 +70,28 @@ void Command::setUnit(Unit *unit){
 }
 
 std::string Command::toString() const {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
 	std::string result = "";
 	result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString() + ", pos = " + pos.getString() + ", facing = " + intToStr(facing.asInt());
 
-	if(unitRef.getUnit() != NULL) {
-		result += ", unitRef.getUnit() = " + unitRef.getUnit()->toString();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
+	//if(unitRef.getUnit() != NULL) {
+	if(unitRef.getUnitId() >= 0) {
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
+		result += ", unitRef.getUnit() id = " + unitRef.getUnitId();
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	if(unitType != NULL) {
 		result += ", unitTypeId = " + intToStr(unitType->getId()) + ", unitTypeDesc = " + unitType->getReqDesc();
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
 	return result;
 }
 

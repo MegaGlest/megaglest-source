@@ -403,28 +403,56 @@ void Faction::setResourceBalance(const ResourceType *rt, int balance){
 }
 
 Unit *Faction::findUnit(int id){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,id);
+
 	UnitMap::iterator it= unitMap.find(id);
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
 	if(it==unitMap.end()){
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return NULL;
 	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %p\n",__FILE__,__FUNCTION__, __LINE__,it->second);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->id = %d\n",__FILE__,__FUNCTION__, __LINE__,it->second->getId());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %s\n",__FILE__,__FUNCTION__, __LINE__,it->second->toString().c_str());
 	return it->second;
 }
 
 void Faction::addUnit(Unit *unit){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %p\n",__FILE__,__FUNCTION__, __LINE__,unit);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->str = %s\n",__FILE__,__FUNCTION__, __LINE__,unit->toString().c_str());
+
 	units.push_back(unit);
-	unitMap.insert(make_pair(unit->getId(), unit));
+	//unitMap.insert(make_pair(unit->getId(), unit));
+	unitMap[unit->getId()] = unit;
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
 }
 
 void Faction::removeUnit(Unit *unit){
-	for(int i=0; i<units.size(); ++i){
-		if(units[i]==unit){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
+
+	assert(units.size()==unitMap.size());
+
+	int unitId = unit->getId();
+	for(int i=0; i<units.size(); ++i) {
+		if(units[i]->getId() == unitId) {
 			units.erase(units.begin()+i);
-			unitMap.erase(unit->getId());
-			assert(units.size()==unitMap.size());
+			unitMap.erase(unitId);
+			assert(units.size() == unitMap.size());
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unitId);
+
 			return;
 		}
 	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unitId);
+
+	throw runtime_error("Could not remove unit from faction!");
 	assert(false);
 }
 

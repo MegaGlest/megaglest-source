@@ -53,7 +53,9 @@ bool Window::isActive = false;
 // ========== PUBLIC ==========
 
 Window::Window()  {
-	memset(lastMouseDown, 0, sizeof(lastMouseDown));
+	for(int idx = 0; idx < mbCount; idx++) {
+		lastMouseDown[idx] = 0;
+	}
 
 	assert(global_window == 0);
 	global_window = this;
@@ -70,12 +72,17 @@ Window::~Window() {
 }
 
 bool Window::handleEvent() {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	SDL_Event event;
 	SDL_GetMouseState(&oldX,&oldY);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	while(SDL_PollEvent(&event)) {
 		try {
 			//printf("START [%d]\n",event.type);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			switch(event.type) {
 				case SDL_MOUSEBUTTONDOWN:
@@ -87,6 +94,8 @@ bool Window::handleEvent() {
            			setMousePos(Vec2i(event.button.x, event.button.y));
 					break;
 			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			switch(event.type) {
 				case SDL_QUIT:
@@ -224,9 +233,11 @@ bool Window::handleEvent() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
     //printf("END [%d]\n",event.type);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return true;
 }
@@ -441,15 +452,18 @@ void Window::handleMouseDown(SDL_Event event) {
 		return;
 	}
 
-
 	Uint32 ticks = SDL_GetTicks();
 	int n = (int) button;
+
+	assert(n >= 0 && n < mbCount);
+
 	if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
 			&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
 			&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
 		eventMouseDown(event.button.x, event.button.y, button);
 		eventMouseDoubleClick(event.button.x, event.button.y, button);
-	} else {
+	}
+	else {
 		eventMouseDown(event.button.x, event.button.y, button);
 	}
 	lastMouseDown[n] = ticks;
