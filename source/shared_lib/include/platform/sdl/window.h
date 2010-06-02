@@ -104,9 +104,9 @@ enum WindowStyle{
 
 class Window {
 private:
-	Uint32 lastMouseDown[3];
-	int lastMouseX[3];
-	int lastMouseY[3];
+	Uint32 lastMouseDown[mbCount];
+	int lastMouseX[mbCount];
+	int lastMouseY[mbCount];
 
     static unsigned int lastMouseEvent;	/** for use in mouse hover calculations */
     static MouseState mouseState;

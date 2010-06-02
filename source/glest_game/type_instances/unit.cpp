@@ -105,9 +105,14 @@ void UnitReference::operator=(const Unit *unit){
 }
 
 Unit *UnitReference::getUnit() const{
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
 	if(faction!=NULL){
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
 		return faction->findUnit(id);
 	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 	return NULL;
 }
 
@@ -138,6 +143,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->type=type;
     this->faction=faction;
 	this->map= map;
+	this->targetRef = NULL;
 	level= NULL;
 	loadType= NULL;
 
@@ -193,28 +199,33 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 }
 
 Unit::~Unit(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,id);
+
 	//Just to be sure, should already be removed
 	if (livingUnits.erase(id)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//Only an error if not called at end
 	}
 
 	//Just to be sure, should already be removed
 	if (livingUnitsp.erase(this)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//remove commands
 	while(!commands.empty()){
 		delete commands.back();
 		commands.pop_back();
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	// fade(and by this remove) all unit particle systems
 	while(!unitParticleSystems.empty()){
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
 	stopDamageParticles();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Unit::setModelFacing(CardinalDir value) { 
@@ -507,13 +518,14 @@ unsigned int Unit::getCommandSize() const{
 
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
-    		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
     assert(command != NULL);
 
     assert(command->getCommandType() != NULL);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
+    		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1302,8 +1314,11 @@ std::string Unit::toString() const {
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(this->targetRef.getUnit() != NULL) {
-		result += " targetRef = " + this->targetRef.getUnit()->toString();
+	// WARNING!!! Don't access the Unit pointer in this->targetRef in this method or it causes
+	// a stack overflow
+	if(this->targetRef.getUnitId() >= 0) {
+		//result += " targetRef = " + this->targetRef.getUnit()->toString();
+		result += " targetRef = " + intToStr(this->targetRef.getUnitId()) + " - factionIndex = " + intToStr(this->targetRef.getUnitFaction()->getIndex());
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
