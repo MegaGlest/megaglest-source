@@ -19,6 +19,7 @@
 #include "object.h"
 #include "game.h"
 #include "config.h"
+#include "network_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -43,6 +44,8 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex){
 	this->factionIndex= factionIndex;
 	this->teamIndex= teamIndex;
 	timer= 0;
+
+	AiInterface::enableServerControlledAI = Config::getInstance().getBool("ServerControlledAI","false");
 
 	//init ai
 	ai.init(this);
@@ -96,7 +99,9 @@ void AiInterface::printLog(int logLevel, const string &s){
 CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true && this->gameSettings->isNetworkGame() == true) {
+	if(enableServerControlledAI == true &&
+		this->gameSettings->isNetworkGame() == true &&
+		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), world->getFaction(factionIndex)->getUnit(unitIndex)->getType()->getFirstCtOfClass(commandClass), pos, world->getFaction(factionIndex)->getUnit(unitIndex)->getType(),CardinalDir::NORTH);
@@ -119,7 +124,9 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true && this->gameSettings->isNetworkGame() == true) {
+	if(enableServerControlledAI == true &&
+		this->gameSettings->isNetworkGame() == true &&
+		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), commandType, pos, world->getFaction(factionIndex)->getUnit(unitIndex)->getType(),CardinalDir::NORTH);
@@ -142,7 +149,9 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true && this->gameSettings->isNetworkGame() == true) {
+	if(enableServerControlledAI == true &&
+		this->gameSettings->isNetworkGame() == true &&
+		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), commandType, pos, ut,CardinalDir::NORTH);
@@ -166,7 +175,9 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	assert(this->gameSettings != NULL);
 	assert(this->commander != NULL);
 
-	if(enableServerControlledAI == true && this->gameSettings->isNetworkGame() == true) {
+	if(enableServerControlledAI == true &&
+		this->gameSettings->isNetworkGame() == true &&
+		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		assert(u != NULL);
