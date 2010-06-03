@@ -46,8 +46,6 @@ private:
 	bool redir;
     int logLevel;
 
-    static bool enableServerControlledAI;
-
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex);
 
@@ -88,8 +86,6 @@ public:
 	bool reqsOk(const CommandType *ct); 
     bool checkCosts(const ProducibleType *pt);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
-
-	static bool getEnableServerControlledAI() { return enableServerControlledAI; }
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}

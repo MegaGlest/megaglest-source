@@ -35,11 +35,15 @@ private:
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelEnableObserverMode;
+	GraphicLabel labelEnableServerControlledAI;
+
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
 	GraphicListBox listBoxEnableObserverMode;
+	GraphicListBox listBoxEnableServerControlledAI;
+
 	vector<string> mapFiles;
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;

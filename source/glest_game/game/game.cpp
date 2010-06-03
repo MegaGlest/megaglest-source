@@ -399,8 +399,8 @@ void Game::update(){
 			Renderer &renderer= Renderer::getInstance();
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			if( AiInterface::getEnableServerControlledAI() == false ||
-				this->gameSettings.isNetworkGame()         == false ||
+			if( this->gameSettings.getEnableServerControlledAI() == false ||
+				this->gameSettings.isNetworkGame()         		 == false ||
 				(this->gameSettings.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer)) {
 				//AiInterface
 				for(int i=0; i<world.getFactionCount(); ++i){

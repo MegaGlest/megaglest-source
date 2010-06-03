@@ -31,8 +31,6 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
-bool AiInterface::enableServerControlledAI = false;
-
 AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -44,8 +42,6 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex){
 	this->factionIndex= factionIndex;
 	this->teamIndex= teamIndex;
 	timer= 0;
-
-	AiInterface::enableServerControlledAI = Config::getInstance().getBool("ServerControlledAI","false");
 
 	//init ai
 	ai.init(this);
@@ -99,7 +95,7 @@ void AiInterface::printLog(int logLevel, const string &s){
 CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true &&
+	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -124,7 +120,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true &&
+	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -149,7 +145,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut){
 	assert(this->gameSettings != NULL);
 
-	if(enableServerControlledAI == true &&
+	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -174,15 +170,10 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, Unit *u){
 	assert(this->gameSettings != NULL);
 	assert(this->commander != NULL);
-	//assert(u != NULL);
-	//assert(u->getType() != NULL);
 
-	if(enableServerControlledAI == true &&
+	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//assert(u != NULL);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

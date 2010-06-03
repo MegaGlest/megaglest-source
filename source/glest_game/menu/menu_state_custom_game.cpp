@@ -110,12 +110,18 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
 	// Enable Observer Mode
-	// @350 ? 300 ?
 	labelEnableObserverMode.init(390, 290, 80);
 	listBoxEnableObserverMode.init(390, 260, 80);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
+
+	// Enable Server Controlled AI
+	labelEnableServerControlledAI.init(390, 235, 80);
+	listBoxEnableServerControlledAI.init(390, 215, 80);
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
+	listBoxEnableServerControlledAI.setSelectedItemIndex(1);
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
@@ -215,6 +221,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelTeam.setText(lang.get("Team"));
 
     labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+    labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
 
 	loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 
@@ -438,6 +445,16 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         }
         saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
+	else if (listBoxEnableServerControlledAI.mouseClick(x, y)) {
+		needToRepublishToMasterserver = true;
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+        saveGameSettingsToFile("lastCustomGamSettings.mgg");
+	}
 	else if(listBoxTileset.mouseClick(x, y)){
 		needToRepublishToMasterserver = true;
 
@@ -552,6 +569,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPublishServer.mouseMove(x, y);
 	listBoxEnableObserverMode.mouseMove(x, y);
+	listBoxEnableServerControlledAI.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -587,12 +605,14 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelEnableObserverMode);
+			renderer.renderLabel(&labelEnableServerControlledAI);
 	
 			renderer.renderListBox(&listBoxMap);
 			renderer.renderListBox(&listBoxFogOfWar);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxEnableObserverMode);
+			renderer.renderListBox(&listBoxEnableServerControlledAI);
 	
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console);
@@ -1014,6 +1034,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 		}
     }
 	gameSettings->setFactionCount(factionCount);
+	gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
@@ -1050,6 +1071,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "DefaultVictoryConditions=" << gameSettings.getDefaultVictoryConditions() << std::endl;
 	saveGameFile << "FogOfWar=" << gameSettings.getFogOfWar() << std::endl;
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
+	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
 
 	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
 	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
@@ -1095,6 +1117,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		gameSettings.setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
 		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
+		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","false"));
 
 		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
 		gameSettings.setFactionCount(properties.getInt("FactionCount"));
@@ -1135,6 +1158,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		Lang &lang= Lang::getInstance();
 		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
