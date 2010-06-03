@@ -229,9 +229,17 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 #ifndef WIN32
 				//SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+				#ifdef S_IREAD
 				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+				#else
+				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT);
+				#endif
 #else
+				#ifdef S_IREAD
 				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+				#else
+				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT);
+				#endif
 #endif
 				if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
             		string newlockfile = lockfile;
@@ -240,9 +248,18 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 						newlockfile = lockfile + intToStr(idx);
 						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
 #ifndef WIN32
+						#ifdef S_IREAD
 	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+						#else
+	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT);
+						#endif
 #else
+						#ifdef S_IREAD
 		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+						#else
+		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT);
+						#endif
+
 #endif
 						if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
                     		break;
