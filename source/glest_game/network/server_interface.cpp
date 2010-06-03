@@ -149,7 +149,7 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(event->networkMessage != NULL) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage, event->networkMessage = %p\n",__FILE__,__FUNCTION__,event->networkMessage);
 			event->connectionSlot->sendMessage(event->networkMessage);
 		}
 		else {
@@ -705,7 +705,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 			for(int i= 0; i<GameConstants::maxPlayers; ++i) {
 				ConnectionSlot* connectionSlot = slots[i];
 
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessage = %p\n",__FILE__,__FUNCTION__,__LINE__,networkMessage);
 
 				ConnectionSlotEvent &event = eventList[i];
 				event.networkMessage = networkMessage;

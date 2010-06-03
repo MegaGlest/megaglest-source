@@ -35,10 +35,12 @@ namespace Glest{ namespace Game{
 
 ConnectionSlotThread::ConnectionSlotThread() : BaseThread() {
 	this->slotInterface = NULL;
+	this->event = NULL;
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface) : BaseThread() {
 	this->slotInterface = slotInterface;
+	this->event = NULL;
 }
 
 void ConnectionSlotThread::setQuitStatus(bool value) {
@@ -53,7 +55,7 @@ void ConnectionSlotThread::setQuitStatus(bool value) {
 }
 
 void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
 
 	if(event != NULL) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex);
