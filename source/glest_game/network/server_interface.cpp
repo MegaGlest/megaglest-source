@@ -34,6 +34,9 @@ namespace Glest{ namespace Game{
 //	class ServerInterface
 // =====================================================
 
+// Experimental threading of broadcasts to clients
+bool enabledThreadedClientCommandBroadcast = true;
+
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
@@ -144,7 +147,15 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 
 	if(event != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		updateSlot(event);
+
+		if(event->networkMessage != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+			event->connectionSlot->sendMessage(event->networkMessage);
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			updateSlot(event);
+		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -223,6 +234,7 @@ void ServerInterface::update() {
 
                 bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
                 ConnectionSlotEvent &event = eventList[i];
+                event.networkMessage = NULL;
                 event.connectionSlot = connectionSlot;
                 event.socketTriggered = socketTriggered;
                 event.triggerId = i;
@@ -682,32 +694,100 @@ void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-
 void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     try {
-		for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-			ConnectionSlot* connectionSlot= slots[i];
 
-			if(i != excludeSlot && connectionSlot != NULL) {
-				if(connectionSlot->isConnected()) {
+    	if(enabledThreadedClientCommandBroadcast == true) {
+			// Step #1 signal worker threads to send this broadcast to each client
+			std::map<int,ConnectionSlotEvent> eventList;
+			for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+				ConnectionSlot* connectionSlot = slots[i];
 
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
-					connectionSlot->sendMessage(networkMessage);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				ConnectionSlotEvent &event = eventList[i];
+				event.networkMessage = networkMessage;
+				event.connectionSlot = connectionSlot;
+				event.socketTriggered = true;
+				event.triggerId = i;
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				// Step #1 tell all connection slot worker threads to receive socket data
+				if(i != excludeSlot && connectionSlot != NULL) {
+					if(connectionSlot->isConnected()) {
+						connectionSlot->signalUpdate(&event);
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					}
+					else if(gameHasBeenInitiated == true) {
+
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+						removeSlot(i);
+					}
 				}
-				else if(gameHasBeenInitiated == true) {
-
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+				else if(i == excludeSlot && gameHasBeenInitiated == true &&
+						connectionSlot != NULL && connectionSlot->isConnected() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
 					removeSlot(i);
 				}
 			}
-			else if(i == excludeSlot && gameHasBeenInitiated == true &&
-					connectionSlot != NULL && connectionSlot->isConnected() == false) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
-				removeSlot(i);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			// Step #2 check all connection slot worker threads for completed status
+			std::map<int,bool> slotsCompleted;
+			for(bool threadsDone = false; threadsDone == false;) {
+				threadsDone = true;
+				// Examine all threads for completion of delegation
+				for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+					ConnectionSlot* connectionSlot = slots[i];
+					if(connectionSlot != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
+						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+						if(errorList.size() > 0) {
+							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+								string &sErr = errorList[iErrIdx];
+								DisplayErrorMessage(sErr);
+							}
+							connectionSlot->clearThreadErrorList();
+						}
+
+						if(connectionSlot->updateCompleted() == false) {
+							threadsDone = false;
+							break;
+						}
+						else {
+							slotsCompleted[i] = true;
+						}
+					}
+				}
+				sleep(0);
 			}
-		}
+    	}
+    	else {
+			for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+				ConnectionSlot* connectionSlot= slots[i];
+
+				if(i != excludeSlot && connectionSlot != NULL) {
+					if(connectionSlot->isConnected()) {
+
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+						connectionSlot->sendMessage(networkMessage);
+					}
+					else if(gameHasBeenInitiated == true) {
+
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+						removeSlot(i);
+					}
+				}
+				else if(i == excludeSlot && gameHasBeenInitiated == true &&
+						connectionSlot != NULL && connectionSlot->isConnected() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
+					removeSlot(i);
+				}
+			}
+    	}
     }
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());

@@ -13,6 +13,9 @@
 #define _GLEST_GAME_GAMESETTINGS_H_
 
 #include "game_constants.h"
+#include "conversion.h"
+
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -115,6 +118,38 @@ public:
 	void setFogOfWar(bool fogOfWar)									{this->fogOfWar = fogOfWar;}
 	void setEnableObserverModeAtEndGame(bool value) 				{this->enableObserverModeAtEndGame = value;}
 	void setEnableServerControlledAI(bool value)					{this->enableServerControlledAI = value;}
+
+	string toString() const {
+		string result = "";
+
+		result += "description = " + description + "\n";
+		result += "map = " + map + "\n";
+		result += "tileset = " + tileset + "\n";
+		result += "tech = " + tech + "\n";
+		result += "scenario = " + scenario + "\n";
+		result += "scenarioDir = " + scenarioDir + "\n";
+
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			result += "player index = " + intToStr(idx) + "\n";
+			result += "factionTypeName = " + factionTypeNames[idx] + "\n";
+			result += "networkPlayerName = " + networkPlayerNames[idx] + "\n";
+
+			result += "factionControl = " + intToStr(factionControls[idx]) + "\n";
+			result += "team = " + intToStr(teams[idx]) + "\n";
+			result += "startLocationIndex = " + intToStr(startLocationIndex[idx]) + "\n";
+		}
+
+		result += "thisFactionIndex = " + intToStr(thisFactionIndex) + "\n";
+		result += "factionCount = " + intToStr(factionCount) + "\n";
+		result += "defaultUnits = " + intToStr(defaultUnits) + "\n";
+		result += "defaultResources = " + intToStr(defaultResources) + "\n";
+		result += "defaultVictoryConditions = " + intToStr(defaultVictoryConditions) + "\n";
+		result += "fogOfWar = " + intToStr(fogOfWar) + "\n";
+		result += "enableObserverModeAtEndGame = " + intToStr(enableObserverModeAtEndGame) + "\n";
+		result += "enableServerControlledAI = " + intToStr(enableServerControlledAI) + "\n";
+
+		return result;
+	}
 };
 
 }}//end namespace
