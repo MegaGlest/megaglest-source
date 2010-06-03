@@ -315,7 +315,7 @@ void Faction::applyCostsOnInterval(){
 	}
 	
 	//decrement consumables
-	if((getCpuControl() == true) ||
+	if((getCpuControl() == false) ||
 		(getCpuControl() == true && scriptManager->getPlayerModifiers(this->thisFaction)->getAiEnabled() == false))
 	{
 		for(int j=0; j<getUnitCount(); ++j){
