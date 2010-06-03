@@ -45,6 +45,7 @@ private:
 
 	bool fogOfWar;
 	bool enableObserverModeAtEndGame;
+	bool enableServerControlledAI;
 
 public:
 
@@ -52,6 +53,7 @@ public:
     GameSettings() {		
     	fogOfWar = true;
     	enableObserverModeAtEndGame = false;
+    	enableServerControlledAI    = false;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -88,6 +90,7 @@ public:
 
 	bool getFogOfWar() const					{return fogOfWar;}
 	bool getEnableObserverModeAtEndGame() const {return enableObserverModeAtEndGame;}
+	bool getEnableServerControlledAI() 	  const {return enableServerControlledAI;}
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -111,6 +114,7 @@ public:
 
 	void setFogOfWar(bool fogOfWar)									{this->fogOfWar = fogOfWar;}
 	void setEnableObserverModeAtEndGame(bool value) 				{this->enableObserverModeAtEndGame = value;}
+	void setEnableServerControlledAI(bool value)					{this->enableServerControlledAI = value;}
 };
 
 }}//end namespace
