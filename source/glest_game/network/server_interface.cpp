@@ -148,11 +148,11 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 	if(event != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(event->networkMessage != NULL) {
+		if(event->eventType == eSendSocketData) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage, event->networkMessage = %p\n",__FILE__,__FUNCTION__,event->networkMessage);
 			event->connectionSlot->sendMessage(event->networkMessage);
 		}
-		else {
+		else if(event->eventType == eReceiveSocketData) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			updateSlot(event);
 		}
@@ -234,6 +234,7 @@ void ServerInterface::update() {
 
                 bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
                 ConnectionSlotEvent &event = eventList[i];
+                event.eventType = eReceiveSocketData;
                 event.networkMessage = NULL;
                 event.connectionSlot = connectionSlot;
                 event.socketTriggered = socketTriggered;
@@ -708,6 +709,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessage = %p\n",__FILE__,__FUNCTION__,__LINE__,networkMessage);
 
 				ConnectionSlotEvent &event = eventList[i];
+				event.eventType = eSendSocketData;
 				event.networkMessage = networkMessage;
 				event.connectionSlot = connectionSlot;
 				event.socketTriggered = true;
