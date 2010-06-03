@@ -55,6 +55,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
+
+	//initialize network interface
+	networkManager.init(nrServer);
+
     parentMenuIsMs=parentMenuIsMasterserver;
 
 	needToSetChangedGameSettings = false;
@@ -228,9 +232,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMapInfo.setText(mapInfo.desc);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//initialize network interface
-	networkManager.init(nrServer);
 
 	//init controllers
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
