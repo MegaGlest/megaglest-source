@@ -31,10 +31,18 @@ class ConnectionSlot;
 //	class ConnectionSlotThread
 // =====================================================
 
+enum ConnectionSlotEventType
+{
+	eNone,
+    eReceiveSocketData,
+    eSendSocketData
+};
+
 class ConnectionSlotEvent {
 public:
 
 	ConnectionSlotEvent() {
+		eventType = eNone;
 		triggerId = -1;
 		connectionSlot = NULL;
 		networkMessage = NULL;
@@ -44,7 +52,8 @@ public:
 
 	int64 triggerId;
 	ConnectionSlot* connectionSlot;
-	const NetworkMessage* networkMessage;
+	ConnectionSlotEventType eventType;
+	const NetworkMessage *networkMessage;
 	bool socketTriggered;
 	bool eventCompleted;
 };
