@@ -99,16 +99,18 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize)
 
 void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const
 {
-	if(socket != NULL && socket->send(data, dataSize)!=dataSize)
-	{
-	    if(socket != NULL && socket->getSocketId() > 0)
-	    {
-            throw runtime_error("Error sending NetworkMessage");
-	    }
-	    else
-	    {
-	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
-	    }
+	if(socket != NULL) {
+		int sendResult = socket->send(data, dataSize);
+		if(sendResult != dataSize) {
+			if(socket != NULL && socket->getSocketId() > 0) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,dataSize);
+				throw runtime_error(szBuf);
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+		}
 	}
 }
 

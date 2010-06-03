@@ -87,7 +87,7 @@ private:
 
     bool hasNetworkGameSettings();
 	void reloadFactions();
-	bool loadFactions(const GameSettings *gameSettings);
+	bool loadFactions(const GameSettings *gameSettings,bool errorOnNoFactions);
 	void returnToJoinMenu();
 };
 

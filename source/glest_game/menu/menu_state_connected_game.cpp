@@ -506,7 +506,7 @@ void MenuStateConnectedGame::update()
 			if(currentFactionName != gameSettings->getTech())
 			{
 				currentFactionName = gameSettings->getTech();
-				hasFactions = loadFactions(gameSettings);
+				hasFactions = loadFactions(gameSettings,false);
 			}
 			
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d\n",__FILE__,__FUNCTION__,__LINE__,hasFactions);
@@ -606,8 +606,7 @@ void MenuStateConnectedGame::update()
 
 }
 
-
-bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
+bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	vector<string> results;
@@ -618,7 +617,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
 
-        findAll(techPath + "/" + gameSettings->getTech() + "/factions/*.", results, false, false);
+        findAll(techPath + "/" + gameSettings->getTech() + "xx/factions/*.", results, false, false);
         if(results.size() > 0) {
             break;
         }
@@ -630,8 +629,20 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings){
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		ClientInterface* clientInterface= networkManager.getClientInterface();
 		if(clientInterface->getAllowGameDataSynchCheck() == false) {
-			throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+			if(errorOnNoFactions == true) {
+				throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+			}
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (2)There are no factions for the tech tree [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings->getTech().c_str());
 		}
+		results.push_back("***missing***");
+		factionFiles = results;
+		for(int i=0; i<GameConstants::maxPlayers; ++i){
+			listBoxFactions[i].setItems(results);
+		}
+
+		char szMsg[1024]="";
+		sprintf(szMsg,"Player: %s is missing the techtree: %s",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),gameSettings->getTech().c_str());
+		clientInterface->sendTextMessage(szMsg,-1);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
