@@ -511,6 +511,7 @@ void ConnectionSlot::close() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	bool updateServerListener = (socket != NULL);
 	delete socket;
 	socket= NULL;
 
@@ -520,7 +521,7 @@ void ConnectionSlot::close() {
     //chatSender.clear();
     //chatTeamIndex= -1;
 
-    if(ready == false) {
+    if(updateServerListener == true && ready == false) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	serverInterface->updateListen();
     }
