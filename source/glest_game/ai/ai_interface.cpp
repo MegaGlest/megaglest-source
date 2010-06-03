@@ -174,16 +174,21 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, Unit *u){
 	assert(this->gameSettings != NULL);
 	assert(this->commander != NULL);
+	//assert(u != NULL);
+	//assert(u->getType() != NULL);
 
 	if(enableServerControlledAI == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		assert(u != NULL);
+		//assert(u != NULL);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(u == NULL) {
+			u = world->getFaction(factionIndex)->getUnit(unitIndex);
+		}
 		CommandResult result = commander->tryGiveCommand(u, commandType, Vec2i(0), u->getType(),CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
