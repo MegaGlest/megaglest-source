@@ -74,7 +74,7 @@ public:
 	string getIp() const		{return getSocket()->getIp();}
 	string getHostName() const	{return getSocket()->getHostName();}
 
-	void sendMessage(const NetworkMessage* networkMessage);
+	virtual void sendMessage(const NetworkMessage* networkMessage);
 	NetworkMessageType getNextMessageType(bool checkHasDataFirst = false);
 	bool receiveMessage(NetworkMessage* networkMessage);
 

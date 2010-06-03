@@ -118,6 +118,8 @@ void Game::load(){
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->gameSettings.toString().c_str());
+
 	Logger &logger= Logger::getInstance();
 	string mapName= gameSettings.getMap();
 	string tilesetName= gameSettings.getTileset();

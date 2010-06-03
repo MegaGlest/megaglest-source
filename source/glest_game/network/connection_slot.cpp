@@ -553,4 +553,10 @@ bool ConnectionSlot::updateCompleted() {
 	return (waitingForThread == false);
 }
 
+void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
+	MutexSafeWrapper safeMutex(&socketSynchAccessor);
+	NetworkInterface::sendMessage(networkMessage);
+	safeMutex.ReleaseLock();
+}
+
 }}//end namespace

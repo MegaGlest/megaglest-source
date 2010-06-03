@@ -34,8 +34,17 @@ class ConnectionSlot;
 class ConnectionSlotEvent {
 public:
 
+	ConnectionSlotEvent() {
+		triggerId = -1;
+		connectionSlot = NULL;
+		networkMessage = NULL;
+		socketTriggered = false;
+		eventCompleted = false;
+	}
+
 	int64 triggerId;
 	ConnectionSlot* connectionSlot;
+	const NetworkMessage* networkMessage;
 	bool socketTriggered;
 	bool eventCompleted;
 };
@@ -120,10 +129,13 @@ public:
 	void signalUpdate(ConnectionSlotEvent *event);
 	bool updateCompleted();
 
+	virtual void sendMessage(const NetworkMessage* networkMessage);
+
 protected:
 
 	Mutex * getServerSynchAccessor();
 	std::vector<std::string> threadErrorList;
+	Mutex socketSynchAccessor;
 };
 
 }}//end namespace
