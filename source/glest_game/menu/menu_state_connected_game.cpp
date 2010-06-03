@@ -505,11 +505,12 @@ void MenuStateConnectedGame::update()
 			bool hasFactions = true;
 			if(currentFactionName != gameSettings->getTech())
 			{
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 				currentFactionName = gameSettings->getTech();
 				hasFactions = loadFactions(gameSettings,false);
 			}
 			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d\n",__FILE__,__FUNCTION__,__LINE__,hasFactions);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
 			// map
 			maps.push_back(formatString(gameSettings->getMap()));
@@ -519,7 +520,7 @@ void MenuStateConnectedGame::update()
 				currentMap = gameSettings->getMap();
 			}
 			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// FogOfWar
 			if(gameSettings->getFogOfWar()){
@@ -539,16 +540,17 @@ void MenuStateConnectedGame::update()
 				listBoxTeams[i].setEditable(false);
 			}
 			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(hasFactions == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);
 
 				for(int i=0; i<gameSettings->getFactionCount(); ++i){
 					int slot=gameSettings->getStartLocationIndex(i);
 					listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
 					listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
-					listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
+					//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
+					listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
 
 					if(gameSettings->getFactionControl(i) == ctNetwork ){
 						labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
@@ -609,8 +611,8 @@ void MenuStateConnectedGame::update()
 bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	bool foundFactions = false;
 	vector<string> results;
-
     Config &config = Config::getInstance();
 
     vector<string> techPaths = config.getPathListForType(ptTechs);
@@ -644,6 +646,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		sprintf(szMsg,"Player: %s is missing the techtree: %s",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),gameSettings->getTech().c_str());
 		clientInterface->sendTextMessage(szMsg,-1);
 
+		foundFactions = false;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else {
@@ -656,10 +659,12 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		for(int i=0; i<GameConstants::maxPlayers; ++i){
 			listBoxFactions[i].setItems(results);
 		}
+
+		foundFactions = (results.size() > 0);
 	}
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	return (results.size() > 0);
+	return foundFactions;
 }
 
 // ============ PRIVATE ===========================
