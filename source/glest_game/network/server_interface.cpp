@@ -35,7 +35,8 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 // Experimental threading of broadcasts to clients
-bool enabledThreadedClientCommandBroadcast = true;
+//bool enabledThreadedClientCommandBroadcast = true;
+bool enabledThreadedClientCommandBroadcast = false;
 
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
