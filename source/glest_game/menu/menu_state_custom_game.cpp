@@ -57,7 +57,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     Config &config = Config::getInstance();
 
 	//initialize network interface
-	networkManager.init(nrServer);
+	NetworkManager::getInstance().end();
+    networkManager.init(nrServer);
 
     parentMenuIsMs=parentMenuIsMasterserver;
 
