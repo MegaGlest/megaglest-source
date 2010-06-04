@@ -69,6 +69,7 @@ private:
 	bool needToBroadcastServerSettings;
 	string publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
+	Mutex masterServerThreadAccessor;
 	
 	bool parentMenuIsMs;
 	int soundConnectionCount;
