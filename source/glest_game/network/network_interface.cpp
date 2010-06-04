@@ -118,6 +118,24 @@ void NetworkInterface::clearChatInfo() {
     chatTeamIndex= -1;
 }
 
+std::string NetworkInterface::getIpAddress() {
+	std::string result = "";
+
+	if(getSocket() != NULL) {
+		result = getSocket()->getIpAddress();
+	}
+	return result;
+}
+
+float NetworkInterface::getThreadedPingMS(std::string host) {
+	float result = -1;
+
+	if(getSocket() != NULL) {
+		result = getSocket()->getThreadedPingMS(host);
+	}
+	return result;
+}
+
 // =====================================================
 //	class GameNetworkInterface
 // =====================================================

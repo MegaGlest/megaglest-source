@@ -67,7 +67,7 @@ public:
 	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
-	virtual string getNetworkStatus() const;
+	virtual string getNetworkStatus() ;
 
 	//accessors
 	string getServerName() const			{return serverName;}
@@ -86,6 +86,7 @@ public:
 	
 	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex, int8 toTeam);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
+	std::string getServerIpAddress();
 
 protected:
 

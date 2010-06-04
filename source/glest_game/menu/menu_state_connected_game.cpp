@@ -434,7 +434,11 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
-            labelStatus.setText(label);
+			float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
+			char szBuf[1024]="";
+			sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+
+            labelStatus.setText(szBuf);
 		}
 		else
 		{
@@ -471,7 +475,11 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
-            labelStatus.setText(label);
+			float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
+			char szBuf[1024]="";
+			sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+
+            labelStatus.setText(szBuf);
 		}
 	}
 	else

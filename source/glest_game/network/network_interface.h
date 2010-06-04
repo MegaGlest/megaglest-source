@@ -106,6 +106,10 @@ public:
 	void clearChatInfo();
 
 	virtual bool getConnectHasHandshaked() const= 0;
+
+	std::string getIpAddress();
+	float getThreadedPingMS(std::string host);
+
 };
 
 // =====================================================
@@ -138,7 +142,7 @@ public:
 	virtual void quitGame(bool userManuallyQuit)=0;
 
 	//misc
-	virtual string getNetworkStatus() const= 0;
+	virtual string getNetworkStatus() = 0;
 
 	//access functions
 	void requestCommand(const NetworkCommand *networkCommand, bool insertAtStart=false);
