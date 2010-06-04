@@ -1761,12 +1761,11 @@ float Socket::getAveragePingMS(std::string host, int pingCount) {
 	sprintf(szCmd,"ping -c %d %s",pingCount,host.c_str());
 #endif
 	if(szCmd[0] != '\0') {
-#ifdef _popen
-		FILE *ping= _popen(szCmd, "r");
-#elif defined popen
-		FILE *ping= popen(szCmd, "r");
-#else
-		FILE *ping=NULL;
+		FILE *ping= NULL;
+#if defined(_popen) || defined(WIN32)
+		ping= _popen(szCmd, "r");
+#elif defined(popen)
+		ping= popen(szCmd, "r");
 #endif
 		if (ping != NULL){
 			char buf[4000]="";
@@ -1775,9 +1774,9 @@ float Socket::getAveragePingMS(std::string host, int pingCount) {
 				char *data = fgets(&buf[bufferPos], 256, ping);
 				bufferPos = strlen(buf);
 			}
-#ifdef _pclose
+#if defined(_pclose) || defined(WIN32)
 			_pclose(ping);
-#elif defined popen
+#elif defined(pclose)
 			pclose(ping);
 #endif
 
