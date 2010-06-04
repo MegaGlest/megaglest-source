@@ -584,7 +584,7 @@ void createDirectoryPaths(string Path)
    {
      //if (':' != *(path-1))
      {
-#ifdef _mkdir
+#if defined(_mkdir) || defined(WIN32)
     	_mkdir(DirName);
 #elif defined(mkdir)
         mkdir(DirName, S_IRWXO);
@@ -594,7 +594,7 @@ void createDirectoryPaths(string Path)
    *dirName++ = *path++;
    *dirName = '\0';
  }
-#ifdef _mkdir
+#if defined(_mkdir) || defined(WIN32)
  _mkdir(DirName);
 #elif defined(mkdir)
  mkdir(DirName, S_IRWXO);
