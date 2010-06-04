@@ -82,7 +82,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonRestoreLastSettings.init(440, 180, 125);
 	buttonPlayNow.init(580, 180, 125);
 
-
+	int setupPos=610;
+	int mapHeadPos=330;
+	int mapPos=mapHeadPos-30;
+	int aHeadPos=260;
+	int aPos=aHeadPos-30;
+	int networkHeadPos=700;
+	int networkPos=networkHeadPos-30;
+	
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
@@ -101,32 +108,25 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	mapFiles = results;
 	std::for_each(results.begin(), results.end(), FormatString());
 
-	listBoxMap.init(100, 260, 200);
+	labelMap.init(100, mapHeadPos);
+	listBoxMap.init(100, mapPos, 200);
     listBoxMap.setItems(results);
-	labelMap.init(100, 290);
-	labelMapInfo.init(100, 230, 200, 40);
+	labelMapInfo.init(100, mapPos-30, 200, 40);
 		
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(320, 290, 65);
-	listBoxFogOfWar.init(320, 260, 65);
+	labelFogOfWar.init(400, aHeadPos, 80);
+	listBoxFogOfWar.init(400, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
 	// Enable Observer Mode
-	labelEnableObserverMode.init(390, 290, 80);
-	listBoxEnableObserverMode.init(390, 260, 80);
+	labelEnableObserverMode.init(600, aHeadPos, 80);
+	listBoxEnableObserverMode.init(600, aPos, 80);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
-
-	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(390, 235, 80);
-	listBoxEnableServerControlledAI.init(390, 215, 80);
-	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
-	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
-	listBoxEnableServerControlledAI.setSelectedItemIndex(1);
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
@@ -135,9 +135,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
     tilesetFiles= results;
 	std::for_each(results.begin(), results.end(), FormatString());
-	listBoxTileset.init(500, 260, 150);
+	listBoxTileset.init(400, mapPos, 150);
     listBoxTileset.setItems(results);
-	labelTileset.init(500, 290);
+	labelTileset.init(400, mapHeadPos);
 
     //tech Tree listBox
     findDirs(config.getPathListForType(ptTechs), results);
@@ -146,32 +146,47 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
     techTreeFiles= results;
 	std::for_each(results.begin(), results.end(), FormatString());
-	listBoxTechTree.init(700, 260, 150);
+	listBoxTechTree.init(600, mapPos, 150);
     listBoxTechTree.setItems(results);
-	labelTechTree.init(700, 290);
+	labelTechTree.init(600, mapHeadPos);
 
 
-	labelPublishServer.init(350, 690, 100);
+	labelPublishServer.init(300, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(350, 660, 100);
+	listBoxPublishServer.init(300, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
-	listBoxPublishServer.setSelectedItemIndex(1);
+	if(openNetworkSlots)
+		listBoxPublishServer.setSelectedItemIndex(0);
+	else
+		listBoxPublishServer.setSelectedItemIndex(1);
+
+	// Enable Server Controlled AI
+	labelEnableServerControlledAI.init(600, networkHeadPos, 80);
+	listBoxEnableServerControlledAI.init(600, networkPos, 80);
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
+	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(100, 550-i*30);
-        listBoxControls[i].init(200, 550-i*30);
-        listBoxFactions[i].init(400, 550-i*30);
-		listBoxTeams[i].init(600, 550-i*30, 60);
-		labelNetStatus[i].init(700, 550-i*30, 60);
+		labelPlayers[i].init(100, setupPos-30-i*30);
+        listBoxControls[i].init(200, setupPos-30-i*30);
+        listBoxFactions[i].init(400, setupPos-30-i*30, 150);
+		listBoxTeams[i].init(600, setupPos-30-i*30, 60);
+		labelNetStatus[i].init(700, setupPos-30-i*30, 60);
     }
 
-	labelControl.init(200, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(400, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(600, 600, 60, GraphicListBox::defH, true);
 
+	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(400, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(600, setupPos, 50, GraphicListBox::defH, true);
+    
+    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+    
 	//texts
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
@@ -217,7 +232,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		labelNetStatus[i].setText("");
     }
 
-	labelMap.setText(lang.get("Map"));
+	labelMap.setText(lang.get("Map")+":");
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 	labelTileset.setText(lang.get("Tileset"));
 	labelTechTree.setText(lang.get("TechTree"));
@@ -425,7 +440,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if (listBoxFogOfWar.mouseClick(x, y)) {
 		needToRepublishToMasterserver = true;
@@ -435,7 +449,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if (listBoxEnableObserverMode.mouseClick(x, y)) {
 		needToRepublishToMasterserver = true;
@@ -445,9 +458,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
-	else if (listBoxEnableServerControlledAI.mouseClick(x, y)) {
+	else if (listBoxEnableServerControlledAI.mouseClick(x, y)&&listBoxEnableServerControlledAI.getEditable()) {
 		needToRepublishToMasterserver = true;
 
         if(hasNetworkGameSettings() == true)
@@ -455,7 +467,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxTileset.mouseClick(x, y)){
 		needToRepublishToMasterserver = true;
@@ -465,7 +476,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxTechTree.mouseClick(x, y)){
 		reloadFactions();
@@ -477,12 +487,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
-        saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else if(listBoxPublishServer.mouseClick(x, y)&&listBoxPublishServer.getEditable()){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
-		saveGameSettingsToFile("lastCustomGamSettings.mgg");
 	}
 	else
 	{
@@ -523,7 +531,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
-                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 			else if(listBoxFactions[i].mouseClick(x, y)){
 				needToRepublishToMasterserver = true;
@@ -533,7 +540,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
-                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 			else if(listBoxTeams[i].mouseClick(x, y))
 			{
@@ -544,7 +550,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);;
                 }
-                saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			}
 		}
 	}
@@ -607,14 +612,13 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelEnableObserverMode);
-			renderer.renderLabel(&labelEnableServerControlledAI);
+			
 	
 			renderer.renderListBox(&listBoxMap);
 			renderer.renderListBox(&listBoxFogOfWar);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxEnableObserverMode);
-			renderer.renderListBox(&listBoxEnableServerControlledAI);
 	
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console);
@@ -622,6 +626,8 @@ void MenuStateCustomGame::render(){
 			{
 				renderer.renderListBox(&listBoxPublishServer);
 				renderer.renderLabel(&labelPublishServer);
+				renderer.renderListBox(&listBoxEnableServerControlledAI);
+				renderer.renderLabel(&labelEnableServerControlledAI);
 			}
 		}
 	}
@@ -832,11 +838,13 @@ void MenuStateCustomGame::update()
 		{
 			//listBoxPublishServer.setSelectedItemIndex(0);
 			listBoxPublishServer.setEditable(true);
+			listBoxEnableServerControlledAI.setEditable(true);
 		}
 		else
 		{
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
+			listBoxEnableServerControlledAI.setEditable(false);
 		}
 		
 		if(difftime(time(NULL),lastMasterserverPublishing) >= 5 ){
