@@ -696,9 +696,9 @@ float Socket::getThreadedPingMS(std::string host) {
 	float result = -1;
 	if(pingCache.find(host) == pingCache.end()) {
 		MutexSafeWrapper safeMutex(&pingThreadAccessor);
-		pingCache[host]=-1;
 		safeMutex.ReleaseLock();
 		result = getAveragePingMS(host, 1);
+		pingCache[host]=result;
 	}
 	else {
 		MutexSafeWrapper safeMutex(&pingThreadAccessor);
