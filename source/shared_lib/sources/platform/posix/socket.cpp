@@ -1753,19 +1753,27 @@ void BroadCastSocketThread::execute() {
 float Socket::getAveragePingMS(std::string host, int pingCount) {
 	double result = -1;
 
-	const bool debugPingOutput = false;
+	const bool debugPingOutput = true;
 	char szCmd[1024]="";
 #ifdef WIN32
 	sprintf(szCmd,"ping -n %d %s",pingCount,host.c_str());
-#else
+	if(debugPingOutput) printf("WIN32 is defined\n");
+#elif defined(__GNUC__)
 	sprintf(szCmd,"ping -c %d %s",pingCount,host.c_str());
+	if(debugPingOutput) printf("NON WIN32 is defined\n");
+#else
+	#error "Your compiler needs to support popen!"
 #endif
 	if(szCmd[0] != '\0') {
 		FILE *ping= NULL;
-#if defined(_popen) || defined(WIN32)
+#ifdef WIN32
 		ping= _popen(szCmd, "r");
-#elif defined(popen)
+		if(debugPingOutput) printf("WIN32 style _popen\n");
+#elif defined(__GNUC__)
 		ping= popen(szCmd, "r");
+		if(debugPingOutput) printf("POSIX style _popen\n");
+#else
+	#error "Your compiler needs to support popen!"
 #endif
 		if (ping != NULL){
 			char buf[4000]="";
@@ -1774,10 +1782,13 @@ float Socket::getAveragePingMS(std::string host, int pingCount) {
 				char *data = fgets(&buf[bufferPos], 256, ping);
 				bufferPos = strlen(buf);
 			}
-#if defined(_pclose) || defined(WIN32)
+#ifdef WIN32
 			_pclose(ping);
-#elif defined(pclose)
+#elif defined(__GNUC__)
 			pclose(ping);
+#else
+	#error "Your compiler needs to support popen!"
+
 #endif
 
 			if(debugPingOutput) printf("Running cmd [%s] got [%s]\n",szCmd,buf);
