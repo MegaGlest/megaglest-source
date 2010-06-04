@@ -69,17 +69,23 @@ public:
 
 	MutexSafeWrapper(Mutex *mutex) {
 		this->mutex = mutex;
-		if(this->mutex != NULL) {
-			this->mutex->p();
-		}
+		Lock();
 	}
 	~MutexSafeWrapper() {
 		ReleaseLock();
 	}
-	void ReleaseLock() {
+
+	void Lock() {
+		if(this->mutex != NULL) {
+			this->mutex->p();
+		}
+	}
+	void ReleaseLock(bool keepMutex=false) {
 		if(this->mutex != NULL) {
 			this->mutex->v();
-			this->mutex = NULL;
+			if(keepMutex == false) {
+				this->mutex = NULL;
+			}
 		}
 	}
 };

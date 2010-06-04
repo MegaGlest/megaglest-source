@@ -694,6 +694,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
     
+    MutexSafeWrapper safeMutex(&serverSynchAccessor);
     NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtBroadCastSetup);
     broadcastMessage(&networkMessageLaunch);
     
@@ -859,6 +860,8 @@ int ServerInterface::getOpenSlotCount() {
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck)
 {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
+
+    MutexSafeWrapper safeMutex(&serverSynchAccessor);
 
     if(getAllowGameDataSynchCheck() == true)
     {
