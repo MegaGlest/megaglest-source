@@ -688,6 +688,7 @@ Socket::Socket()
 
 float Socket::getThreadedPingMS(std::string host) {
 	if(pingThread == NULL) {
+		lastThreadedPing = 0;
 		pingThread = new SimpleTaskThread(this,0,50);
 		pingThread->start();
 	}
@@ -1753,7 +1754,7 @@ void BroadCastSocketThread::execute() {
 float Socket::getAveragePingMS(std::string host, int pingCount) {
 	double result = -1;
 
-	const bool debugPingOutput = true;
+	const bool debugPingOutput = false;
 	char szCmd[1024]="";
 #ifdef WIN32
 	sprintf(szCmd,"ping -n %d %s",pingCount,host.c_str());
