@@ -584,21 +584,24 @@ void createDirectoryPaths(string Path)
    {
      //if (':' != *(path-1))
      {
-#if defined(_mkdir) || defined(WIN32)
+#ifdef WIN32
     	_mkdir(DirName);
-#elif defined(mkdir)
+#elif defined(__GNUC__)
         mkdir(DirName, S_IRWXO);
+#else
+	#error "Your compiler needs to support mkdir!"
 #endif
      }
    }
    *dirName++ = *path++;
    *dirName = '\0';
  }
-#if defined(_mkdir) || defined(WIN32)
+#ifdef WIN32
  _mkdir(DirName);
-#elif defined(mkdir)
+#elif defined(__GNUC__)
  mkdir(DirName, S_IRWXO);
-
+#else
+	#error "Your compiler needs to support mkdir!"
 #endif
 }
 
