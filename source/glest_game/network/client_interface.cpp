@@ -117,6 +117,10 @@ void ClientInterface::update()
 	chatTeamIndex= -1;
 }
 
+std::string ClientInterface::getServerIpAddress() {
+	return this->ip.getString();
+}
+
 void ClientInterface::updateLobby()
 {
 	//clear chat variables
@@ -665,8 +669,13 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex){
 	sendMessage(&networkMessageText);
 }
 
-string ClientInterface::getNetworkStatus() const{
-	return Lang::getInstance().get("Server") + ": " + serverName;
+string ClientInterface::getNetworkStatus() {
+	std::string label = Lang::getInstance().get("Server") + ": " + serverName;
+	float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
+	char szBuf[1024]="";
+	sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+
+	return szBuf;
 }
 
 void ClientInterface::waitForMessage()

@@ -793,7 +793,11 @@ void MenuStateCustomGame::update()
 						}
 					}
 
-					labelNetStatus[i].setText(label);
+					float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
+					char szBuf[1024]="";
+					sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+
+					labelNetStatus[i].setText(szBuf);
 				}
 				else
 				{

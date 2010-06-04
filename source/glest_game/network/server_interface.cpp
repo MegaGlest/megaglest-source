@@ -623,11 +623,11 @@ void ServerInterface::quitGame(bool userManuallyQuit)
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string ServerInterface::getNetworkStatus() const{
+string ServerInterface::getNetworkStatus() {
 	Lang &lang= Lang::getInstance();
 	string str;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		ConnectionSlot* connectionSlot= slots[i];
@@ -637,7 +637,11 @@ string ServerInterface::getNetworkStatus() const{
 		if(connectionSlot!= NULL){
 			if(connectionSlot->isConnected()){
 
-                str+= connectionSlot->getName();
+				float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
+				char szBuf[100]="";
+				sprintf(szBuf,", ping = %.2fms",pingTime);
+
+                str+= connectionSlot->getName() + string(szBuf);
 			}
 		}
 		else
@@ -648,7 +652,7 @@ string ServerInterface::getNetworkStatus() const{
 		str+= '\n';
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return str;
 }

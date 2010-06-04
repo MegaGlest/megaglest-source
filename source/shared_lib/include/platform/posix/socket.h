@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include "base_thread.h"
+#include "simple_threads.h"
 
 using std::string;
 
@@ -70,7 +71,7 @@ public:
 //	class Socket
 // =====================================================
 
-class Socket {
+class Socket : public SimpleTaskCallbackInterface {
 
 #ifdef WIN32
 
@@ -90,11 +91,19 @@ protected:
 	PLATFORM_SOCKET sock;
 	time_t lastDebugEvent;
 	static int broadcast_portno;
+	std::string ipAddress;
+
+	SimpleTaskThread *pingThread;
+	std::map<string,float> pingCache;
+	time_t lastThreadedPing;
+	Mutex pingThreadAccessor;
 
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
 	virtual ~Socket();
+
+	virtual void simpleTask();
 
 	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }
@@ -124,6 +133,12 @@ public:
 	static string getIp();
 	bool isSocketValid() const;
 	static bool isSocketValid(const PLATFORM_SOCKET *validateSocket);
+
+	static float getAveragePingMS(std::string host, int pingCount=5);
+	float getThreadedPingMS(std::string host);
+
+	virtual std::string getIpAddress();
+	virtual void setIpAddress(std::string value) { ipAddress = value; }
 
 protected:
 	static void throwException(string str);

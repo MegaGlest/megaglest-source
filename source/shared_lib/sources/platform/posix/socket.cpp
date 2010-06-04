@@ -672,15 +672,56 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 }
 
 Socket::Socket(PLATFORM_SOCKET sock){
+	this->pingThread = NULL;
 	this->sock= sock;
 }
 
 Socket::Socket()
 {
+	this->pingThread = NULL;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(isSocketValid() == false)
 	{
 		throwException("Error creating socket");
+	}
+}
+
+float Socket::getThreadedPingMS(std::string host) {
+	if(pingThread == NULL) {
+		pingThread = new SimpleTaskThread(this,0,50);
+		pingThread->start();
+	}
+
+	float result = -1;
+	if(pingCache.find(host) == pingCache.end()) {
+		MutexSafeWrapper safeMutex(&pingThreadAccessor);
+		pingCache[host]=-1;
+		safeMutex.ReleaseLock();
+		result = getAveragePingMS(host, 1);
+	}
+	else {
+		MutexSafeWrapper safeMutex(&pingThreadAccessor);
+		result = pingCache[host];
+		safeMutex.ReleaseLock();
+	}
+	return result;
+}
+
+void Socket::simpleTask()  {
+	// update ping times every x seconds
+	const int pingFrequencySeconds = 2;
+	if(difftime(time(NULL),lastThreadedPing) < pingFrequencySeconds) {
+		return;
+	}
+	lastThreadedPing = time(NULL);
+
+	//printf("Pinging hosts...\n");
+
+	for(std::map<string,float>::iterator iterMap = pingCache.begin();
+		iterMap != pingCache.end(); iterMap++) {
+		MutexSafeWrapper safeMutex(&pingThreadAccessor);
+		iterMap->second = getAveragePingMS(iterMap->first, 1);
+		safeMutex.ReleaseLock();
 	}
 }
 
@@ -691,6 +732,10 @@ Socket::~Socket()
     disconnectSocket();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+
+	BaseThread::shutdownAndWait(pingThread);
+	delete pingThread;
+	pingThread = NULL;
 }
 
 void Socket::disconnectSocket()
@@ -1538,6 +1583,7 @@ Socket *ServerSocket::accept()
 {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
+	char client_host[100]="";
 	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
 	if(isSocketValid(&newSock) == false)
 	{
@@ -1553,11 +1599,12 @@ Socket *ServerSocket::accept()
 
 	}
 	else {
-		char client_host[100]="";
 		sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
 	}
-	return new Socket(newSock);
+	Socket *result = new Socket(newSock);
+	result->setIpAddress(client_host);
+	return result;
 }
 
 BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
@@ -1703,5 +1750,91 @@ void BroadCastSocketThread::execute() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+float Socket::getAveragePingMS(std::string host, int pingCount) {
+	double result = -1;
+
+	const bool debugPingOutput = false;
+	char szCmd[1024]="";
+#ifdef WIN32
+	sprintf(szCmd,"ping -n %d %s",pingCount,host.c_str());
+#else
+	sprintf(szCmd,"ping -c %d %s",pingCount,host.c_str());
+#endif
+	if(szCmd[0] != '\0') {
+		FILE *ping= popen(szCmd, "r");
+		if (ping != NULL){
+			char buf[4000]="";
+			int bufferPos = 0;
+			for(;feof(ping) == false;) {
+				char *data = fgets(&buf[bufferPos], 256, ping);
+				bufferPos = strlen(buf);
+			}
+			pclose(ping);
+
+			if(debugPingOutput) printf("Running cmd [%s] got [%s]\n",szCmd,buf);
+
+			// Linux
+			//softcoder@softhauslinux:~/Code/megaglest/trunk/mk/linux$ ping -c 5 soft-haus.com
+			//PING soft-haus.com (65.254.250.110) 56(84) bytes of data.
+			//64 bytes from 65-254-250-110.yourhostingaccount.com (65.254.250.110): icmp_seq=1 ttl=242 time=133 ms
+			//64 bytes from 65-254-250-110.yourhostingaccount.com (65.254.250.110): icmp_seq=2 ttl=242 time=137 ms
+			//
+			// Windows XP
+			//C:\Code\megaglest\trunk\data\glest_game>ping -n 5 soft-haus.com
+			//
+			//Pinging soft-haus.com [65.254.250.110] with 32 bytes of data:
+			//
+			//Reply from 65.254.250.110: bytes=32 time=125ms TTL=242
+			//Reply from 65.254.250.110: bytes=32 time=129ms TTL=242
+
+			std::string str = buf;
+			std::string::size_type ms_pos = 0;
+			int count = 0;
+			while ( ms_pos != std::string::npos) {
+				ms_pos = str.find("time=", ms_pos);
+
+				if(debugPingOutput) printf("count = %d ms_pos = %d\n",count,ms_pos);
+
+				if ( ms_pos != std::string::npos ) {
+					++count;
+
+					int endPos = str.find(" ms", ms_pos+5 );
+
+					if(debugPingOutput) printf("count = %d endPos = %d\n",count,endPos);
+
+					if(endPos == std::string::npos) {
+						endPos = str.find("ms ", ms_pos+5 );
+
+						if(debugPingOutput) printf("count = %d endPos = %d\n",count,endPos);
+					}
+
+					if(endPos != std::string::npos) {
+
+						if(count == 1) {
+							result = 0;
+						}
+						int startPos = ms_pos + 5;
+						int posLength = endPos - startPos;
+						if(debugPingOutput) printf("count = %d startPos = %d posLength = %d str = [%s]\n",count,startPos,posLength,str.substr(startPos, posLength).c_str());
+
+						float pingMS = strToFloat(str.substr(startPos, posLength));
+						result += pingMS;
+					}
+
+					ms_pos += 5; // start next search after this "time="
+				}
+			}
+
+			if(result > 0 && count > 1) {
+				result /= count;
+			}
+		}
+	}
+	return result;
+}
+
+std::string Socket::getIpAddress() {
+	return ipAddress;
+}
 
 }}//end namespace

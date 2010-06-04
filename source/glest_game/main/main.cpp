@@ -350,6 +350,9 @@ int glestMain(int argc, char** argv){
 			MeshCallbackTeamColor::noTeamColors = true;
 		}
 
+		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
+		//printf("Ping time = %f\n",pingTime);
+
 		program= new Program();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

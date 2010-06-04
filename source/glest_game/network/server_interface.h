@@ -59,7 +59,7 @@ public:
 	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
-	virtual string getNetworkStatus() const;
+	virtual string getNetworkStatus() ;
 
 	ServerSocket* getServerSocket()		{return &serverSocket;}
 	SwitchSetupRequest** getSwitchSetupRequests() {return &switchSetupRequests[0];}
