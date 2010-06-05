@@ -354,6 +354,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = false;
 		BaseThread::shutdownAndWait(publishToMasterserverThread);
 
+		safeMutex.ReleaseLock();
 		returnToParentMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -414,8 +415,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			safeMutex.ReleaseLock();
             program->setState(new Game(program, &gameSettings));
 		}
+
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {

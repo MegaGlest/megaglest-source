@@ -195,8 +195,9 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     va_list argList;
     va_start(argList, fmt);
 
-    char szBuf[4096]="";
-    vsprintf(szBuf,fmt, argList);
+    const int max_debug_buffer_size = 8096;
+    char szBuf[max_debug_buffer_size]="";
+    vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
 
     // Either output to a logfile or
     if(currentDebugLog.debugLogFileName != "") {
