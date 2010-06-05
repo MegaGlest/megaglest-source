@@ -37,8 +37,8 @@ public:
 	static const int serverPort= 61357;
 	static const int updateFps= 40;
 	static const int cameraFps= 100;
-	static const int networkFramePeriod= 20;
-	static const int networkExtraLatency= 200;
+	static int networkFramePeriod;
+	//static const int networkExtraLatency= 200;
 	static const int maxClientConnectHandshakeSecs= 10;
 
 	static const char *folder_path_maps;

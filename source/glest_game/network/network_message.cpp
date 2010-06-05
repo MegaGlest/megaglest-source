@@ -186,6 +186,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.fogOfWar = gameSettings->getFogOfWar();
 	data.enableObserverModeAtEndGame = gameSettings->getEnableObserverModeAtEndGame();
 	data.enableServerControlledAI = gameSettings->getEnableServerControlledAI();
+	data.networkFramePeriod = gameSettings->getNetworkFramePeriod();
 
 	for(int i= 0; i<data.factionCount; ++i){
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
@@ -211,6 +212,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setFogOfWar(data.fogOfWar);
 	gameSettings->setEnableObserverModeAtEndGame(data.enableObserverModeAtEndGame);
 	gameSettings->setEnableServerControlledAI(data.enableServerControlledAI);
+	gameSettings->setNetworkFramePeriod(data.networkFramePeriod);
 
 	for(int i= 0; i<data.factionCount; ++i){
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());

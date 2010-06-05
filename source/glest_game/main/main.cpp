@@ -350,6 +350,9 @@ int glestMain(int argc, char** argv){
 			MeshCallbackTeamColor::noTeamColors = true;
 		}
 
+		// Over-ride default network command framecount
+		GameConstants::networkFramePeriod = config.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str());
+
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
 

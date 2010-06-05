@@ -49,6 +49,7 @@ private:
 	bool fogOfWar;
 	bool enableObserverModeAtEndGame;
 	bool enableServerControlledAI;
+	int networkFramePeriod;
 
 public:
 
@@ -57,6 +58,7 @@ public:
     	fogOfWar = true;
     	enableObserverModeAtEndGame = false;
     	enableServerControlledAI    = false;
+    	networkFramePeriod			= GameConstants::networkFramePeriod;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -94,6 +96,7 @@ public:
 	bool getFogOfWar() const					{return fogOfWar;}
 	bool getEnableObserverModeAtEndGame() const {return enableObserverModeAtEndGame;}
 	bool getEnableServerControlledAI() 	  const {return enableServerControlledAI;}
+	int getNetworkFramePeriod()			  const {return networkFramePeriod; }
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -118,6 +121,7 @@ public:
 	void setFogOfWar(bool fogOfWar)									{this->fogOfWar = fogOfWar;}
 	void setEnableObserverModeAtEndGame(bool value) 				{this->enableObserverModeAtEndGame = value;}
 	void setEnableServerControlledAI(bool value)					{this->enableServerControlledAI = value;}
+	void setNetworkFramePeriod(int value)							{this->networkFramePeriod = value; }
 
 	string toString() const {
 		string result = "";
@@ -147,6 +151,7 @@ public:
 		result += "fogOfWar = " + intToStr(fogOfWar) + "\n";
 		result += "enableObserverModeAtEndGame = " + intToStr(enableObserverModeAtEndGame) + "\n";
 		result += "enableServerControlledAI = " + intToStr(enableServerControlledAI) + "\n";
+		result += "networkFramePeriod = " + intToStr(networkFramePeriod) + "\n";
 
 		return result;
 	}
