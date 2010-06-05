@@ -1086,6 +1086,7 @@ void Game::render2d(){
 		str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
 		str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
 		str+= "Time: "+floatToStr(world.getTimeFlow()->getTime())+"\n";
+		str+= "Time Increment: "+floatToStr(world.getTimeFlow()->getTimeInc())+"\n";
 		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"+intToStr(world.getFrameCount())+"\n";
