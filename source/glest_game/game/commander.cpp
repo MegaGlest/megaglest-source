@@ -21,7 +21,8 @@
 #include "console.h"
 #include "config.h"
 #include "platform_util.h"
-#include "leak_dumper.h"
+#include "game.h"
+#include "game_settings.h"
 #include "game.h"
 
 using namespace Shared::Graphics;
@@ -259,11 +260,12 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	return cr;
 }
 
-void Commander::updateNetwork(){
+void Commander::updateNetwork() {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-	//chech that this is a keyframe
-	if( !networkManager.isNetworkGame() || (world->getFrameCount() % GameConstants::networkFramePeriod)==0){
+	//check that this is a keyframe
+	GameSettings *gameSettings = this->world->getGame()->getGameSettings();
+	if( !networkManager.isNetworkGame() || (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
 
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 

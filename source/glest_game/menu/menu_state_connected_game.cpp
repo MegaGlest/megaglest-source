@@ -434,9 +434,10 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
+            std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
 			float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
 			char szBuf[1024]="";
-			sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+			sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
 
             labelStatus.setText(szBuf);
 		}
@@ -475,9 +476,10 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
+            std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
 			float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
 			char szBuf[1024]="";
-			sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+			sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
 
             labelStatus.setText(szBuf);
 		}

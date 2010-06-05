@@ -167,6 +167,7 @@ private:
 		int8 fogOfWar;
 		int8 enableObserverModeAtEndGame;
 		int8 enableServerControlledAI;
+		uint8 networkFramePeriod; // allowed values 0 - 255
 	};
 
 private:
