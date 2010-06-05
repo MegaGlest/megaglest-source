@@ -1371,6 +1371,7 @@ void MenuStateCustomGame::updateControlers(){
 
 void MenuStateCustomGame::closeUnusedSlots(){
 	try {
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		for(int i= 0; i<mapInfo.players; ++i){
 			if(listBoxControls[i].getSelectedItemIndex()==ctNetwork){
