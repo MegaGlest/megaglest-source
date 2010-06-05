@@ -424,6 +424,16 @@ void ServerInterface::updateKeyframe(int frameCount){
 		}
 	}
 
+	// Possible cause of out of synch since we have more commands that need
+	// to be sent in this frame
+	if(!requestedCommands.empty()) {
+		char szBuf[1024]="";
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,requestedCommands.size());
+
+        string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
+        sendTextMessage(sMsg,-1);
+	}
+
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] build command list took %d msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
 
 	//broadcast commands

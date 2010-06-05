@@ -111,6 +111,16 @@ void ClientInterface::update()
 		sendMessage(&networkMessageCommandList);
 	}
 
+	// Possible cause of out of synch since we have more commands that need
+	// to be sent in this frame
+	if(!requestedCommands.empty()) {
+		char szBuf[1024]="";
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,requestedCommands.size());
+
+        string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
+        sendTextMessage(sMsg,-1);
+	}
+
 	//clear chat variables
 	chatText.clear();
 	chatSender.clear();
