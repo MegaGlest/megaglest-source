@@ -23,10 +23,12 @@
 
 #endif
 
-#ifndef S_ISDIR
+#ifdef WIN32
+ #define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#elif defined(__GNUC__)
 
-#define S_ISDIR(mode) ((mode) & _S_IFDIR)
-
+#else
+#error "Your compiler needs to support S_IFDIR!"
 #endif
 
 #include <iostream>
