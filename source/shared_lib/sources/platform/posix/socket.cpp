@@ -1753,7 +1753,9 @@ void BroadCastSocketThread::execute() {
 
 float Socket::getAveragePingMS(std::string host, int pingCount) {
 	double result = -1;
+	return result;
 
+/*
 	const bool debugPingOutput = false;
 	char szCmd[1024]="";
 #ifdef WIN32
@@ -1852,6 +1854,7 @@ float Socket::getAveragePingMS(std::string host, int pingCount) {
 		}
 	}
 	return result;
+*/
 }
 
 std::string Socket::getIpAddress() {
