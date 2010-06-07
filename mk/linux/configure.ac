@@ -138,6 +138,14 @@ NP_FINDLIB([CURL], [LibCurl], [LibCurl],
 		[AC_MSG_ERROR([Please intall libcurl])],
 		[], [])
 
+NP_FINDLIB([X11], [LibX11], [LibX11],
+		NP_LANG_PROGRAM([],
+			[]),
+		[], [-lX11],
+		[],
+		[AC_MSG_ERROR([Please intall libX11])],
+		[], [])
+
 CHECK_LUA([], [AC_MSG_ERROR([Please install lua 5.1])])
 
 AX_CHECK_GL

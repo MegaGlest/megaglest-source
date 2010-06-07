@@ -14,7 +14,7 @@ fi
 if [ -f /etc/fedora-release ]; then
   echo "=====> Using build deps for fedora 13..."
 
-  sudo yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel
+  sudo yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel
 
 elif [ "`uname -r`" = $ubuntu804_32 ]; then
   echo "=====> Using build deps for old Ubuntu 8.04..."
