@@ -79,7 +79,7 @@ for i in $(GLEST_DIRS) {
 
 Application glest.bin : $(GLEST_SOURCES) ;
 LinkWith glest.bin : glestlib strefloplib ;
-ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL ;
+ExternalLibs glest.bin : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL X11 ;
 IncludeDir glest.bin : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_DIRS) ;
 
 #### Editor ####
@@ -112,7 +112,7 @@ if $(WX_AVAILABLE) = "yes" {
 
   Application glest_g3dviewer : $(GLEST_VIEWER_SOURCES) ../glest_game/graphics/unit_particle_type.cpp ;
   LinkWith glest_g3dviewer : glestlib strefloplib ;
-  ExternalLibs glest_g3dviewer : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL WX ;
+  ExternalLibs glest_g3dviewer : SDL GL GLU XERCES VORBIS VORBISFILE OGG OPENAL LUA JPEG PNG CURL WX X11 ;
   IncludeDir glest_g3dviewer : ../shared_lib/include/$(LIB_INCLUDE_DIRS) $(GLEST_VIEWER_DIRS)  ../glest_game/graphics ../glest_game/global ../glest_game/sound ../glest_game/game ;
 }
 
