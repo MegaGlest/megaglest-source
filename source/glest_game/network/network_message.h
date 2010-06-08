@@ -53,8 +53,6 @@ enum NetworkGameStateType {
 	nmgstCount
 };
 
-const int32 commandListHeaderSize = 6;
-
 // =====================================================
 //	class NetworkMessage
 // =====================================================
@@ -189,18 +187,27 @@ public:
 //	Message to order a commands to several units
 // =====================================================
 
+//const int32 commandListHeaderSize = 6;
+
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage{
 private:
 	//static const int maxCommandCount= 16*4;
-	static const int maxCommandCount = (16 * 4) * 2;
+	//static const int maxCommandCount = (16 * 4) * 2;
+	static const int maxCommandCount = 2048; // can be as large as 65535
 
 private:
-	struct Data{
+	struct DataHeader {
 		int8 messageType;
-		uint8 commandCount;
+		uint16 commandCount;
 		//int8 commandCount;
 		int32 frameCount;
+	};
+
+	static const int32 commandListHeaderSize = sizeof(DataHeader);
+
+	struct Data {
+		DataHeader header;
 		NetworkCommand commands[maxCommandCount];
 	};
 
@@ -212,9 +219,9 @@ public:
 
 	bool addCommand(const NetworkCommand* networkCommand);
 
-	void clear()									{data.commandCount= 0;}
-	int getCommandCount() const						{return data.commandCount;}
-	int getFrameCount() const						{return data.frameCount;}
+	void clear()									{data.header.commandCount= 0;}
+	int getCommandCount() const						{return data.header.commandCount;}
+	int getFrameCount() const						{return data.header.frameCount;}
 	const NetworkCommand* getCommand(int i) const	{return &data.commands[i];}
 
 	virtual bool receive(Socket* socket);
@@ -230,7 +237,7 @@ public:
 
 class NetworkMessageText: public NetworkMessage{
 private:
-	static const int maxStringSize= 128;
+	static const int maxStringSize= 256;
 
 private:
 	struct Data{

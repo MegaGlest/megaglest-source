@@ -38,7 +38,8 @@ public:
         debugSystem,
         debugNetwork,
 		debugPerformance,
-		debugWorldSynch
+		debugWorldSynch,
+		debugUnitCommands
     };
 
 	class SystemFlagsType
@@ -101,6 +102,7 @@ protected:
 
 	static int lockFile;
 	static string lockfilename;
+	static int lockFileCountIndex;
 
 	static std::map<DebugType,SystemFlagsType> debugLogFileList;
 

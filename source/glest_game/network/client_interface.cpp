@@ -471,7 +471,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				chrono.start();
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
-				    string sErr = "Network synchronization error, frame counts do not match";
+				    string sErr = "Network synchronization error, frame counts do not match, server frameCount = " + intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " + intToStr(frameCount);
 					//throw runtime_error("Network synchronization error, frame counts do not match");
                     sendTextMessage(sErr,-1);
                     DisplayErrorMessage(sErr);

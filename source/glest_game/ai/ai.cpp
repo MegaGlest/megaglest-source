@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -375,6 +375,8 @@ void Ai::sendScoutPatrol(){
 
 	if(aiInterface->getFactionIndex()!=startLoc){
 		if(findAbleUnit(&unit, ccAttack, false)){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			aiInterface->giveCommand(unit, ccAttack, pos);
 			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x)+","+intToStr(pos.y)+"\n"); 
 		}
@@ -427,6 +429,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		
 		bool alreadyAttacking= unit->getCurrSkill()->getClass()==scAttack; 
 		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			aiInterface->giveCommand(i, act, pos);
 		}
     }
@@ -459,6 +462,8 @@ void Ai::returnBase(int unitIndex){
     pos= Vec2i(
 		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) + 
 		getRandomHomePosition();
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     r= aiInterface->giveCommand(unitIndex, ccMove, pos);
 
     //aiInterface->printLog(1, "Order return to base pos:" + intToStr(pos.x)+", "+intToStr(pos.y)+": "+rrToStr(r)+"\n");

@@ -144,6 +144,10 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
     this->faction=faction;
 	this->map= map;
 	this->targetRef = NULL;
+	this->targetField = fLand;
+	this->targetVec   = Vec3f(0.0);
+	this->targetPos   = Vec2i(0);
+
 	level= NULL;
 	loadType= NULL;
 
@@ -448,6 +452,10 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 #endif
 	targetRef= NULL;
 
+	//this->targetField = fLand;
+	//this->targetVec   = Vec3f(0.0);
+	//this->targetPos   = Vec2i(0);
+
 	this->targetPos= targetPos;
 
 	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
@@ -519,6 +527,8 @@ unsigned int Unit::getCommandSize() const{
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
+    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
 
     assert(command != NULL);
 
@@ -1306,12 +1316,13 @@ std::string Unit::toString() const {
 	result += " loadCount = " + intToStr(this->loadCount);
 	result += " deadCount = " + intToStr(this->deadCount);
 	result += " progress = " + floatToStr(this->progress);
+	result += "\n";
 	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress);
 	result += " animProgress = " + floatToStr(this->animProgress);
 	result += " highlight = " + floatToStr(this->highlight);
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
-
+	result += "\n";
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// WARNING!!! Don't access the Unit pointer in this->targetRef in this method or it causes
@@ -1328,12 +1339,14 @@ std::string Unit::toString() const {
 	if(level != NULL) {
 		result += " level = " + level->getName();
 	}
-
+	result += "\n";
 	result += " pos = " + pos.getString();
 	result += " lastPos = " + lastPos.getString();
+	result += "\n";
 	result += " targetPos = " + targetPos.getString();
 	result += " targetVec = " + targetVec.getString();
 	result += " meetingPos = " + meetingPos.getString();
+	result += "\n";
 
 	result += " lastRotation = " + floatToStr(this->lastRotation);
 	result += " targetRotation = " + floatToStr(this->targetRotation);
@@ -1348,6 +1361,7 @@ std::string Unit::toString() const {
     if(currSkill != NULL) {
     	result += " currSkill = " + currSkill->getName();
     }
+    result += "\n";
 
     result += " toBeUndertaken = " + intToStr(this->toBeUndertaken);
     result += " alive = " + intToStr(this->alive);
@@ -1356,8 +1370,8 @@ std::string Unit::toString() const {
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     result += " totalUpgrade = " + totalUpgrade.toString();
-
     result += " " + unitPath.toString() + "\n";
+    result += "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1374,6 +1388,7 @@ std::string Unit::toString() const {
     	}
     	cmdIdx++;
     }
+    result += "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

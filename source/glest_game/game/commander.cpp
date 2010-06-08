@@ -41,7 +41,7 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue) const {
+CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(this->world != NULL);
@@ -51,7 +51,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), -1, facing, tryQueue);
+	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), (targetUnit != NULL ? targetUnit->getId() : -1), facing, tryQueue);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -265,7 +265,10 @@ void Commander::updateNetwork() {
 
 	//check that this is a keyframe
 	GameSettings *gameSettings = this->world->getGame()->getGameSettings();
-	if( !networkManager.isNetworkGame() || (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
+	if( networkManager.isNetworkGame() == false ||
+		(world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 

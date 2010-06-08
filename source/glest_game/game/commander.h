@@ -50,7 +50,7 @@ public:
     void init(World *world);
 	void updateNetwork();
 
-	CommandResult tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false) const;
+	CommandResult tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL) const;
 	CommandResult tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
     CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
     CommandResult tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false) const;

@@ -98,9 +98,12 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), world->getFaction(factionIndex)->getUnit(unitIndex)->getType()->getFirstCtOfClass(commandClass), pos, world->getFaction(factionIndex)->getUnit(unitIndex)->getType(),CardinalDir::NORTH);
+		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
+		const Unit *unit = getMyUnit(unitIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandClass = [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandClass);
+
+		CommandResult result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -123,9 +126,12 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), commandType, pos, world->getFaction(factionIndex)->getUnit(unitIndex)->getType(),CardinalDir::NORTH);
+		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
+		const Unit *unit = getMyUnit(unitIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nCommand Type List:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str());
+
+		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -148,9 +154,12 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	if(this->gameSettings->getEnableServerControlledAI() == true &&
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = commander->tryGiveCommand(world->getFaction(factionIndex)->getUnit(unitIndex), commandType, pos, ut,CardinalDir::NORTH);
+		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
+		const Unit *unit = getMyUnit(unitIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nut = %p\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),ut);
+
+		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -175,12 +184,12 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 		this->gameSettings->isNetworkGame() == true &&
 		NetworkManager::getInstance().getNetworkRole() == nrServer) {
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		Unit *targetUnit = u;
+		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
+		const Unit *unit = getMyUnit(unitIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nTarget Unit Id= %d\nUnit Commands:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),(commandType != NULL ? commandType->getId() : -1),(commandType != NULL ? commandType->toString().c_str() : "null"),(targetUnit != NULL ? targetUnit->getId() : -1),unit->getType()->getCommandTypeListDesc().c_str());
 
-		if(u == NULL) {
-			u = world->getFaction(factionIndex)->getUnit(unitIndex);
-		}
-		CommandResult result = commander->tryGiveCommand(u, commandType, Vec2i(0), u->getType(),CardinalDir::NORTH);
+		CommandResult result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir::NORTH,false,targetUnit);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -242,7 +251,13 @@ const Resource *AiInterface::getResource(const ResourceType *rt){
 }
 
 const Unit *AiInterface::getMyUnit(int unitIndex){
-    return world->getFaction(factionIndex)->getUnit(unitIndex);
+	if(unitIndex >= world->getFaction(factionIndex)->getUnitCount()) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] unitIndex >= world->getFaction(factionIndex)->getUnitCount(), unitIndex = %d, world->getFaction(factionIndex)->getUnitCount() = %d",__FILE__,__FUNCTION__,__LINE__,unitIndex,world->getFaction(factionIndex)->getUnitCount());
+		throw runtime_error(szBuf);
+	}
+
+	return world->getFaction(factionIndex)->getUnit(unitIndex);
 }
 
 const Unit *AiInterface::getOnSightUnit(int unitIndex){
