@@ -1055,10 +1055,13 @@ void MenuStateCustomGame::simpleTask() {
 		publishToServerInfo = "";
 		safeMutex.ReleaseLock(false);
 
-		printf("the request is:\n%s\n",request.c_str());
+		//printf("the request is:\n%s\n",request.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]the request is:\n%s\n",request.c_str(),__FILE__,__FUNCTION__,__LINE__);
+		
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
-		printf("the result is:\n'%s'\n",serverInfo.c_str());
+		//printf("the result is:\n'%s'\n",serverInfo.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]the result is:\n'%s'\n",serverInfo.c_str(),__FILE__,__FUNCTION__,__LINE__);
 		// uncomment to enable router setup check of this server
 		//if(serverInfo!="OK")
 		if(EndsWith(serverInfo, "OK") == false)
