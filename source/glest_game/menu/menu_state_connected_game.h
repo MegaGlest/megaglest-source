@@ -65,6 +65,7 @@ private:
 
 	Console console;
 	ChatManager chatManager;
+	bool showFullConsole;
 	
 	string currentFactionName;
 	string currentMap;

@@ -200,7 +200,7 @@ public:
 
 	//light
 	static const float maxLightDist;
-
+	
 public:
 	enum Shadows{
 		sDisabled,
@@ -220,6 +220,7 @@ private:
 	bool focusArrows;
 	bool textures3D;
 	Shadows shadows;
+	int maxConsoleLines;
 
 	//game
 	const Game *game;
@@ -315,7 +316,7 @@ public:
     void renderMouse3d();
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f);
-	void renderConsole(const Console *console, const bool showAll=false);
+	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();

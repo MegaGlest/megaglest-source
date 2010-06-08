@@ -55,6 +55,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
+    
+    showFullConsole=false;
 
 	//initialize network interface
 	NetworkManager::getInstance().end();
@@ -286,7 +288,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//chatManager.init(&console, world.getThisTeamIndex());
-	chatManager.init(&console, -1);
+	chatManager.init(&console, -1,true);
 
 	publishToMasterserverThread = new SimpleTaskThread(this,0,50);
 	publishToMasterserverThread->start();
@@ -664,7 +666,7 @@ void MenuStateCustomGame::render(){
 			renderer.renderListBox(&listBoxEnableObserverMode);
 	
 			renderer.renderChatManager(&chatManager);
-			renderer.renderConsole(&console,true);
+			renderer.renderConsole(&console,showFullConsole,true);
 			if(listBoxPublishServer.getEditable())
 			{
 				renderer.renderListBox(&listBoxPublishServer);
@@ -1497,6 +1499,11 @@ void MenuStateCustomGame::keyDown(char key)
 {
 	//send key to the chat manager
 	chatManager.keyDown(key);
+	if(!chatManager.getEditEnabled()){
+		if(key=='M'){
+				showFullConsole= true;
+			}
+	}
 }
 
 void MenuStateCustomGame::keyPress(char c)
@@ -1507,6 +1514,13 @@ void MenuStateCustomGame::keyPress(char c)
 void MenuStateCustomGame::keyUp(char key)
 {
 	chatManager.keyUp(key);
+	if(chatManager.getEditEnabled()){
+		//send key to the chat manager
+		chatManager.keyUp(key);
+	}
+	else if(key== 'M'){
+		showFullConsole= false;
+	}
 }
 
 void MenuStateCustomGame::showMessageBox(const string &text, const string &header, bool toggle){

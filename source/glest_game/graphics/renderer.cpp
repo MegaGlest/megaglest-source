@@ -142,6 +142,7 @@ Renderer::Renderer(){
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
 
+	maxConsoleLines= Config::getInstance().getInt("ConsoleMaxLines");
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
@@ -709,7 +710,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
-void Renderer::renderConsole(const Console *console,const bool showFullConsole){
+void Renderer::renderConsole(const Console *console,const bool showFullConsole,const bool showMenuConsole){
 
 	if(console == NULL) {
 		throw runtime_error("console == NULL");
@@ -729,6 +730,16 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole){
 	}
 	if(showFullConsole){
 		for(int i=0; i<console->getStoredLineCount(); ++i){
+			renderTextShadow(
+				console->getStoredLine(i),
+				CoreData::getInstance().getConsoleFont(),
+				fontColor,
+				20, i*20+20);
+		}
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	else if(showMenuConsole){
+		for(int i=0; i<console->getStoredLineCount() && i<maxConsoleLines; ++i){
 			renderTextShadow(
 				console->getStoredLine(i),
 				CoreData::getInstance().getConsoleFont(),

@@ -54,7 +54,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     Config &config = Config::getInstance();
 	needToSetChangedGameSettings = false;
 	lastSetChangedGameSettings   = time(NULL);
-	
+	showFullConsole=false;
 
 	currentFactionName="";
 	currentMap="";
@@ -166,7 +166,7 @@ SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE
 
 	//init controllers
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
-	chatManager.init(&console, -1);
+	chatManager.init(&console, -1,true);
 }
 
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -380,7 +380,7 @@ void MenuStateConnectedGame::render(){
 		renderer.renderListBox(&listBoxTechTree);
 
 		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console,true);
+		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -755,6 +755,11 @@ void MenuStateConnectedGame::keyDown(char key)
 {
 	//send key to the chat manager
 	chatManager.keyDown(key);
+	if(!chatManager.getEditEnabled()){
+		if(key=='M'){
+				showFullConsole= true;
+			}
+	}
 }
 
 void MenuStateConnectedGame::keyPress(char c)
@@ -765,6 +770,13 @@ void MenuStateConnectedGame::keyPress(char c)
 void MenuStateConnectedGame::keyUp(char key)
 {
 	chatManager.keyUp(key);
+	if(chatManager.getEditEnabled()){
+		//send key to the chat manager
+		chatManager.keyUp(key);
+	}
+	else if(key== 'M'){
+		showFullConsole= false;
+	}
 }
 
 }}//end namespace

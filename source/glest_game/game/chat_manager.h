@@ -35,10 +35,12 @@ private:
 	Console* console;
 	string text;
 	int thisTeamIndex;
+	bool inMenu;
+	
 
 public:
 	ChatManager();
-	void init(Console* console, int thisTeamIndex);
+	void init(Console* console, int thisTeamIndex, const bool inMenu=false );
 
 	void keyDown(char key);
 	void keyUp(char key);

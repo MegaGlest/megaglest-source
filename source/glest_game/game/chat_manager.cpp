@@ -40,10 +40,11 @@ ChatManager::ChatManager(){
 	disableTeamMode = false;
 }
 
-void ChatManager::init(Console* console, int thisTeamIndex){
+void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu){
 	this->console= console;
 	this->thisTeamIndex= thisTeamIndex;
 	this->disableTeamMode= false;
+	this->inMenu=inMenu;
 }
 
 void ChatManager::keyUp(char key){
@@ -105,6 +106,7 @@ void ChatManager::keyDown(char key){
 						console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
 						gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": "+
 							text, teamMode? thisTeamIndex: -1);
+						if(!inMenu) editEnabled= false;
 					}
 					else
 					{
