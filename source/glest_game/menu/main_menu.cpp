@@ -150,6 +150,10 @@ void MainMenu::keyDown(char key){
 	state->keyDown(key);
 }
 
+void MainMenu::keyUp(char key){
+	state->keyUp(key);
+}
+
 void MainMenu::keyPress(char c){
 	state->keyPress(c);
 }
