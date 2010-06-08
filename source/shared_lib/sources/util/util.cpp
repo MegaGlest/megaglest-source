@@ -22,9 +22,9 @@
 
 #ifdef WIN32
   #include <io.h> // for open()
-  #include <sys/stat.h> // for open()
 #endif
 
+#include <sys/stat.h> // for open()
 #include "platform_util.h"
 #include "platform_common.h"
 #include "conversion.h"
