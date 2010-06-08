@@ -78,9 +78,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	vector<string> teamItems, controlItems, results;
 
 	//create
-	buttonReturn.init(300, 180, 125);
-	buttonRestoreLastSettings.init(440, 180, 125);
-	buttonPlayNow.init(580, 180, 125);
+	buttonReturn.init(250, 180, 125);
+	buttonRestoreLastSettings.init(250+130, 180, 200);
+	buttonPlayNow.init(250+130+205, 180, 125);
 
 	int setupPos=610;
 	int mapHeadPos=330;
@@ -151,9 +151,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTechTree.init(600, mapHeadPos);
 
 
-	labelPublishServer.init(300, networkHeadPos, 100);
+	labelPublishServer.init(190, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(300, networkPos, 100);
+	listBoxPublishServer.init(200, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
@@ -161,14 +161,26 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	else
 		listBoxPublishServer.setSelectedItemIndex(1);
 
+	// Network Frame Period
+	labelNetworkFramePeriod.init(440, networkHeadPos, 80);
+	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+	listBoxNetworkFramePeriod.init(450, networkPos, 80);
+	listBoxNetworkFramePeriod.pushBackItem("10");
+	listBoxNetworkFramePeriod.pushBackItem("20");
+	listBoxNetworkFramePeriod.pushBackItem("30");
+	listBoxNetworkFramePeriod.pushBackItem("40");
+	listBoxNetworkFramePeriod.setSelectedItem("20");
+
+
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(600, networkHeadPos, 80);
-	listBoxEnableServerControlledAI.init(600, networkPos, 80);
+	labelEnableServerControlledAI.init(690, networkHeadPos, 80);
+	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
+	listBoxEnableServerControlledAI.init(700, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
-	labelNetworkFramePeriod.init(420, networkHeadPos, 80);
+	
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -242,7 +254,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelTeam.setText(lang.get("Team"));
 
     labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
-    labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
+    
 
 	loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
 
@@ -272,8 +284,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	serverInterface->setGameSettings(&gameSettings,false);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod") + " " + intToStr(gameSettings.getNetworkFramePeriod()));
 
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1);
@@ -516,6 +526,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
+	else if(listBoxNetworkFramePeriod.mouseClick(x, y)){
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		soundRenderer.playFx(coreData.getClickSoundC());
+	}
 	else {
 		for(int i=0; i<mapInfo.players; ++i) {
 			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
@@ -601,6 +615,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxEnableObserverMode.mouseMove(x, y);
 	listBoxEnableServerControlledAI.mouseMove(x, y);
 	labelNetworkFramePeriod.mouseMove(x, y);
+	listBoxNetworkFramePeriod.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -646,7 +661,7 @@ void MenuStateCustomGame::render(){
 			renderer.renderListBox(&listBoxEnableObserverMode);
 	
 			renderer.renderChatManager(&chatManager);
-			renderer.renderConsole(&console);
+			renderer.renderConsole(&console,true);
 			if(listBoxPublishServer.getEditable())
 			{
 				renderer.renderListBox(&listBoxPublishServer);
@@ -654,6 +669,7 @@ void MenuStateCustomGame::render(){
 				renderer.renderListBox(&listBoxEnableServerControlledAI);
 				renderer.renderLabel(&labelEnableServerControlledAI);
 				renderer.renderLabel(&labelNetworkFramePeriod);
+				renderer.renderListBox(&listBoxNetworkFramePeriod);
 			}
 		}
 	}
@@ -1136,7 +1152,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     }
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
-
+	gameSettings->setNetworkFramePeriod((listBoxNetworkFramePeriod.getSelectedItemIndex()+1)*10);
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
@@ -1222,7 +1238,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","false"));
-		gameSettings.setNetworkFramePeriod(properties.getBool("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str()));
+		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str())/10*10);
 
 		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
 		gameSettings.setFactionCount(properties.getInt("FactionCount"));
@@ -1265,7 +1281,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
-		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod") + " " + intToStr(gameSettings.getNetworkFramePeriod()));
+		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+		
+		listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1481,6 +1499,11 @@ void MenuStateCustomGame::keyDown(char key)
 void MenuStateCustomGame::keyPress(char c)
 {
 	chatManager.keyPress(c);
+}
+
+void MenuStateCustomGame::keyUp(char key)
+{
+	chatManager.keyUp(key);
 }
 
 void MenuStateCustomGame::showMessageBox(const string &text, const string &header, bool toggle){

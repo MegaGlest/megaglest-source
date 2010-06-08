@@ -93,19 +93,29 @@ void ChatManager::keyDown(char key){
 		}
 
 		if(key==vkReturn){
-			if(editEnabled){
-				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-
-				editEnabled= false;
-				if(!text.empty()) {
-					console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
-					gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": "+
-						text, teamMode? thisTeamIndex: -1);
-				}
+			SDL_keysym keystate = Window::getKeystate();
+			if(keystate.mod & (KMOD_LALT | KMOD_RALT)){
+				// alt+enter is ignored
 			}
-			else{
-				editEnabled= true;
-				text.clear();
+			else
+			{
+				if(editEnabled){
+					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+					if(!text.empty()) {
+						console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
+						gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": "+
+							text, teamMode? thisTeamIndex: -1);
+					}
+					else
+					{
+						editEnabled= false;
+					}	
+					text.clear();
+				}
+				else{
+					editEnabled= true;
+					text.clear();
+				}
 			}
 		}
 		else if(key==vkBack){

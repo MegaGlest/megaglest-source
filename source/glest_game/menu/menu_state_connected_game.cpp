@@ -380,7 +380,7 @@ void MenuStateConnectedGame::render(){
 		renderer.renderListBox(&listBoxTechTree);
 
 		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console);
+		renderer.renderConsole(&console,true);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -760,6 +760,11 @@ void MenuStateConnectedGame::keyDown(char key)
 void MenuStateConnectedGame::keyPress(char c)
 {
 	chatManager.keyPress(c);
+}
+
+void MenuStateConnectedGame::keyUp(char key)
+{
+	chatManager.keyUp(key);
 }
 
 }}//end namespace

@@ -91,8 +91,9 @@ public:
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
 	virtual void keyDown(char key);
+	virtual void keyUp(char key);
 	virtual void keyPress(char key);
-    
+	
 	void setState(MenuState *state);
 };
 
@@ -117,6 +118,7 @@ public:
 	virtual void update(){};
 	virtual void keyDown(char key){};
 	virtual void keyPress(char c){};
+	virtual void keyUp(char key){};
 
 	const Camera *getCamera() const			{return &camera;}
 };

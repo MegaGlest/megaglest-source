@@ -36,7 +36,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelEnableObserverMode;
 	GraphicLabel labelEnableServerControlledAI;
-	GraphicLabel labelNetworkFramePeriod;
+	
 
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
@@ -61,6 +61,9 @@ private:
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
+	
+	GraphicListBox listBoxNetworkFramePeriod;
+	GraphicLabel labelNetworkFramePeriod;
 	
 
 	bool needToSetChangedGameSettings;
@@ -92,6 +95,8 @@ public:
 
     virtual void keyDown(char key);
     virtual void keyPress(char c);
+    virtual void keyUp(char key);
+    
 
     virtual void simpleTask();
 

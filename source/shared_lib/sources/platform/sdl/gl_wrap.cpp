@@ -162,7 +162,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 				}
 			}
 			else {
-				float width = static_cast<float> (fontInfo->per_char[p].rbearing - fontInfo->per_char[p].lbearing);
+				float width = static_cast<float>(fontInfo->per_char[p].width); //( fontInfo->per_char[p].rbearing - fontInfo->per_char[p].lbearing);
 				if(width <= 0) {
 					width = static_cast<float>(6);
 				}

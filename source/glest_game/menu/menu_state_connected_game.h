@@ -82,6 +82,7 @@ public:
 
     virtual void keyDown(char key);
     virtual void keyPress(char c);
+    virtual void keyUp(char key);
 
 private:
 
