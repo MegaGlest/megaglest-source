@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -115,6 +115,8 @@ void AiRuleRepair::execute(){
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
 		if(rct!=NULL && (u->getCurrSkill()->getClass()==scStop || u->getCurrSkill()->getClass()==scMove)){
 			if(rct->isRepairableUnitType(damagedUnit->getType())){
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				aiInterface->giveCommand(i, rct, damagedUnit->getPos()); 
 				aiInterface->printLog(3, "Repairing order issued");
 				return;
@@ -489,6 +491,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 		//produce specific unit
 		vector<int> producers;
+		vector<const CommandType *> producersDefaultCommandType;
 		const CommandType *defCt= NULL;
 
 		//for each unit
@@ -508,6 +511,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(aiInterface->reqsOk(ct)){
 							defCt= ct;
 							producers.push_back(i);
+							producersDefaultCommandType.push_back(ct);
 						}
 					} 
 				}
@@ -527,6 +531,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++)
 				{
 					currentProducerIndex=producers[i%(producers.size())];
+
+					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
+						char szBuf[1024]="";
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
+						throw runtime_error(szBuf);
+					}
 					currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 					if( currentCommandCount==1 &&
 						aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
@@ -548,8 +558,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(ai->getCountOfClass(ucBuilding)>5)
 							ai->addTask(new BuildTask(aiInterface->getMyUnit(bestIndex)->getType()));
 					}
-					// need to calculte another producer, maybe its better to produce another warrior with another producer 
+					// need to calculate another producer, maybe its better to produce another warrior with another producer
 					vector<int> backupProducers;
+					vector<const CommandType *> backupProducersDefaultCommandType;
 					// find another producer unit which is free and produce any kind of warrior.
 					//for each unit
 					for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
@@ -563,7 +574,8 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());								
 								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
 								{//this can produce a warrior
-										backupProducers.push_back(i);
+									backupProducers.push_back(i);
+									backupProducersDefaultCommandType.push_back(ct);
 								} 
 							}
 						}	
@@ -608,10 +620,13 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							}
 						}
 						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, productionCommandIndexes.size()-1)];
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
 					}
 					else
 					{// do it like normal CPU
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						defCt = producersDefaultCommandType[bestIndex];
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 				}
@@ -619,14 +634,21 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				{	
 					if(currentCommandCount==0)
 					{
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						defCt = producersDefaultCommandType[bestIndex];
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					defCt = producersDefaultCommandType[bestIndex];
 					aiInterface->giveCommand(bestIndex, defCt);
 				}
 			}
 			else
 			{
-				int producerIndex= producers[ai->getRandom()->randRange(0, producers.size()-1)];
+				int pIndex = ai->getRandom()->randRange(0, producers.size()-1);
+				int producerIndex= producers[pIndex];
+				defCt = producersDefaultCommandType[pIndex];
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
 				aiInterface->giveCommand(producerIndex, defCt);
 			}
 		}
@@ -779,6 +801,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 		}
 
 		vector<int> builders;
+		vector<const BuildCommandType *> buildersDefaultCommandType;
 		const BuildCommandType *defBct= NULL;
 						
 		//for each unit
@@ -805,6 +828,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 							if(bt->getUnitType()==building){
 								if(aiInterface->reqsOk(bct)){
 									builders.push_back(i);
+									buildersDefaultCommandType.push_back(bct);
 									defBct= bct;
 								}
 							}
@@ -816,12 +840,16 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 
 		//use random builder to build
 		if(!builders.empty()){
-			int builderIndex= builders[ai->getRandom()->randRange(0, builders.size()-1)];
+			int bIndex = ai->getRandom()->randRange(0, builders.size()-1);
+			int builderIndex= builders[bIndex];
 			Vec2i pos;		
 			Vec2i searchPos= bt->getForcePos()? bt->getPos(): ai->getRandomHomePosition();
 
 			//if free pos give command, else retry
 			if(ai->findPosForBuilding(bt->getUnitType(), searchPos, pos)){
+				defBct = buildersDefaultCommandType[bIndex];
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
+
 				aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
 			}
 			else{
@@ -957,6 +985,7 @@ void AiRuleUpgrade::upgradeSpecific(const UpgradeTask *upgt){
 					//if upgrades match
 					if(producedUpgrade == upgt->getUpgradeType()){
 						if(aiInterface->reqsOk(uct)){
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 							aiInterface->giveCommand(i, uct);
 						}
 					} 

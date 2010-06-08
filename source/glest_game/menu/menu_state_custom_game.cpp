@@ -370,18 +370,22 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		saveGameSettingsToFile("lastCustomGamSettings.mgg");
+
 		closeUnusedSlots();
 		soundRenderer.playFx(coreData.getClickSoundC());
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		safeMutex.ReleaseLock(false);
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Send the game settings to each client if we have at least one networked client
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		safeMutex.Lock();
         if( hasNetworkGameSettings() == true &&
             needToSetChangedGameSettings == true)
         {
@@ -411,7 +415,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
 
-			saveGameSettingsToFile("lastCustomGamSettings.mgg");
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);

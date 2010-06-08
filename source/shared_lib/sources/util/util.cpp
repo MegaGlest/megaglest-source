@@ -40,6 +40,7 @@ namespace Shared{ namespace Util{
 // Init statics
 std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> SystemFlags::debugLogFileList;
 int SystemFlags::lockFile				= -1;
+int SystemFlags::lockFileCountIndex		= -1;
 string SystemFlags::lockfilename		= "";
 CURL *SystemFlags::curl_handle			= NULL;
 //
@@ -113,6 +114,7 @@ void SystemFlags::init() {
 		SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
 		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] = SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
 		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
+		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  = SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
 	}
 
 	if(curl_handle == NULL) {
@@ -166,6 +168,7 @@ void SystemFlags::Close() {
 		_close(SystemFlags::lockFile);
 #endif
 		SystemFlags::lockFile = -1;
+		SystemFlags::lockFileCountIndex = -1;
 
 		if(SystemFlags::lockfilename != "") {
 			remove(SystemFlags::lockfilename.c_str());
@@ -230,17 +233,9 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 #ifndef WIN32
 				//SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-				#ifdef S_IREAD
 				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-				#else
-				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT);
-				#endif
 #else
-				#ifdef S_IREAD
 				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-				#else
-				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT);
-				#endif
 #endif
 				if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
             		string newlockfile = lockfile;
@@ -249,17 +244,9 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 						newlockfile = lockfile + intToStr(idx);
 						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
 #ifndef WIN32
-						#ifdef S_IREAD
 	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-						#else
-	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT);
-						#endif
 #else
-						#ifdef S_IREAD
 		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-						#else
-		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT);
-						#endif
 
 #endif
 						if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
@@ -267,11 +254,17 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 						}
             		}
 
+            		SystemFlags::lockFileCountIndex = idx;
             		SystemFlags::lockfilename = newlockfile;
             		debugLog += intToStr(idx);
 
             		printf("Opening additional logfile [%s]\n",debugLog.c_str());
 				}
+			}
+			else if(SystemFlags::lockFileCountIndex > 0) {
+        		debugLog += intToStr(SystemFlags::lockFileCountIndex);
+
+        		printf("Opening additional logfile [%s]\n",debugLog.c_str());
 			}
 
             if(currentDebugLog.fileStream == NULL) {

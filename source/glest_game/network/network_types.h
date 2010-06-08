@@ -19,7 +19,9 @@
 
 using std::string;
 using Shared::Platform::int8;
+using Shared::Platform::uint8;
 using Shared::Platform::int16;
+using Shared::Platform::uint16;
 using Shared::Platform::int32;
 using Shared::Graphics::Vec2i;
 
@@ -57,7 +59,7 @@ enum NetworkCommandType {
 //	ncstRotateUnit
 //};
 
-#pragma pack(push, 2)
+#pragma pack(push, 1)
 class NetworkCommand{
 private:
 	int16 networkCommandType;
@@ -67,10 +69,10 @@ private:
 	int16 positionY;
 	int16 unitTypeId;
 	int32 targetId;
-	int16 wantQueue;
-	int16 fromFactionIndex;
-	int16 unitFactionUnitCount;
-	int16 unitFactionIndex;
+	int8 wantQueue;
+	int8 fromFactionIndex;
+	uint16 unitFactionUnitCount;
+	int8 unitFactionIndex;
 
 public:
 	NetworkCommand(){};

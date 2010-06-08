@@ -1,8 +1,10 @@
 #include "randomgen.h"
 #include <cassert>
 #include "util.h"
+#include <stdexcept>
 #include "leak_dumper.h"
 
+using namespace std;
 namespace Shared { namespace Util {
 
 // =====================================================
@@ -37,7 +39,7 @@ void RandomGen::init(int seed){
 int RandomGen::rand() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
-	lastNumber= ((a*lastNumber) + b) % m;
+	lastNumber= (a*lastNumber + b) % m;
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
@@ -46,14 +48,24 @@ int RandomGen::rand() {
 
 int RandomGen::randRange(int min, int max){
 	assert(min<=max);
+	if(min > max) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
+		throw runtime_error(szBuf);
+	}
 
 //#ifdef USE_STREFLOP
 //	int res = streflop::Random<true, false, float>(min, max); // streflop
 //#else
 	int diff= max-min;
-	int res= min + static_cast<int>((static_cast<float>(diff+1)*RandomGen::rand()) / m);
+	int res= min + static_cast<int>(static_cast<float>(diff+1)*RandomGen::rand() / m);
 //#endif
 	assert(res>=min && res<=max);
+	if(res < min || res > max) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
+		throw runtime_error(szBuf);
+	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %d, max = %d, res = %d\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 
@@ -62,15 +74,25 @@ int RandomGen::randRange(int min, int max){
 
 float RandomGen::randRange(float min, float max){
 	assert(min<=max);
+	if(min > max) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
+		throw runtime_error(szBuf);
+	}
 
 //#ifdef USE_STREFLOP
 //	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
 //#else
 	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
-	float res= min+((max-min)*rand01);
+	float res= min+(max-min)*rand01;
 //#endif
 
 	assert(res>=min && res<=max);
+	if(res < min || res > max) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);
+		throw runtime_error(szBuf);
+	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %f, max = %f, res = %f\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 

@@ -298,6 +298,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     = config.getBool("DebugNetwork","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  = config.getBool("DebugUnitCommands","false");
 
 		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
@@ -315,22 +316,30 @@ int glestMain(int argc, char** argv){
         if(debugNetworkLogFile == "") {
         	debugNetworkLogFile = debugLogFile;
         }
+		string debugUnitCommandsLogFile = config.getString("DebugLogFileUnitCommands","");
+        if(debugUnitCommandsLogFile == "") {
+        	debugUnitCommandsLogFile = debugLogFile;
+        }
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName  = debugUnitCommandsLogFile;
 
-		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d]\n",
+		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d]\n",
 			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
 			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
 			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled);
+			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
+			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
 
 		// 256 for English
 		// 30000 for Chinese

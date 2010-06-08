@@ -138,7 +138,7 @@ public:
 	int getArmor() const								{return armor;}
 	const ArmorType *getArmorType() const				{return armorType;}
 	const SkillType *getSkillType(int i) const			{return skillTypes[i];}
-	const CommandType *getCommandType(int i) const		{return commandTypes[i];}
+	const CommandType *getCommandType(int i) const;
 	const Level *getLevel(int i) const					{return &levels[i];}
 	int getSkillTypeCount() const						{return skillTypes.size();}
 	int getCommandTypeCount() const						{return commandTypes.size();}
