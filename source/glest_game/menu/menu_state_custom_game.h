@@ -83,6 +83,7 @@ private:
 	
 	Console console;
 	ChatManager chatManager;
+	bool showFullConsole;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
