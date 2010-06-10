@@ -73,8 +73,12 @@ std::string Command::toString() const {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	std::string result = "";
-	result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString() + ", pos = " + pos.getString() + ", facing = " + intToStr(facing.asInt());
-
+	if(commandType != NULL) {
+		result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString() + ", pos = " + pos.getString() + ", facing = " + intToStr(facing.asInt());
+	}
+	else {
+		result = "commandType = NULL";
+	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	//if(unitRef.getUnit() != NULL) {
