@@ -530,15 +530,22 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int currentCommandCount=0;
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++)
 				{
-					currentProducerIndex=producers[i%(producers.size())];
-
+					if(i >= producers.size()) {
+						currentProducerIndex=producers[i - producers.size()];
+					}
+					else {
+						 currentProducerIndex=producers[i];
+					}
+					
 					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 						char szBuf[1024]="";
+						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						throw runtime_error(szBuf);
 					}
 					if(currentProducerIndex >= producers.size()) {
 						char szBuf[1024]="";
+						printf("In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
 						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
 						throw runtime_error(szBuf);
 					}
@@ -594,8 +601,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						int bestIndex=-1;
 						int currentCommandCount=0;
 						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++)
-						{
-							currentProducerIndex=backupProducers[i%(backupProducers.size())];
+						{							
+							if(i >= backupProducers.size()) {
+								currentProducerIndex=backupProducers[i - backupProducers.size()];
+							}
+							else {
+						 		currentProducerIndex=backupProducers[i];
+							}
+	
 							currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 							if( currentCommandCount==1 &&
 								aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
