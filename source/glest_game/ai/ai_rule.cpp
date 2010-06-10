@@ -491,7 +491,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 		//produce specific unit
 		vector<int> producers;
-		vector<const CommandType *> producersDefaultCommandType;
+		map<int,const CommandType *> producersDefaultCommandType;
 		const CommandType *defCt= NULL;
 
 		//for each unit
@@ -511,7 +511,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(aiInterface->reqsOk(ct)){
 							defCt= ct;
 							producers.push_back(i);
-							producersDefaultCommandType.push_back(ct);
+							producersDefaultCommandType[i] = ct;
 						}
 					} 
 				}
@@ -530,12 +530,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int currentCommandCount=0;
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++)
 				{
+					int prIndex = i;
 					if(i >= producers.size()) {
-						currentProducerIndex=producers[i - producers.size()];
+						prIndex = (i - producers.size());
 					}
-					else {
-						 currentProducerIndex=producers[i];
-					}
+					currentProducerIndex=producers[prIndex];
 					
 					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 						char szBuf[1024]="";
@@ -543,9 +542,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						throw runtime_error(szBuf);
 					}
-					if(currentProducerIndex >= producers.size()) {
+					if(prIndex >= producers.size()) {
 						char szBuf[1024]="";
-						printf("In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
+						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,producers.size());
 						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
 						throw runtime_error(szBuf);
 					}
@@ -573,7 +572,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					}
 					// need to calculate another producer, maybe its better to produce another warrior with another producer
 					vector<int> backupProducers;
-					vector<const CommandType *> backupProducersDefaultCommandType;
+					map<int,const CommandType *> backupProducersDefaultCommandType;
 					// find another producer unit which is free and produce any kind of warrior.
 					//for each unit
 					for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
@@ -588,7 +587,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
 								{//this can produce a warrior
 									backupProducers.push_back(i);
-									backupProducersDefaultCommandType.push_back(ct);
+									backupProducersDefaultCommandType[i] = ct;
 								} 
 							}
 						}	
@@ -602,13 +601,26 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						int currentCommandCount=0;
 						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++)
 						{							
+							int prIndex = i;
 							if(i >= backupProducers.size()) {
-								currentProducerIndex=backupProducers[i - backupProducers.size()];
+								prIndex = (i - backupProducers.size());
 							}
-							else {
-						 		currentProducerIndex=backupProducers[i];
+
+							currentProducerIndex=backupProducers[prIndex];
+
+							if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
+								char szBuf[1024]="";
+								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+								throw runtime_error(szBuf);
 							}
-	
+							if(prIndex >= backupProducers.size()) {
+								char szBuf[1024]="";
+								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
+								throw runtime_error(szBuf);
+							}
+
 							currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 							if( currentCommandCount==1 &&
 								aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
@@ -645,7 +657,10 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					else
 					{// do it like normal CPU
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						defCt = (bestIndex < producersDefaultCommandType.size() ? producersDefaultCommandType[bestIndex] : NULL);
+						defCt = NULL;
+						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
+							defCt = producersDefaultCommandType[bestIndex];
+						}
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 				}
@@ -654,11 +669,17 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					if(currentCommandCount==0)
 					{
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						defCt = (bestIndex < producersDefaultCommandType.size() ? producersDefaultCommandType[bestIndex] : NULL);
+						defCt = NULL;
+						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
+							defCt = producersDefaultCommandType[bestIndex];
+						}
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					defCt = (bestIndex < producersDefaultCommandType.size() ? producersDefaultCommandType[bestIndex] : NULL);
+					defCt = NULL;
+					if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
+						defCt = producersDefaultCommandType[bestIndex];
+					}
 					aiInterface->giveCommand(bestIndex, defCt);
 				}
 			}
@@ -666,7 +687,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 			{
 				int pIndex = ai->getRandom()->randRange(0, producers.size()-1);
 				int producerIndex= producers[pIndex];
-				defCt = (pIndex < producersDefaultCommandType.size() ? producersDefaultCommandType[pIndex] : NULL);
+				defCt = NULL;
+				if(producersDefaultCommandType.find(producerIndex) != producersDefaultCommandType.end()) {
+					defCt = producersDefaultCommandType[producerIndex];
+				}
+
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
 				aiInterface->giveCommand(producerIndex, defCt);
 			}
@@ -820,7 +845,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 		}
 
 		vector<int> builders;
-		vector<const BuildCommandType *> buildersDefaultCommandType;
+		map<int,const BuildCommandType *> buildersDefaultCommandType;
 		const BuildCommandType *defBct= NULL;
 						
 		//for each unit
@@ -847,7 +872,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 							if(bt->getUnitType()==building){
 								if(aiInterface->reqsOk(bct)){
 									builders.push_back(i);
-									buildersDefaultCommandType.push_back(bct);
+									buildersDefaultCommandType[i] = bct;
 									defBct= bct;
 								}
 							}
@@ -866,7 +891,11 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt){
 
 			//if free pos give command, else retry
 			if(ai->findPosForBuilding(bt->getUnitType(), searchPos, pos)){
-				defBct = (bIndex < buildersDefaultCommandType.size() ? buildersDefaultCommandType[bIndex] : NULL);
+
+				defBct = NULL;
+				if(buildersDefaultCommandType.find(builderIndex) != buildersDefaultCommandType.end()) {
+					defBct = buildersDefaultCommandType[builderIndex];
+				}
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
 
 				aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
