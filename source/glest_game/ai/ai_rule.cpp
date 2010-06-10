@@ -537,6 +537,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						throw runtime_error(szBuf);
 					}
+					if(currentProducerIndex >= producers.size()) {
+						char szBuf[1024]="";
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
+						throw runtime_error(szBuf);
+					}
+
 					currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 					if( currentCommandCount==1 &&
 						aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
