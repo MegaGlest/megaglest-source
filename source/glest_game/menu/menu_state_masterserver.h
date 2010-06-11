@@ -86,6 +86,7 @@ private:
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;
+	Mutex masterServerThreadAccessor;
 
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);

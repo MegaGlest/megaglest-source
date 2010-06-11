@@ -302,14 +302,16 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
-	safeMutex.ReleaseLock();
 
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
+	safeMutex.ReleaseLock(true);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	safeMutex.Lock();
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -318,10 +320,13 @@ void MenuStateCustomGame::returnToParentMenu(){
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
-	safeMutex.ReleaseLock();
 
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
-	if(parentMenuIsMs) {
+
+	bool returnToMasterServerMenu = parentMenuIsMs;
+	safeMutex.ReleaseLock();
+
+	if(returnToMasterServerMenu) {
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 	}
 	else {
@@ -380,7 +385,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
@@ -397,11 +402,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings    = false;
             lastSetChangedGameSettings      = time(NULL);
         }
+        safeMutex.ReleaseLock(true);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		bool bOkToStart = serverInterface->launchGame(&gameSettings);
 		if(bOkToStart == true)
 		{
+			safeMutex.Lock();
 			if( listBoxPublishServer.getEditable() &&
 				listBoxPublishServer.getSelectedItemIndex() == 0) {
 
@@ -419,18 +426,20 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
 
+			safeMutex.ReleaseLock(true);
+
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			safeMutex.Lock();
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
+			safeMutex.ReleaseLock(true);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			assert(program != NULL);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			safeMutex.ReleaseLock();
             program->setState(new Game(program, &gameSettings));
 		}
 
@@ -600,6 +609,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
@@ -628,12 +639,13 @@ void MenuStateCustomGame::render(){
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
 		if(mainMessageBox.getEnabled()){
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 		else
 		{
-			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 			int i;
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
@@ -700,7 +712,7 @@ void MenuStateCustomGame::update()
 		
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		bool masterServerErr = showMasterserverError;
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 		if(masterServerErr)
 		{
 			safeMutex.Lock();
@@ -712,7 +724,7 @@ void MenuStateCustomGame::update()
 			listBoxPublishServer.setSelectedItemIndex(1);
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -769,7 +781,7 @@ void MenuStateCustomGame::update()
 				switchSetupRequests[i]=NULL;
 			}
 		}
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
 
@@ -875,7 +887,7 @@ void MenuStateCustomGame::update()
 				labelNetStatus[i].setText("");
 			}
 		}
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -884,7 +896,7 @@ void MenuStateCustomGame::update()
 					//haveAtLeastOneNetworkClientConnected == true &&
 					needToSetChangedGameSettings == true &&
 					difftime(time(NULL),lastSetChangedGameSettings) >= 2);
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		// Send the game settings to each client if we have at least one networked client
 		if(checkDataSynch == true)
@@ -895,7 +907,7 @@ void MenuStateCustomGame::update()
 
 			safeMutex.Lock();
 			needToSetChangedGameSettings    = false;
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -906,7 +918,7 @@ void MenuStateCustomGame::update()
 			//listBoxPublishServer.setSelectedItemIndex(0);
 			listBoxPublishServer.setEditable(true);
 			listBoxEnableServerControlledAI.setEditable(true);
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 		else
 		{
@@ -914,25 +926,25 @@ void MenuStateCustomGame::update()
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
 			listBoxEnableServerControlledAI.setEditable(false);
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 		
 		safeMutex.Lock();
 		bool republishToMaster = (difftime(time(NULL),lastMasterserverPublishing) >= 5);
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		if(republishToMaster == true) {
 			safeMutex.Lock();
 			needToRepublishToMasterserver = true;
 			lastMasterserverPublishing = time(NULL);
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 
 		safeMutex.Lock();
 		bool callPublishNow = (listBoxPublishServer.getEditable() &&
 							   listBoxPublishServer.getSelectedItemIndex() == 0 &&
 							   needToRepublishToMasterserver == true);
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		if(callPublishNow == true) {
 			// give it to me baby, aha aha ...
@@ -941,12 +953,12 @@ void MenuStateCustomGame::update()
 
 		safeMutex.Lock();
 		bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 		
 		if(broadCastSettings == true) {
 			safeMutex.Lock();
 			needToBroadcastServerSettings=true;
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 
 		//call the chat manager
@@ -957,13 +969,13 @@ void MenuStateCustomGame::update()
 
 		safeMutex.Lock();
 		broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		if(broadCastSettings == true)
 		{// reset timer here on bottom becasue used for different things
 			safeMutex.Lock();
 			lastSetChangedGameSettings      = time(NULL);
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1043,7 +1055,7 @@ void MenuStateCustomGame::simpleTask() {
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo != "");
-	safeMutex.ReleaseLock(false);
+	safeMutex.ReleaseLock(true);
 
 	if(republish == true) {
 
@@ -1051,13 +1063,13 @@ void MenuStateCustomGame::simpleTask() {
 
 		safeMutex.Lock();
 		needToRepublishToMasterserver = false;
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + publishToServerInfo;
 
 		safeMutex.Lock();
 		publishToServerInfo = "";
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		//printf("the request is:\n%s\n",request.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
@@ -1073,7 +1085,7 @@ void MenuStateCustomGame::simpleTask() {
 			safeMutex.Lock();
 			showMasterserverError=true;
 			masterServererErrorToShow=serverInfo;
-			safeMutex.ReleaseLock(false);
+			safeMutex.ReleaseLock(true);
 		}
 	}
 
@@ -1081,7 +1093,7 @@ void MenuStateCustomGame::simpleTask() {
 
 	safeMutex.Lock();
 	bool broadCastSettings = needToBroadcastServerSettings;
-	safeMutex.ReleaseLock(false);
+	safeMutex.ReleaseLock(true);
 
 	if(broadCastSettings)
 	{
@@ -1089,7 +1101,7 @@ void MenuStateCustomGame::simpleTask() {
 
 		safeMutex.Lock();
 		needToBroadcastServerSettings=false;
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
 
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		if(serverInterface->hasClientConnection() == true) {
@@ -1169,7 +1181,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
 
-	safeMutex.ReleaseLock(false);
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
