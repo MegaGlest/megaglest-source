@@ -63,13 +63,16 @@ public:
 	void clear() { memset(this, 0, sizeof(MouseState)); }
 
 	bool get(MouseButton b) const {
-		assert(b > 0 && b < mbCount);
-		return states[b];
+		if(b > 0 && b < mbCount) {
+			return states[b];
+		}
+		return false;
 	}
 
 	void set(MouseButton b, bool state) {
-		assert(b > 0 && b < mbCount);
-		states[b] = state;
+		if(b > 0 && b < mbCount) {
+			states[b] = state;
+		}
 	}
 };
 

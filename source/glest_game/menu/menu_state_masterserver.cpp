@@ -179,11 +179,14 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 }
 
 MenuStateMasterserver::~MenuStateMasterserver() {
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	clearServerLines();
 
 	BaseThread::shutdownAndWait(updateFromMasterserverThread);
 	delete updateFromMasterserverThread;
 	updateFromMasterserverThread = NULL;
+
+	safeMutex.ReleaseLock();
 }
 
 void MenuStateMasterserver::clearServerLines(){
@@ -210,31 +213,41 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(buttonRefresh.mouseClick(x, y)){
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 		//updateServerInfo();
 		needUpdateFromServer = true;
     }
     else if(buttonReturn.mouseClick(x, y)){
+    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		safeMutex.ReleaseLock();
+
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
     else if(buttonCreateGame.mouseClick(x, y)){
+    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		safeMutex.ReleaseLock();
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,true));
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
+    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundA());
 		autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
     }
-    else{ 
+    else {
+    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	    for(int i=0; i<serverLines.size(); ++i){
 	    	if(serverLines[i]->buttonMouseClick(x, y)){
 	    		soundRenderer.playFx(coreData.getClickSoundB());
-	    		connectToServer(serverLines[i]->getMasterServerInfo()->getIpAddress());
+	    		string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
+	    		safeMutex.ReleaseLock();
+	    		connectToServer(connectServerIP);
 	    		break;
 	    	}
 	    }
@@ -242,6 +255,8 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
@@ -258,6 +273,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateMasterserver::render(){
 	Renderer &renderer= Renderer::getInstance();
 
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
@@ -277,6 +293,7 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update(){
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
 			needUpdateFromServer = true;
 			lastRefreshTimer= time(NULL);
@@ -299,17 +316,19 @@ void MenuStateMasterserver::update(){
 			throw runtime_error(sError.c_str());
 		}
 	}
-
 }
 
 void MenuStateMasterserver::simpleTask() {
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	if(needUpdateFromServer == true) {
+		safeMutex.ReleaseLock();
 		updateServerInfo();
 	}
 }
 
 void MenuStateMasterserver::updateServerInfo() {
 	try {
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needUpdateFromServer = false;
 
 		int numberOfOldServerLines=serverLines.size();
@@ -367,6 +386,7 @@ void MenuStateMasterserver::updateServerInfo() {
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		threadedErrorMsg = e.what();
 	}
 }
@@ -375,6 +395,8 @@ void MenuStateMasterserver::updateServerInfo() {
 void MenuStateMasterserver::connectToServer(string ipString)
 {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START  ipString='%s'\n",__FILE__,__FUNCTION__,ipString.c_str());
+
+    MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Config& config= Config::getInstance();
@@ -404,6 +426,9 @@ void MenuStateMasterserver::connectToServer(string ipString)
 		//config.save();
 		
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+
+		safeMutex.ReleaseLock();
+
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
 		
 	}
