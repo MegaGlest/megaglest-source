@@ -465,7 +465,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			safeMutex.Lock();
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
-			safeMutex.ReleaseLock(true);
+			safeMutex.ReleaseLock();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
