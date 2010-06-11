@@ -180,7 +180,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxEnableServerControlledAI.init(700, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
-	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
+	listBoxEnableServerControlledAI.setSelectedItemIndex(1);
 
 	
 
