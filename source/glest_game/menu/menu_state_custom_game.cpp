@@ -973,13 +973,16 @@ void MenuStateCustomGame::update()
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 		}
 		soundConnectionCount = currentConnectionCount;
-		safeMutex.ReleaseLock(false);
+		safeMutex.ReleaseLock(true);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(szBuf);
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::publishToMasterserver()
@@ -1031,6 +1034,7 @@ void MenuStateCustomGame::publishToMasterserver()
 	serverinfo += "connectedClients=" + intToStr(slotCountConnectedPlayers);
 
 	publishToServerInfo = serverinfo;
+	safeMutex.ReleaseLock();
 }
 
 void MenuStateCustomGame::simpleTask() {
@@ -1056,12 +1060,12 @@ void MenuStateCustomGame::simpleTask() {
 		safeMutex.ReleaseLock(false);
 
 		//printf("the request is:\n%s\n",request.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]the request is:\n%s\n",request.c_str(),__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
 		
 
 		std::string serverInfo = SystemFlags::getHTTP(request);
 		//printf("the result is:\n'%s'\n",serverInfo.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]the result is:\n'%s'\n",serverInfo.c_str(),__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
 		// uncomment to enable router setup check of this server
 		//if(serverInfo!="OK")
 		if(EndsWith(serverInfo, "OK") == false)
@@ -1103,7 +1107,7 @@ void MenuStateCustomGame::simpleTask() {
 }
 
 void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
