@@ -80,6 +80,10 @@ private:
 	
 	bool showMasterserverError;
 	string masterServererErrorToShow;
+
+	bool showGeneralError;
+	string generalErrorToShow;
+	bool serverInitError;
 	
 	Console console;
 	ChatManager chatManager;

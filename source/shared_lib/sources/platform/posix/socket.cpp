@@ -1539,7 +1539,10 @@ void ServerSocket::bind(int port)
 	{
 	    char szBuf[1024]="";
 	    sprintf(szBuf, "In [%s::%s] Error binding socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
-		throwException(szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
+
+	    sprintf(szBuf, "Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
+	    throw runtime_error(szBuf);
 	}
 }
 

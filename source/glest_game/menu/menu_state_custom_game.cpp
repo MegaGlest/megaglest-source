@@ -51,6 +51,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	showGeneralError = false;
+	generalErrorToShow = "---";
+
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -58,9 +61,31 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     
     showFullConsole=false;
 
+	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.setEnabled(false);
+	mainMessageBoxState=0;
+
 	//initialize network interface
 	NetworkManager::getInstance().end();
-    networkManager.init(nrServer);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	serverInitError = false;
+	try {
+		networkManager.init(nrServer);
+	}
+	catch(const std::exception &ex) {
+		serverInitError = true;
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);!!!
+		showGeneralError=true;
+		generalErrorToShow = ex.what();
+
+	}
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     parentMenuIsMs=parentMenuIsMasterserver;
 
@@ -72,10 +97,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	lastSetChangedGameSettings  = 0;
 	lastMasterserverPublishing 	= 0;
 	soundConnectionCount=0;
-
-	mainMessageBox.init(lang.get("Ok"));
-	mainMessageBox.setEnabled(false);
-	mainMessageBoxState=0;
 
 	vector<string> teamItems, controlItems, results;
 
@@ -265,26 +286,27 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//init controllers
-	listBoxControls[0].setSelectedItemIndex(ctHuman);
-	if(openNetworkSlots){
-		for(int i= 1; i<mapInfo.players; ++i){
-			listBoxControls[i].setSelectedItemIndex(ctNetwork);
+	if(serverInitError == false) {
+		listBoxControls[0].setSelectedItemIndex(ctHuman);
+		if(openNetworkSlots){
+			for(int i= 1; i<mapInfo.players; ++i){
+				listBoxControls[i].setSelectedItemIndex(ctNetwork);
+			}
 		}
+		else{
+			listBoxControls[1].setSelectedItemIndex(ctCpu);
+		}
+		updateControlers();
+		updateNetworkSlots();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		// Ensure we have set the gamesettings at least once
+		GameSettings gameSettings;
+		loadGameSettings(&gameSettings);
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		serverInterface->setGameSettings(&gameSettings,false);
 	}
-	else{
-		listBoxControls[1].setSelectedItemIndex(ctCpu);
-	}
-	updateControlers();
-	updateNetworkSlots();
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	// Ensure we have set the gamesettings at least once
-	GameSettings gameSettings;
-	loadGameSettings(&gameSettings);
-	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	serverInterface->setGameSettings(&gameSettings,false);
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//chatManager.init(&console, world.getThisTeamIndex());
@@ -317,28 +339,35 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 }
 
 void MenuStateCustomGame::returnToParentMenu(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
 
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	bool returnToMasterServerMenu = parentMenuIsMs;
 	safeMutex.ReleaseLock();
 
 	if(returnToMasterServerMenu) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 	}
 	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
@@ -351,7 +380,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
-	else if(buttonReturn.mouseClick(x,y)){
+	else if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -372,6 +401,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		BaseThread::shutdownAndWait(publishToMasterserverThread);
 
 		safeMutex.ReleaseLock();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		returnToParentMenu();
     }
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -390,6 +421,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		loadGameSettings(&gameSettings);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
         // Send the game settings to each client if we have at least one networked client
 		safeMutex.Lock();
@@ -702,6 +734,17 @@ void MenuStateCustomGame::update()
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(serverInitError == true) {
+			if(showGeneralError) {
+				MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+				showGeneralError=false;
+				mainMessageBoxState=1;
+				showMessageBox( generalErrorToShow, "Error", false);
+				safeMutex.ReleaseLock();
+			}
+
+			return;
+		}
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
 
@@ -724,6 +767,13 @@ void MenuStateCustomGame::update()
 			listBoxPublishServer.setSelectedItemIndex(1);
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
+			safeMutex.ReleaseLock(true);
+		}
+		else if(showGeneralError) {
+			safeMutex.Lock();
+			showGeneralError=false;
+			mainMessageBoxState=1;
+			showMessageBox( generalErrorToShow, "Error", false);
 			safeMutex.ReleaseLock(true);
 		}
 		
@@ -992,7 +1042,10 @@ void MenuStateCustomGame::update()
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);
+		showGeneralError=true;
+		generalErrorToShow = szBuf;
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1370,7 +1423,10 @@ bool MenuStateCustomGame::hasNetworkGameSettings()
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(szBuf);
+		//throw runtime_error(szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		showGeneralError=true;
+		generalErrorToShow = ex.what();
 	}
 
     return hasNetworkSlot;
@@ -1510,7 +1566,11 @@ void MenuStateCustomGame::updateNetworkSlots()
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);!!!
+		showGeneralError=true;
+		generalErrorToShow = ex.what();
+
 	}
 }
 
@@ -1520,8 +1580,8 @@ void MenuStateCustomGame::keyDown(char key)
 	chatManager.keyDown(key);
 	if(!chatManager.getEditEnabled()){
 		if(key=='M'){
-				showFullConsole= true;
-			}
+			showFullConsole= true;
+		}
 	}
 }
 
