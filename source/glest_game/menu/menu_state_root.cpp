@@ -59,6 +59,11 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonAbout.setText(lang.get("About")); 
 	buttonExit.setText(lang.get("Exit"));
 	labelVersion.setText(glestVersionString);
+
+	//mesage box
+	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	mainMessageBox.setEnabled(false);
+
 }
 
 void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
@@ -90,6 +95,22 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		program->exit();
     }
+	//exit message box, has to be the last thing to do in this function
+    else if(mainMessageBox.getEnabled()){
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button)) {
+			if(button==1) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				soundRenderer.playFx(coreData.getClickSoundA());
+				program->exit();
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//close message box
+				mainMessageBox.setEnabled(false);
+			}
+		}
+	}
 }
 
 void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
@@ -99,6 +120,10 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
     buttonOptions.mouseMove(x, y);
     buttonAbout.mouseMove(x, y); 
     buttonExit.mouseMove(x,y);
+	if (mainMessageBox.getEnabled()) {
+		mainMessageBox.mouseMove(x, y);
+	}
+
 }
 
 void MenuStateRoot::render(){
@@ -119,11 +144,48 @@ void MenuStateRoot::render(){
 	renderer.renderButton(&buttonAbout);
 	renderer.renderButton(&buttonExit);
 	renderer.renderLabel(&labelVersion);
+
+	//exit message box
+	if(mainMessageBox.getEnabled()){
+		renderer.renderMessageBox(&mainMessageBox);
+	}
+
 }
 
 void MenuStateRoot::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateRoot(program, mainMenu);
+	}
+}
+
+void MenuStateRoot::keyDown(char key) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	//exit
+	if(key == configKeys.getCharKey("ExitKey")) {
+		Lang &lang= Lang::getInstance();
+		showMessageBox(lang.get("ExitGame?"), "", true);
+	}
+	else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		program->exit();
+	}
+}
+
+void MenuStateRoot::showMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(!mainMessageBox.getEnabled()){
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
 	}
 }
 
