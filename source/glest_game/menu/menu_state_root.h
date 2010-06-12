@@ -20,6 +20,8 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot  
 // ===============================
 
+class GraphicMessageBox;
+
 class MenuStateRoot: public MenuState{
 private:
 	GraphicButton buttonNewGame;
@@ -30,6 +32,8 @@ private:
 	GraphicButton buttonExit;
 	GraphicLabel labelVersion;
 
+	GraphicMessageBox mainMessageBox;
+
 public:
 	MenuStateRoot(Program *program, MainMenu *mainMenu);
 
@@ -37,6 +41,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	void update();
+	virtual void keyDown(char key);
+	void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 
