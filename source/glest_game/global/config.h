@@ -14,6 +14,7 @@
 
 #include "properties.h"
 #include <vector>
+//#include <utility>
 #include "game_constants.h"
 
 namespace Glest{ namespace Game{
@@ -36,11 +37,6 @@ enum ConfigType {
 
 class Config {
 private:
-	//Properties properties;
-	//ConfigType cfgType;
-	//string fileName;
-	//bool fileLoaded;
-
 	std::pair<Properties,Properties> properties;
 	std::pair<ConfigType,ConfigType> cfgType;
 	std::pair<string,string> fileName;
@@ -54,9 +50,9 @@ private:
 	char translateStringToCharKey(const string &value) const;
 
 public:
-    static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::pair<ConfigType,ConfigType>(cfgMainGame,cfgUserGame),
-							   std::pair<string,string> file = std::pair<string,string>("glest.ini","glestuser.ini"),
-							   std::pair<bool,bool> fileMustExist = std::pair<bool,bool>(true,false));
+    static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
+				std::pair<string,string> file = std::make_pair("glest.ini","glestuser.ini") ,
+				std::pair<bool,bool> fileMustExist = std::make_pair(true,false) );
 	void save(const string &path="");
 
 	int getInt(const string &key,const char *defaultValueIfNotFound=NULL) const;
