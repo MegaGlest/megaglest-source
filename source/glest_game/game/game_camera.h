@@ -122,11 +122,11 @@ public:
 	void load(const XmlNode *node);
 	void save(XmlNode *node) const;
 
-	bool setClampBounds(bool value) { clampBounds = value; }
-	bool setMaxHeight(float value) { maxHeight = value; }
-	bool setFov(float value) { fov = value; }
-	bool setMinVAng(float value) { minVAng = value; }
-	bool setMaxVAng(float value) { maxVAng = value; }
+	void setClampBounds(bool value) { clampBounds = value; }
+	void setMaxHeight(float value) { maxHeight = value; }
+	void setFov(float value) { fov = value; }
+	void setMinVAng(float value) { minVAng = value; }
+	void setMaxVAng(float value) { maxVAng = value; }
 
 private:
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);

@@ -381,7 +381,7 @@ public:
 	void renderUnitTitles(Font2D *font, Vec3f color);
 	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
-	bool setPhotoMode(bool value) { photoMode = value; }
+	void setPhotoMode(bool value) { photoMode = value; }
 
 private:
 	//private misc
