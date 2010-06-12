@@ -71,11 +71,11 @@ private:
 	//config
 	float speed;
 	bool clampBounds;
-	float maxRenderDistance;
+	//float maxRenderDistance;
 	float maxHeight;
 	float minHeight;
-	float maxCameraDist;
-	float minCameraDist;
+	//float maxCameraDist;
+	//float minCameraDist;
 	float minVAng;
 	float maxVAng;
 	float fov;
@@ -121,6 +121,12 @@ public:
 
 	void load(const XmlNode *node);
 	void save(XmlNode *node) const;
+
+	bool setClampBounds(bool value) { clampBounds = value; }
+	bool setMaxHeight(float value) { maxHeight = value; }
+	bool setFov(float value) { fov = value; }
+	bool setMinVAng(float value) { minVAng = value; }
+	bool setMaxVAng(float value) { maxVAng = value; }
 
 private:
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);

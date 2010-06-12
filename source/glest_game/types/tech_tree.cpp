@@ -66,6 +66,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		throw runtime_error("Error loading Resource Types: "+ dir + "\n" + e.what());
     }
 
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	//load tech tree xml info
 	try{
 		XmlTree	xmlTree;
@@ -84,6 +87,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
 			attackTypes[i].setId(i);
 		}
+
+	    // give CPU time to update other things to avoid apperance of hanging
+	    sleep(0);
 
 		//armor types
 		const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
@@ -109,6 +115,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		throw runtime_error("Error loading Tech Tree: "+ dir + "\n" + e.what());
     }
 
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	//load factions
 	str= dir+"/factions/*.";
     try{
@@ -116,8 +125,18 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		int i=0;
 		for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+
+		    char szBuf[1024]="";
+		    sprintf(szBuf,"%s %s %d / %d",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size());
+		    Logger &logger= Logger::getInstance();
+		    logger.setState(szBuf);
+
 			str=dir+"/factions/" + *it;
 			factionTypes[i++].load(str, this, checksum);
+
+		    // give CPU time to update other things to avoid apperance of hanging
+		    sleep(0);
+
         }
     }
 	catch(const exception &e){

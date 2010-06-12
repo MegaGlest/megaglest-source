@@ -108,6 +108,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(!fontInfo) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CANNOT load font %s, falling back to default\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
 		fontInfo = XLoadQueryFont(display, "fixed");
 		if(!fontInfo) {
 			throw std::runtime_error("Font not found: " + type);

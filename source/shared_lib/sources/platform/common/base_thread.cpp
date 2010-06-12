@@ -93,11 +93,11 @@ void BaseThread::shutdownAndWait(BaseThread *pThread) {
 	if(pThread != NULL && pThread->getRunningStatus() == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		pThread->signalQuit();
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 10; ) {
+		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 7; ) {
 			if(pThread->getRunningStatus() == false) {
 				break;
 			}
-			sleep(10);
+			sleep(0);
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -128,5 +128,18 @@ string doubleToStr(double d,int precsion){
 	return str;
 }
 
+bool IsNumeric(const char *p, bool  allowNegative)
+{
+  int index = 0;
+  for ( ; *p; p++) {
+    if (*p < '0' || *p > '9') {
+    	if(allowNegative == false || (*p != '-' && index == 0)) {
+    		return false;
+    	}
+    }
+    index++;
+  }
+  return true;
+}
 
 }}//end namespace

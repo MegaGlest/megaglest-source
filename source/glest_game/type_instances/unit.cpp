@@ -1083,17 +1083,34 @@ void Unit::clearCommands(){
 
 CommandResult Unit::checkCommand(Command *command) const{
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(command == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	//if not operative or has not command type => fail
 	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())){
         return crFailUndefined;
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(!map->isInside(command->getPos())){
         return crFailUndefined;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//check produced
+	if(command->getCommandType() == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
+
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL){
 		if(!faction->reqsOk(produced)){
@@ -1104,9 +1121,18 @@ CommandResult Unit::checkCommand(Command *command) const{
 		}
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     //build command specific, check resources and requirements for building
     if(command->getCommandType()->getClass()==ccBuild){
 		const UnitType *builtUnit= command->getUnitType();
+
+		if(builtUnit == NULL) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: builtUnit == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+			throw runtime_error(szBuf);
+		}
+
 		if(!faction->reqsOk(builtUnit)){
             return crFailReqs;
 		}
@@ -1118,10 +1144,19 @@ CommandResult Unit::checkCommand(Command *command) const{
     //upgrade command specific, check that upgrade is not upgraded
     else if(command->getCommandType()->getClass()==ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
+
+		if(uct == NULL) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+			throw runtime_error(szBuf);
+		}
+
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
             return crFailUndefined;
 		}
 	}
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     return crSuccess;
 }

@@ -124,7 +124,8 @@ const float Renderer::magicCircleRadius= 1.f;
 //perspective values
 const float Renderer::perspFov= 60.f;
 const float Renderer::perspNearPlane= 1.f;
-const float Renderer::perspFarPlane= 50.f;
+//const float Renderer::perspFarPlane= 50.f;
+const float Renderer::perspFarPlane= 1000.f;
 
 const float Renderer::ambFactor= 0.7f;
 const Vec4f Renderer::fowColor= Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -133,7 +134,7 @@ const Vec4f Renderer::defDiffuseColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 const Vec4f Renderer::defAmbientColor= Vec4f(1.f * ambFactor, 1.f * ambFactor, 1.f * ambFactor, 1.f);
 const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
-const float Renderer::maxLightDist= 50.f;
+const float Renderer::maxLightDist= 1000.f;
 
 // ==================== constructor and destructor ====================
 

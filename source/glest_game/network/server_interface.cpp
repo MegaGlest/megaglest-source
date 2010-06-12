@@ -42,6 +42,9 @@ ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
 
+    enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast);
+
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
 		switchSetupRequests[i]= NULL;

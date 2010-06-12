@@ -16,7 +16,7 @@
 
 using std::string;
 
-namespace Shared{ namespace Util{
+namespace Shared { namespace Util {
 
 bool strToBool(const string &s);
 int strToInt(const string &s);
@@ -31,6 +31,8 @@ string intToStr(int i);
 string intToHex(int i);
 string floatToStr(float f,int precsion=2);
 string doubleToStr(double f,int precsion=2);
+
+bool IsNumeric(const char *p, bool  allowNegative=true);
 
 }}//end namespace
 

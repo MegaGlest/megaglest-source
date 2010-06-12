@@ -96,26 +96,32 @@ void SoundRenderer::update(){
 // ======================= Music ============================
 
 void SoundRenderer::playMusic(StrSound *strSound){
-	strSound->setVolume(musicVolume);
-	strSound->restart();
-	if(soundPlayer != NULL) {
-		if(runThreadSafe == true) mutex.p();
-        soundPlayer->play(strSound);
-        if(runThreadSafe == true) mutex.v();
+	if(strSound != NULL) {
+		strSound->setVolume(musicVolume);
+		strSound->restart();
+		if(soundPlayer != NULL) {
+			if(runThreadSafe == true) mutex.p();
+			soundPlayer->play(strSound);
+			if(runThreadSafe == true) mutex.v();
+		}
 	}
 }
 
 void SoundRenderer::setMusicVolume(StrSound *strSound){
-	strSound->setVolume(musicVolume);
+	if(strSound != NULL) {
+		strSound->setVolume(musicVolume);
+	}
 }
 
 void SoundRenderer::stopMusic(StrSound *strSound){
     if(soundPlayer != NULL) {
     	if(runThreadSafe == true) mutex.p();
         soundPlayer->stop(strSound);
-		if(strSound->getNext() != NULL) {
-			soundPlayer->stop(strSound->getNext());
-		}
+        if(strSound != NULL) {
+			if(strSound->getNext() != NULL) {
+				soundPlayer->stop(strSound->getNext());
+			}
+        }
 		if(runThreadSafe == true) mutex.v();
     }
 }
@@ -154,11 +160,13 @@ void SoundRenderer::playFx(StaticSound *staticSound){
 // ======================= Ambient ============================
 
 void SoundRenderer::playAmbient(StrSound *strSound){
-	strSound->setVolume(ambientVolume);
-	if(soundPlayer != NULL) {
-		if(runThreadSafe == true) mutex.p();
-        soundPlayer->play(strSound, ambientFade);
-        if(runThreadSafe == true) mutex.v();
+	if(strSound != NULL) {
+		strSound->setVolume(ambientVolume);
+		if(soundPlayer != NULL) {
+			if(runThreadSafe == true) mutex.p();
+			soundPlayer->play(strSound, ambientFade);
+			if(runThreadSafe == true) mutex.v();
+		}
 	}
 }
 

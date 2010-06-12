@@ -385,16 +385,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		soundRenderer.playFx(coreData.getClickSoundA());
 
-		/*
-		if( listBoxPublishServer.getEditable() &&
-			listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-			lastMasterserverPublishing = 0;
-			publishToMasterserver();
-			simpleTask();
-		}
-		*/
-
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToBroadcastServerSettings = false;
 		needToRepublishToMasterserver = false;
@@ -448,8 +438,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 				needToRepublishToMasterserver = true;
 				lastMasterserverPublishing = 0;
-				//publishToMasterserver();
-				//simpleTask();
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
@@ -1108,6 +1096,9 @@ void MenuStateCustomGame::simpleTask() {
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo != "");
+	if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
+		return;
+	}
 	safeMutex.ReleaseLock(true);
 
 	if(republish == true) {
@@ -1126,8 +1117,11 @@ void MenuStateCustomGame::simpleTask() {
 
 		//printf("the request is:\n%s\n",request.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
-		
 
+		if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
+			return;
+		}
+		
 		std::string serverInfo = SystemFlags::getHTTP(request);
 		//printf("the result is:\n'%s'\n",serverInfo.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
@@ -1146,6 +1140,11 @@ void MenuStateCustomGame::simpleTask() {
 
 	safeMutex.Lock();
 	bool broadCastSettings = needToBroadcastServerSettings;
+
+	if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
+		return;
+	}
+
 	safeMutex.ReleaseLock(true);
 
 	if(broadCastSettings)
@@ -1160,8 +1159,16 @@ void MenuStateCustomGame::simpleTask() {
 		if(serverInterface->hasClientConnection() == true) {
 			//printf("Sending game settings broadcast since we have at least 1 client connected'\n");
 
+			if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
+				return;
+			}
+
 			GameSettings gameSettings;
 			loadGameSettings(&gameSettings);
+
+			if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
+				return;
+			}
 
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);

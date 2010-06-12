@@ -15,10 +15,17 @@
 #include "game_constants.h"
 #include "platform_util.h"
 #include "game_util.h"
+#include <map>
+#include "conversion.h"
+#include "window.h"
+#include <stdexcept>
+//#include <cstdio>
+//#include <cstdlib>
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
 using namespace Shared::Util;
+using namespace std;
 
 namespace Glest{ namespace Game{
 
@@ -35,77 +42,236 @@ const char *GameConstants::folder_path_tutorials    = "tutorials";
 // 	class Config
 // =====================================================
 
-Config::Config(){
+const string defaultNotFoundValue = "~~NOT FOUND~~";
 
-	string cfgFile = "glest.ini";
+map<ConfigType,Config> Config::configList;
+
+Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
+	fileLoaded.first = false;
+	fileLoaded.second = false;
+	cfgType = type;
+
+	fileName = file;
     if(getGameReadWritePath() != "") {
-        cfgFile = getGameReadWritePath() + cfgFile;
+    	fileName.first = getGameReadWritePath() + fileName.first;
+    	fileName.second = getGameReadWritePath() + fileName.second;
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile = [%s]\n",__FILE__,__FUNCTION__,__LINE__,cfgFile.c_str());
-	properties.load(cfgFile);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile = [%s]\n",__FILE__,__FUNCTION__,__LINE__,cfgFile.c_str());
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
+
+    if(fileMustExist.first == true ||
+    	(fileMustExist.first == false && fileExists(fileName.first) == true)) {
+    	properties.first.load(fileName.first);
+    	fileLoaded.first = true;
+
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
+    }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
+
+    if(properties.first.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+    	fileName.second = properties.first.getString("UserOverrideFile");
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+
+    if(fileMustExist.second == true ||
+    	(fileMustExist.second == false && fileExists(fileName.second) == true)) {
+    	properties.second.load(fileName.second);
+    	fileLoaded.second = true;
+
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+    }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+
 }
 
-Config &Config::getInstance(){
-	static Config config;
-	return config;
+Config &Config::getInstance(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
+	if(configList.find(type.first) == configList.end()) {
+		Config config(type, file, fileMustExist);
+		configList.insert(map<ConfigType,Config>::value_type(type.first,config));
+	}
+
+	return configList.find(type.first)->second;
 }
 
 void Config::save(const string &path){
-	properties.save(path);
+	if(fileLoaded.second == true) {
+		if(path != "") {
+			fileName.second = path;
+		}
+		properties.second.save(fileName.second);
+		return;
+	}
+
+	if(path != "") {
+		fileName.first = path;
+	}
+	properties.first.save(fileName.first);
 }
 
 int Config::getInt(const char *key,const char *defaultValueIfNotFound) const {
-    return properties.getInt(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getInt(key,defaultValueIfNotFound);
+	}
+    return properties.first.getInt(key,defaultValueIfNotFound);
 }
 
 bool Config::getBool(const char *key,const char *defaultValueIfNotFound) const {
-    return properties.getBool(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getBool(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getBool(key,defaultValueIfNotFound);
 }
 
 float Config::getFloat(const char *key,const char *defaultValueIfNotFound) const {
-    return properties.getFloat(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getFloat(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getFloat(key,defaultValueIfNotFound);
 }
 
 const string Config::getString(const char *key,const char *defaultValueIfNotFound) const {
-    return properties.getString(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getString(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getString(key,defaultValueIfNotFound);
 }
 
 int Config::getInt(const string &key,const char *defaultValueIfNotFound) const{
-	return properties.getInt(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getInt(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getInt(key,defaultValueIfNotFound);
 }
 
 bool Config::getBool(const string &key,const char *defaultValueIfNotFound) const{
-	return properties.getBool(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getBool(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getBool(key,defaultValueIfNotFound);
 }
 
 float Config::getFloat(const string &key,const char *defaultValueIfNotFound) const{
-	return properties.getFloat(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getFloat(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getFloat(key,defaultValueIfNotFound);
 }
 
 const string Config::getString(const string &key,const char *defaultValueIfNotFound) const{
-	return properties.getString(key,defaultValueIfNotFound);
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+		return properties.second.getString(key,defaultValueIfNotFound);
+	}
+
+	return properties.first.getString(key,defaultValueIfNotFound);
+}
+
+char Config::translateStringToCharKey(const string &value) const {
+	char result = 0;
+
+	if(IsNumeric(value.c_str()) == true) {
+		result = strToInt(value);
+	}
+	else if(value.substr(0,2) == "vk") {
+		if(value == "vkLeft") {
+			result = vkLeft;
+		}
+		else if(value == "vkRight") {
+			result = vkRight;
+		}
+		else if(value == "vkUp") {
+			result = vkUp;
+		}
+		else if(value == "vkDown") {
+			result = vkDown;
+		}
+		else if(value == "vkAdd") {
+			result = vkAdd;
+		}
+		else if(value == "vkSubtract") {
+			result = vkSubtract;
+		}
+		else if(value == "vkEscape") {
+			result = vkEscape;
+		}
+		else {
+			string sError = "Unsupported key translation" + value;
+			throw runtime_error(sError.c_str());
+		}
+	}
+	else if(value.length() >= 1) {
+		result = value[0];
+	}
+	else {
+		string sError = "Unsupported key translation" + value;
+		throw runtime_error(sError.c_str());
+	}
+
+	return result;
+}
+
+char Config::getCharKey(const char *key) const {
+	if(fileLoaded.second == true &&
+		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+
+		string value = properties.second.getString(key);
+		return translateStringToCharKey(value);
+	}
+	string value = properties.first.getString(key);
+	return translateStringToCharKey(value);
 }
 
 void Config::setInt(const string &key, int value){
-	properties.setInt(key, value);
+	if(fileLoaded.second == true) {
+		properties.second.setInt(key, value);
+		return;
+	}
+	properties.first.setInt(key, value);
 }
 
 void Config::setBool(const string &key, bool value){
-	properties.setBool(key, value);
+	if(fileLoaded.second == true) {
+		properties.second.setBool(key, value);
+		return;
+	}
+
+	properties.first.setBool(key, value);
 }
 
 void Config::setFloat(const string &key, float value){
-	properties.setFloat(key, value);
+	if(fileLoaded.second == true) {
+		properties.second.setFloat(key, value);
+		return;
+	}
+
+	properties.first.setFloat(key, value);
 }
 
 void Config::setString(const string &key, const string &value){
-	properties.setString(key, value);
+	if(fileLoaded.second == true) {
+		properties.second.setString(key, value);
+		return;
+	}
+
+	properties.first.setString(key, value);
 }
 
 string Config::toString(){
-	return properties.toString();
+	return properties.first.toString();
 }
 
 vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
