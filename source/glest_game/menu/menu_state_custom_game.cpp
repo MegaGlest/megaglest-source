@@ -1405,6 +1405,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
     }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return gameSettings;
 }
 
 // ============ PRIVATE ===========================
