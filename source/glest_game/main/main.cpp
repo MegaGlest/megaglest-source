@@ -352,6 +352,11 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
 
+		Config &configKeys = Config::getInstance(
+				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
+				std::pair<bool,bool>(true,false));
+
 		//showCursor(config.getBool("Windowed"));
 		showCursor(false);
 

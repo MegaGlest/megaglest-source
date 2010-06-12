@@ -326,27 +326,28 @@ void Gui::groupKey(int groupIndex){
 	}
 }
 
-void Gui::hotKey(char key){
-
+void Gui::hotKey(char key) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c][%d]\n",__FILE__,__FUNCTION__,key,key);
 
-	if(key=='G'){
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+	if(key == configKeys.getCharKey("HotKeyCenterCameraOnSelection")) {
 		centerCameraOnSelection();
 	}
-	else if(key=='I'){
+	else if(key == configKeys.getCharKey("HotKeySelectIdleHarvesterUnit")) {
 		selectInterestingUnit(iutIdleHarvester);
 	}
-	else if(key=='B'){
+	else if(key == configKeys.getCharKey("HotKeySelectBuiltBuilding")) {
 		selectInterestingUnit(iutBuiltBuilding);
 	}
-	else if(key=='?') {
+	else if(key == configKeys.getCharKey("HotKeyShowDebug")) {
 		this->showDebugUI = !this->showDebugUI;
 	}
-	else if(key=='|') {
+	else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
 		std::string worldLog = world->DumpWorldToLog();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
 	}
-	else if(key=='R'){
+	else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
 	    // Here the user triggers a unit rotation while placing a unit
 	    if(allowRotateUnits == true && isPlacingBuilding()) {
 	    	if(getBuilding()->getRotationAllowed()){
@@ -354,16 +355,16 @@ void Gui::hotKey(char key){
 	    	}
 	    }
 	}
-	else if(key=='D'){
+	else if(key == configKeys.getCharKey("HotKeySelectDamagedUnit")) {
 		selectInterestingUnit(iutDamaged);
 	}
-	else if(key=='T'){
+	else if(key == configKeys.getCharKey("HotKeySelectStoreUnit")) {
 		selectInterestingUnit(iutStore);
 	}
-	else if(key=='A'){
+	else if(key == configKeys.getCharKey("HotKeySelectedUnitsAttack")) {
 		clickCommonCommand(ccAttack);
 	}
-	else if(key=='S'){
+	else if(key == configKeys.getCharKey("HotKeySelectedUnitsStop")) {
 		clickCommonCommand(ccStop);
 	}
 }

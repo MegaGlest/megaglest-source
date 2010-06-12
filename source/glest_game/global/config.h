@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -26,16 +26,38 @@ using Shared::Util::Properties;
 //	Game configuration
 // =====================================================
 
-class Config{
+enum ConfigType {
+    cfgMainGame,
+    cfgUserGame,
+    cfgMainKeys,
+    cfgUserKeys
+};
+
+
+class Config {
 private:
-	Properties properties;
+	//Properties properties;
+	//ConfigType cfgType;
+	//string fileName;
+	//bool fileLoaded;
+
+	std::pair<Properties,Properties> properties;
+	std::pair<ConfigType,ConfigType> cfgType;
+	std::pair<string,string> fileName;
+	std::pair<bool,bool> fileLoaded;
+
+	static map<ConfigType,Config> configList;
 
 private:
-	Config();
+	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
+
+	char translateStringToCharKey(const string &value) const;
 
 public:
-    static Config &getInstance();
-	void save(const string &path="glest.ini");
+    static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::pair<ConfigType,ConfigType>(cfgMainGame,cfgUserGame),
+							   std::pair<string,string> file = std::pair<string,string>("glest.ini","glestuser.ini"),
+							   std::pair<bool,bool> fileMustExist = std::pair<bool,bool>(true,false));
+	void save(const string &path="");
 
 	int getInt(const string &key,const char *defaultValueIfNotFound=NULL) const;
 	bool getBool(const string &key,const char *defaultValueIfNotFound=NULL) const;
@@ -46,6 +68,7 @@ public:
 	bool getBool(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	float getFloat(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	const string getString(const char *key,const char *defaultValueIfNotFound=NULL) const;
+	char getCharKey(const char *key) const;
 
 	void setInt(const string &key, int value);
 	void setBool(const string &key, bool value);

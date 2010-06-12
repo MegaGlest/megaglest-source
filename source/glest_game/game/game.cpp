@@ -162,6 +162,8 @@ void Game::load(){
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
     }
 	
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
 	if(loadingImageUsed == false){
 		// try to use a faction related loading screen
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
@@ -238,6 +240,9 @@ void Game::load(){
 	//tileset
     world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
 
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	set<string> factions;
@@ -249,11 +254,17 @@ void Game::load(){
 
     //tech, load before map because of resources
     world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
-	
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //map
 	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -262,6 +273,9 @@ void Game::load(){
 		Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
 		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
 	}
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
@@ -287,13 +301,29 @@ void Game::init()
 
 	//init world, and place camera
 	commander.init(&world);
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	world.init(this, gameSettings.getDefaultUnits());
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	gui.init(this);
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	chatManager.init(&console, world.getThisTeamIndex());
 	console.clearStoredLines();
 	const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
 	gameCamera.init(map->getW(), map->getH());
 	gameCamera.setPos(Vec2f(v.x, v.y));
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	scriptManager.init(&world, &gameCamera);
 
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
@@ -312,6 +342,9 @@ void Game::init()
 			aiInterfaces[i]= NULL;
 		}
 	}
+
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
 
 	//wheather particle systems
 	if(world.getTileset()->getWeather() == wRainy){
@@ -337,6 +370,9 @@ void Game::init()
 
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
+    // give CPU time to update other things to avoid apperance of hanging
+    sleep(0);
+
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
@@ -359,10 +395,21 @@ void Game::init()
 	logger.add("Waiting for network players", true);
 	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
-    std::string worldLog = world.DumpWorldToLog(true);
+    //std::string worldLog = world.DumpWorldToLog(true);
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Starting music stream\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
 	logger.add("Starting music stream", true);
+
+	if(world.getThisFaction() == NULL) {
+		throw runtime_error("world.getThisFaction() == NULL");
+	}
+	if(world.getThisFaction()->getType() == NULL) {
+		throw runtime_error("world.getThisFaction()->getType() == NULL");
+	}
+	//if(world.getThisFaction()->getType()->getMusic() == NULL) {
+	//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
+	//}
+
 	StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 	soundRenderer.playMusic(gameMusic);
 
@@ -762,13 +809,15 @@ void Game::keyDown(char key){
 		if(!chatManager.getEditEnabled()){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
-			if(key=='N'){
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+			if(key == configKeys.getCharKey("RenderNetworkStatus")) {
 				renderNetworkStatus= true;
 			}
-			else if(key=='M'){
+			else if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
 			}
-			else if(key=='E'){
+			else if(key == configKeys.getCharKey("Screenshot")) {
 				for(int i=0; i<100; ++i){
 					string path= "screens/screen" + intToStr(i) + ".tga";
 
@@ -782,40 +831,34 @@ void Game::keyDown(char key){
 					}
 				}
 			}
-
 			//move camera left
-			else if(key==vkLeft){
+			else if(key == configKeys.getCharKey("CameraModeLeft")) {
 				gameCamera.setMoveX(-1);
 			}
-
 			//move camera right
-			else if(key==vkRight){
+			else if(key == configKeys.getCharKey("CameraModeRight")) {
 				gameCamera.setMoveX(1);
 			}
-
 			//move camera up
-			else if(key==vkUp){
+			else if(key == configKeys.getCharKey("CameraModeUp")) {
 				gameCamera.setMoveZ(1);
 			}
-
 			//move camera down
-			else if(key==vkDown){
+			else if(key == configKeys.getCharKey("CameraModeDown")) {
 				gameCamera.setMoveZ(-1);
 			}
-
 			//change camera mode
-			else if(key=='F'){
+			else if(key == configKeys.getCharKey("FreeCameraMode")) {
 				gameCamera.switchState();
 				string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
 				console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 			}
-
 			//reset camera mode to normal
-			else if(key==' '){
+			else if(key == configKeys.getCharKey("ResetCameraMode")) {
 				gameCamera.resetPosition();
 			}
 			//pause
-			else if(key=='P'){
+			else if(key == configKeys.getCharKey("PauseGame")) {
 				if(speedChangesAllowed){
 					if(paused){
 						console.addLine(lang.get("GameResumed"));
@@ -828,34 +871,39 @@ void Game::keyDown(char key){
 				}
 			}
 			//switch display color
-			else if(key=='C'){
+			else if(key == configKeys.getCharKey("ChangeFontColor")) {
 				gui.switchToNextDisplayColor();
 			}
-
 			//increment speed
-			else if(key==vkAdd){
+			else if(key == configKeys.getCharKey("GameSpeedIncrease")) {
 				if(speedChangesAllowed){
 					incSpeed();
 				}
 			}
-
 			//decrement speed
-			else if(key==vkSubtract){
+			else if(key == configKeys.getCharKey("GameSpeedDecrease")) {
 				if(speedChangesAllowed){
 					decSpeed();
 				}
 			}
-
 			//exit
-			else if(key==vkEscape){
+			else if(key == configKeys.getCharKey("ExitKey")) {
 				showMessageBox(lang.get("ExitGame?"), "", true);
 			}
-
 			//group
-			else if(key>='0' && key<'0'+Selection::maxGroups){
+			//else if(key>='0' && key<'0'+Selection::maxGroups){
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
-				gui.groupKey(key-'0');
+				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
+					string keyName = "GroupUnitsKey" + intToStr(idx);
+					if(key == configKeys.getCharKey(keyName.c_str())) {
+						//gui.groupKey(key-'0');
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+						gui.groupKey(idx-1);
+						break;
+					}
+				}
 			}
 
 			//hotkeys
@@ -866,24 +914,21 @@ void Game::keyDown(char key){
 
 				gui.hotKey(key);
 			}
-			else{
+			else {
 				//rotate camera leftt
-				if(key=='A'){
+				if(key == configKeys.getCharKey("CameraRotateLeft")) {
 					gameCamera.setRotate(-1);
 				}
-
 				//rotate camera right
-				else if(key=='D'){
+				else if(key == configKeys.getCharKey("CameraRotateRight")){
 					gameCamera.setRotate(1);
 				}
-
 				//camera up
-				else if(key=='S'){
+				else if(key == configKeys.getCharKey("CameraRotateUp")) {
 					gameCamera.setMoveY(1);
 				}
-
 				//camera down
-				else if(key=='W'){
+				else if(key == configKeys.getCharKey("CameraRotateDown")) {
 					gameCamera.setMoveY(-1);
 				}
 			}
@@ -1181,6 +1226,9 @@ void Game::checkWinnerStandard(){
 		if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 			// Let the poor user watch everything unfold
 			world.setFogOfWar(false);
+			//gameCamera.setClampBounds(false);
+			Renderer::getInstance().setPhotoMode(true);
+			gameCamera.setMaxHeight(500);
 			// but don't let him cheat via teamchat
 			chatManager.setDisableTeamMode(true);
 		}
@@ -1209,6 +1257,9 @@ void Game::checkWinnerStandard(){
 			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the happy winner view everything left in the world
 				world.setFogOfWar(false);
+				//gameCamera.setClampBounds(false);
+				Renderer::getInstance().setPhotoMode(true);
+				gameCamera.setMaxHeight(500);
 			}
 
 			showWinMessageBox();

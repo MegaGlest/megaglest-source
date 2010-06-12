@@ -381,6 +381,8 @@ public:
 	void renderUnitTitles(Font2D *font, Vec3f color);
 	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
+	bool setPhotoMode(bool value) { photoMode = value; }
+
 private:
 	//private misc
 	float computeSunAngle(float time);

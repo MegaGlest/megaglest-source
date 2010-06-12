@@ -543,6 +543,8 @@ char Window::getKey(SDL_keysym keysym) {
 			return '8';
 		case SDLK_9:
 			return '9';
+		case SDLK_QUESTION:
+			return '?';
 		case SDLK_a:
 			return 'A';
 		case SDLK_b:

@@ -56,11 +56,11 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 
 	move= Vec3f(0.f);
 
-	maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
+	//maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
 	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
 	minHeight = Config::getInstance().getFloat("CameraMinDistance","7");
-	maxCameraDist = maxHeight;
-	minCameraDist = minHeight;
+	//maxCameraDist = maxHeight;
+	//minCameraDist = minHeight;
 	minVAng = -Config::getInstance().getFloat("CameraMaxYaw","77.5");
 	maxVAng = -Config::getInstance().getFloat("CameraMinYaw","20");
 	fov = Config::getInstance().getFloat("CameraFov","45");

@@ -26,7 +26,7 @@ using namespace Shared::Platform;
 namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.5-beta1";
+const string glestVersionString= "v3.3.5-beta3";
 
 string getCrashDumpFileName(){
 	return "glest" + glestVersionString + ".dmp";
@@ -100,11 +100,11 @@ string getAboutString2(int i){
 
 string getTeammateName(int i){
 	switch(i){
-	case 0: return "Marti�o Figueroa";
-	case 1: return "Jos� Luis Gonz�lez";
-	case 2: return "Tucho Fern�ndez";
-	case 3: return "Jos� Zanni";
-	case 4: return "F�lix Men�ndez";
+	case 0: return "Martiño Figueroa";
+	case 1: return "José Luis González";
+	case 2: return "Tucho  Fernández";
+	case 3: return "José Zanni";
+	case 4: return "Félix Menéndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	case 7: return "Titus Tscharntke";

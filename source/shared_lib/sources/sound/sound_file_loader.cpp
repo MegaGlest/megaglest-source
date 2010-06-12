@@ -15,10 +15,12 @@
 #include <vorbis/vorbisfile.h>
 
 #include "sound.h"
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
 using namespace std;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Sound{
 
@@ -146,14 +148,31 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	}
 
 	vf= new OggVorbis_File();
+	if(vf==NULL) {
+		throw runtime_error("Can't create ogg object for file: "+path);
+	}
+
 	ov_open(f, vf, NULL, 0);
 
 	vorbis_info *vi= ov_info(vf, -1);
+	if(vi==NULL) {
+		throw runtime_error("Can't read ogg header info for file: "+path);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %d, vi->bitrate_upper = %d, vi->bitrate_nominal = %d, vi->bitrate_lower = %d, vi->bitrate_window = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window);
 
 	soundInfo->setChannels(vi->channels);
 	soundInfo->setsamplesPerSecond(vi->rate);
 	soundInfo->setBitsPerSample(16);
-	soundInfo->setSize(static_cast<uint32>(ov_pcm_total(vf, -1))*2);
+
+	uint32 samples = static_cast<uint32>(ov_pcm_total(vf, -1));
+
+	//if(vi->channels == 1) {
+		soundInfo->setSize(samples * 2);
+	//}
+	//else {
+	//	soundInfo->setSize(samples * 4);
+	//}
 }
 
 uint32 OggSoundFileLoader::read(int8 *samples, uint32 size){
