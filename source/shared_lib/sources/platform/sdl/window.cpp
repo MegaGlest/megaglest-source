@@ -147,7 +147,7 @@ bool Window::handleEvent() {
 					if(global_window) {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-						global_window->eventKeyDown(getKey(event.key.keysym));
+						global_window->eventKeyDown(getKey(event.key.keysym,true));
 						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -160,7 +160,7 @@ bool Window::handleEvent() {
 					keystate = event.key.keysym;
 
 					if(global_window) {
-						global_window->eventKeyUp(getKey(event.key.keysym));
+						global_window->eventKeyUp(getKey(event.key.keysym,true));
 					}
 					break;
 				case SDL_ACTIVEEVENT:
@@ -491,7 +491,20 @@ MouseButton Window::getMouseButton(int sdlButton) {
 	}
 }
 
-char Window::getKey(SDL_keysym keysym) {
+char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
+	if(skipSpecialKeys == false) {
+		switch(keysym.sym) {
+			case SDLK_LALT:
+			case SDLK_RALT:
+				return vkAlt;
+			case SDLK_LCTRL:
+			case SDLK_RCTRL:
+				return vkControl;
+			case SDLK_LSHIFT:
+			case SDLK_RSHIFT:
+				return vkShift;
+		}
+	}
 	switch(keysym.sym) {
 		case SDLK_PLUS:
 		case SDLK_KP_PLUS:
@@ -499,15 +512,6 @@ char Window::getKey(SDL_keysym keysym) {
 		case SDLK_MINUS:
 		case SDLK_KP_MINUS:
 			return vkSubtract;
-		case SDLK_LALT:
-		case SDLK_RALT:
-			return vkAlt;
-		case SDLK_LCTRL:
-		case SDLK_RCTRL:
-			return vkControl;
-		case SDLK_LSHIFT:
-		case SDLK_RSHIFT:
-			return vkShift;
 		case SDLK_ESCAPE:
 			return vkEscape;
 		case SDLK_UP:

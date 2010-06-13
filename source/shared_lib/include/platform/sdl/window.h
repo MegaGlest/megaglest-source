@@ -194,7 +194,7 @@ private:
 	void handleMouseDown(SDL_Event event);
 
 	static MouseButton getMouseButton(int sdlButton);
-	static char getKey(SDL_keysym keysym);
+	static char getKey(SDL_keysym keysym, bool skipSpecialKeys=false);
 	static void toggleFullscreen();
 };
 
