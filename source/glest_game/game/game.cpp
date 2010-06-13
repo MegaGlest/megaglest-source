@@ -164,6 +164,8 @@ void Game::load(){
 	
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
+
 	if(loadingImageUsed == false){
 		// try to use a faction related loading screen
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
@@ -242,6 +244,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -257,6 +260,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -265,6 +269,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -276,6 +281,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
@@ -304,16 +310,19 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	world.init(this, gameSettings.getDefaultUnits());
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	gui.init(this);
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	chatManager.init(&console, world.getThisTeamIndex());
 	console.clearStoredLines();
@@ -323,6 +332,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	scriptManager.init(&world, &gameCamera);
 
@@ -345,6 +355,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	//wheather particle systems
 	if(world.getTileset()->getWeather() == wRainy){
@@ -372,6 +383,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();

@@ -68,6 +68,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	//load tech tree xml info
 	try{
@@ -90,6 +91,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 	    // give CPU time to update other things to avoid apperance of hanging
 	    sleep(0);
+		SDL_PumpEvents();
 
 		//armor types
 		const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
@@ -117,6 +119,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+	SDL_PumpEvents();
 
 	//load factions
 	str= dir+"/factions/*.";
@@ -136,6 +139,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
+			SDL_PumpEvents();
 
         }
     }
