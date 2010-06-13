@@ -810,7 +810,7 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 
 void Game::keyDown(char key){
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 		Lang &lang= Lang::getInstance();
 		bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
@@ -909,9 +909,12 @@ void Game::keyDown(char key){
 
 				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
 					string keyName = "GroupUnitsKey" + intToStr(idx);
-					if(key == configKeys.getCharKey(keyName.c_str())) {
+					char groupHotKey = configKeys.getCharKey(keyName.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
+
+					if(key == groupHotKey) {
 						//gui.groupKey(key-'0');
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						gui.groupKey(idx-1);
 						break;
 					}

@@ -214,7 +214,12 @@ char Config::translateStringToCharKey(const string &value) const {
 		}
 	}
 	else if(value.length() >= 1) {
-		result = value[0];
+		if(value.length() == 3 && value[0] == '\'' && value[2] == '\'') {
+			result = value[1];
+		}
+		else {
+			result = value[0];
+		}
 	}
 	else {
 		string sError = "Unsupported key translation" + value;
