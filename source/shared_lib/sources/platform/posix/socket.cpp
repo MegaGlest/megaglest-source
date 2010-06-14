@@ -459,9 +459,11 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 
 #if defined(USE_GETIFADDRS)
    // BSD-style implementation
+   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
    struct ifaddrs * ifap;
    if (getifaddrs(&ifap) == 0)
    {
+	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
       struct ifaddrs * p = ifap;
       while(p)
       {
@@ -470,13 +472,17 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
          uint32 dstAddr  = SockAddrToUint32(p->ifa_dstaddr);
          if (ifaAddr > 0)
          {
+        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
             char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
             char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
             char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
             //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
-			 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
+			if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
 				broadCastAddress = dstAddrStr;
-			 }
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ifaAddrStr [%s], maskAddrStr [%s], dstAddrStr[%s], ipAddress [%s], broadCastAddress [%s]\n",__FILE__,__FUNCTION__,__LINE__,ifaAddrStr,maskAddrStr,dstAddrStr,ipAddress.c_str(),broadCastAddress.c_str());
          }
          p = p->ifa_next;
       }
@@ -600,46 +606,56 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	/* get my host name */
 	char myhostname[101]="";
 	gethostname(myhostname,100);
+	char myhostaddr[101] = "";
 
 	struct hostent* myhostent = gethostbyname(myhostname);
+	if(myhostent) {
+		// get all host IP addresses (Except for loopback)
+		char myhostaddr[101] = "";
+		int ipIdx = 0;
+		while (myhostent->h_addr_list[ipIdx] != 0) {
+		   sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
+		   //printf("%s\n",myhostaddr);
+		   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
-	// get all host IP addresses (Except for loopback)
-	char myhostaddr[101] = "";
-	int ipIdx = 0;
-	while (myhostent->h_addr_list[ipIdx] != 0) {
-	   sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
-	   //printf("%s\n",myhostaddr);
-	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
-
-	   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
-		   ipList.push_back(myhostaddr);
-	   }
-	   ipIdx++;
-	}
+		   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+			   ipList.push_back(myhostaddr);
+		   }
+		   ipIdx++;
+		}
+		}
 
 #ifndef WIN32
 
 	// Now check all linux network devices
-	for(int idx = 0; idx < 5; ++idx) {
-		PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
+	std::vector<string> intfTypes;
+	intfTypes.push_back("eth");
+	intfTypes.push_back("wlan");
+	intfTypes.push_back("vboxnet");
 
-		/* I want to get an IPv4 IP address */
-		struct ifreq ifr;
-		ifr.ifr_addr.sa_family = AF_INET;
+	for(int intfIdx = 0; intfIdx < intfTypes.size(); intfIdx++) {
+		string intfName = intfTypes[intfIdx];
+		for(int idx = 0; idx < 10; ++idx) {
+			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-		/* I want IP address attached to "eth0" */
-		char szBuf[10]="";
-		sprintf(szBuf,"eth%d",idx);
-		strncpy(ifr.ifr_name, szBuf, IFNAMSIZ-1);
-		ioctl(fd, SIOCGIFADDR, &ifr);
-		close(fd);
+			/* I want to get an IPv4 IP address */
+			struct ifreq ifr;
+			ifr.ifr_addr.sa_family = AF_INET;
 
-		sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
+			/* I want IP address attached to "eth0" */
+			char szBuf[100]="";
+			sprintf(szBuf,"%s%d",intfName.c_str(),idx);
+			strncpy(ifr.ifr_name, szBuf, IFNAMSIZ-1);
+			ioctl(fd, SIOCGIFADDR, &ifr);
+			close(fd);
 
-		if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
-			if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
-				ipList.push_back(myhostaddr);
+			sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr);
+
+			if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+				if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
+					ipList.push_back(myhostaddr);
+				}
 			}
 		}
 	}
@@ -1659,15 +1675,22 @@ void BroadCastSocketThread::execute() {
 		bcLocal[idx].sin_family			= AF_INET;
 		bcLocal[idx].sin_addr.s_addr	= inet_addr(subnetmask[idx]); //htonl( INADDR_BROADCAST );
 		bcLocal[idx].sin_port			= port;  // We are letting the OS fill in the port number for the local machine.
-		bcfd[idx]						= socket( AF_INET, SOCK_DGRAM, 0 );
-		if( bcfd[idx] <= 0  ) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
-			//exit(-1);
-		}
-		// Mark the socket for broadcast.
-		else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
-			//exit(-1);
+#ifdef WIN32
+		bcfd[idx] = INVALID_SOCKET;
+#else
+		bcfd[idx] = -1;
+#endif
+		if(strlen(subnetmask[idx]) > 0) {
+			bcfd[idx]						= socket( AF_INET, SOCK_DGRAM, 0 );
+			if( bcfd[idx] <= 0  ) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
+				//exit(-1);
+			}
+			// Mark the socket for broadcast.
+			else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
+				//exit(-1);
+			}
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] setting up broadcast on address [%s]\n",__FILE__,__FUNCTION__,__LINE__,subnetmask[idx]);
