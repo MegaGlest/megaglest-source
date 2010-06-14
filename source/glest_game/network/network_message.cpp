@@ -252,7 +252,7 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 5; peekAttempt++) {
+	for(int peekAttempt = 1; peekAttempt < 15; peekAttempt++) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
 		if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == true) {
@@ -273,6 +273,20 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 
 	// read header + data.commandCount commands.
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
+
+    // _peek_ type, commandCount & frame num first.
+	for(int peekAttempt = 1; peekAttempt < 15; peekAttempt++) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+
+		if (NetworkMessage::peek(socket, &data, totalMsgSize) == true) {
+			break;
+		}
+		else {
+			sleep(1); // sleep 1 ms to wait for socket data
+		}
+	}
+
+
 	if (socket->getDataToRead() < totalMsgSize) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR / WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
 			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
