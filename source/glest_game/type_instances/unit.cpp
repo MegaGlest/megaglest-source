@@ -247,16 +247,34 @@ int Unit::getTeam() const{
 	return faction->getTeam();
 }
 
-Vec2i Unit::getCenteredPos() const{
+Vec2i Unit::getCenteredPos() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
     return pos + Vec2i(type->getSize()/2, type->getSize()/2);
 }
 
-Vec2f Unit::getFloatCenteredPos() const{
+Vec2f Unit::getFloatCenteredPos() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
 }
 
-Vec2i Unit::getCellPos() const{
-	if(type->hasCellMap()){
+Vec2i Unit::getCellPos() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	if(type->hasCellMap()) {
 
 		//find nearest pos to center that is free
 		Vec2i centeredPos= getCenteredPos();
@@ -299,11 +317,23 @@ int Unit::getProductionPercent() const{
 	return -1;
 }
 
-float Unit::getHpRatio() const{
+float Unit::getHpRatio() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	return clamp(static_cast<float>(hp)/type->getTotalMaxHp(&totalUpgrade), 0.f, 1.f);
 }
 
-float Unit::getEpRatio() const{
+float Unit::getEpRatio() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(type->getMaxHp()==0){
 		return 0.f;
 	}
@@ -313,6 +343,12 @@ float Unit::getEpRatio() const{
 }
 
 const Level *Unit::getNextLevel() const{
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(level==NULL && type->getLevelCount()>0){
 		return type->getLevel(0);
 	}
@@ -345,6 +381,12 @@ bool Unit::isOperative() const{
 }
 
 bool Unit::isBeingBuilt() const{
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
     return currSkill->getClass()==scBeBuilt;
 }
 
@@ -356,15 +398,33 @@ bool Unit::isPutrefacting() const{
 	return deadCount!=0;
 }
 
-bool Unit::isAlly(const Unit *unit) const{
+bool Unit::isAlly(const Unit *unit) const {
+	if(unit == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	return faction->isAlly(unit->getFaction());
 }
 
-bool Unit::isDamaged() const{
+bool Unit::isDamaged() const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	return hp < type->getTotalMaxHp(&totalUpgrade);
 }
 
-bool Unit::isInteresting(InterestingUnitType iut) const{
+bool Unit::isInteresting(InterestingUnitType iut) const {
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	switch(iut){
 	case iutIdleHarvester:
 		if(type->hasCommandClass(ccHarvest)){
@@ -393,6 +453,17 @@ bool Unit::isInteresting(InterestingUnitType iut) const{
 // ====================================== set ======================================
 
 void Unit::setCurrSkill(const SkillType *currSkill){
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+	if(this->currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(currSkill->getClass()!=this->currSkill->getClass()){
 		animProgress= 0;
 		lastAnimProgress= 0;
@@ -419,10 +490,22 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 }
 
 void Unit::setCurrSkill(SkillClass sc){
+	if(getType() == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
     setCurrSkill(getType()->getFirstStOfClass(sc));
 }
 
 void Unit::setTarget(const Unit *unit){
+
+	if(unit == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
 
 	//find a free pos in cellmap
 	setTargetPos(unit->getCellPos());
@@ -473,10 +556,22 @@ void Unit::setVisible(const bool visible){
 // =============================== Render related ==================================
 
 const Model *Unit::getCurrentModel() const{
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
     return currSkill->getAnimation();
 }
 
 Vec3f Unit::getCurrVector() const{
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	return getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
 }
 
@@ -651,9 +746,16 @@ void Unit::create(bool startingUnit){
 }
 
 void Unit::born(){
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	faction->addStore(type);
 	faction->applyStaticProduction(type);
 	setCurrSkill(scStop);
+
 	hp= type->getMaxHp();
 }
 
@@ -715,6 +817,12 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	const CommandType *commandType= NULL;
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(targetUnit!=NULL){
 		//attack enemies
 		if(!isAlly(targetUnit)){
@@ -748,6 +856,12 @@ bool Unit::update(){
 	//highlight
 	if(highlight>0.f){
 		highlight-= 1.f/(highlightTime*GameConstants::updateFps);
+	}
+
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
 	}
 
 	//speed
@@ -830,9 +944,15 @@ bool Unit::update(){
 	return return_value;
 }
 
-void Unit::tick(){
+void Unit::tick() {
 
-	if(isAlive()){
+	if(isAlive()) {
+		if(type == NULL) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			throw runtime_error(szBuf);
+		}
+
 		//regenerate hp
 		hp+= type->getHpRegeneration();
 		if(hp>type->getTotalMaxHp(&totalUpgrade)){
@@ -857,6 +977,12 @@ int Unit::update2(){
 
 bool Unit::computeEp(){
 
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	//if not enough ep
     if(ep-currSkill->getEpCost() < 0){
         return true;
@@ -864,6 +990,13 @@ bool Unit::computeEp(){
 
 	//decrease ep
     ep-= currSkill->getEpCost();
+
+	if(getType() == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(ep>getType()->getTotalMaxEp(&totalUpgrade)){
         ep= getType()->getTotalMaxEp(&totalUpgrade);
 	}
@@ -872,6 +1005,12 @@ bool Unit::computeEp(){
 }
 
 bool Unit::repair(){
+
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
 
 	//increase hp
 	hp+= getType()->getMaxHp()/type->getProductionTime() + 1;
@@ -894,6 +1033,12 @@ bool Unit::decHp(int i){
 	}
 
 	hp-=i;
+
+	if(type == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
 
 	//startDamageParticles
 	if(hp<type->getMaxHp()/2 ){
@@ -992,6 +1137,12 @@ string Unit::getDesc() const{
 }
 
 void Unit::applyUpgrade(const UpgradeType *upgradeType){
+	if(upgradeType == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	if(upgradeType->isAffected(type)){
 		totalUpgrade.sum(upgradeType);
 		hp+= upgradeType->getMaxHp();
@@ -1015,7 +1166,20 @@ void Unit::incKills(){
 }
 
 bool Unit::morph(const MorphCommandType *mct){
+
+	if(mct == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	const UnitType *morphUnitType= mct->getMorphUnit();
+
+	if(morphUnitType == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
 
     Field morphUnitField=fLand;
     if(morphUnitType->getField(fAir)) morphUnitField=fAir;
@@ -1086,8 +1250,8 @@ CommandResult Unit::checkCommand(Command *command) const{
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(command == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
 	//if not operative or has not command type => fail
@@ -1106,8 +1270,8 @@ CommandResult Unit::checkCommand(Command *command) const{
 
 	//check produced
 	if(command->getCommandType() == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
 
@@ -1128,8 +1292,8 @@ CommandResult Unit::checkCommand(Command *command) const{
 		const UnitType *builtUnit= command->getUnitType();
 
 		if(builtUnit == NULL) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: builtUnit == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+			char szBuf[4096]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw runtime_error(szBuf);
 		}
 
@@ -1146,8 +1310,8 @@ CommandResult Unit::checkCommand(Command *command) const{
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
 		if(uct == NULL) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL\n",__FILE__,__FUNCTION__,__LINE__);
+			char szBuf[4096]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw runtime_error(szBuf);
 		}
 
@@ -1163,6 +1327,17 @@ CommandResult Unit::checkCommand(Command *command) const{
 
 void Unit::applyCommand(Command *command){
 
+	if(command == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+	else if(command->getCommandType() == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
 	//check produced
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL){
@@ -1177,11 +1352,29 @@ void Unit::applyCommand(Command *command){
     //upgrade command specific
     else if(command->getCommandType()->getClass()==ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
-		faction->startUpgrade(uct->getProducedUpgrade());
+
+		if(uct == NULL) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			throw runtime_error(szBuf);
+		}
+
+        faction->startUpgrade(uct->getProducedUpgrade());
 	}
 }
 
 CommandResult Unit::undoCommand(Command *command){
+
+	if(command == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+	else if(command->getCommandType() == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
 
 	//return cost
 	const ProducibleType *produced= command->getCommandType()->getProduced();
@@ -1199,7 +1392,14 @@ CommandResult Unit::undoCommand(Command *command){
 	//upgrade command cancel from list
 	if(command->getCommandType()->getClass() == ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
-		faction->cancelUpgrade(uct->getProducedUpgrade());
+
+        if(uct == NULL) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			throw runtime_error(szBuf);
+		}
+
+        faction->cancelUpgrade(uct->getProducedUpgrade());
 	}
 
 	return crSuccess;
@@ -1207,12 +1407,12 @@ CommandResult Unit::undoCommand(Command *command){
 
 void Unit::stopDamageParticles(){
 	// stop fire
-	if(fire!=NULL){
-			fire->fade();
-			fire= NULL;
-		}
+	if(fire!=NULL) {
+		fire->fade();
+		fire= NULL;
+	}
 	// stop additional particles
-	while(!damageParticleSystems.empty()){
+	while(!damageParticleSystems.empty()) {
 		damageParticleSystems.back()->fade();
 		damageParticleSystems.pop_back();
 	}
