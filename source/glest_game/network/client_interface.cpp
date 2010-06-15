@@ -37,6 +37,7 @@ namespace Glest{ namespace Game{
 
 const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
 const int ClientInterface::waitSleepTime= 10;
+const int ClientInterface::maxNetworkCommandListSendTimeWait = 5;
 
 ClientInterface::ClientInterface(){
 	clientSocket= NULL;
@@ -45,6 +46,8 @@ ClientInterface::ClientInterface(){
 	playerIndex= -1;
 	gameSettingsReceived=false;
 	gotIntro = false;
+	lastNetworkCommandListSendTime = 0;
+	currentFrameCount = 0;
 
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
@@ -96,7 +99,7 @@ void ClientInterface::reset()
 
 void ClientInterface::update()
 {
-	NetworkMessageCommandList networkMessageCommandList;
+	NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
 	//send as many commands as we can
 	while(!requestedCommands.empty()){
@@ -107,15 +110,20 @@ void ClientInterface::update()
 			break;
 		}
 	}
-	if(networkMessageCommandList.getCommandCount()>0){
+
+	int lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed);
+
+	if(networkMessageCommandList.getCommandCount() > 0 || lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait) {
 		sendMessage(&networkMessageCommandList);
+		lastNetworkCommandListSendTime = time(NULL);
 	}
 
 	// Possible cause of out of synch since we have more commands that need
 	// to be sent in this frame
 	if(!requestedCommands.empty()) {
 		char szBuf[1024]="";
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,requestedCommands.size());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
         string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
         sendTextMessage(sMsg,-1);
@@ -440,6 +448,8 @@ void ClientInterface::updateLobby()
 
 void ClientInterface::updateKeyframe(int frameCount)
 {
+	currentFrameCount = frameCount;
+
 	bool done= false;
 
 	while(done == false) {

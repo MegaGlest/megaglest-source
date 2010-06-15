@@ -37,6 +37,7 @@ private:
 	int gameSettingsUpdateCount;
 	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
 	Mutex serverSynchAccessor;
+	int currentFrameCount;
 
 	//ConnectionSlotThread* slotThreads[GameConstants::maxPlayers];
 
@@ -78,6 +79,8 @@ public:
 
 	virtual void slotUpdateTask(ConnectionSlotEvent *event);
 	bool hasClientConnection();
+	int getCurrentFrameCount() const { return currentFrameCount; }
+	bool clientLagCheck(ConnectionSlot* connectionSlot);
 
 public:
 

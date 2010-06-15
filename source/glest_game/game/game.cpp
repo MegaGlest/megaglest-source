@@ -32,6 +32,9 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
+// if FPS is less than this we start to skip 3D renders
+int MIN_RENDER_FPS_ALLOWED = 15;
+
 Game *thisGamePtr = NULL;
 
 // =====================================================
@@ -51,7 +54,9 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] MIN_RENDER_FPS_ALLOWED = %d\n",__FILE__,__FUNCTION__,__LINE__,MIN_RENDER_FPS_ALLOWED);
 
 	mouseX=0;
 	mouseY=0;
@@ -539,26 +544,28 @@ void Game::render() {
 }
 
 void Game::renderWorker() {
-	Chrono chrono;
-	chrono.start();
+	//Chrono chrono;
+	//chrono.start();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//program->getWindow()->makeCurrentGl();
 
 	//renderFps++;
-	render3d();
+	if(renderFps >= MIN_RENDER_FPS_ALLOWED) {
+		render3d();
+	}
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	chrono.start();
+	//chrono.start();
 	render2d();
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	chrono.start();
+	//chrono.start();
 	Renderer::getInstance().swapBuffers();
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
@@ -824,7 +831,7 @@ void Game::keyDown(char key){
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			if(key == configKeys.getCharKey("RenderNetworkStatus")) {
-				renderNetworkStatus= true;
+				renderNetworkStatus= !renderNetworkStatus;
 			}
 			else if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
@@ -963,33 +970,30 @@ void Game::keyUp(char key){
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
-		else{
-			switch(key){
-			case 'N':
-				renderNetworkStatus= false;
-				break;
-			case 'M':
+		else {
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+			if(key == configKeys.getCharKey("RenderNetworkStatus")) {
+				//renderNetworkStatus= false;
+			}
+			else if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= false;
-				break;
-			case 'A':
-			case 'D':
+			}
+			else if(key == configKeys.getCharKey("CameraRotateLeft") ||
+					key == configKeys.getCharKey("CameraRotateRight")) {
 				gameCamera.setRotate(0);
-				break;
-
-			case 'W':
-			case 'S':
+			}
+			else if(key == configKeys.getCharKey("CameraRotateDown") ||
+					key == configKeys.getCharKey("CameraRotateUp")) {
 				gameCamera.setMoveY(0);
-				break;
-
-			case vkUp:
-			case vkDown:
+			}
+			else if(key == configKeys.getCharKey("CameraModeUp") ||
+					key == configKeys.getCharKey("CameraModeDown")) {
 				gameCamera.setMoveZ(0);
-				break;
-
-			case vkLeft:
-			case vkRight:
+			}
+			else if(key == configKeys.getCharKey("CameraModeLeft") ||
+					key == configKeys.getCharKey("CameraModeRight")) {
 				gameCamera.setMoveX(0);
-				break;
 			}
 		}
 	}
@@ -1146,7 +1150,7 @@ void Game::render2d(){
 		str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
 		str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
 		str+= "Time: "+floatToStr(world.getTimeFlow()->getTime(),8)+"\n";
-		str+= "Time Increment: "+floatToStr(world.getTimeFlow()->getTimeInc(),8)+"\n";
+		//str+= "Time Increment: "+floatToStr(world.getTimeFlow()->getTimeInc(),8)+"\n";
 		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"+intToStr(world.getFrameCount())+"\n";

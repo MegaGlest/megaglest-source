@@ -104,6 +104,9 @@ private:
 	bool gotIntro;
 	vector<NetworkCommand> vctPendingNetworkCommandList;
 	ConnectionSlotThread* slotThreadWorker;
+	int currentFrameCount;
+	int currentLagCount;
+	time_t lastReceiveCommandListTime;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -139,6 +142,12 @@ public:
 	bool updateCompleted();
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
+	int getCurrentFrameCount() const { return currentFrameCount; }
+
+	int getCurrentLagCount() const { return currentLagCount; }
+	void setCurrentLagCount(int value) { currentLagCount = value; }
+
+	time_t getLastReceiveCommandListTime() const { return lastReceiveCommandListTime; }
 
 protected:
 
