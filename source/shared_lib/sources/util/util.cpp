@@ -152,9 +152,8 @@ SystemFlags::~SystemFlags() {
 }
 
 void SystemFlags::Close() {
-	printf("START Closing logfiles\n");
-
 	if(SystemFlags::debugLogFileList.size() > 0) {
+		printf("START Closing logfiles\n");
 		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
 			iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
 			SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
@@ -176,7 +175,9 @@ void SystemFlags::Close() {
 		}
 	}
 
-	printf("END Closing logfiles\n");
+	if(SystemFlags::debugLogFileList.size() > 0) {
+		printf("END Closing logfiles\n");
+	}
 }
 
 void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {

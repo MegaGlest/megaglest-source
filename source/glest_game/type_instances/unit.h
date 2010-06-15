@@ -197,6 +197,8 @@ private:
 	CardinalDir modelFacing;
 
 	std::string lastSynchDataString;
+	int lastRenderFrame;
+	bool visible;
 
 public:
     Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -270,6 +272,7 @@ public:
 	void setTargetVec(const Vec3f &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
+	bool getVisible() const { return visible; }
 
 	//render related
     const Model *getCurrentModel() const;
@@ -316,6 +319,9 @@ public:
 	CardinalDir getModelFacing() { return modelFacing; }
 
 	bool isMeetingPointSettable() const;
+
+	int getLastRenderFrame() const { return lastRenderFrame; }
+	void setLastRenderFrame(int value) { lastRenderFrame = value; }
 
 	std::string toString() const;
 

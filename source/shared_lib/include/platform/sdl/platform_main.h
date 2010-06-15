@@ -15,7 +15,7 @@
 #include <iostream>
 
 #define MAIN_FUNCTION(X) int main(int argc, char **argv)                     \
-{   std::cout << "About to init SDL..." << "\n";                             \
+{                                \
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                 \
         std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
         return 1;                                                            \

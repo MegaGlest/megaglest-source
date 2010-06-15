@@ -265,6 +265,18 @@ void MainWindow::setProgram(Program *program) {
 // =====================================================
 SystemFlags debugger;
 
+bool hasCommandArgument(int argc, char** argv,string argName) {
+	bool result = false;
+
+	for(int idx = 1; idx < argc; idx++) {
+		if(stricmp(argName.c_str(),argv[idx]) == 0) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
 int glestMain(int argc, char** argv){
 
 #ifdef SL_LEAK_DUMP
@@ -278,6 +290,10 @@ int glestMain(int argc, char** argv){
 #else
 	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
 #endif
+
+	if(hasCommandArgument(argc, argv,"--version") == true) {
+		return -1;
+	}
 
 	SystemFlags::init();
 	SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;

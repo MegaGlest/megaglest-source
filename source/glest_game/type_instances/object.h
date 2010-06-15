@@ -30,13 +30,14 @@ using Shared::Graphics::Vec3f;
 ///	A map object: tree, stone...
 // =====================================================
 
-class Object{
+class Object {
 private:
 	ObjectType *objectType;
 	Resource *resource;
 	Vec3f pos;
 	float rotation;
 	int variation;
+	int lastRenderFrame;
 
 public:
 	Object(ObjectType *objectType, const Vec3f &pos);
@@ -53,6 +54,10 @@ public:
 	bool getWalkable() const;
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);
+
+	int getLastRenderFrame() const { return lastRenderFrame; }
+	void setLastRenderFrame(int value) { lastRenderFrame = value; }
+
 };
 
 }}//end namespace
