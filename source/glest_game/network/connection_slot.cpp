@@ -152,6 +152,9 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
+	this->currentFrameCount = 0;
+	this->currentLagCount	= 0;
+	this->lastReceiveCommandListTime	= 0;
 	this->socket		   	= NULL;
 	this->slotThreadWorker 	= NULL;
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface);
@@ -274,6 +277,10 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 						NetworkMessageCommandList networkMessageCommandList;
 						if(receiveMessage(&networkMessageCommandList)) {
+							currentFrameCount = networkMessageCommandList.getFrameCount();
+							lastReceiveCommandListTime = time(NULL);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
+
 							for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
 								//serverInterface->requestCommand(networkMessageCommandList.getCommand(i));
 								vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));

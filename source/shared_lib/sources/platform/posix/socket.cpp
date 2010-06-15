@@ -1356,6 +1356,9 @@ BroadCastClientSocketThread::BroadCastClientSocketThread(DiscoveredServersInterf
 void BroadCastClientSocketThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	setRunningStatus(true);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is running\n");
+
 	std::vector<string> foundServers;
 
 	short port;                 // The port for the broadcast.
@@ -1396,9 +1399,6 @@ void BroadCastClientSocketThread::execute() {
 
 			Socket::setBlock(false, bcfd);
 
-			setRunningStatus(true);
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is running\n");
-
 			try
 			{
 				// Keep getting packets forever.
@@ -1436,15 +1436,12 @@ void BroadCastClientSocketThread::execute() {
 			}
 			catch(const exception &ex) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-				setRunningStatus(false);
+				//setRunningStatus(false);
 			}
 			catch(...) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
-				setRunningStatus(false);
+				//setRunningStatus(false);
 			}
-
-			setRunningStatus(false);
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
 		}
 
 #ifndef WIN32
@@ -1459,10 +1456,14 @@ void BroadCastClientSocketThread::execute() {
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	setRunningStatus(false);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
+
     // Here we callback into the implementer class
     if(discoveredServersCB != NULL) {
     	discoveredServersCB->DiscoveredServers(foundServers);
     }
+
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1642,6 +1643,9 @@ void BroadCastSocketThread::execute() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	setRunningStatus(true);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
+
 	const int MAX_NIC_COUNT = 10;
     short port;                 // The port for the broadcast.
     struct sockaddr_in bcLocal[MAX_NIC_COUNT]; // local socket address for the broadcast.
@@ -1652,8 +1656,6 @@ void BroadCastSocketThread::execute() {
     char myhostname[100];       // hostname of local machine
     char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
     struct hostent* myhostent;
-    //char * ptr;                 // some transient vars
-    //int len,i;
 
     /* get my host name */
     gethostname(myhostname,100);
@@ -1696,9 +1698,6 @@ void BroadCastSocketThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] setting up broadcast on address [%s]\n",__FILE__,__FUNCTION__,__LINE__,subnetmask[idx]);
 	}
 
-	setRunningStatus(true);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
-
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	time_t elapsed = 0;
@@ -1740,11 +1739,11 @@ void BroadCastSocketThread::execute() {
 				}
 				catch(const exception &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-					setRunningStatus(false);
+					//setRunningStatus(false);
 				}
 				catch(...) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
-					setRunningStatus(false);
+					//setRunningStatus(false);
 				}
 			}
 

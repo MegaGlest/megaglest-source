@@ -1099,21 +1099,15 @@ void MenuStateCustomGame::simpleTask() {
 	if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
 		return;
 	}
+	needToRepublishToMasterserver = false;
+	string newPublishToServerInfo = publishToServerInfo;
+	publishToServerInfo = "";
 	safeMutex.ReleaseLock(true);
 
 	if(republish == true) {
-
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		safeMutex.Lock();
-		needToRepublishToMasterserver = false;
-		safeMutex.ReleaseLock(true);
-
-		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + publishToServerInfo;
-
-		safeMutex.Lock();
-		publishToServerInfo = "";
-		safeMutex.ReleaseLock(true);
+		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
 
 		//printf("the request is:\n%s\n",request.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
@@ -1125,10 +1119,10 @@ void MenuStateCustomGame::simpleTask() {
 		std::string serverInfo = SystemFlags::getHTTP(request);
 		//printf("the result is:\n'%s'\n",serverInfo.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+
 		// uncomment to enable router setup check of this server
 		//if(serverInfo!="OK")
-		if(EndsWith(serverInfo, "OK") == false)
-		{
+		if(EndsWith(serverInfo, "OK") == false) {
 			safeMutex.Lock();
 			showMasterserverError=true;
 			masterServererErrorToShow=serverInfo;
@@ -1140,24 +1134,21 @@ void MenuStateCustomGame::simpleTask() {
 
 	safeMutex.Lock();
 	bool broadCastSettings = needToBroadcastServerSettings;
-
 	if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
 		return;
 	}
-
+	needToBroadcastServerSettings=false;
 	safeMutex.ReleaseLock(true);
 
-	if(broadCastSettings)
-	{
+	if(broadCastSettings) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		safeMutex.Lock();
-		needToBroadcastServerSettings=false;
-		safeMutex.ReleaseLock(true);
-
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(serverInterface->hasClientConnection() == true) {
-			//printf("Sending game settings broadcast since we have at least 1 client connected'\n");
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
 				return;
@@ -1169,6 +1160,8 @@ void MenuStateCustomGame::simpleTask() {
 			if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
 				return;
 			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);

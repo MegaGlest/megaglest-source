@@ -38,12 +38,17 @@ namespace Glest{ namespace Game{
 //bool enabledThreadedClientCommandBroadcast = true;
 bool enabledThreadedClientCommandBroadcast = false;
 
+// The maximum amount of network update iterations a client is allowed to fall behind
+int maxFrameCountLagAllowed = 10;
+
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
+    currentFrameCount = 0;
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast);
+    maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
@@ -199,6 +204,35 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+// Only call when client has just sent us data
+bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
+	bool clientLagExceeded = false;
+	if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+		int clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
+		int clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
+		connectionSlot->setCurrentLagCount(clientLagCount);
+
+		if(this->getCurrentFrameCount() > 0) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %d, clientLagCount = %d, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getPlayerIndex(),clientLag,clientLagCount,this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount());
+		}
+
+		// New lag check
+		if(maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) {
+			clientLagExceeded = true;
+			char szBuf[4096]="";
+			snprintf(szBuf,4095,"%s exceeded max allowed LAG count of %d, clientLag = %d, disconnecting client.",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+			string sMsg = szBuf;
+			sendTextMessage(sMsg,-1);
+
+			connectionSlot->close();
+		}
+	}
+
+	return clientLagExceeded;
+}
+
 void ServerInterface::update() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -328,15 +362,23 @@ void ServerInterface::update() {
             // Step #3 dispatch network commands to the pending list so that they are done in proper order
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 				ConnectionSlot* connectionSlot= slots[i];
-				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
-					connectionSlot->getPendingNetworkCommandList().size() > 0) {
-					vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+					if(connectionSlot->getPendingNetworkCommandList().size() > 0) {
+						// New lag check
+						bool clientLagExceeded = clientLagCheck(connectionSlot);
+						if(clientLagExceeded) {
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, clientLagExceeded = %d\n",__FILE__,__FUNCTION__,__LINE__,i,clientLagExceeded);
+						}
+						else {
+							vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
 
-					for(int idx = 0; idx < vctPendingNetworkCommandList.size(); ++idx) {
-						NetworkCommand &cmd = vctPendingNetworkCommandList[idx];
-						this->requestCommand(&cmd);
+							for(int idx = 0; idx < vctPendingNetworkCommandList.size(); ++idx) {
+								NetworkCommand &cmd = vctPendingNetworkCommandList[idx];
+								this->requestCommand(&cmd);
+							}
+							connectionSlot->clearPendingNetworkCommandList();
+						}
 					}
-					connectionSlot->clearPendingNetworkCommandList();
 				}
 			}
 
@@ -413,6 +455,9 @@ void ServerInterface::update() {
 void ServerInterface::updateKeyframe(int frameCount){
 	Chrono chrono;
 	chrono.start();
+
+	currentFrameCount = frameCount;
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
 
@@ -649,10 +694,11 @@ string ServerInterface::getNetworkStatus() {
 
 		if(connectionSlot!= NULL){
 			if(connectionSlot->isConnected()){
-
+				int clientLagCount = connectionSlot->getCurrentLagCount();
+				int lastClientCommandListTimeLag = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
 				float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
 				char szBuf[100]="";
-				sprintf(szBuf,", ping = %.2fms",pingTime);
+				sprintf(szBuf,", lag = %d [%d], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
 
                 str+= connectionSlot->getName() + string(szBuf);
 			}

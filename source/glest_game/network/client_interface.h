@@ -33,6 +33,7 @@ class ClientInterface: public GameNetworkInterface{
 private:
 	static const int messageWaitTimeout;
 	static const int waitSleepTime;
+	static const int maxNetworkCommandListSendTimeWait;
 
 private:
 	ClientSocket *clientSocket;
@@ -47,6 +48,9 @@ private:
 
 	Ip ip;
 	int port;
+
+	int currentFrameCount;
+	time_t lastNetworkCommandListSendTime;
 
 public:
 	ClientInterface();
@@ -87,6 +91,8 @@ public:
 	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex, int8 toTeam);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::string getServerIpAddress();
+
+	int getCurrentFrameCount() const { return currentFrameCount; }
 
 protected:
 
