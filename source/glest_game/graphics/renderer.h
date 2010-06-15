@@ -144,6 +144,8 @@ public:
 		CopyAll(obj);
 		return *this;
 	}
+	bool operator<(const RenderEntity &rhs) const;
+	bool operator()(const RenderEntity &lhs,const RenderEntity &rhs) const;
 
 	RenderEntityType type;
 	Object *o;
@@ -332,16 +334,16 @@ public:
 
     //complex rendering
     void renderSurface();
-	void renderObjects();
-	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor);
+	void renderObjects(const int renderFps, const int worldFrameCount);
+	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
 	void prepareObjectForRender(RenderEntity &entity);
-	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor);
+	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
 
 	void renderWater();
-    void renderUnits();
+    void renderUnits(const int renderFps, const int worldFrameCount);
     void prepareUnitForRender(RenderEntity &entity);
-    void renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor);
-    void renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor);
+    void renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount);
+    void renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount);
 
 	void renderSelectionEffects();
 	void renderWaterEffects();
@@ -363,7 +365,7 @@ public:
 	void clearZBuffer();
 
 	//shadows
-	void renderShadowsToTexture();
+	void renderShadowsToTexture(const int renderFps);
 
 	//misc
 	void loadConfig();

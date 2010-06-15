@@ -33,7 +33,7 @@ using namespace Shared::Platform;
 namespace Glest{ namespace Game{
 
 // if FPS is less than this we start to skip 3D renders
-int MIN_RENDER_FPS_ALLOWED = 15;
+//int MIN_RENDER_FPS_ALLOWED = 15;
 
 Game *thisGamePtr = NULL;
 
@@ -54,9 +54,9 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 
-	MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
+	//MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] MIN_RENDER_FPS_ALLOWED = %d\n",__FILE__,__FUNCTION__,__LINE__,MIN_RENDER_FPS_ALLOWED);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] MIN_RENDER_FPS_ALLOWED = %d\n",__FILE__,__FUNCTION__,__LINE__,MIN_RENDER_FPS_ALLOWED);
 
 	mouseX=0;
 	mouseY=0;
@@ -169,7 +169,7 @@ void Game::load(){
 	
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	if(loadingImageUsed == false){
 		// try to use a faction related loading screen
@@ -249,7 +249,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -265,7 +265,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -274,7 +274,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -286,7 +286,7 @@ void Game::load(){
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
@@ -315,19 +315,19 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	world.init(this, gameSettings.getDefaultUnits());
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	gui.init(this);
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	chatManager.init(&console, world.getThisTeamIndex());
 	console.clearStoredLines();
@@ -337,7 +337,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	scriptManager.init(&world, &gameCamera);
 
@@ -360,7 +360,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	//wheather particle systems
 	if(world.getTileset()->getWeather() == wRainy){
@@ -388,7 +388,7 @@ void Game::init()
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	SDL_PumpEvents();
+	//SDL_PumpEvents();
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -442,6 +442,8 @@ void Game::update(){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	try {
+		Chrono chrono;
+		chrono.start();
 
 		// a) Updates non dependent on speed
 
@@ -459,6 +461,8 @@ void Game::update(){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		//update
 		for(int i=0; i<updateLoops; ++i){
@@ -475,18 +479,22 @@ void Game::update(){
 					}
 				}
 			}
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//World
 			world.update();
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			// Commander
 			commander.updateNetwork();
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//Gui
 			gui.update();
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//Particle systems
@@ -496,6 +504,7 @@ void Game::update(){
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			renderer.updateParticleManager(rsGame);
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 		}
@@ -552,9 +561,9 @@ void Game::renderWorker() {
 	//program->getWindow()->makeCurrentGl();
 
 	//renderFps++;
-	if(renderFps >= MIN_RENDER_FPS_ALLOWED) {
-		render3d();
-	}
+	//if(renderFps >= MIN_RENDER_FPS_ALLOWED) {
+	render3d();
+	//}
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1048,7 +1057,7 @@ void Game::render3d(){
 	//shadow map
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderShadowsToTexture();
+	renderer.renderShadowsToTexture(renderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//clear buffers
@@ -1072,13 +1081,13 @@ void Game::render3d(){
 	//units
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderUnits();
+	renderer.renderUnits(renderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//objects
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderObjects();
+	renderer.renderObjects(renderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//water
@@ -1164,6 +1173,36 @@ void Game::render2d(){
 		}
 		str+= "\n";
 		str+= "Visible quad area: " + floatToStr(visibleQuad.area()) +"\n";
+
+		int visibleUnitCount = 0;
+		for(int i=0; i< world.getFactionCount(); ++i){
+			for(int j=0; j< world.getFaction(i)->getUnitCount(); ++j){
+				Unit *unit = world.getFaction(i)->getUnit(j);
+				if(world.toRenderUnit(unit, visibleQuad)) {
+					visibleUnitCount++;
+				}
+			}
+		}
+		str+= "Visible unit count: " + intToStr(visibleUnitCount) +"\n";
+
+		int visibleObjectCount = 0;
+		Map *map= world.getMap();
+		int thisTeamIndex= world.getThisTeamIndex();
+		PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
+		while(pqi.next()){
+			const Vec2i &pos= pqi.getPos();
+			bool isPosVisible = map->isInside(pos.x, pos.y);
+			if(isPosVisible == true) {
+				Vec2i mapPos = Map::toSurfCoords(pos);
+				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
+				Object *o= sc->getObject();
+				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
+				if(isExplored == true) {
+					visibleObjectCount++;
+				}
+			}
+		}
+		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
 
 		// resources
 		for(int i=0; i<world.getFactionCount(); ++i){

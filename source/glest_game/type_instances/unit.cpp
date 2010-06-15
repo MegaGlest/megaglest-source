@@ -147,6 +147,8 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 	this->targetField = fLand;
 	this->targetVec   = Vec3f(0.0);
 	this->targetPos   = Vec2i(0);
+	this->lastRenderFrame = 0;
+	this->visible = true;
 
 	level= NULL;
 	loadType= NULL;
@@ -544,7 +546,9 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
 
-void Unit::setVisible(const bool visible){
+void Unit::setVisible(const bool visible) {
+	this->visible = visible;
+
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
 		(*it)->setVisible(visible);
 	}

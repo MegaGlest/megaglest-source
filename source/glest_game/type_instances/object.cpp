@@ -34,7 +34,7 @@ Object::Object(ObjectType *objectType, const Vec3f &pos){
 	RandomGen random;
 
 	random.init(static_cast<int>(pos.x*pos.z));
-
+	this->lastRenderFrame = 0;
 	this->objectType= objectType;
 	resource= NULL;
 	this->pos= pos + Vec3f(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));

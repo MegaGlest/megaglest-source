@@ -97,11 +97,13 @@ void BaseThread::shutdownAndWait(BaseThread *pThread) {
 			if(pThread->getRunningStatus() == false) {
 				break;
 			}
-			sleep(0);
+			sleep(1);
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
+		sleep(1);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+	sleep(0);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
