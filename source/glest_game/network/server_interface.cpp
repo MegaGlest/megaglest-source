@@ -220,7 +220,11 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 		if(maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) {
 			clientLagExceeded = true;
 			char szBuf[4096]="";
+#ifdef WIN32
+			_snprintf(szBuf,4095,"%s exceeded max allowed LAG count of %d, clientLag = %d, disconnecting client.",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+#else
 			snprintf(szBuf,4095,"%s exceeded max allowed LAG count of %d, clientLag = %d, disconnecting client.",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+#endif
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 			string sMsg = szBuf;
@@ -695,10 +699,10 @@ string ServerInterface::getNetworkStatus() {
 		if(connectionSlot!= NULL){
 			if(connectionSlot->isConnected()){
 				int clientLagCount = connectionSlot->getCurrentLagCount();
-				int lastClientCommandListTimeLag = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
+				double lastClientCommandListTimeLag = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
 				float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
 				char szBuf[100]="";
-				sprintf(szBuf,", lag = %d [%d], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
+				sprintf(szBuf,", lag = %d [%.2f], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
 
                 str+= connectionSlot->getName() + string(szBuf);
 			}
