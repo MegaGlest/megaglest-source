@@ -381,9 +381,11 @@ bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const{
 bool World::toRenderUnit(const Unit *unit) const{
 
 	return
-        map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isVisible(thisTeamIndex) ||
+        (map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isVisible(thisTeamIndex) &&
+         map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isExplored(thisTeamIndex) ) ||
         (unit->getCurrSkill()->getClass()==scAttack &&
-        map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isVisible(thisTeamIndex));
+         map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isVisible(thisTeamIndex) &&
+         map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isExplored(thisTeamIndex));
 }
 
 void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos){

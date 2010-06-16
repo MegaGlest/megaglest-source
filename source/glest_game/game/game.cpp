@@ -1152,14 +1152,13 @@ void Game::render2d(){
     //debug info
 	
     string str;
-	if(config.getBool("DebugMode") || difftime(time(NULL),lastRenderLog2d) >= 1){
+	if(gui.getShowDebugUI() == true || difftime(time(NULL),lastRenderLog2d) >= 1) {
 		str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 		str+= "PosObjWord: " + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
 		str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
 		str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
 		str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
 		str+= "Time: "+floatToStr(world.getTimeFlow()->getTime(),8)+"\n";
-		//str+= "Time Increment: "+floatToStr(world.getTimeFlow()->getTimeInc(),8)+"\n";
 		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"+intToStr(world.getFrameCount())+"\n";
@@ -1197,7 +1196,8 @@ void Game::render2d(){
 				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
 				Object *o= sc->getObject();
 				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				if(isExplored == true) {
+				bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+				if(isExplored == true && isVisible == true) {
 					visibleObjectCount++;
 				}
 			}
@@ -1215,7 +1215,7 @@ void Game::render2d(){
 		}
 	}
 
-	if(config.getBool("DebugMode") && gui.getShowDebugUI() == true) {
+	if(gui.getShowDebugUI() == true) {
 		renderer.renderText(str, coreData.getMenuFontNormal(),
 							Vec3f(1.0f), 10, 500, false);
 
@@ -1239,7 +1239,7 @@ void Game::render2d(){
 	}
 
     //resource info
-	if(!config.getBool("PhotoMode")) {
+	if(config.getBool("PhotoMode") == false) {
         renderer.renderResourceStatus();
 		renderer.renderConsole(&console,showFullConsole);
     }
