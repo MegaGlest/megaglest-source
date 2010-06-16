@@ -373,7 +373,6 @@ int glestMain(int argc, char** argv){
 				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
 				std::pair<bool,bool>(true,false));
 
-		//showCursor(config.getBool("Windowed"));
 		showCursor(false);
 
 		if(config.getBool("noTeamColors","false") == true) {

@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 bool enabledThreadedClientCommandBroadcast = false;
 
 // The maximum amount of network update iterations a client is allowed to fall behind
-int maxFrameCountLagAllowed = 10;
+int maxFrameCountLagAllowed = 20;
 
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
