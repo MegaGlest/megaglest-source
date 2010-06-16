@@ -1571,7 +1571,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 					vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,world->getFaction(i)->getTexture()));
 				}
 			}
-			else if(unit->getVisible() == true){
+			else {
 				unit->setVisible(false);
 			}
 		}
