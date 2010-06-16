@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
@@ -270,6 +269,9 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		showCursor(true);
+		sleep(0);
+
 		if(cleanupOldState == true) {
 			if(this->programState != programState) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -293,6 +295,9 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateTimer.reset();
 		updateCameraTimer.reset();
 		fpsTimer.reset();
+
+		showCursor(false);
+		sleep(0);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -478,7 +483,6 @@ void Program::showMessage(const char *msg) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//showCursor(Config::getInstance().getBool("Windowed"));
     showCursor(false);
 
     //MainWindow *mainWindow= new MainWindow(this);
