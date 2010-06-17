@@ -508,26 +508,11 @@ void ConnectionSlot::update(bool checkForNewClients) {
 void ConnectionSlot::close() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    // In case we are closing from within the context of the thread
-    // only signal it to quit here
-    //if(slotThreadWorker != NULL) {
-    //	slotThreadWorker->signalQuit();
-    //}
-	//BaseThread::shutdownAndWait(slotThreadWorker);
-	//delete slotThreadWorker;
-	//slotThreadWorker = NULL;
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	bool updateServerListener = (socket != NULL);
 	delete socket;
 	socket= NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    //chatText.clear();
-    //chatSender.clear();
-    //chatTeamIndex= -1;
 
     if(updateServerListener == true && ready == false) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
