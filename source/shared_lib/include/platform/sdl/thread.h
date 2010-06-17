@@ -35,7 +35,8 @@ private:
 	SDL_Thread* thread;
 
 public:
-	virtual ~Thread() {}
+	Thread();
+	virtual ~Thread();
 	
 	void start();
 	virtual void execute()=0;

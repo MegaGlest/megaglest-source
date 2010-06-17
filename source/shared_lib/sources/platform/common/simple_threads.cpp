@@ -155,4 +155,38 @@ bool SimpleTaskThread::getTaskSignalled() {
 	return retval;
 }
 
+PumpSDLEventsTaskThread::PumpSDLEventsTaskThread() : BaseThread() {
+}
+
+void PumpSDLEventsTaskThread::execute() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	setRunningStatus(true);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"SDL_PumpEvents thread is running\n");
+
+	try	{
+		unsigned int idx = 0;
+		for(;getQuitStatus() == false;) {
+			SDL_PumpEvents();
+			sleep(100);
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		setRunningStatus(false);
+	}
+	catch(...) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+		setRunningStatus(false);
+	}
+
+	setRunningStatus(false);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"SDL_PumpEvents thread is exiting\n");
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 }}//end namespace
