@@ -19,6 +19,15 @@ namespace Shared{ namespace Platform{
 // =====================================
 //          Threads                    
 // =====================================
+Thread::Thread() {
+	thread = NULL;
+}
+
+Thread::~Thread() {
+	if(thread != NULL) {
+		SDL_WaitThread(thread, NULL);
+	}
+}
 
 void Thread::start() {
 	thread = SDL_CreateThread(beginExecution, this);
