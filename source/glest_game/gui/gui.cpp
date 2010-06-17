@@ -96,8 +96,6 @@ void SelectionQuad::disable(){
 Gui::Gui(){
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-    allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
-
     posObjWorld= Vec2i(54, 14);
     computeSelection= false;
 	validPosObjWorld= false;
@@ -349,7 +347,7 @@ void Gui::hotKey(char key) {
 	}
 	else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
 	    // Here the user triggers a unit rotation while placing a unit
-	    if(allowRotateUnits == true && isPlacingBuilding()) {
+	    if(isPlacingBuilding()) {
 	    	if(getBuilding()->getRotationAllowed()){
 				++selectedBuildingFacing;
 	    	}

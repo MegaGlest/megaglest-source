@@ -54,7 +54,6 @@ World::World(){
 	scriptManager= NULL;
 	this->game = NULL;
 
-	allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

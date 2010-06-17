@@ -154,6 +154,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->playerIndex		= playerIndex;
 	this->currentFrameCount = 0;
 	this->currentLagCount	= 0;
+	this->gotLagCountWarning = false;
 	this->lastReceiveCommandListTime	= 0;
 	this->socket		   	= NULL;
 	this->slotThreadWorker 	= NULL;

@@ -258,8 +258,6 @@ private:
 	//water
 	float waterAnim;
 
-	bool allowRotateUnits;
-
 	bool allowRenderUnitTitles;
 	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 
