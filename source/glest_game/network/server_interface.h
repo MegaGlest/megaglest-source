@@ -82,6 +82,12 @@ public:
 	int getCurrentFrameCount() const { return currentFrameCount; }
 	bool clientLagCheck(ConnectionSlot* connectionSlot);
 
+	void signalClientReceiveCommands(ConnectionSlot* connectionSlot,
+									 int slotIndex,
+									 bool socketTriggered,
+									 ConnectionSlotEvent &event);
+	void updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
+
 public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
