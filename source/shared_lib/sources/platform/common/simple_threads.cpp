@@ -165,10 +165,9 @@ void PumpSDLEventsTaskThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"SDL_PumpEvents thread is running\n");
 
 	try	{
-		unsigned int idx = 0;
 		for(;getQuitStatus() == false;) {
 			SDL_PumpEvents();
-			sleep(100);
+			sleep(25);
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
