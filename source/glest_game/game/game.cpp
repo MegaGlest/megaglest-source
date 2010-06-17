@@ -48,7 +48,6 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	sdlEventsThread = NULL;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
 
@@ -79,10 +78,6 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 
 Game::~Game(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	BaseThread::shutdownAndWait(sdlEventsThread);
-	delete sdlEventsThread;
-	sdlEventsThread = NULL;
 
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
@@ -129,9 +124,6 @@ void Game::load(){
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->gameSettings.toString().c_str());
-
-	sdlEventsThread = new PumpSDLEventsTaskThread();
-	sdlEventsThread->start();
 
 	Logger &logger= Logger::getInstance();
 	string mapName= gameSettings.getMap();
@@ -439,12 +431,6 @@ void Game::init()
 	soundRenderer.playMusic(gameMusic);
 
 	logger.add("Launching game");
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n\n\n=-=-=-=-=-=-=-=-=-=-= STARTING GAME =-=-=-=-=-=-=-=-=-=-=\n\n",__FILE__,__FUNCTION__,__LINE__);
-
-	BaseThread::shutdownAndWait(sdlEventsThread);
-	delete sdlEventsThread;
-	sdlEventsThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1210,7 +1196,8 @@ void Game::render2d(){
 				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
 				Object *o= sc->getObject();
 				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+				//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+				bool isVisible = true;
 				if(isExplored == true && isVisible == true) {
 					visibleObjectCount++;
 				}

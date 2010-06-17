@@ -71,13 +71,6 @@ public:
     bool getTaskSignalled();
 };
 
-class PumpSDLEventsTaskThread : public BaseThread
-{
-public:
-	PumpSDLEventsTaskThread();
-    virtual void execute();
-};
-
 }}//end namespace
 
 #endif

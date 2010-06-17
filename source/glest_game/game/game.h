@@ -22,7 +22,7 @@
 #include "chat_manager.h"
 #include "script_manager.h"
 #include "game_settings.h"
-#include "simple_threads.h"
+//#include "simple_threads.h"
 #include "network_interface.h"
 
 using std::vector;
@@ -83,8 +83,6 @@ private:
 	Vec2i lastMousePos;
 	time_t lastRenderLog2d;
 	DisplayMessageFunction originalDisplayMsgCallback;
-
-	PumpSDLEventsTaskThread *sdlEventsThread;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);

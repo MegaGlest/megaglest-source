@@ -1304,7 +1304,9 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
 				Object *o= sc->getObject();
 				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+				//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+				bool isVisible = true;
+
 				if(isExplored == true && isVisible == true) {
 					/*
 					if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
@@ -2826,7 +2828,8 @@ void Renderer::renderObjectsFast() {
 			SurfaceCell *sc= map->getSurfaceCell(mapPos);
 			Object *o= sc->getObject();
 			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-			bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+			//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+			bool isVisible = true;
 
 			if(isExplored == true && isVisible == true) {
 				const Model *objModel= sc->getObject()->getModel();
