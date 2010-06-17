@@ -40,6 +40,8 @@ bool enabledThreadedClientCommandBroadcast = false;
 
 // The maximum amount of network update iterations a client is allowed to fall behind
 int maxFrameCountLagAllowed = 20;
+// 65% of max we warn all users about the lagged client
+double warnFrameCountLagPercent = 0.65;
 
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
@@ -48,6 +50,7 @@ ServerInterface::ServerInterface(){
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
+    warnFrameCountLagPercent = Config::getInstance().getFloat("WarnFrameCountLagPercent",doubleToStr(warnFrameCountLagPercent).c_str());
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
@@ -231,6 +234,27 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 			sendTextMessage(sMsg,-1);
 
 			connectionSlot->close();
+		}
+		// New lag check warning
+		else if(maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
+				(clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent))) {
+			if(connectionSlot->getLagCountWarning() == false) {
+				connectionSlot->setLagCountWarning(true);
+
+				char szBuf[4096]="";
+#ifdef WIN32
+				_snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+#else
+				snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+#endif
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+				string sMsg = szBuf;
+				sendTextMessage(sMsg,-1);
+			}
+		}
+		else if(connectionSlot->getLagCountWarning() == true) {
+			connectionSlot->setLagCountWarning(false);
 		}
 	}
 

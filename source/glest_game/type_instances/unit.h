@@ -193,7 +193,6 @@ private:
 	UnitParticleSystems unitParticleSystems;
 	UnitParticleSystems damageParticleSystems;
 
-    bool allowRotateUnits;
 	CardinalDir modelFacing;
 
 	std::string lastSynchDataString;

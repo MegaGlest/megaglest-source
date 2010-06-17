@@ -56,7 +56,6 @@ private:
 	PathFinder pathFinder;
 	Game *game;
 	RandomGen random;
-	bool allowRotateUnits;
 
 public:
     void init(Game *game);

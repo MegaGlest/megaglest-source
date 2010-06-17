@@ -50,8 +50,6 @@ void UnitUpdater::init(Game *game){
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
 	pathFinder.init(map);
-
-	allowRotateUnits = Config::getInstance().getBool(reinterpret_cast<const char *>("AllowRotateUnits"),"0");
 }
 
 

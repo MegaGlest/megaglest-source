@@ -134,7 +134,6 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    allowRotateUnits = Config::getInstance().getBool("AllowRotateUnits","0");
 	modelFacing = CardinalDir::NORTH;
 
     RandomGen random;
@@ -1628,10 +1627,6 @@ std::string Unit::toString() const {
     	cmdIdx++;
     }
     result += "\n";
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    result += "allowRotateUnits = " + intToStr(allowRotateUnits) + "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

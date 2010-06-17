@@ -91,7 +91,6 @@ private:
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
 	Game *game;
-	bool allowRotateUnits;
 
 public:
 	World();

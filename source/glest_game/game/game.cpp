@@ -66,7 +66,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	updateFps=0;
 	renderFps=0;
 	lastUpdateFps=0;
-	lastRenderFps=0;
+	lastRenderFps=-1;
 	paused= false;
 	gameOver= false;
 	renderNetworkStatus= false;
@@ -431,6 +431,8 @@ void Game::init()
 	soundRenderer.playMusic(gameMusic);
 
 	logger.add("Launching game");
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n\n\n=-=-=-=-=-=-=-=-=-=-= STARTING GAME =-=-=-=-=-=-=-=-=-=-=\n\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1057,7 +1059,7 @@ void Game::render3d(){
 	//shadow map
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderShadowsToTexture(renderFps);
+	renderer.renderShadowsToTexture(lastRenderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//clear buffers
@@ -1081,13 +1083,13 @@ void Game::render3d(){
 	//units
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderUnits(renderFps,world.getFrameCount());
+	renderer.renderUnits(lastRenderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//objects
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderObjects(renderFps,world.getFrameCount());
+	renderer.renderObjects(lastRenderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//water

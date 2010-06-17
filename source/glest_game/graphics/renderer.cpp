@@ -42,9 +42,10 @@ namespace Glest { namespace Game{
 bool MeshCallbackTeamColor::noTeamColors = false;
 
 // if FPS is less than this we start to skip 3D renders
+//int MIN_RENDER_FPS_ALLOWED = 10;
 int MIN_RENDER_FPS_ALLOWED = -1;
 int MIN_RENDER_LAG_ALLOWED = 1;
-int MAX_RENDER_LAG_ITEMCOUNT_ALLOWED = 60;
+int MAX_RENDER_LAG_ITEMCOUNT_ALLOWED = 200;
 
 bool RenderEntity::operator<(const RenderEntity &rhs) const {
 	if(this->type == retUnit || this->type == retUnitFast) {
@@ -182,8 +183,6 @@ Renderer::Renderer(){
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
-
-	allowRotateUnits = config.getBool("AllowRotateUnits","0");
 }
 
 Renderer::~Renderer(){
@@ -654,13 +653,12 @@ void Renderer::renderMouse3d() {
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
 			const Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 
-			if(allowRotateUnits == true) {
-				float rotateAmount = gui->getSelectedFacing() * 90.f;
-				if(rotateAmount > 0) {
-					//if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,building->getId(),rotateAmount);
-					glRotatef(rotateAmount, 0.f, 1.f, 0.f);
-				}
+			float rotateAmount = gui->getSelectedFacing() * 90.f;
+			if(rotateAmount > 0) {
+				//if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,building->getId(),rotateAmount);
+				glRotatef(rotateAmount, 0.f, 1.f, 0.f);
 			}
+
 			buildingModel->updateInterpolationData(0.f, false);
 			modelRenderer->render(buildingModel);
 			glDisable(GL_COLOR_MATERIAL);
@@ -1264,7 +1262,7 @@ void Renderer::renderSurface(){
 }
 
 void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
-	if(renderFps < MIN_RENDER_FPS_ALLOWED) {
+	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 		renderObjectsFast();
 	}
 	else {
@@ -1309,7 +1307,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 				bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
 				if(isExplored == true && isVisible == true) {
 					/*
-					if(renderFps < MIN_RENDER_FPS_ALLOWED) {
+					if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 						int renderLag = worldFrameCount - o->getLastRenderFrame();
 						if(renderLag > MIN_RENDER_LAG_ALLOWED) {
 							vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
@@ -1336,7 +1334,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount) {
 	// Need to do something to manage bad FPS
 /*
-	if(renderFps < MIN_RENDER_FPS_ALLOWED) {
+	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 		// Oldest rendered objects go to top
 		std::sort(vctEntity.begin(), vctEntity.end());
 		for(int idx=0; idx < vctEntity.size(); ++idx) {
@@ -1562,7 +1560,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			Unit *unit = world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
-				if(renderFps < MIN_RENDER_FPS_ALLOWED) {
+				if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 					int unitRenderLag = worldFrameCount - unit->getLastRenderFrame();
 					if(unitRenderLag > MIN_RENDER_LAG_ALLOWED) {
 						vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,world->getFaction(i)->getTexture()));
@@ -1592,7 +1590,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 
 void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount) {
 	// Need to do something to manage bad FPS
-	if(renderFps < MIN_RENDER_FPS_ALLOWED) {
+	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 		// Oldest rendered units go to top
 		std::sort(vctEntity.begin(), vctEntity.end());
 		for(int idx=0; idx < vctEntity.size(); ++idx) {
@@ -2310,7 +2308,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 	Chrono chrono;
 	chrono.start();
 
-	if(renderFps >= MIN_RENDER_FPS_ALLOWED) {
+	if(renderFps >= 0 && renderFps >= MIN_RENDER_FPS_ALLOWED) {
 		if(shadows==sProjected || shadows==sShadowMapping){
 
 			shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);

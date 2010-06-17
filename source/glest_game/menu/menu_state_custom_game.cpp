@@ -312,7 +312,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1,true);
 
-	publishToMasterserverThread = new SimpleTaskThread(this,0,50);
+	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
 	publishToMasterserverThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -424,13 +424,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             needToSetChangedGameSettings    = false;
             lastSetChangedGameSettings      = time(NULL);
         }
-        safeMutex.ReleaseLock(true);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		bool bOkToStart = serverInterface->launchGame(&gameSettings);
-		if(bOkToStart == true)
-		{
-			safeMutex.Lock();
+		if(bOkToStart == true) {
 			if( listBoxPublishServer.getEditable() &&
 				listBoxPublishServer.getSelectedItemIndex() == 0) {
 
@@ -446,11 +443,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
 
-			safeMutex.ReleaseLock(true);
-
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			safeMutex.Lock();
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
 			safeMutex.ReleaseLock();
@@ -461,6 +455,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
             program->setState(new Game(program, &gameSettings));
+		}
+		else {
+			safeMutex.ReleaseLock();
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -131,7 +131,6 @@ private:
 	bool selectingMeetingPoint;
 
 	CardinalDir selectedBuildingFacing;
-    bool allowRotateUnits;
 
     bool showDebugUI;
 
