@@ -36,7 +36,7 @@ protected:
 
 public:
 	BaseThread();
-	~BaseThread();
+	virtual ~BaseThread();
 	virtual void execute()=0;
 
 	virtual void signalQuit();

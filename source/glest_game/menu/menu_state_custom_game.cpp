@@ -326,11 +326,6 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	needToRepublishToMasterserver = false;
 
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
-	safeMutex.ReleaseLock(true);
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	safeMutex.Lock();
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 	safeMutex.ReleaseLock();
@@ -346,6 +341,8 @@ void MenuStateCustomGame::returnToParentMenu(){
 	needToRepublishToMasterserver = false;
 
 	BaseThread::shutdownAndWait(publishToMasterserverThread);
+	delete publishToMasterserverThread;
+	publishToMasterserverThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -389,6 +386,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToBroadcastServerSettings = false;
 		needToRepublishToMasterserver = false;
 		BaseThread::shutdownAndWait(publishToMasterserverThread);
+		delete publishToMasterserverThread;
+		publishToMasterserverThread = NULL;
 
 		safeMutex.ReleaseLock();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -442,9 +441,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			needToRepublishToMasterserver = false;
 
 			BaseThread::shutdownAndWait(publishToMasterserverThread);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
 			safeMutex.ReleaseLock();

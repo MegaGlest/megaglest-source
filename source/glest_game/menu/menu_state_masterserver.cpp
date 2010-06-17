@@ -132,6 +132,8 @@ void ServerLine::render(){
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "masterserver") 
 {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Lang &lang= Lang::getInstance();
 	
 	autoRefreshTime=0;
@@ -169,6 +171,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	listBoxAutoRefresh.pushBackItem("30 s");
 	listBoxAutoRefresh.setSelectedItemIndex(0);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
 	//updateServerInfo();
@@ -176,17 +180,25 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
 	updateFromMasterserverThread->start();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateMasterserver::~MenuStateMasterserver() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	needUpdateFromServer = false;
 	clearServerLines();
+	safeMutex.ReleaseLock();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	BaseThread::shutdownAndWait(updateFromMasterserverThread);
 	delete updateFromMasterserverThread;
 	updateFromMasterserverThread = NULL;
 
-	safeMutex.ReleaseLock();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMasterserver::clearServerLines(){
@@ -197,6 +209,7 @@ void MenuStateMasterserver::clearServerLines(){
 }
 
 void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -213,27 +226,49 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(buttonRefresh.mouseClick(x, y)){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 		//updateServerInfo();
 		needUpdateFromServer = true;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(buttonReturn.mouseClick(x, y)){
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		delete updateFromMasterserverThread;
+		updateFromMasterserverThread = NULL;
+
 		safeMutex.ReleaseLock();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(buttonCreateGame.mouseClick(x, y)){
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
-
+		needUpdateFromServer = false;
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		delete updateFromMasterserverThread;
+		updateFromMasterserverThread = NULL;
 		safeMutex.ReleaseLock();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,true));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
@@ -295,8 +330,8 @@ void MenuStateMasterserver::render(){
 void MenuStateMasterserver::update(){
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
-			needUpdateFromServer = true;
-			lastRefreshTimer= time(NULL);
+		needUpdateFromServer = true;
+		lastRefreshTimer= time(NULL);
 	}
 	
 	if(playServerFoundSound)
@@ -426,7 +461,8 @@ void MenuStateMasterserver::connectToServer(string ipString)
 		//config.save();
 		
 		BaseThread::shutdownAndWait(updateFromMasterserverThread);
-
+		delete updateFromMasterserverThread;
+		updateFromMasterserverThread = NULL;
 		safeMutex.ReleaseLock();
 
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
