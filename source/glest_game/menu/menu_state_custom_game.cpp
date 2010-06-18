@@ -313,6 +313,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	chatManager.init(&console, -1,true);
 
 	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+	publishToMasterserverThread->setUniqueID(__FILE__);
 	publishToMasterserverThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -324,11 +325,11 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
+	safeMutex.ReleaseLock();
 
 	//BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
-	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -339,15 +340,14 @@ void MenuStateCustomGame::returnToParentMenu(){
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
+	bool returnToMasterServerMenu = parentMenuIsMs;
+	safeMutex.ReleaseLock();
 
 	//BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool returnToMasterServerMenu = parentMenuIsMs;
-	safeMutex.ReleaseLock();
 
 	if(returnToMasterServerMenu) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -385,11 +385,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToBroadcastServerSettings = false;
 		needToRepublishToMasterserver = false;
+		safeMutex.ReleaseLock();
+
 		//BaseThread::shutdownAndWait(publishToMasterserverThread);
 		delete publishToMasterserverThread;
 		publishToMasterserverThread = NULL;
 
-		safeMutex.ReleaseLock();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		returnToParentMenu();
@@ -440,10 +441,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
 
+			safeMutex.ReleaseLock();
 			//BaseThread::shutdownAndWait(publishToMasterserverThread);
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
-			safeMutex.ReleaseLock();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

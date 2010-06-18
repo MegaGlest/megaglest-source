@@ -411,6 +411,7 @@ int glestMain(int argc, char** argv){
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
+			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
 			preCacheThread->start();
 		}

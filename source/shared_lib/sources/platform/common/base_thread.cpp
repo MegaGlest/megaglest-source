@@ -68,14 +68,14 @@ bool BaseThread::getQuitStatus() {
 }
 
 bool BaseThread::getRunningStatus() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 	bool retval = false;
 	MutexSafeWrapper safeMutex(&mutexRunning);
 	retval = running;
 	safeMutex.ReleaseLock();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] running = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),retval);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] running = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),retval);
 
 	return retval;
 }
