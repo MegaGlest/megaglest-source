@@ -13,8 +13,10 @@
 #define _SHARED_PLATFORMCOMMON_BASETHREAD_H_
 
 #include "thread.h"
+#include <string>
 
 using namespace Shared::Platform;
+using namespace std;
 
 namespace Shared { namespace PlatformCommon {
 
@@ -30,6 +32,7 @@ protected:
 
 	bool quit;
 	bool running;
+	string uniqueID;
 
 	virtual void setRunningStatus(bool value);
 	virtual void setQuitStatus(bool value);
@@ -44,6 +47,9 @@ public:
 	virtual bool getRunningStatus();
     static void shutdownAndWait(BaseThread *ppThread);
     virtual void shutdownAndWait();
+
+    void setUniqueID(string value) { uniqueID = value; }
+    string getUniqueID() { return uniqueID; }
 };
 
 }}//end namespace

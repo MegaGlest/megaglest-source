@@ -103,7 +103,7 @@ public:
 
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
-	void connectToServer(string ipString);
+	bool connectToServer(string ipString);
 	void clearServerLines();
 	void updateServerInfo();
 	
