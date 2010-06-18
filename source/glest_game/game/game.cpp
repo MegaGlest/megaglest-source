@@ -32,9 +32,6 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
-// if FPS is less than this we start to skip 3D renders
-//int MIN_RENDER_FPS_ALLOWED = 15;
-
 Game *thisGamePtr = NULL;
 
 // =====================================================

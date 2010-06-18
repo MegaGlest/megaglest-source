@@ -194,7 +194,7 @@ MenuStateMasterserver::~MenuStateMasterserver() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	BaseThread::shutdownAndWait(updateFromMasterserverThread);
+	//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 	delete updateFromMasterserverThread;
 	updateFromMasterserverThread = NULL;
 
@@ -241,7 +241,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 
-		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
 
@@ -259,7 +259,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
-		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
 		safeMutex.ReleaseLock();
@@ -460,7 +460,7 @@ void MenuStateMasterserver::connectToServer(string ipString)
 		//config.setString("ServerIp", serverIp.getString());
 		//config.save();
 		
-		BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
 		safeMutex.ReleaseLock();

@@ -325,7 +325,7 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
 
-	BaseThread::shutdownAndWait(publishToMasterserverThread);
+	//BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 	safeMutex.ReleaseLock();
@@ -340,7 +340,7 @@ void MenuStateCustomGame::returnToParentMenu(){
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
 
-	BaseThread::shutdownAndWait(publishToMasterserverThread);
+	//BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 
@@ -385,7 +385,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToBroadcastServerSettings = false;
 		needToRepublishToMasterserver = false;
-		BaseThread::shutdownAndWait(publishToMasterserverThread);
+		//BaseThread::shutdownAndWait(publishToMasterserverThread);
 		delete publishToMasterserverThread;
 		publishToMasterserverThread = NULL;
 
@@ -440,7 +440,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
 
-			BaseThread::shutdownAndWait(publishToMasterserverThread);
+			//BaseThread::shutdownAndWait(publishToMasterserverThread);
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
 			safeMutex.ReleaseLock();
