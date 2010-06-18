@@ -404,6 +404,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			BaseThread::shutdownAndWait(soundThreadManager);
 			delete soundThreadManager;
 			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
+			soundThreadManager->setUniqueID(__FILE__);
 			soundThreadManager->start();
 		}
 	}

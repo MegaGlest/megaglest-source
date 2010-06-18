@@ -159,6 +159,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->socket		   	= NULL;
 	this->slotThreadWorker 	= NULL;
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface);
+	this->slotThreadWorker->setUniqueID(__FILE__);
 	this->slotThreadWorker->start();
 
 	this->ready		= false;
