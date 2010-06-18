@@ -42,8 +42,8 @@ namespace Glest { namespace Game{
 bool MeshCallbackTeamColor::noTeamColors = false;
 
 // if FPS is less than this we start to skip 3D renders
-int MIN_RENDER_FPS_ALLOWED = 10;
-//int MIN_RENDER_FPS_ALLOWED = -1;
+//int MIN_RENDER_FPS_ALLOWED = 10;
+int MIN_RENDER_FPS_ALLOWED = -1;
 int MIN_RENDER_LAG_ALLOWED = 1;
 int MAX_RENDER_LAG_ITEMCOUNT_ALLOWED = 200;
 
