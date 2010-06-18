@@ -100,7 +100,7 @@ void BaseThread::shutdownAndWait(BaseThread *pThread) {
 			sleep(1);
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
-		sleep(1);
+		//sleep(0);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	sleep(0);

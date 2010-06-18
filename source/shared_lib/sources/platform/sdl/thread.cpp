@@ -25,7 +25,7 @@ Thread::Thread() {
 
 Thread::~Thread() {
 	if(thread != NULL) {
-		SDL_WaitThread(thread, NULL);
+		//SDL_WaitThread(thread, NULL);
 	}
 }
 
