@@ -1290,7 +1290,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 		glEnable(GL_COLOR_MATERIAL);
 		glAlphaFunc(GL_GREATER, 0.5f);
 
-		//modelRenderer->begin(true, true, false);
+		modelRenderer->begin(true, true, false);
 		int thisTeamIndex= world->getThisTeamIndex();
 
 		std::vector<RenderEntity> vctEntity;
@@ -1308,23 +1308,30 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 				bool isVisible = true;
 
 				if(isExplored == true && isVisible == true) {
-					/*
-					if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-						int renderLag = worldFrameCount - o->getLastRenderFrame();
-						if(renderLag > MIN_RENDER_LAG_ALLOWED) {
-							vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
-						}
-					}
-					else {
-					*/
-						vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
+/*
+					//
+					//if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
+					//	int renderLag = worldFrameCount - o->getLastRenderFrame();
+					//	if(renderLag > MIN_RENDER_LAG_ALLOWED) {
+					//		vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
+					//	}
 					//}
+					//else {
+					//
+					vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
+					//}
+*/
+					const Model *objModel= o->getModel();
+					if(objModel != NULL) {
+						objModel->updateInterpolationData(0.f, true);
+					}
+					renderObject(o,mapPos,baseFogColor,worldFrameCount);
 				}
 			}
 		}
 
-		modelRenderer->begin(true, true, false);
-		renderObjectList(vctEntity,baseFogColor,renderFps, worldFrameCount);
+		//modelRenderer->begin(true, true, false);
+		//renderObjectList(vctEntity,baseFogColor,renderFps, worldFrameCount);
 		modelRenderer->end();
 
 		//restore
@@ -1376,6 +1383,16 @@ void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const
 	if(o != NULL) {
 		const Model *objModel= o->getModel();
 		if(objModel != NULL) {
+			renderObject(o,mapPos,baseFogColor,worldFrameCount);
+			entity.setState(resRendered);
+		}
+	}
+}
+
+void Renderer::renderObject(Object *o,Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount) {
+	if(o != NULL) {
+		const Model *objModel= o->getModel();
+		if(objModel != NULL) {
 			//objModel->updateInterpolationData(0.f, true);
 
 			const Vec3f &v= o->getConstPos();
@@ -1404,8 +1421,6 @@ void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const
 			pointCount+= objModel->getVertexCount();
 
 			glPopMatrix();
-
-			entity.setState(resRendered);
 		}
 	}
 }
@@ -1555,22 +1570,30 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		enableProjectiveTexturing();
 	}
 	glActiveTexture(baseTexUnit);
+	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
 
 	std::vector<RenderEntity> vctEntity;
 
-	for(int i=0; i<world->getFactionCount(); ++i){
+	for(int i=0; i<world->getFactionCount(); ++i) {
+		const Texture2D *teamTexture = world->getFaction(i)->getTexture();
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			Unit *unit = world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+/*
 				if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
 					int unitRenderLag = worldFrameCount - unit->getLastRenderFrame();
 					if(unitRenderLag > MIN_RENDER_LAG_ALLOWED) {
-						vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,world->getFaction(i)->getTexture()));
+						vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,teamTexture));
 					}
 				}
 				else {
-					vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,world->getFaction(i)->getTexture()));
+					vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,teamTexture));
 				}
+*/
+
+				const Model *model= unit->getCurrentModel();
+				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+				renderUnit(unit,&meshCallbackTeamColor, teamTexture, worldFrameCount);
 			}
 			else {
 				unit->setVisible(false);
@@ -1578,8 +1601,8 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		}
 	}
 
-	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
-	renderUnitList(vctEntity,&meshCallbackTeamColor,renderFps, worldFrameCount);
+	//modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+	//renderUnitList(vctEntity,&meshCallbackTeamColor,renderFps, worldFrameCount);
 	modelRenderer->end();
 
 	//restore
@@ -1617,8 +1640,15 @@ void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackT
 void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount) {
 	Unit *unit = entity.unit;
 	if(unit != NULL) {
+		renderUnit(unit,meshCallbackTeamColor, entity.teamTexture, worldFrameCount);
+		entity.setState(resRendered);
+	}
+}
+
+void Renderer::renderUnit(Unit *unit,MeshCallbackTeamColor *meshCallbackTeamColor, const Texture2D *teamTexture, const int worldFrameCount) {
+	if(unit != NULL) {
 		if(meshCallbackTeamColor != NULL) {
-			meshCallbackTeamColor->setTeamTexture(entity.teamTexture);
+			meshCallbackTeamColor->setTeamTexture(teamTexture);
 		}
 
 		glMatrixMode(GL_MODELVIEW);
@@ -1660,10 +1690,9 @@ void Renderer::renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallba
 			// Add to the pending render unit title list
 			renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
 		}
-
-		entity.setState(resRendered);
 	}
 }
+
 
 void Renderer::prepareUnitForRender(RenderEntity &entity) {
 	if(entity.unit != NULL) {
@@ -2699,14 +2728,16 @@ void Renderer::renderUnitsFast(){
 
 	std::vector<RenderEntity> vctEntity;
 
-//	modelRenderer->begin(false, false, false);
-//	glInitNames();
+	modelRenderer->begin(false, false, false);
+	glInitNames();
+
 	for(int i=0; i<world->getFactionCount(); ++i){
 //		glPushName(i);
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 //			glPushName(j);
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+				Vec2i mapPos = Vec2i(i,j);
 /*
 				glMatrixMode(GL_MODELVIEW);
 
@@ -2727,18 +2758,25 @@ void Renderer::renderUnitsFast(){
 
 				glPopMatrix();
 */
-				vctEntity.push_back(RenderEntity(retUnitFast,NULL,Vec2i(i,j),unit));
 
+				//vctEntity.push_back(RenderEntity(retUnitFast,NULL,mapPos,unit));
+
+				const Model *model= unit->getCurrentModel();
+				if(model != NULL) {
+					model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+				}
+
+				renderUnitFast(unit, mapPos);
 			}
 			//glPopName();
 		}
 //		glPopName();
 	}
 
-	glInitNames();
+//	glInitNames();
 
-	modelRenderer->begin(false, false, false);
-	renderUnitFastList(vctEntity);
+//	modelRenderer->begin(false, false, false);
+//	renderUnitFastList(vctEntity);
 	modelRenderer->end();
 
 	glPopAttrib();
@@ -2755,8 +2793,15 @@ void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
 void Renderer::renderUnitFast(RenderEntity &entity) {
 	Unit *unit = entity.unit;
 	if(unit != NULL) {
-		glPushName(entity.mapPos.x);
-		glPushName(entity.mapPos.y);
+		renderUnitFast(unit, entity.mapPos);
+		entity.setState(resRendered);
+	}
+}
+
+void Renderer::renderUnitFast(Unit *unit, Vec2i &mapPos) {
+	if(unit != NULL) {
+		glPushName(mapPos.x);
+		glPushName(mapPos.y);
 
 		glMatrixMode(GL_MODELVIEW);
 
@@ -2778,15 +2823,15 @@ void Renderer::renderUnitFast(RenderEntity &entity) {
 		glPopMatrix();
 		glPopName();
 		glPopName();
-
-		entity.setState(resRendered);
 	}
 }
 
 void Renderer::prepareUnitFastForRender(RenderEntity &entity) {
 	if(entity.unit != NULL) {
 		const Model *model= entity.unit->getCurrentModel();
-		model->updateInterpolationVertices(entity.unit->getAnimProgress(), entity.unit->isAlive());
+		if(model != NULL) {
+			model->updateInterpolationVertices(entity.unit->getAnimProgress(), entity.unit->isAlive());
+		}
 	}
 	entity.setState(resInterpolated);
 }
