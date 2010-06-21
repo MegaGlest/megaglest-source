@@ -48,6 +48,10 @@ string getCompilerNameString() {
 	string version = "";
 #if defined(WIN32) && defined(_MSC_VER)
 	version = "VC++: " + intToStr(_MSC_VER);
+	#if defined(DEBUG) || defined(_DEBUG)
+	version += " [DEBUG]";
+	#endif
+
 #elif defined(__GNUC__)
 	#if defined(__GNUC__)
 	# if defined(__GNUC_PATCHLEVEL__)
@@ -60,6 +64,10 @@ string getCompilerNameString() {
 	# endif
 	#endif
 	version = "GNUC: " + intToStr(__GNUC_VERSION__);
+	#if defined(DEBUG) || defined(_DEBUG)
+	version += " [DEBUG]";
+	#endif
+
 #else
 	version = "???";
 #endif
