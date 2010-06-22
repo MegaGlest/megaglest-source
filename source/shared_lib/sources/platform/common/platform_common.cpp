@@ -778,7 +778,14 @@ void sleep(int millis) {
 }
 
 void showCursor(bool b) {
+	int x,y;
+	if(b) {
+		SDL_GetMouseState( &x, &y );
+	}
 	SDL_ShowCursor(b ? SDL_ENABLE : SDL_DISABLE);
+	if(b) {
+		SDL_WarpMouse(x,y);
+	}
 }
 
 bool isKeyDown(int virtualKey) {
