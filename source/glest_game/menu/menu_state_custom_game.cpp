@@ -1096,7 +1096,7 @@ void MenuStateCustomGame::simpleTask() {
 	needToRepublishToMasterserver = false;
 	string newPublishToServerInfo = publishToServerInfo;
 	publishToServerInfo = "";
-	safeMutex.ReleaseLock(true);
+	//safeMutex.ReleaseLock(true);
 
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1117,22 +1117,22 @@ void MenuStateCustomGame::simpleTask() {
 		// uncomment to enable router setup check of this server
 		//if(serverInfo!="OK")
 		if(EndsWith(serverInfo, "OK") == false) {
-			safeMutex.Lock();
+			//safeMutex.Lock();
 			showMasterserverError=true;
 			masterServererErrorToShow=serverInfo;
-			safeMutex.ReleaseLock(true);
+			//safeMutex.ReleaseLock(true);
 		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	safeMutex.Lock();
+	//safeMutex.Lock();
 	bool broadCastSettings = needToBroadcastServerSettings;
 	if(publishToMasterserverThread == NULL || publishToMasterserverThread->getQuitStatus() == true || publishToMasterserverThread->getRunningStatus() == false) {
 		return;
 	}
 	needToBroadcastServerSettings=false;
-	safeMutex.ReleaseLock(true);
+	//safeMutex.ReleaseLock(true);
 
 	if(broadCastSettings) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
