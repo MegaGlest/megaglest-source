@@ -334,7 +334,7 @@ public:
     void renderSurface();
 	void renderObjects(const int renderFps, const int worldFrameCount);
 	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
-	void renderObject(Object *o,Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount);
+	void renderObject(Object *o,const Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount);
 	void prepareObjectForRender(RenderEntity &entity);
 	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
 
@@ -401,7 +401,7 @@ private:
 	void renderUnitsFast();
 	void renderUnitFastList(std::vector<RenderEntity> &vctEntity);
 	void renderUnitFast(RenderEntity &entity);
-	void renderUnitFast(Unit *unit, Vec2i &mapPos);
+	void renderUnitFast(Unit *unit, int x, int y);
 	void prepareUnitFastForRender(RenderEntity &entity);
 
 	//gl requirements

@@ -208,8 +208,6 @@ Renderer &Renderer::getInstance(){
 }
 
 void Renderer::reinitAll() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	//resources
 	for(int i=0; i<rsCount; ++i){
 		//modelManager[i]->init();
@@ -217,8 +215,6 @@ void Renderer::reinitAll() {
 		//particleManager[i]->init();
 		//fontManager[i]->init();
 	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 // ==================== init ====================
 
@@ -573,7 +569,7 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade){
             glVertex2i(x+10, y-20);
         glEnd();
 
-		//biorder
+		//border
         glLineWidth(2);
         glBegin(GL_LINE_LOOP);
             glColor4f(1.f, 0.2f, 0, color1);
@@ -655,7 +651,6 @@ void Renderer::renderMouse3d() {
 
 			float rotateAmount = gui->getSelectedFacing() * 90.f;
 			if(rotateAmount > 0) {
-				//if(Socket::enableDebugText) printf("In [%s::%s] rotate unit id = %d amount = %f\n",__FILE__,__FUNCTION__,building->getId(),rotateAmount);
 				glRotatef(rotateAmount, 0.f, 1.f, 0.f);
 			}
 
@@ -733,7 +728,6 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 	if(console == NULL) {
 		throw runtime_error("console == NULL");
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
@@ -754,9 +748,8 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 				fontColor,
 				20, i*20+20);
 		}
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	else if(showMenuConsole){
+	else if(showMenuConsole) {
 		for(int i=0; i<console->getStoredLineCount() && i<maxConsoleLines; ++i){
 			renderTextShadow(
 				console->getStoredLine(i),
@@ -764,10 +757,9 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 				fontColor,
 				20, i*20+20);
 		}
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	else{
-		for(int i=0; i<console->getLineCount(); ++i){
+	else {
+		for(int i=0; i<console->getLineCount(); ++i) {
 			renderTextShadow(
 				console->getLine(i),
 				CoreData::getInstance().getConsoleFont(),
@@ -924,31 +916,21 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &c
 }
 
 void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	glPushAttrib(GL_CURRENT_BIT);
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	if(color.w<0.5)
-	{
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(color.w<0.5)	{
 		textRenderer->begin(font);
 		glColor3f(0.0f, 0.0f, 0.0f);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glColor3f(color.x,color.y,color.z);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	textRenderer->render(text, pos.x, pos.y);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	textRenderer->end();
 
 	glPopAttrib();
@@ -957,7 +939,6 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 // ============= COMPONENTS =============================
 
 void Renderer::renderLabel(const GraphicLabel *label){
-
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
@@ -980,7 +961,6 @@ void Renderer::renderLabel(const GraphicLabel *label){
 }
 
 void Renderer::renderButton(const GraphicButton *button){
-
     int x= button->getX();
     int y= button->getY();
     int h= button->getH();
@@ -1066,9 +1046,6 @@ void Renderer::renderButton(const GraphicButton *button){
 		renderText(
 			button->getText(), button->getFont(),disabledTextColor,
 			x+w/2, y+h/2, true);
-//	renderText(
-//			button->getText(), button->getFont(), 0.2f,
-//			x+w/2, y+h/2, true);
 	}
 
     glPopAttrib();
@@ -1202,9 +1179,7 @@ void Renderer::renderSurface(){
 
 	PosQuadIterator pqi(map, scaledQuad);
 	while(pqi.next()){
-
 		const Vec2i &pos= pqi.getPos();
-
 		if(mapBounds.isInside(pos)){
 
 			SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
@@ -1262,82 +1237,77 @@ void Renderer::renderSurface(){
 }
 
 void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
-	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-		renderObjectsFast();
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+
+	assertGl();
+	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
+	Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+
+	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+
+	if(shadows==sShadowMapping){
+		glActiveTexture(shadowTexUnit);
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+
+		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+		enableProjectiveTexturing();
 	}
-	else {
-		const World *world= game->getWorld();
-		const Map *map= world->getMap();
 
-		assertGl();
-		const Texture2D *fowTex= world->getMinimap()->getFowTexture();
-		Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+	glActiveTexture(baseTexUnit);
 
-		glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+	glEnable(GL_COLOR_MATERIAL);
+	glAlphaFunc(GL_GREATER, 0.5f);
 
-		if(shadows==sShadowMapping){
-			glActiveTexture(shadowTexUnit);
-			glEnable(GL_TEXTURE_2D);
+	modelRenderer->begin(true, true, false);
+	int thisTeamIndex= world->getThisTeamIndex();
 
-			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+	std::vector<RenderEntity> vctEntity;
 
-			static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-			enableProjectiveTexturing();
-		}
+	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
+	while(pqi.next()){
+		const Vec2i &pos= pqi.getPos();
+		bool isPosVisible = map->isInside(pos.x, pos.y);
+		if(isPosVisible == true) {
+			const Vec2i &mapPos = Map::toSurfCoords(pos);
+			SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
+			Object *o= sc->getObject();
+			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
+			//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+			bool isVisible = true;
 
-		glActiveTexture(baseTexUnit);
-
-		glEnable(GL_COLOR_MATERIAL);
-		glAlphaFunc(GL_GREATER, 0.5f);
-
-		modelRenderer->begin(true, true, false);
-		int thisTeamIndex= world->getThisTeamIndex();
-
-		std::vector<RenderEntity> vctEntity;
-
-		PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
-		while(pqi.next()){
-			const Vec2i &pos= pqi.getPos();
-			bool isPosVisible = map->isInside(pos.x, pos.y);
-			if(isPosVisible == true) {
-				Vec2i mapPos = Map::toSurfCoords(pos);
-				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
-				Object *o= sc->getObject();
-				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
-				bool isVisible = true;
-
-				if(isExplored == true && isVisible == true) {
+			if(isExplored == true && isVisible == true) {
 /*
-					//
-					//if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-					//	int renderLag = worldFrameCount - o->getLastRenderFrame();
-					//	if(renderLag > MIN_RENDER_LAG_ALLOWED) {
-					//		vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
-					//	}
-					//}
-					//else {
-					//
-					vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
-					//}
+				//
+				//if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
+				//	int renderLag = worldFrameCount - o->getLastRenderFrame();
+				//	if(renderLag > MIN_RENDER_LAG_ALLOWED) {
+				//		vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
+				//	}
+				//}
+				//else {
+				//
+				vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
+				//}
 */
-					const Model *objModel= o->getModel();
-					if(objModel != NULL) {
-						objModel->updateInterpolationData(0.f, true);
-					}
-					renderObject(o,mapPos,baseFogColor,worldFrameCount);
+				const Model *objModel= o->getModel();
+				if(objModel != NULL) {
+					objModel->updateInterpolationData(0.f, true);
 				}
+				renderObject(o,mapPos,baseFogColor,worldFrameCount);
 			}
 		}
-
-		//modelRenderer->begin(true, true, false);
-		//renderObjectList(vctEntity,baseFogColor,renderFps, worldFrameCount);
-		modelRenderer->end();
-
-		//restore
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-		glPopAttrib();
 	}
+
+	//modelRenderer->begin(true, true, false);
+	//renderObjectList(vctEntity,baseFogColor,renderFps, worldFrameCount);
+	modelRenderer->end();
+
+	//restore
+	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+	glPopAttrib();
 }
 
 void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount) {
@@ -1389,7 +1359,7 @@ void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const
 	}
 }
 
-void Renderer::renderObject(Object *o,Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount) {
+void Renderer::renderObject(Object *o,const Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount) {
 	if(o != NULL) {
 		const Model *objModel= o->getModel();
 		if(objModel != NULL) {
@@ -1411,8 +1381,6 @@ void Renderer::renderObject(Object *o,Vec2i &mapPos,const Vec3f &baseFogColor,co
 			glPushMatrix();
 			glTranslatef(v.x, v.y, v.z);
 			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-			//objModel->updateInterpolationData(0.f, true);
 
 			modelRenderer->render(objModel);
 			o->setLastRenderFrame(worldFrameCount);
@@ -1841,7 +1809,8 @@ void Renderer::renderWaterEffects(){
 
 			//render only if visible
 			Vec2i intPos= Vec2i(static_cast<int>(ws->getPos().x), static_cast<int>(ws->getPos().y));
-			if(map->getSurfaceCell(Map::toSurfCoords(intPos))->isVisible(world->getThisTeamIndex())){
+			const Vec2i &mapPos = Map::toSurfCoords(intPos);
+			if(map->getSurfaceCell(mapPos)->isVisible(world->getThisTeamIndex())){
 
 				float scale= ws->getAnim()*ws->getSize();
 
@@ -2332,7 +2301,6 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 	}
 }
 
-
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(const int renderFps){
@@ -2737,28 +2705,7 @@ void Renderer::renderUnitsFast(){
 //			glPushName(j);
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
-				Vec2i mapPos = Vec2i(i,j);
-/*
-				glMatrixMode(GL_MODELVIEW);
-
-				//debuxar modelo
-				glPushMatrix();
-
-				//translate
-				Vec3f currVec= unit->getCurrVectorFlat();
-				glTranslatef(currVec.x, currVec.y, currVec.z);
-
-				//rotate
-				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-				//render
-				const Model *model= unit->getCurrentModel();
-				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
-				modelRenderer->render(model);
-
-				glPopMatrix();
-*/
-
+				//Vec2i mapPos = Vec2i(i,j);
 				//vctEntity.push_back(RenderEntity(retUnitFast,NULL,mapPos,unit));
 
 				const Model *model= unit->getCurrentModel();
@@ -2766,7 +2713,7 @@ void Renderer::renderUnitsFast(){
 					model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
 				}
 
-				renderUnitFast(unit, mapPos);
+				renderUnitFast(unit, i,j);
 			}
 			//glPopName();
 		}
@@ -2793,15 +2740,15 @@ void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
 void Renderer::renderUnitFast(RenderEntity &entity) {
 	Unit *unit = entity.unit;
 	if(unit != NULL) {
-		renderUnitFast(unit, entity.mapPos);
+		renderUnitFast(unit, entity.mapPos.x,entity.mapPos.y);
 		entity.setState(resRendered);
 	}
 }
 
-void Renderer::renderUnitFast(Unit *unit, Vec2i &mapPos) {
+void Renderer::renderUnitFast(Unit *unit, int x, int y) {
 	if(unit != NULL) {
-		glPushName(mapPos.x);
-		glPushName(mapPos.y);
+		glPushName(x);
+		glPushName(y);
 
 		glMatrixMode(GL_MODELVIEW);
 
@@ -2869,7 +2816,7 @@ void Renderer::renderObjectsFast() {
 	while(pqi.next()){
 		const Vec2i &pos= pqi.getPos();
 		if(map->isInside(pos)){
-			Vec2i mapPos = Map::toSurfCoords(pos);
+			const Vec2i &mapPos = Map::toSurfCoords(pos);
 			SurfaceCell *sc= map->getSurfaceCell(mapPos);
 			Object *o= sc->getObject();
 			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
@@ -2878,7 +2825,7 @@ void Renderer::renderObjectsFast() {
 
 			if(isExplored == true && isVisible == true) {
 				const Model *objModel= sc->getObject()->getModel();
-				Vec3f v= o->getPos();
+				const Vec3f &v= o->getConstPos();
 
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
