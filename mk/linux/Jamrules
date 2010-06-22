@@ -4,6 +4,8 @@ if ! $(top_builddir)
 }
 top_srcdir = $(TOP) ;
 
+MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -msse2 
+
 JAMCONFIG ?= $(top_builddir)/Jamconfig ;
 include $(JAMCONFIG) ;
 if ! $(JAMCONFIG_READ)
@@ -22,19 +24,19 @@ if $(USE_STLPORT_DEBUG)
 # if using streflop then add some special compiler defines
 if $(USE_STREFLOP)
 {
-#   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
-#   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing -fsignaling-nans -mieee-fp -mno-tls-direct-seg-refs ;
-   CPPFLAGS                 += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-   COMPILER_CFLAGS          += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-   COMPILER_CFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-   COMPILER_CXXFLAGS_optimize += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
+#   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -pipe -fno-strict-aliasing $(MGFLAGS) -mieee-fp -mno-tls-direct-seg-refs ;
+#   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing $(MGFLAGS) -mieee-fp -mno-tls-direct-seg-refs ;
+   CPPFLAGS                 += $(MGFLAGS) ;
+   COMPILER_CFLAGS          += $(MGFLAGS) ;
+   COMPILER_CFLAGS_optimize += $(MGFLAGS) ;
+   COMPILER_CXXFLAGS_optimize += $(MGFLAGS) ;
 
 }
 
-CPPFLAGS                   += -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
-COMPILER_CXXFLAGS_optimize += -O3 -DNDEBUG -fno-strict-aliasing -frounding-math -fsignaling-nans -mfpmath=sse -msse -msse2 ;
+CPPFLAGS                   += $(MGFLAGS) ;
+COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare $(MGFLAGS) ;
+COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG $(MGFLAGS) ;
+COMPILER_CXXFLAGS_optimize += -O3 -DNDEBUG $(MGFLAGS) ;
 COMPILER_LIBS_optimize     += ;
 COMPILER_CFLAGS_debug      += -DDEBUG -g3 ;
 COMPILER_CXXFLAGS_debug    += -DDEBUG -g3 ;
