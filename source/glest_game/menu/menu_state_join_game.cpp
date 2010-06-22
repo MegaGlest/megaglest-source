@@ -45,13 +45,14 @@ const string MenuStateJoinGame::serverFileName= "servers.ini";
 MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect, Ip serverIp):
 	MenuState(program, mainMenu, "join-game")
 {
+	abortAutoFind = false;
+	autoConnectToServer = false;
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	networkManager.end();
 	networkManager.init(nrClient);
-	abortAutoFind = false;
-
+	
 	serversSavedFile = serverFileName;
     if(getGameReadWritePath() != "") {
         serversSavedFile = getGameReadWritePath() + serversSavedFile;
@@ -147,6 +148,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	//serverList.push_back("test2");
 	//
 
+	autoConnectToServer = false;
 	buttonAutoFindServers.setEnabled(true);
 	if(serverList.size() > 0) {
 		string bestIPMatch = "";
@@ -167,7 +169,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 			listBoxFoundServers.setItems(serverList);
 		}
 		else {
-			connectToServer();
+			autoConnectToServer = true;
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -430,6 +432,10 @@ void MenuStateJoinGame::update()
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	else if(autoConnectToServer == true) {
+		autoConnectToServer = false;
+		connectToServer();
 	}
 
     if(clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);

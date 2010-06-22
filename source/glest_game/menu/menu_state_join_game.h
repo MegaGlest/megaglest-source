@@ -60,6 +60,7 @@ private:
 
 	string serversSavedFile;
 	bool abortAutoFind;
+	bool autoConnectToServer;
 
 public:
 	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip());
