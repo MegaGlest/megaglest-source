@@ -1201,18 +1201,7 @@ void ClientSocket::stopBroadCastClientThread() {
 
 	if(broadCastClientThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		broadCastClientThread->signalQuit();
-
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
-			if(broadCastClientThread->getRunningStatus() == false) {
-				break;
-			}
-			sleep(100);
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		}
+		BaseThread::shutdownAndWait(broadCastClientThread);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		delete broadCastClientThread;
@@ -1492,18 +1481,7 @@ void ServerSocket::stopBroadCastThread() {
 
 	if(broadCastThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		broadCastThread->signalQuit();
-
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
-			if(broadCastThread->getRunningStatus() == false) {
-				break;
-			}
-			sleep(100);
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		}
+		BaseThread::shutdownAndWait(broadCastThread);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		delete broadCastThread;
