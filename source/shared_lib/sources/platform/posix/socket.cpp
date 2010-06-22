@@ -703,13 +703,14 @@ Socket::Socket()
 }
 
 float Socket::getThreadedPingMS(std::string host) {
+	float result = -1;
+/*
 	if(pingThread == NULL) {
 		lastThreadedPing = 0;
 		pingThread = new SimpleTaskThread(this,0,50);
 		pingThread->start();
 	}
 
-	float result = -1;
 	if(pingCache.find(host) == pingCache.end()) {
 		MutexSafeWrapper safeMutex(&pingThreadAccessor);
 		safeMutex.ReleaseLock();
@@ -721,6 +722,7 @@ float Socket::getThreadedPingMS(std::string host) {
 		result = pingCache[host];
 		safeMutex.ReleaseLock();
 	}
+*/
 	return result;
 }
 
@@ -750,7 +752,6 @@ Socket::~Socket()
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
-	BaseThread::shutdownAndWait(pingThread);
 	delete pingThread;
 	pingThread = NULL;
 }
