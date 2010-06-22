@@ -1202,11 +1202,9 @@ void ClientSocket::stopBroadCastClientThread() {
 
 	if(broadCastClientThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		BaseThread::shutdownAndWait(broadCastClientThread);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		delete broadCastClientThread;
 		broadCastClientThread = NULL;
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1446,13 +1444,14 @@ void BroadCastClientSocketThread::execute() {
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	setRunningStatus(false);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
-
     // Here we callback into the implementer class
     if(discoveredServersCB != NULL) {
     	discoveredServersCB->DiscoveredServers(foundServers);
     }
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
+	setRunningStatus(false);
+	
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1482,11 +1481,9 @@ void ServerSocket::stopBroadCastThread() {
 
 	if(broadCastThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		BaseThread::shutdownAndWait(broadCastThread);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		delete broadCastThread;
 		broadCastThread = NULL;
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
