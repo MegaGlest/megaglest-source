@@ -4,7 +4,7 @@ if ! $(top_builddir)
 }
 top_srcdir = $(TOP) ;
 
-MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -msse2 
+MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -msse2 ;
 
 JAMCONFIG ?= $(top_builddir)/Jamconfig ;
 include $(JAMCONFIG) ;
