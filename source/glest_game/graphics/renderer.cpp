@@ -771,6 +771,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 }
 
 void Renderer::renderChatManager(const ChatManager *chatManager){
+	Vec4f fontColor;
 	Lang &lang= Lang::getInstance();
 
 	if(chatManager->getEditEnabled()){
@@ -785,9 +786,23 @@ void Renderer::renderChatManager(const ChatManager *chatManager){
 		}
 		text+= ": " + chatManager->getText() + "_";
 
-		textRenderer->begin(CoreData::getInstance().getConsoleFont());
-		textRenderer->render(text, 300, 150);
-		textRenderer->end();
+		if(game!=NULL){
+			fontColor=game->getGui()->getDisplay()->getColor();
+		}
+		else {
+			// white shadowed is default ( in the menu for example )
+			fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
+		}
+		
+		renderTextShadow(
+				text,
+				CoreData::getInstance().getConsoleFont(),
+				fontColor,
+				300, 150);
+						
+		//textRenderer->begin(CoreData::getInstance().getConsoleFont());
+		//textRenderer->render(text, 300, 150);
+		//textRenderer->end();
 	}
 }
 
@@ -924,8 +939,8 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
+	textRenderer->begin(font);
 	if(color.w<0.5)	{
-		textRenderer->begin(font);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
 	}
