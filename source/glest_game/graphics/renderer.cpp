@@ -530,7 +530,7 @@ void Renderer::loadGameCameraMatrix(){
 }
 
 void Renderer::loadCameraMatrix(const Camera *camera){
-	Vec3f position= camera->getPosition();
+	const Vec3f &position= camera->getConstPosition();
 	Quaternion orientation= camera->getOrientation().conjugate();
 
 	glMatrixMode(GL_MODELVIEW);
@@ -2072,7 +2072,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 
 	assertGl();
 
-	Vec3f cameraPosition= menuBackground->getCamera()->getPosition();
+	const Vec3f &cameraPosition= menuBackground->getCamera()->getConstPosition();
 
 	glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 

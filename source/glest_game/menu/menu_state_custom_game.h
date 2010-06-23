@@ -71,7 +71,7 @@ private:
 	time_t lastMasterserverPublishing;
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
-	string publishToServerInfo;
+	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
 	Mutex masterServerThreadAccessor;
 	

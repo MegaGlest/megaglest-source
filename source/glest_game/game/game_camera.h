@@ -14,6 +14,9 @@
 
 #include "vec.h"
 #include "math_util.h"
+#include <map>
+#include <string>
+#include "leak_dumper.h"
 
 namespace Shared { namespace Xml {
 	class XmlNode;

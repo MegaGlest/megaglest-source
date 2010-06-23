@@ -33,7 +33,7 @@ BaseThread::BaseThread() : Thread() {
 BaseThread::~BaseThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	shutdownAndWait();
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 }
 
 void BaseThread::signalQuit() {
@@ -98,20 +98,20 @@ void BaseThread::shutdownAndWait(BaseThread *pThread) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 		pThread->signalQuit();
-		sleep(0);
+		//sleep(0);
 
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 7; ) {
+		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
 			if(pThread->getRunningStatus() == false) {
 				break;
 			}
-			sleep(0);
+			sleep(1);
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		//sleep(0);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	}
 	//sleep(0);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 }
 
 void BaseThread::shutdownAndWait() {

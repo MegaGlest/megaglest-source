@@ -31,6 +31,8 @@ namespace Glest { namespace Game {
 
 // ================== PUBLIC =====================
 
+static std::map<std::string,  Quad2i> cacheVisibleQuad;
+
 const float GameCamera::startingVAng= -60.f;
 const float GameCamera::startingHAng= 0.f;
 const float GameCamera::vTransitionMult= 0.125f;
@@ -40,10 +42,31 @@ const float GameCamera::centerOffsetZ= 8.0f;
 
 // ================= Constructor =================
 
+class quadCacheLookup {
+	public:
+	quadCacheLookup(float fov,float hAng,Vec3f pos) {
+			this->fov	= fov;
+			this->hAng	= hAng;
+			this->pos	= pos;
+	}
+	std::string getString() const {
+		std::ostringstream streamOut;
+		streamOut << fov << "_" << hAng << "_" << pos.getString();
+		return streamOut.str();
+	}
+
+	float fov;
+	float hAng;
+	Vec3f pos;
+
+};
+
 GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 		destPos(0.f, defaultHeight, 0.f), destAng(startingVAng, startingHAng) {
 	Config &config = Config::getInstance();
     state= sGame;
+
+    cacheVisibleQuad.clear();
 
 	//config
 	speed= 15.f / GameConstants::cameraFps;
@@ -141,41 +164,19 @@ void GameCamera::update(){
 	}
 }
 
-Quad2i GameCamera::computeVisibleQuad() const{
-/*
-	class cacheLookup {
-		public:
-			cacheLookup(float fov,float hAng,Vec3f pos) {
-				this->fov	= fov;
-				this->hAng	= hAng;
-				this->pos	= pos;
-			}
-			std::string getString() const {
-				std::ostringstream streamOut;
-				streamOut << fov << "_" << hAng << "_" << pos.getString();
-				return streamOut.str();
-			}
-
-			float fov;
-			float hAng;
-			Vec3f pos;
-
-	};
-
-	cacheLookup lookup(fov, hAng,pos);
+Quad2i GameCamera::computeVisibleQuad() const {
+	//
+	quadCacheLookup lookup(fov, hAng, pos);
 	string lookupKey = lookup.getString();
-
-	static std::map<string,  Quad2i> cacheQuad;
-	if(cacheQuad.find(lookupKey) != cacheQuad.end()) {
-		return cacheQuad[lookupKey];
+	std::map<std::string,  Quad2i>::const_iterator iterFind = cacheVisibleQuad.find(lookupKey);
+	if(iterFind != cacheVisibleQuad.end()) {
+		return iterFind->second;
 	}
 	//
-*/
 
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
-	//float fov = Config::getInstance().getFloat("CameraFov","45");
 
 #ifdef USE_STREFLOP
 	Vec2f v(streflop::sinf(degToRad(180 - hAng)), streflop::cosf(degToRad(180 - hAng)));
@@ -207,10 +208,10 @@ Quad2i GameCamera::computeVisibleQuad() const{
 		return Quad2i(p2, p4, p1, p3);
 	}
 
-//	cacheQuad[lookupKey] = Quad2i(p4, p3, p2, p1);
-//	return cacheQuad[lookupKey];
-
-	return Quad2i(p4, p3, p2, p1);
+	//cacheVisibleQuad[lookupKey] = Quad2i(p4, p3, p2, p1);
+	cacheVisibleQuad.insert(std::make_pair(lookupKey,Quad2i(p4, p3, p2, p1)));
+	return cacheVisibleQuad[lookupKey];
+//	return Quad2i(p4, p3, p2, p1);
 }
 
 void GameCamera::switchState(){
