@@ -52,7 +52,9 @@ MainWindow::MainWindow()
 		, resource(0)
 		, startLocation(1)
 		, enabledGroup(ctHeight)
-		, fileModified(false) {
+		, fileModified(false)
+		, menuBar(NULL)
+		, panel(NULL) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -315,10 +317,18 @@ void MainWindow::init(string fname) {
 }
 
 void MainWindow::onClose(wxCloseEvent &event) {
+	if(timer != NULL) timer->Stop();
+	if(timer != NULL) delete timer;
+	timer = NULL;
+
 	delete this;
 }
 
 MainWindow::~MainWindow() {
+	if(timer != NULL) timer->Stop();
+	if(timer != NULL) delete timer;
+	timer = NULL;
+
 	delete program;
 	delete glCanvas;
 }
@@ -407,6 +417,9 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
+	if(panel) panel->Update();
+	if(menuBar) menuBar->Update();
+
 	program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 	glCanvas->SwapBuffers();
 }
@@ -485,8 +498,9 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 			strToInt(simpleDialog.getValue("Height")),
 			strToInt(simpleDialog.getValue("Altitude")),
 			strToInt(simpleDialog.getValue("Surface")));
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	currentFile = "";
 	fileName = "New (unsaved) map";
@@ -499,8 +513,9 @@ void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
 
 	try {
 		program->resetFactions(strToInt(simpleDialog.getValue("Factions")));
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	setDirty();
 	setExtension();
@@ -520,8 +535,9 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 			strToInt(simpleDialog.getValue("Width")),
 			strToInt(simpleDialog.getValue("Altitude")),
 			strToInt(simpleDialog.getValue("Surface")));
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	setDirty();
 }
@@ -556,8 +572,9 @@ void MainWindow::onMenuEditSwitchSurfaces(wxCommandEvent &event) {
 		program->switchMapSurfaces(
 			strToInt(simpleDialog.getValue("Surface1")),
 			strToInt(simpleDialog.getValue("Surface2")));
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	setDirty();
 }
@@ -590,8 +607,9 @@ void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 		program->setMapAdvanced(
 			strToInt(simpleDialog.getValue("Height Factor")),
 			strToInt(simpleDialog.getValue("Water Level")));
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	setDirty();
 }
@@ -601,15 +619,15 @@ void MainWindow::onMenuMiscResetZoomAndPos(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuMiscAbout(wxCommandEvent &event) {
-	wxMessageDialog(
-		NULL,
+	MsgDialog(
+		this,
 		wxT("Glest Map Editor - Copyright 2004 The Glest Team\n(with improvements by others, 2010)."),
 		wxT("About")).ShowModal();
 }
 
 void MainWindow::onMenuMiscHelp(wxCommandEvent &event) {
-	wxMessageDialog(
-		NULL,
+	MsgDialog(
+		this,
 		wxT("Left mouse click: draw\nRight mouse drag: move\nCenter mouse drag: zoom"),
 		wxT("Help")).ShowModal();
 }
@@ -961,6 +979,7 @@ void SimpleDialog::show() {
 	}
 }
 
+
 // ===============================================
 //  class App
 // ===============================================
@@ -988,15 +1007,58 @@ bool App::OnInit() {
 
 int App::MainLoop() {
 	try {
+		//throw runtime_error("test");
 		return wxApp::MainLoop();
-	} catch (const exception &e) {
-		wxMessageDialog(NULL, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	} 
+	catch (const exception &e) {
+		MsgDialog(NULL, ToUnicode(e.what()), wxT("Exception")).ShowModal();
 	}
 	return 0;
 }
 
 int App::OnExit() {
 	return 0;
+}
+
+MsgDialog::MsgDialog(wxWindow *parent,
+                     const wxString& message,
+                     const wxString& caption,
+                     long style,
+					 const wxPoint& pos) {
+    
+	m_sizerText = NULL;
+	// TODO: should we use main frame as parent by default here?
+    if ( !wxDialog::Create(parent, wxID_ANY, caption,
+                           pos, wxDefaultSize, 
+						   style) ) {
+        return;
+	}
+    m_sizerText = new wxBoxSizer(wxVERTICAL);
+    wxStaticText *label = new wxStaticText(this, wxID_ANY, message);
+    wxFont font(*wxNORMAL_FONT);
+    font.SetPointSize(font.GetPointSize());
+    font.SetWeight(wxFONTWEIGHT_NORMAL);
+    label->SetFont(font);
+
+    m_sizerText->Add(label, wxSizerFlags().Centre().Border());
+
+    wxSizer *sizerIconAndText = new wxBoxSizer(wxHORIZONTAL);
+    sizerIconAndText->Add(m_sizerText, wxSizerFlags(1).Expand());
+
+    wxSizer *sizerTop = new wxBoxSizer(wxVERTICAL);
+    sizerTop->Add(sizerIconAndText, wxSizerFlags(1).Expand().Border());
+
+    wxSizer *sizerBtns = CreateButtonSizer(wxOK);
+    if ( sizerBtns )
+    {
+        sizerTop->Add(sizerBtns, wxSizerFlags().Expand().Border());
+    }
+
+    SetSizerAndFit(sizerTop);
+    CentreOnScreen();
+}
+MsgDialog::~MsgDialog() {
+
 }
 
 }// end namespace

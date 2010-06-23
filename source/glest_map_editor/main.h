@@ -263,6 +263,25 @@ public:
 };
 
 // =====================================================
+//	class SimpleDialog
+// =====================================================
+
+class MsgDialog: public wxDialog {
+
+private:
+
+	wxSizer *m_sizerText;
+
+public:
+	MsgDialog(wxWindow *parent,
+                     const wxString& message,
+                     const wxString& caption,
+                     long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxOK | wxCENTRE,
+                     const wxPoint& pos = wxDefaultPosition);
+	virtual ~MsgDialog();
+};
+
+// =====================================================
 //	class App
 // =====================================================
 
