@@ -1064,6 +1064,11 @@ void MenuStateCustomGame::simpleTask() {
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
 	needToRepublishToMasterserver = false;
+	std::map<string,string> newPublishToServerInfo = publishToServerInfo;
+	publishToServerInfo.clear();
+	bool broadCastSettings = needToBroadcastServerSettings;
+	needToBroadcastServerSettings=false;
+	safeMutex.ReleaseLock();
 
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1072,15 +1077,14 @@ void MenuStateCustomGame::simpleTask() {
 		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
 		CURL *handle = SystemFlags::initHTTP();
-		for(std::map<string,string>::const_iterator iterMap = publishToServerInfo.begin();
-			iterMap != publishToServerInfo.end(); iterMap++) {
+		for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+			iterMap != newPublishToServerInfo.end(); iterMap++) {
 
 			request += iterMap->first;
 			request += "=";
 			request += SystemFlags::escapeURL(iterMap->second,handle);
 			request += "&";
 		}
-		publishToServerInfo.clear();
 
 		//printf("the request is:\n%s\n",request.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
@@ -1099,10 +1103,6 @@ void MenuStateCustomGame::simpleTask() {
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	bool broadCastSettings = needToBroadcastServerSettings;
-	needToBroadcastServerSettings=false;
-	//safeMutex.ReleaseLock(true);
 
 	if(broadCastSettings) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
