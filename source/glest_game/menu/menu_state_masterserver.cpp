@@ -204,7 +204,7 @@ MenuStateMasterserver::~MenuStateMasterserver() {
 
 	clearServerLines();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMasterserver::clearServerLines(){
@@ -265,10 +265,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
+		safeMutex.ReleaseLock();
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
-		safeMutex.ReleaseLock();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

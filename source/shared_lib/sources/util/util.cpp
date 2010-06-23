@@ -69,11 +69,13 @@ size_t SystemFlags::httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb
   return realsize;
 }
 
-std::string SystemFlags::escapeURL(std::string URL)
-{
+std::string SystemFlags::escapeURL(std::string URL, CURL *handle) {
 	string result = URL;
 
-	char *escaped=curl_easy_escape(SystemFlags::curl_handle,URL.c_str(),0);
+	if(handle == NULL) {
+		handle = SystemFlags::curl_handle;
+	}
+	char *escaped=curl_easy_escape(handle,URL.c_str(),0);
 	if(escaped != NULL) {
 		result = escaped;
 		curl_free(escaped);
@@ -81,31 +83,54 @@ std::string SystemFlags::escapeURL(std::string URL)
 	return result;
 }
 
-std::string SystemFlags::getHTTP(std::string URL) {
-	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_URL, URL.c_str());
+std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
+	if(handle == NULL) {
+		handle = SystemFlags::curl_handle;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	curl_easy_setopt(handle, CURLOPT_URL, URL.c_str());
 
 	/* send all data to this function  */
-	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_WRITEFUNCTION, SystemFlags::httpWriteMemoryCallback);
+	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, SystemFlags::httpWriteMemoryCallback);
 
 	struct SystemFlags::httpMemoryStruct chunk;
 	chunk.memory=NULL; /* we expect realloc(NULL, size) to work */
 	chunk.size = 0;    /* no data at this point */
 
 	/* we pass our 'chunk' struct to the callback function */
-	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+	curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&chunk);
 
 	/* some servers don't like requests that are made without a user-agent
 	   field, so we provide one */
-	curl_easy_setopt(SystemFlags::curl_handle, CURLOPT_USERAGENT, "mega-glest-agent/1.0");
+	curl_easy_setopt(handle, CURLOPT_USERAGENT, "mega-glest-agent/1.0");
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
+
+	//curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	/* get contents from the URL */
-	curl_easy_perform(SystemFlags::curl_handle);
+	curl_easy_perform(handle);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
 	if(chunk.memory) {
 		free(chunk.memory);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());
+
 	return serverResponse;
+}
+
+CURL *SystemFlags::initHTTP() {
+	curl_global_init(CURL_GLOBAL_ALL);
+	CURL *handle = curl_easy_init();
+	return handle;
 }
 
 void SystemFlags::init() {
@@ -117,9 +142,15 @@ void SystemFlags::init() {
 		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  = SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(curl_handle == NULL) {
-		curl_global_init(CURL_GLOBAL_ALL);
-		curl_handle = curl_easy_init();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		curl_handle = SystemFlags::initHTTP();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_handle = %p\n",__FILE__,__FUNCTION__,__LINE__,curl_handle);
 	}
 }
 
@@ -141,13 +172,21 @@ inline bool acquire_file_lock(int hnd)
 SystemFlags::SystemFlags() {
 
 }
+
+void SystemFlags::cleanupHTTP(CURL **handle) {
+	if(handle != NULL && *handle != NULL) {
+		curl_easy_cleanup(*handle);
+		*handle = NULL;
+		curl_global_cleanup();
+	}
+}
+
 SystemFlags::~SystemFlags() {
 	SystemFlags::Close();
 
 	if(curl_handle != NULL) {
-		curl_easy_cleanup(curl_handle);
+		SystemFlags::cleanupHTTP(&curl_handle);
 		curl_handle = NULL;
-	    curl_global_cleanup();
 	}
 }
 

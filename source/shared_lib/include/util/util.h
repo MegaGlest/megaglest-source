@@ -116,8 +116,11 @@ public:
 	static void init();
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
-	static std::string getHTTP(std::string URL);
-	static std::string escapeURL(std::string URL);
+	static std::string getHTTP(std::string URL,CURL *handle=NULL);
+	static std::string escapeURL(std::string URL, CURL *handle=NULL);
+
+	static CURL *initHTTP();
+	static void cleanupHTTP(CURL **handle);
 
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);

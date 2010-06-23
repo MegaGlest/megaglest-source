@@ -180,8 +180,13 @@ ConnectionSlot::~ConnectionSlot()
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	BaseThread::shutdownAndWait(slotThreadWorker);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	delete slotThreadWorker;
 	slotThreadWorker = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	close();
 

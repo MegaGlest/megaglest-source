@@ -708,6 +708,7 @@ float Socket::getThreadedPingMS(std::string host) {
 	if(pingThread == NULL) {
 		lastThreadedPing = 0;
 		pingThread = new SimpleTaskThread(this,0,50);
+		pingThread->setUniqueID(__FILE__ + "_" + __FUNCTION);
 		pingThread->start();
 	}
 
@@ -1216,6 +1217,7 @@ void ClientSocket::startBroadCastClientThread(DiscoveredServersInterface *cb) {
 	ClientSocket::stopBroadCastClientThread();
 
 	broadCastClientThread = new BroadCastClientSocketThread(cb);
+	broadCastClientThread->setUniqueID(string(__FILE__) + string("_") + string(__FUNCTION__));
 	broadCastClientThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1495,6 +1497,7 @@ void ServerSocket::startBroadCastThread() {
 	stopBroadCastThread();
 
 	broadCastThread = new BroadCastSocketThread();
+	broadCastThread->setUniqueID(string(__FILE__) + string("_") + string(__FUNCTION__));
 	broadCastThread->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
