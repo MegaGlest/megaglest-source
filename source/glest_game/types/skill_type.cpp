@@ -68,8 +68,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 				const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-
-				unitParticleSystemType->load(dir,  dir + "/" + path, Renderer::getInstance().newTexture2D(rsGame));
+				unitParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
 		}
@@ -214,7 +213,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();	
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  dir + "/" + path);
+			projectileParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
 		}
 
 		//proj sounds
@@ -245,7 +244,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();	
 			splashParticleSystemType= new ParticleSystemTypeSplash();
-			splashParticleSystemType->load(dir,  dir + "/" + path);
+			splashParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
 		}
 	}
 }

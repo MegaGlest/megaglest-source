@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 
-//#include "graphics_factory_gl.h"
 #include "model_gl.h"
 #include "graphics_interface.h"
 #include "util.h"
@@ -68,6 +67,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuFile= new wxMenu();
 	menuFile->Append(miFileLoad, wxT("Load"));
 	menuFile->Append(miFileLoadParticleXML, wxT("Load Particle XML"));
+	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load Projectile Particle XML"));
 	menu->Append(menuFile, wxT("File"));
 
 	//mode
@@ -192,6 +192,16 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 	}
 }
 
+void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
+	string fileName;
+	wxFileDialog fileDialog(this);
+	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+	if(fileDialog.ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+		loadProjectileParticle(path);
+	}
+}
+
 void MainWindow::loadModel(string path) {
 	if(path != "" && fileExists(path) == true) {
 		this->modelPathList.push_back(path);
@@ -215,6 +225,8 @@ void MainWindow::loadParticle(string path) {
 	}
 
 	if(this->particlePathList.size() > 0) {
+		renderer->initModelManager();
+
 		for(int idx = 0; idx < this->particlePathList.size(); idx++) {
 			string particlePath = this->particlePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
@@ -245,7 +257,7 @@ void MainWindow::loadParticle(string path) {
 			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-			unitParticleSystemType->load(dir,  dir + "/" + particlePath, renderer->getNewTexture2D());
+			unitParticleSystemType->load(dir,  dir + "/" + particlePath, renderer);
 			unitParticleSystemTypes.push_back(unitParticleSystemType);
 
 			for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
@@ -262,6 +274,87 @@ void MainWindow::loadParticle(string path) {
 				renderer->manageParticleSystem(ups);
 
 				ups->setVisible(true);
+			}
+
+			renderer->initTextureManager();
+		}
+	}
+}
+
+void MainWindow::loadProjectileParticle(string path) {
+	if(path != "" && fileExists(path) == true) {
+		this->particleProjectilePathList.push_back(path);
+	}
+
+	if(this->particleProjectilePathList.size() > 0) {
+		renderer->initModelManager();
+
+		for(int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
+			string particlePath = this->particleProjectilePathList[idx];
+			string dir= extractDirectoryPathFromFile(particlePath);
+
+			size_t pos = dir.find_last_of("/");
+			if(pos == dir.length()-1) {
+				dir.erase(dir.length() -1);
+			}
+
+			particlePath= extractFileFromDirectoryPath(particlePath);
+
+			std::string unitXML = dir + "/" + extractFileFromDirectoryPath(dir) + ".xml";
+
+			int size   = -1;
+			int height = -1;
+
+			if(fileExists(unitXML) == true) {
+				XmlTree xmlTree;
+				xmlTree.load(unitXML);
+				const XmlNode *unitNode= xmlTree.getRootNode();
+				const XmlNode *parametersNode= unitNode->getChild("parameters");
+				//size
+				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+				//height
+				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+			}
+
+			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+
+			XmlTree xmlTree;
+			xmlTree.load(dir + "/" + particlePath);
+			const XmlNode *particleSystemNode= xmlTree.getRootNode();
+
+			std::cout << "Loaded successfully, loading values..." << std::endl;
+
+			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
+			projectileParticleSystemType->load(dir,  dir + "/" + particlePath,renderer);
+
+			std::cout << "Values loaded, about to read..." << std::endl;
+
+			projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+
+			for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin(); it != projectileParticleSystemTypes.end(); ++it) {
+
+				ProjectileParticleSystem *ps = (*it)->create();
+
+				if(size > 0) {
+					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+					//ps->setPos(vec);
+
+					Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);
+					ps->setPath(vec, vec2);
+				}
+				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+
+				projectileParticleSystems.push_back(ps);
+
+				ps->setVisible(true);
+				renderer->manageParticleSystem(ps);
+
+				//psProj= pstProj->create();
+				//psProj->setPath(startPos, endPos);
+				//psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
+				//psProj->setVisible(visible);
+				//psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+				//renderer.manageParticleSystem(psProj, rsGame);
 			}
 
 			renderer->initTextureManager();
@@ -465,6 +558,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_CLOSE(MainWindow::onClose)
 	EVT_MENU(miFileLoad, MainWindow::onMenuFileLoad)
 	EVT_MENU(miFileLoadParticleXML, MainWindow::onMenuFileLoadParticleXML)
+	EVT_MENU(miFileLoadProjectileParticleXML, MainWindow::onMenuFileLoadProjectileParticleXML)
 
 	EVT_MENU(miModeWireframe, MainWindow::onMenuModeWireframe)
 	EVT_MENU(miModeNormals, MainWindow::onMenuModeNormals)

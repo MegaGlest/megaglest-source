@@ -141,8 +141,11 @@ void Game::load(){
     Config &config = Config::getInstance();
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
+    //bool skipCustomLoadScreen = true;
+    bool skipCustomLoadScreen = false;
+
     string scenarioDir = "";
-    if(gameSettings.getScenarioDir() != "") {
+    if(skipCustomLoadScreen == false && gameSettings.getScenarioDir() != "") {
         scenarioDir = gameSettings.getScenarioDir();
         if(EndsWith(scenarioDir, ".xml") == true) {
             scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
@@ -168,7 +171,7 @@ void Game::load(){
     sleep(0);
 	//SDL_PumpEvents();
 
-	if(loadingImageUsed == false){
+	if(skipCustomLoadScreen == false && loadingImageUsed == false){
 		// try to use a faction related loading screen
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
 		for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
@@ -205,7 +208,7 @@ void Game::load(){
 			}
 	    }
 	}
-	if(loadingImageUsed == false){
+	if(skipCustomLoadScreen == false && loadingImageUsed == false){
 		// try to use a tech related loading screen
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for tech loading screen\n",__FILE__,__FUNCTION__);
 		

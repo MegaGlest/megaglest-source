@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -181,7 +181,7 @@ void Texture1DGl::end(){
 void Texture2DGl::init(Filter filter, int maxAnisotropy){
 	assertGl();
 
-	if(!inited){
+	if(!inited) {
 
 		//params
 		GLint wrap= toWrapModeGl(wrapMode);
@@ -219,7 +219,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 			if(error!=0){
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH());
+				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH());
 				throw runtime_error(szBuf);
 			}
 		}

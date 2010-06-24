@@ -33,6 +33,7 @@ public:
 	enum MenuId{
 		miFileLoad,
 		miFileLoadParticleXML,
+		miFileLoadProjectileParticleXML,
 		miModeWireframe,
 		miModeNormals,
 		miModeGrid,
@@ -62,6 +63,7 @@ private:
 	//string ParticlePath;
 	std::vector<string> modelPathList;
 	std::vector<string> particlePathList;
+	std::vector<string> particleProjectilePathList;
 
 	float speed;
 	float anim;
@@ -72,8 +74,12 @@ private:
 	std::vector<UnitParticleSystemType *> unitParticleSystemTypes;
 	std::vector<UnitParticleSystem *> unitParticleSystems;
 
+	std::vector<ParticleSystemTypeProjectile *> projectileParticleSystemTypes;
+	std::vector<ProjectileParticleSystem *> projectileParticleSystems;
+
 	void loadModel(string path);
 	void loadParticle(string path);
+	void loadProjectileParticle(string path);
 
 public:
 	MainWindow(const string &modelPath);
@@ -86,6 +92,7 @@ public:
 	void onClose(wxCloseEvent &event);
 	void onMenuFileLoad(wxCommandEvent &event);
 	void onMenuFileLoadParticleXML(wxCommandEvent &event);
+	void onMenuFileLoadProjectileParticleXML(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);
 	void onMenuModeWireframe(wxCommandEvent &event);
 	void onMenuModeGrid(wxCommandEvent &event);

@@ -44,7 +44,8 @@ public:
 	void setFilter(Texture::Filter textureFilter);
 	void setMaxAnisotropy(int maxAnisotropy);
 	void initTexture(Texture *texture);
-	void endTexture(Texture **texture);
+	void endTexture(Texture *texture,bool mustExistInList=false);
+	void endLastTexture(bool mustExistInList=false);
 	void reinitTextures();
 
 	Texture *getTexture(const string &path);

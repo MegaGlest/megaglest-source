@@ -44,14 +44,23 @@ Logger::~Logger(){
 }
 
 void Logger::cleanupLoadingTexture() {
-	if(loadingTexture!=NULL)
-	{
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(loadingTexture!=NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		Renderer &renderer= Renderer::getInstance();
-		Texture *genericTexture = loadingTexture;
-		renderer.endTexture(rsGlobal,&genericTexture);
+		//renderer.endTexture(rsGlobal,loadingTexture);
+		loadingTexture->end();
+		delete loadingTexture;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//delete loadingTexture;
 		loadingTexture=NULL;
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 Logger & Logger::getInstance(){
@@ -106,8 +115,12 @@ void Logger::loadLoadingScreen(string filepath){
 		//loadingTexture->getPixmap()->load(filepath);
 		loadingTexture->load(filepath);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		Renderer &renderer= Renderer::getInstance();
 		renderer.initTexture(rsGlobal,loadingTexture);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
 

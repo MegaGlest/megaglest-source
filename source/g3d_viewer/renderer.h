@@ -14,12 +14,15 @@
 #include "texture.h"
 
 #include "particle_renderer.h"
+#include "model_manager.h"
+#include "graphics_interface.h"
 
 //#include "model_manager.h"
 //#include "graphics_factory_gl.h"
 
 using Shared::Graphics::ModelRenderer;
 using Shared::Graphics::TextureManager;
+using Shared::Graphics::ModelManager;
 using Shared::Graphics::Model;
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::ParticleRenderer;
@@ -30,6 +33,8 @@ using Shared::Graphics::ParticleSystem;
 using Shared::Graphics::MeshCallback;
 using Shared::Graphics::Mesh;
 using Shared::Graphics::Texture;
+
+using namespace Shared::Graphics;
 
 namespace Shared{ namespace G3dViewer{
 
@@ -50,7 +55,7 @@ public:
 // 	class Renderer
 // ===============================
 
-class Renderer{
+class Renderer : public RendererInterface {
 public:
 	static const int windowX= 100;
 	static const int windowY= 100;
@@ -75,6 +80,7 @@ private:
 	ParticleRenderer *particleRenderer;
 
 	ParticleManager *particleManager;
+	ModelManager *modelManager;
 
 	Texture2D *customTextureRed;
 	Texture2D *customTextureBlue;
@@ -110,8 +116,16 @@ public:
 	void updateParticleManager();
 	void renderParticleManager();
 	Texture2D *getPlayerColorTexture(PlayerColor playerColor);
+
 	Texture2D * getNewTexture2D();
+	Model * getNewModel();
+
+	Model *newModel(ResourceScope rs) { return getNewModel(); }
+	Texture2D *newTexture2D(ResourceScope rs) { return getNewTexture2D(); }
+
 	void initTextureManager();
+	void initModelManager();
+
 	void end();
 };
 

@@ -78,7 +78,7 @@ Renderer::Renderer(){
 	modelRenderer = NULL;
 	textureManager = NULL;
 	particleRenderer = NULL;
-	particleManager = NULL;
+	modelManager = NULL;
 }
 
 Renderer::~Renderer(){
@@ -88,6 +88,7 @@ Renderer::~Renderer(){
 
 	//resources
 	delete particleManager;
+	delete modelManager;
 }
 
 Renderer * Renderer::getInstance(){
@@ -141,6 +142,11 @@ Texture2D * Renderer::getNewTexture2D() {
 	return newTexture;
 }
 
+Model * Renderer::getNewModel() {
+	Model *newModel = modelManager->newModel();
+	return newModel;
+}
+
 void Renderer::init(){
 	assertGl();
 
@@ -156,6 +162,9 @@ void Renderer::init(){
 
 	//resources
 	particleManager= gf->newParticleManager();
+
+	modelManager = gf->newModelManager();
+	modelManager->setTextureManager(textureManager);
 
 	//red tex
 	customTextureRed= textureManager->newTexture2D();
@@ -293,6 +302,7 @@ void Renderer::loadTheModel(Model *model, string file){
 	model->setTextureManager(textureManager);
 	model->loadG3d(file);
 	textureManager->init();
+	modelManager->init();
 }
 
 void Renderer::renderTheModel(Model *model, float f){
@@ -355,10 +365,15 @@ void Renderer::initTextureManager() {
 	textureManager->init();
 }
 
+void Renderer::initModelManager() {
+	modelManager->init();
+}
+
 void Renderer::end() {
 	//delete resources
 	//textureManager->end();
 	particleManager->end();
+	modelManager->end();
 }
 
 }}//end namespace
