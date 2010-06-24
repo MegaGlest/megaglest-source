@@ -170,6 +170,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	listBoxAutoRefresh.pushBackItem("20 s");
 	listBoxAutoRefresh.pushBackItem("30 s");
 	listBoxAutoRefresh.setSelectedItemIndex(1);
+	autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
