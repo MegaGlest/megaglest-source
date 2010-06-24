@@ -37,6 +37,8 @@ Tileset Winter:     by Titus Tscharntke(titi)
 Tileset Hell:       by Titus Tscharntke(titi)
 Tileset Mediterran: by Titus Tscharntke(titi)
 Tileset Scurbland:  by MadElf (improved a bit by titi)
+Tileset Spring:     by Philipp Tscharntke
+Tileset Meadow:     by Trappin ( with water from madelf )
 
 Maps:
 =====
@@ -56,6 +58,8 @@ Maps:
  wadi_nefud2       by Trappin
  lau_lagoon        by Trappin
  redoubt           by Trappin
+ megakill3vs1      by Enno Tscharntke
+ cauldron          by Wciow ( little changes by titi )
 
 Scenarios:
 ==========
@@ -92,6 +96,7 @@ erdie (from http://www.freesound.org) for the autumn day sound
 patchen (from http://www.freesound.org) for the autumn night sound
 royal (from http://www.freesound.org) for the  desert day sound
 Cacatoes (from http://forum.freegamedev.net/) for a nice rock texture photo used in autumn tileset.
+dobroide (from http://forum.freegamedev.net/) for spring ambiente daytime background sounds
 
 INFO:
 Some source textures distributed with the tilesets(evergreen/autumn) are copyrighted by CGTextures.com. Permission to release these specific textures has been granted to the creator of these tilesets. 
