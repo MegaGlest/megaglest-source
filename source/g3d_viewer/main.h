@@ -34,6 +34,7 @@ public:
 		miFileLoad,
 		miFileLoadParticleXML,
 		miFileLoadProjectileParticleXML,
+		miFileClearAll,
 		miModeWireframe,
 		miModeNormals,
 		miModeGrid,
@@ -59,8 +60,6 @@ private:
 
 	Model *model;
 
-	//string modelPath;
-	//string ParticlePath;
 	std::vector<string> modelPathList;
 	std::vector<string> particlePathList;
 	std::vector<string> particleProjectilePathList;
@@ -77,6 +76,7 @@ private:
 	std::vector<ParticleSystemTypeProjectile *> projectileParticleSystemTypes;
 	std::vector<ProjectileParticleSystem *> projectileParticleSystems;
 
+	bool isControlKeyPressed;
 	void loadModel(string path);
 	void loadParticle(string path);
 	void loadProjectileParticle(string path);
@@ -93,6 +93,7 @@ public:
 	void onMenuFileLoad(wxCommandEvent &event);
 	void onMenuFileLoadParticleXML(wxCommandEvent &event);
 	void onMenuFileLoadProjectileParticleXML(wxCommandEvent &event);
+	void onMenuFileClearAll(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);
 	void onMenuModeWireframe(wxCommandEvent &event);
 	void onMenuModeGrid(wxCommandEvent &event);

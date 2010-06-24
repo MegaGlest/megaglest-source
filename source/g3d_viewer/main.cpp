@@ -9,6 +9,7 @@
 #include "platform_common.h"
 #include "xml_parser.h"
 #include <iostream>
+#include <wx/event.h>
 
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
@@ -74,6 +75,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuFile->Append(miFileLoad, wxT("Load"));
 	menuFile->Append(miFileLoadParticleXML, wxT("Load Particle XML"));
 	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load Projectile Particle XML"));
+	menuFile->Append(miFileClearAll, wxT("Clear All"));
 	menu->Append(menuFile, wxT("File"));
 
 	//mode
@@ -208,6 +210,30 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 	}
 }
 
+void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
+	modelPathList.clear();
+	particlePathList.clear();
+	particleProjectilePathList.clear();
+
+	timer->Stop();
+	renderer->end();
+
+	unitParticleSystems.clear();
+	unitParticleSystemTypes.clear();
+	
+	projectileParticleSystems.clear();
+	projectileParticleSystemTypes.clear();
+
+	delete model;
+	model = NULL;
+
+	loadModel("");
+	loadParticle("");
+	loadProjectileParticle("");
+
+	timer->Start(100);
+}
+
 void MainWindow::loadModel(string path) {
 	if(path != "" && fileExists(path) == true) {
 		this->modelPathList.push_back(path);
@@ -216,156 +242,189 @@ void MainWindow::loadModel(string path) {
 	for(int idx =0; idx < this->modelPathList.size(); idx++) {
 		string modelPath = this->modelPathList[idx];
 
-		//this->modelPath = path;
+		timer->Stop();
 		delete model;
 		Model *tmpModel= new ModelGl();
 		renderer->loadTheModel(tmpModel, modelPath);
 		model= tmpModel;
 		GetStatusBar()->SetStatusText(ToUnicode(getModelInfo().c_str()));
+		timer->Start(100);
 	}
 }
 
 void MainWindow::loadParticle(string path) {
 	if(path != "" && fileExists(path) == true) {
-		this->particlePathList.push_back(path);
-	}
+		timer->Stop();
 
-	if(this->particlePathList.size() > 0) {
-		renderer->initModelManager();
-
-		for(int idx = 0; idx < this->particlePathList.size(); idx++) {
-			string particlePath = this->particlePathList[idx];
-			string dir= extractDirectoryPathFromFile(particlePath);
-
-			size_t pos = dir.find_last_of(folderDelimiter);
-			if(pos == dir.length()-1) {
-				dir.erase(dir.length() -1);
-			}
-
-			particlePath= extractFileFromDirectoryPath(particlePath);
-
-			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
-
-			int size   = -1;
-			int height = -1;
-
-			if(fileExists(unitXML) == true) {
-				XmlTree xmlTree;
-				xmlTree.load(unitXML);
-				const XmlNode *unitNode= xmlTree.getRootNode();
-				const XmlNode *parametersNode= unitNode->getChild("parameters");
-				//size
-				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
-				//height
-				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-			}
-
-			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
-
-			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-			unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
-			unitParticleSystemTypes.push_back(unitParticleSystemType);
-
-			for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
-				UnitParticleSystem *ups= new UnitParticleSystem(200);
-				(*it)->setValues(ups);
-				if(size > 0) {
-					//getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
-					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
-					ups->setPos(vec);
-				}
-				//ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-				ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
-				unitParticleSystems.push_back(ups);
-				renderer->manageParticleSystem(ups);
-
-				ups->setVisible(true);
-			}
-
-			renderer->initTextureManager();
+		if(isControlKeyPressed == true) {
+			this->particlePathList.push_back(path);
 		}
+		else {
+			this->particlePathList.clear();
+			renderer->end();
+
+			unitParticleSystems.clear();
+			unitParticleSystemTypes.clear();
+	
+			this->particlePathList.push_back(path);
+		}
+
+		if(this->particlePathList.size() > 0) {
+			renderer->initModelManager();
+
+			for(int idx = 0; idx < this->particlePathList.size(); idx++) {
+				string particlePath = this->particlePathList[idx];
+				string dir= extractDirectoryPathFromFile(particlePath);
+
+				size_t pos = dir.find_last_of(folderDelimiter);
+				if(pos == dir.length()-1) {
+					dir.erase(dir.length() -1);
+				}
+
+				particlePath= extractFileFromDirectoryPath(particlePath);
+
+				std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
+
+				int size   = -1;
+				int height = -1;
+
+				if(fileExists(unitXML) == true) {
+					XmlTree xmlTree;
+					xmlTree.load(unitXML);
+					const XmlNode *unitNode= xmlTree.getRootNode();
+					const XmlNode *parametersNode= unitNode->getChild("parameters");
+					//size
+					size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+					//height
+					height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+				}
+
+				std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+
+				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+				unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
+				unitParticleSystemTypes.push_back(unitParticleSystemType);
+
+				for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
+					UnitParticleSystem *ups= new UnitParticleSystem(200);
+					(*it)->setValues(ups);
+					if(size > 0) {
+						//getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
+						Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+						ups->setPos(vec);
+					}
+					//ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+					ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+					unitParticleSystems.push_back(ups);
+					renderer->manageParticleSystem(ups);
+
+					ups->setVisible(true);
+				}
+
+				renderer->initTextureManager();
+			}
+		}
+
+		timer->Start(100);
 	}
 }
 
 void MainWindow::loadProjectileParticle(string path) {
 	if(path != "" && fileExists(path) == true) {
-		this->particleProjectilePathList.push_back(path);
-	}
+		timer->Stop();
 
-	if(this->particleProjectilePathList.size() > 0) {
-		renderer->initModelManager();
-
-		for(int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
-			string particlePath = this->particleProjectilePathList[idx];
-			string dir= extractDirectoryPathFromFile(particlePath);
-
-			size_t pos = dir.find_last_of(folderDelimiter);
-			if(pos == dir.length()-1) {
-				dir.erase(dir.length() -1);
-			}
-
-			particlePath= extractFileFromDirectoryPath(particlePath);
-
-			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
-
-			int size   = -1;
-			int height = -1;
-
-			if(fileExists(unitXML) == true) {
-				XmlTree xmlTree;
-				xmlTree.load(unitXML);
-				const XmlNode *unitNode= xmlTree.getRootNode();
-				const XmlNode *parametersNode= unitNode->getChild("parameters");
-				//size
-				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
-				//height
-				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-			}
-
-			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
-
-			XmlTree xmlTree;
-			xmlTree.load(dir + folderDelimiter + particlePath);
-			const XmlNode *particleSystemNode= xmlTree.getRootNode();
-
-			std::cout << "Loaded successfully, loading values..." << std::endl;
-
-			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer);
-
-			std::cout << "Values loaded, about to read..." << std::endl;
-
-			projectileParticleSystemTypes.push_back(projectileParticleSystemType);
-
-			for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin(); it != projectileParticleSystemTypes.end(); ++it) {
-
-				ProjectileParticleSystem *ps = (*it)->create();
-
-				if(size > 0) {
-					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
-					//ps->setPos(vec);
-
-					Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);
-					ps->setPath(vec, vec2);
-				}
-				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
-
-				projectileParticleSystems.push_back(ps);
-
-				ps->setVisible(true);
-				renderer->manageParticleSystem(ps);
-
-				//MessageBox(NULL,"hi","hi",MB_OK);
-				//psProj= pstProj->create();
-				//psProj->setPath(startPos, endPos);
-				//psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
-				//psProj->setVisible(visible);
-				//psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-				//renderer.manageParticleSystem(psProj, rsGame);
-			}
-
-			renderer->initTextureManager();
+		if(isControlKeyPressed == true) {
+			this->particleProjectilePathList.push_back(path);
 		}
+		else {
+			this->particleProjectilePathList.clear();
+	
+			renderer->end();
+
+			projectileParticleSystems.clear();
+			projectileParticleSystemTypes.clear();
+
+			this->particleProjectilePathList.push_back(path);
+
+		}
+	
+
+		if(this->particleProjectilePathList.size() > 0) {
+			renderer->initModelManager();
+
+			for(int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
+				string particlePath = this->particleProjectilePathList[idx];
+				string dir= extractDirectoryPathFromFile(particlePath);
+
+				size_t pos = dir.find_last_of(folderDelimiter);
+				if(pos == dir.length()-1) {
+					dir.erase(dir.length() -1);
+				}
+
+				particlePath= extractFileFromDirectoryPath(particlePath);
+
+				std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
+
+				int size   = -1;
+				int height = -1;
+
+				if(fileExists(unitXML) == true) {
+					XmlTree xmlTree;
+					xmlTree.load(unitXML);
+					const XmlNode *unitNode= xmlTree.getRootNode();
+					const XmlNode *parametersNode= unitNode->getChild("parameters");
+					//size
+					size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+					//height
+					height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+				}
+
+				std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+
+				XmlTree xmlTree;
+				xmlTree.load(dir + folderDelimiter + particlePath);
+				const XmlNode *particleSystemNode= xmlTree.getRootNode();
+
+				std::cout << "Loaded successfully, loading values..." << std::endl;
+
+				ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
+				projectileParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer);
+
+				std::cout << "Values loaded, about to read..." << std::endl;
+
+				projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+
+				for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin(); it != projectileParticleSystemTypes.end(); ++it) {
+
+					ProjectileParticleSystem *ps = (*it)->create();
+
+					if(size > 0) {
+						Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+						//ps->setPos(vec);
+
+						Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);
+						ps->setPath(vec, vec2);
+					}
+					ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+
+					projectileParticleSystems.push_back(ps);
+
+					ps->setVisible(true);
+					renderer->manageParticleSystem(ps);
+
+					//MessageBox(NULL,"hi","hi",MB_OK);
+					//psProj= pstProj->create();
+					//psProj->setPath(startPos, endPos);
+					//psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
+					//psProj->setVisible(visible);
+					//psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+					//renderer.manageParticleSystem(psProj, rsGame);
+				}
+
+				renderer->initTextureManager();
+			}
+		}
+		timer->Start(100);
 	}
 }
 
@@ -448,7 +507,14 @@ string MainWindow::getModelInfo(){
 }
 
 void MainWindow::onKeyDown(wxKeyEvent &e) {
-/*
+	if(e.ControlDown() == true) {
+		isControlKeyPressed = true;
+	}
+	else {
+		isControlKeyPressed = false;
+	}
+
+	/*
 	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
  		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
  			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
@@ -541,22 +607,15 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 	if (e.GetKeyCode() == 'R') {
 		renderer->end();
 
-		for(int idx = 0; idx < unitParticleSystems.size(); ++idx) {
-			//UnitParticleSystem *ups = unitParticleSystems[idx];
-			//delete ups;
-			//ups = NULL;
-		}
 		unitParticleSystems.clear();
-
-		for(int idx = 0; idx < unitParticleSystemTypes.size(); ++idx) {
-			//UnitParticleSystemType *unitParticleSystemType = unitParticleSystemTypes[idx];
-			//delete unitParticleSystemType;
-			//unitParticleSystemType = NULL;
-		}
 		unitParticleSystemTypes.clear();
+		
+		projectileParticleSystems.clear();
+		projectileParticleSystemTypes.clear();
 
 		loadModel("");
 		loadParticle("");
+		loadProjectileParticle("");
 	}
 }
 
@@ -566,6 +625,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miFileLoad, MainWindow::onMenuFileLoad)
 	EVT_MENU(miFileLoadParticleXML, MainWindow::onMenuFileLoadParticleXML)
 	EVT_MENU(miFileLoadProjectileParticleXML, MainWindow::onMenuFileLoadProjectileParticleXML)
+	EVT_MENU(miFileClearAll, MainWindow::onMenuFileClearAll)
 
 	EVT_MENU(miModeWireframe, MainWindow::onMenuModeWireframe)
 	EVT_MENU(miModeNormals, MainWindow::onMenuModeNormals)
