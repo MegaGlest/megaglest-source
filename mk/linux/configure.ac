@@ -108,7 +108,7 @@ NP_FINDLIB([OPENAL], [OpenAL], [OpenAL],
 			[alcOpenDevice(0);]),
 		[], [-lopenal],
 		[],
-		[AC_MSG_ERROR([Please intall OpenAL])],
+		[AC_MSG_ERROR([Please install OpenAL])],
 		[], [])
 
 NP_FINDLIB([JPEG], [LibJPEG], [LibJPEG],
@@ -119,7 +119,7 @@ NP_FINDLIB([JPEG], [LibJPEG], [LibJPEG],
 			[jpeg_create_decompress(0);]),
 		[], [-ljpeg],
 		[],
-		[AC_MSG_ERROR([Please intall libjpeg])],
+		[AC_MSG_ERROR([Please install libjpeg])],
 		[], [])
 
 NP_FINDLIB([PNG], [LibPng], [LibPNG],
@@ -127,7 +127,7 @@ NP_FINDLIB([PNG], [LibPng], [LibPNG],
 			[png_sig_cmp(0, 0, 8);]),
 		[], [-lpng],
 		[],
-		[AC_MSG_ERROR([Please intall libpng])],
+		[AC_MSG_ERROR([Please install libpng])],
 		[], [])
 
 NP_FINDLIB([CURL], [LibCurl], [LibCurl],
@@ -135,15 +135,23 @@ NP_FINDLIB([CURL], [LibCurl], [LibCurl],
 			[curl_easy_init();]),
 		[], [-lcurl],
 		[],
-		[AC_MSG_ERROR([Please intall libcurl])],
+		[AC_MSG_ERROR([Please install libcurl])],
 		[], [])
+
+#NP_FINDLIB([IRCCLIENT], [LibIrcClient], [LibIrcClient],
+#		NP_LANG_PROGRAM([#include <libircclient/libircclient.h>],
+#			[]),
+#		[], [-lircclient],
+#		[],
+#		[AC_MSG_ERROR([Please install libircclient])],
+#		[], [])
 
 NP_FINDLIB([X11], [LibX11], [LibX11],
 		NP_LANG_PROGRAM([],
 			[]),
 		[], [-lX11],
 		[],
-		[AC_MSG_ERROR([Please intall libX11])],
+		[AC_MSG_ERROR([Please install libX11])],
 		[], [])
 
 CHECK_LUA([], [AC_MSG_ERROR([Please install lua 5.1])])
