@@ -19,6 +19,12 @@ using namespace Shared::Xml;
 
 using namespace std;
 
+#ifdef _WIN32
+const char *folderDelimiter = "\\";
+#else
+const char *folderDelimiter = "/";
+#endif
+
 namespace Shared{ namespace G3dViewer{
 
 // ===============================================
@@ -231,14 +237,14 @@ void MainWindow::loadParticle(string path) {
 			string particlePath = this->particlePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
 
-			size_t pos = dir.find_last_of("/");
+			size_t pos = dir.find_last_of(folderDelimiter);
 			if(pos == dir.length()-1) {
 				dir.erase(dir.length() -1);
 			}
 
 			particlePath= extractFileFromDirectoryPath(particlePath);
 
-			std::string unitXML = dir + "/" + extractFileFromDirectoryPath(dir) + ".xml";
+			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
 			int size   = -1;
 			int height = -1;
@@ -257,7 +263,7 @@ void MainWindow::loadParticle(string path) {
 			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-			unitParticleSystemType->load(dir,  dir + "/" + particlePath, renderer);
+			unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
 			unitParticleSystemTypes.push_back(unitParticleSystemType);
 
 			for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
@@ -293,14 +299,14 @@ void MainWindow::loadProjectileParticle(string path) {
 			string particlePath = this->particleProjectilePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
 
-			size_t pos = dir.find_last_of("/");
+			size_t pos = dir.find_last_of(folderDelimiter);
 			if(pos == dir.length()-1) {
 				dir.erase(dir.length() -1);
 			}
 
 			particlePath= extractFileFromDirectoryPath(particlePath);
 
-			std::string unitXML = dir + "/" + extractFileFromDirectoryPath(dir) + ".xml";
+			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
 			int size   = -1;
 			int height = -1;
@@ -319,13 +325,13 @@ void MainWindow::loadProjectileParticle(string path) {
 			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			XmlTree xmlTree;
-			xmlTree.load(dir + "/" + particlePath);
+			xmlTree.load(dir + folderDelimiter + particlePath);
 			const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			std::cout << "Loaded successfully, loading values..." << std::endl;
 
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  dir + "/" + particlePath,renderer);
+			projectileParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer);
 
 			std::cout << "Values loaded, about to read..." << std::endl;
 
@@ -349,6 +355,7 @@ void MainWindow::loadProjectileParticle(string path) {
 				ps->setVisible(true);
 				renderer->manageParticleSystem(ps);
 
+				//MessageBox(NULL,"hi","hi",MB_OK);
 				//psProj= pstProj->create();
 				//psProj->setPath(startPos, endPos);
 				//psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
