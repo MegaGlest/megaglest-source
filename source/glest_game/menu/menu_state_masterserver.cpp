@@ -155,16 +155,22 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	}
 
 	// bottom
-    buttonReturn.init(50, 70, 150);
-    buttonCreateGame.init(300, 70, 150);
-    buttonRefresh.init(550, 70, 150);
+	int buttonPos=130;
+	
+	labelChatUrl.init(50,buttonPos-50);
+	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
+	labelChatUrl.setText(lang.get("NoServerVisitChat")+":     http://webchat.freenode.net/?channels=glest");
+	
+    buttonReturn.init(50, buttonPos, 150);
+    buttonCreateGame.init(300, buttonPos, 150);
+    buttonRefresh.init(550, buttonPos, 150);
 
 	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
 	buttonCreateGame.setText(lang.get("CustomGame"));
 	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
-	labelAutoRefresh.init(800,100);
-	listBoxAutoRefresh.init(800,70);
+	labelAutoRefresh.init(800,buttonPos+30);
+	listBoxAutoRefresh.init(800,buttonPos);
 	listBoxAutoRefresh.pushBackItem(lang.get("Off"));
 	listBoxAutoRefresh.pushBackItem("10 s");
 	listBoxAutoRefresh.pushBackItem("20 s");
@@ -334,6 +340,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderButton(&buttonReturn);
 		renderer.renderLabel(&labelTitle);
 		renderer.renderLabel(&labelAutoRefresh);
+		renderer.renderLabel(&labelChatUrl);
 		renderer.renderButton(&buttonCreateGame);
 		renderer.renderListBox(&listBoxAutoRefresh);
 		
