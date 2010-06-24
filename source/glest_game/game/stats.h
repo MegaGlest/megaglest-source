@@ -16,8 +16,10 @@
 
 #include "game_constants.h"
 #include "faction.h"
+#include "vec.h"
 
 using std::string;
+using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
@@ -32,6 +34,8 @@ struct PlayerStats{
 	int deaths;
 	int unitsProduced;
 	int resourcesHarvested;
+	string playerName;
+	Vec3f playerColor;
 };
 
 // =====================================================
@@ -63,6 +67,8 @@ public:
 	int getDeaths(int factionIndex) const						{return playerStats[factionIndex].deaths;}
 	int getUnitsProduced(int factionIndex) const				{return playerStats[factionIndex].unitsProduced;}
 	int getResourcesHarvested(int factionIndex) const			{return playerStats[factionIndex].resourcesHarvested;}
+	string getPlayerName(int factionIndex) const				{return playerStats[factionIndex].playerName;}
+	Vec3f getPlayerColor(int factionIndex) const				{ return playerStats[factionIndex].playerColor;}
 
 	void setDescription(const string& description)							{this->description = description;}
 	void setFactionTypeName(int playerIndex, const string& factionTypeName)	{playerStats[playerIndex].factionTypeName= factionTypeName;}
@@ -73,6 +79,8 @@ public:
 	void die(int diedFactionIndex);
 	void produce(int producerFactionIndex);
 	void harvest(int harvesterFactionIndex, int amount);
+	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
+	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
 };
 
 }}//end namespace

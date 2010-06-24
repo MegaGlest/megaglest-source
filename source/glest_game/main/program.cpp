@@ -296,7 +296,10 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		showCursor(false);
+		Config &config = Config::getInstance();
+		if(config.getBool("No2DMouseRendering","false") == false) {
+			showCursor(false);
+		}
 		sleep(0);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -484,7 +487,10 @@ void Program::showMessage(const char *msg) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    showCursor(false);
+	Config &config = Config::getInstance();
+	if(config.getBool("No2DMouseRendering","false") == false) {
+		showCursor(false);
+	}
 
     //MainWindow *mainWindow= new MainWindow(this);
 	init(this->window,false);

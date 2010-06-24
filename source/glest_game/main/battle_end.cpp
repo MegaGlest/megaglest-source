@@ -34,10 +34,11 @@ namespace Glest{ namespace Game{
 // 	class BattleEnd  
 // =====================================================
 
-BattleEnd::BattleEnd(Program *program, const Stats *stats):
-ProgramState(program) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	this->stats= *stats;
+BattleEnd::BattleEnd(Program *program, const Stats *stats): ProgramState(program) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] stats = %p\n",__FILE__,__FUNCTION__,__LINE__,stats);
+	if(stats != NULL) {
+		this->stats= *stats;
+	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -102,7 +103,14 @@ void BattleEnd::render(){
 			assert(false);
 		};
 
-		textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400);
+		Vec3f color = stats.getPlayerColor(i);
+
+		if(stats.getPlayerName(i) != "") {
+			textRenderer->render(stats.getPlayerName(i).c_str(), textX, bm+400, false, color);
+		}
+		else {
+			textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400,false, color);
+		}
 		textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
 		textRenderer->render(controlString, textX, bm+320);
 		textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
@@ -146,13 +154,11 @@ void BattleEnd::render(){
 void BattleEnd::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	program->setState(new MainMenu(program));
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void BattleEnd::mouseDownLeft(int x, int y){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	program->setState(new MainMenu(program));
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 }}//end namespace

@@ -784,7 +784,7 @@ void showCursor(bool b) {
 	}
 	SDL_ShowCursor(b ? SDL_ENABLE : SDL_DISABLE);
 	if(b) {
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		//SDL_WM_GrabInput(SDL_GRAB_OFF);
 		//SDL_WarpMouse(x,y);
 	}
 }

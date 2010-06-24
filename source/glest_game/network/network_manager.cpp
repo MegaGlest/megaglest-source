@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -10,7 +10,10 @@
 // ==============================================================
 
 #include "network_manager.h"
+#include "util.h"
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -23,13 +26,18 @@ NetworkManager &NetworkManager::getInstance(){
 	return networkManager;
 }
 
-NetworkManager::NetworkManager(){
+NetworkManager::NetworkManager() {
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+
 	gameNetworkInterface= NULL;
 	networkRole= nrIdle;
+
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
 }
 
-void NetworkManager::init(NetworkRole networkRole)
-{
+void NetworkManager::init(NetworkRole networkRole) {
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+
 	assert(gameNetworkInterface==NULL);
 
 	this->networkRole = networkRole;
@@ -37,16 +45,21 @@ void NetworkManager::init(NetworkRole networkRole)
 	if(networkRole==nrServer){
 		gameNetworkInterface = new ServerInterface();
 	}
-	else
-	{
+	else {
 		gameNetworkInterface = new ClientInterface();
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
 }
 
-void NetworkManager::end(){
+void NetworkManager::end() {
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+
 	delete gameNetworkInterface;
 	gameNetworkInterface= NULL;
 	networkRole= nrIdle;
+
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
 }
 
 void NetworkManager::update(){

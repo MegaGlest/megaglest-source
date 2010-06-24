@@ -200,7 +200,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxEnableServerControlledAI.init(700, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
-	listBoxEnableServerControlledAI.setSelectedItemIndex(1);
+	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
 	
 
@@ -741,7 +741,7 @@ void MenuStateCustomGame::update() {
 
 			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true)
 			{
-				masterServererErrorToShow=lang.get("wrong router setup");
+				masterServererErrorToShow=lang.get("WrongRouterSetup");
 			}
 			showMasterserverError=false;
 			mainMessageBoxState=1;
@@ -1508,7 +1508,24 @@ void MenuStateCustomGame::updateNetworkSlots()
 		{
 			if(serverInterface->getSlot(i) == NULL && listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 			{
-				serverInterface->addSlot(i);
+				try {
+					serverInterface->addSlot(i);
+				}
+				catch(const std::exception &ex) {
+					char szBuf[1024]="";
+					sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+					showGeneralError=true;
+					if(serverInterface->isPortBound() == false) {
+						generalErrorToShow = Lang::getInstance().get("ErrorBindingPort") + " : " + intToStr(serverInterface->getBindPort());
+					}
+					else {
+						generalErrorToShow = ex.what();
+					}
+
+					// Revert network to CPU
+					listBoxControls[i].setSelectedItemIndex(2);
+				}
 			}
 			if(serverInterface->getSlot(i) != NULL && listBoxControls[i].getSelectedItemIndex() != ctNetwork)
 			{

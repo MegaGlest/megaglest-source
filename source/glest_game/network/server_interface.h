@@ -88,6 +88,9 @@ public:
 									 ConnectionSlotEvent &event);
 	void updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
 
+	bool isPortBound() const { return serverSocket.isPortBound(); }
+	int getBindPort() const { return serverSocket.getBindPort(); }
+
 public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }

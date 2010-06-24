@@ -61,7 +61,8 @@ ServerInterface::ServerInterface(){
 		switchSetupRequests[i]= NULL;
 	}
 	serverSocket.setBlock(false);
-	serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
+	//serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
+	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 }
 
 ServerInterface::~ServerInterface(){
@@ -84,6 +85,10 @@ void ServerInterface::addSlot(int playerIndex){
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+
+	if(serverSocket.isPortBound() == false) {
+		serverSocket.bind(serverSocket.getBindPort());
+	}
 
 	delete slots[playerIndex];
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
@@ -681,11 +686,10 @@ void ServerInterface::quitGame(bool userManuallyQuit)
 {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(userManuallyQuit == true)
-    {
-        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
-        NetworkMessageText networkMessageText(sQuitText,getHostName(),-1);
-        broadcastMessage(&networkMessageText, -1);
+    if(userManuallyQuit == true) {
+        //string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
+        //NetworkMessageText networkMessageText(sQuitText,getHostName(),-1);
+        //broadcastMessage(&networkMessageText, -1);
     }
 
 	NetworkMessageQuit networkMessageQuit;
