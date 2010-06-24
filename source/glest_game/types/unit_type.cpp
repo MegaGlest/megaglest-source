@@ -223,7 +223,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 
-					unitParticleSystemType->load(dir,  dir + "/" + path, Renderer::getInstance().newTexture2D(rsGame));
+					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
+					Texture2D *newTexture = NULL;
+
+					unitParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+					if(unitParticleSystemType->hasTexture() == false) {
+						//Renderer::getInstance().endLastTexture(rsGame,true);
+					}
+
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
 				}
 			}

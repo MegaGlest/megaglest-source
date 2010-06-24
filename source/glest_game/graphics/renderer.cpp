@@ -412,12 +412,22 @@ void Renderer::initTexture(ResourceScope rs, Texture *texture) {
 	textureManager[rs]->initTexture(texture);
 }
 
-void Renderer::endTexture(ResourceScope rs, Texture **texture) {
-	textureManager[rs]->endTexture(texture);
+void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInList) {
+	textureManager[rs]->endTexture(texture,mustExistInList);
+}
+void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
+	textureManager[rs]->endLastTexture(mustExistInList);
 }
 
 Model *Renderer::newModel(ResourceScope rs){
 	return modelManager[rs]->newModel();
+}
+
+void Renderer::endModel(ResourceScope rs, Model *model,bool mustExistInList) {
+	modelManager[rs]->endModel(model,mustExistInList);
+}
+void Renderer::endLastModel(ResourceScope rs, bool mustExistInList) {
+	modelManager[rs]->endLastModel(mustExistInList);
 }
 
 Texture2D *Renderer::newTexture2D(ResourceScope rs){

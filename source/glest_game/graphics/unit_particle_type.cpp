@@ -16,6 +16,7 @@
 #include "xml_parser.h"
 #include "config.h"
 #include "game_constants.h"
+//#include "renderer.h"
 
 #include "leak_dumper.h"
 
@@ -32,12 +33,15 @@ UnitParticleSystemType::UnitParticleSystemType(){
 	texture = NULL;
 }
 
-void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir, Texture2D *newTexture){
+void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *renderer) {
 	//texture
 	const XmlNode *textureNode= particleSystemNode->getChild("texture");
 	bool textureEnabled= textureNode->getAttribute("value")->getBoolValue();
 	if(textureEnabled == true) {
-		texture = newTexture;
+		//Renderer &renderer= Renderer::getInstance();
+		texture= renderer->newTexture2D(rsGame);
+		//texture = newTexture;
+
 		if(textureNode->getAttribute("luminance")->getBoolValue()){
 			texture->setFormat(Texture::fAlpha);
 			texture->getPixmap()->init(1);
@@ -50,8 +54,8 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 	else{
 		texture= NULL;
 
-		delete newTexture;
-		newTexture = NULL;
+		//delete newTexture;
+		//newTexture = NULL;
 	}
 	
 	//primitive
@@ -186,14 +190,14 @@ void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
     ups->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 
-void UnitParticleSystemType::load(const string &dir, const string &path, Texture2D *newTexture){
+void UnitParticleSystemType::load(const string &dir, const string &path, RendererInterface *renderer){
 
 	try{
 		XmlTree xmlTree;
 		xmlTree.load(path);
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
-		UnitParticleSystemType::load(particleSystemNode, dir, newTexture);
+		UnitParticleSystemType::load(particleSystemNode, dir, renderer);
 	}
 	catch(const exception &e){
 		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());

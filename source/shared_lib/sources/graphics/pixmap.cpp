@@ -357,8 +357,6 @@ Pixmap1D::~Pixmap1D(){
 }
 
 void Pixmap1D::load(const string &path){
-	this->path = path;
-
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="bmp"){
 		loadBmp(path);
@@ -369,6 +367,7 @@ void Pixmap1D::load(const string &path){
 	else{
 		throw runtime_error("Unknown pixmap extension: "+extension);
 	}
+	this->path = path;
 }
 
 void Pixmap1D::loadBmp(const string &path){
@@ -477,8 +476,8 @@ Pixmap2D* Pixmap2D::loadPath(const string& path) {
 }
 
 void Pixmap2D::load(const string &path){
-	this->path = path;
 	FileReader<Pixmap2D>::readPath(path,this);
+	this->path = path;
 }
 
 
@@ -781,8 +780,6 @@ Pixmap3D::~Pixmap3D(){
 }
 
 void Pixmap3D::loadSlice(const string &path, int slice){
-	this->path = path;
-
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="bmp"){
 		loadSliceBmp(path, slice);
@@ -793,6 +790,7 @@ void Pixmap3D::loadSlice(const string &path, int slice){
 	else{
 		throw runtime_error("Unknown pixmap extension: "+extension);
 	}
+	this->path = path;
 }
 
 void Pixmap3D::loadSliceBmp(const string &path, int slice){

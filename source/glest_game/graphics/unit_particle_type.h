@@ -19,8 +19,10 @@
 #include "texture.h"
 #include "vec.h"
 #include "xml_parser.h"
+#include "graphics_interface.h"
 
 using std::string;
+using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
@@ -64,9 +66,10 @@ protected:
 
 public:
 	UnitParticleSystemType();
-	void load(const XmlNode *particleSystemNode, const string &dir, Texture2D *newTexture);
-	void load(const string &dir, const string &path, Texture2D *newTexture);
+	void load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *newTexture);
+	void load(const string &dir, const string &path, RendererInterface *newTexture);
 	void setValues(UnitParticleSystem *uts);
+	bool hasTexture() const { return(texture != NULL); }
 };
 
 }}//end namespace

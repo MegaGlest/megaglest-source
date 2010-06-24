@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -46,6 +46,7 @@ void Texture1D::load(const string &path){
 		pixmap.init(defaultComponents);
 	}
 	pixmap.load(path);
+	this->path= path;
 }
 
 // =====================================================
@@ -60,6 +61,7 @@ void Texture2D::load(const string &path){
 		pixmap.init(defaultComponents);
 	}
 	pixmap.load(path);
+	this->path= path;
 }
 
 // =====================================================
@@ -74,6 +76,7 @@ void Texture3D::loadSlice(const string &path, int slice){
 		pixmap.init(defaultComponents);
 	}
 	pixmap.loadSlice(path, slice);
+	this->path= path;
 }
 
 // =====================================================
@@ -88,6 +91,7 @@ void TextureCube::loadFace(const string &path, int face){
 		pixmap.init(defaultComponents);
 	}
 	pixmap.loadFace(path, face);
+	this->path= path;
 }
 
 }}//end namespace

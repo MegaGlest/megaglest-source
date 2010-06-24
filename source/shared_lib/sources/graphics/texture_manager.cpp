@@ -40,11 +40,38 @@ void TextureManager::initTexture(Texture *texture) {
 	}
 }
 
-void TextureManager::endTexture(Texture **texture) {
-	if(texture != NULL && *texture != NULL) {
-		(*texture)->end();
-		delete (*texture);
-		*texture = NULL;
+void TextureManager::endTexture(Texture *texture,bool mustExistInList) {
+	if(texture != NULL) {
+		bool found = false;
+		for(int idx = 0; idx < textures.size(); idx++) {
+			Texture *curTexture = textures[idx];
+			if(curTexture == texture) {
+				found = true;
+				textures.erase(textures.begin() + idx);
+				break;
+			}
+		}
+		if(found == false && mustExistInList == true) {
+			throw std::runtime_error("found == false in endTexture");
+		}
+		texture->end();
+		delete texture;
+	}
+}
+
+void TextureManager::endLastTexture(bool mustExistInList) {
+	bool found = false;
+	if(textures.size() > 0) {
+		found = true;
+		int index = textures.size()-1;
+		Texture *curTexture = textures[index];
+		textures.erase(textures.begin() + index);
+
+		curTexture->end();
+		delete curTexture;
+	}
+	if(found == false && mustExistInList == true) {
+		throw std::runtime_error("found == false in endLastTexture");
 	}
 }
 
@@ -63,8 +90,10 @@ void TextureManager::init(bool forceInit) {
 
 void TextureManager::end(){
 	for(int i=0; i<textures.size(); ++i){
-		textures[i]->end();
-		delete textures[i];
+		if(textures[i] != NULL) {
+			textures[i]->end();
+			delete textures[i];
+		}
 	}
 	textures.clear();
 }

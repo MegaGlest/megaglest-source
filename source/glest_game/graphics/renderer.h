@@ -29,6 +29,7 @@
 #include <vector>
 #include "model_renderer.h"
 #include "model.h"
+#include "graphics_interface.h"
 
 namespace Glest{ namespace Game{
 
@@ -54,6 +55,8 @@ using Shared::Graphics::Camera;
 using Shared::Graphics::MeshCallback;
 using Shared::Graphics::Mesh;
 
+using namespace Shared::Graphics;
+
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
@@ -78,14 +81,6 @@ class MenuBackground;
 class ChatManager;
 class Texture;
 class Object;
-
-enum ResourceScope{
-	rsGlobal,
-	rsMenu,
-	rsGame,
-
-	rsCount
-};
 
 // ===========================================================
 // 	class Renderer
@@ -161,7 +156,7 @@ public:
 	}
 };
 
-class Renderer  {
+class Renderer : public RendererInterface {
 public:
 	//progress bar
 	static const int maxProgressBar;
@@ -294,9 +289,13 @@ public:
 
 	//engine interface
 	void initTexture(ResourceScope rs, Texture *texture);
-	void endTexture(ResourceScope rs, Texture **texture);
+	void endTexture(ResourceScope rs, Texture *texture,bool mustExistInList=false);
+	void endLastTexture(ResourceScope rs, bool mustExistInList=false);
 
 	Model *newModel(ResourceScope rs);
+	void endModel(ResourceScope rs, Model *model, bool mustExistInList=false);
+	void endLastModel(ResourceScope rs, bool mustExistInList=false);
+
 	Texture2D *newTexture2D(ResourceScope rs);
 	Texture3D *newTexture3D(ResourceScope rs);
 	Font2D *newFont(ResourceScope rs);
