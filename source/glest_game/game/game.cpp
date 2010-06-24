@@ -1035,6 +1035,8 @@ void Game::quitGame(){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	NetworkManager::getInstance().end();
+
 	program->setState(new BattleEnd(program, &stats));
 }
 
