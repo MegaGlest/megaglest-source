@@ -74,6 +74,8 @@ private:
 	GraphicListBox listBoxAutoRefresh;
 	GraphicLabel labelTitle;
 	ServerLines serverLines;
+	GraphicLabel labelChatUrl;
+	
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
