@@ -1465,6 +1465,7 @@ void BroadCastClientSocketThread::execute() {
 ServerSocket::ServerSocket() : Socket() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	portBound = false;
 	broadCastThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1513,9 +1514,19 @@ bool ServerSocket::isBroadCastThreadRunning() {
 	return isThreadRunning;
 }
 
-void ServerSocket::bind(int port)
-{
+void ServerSocket::bind(int port) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
+
 	boundPort = port;
+
+	if(isSocketValid() == false) {
+		sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if(isSocketValid() == false) {
+			throwException("Error creating socket");
+		}
+		setBlock(false);
+	}
+
 	//sockaddr structure
 	sockaddr_in addr;
 	addr.sin_family= AF_INET;
@@ -1540,6 +1551,14 @@ void ServerSocket::bind(int port)
 	    sprintf(szBuf, "Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
 	    throw runtime_error(szBuf);
 	}
+	portBound = true;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d END\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
+}
+
+void ServerSocket::disconnectSocket() {
+	Socket::disconnectSocket();
+	portBound = false;
 }
 
 void ServerSocket::listen(int connectionQueueSize) {
@@ -1554,6 +1573,9 @@ void ServerSocket::listen(int connectionQueueSize) {
 				throwException("Error creating socket");
 			}
 			setBlock(false);
+		}
+
+		if(portBound == false) {
 			bind(boundPort);
 		}
 
@@ -1579,8 +1601,12 @@ void ServerSocket::listen(int connectionQueueSize) {
 	}
 }
 
-Socket *ServerSocket::accept()
-{
+Socket *ServerSocket::accept() {
+
+	if(isSocketValid() == false) {
+		throwException("socket is invalid!");
+	}
+
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	char client_host[100]="";

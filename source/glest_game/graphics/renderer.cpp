@@ -163,7 +163,9 @@ Renderer::Renderer(){
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
 
-	maxConsoleLines= Config::getInstance().getInt("ConsoleMaxLines");
+	no2DMouseRendering = config.getBool("No2DMouseRendering","false");
+	maxConsoleLines= config.getInt("ConsoleMaxLines");
+
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
@@ -549,6 +551,9 @@ void Renderer::computeVisibleQuad(){
 // =======================================
 
 void Renderer::renderMouse2d(int x, int y, int anim, float fade){
+	if(no2DMouseRendering == true) {
+		return;
+	}
     float color1, color2;
 
 	float fadeFactor= fade+1.f;

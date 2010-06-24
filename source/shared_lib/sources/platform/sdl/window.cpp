@@ -49,6 +49,7 @@ bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
 
 bool Window::isActive = false;
+bool Window::no2DMouseRendering = false;
 
 // ========== PUBLIC ==========
 
@@ -177,7 +178,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive);
+						if(Window::isActive && Window::getUseDefaultCursorOnly() == false) {
+							showCursor(!Window::isActive);
+						}
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPACTIVE) {
@@ -189,7 +192,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive);
+						if(Window::isActive && Window::getUseDefaultCursorOnly() == false) {
+							showCursor(!Window::isActive);
+						}
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPMOUSEFOCUS) {
@@ -201,7 +206,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive);
+						if(Window::isActive && Window::getUseDefaultCursorOnly() == false) {
+							showCursor(!Window::isActive);
+						}
 					}
 					else {
 						if (event.active.gain == 0) {
@@ -212,7 +219,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
-						showCursor(!Window::isActive);
+						if(Window::isActive && Window::getUseDefaultCursorOnly() == false) {
+							showCursor(!Window::isActive);
+						}
 					}
 
 				} 
@@ -414,7 +423,9 @@ void Window::toggleFullscreen() {
 	if(Window::isFullScreen == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
 		ShowWindow(handle, SW_MAXIMIZE);
-		showCursor(false);
+		if(Window::isActive && Window::getUseDefaultCursorOnly() == false) {
+			showCursor(false);
+		}
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);

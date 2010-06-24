@@ -132,6 +132,7 @@ private:
 protected:
 	int w, h;
 	static bool isActive;
+	static bool no2DMouseRendering;
 
 public:
 	static bool handleEvent();
@@ -169,6 +170,9 @@ public:
 	void create();
 	void destroy();
 	void minimize();
+
+	static void setUseDefaultCursorOnly(bool value) { no2DMouseRendering = value; }
+	static bool getUseDefaultCursorOnly() { return no2DMouseRendering; }
 
 protected:
 	virtual void eventCreate(){}

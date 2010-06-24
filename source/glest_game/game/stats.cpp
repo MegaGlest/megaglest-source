@@ -22,6 +22,7 @@ PlayerStats::PlayerStats(){
 	deaths= 0;
 	unitsProduced= 0;
 	resourcesHarvested= 0;
+	playerName = "";
 }
 
 // =====================================================

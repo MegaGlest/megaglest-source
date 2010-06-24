@@ -113,7 +113,7 @@ public:
     static bool hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
     static bool hasDataToRead(PLATFORM_SOCKET socket);
     bool hasDataToRead();
-    void disconnectSocket();
+    virtual void disconnectSocket();
 
     PLATFORM_SOCKET getSocketId() const { return sock; }
 
@@ -194,8 +194,15 @@ public:
 	Socket *accept();
 	void stopBroadCastThread();
 
+	void setBindPort(int port) { boundPort = port; }
+	int getBindPort() const { return boundPort; }
+	bool isPortBound() const { return portBound; }
+
+	virtual void disconnectSocket();
+
 protected:
 
+	bool portBound;
 	int boundPort;
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();

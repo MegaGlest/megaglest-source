@@ -83,6 +83,7 @@ private:
 	Vec2i lastMousePos;
 	time_t lastRenderLog2d;
 	DisplayMessageFunction originalDisplayMsgCallback;
+	bool isFirstRender;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);

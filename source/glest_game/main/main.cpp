@@ -373,7 +373,9 @@ int glestMain(int argc, char** argv){
 				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
 				std::pair<bool,bool>(true,false));
 
-		showCursor(false);
+		if(config.getBool("No2DMouseRendering","false") == false) {
+			showCursor(false);
+		}
 
 		if(config.getBool("noTeamColors","false") == true) {
 			MeshCallbackTeamColor::noTeamColors = true;
@@ -390,6 +392,8 @@ int glestMain(int argc, char** argv){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		mainWindow= new MainWindow(program);
+
+		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

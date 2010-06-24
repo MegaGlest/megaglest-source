@@ -261,6 +261,8 @@ private:
 	bool allowRenderUnitTitles;
 	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 
+	bool no2DMouseRendering;
+
 private:
 	Renderer();
 	~Renderer();
@@ -269,7 +271,6 @@ public:
 	static Renderer &getInstance();
 
 	void reinitAll();
-
 
     //init
 	void init();
@@ -384,6 +385,9 @@ public:
 	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
 	void setPhotoMode(bool value) { photoMode = value; }
+
+	bool getNo2DMouseRendering() const { return no2DMouseRendering; }
+	void setNo2DMouseRendering(bool value) { no2DMouseRendering = value; }
 
 private:
 	//private misc

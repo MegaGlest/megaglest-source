@@ -41,7 +41,7 @@ Game *thisGamePtr = NULL;
 // ===================== PUBLIC ========================
 
 Game::Game(Program *program, const GameSettings *gameSettings):
-	ProgramState(program), lastMousePos(0)
+	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -328,6 +328,7 @@ void Game::init()
 
 	chatManager.init(&console, world.getThisTeamIndex());
 	console.clearStoredLines();
+
 	const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
 	gameCamera.init(map->getW(), map->getH());
 	gameCamera.setPos(Vec2f(v.x, v.y));
@@ -543,6 +544,15 @@ void Game::updateCamera(){
 //render
 void Game::render() {
 	//SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps);
+
+	// Ensure the camera starts in the right position
+	if(isFirstRender == true) {
+		isFirstRender = false;
+		Map *map= world.getMap();
+		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+		gameCamera.init(map->getW(), map->getH());
+		gameCamera.setPos(Vec2f(v.x, v.y));
+	}
 
 	renderFps++;
 	renderWorker();
@@ -1017,7 +1027,12 @@ void Game::keyPress(char c){
 
 void Game::quitGame(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	program->setState(new BattleEnd(program, world.getStats()));
+
+	Stats stats = *(world.getStats());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	program->setState(new BattleEnd(program, &stats));
 }
 
 // ==================== PRIVATE ====================
