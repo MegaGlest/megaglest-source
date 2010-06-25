@@ -32,7 +32,7 @@ public:
 	TextRenderer2DGl();
 
 	virtual void begin(const Font2D *font);
-	virtual void render(const string &text, int x, int y, bool centered, Vec3f color);
+	virtual void render(const string &text, int x, int y, bool centered, Vec3f *color=NULL);
 	virtual void end();
 };
 

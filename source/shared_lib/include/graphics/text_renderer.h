@@ -30,7 +30,7 @@ public:
 	virtual ~TextRenderer2D(){};
 
 	virtual void begin(const Font2D *font)= 0;
-	virtual void render(const string &text, int x, int y, bool centered= false,Vec3f color=Vec3f(-1.0))= 0;
+	virtual void render(const string &text, int x, int y, bool centered= false,Vec3f *color=NULL)= 0;
 	virtual void end()= 0;
 };
 

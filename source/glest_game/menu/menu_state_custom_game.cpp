@@ -1147,6 +1147,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
+	int AIPlayerCount = 0;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
 		if(ct != ctClosed) {
@@ -1173,7 +1174,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				gameSettings->setNetworkPlayerName(slotIndex, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
 			}
 			else {
-				gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+				AIPlayerCount++;
+				gameSettings->setNetworkPlayerName(slotIndex, string("AI") + intToStr(AIPlayerCount));
 			}
 
 			factionCount++;
