@@ -551,10 +551,21 @@ void Game::render() {
 	// Ensure the camera starts in the right position
 	if(isFirstRender == true) {
 		isFirstRender = false;
+
+/*
 		Map *map= world.getMap();
 		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
 		gameCamera.init(map->getW(), map->getH());
 		gameCamera.setPos(Vec2f(v.x, v.y));
+
+		//const Vec2i &mapPos = Map::toSurfCoords(v);
+		Renderer &renderer= Renderer::getInstance();
+		Vec3f screenPos = renderer.computeScreenPosition(gameCamera.getPos());
+		SDL_WarpMouse(v.x, v.y);
+*/
+
+		gameCamera.resetPosition();
+		this->restoreToStartXY();
 	}
 
 	renderFps++;

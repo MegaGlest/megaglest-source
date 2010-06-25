@@ -45,6 +45,9 @@ class ProgramState{
 protected:
 	Program *program;
 
+	int startX;
+    int startY;
+
 public:
 	ProgramState(Program *program)	{this->program= program;}
 	virtual ~ProgramState(){};
@@ -70,6 +73,8 @@ public:
 	virtual void keyDown(char key){};
 	virtual void keyUp(char key){};
 	virtual void keyPress(char c){};
+	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
+	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
 };
 
 // ===============================
