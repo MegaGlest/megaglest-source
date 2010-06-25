@@ -51,6 +51,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
     for(int i=0; i<unitTypes.size(); ++i){
 		string str= dir + "/units/" + unitFilenames[i];
 		unitTypes[i].preLoad(str);
+
+		SDL_PumpEvents();
     }
 
 	// a2) preload upgrades
@@ -61,6 +63,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
     for(int i=0; i<upgradeTypes.size(); ++i){
 		string str= dir + "/upgrades/" + upgradeFilenames[i];
 		upgradeTypes[i].preLoad(str);
+
+		SDL_PumpEvents();
     }
 	
 	// b1) load units
@@ -68,6 +72,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		for(int i=0; i<unitTypes.size(); ++i){
             string str= dir + "/units/" + unitTypes[i].getName();
             unitTypes[i].load(i, str, techTree, this, checksum);
+
+			SDL_PumpEvents();
         }
     }
 	catch(const exception &e){
@@ -79,6 +85,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		for(int i=0; i<upgradeTypes.size(); ++i){
             string str= dir + "/upgrades/" + upgradeTypes[i].getName();
             upgradeTypes[i].load(str, techTree, this, checksum);
+
+			SDL_PumpEvents();
         }
     }
 	catch(const exception &e){
@@ -102,6 +110,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		string name= resourceNode->getAttribute("name")->getRestrictedValue();
 		int amount= resourceNode->getAttribute("amount")->getIntValue();
 		startingResources[i].init(techTree->getResourceType(name), amount);
+
+		SDL_PumpEvents();
 	}
 
 	//read starting units
@@ -111,6 +121,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		string name= unitNode->getAttribute("name")->getRestrictedValue();
 		int amount= unitNode->getAttribute("amount")->getIntValue();
 		startingUnits.push_back(PairPUnitTypeInt(getUnitType(name), amount)); 
+
+		SDL_PumpEvents();
 	}
 
 	//read music
