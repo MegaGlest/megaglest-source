@@ -264,18 +264,36 @@ void Program::resize(SizeState sizeState){
 
 // ==================== misc ====================
 
+//Your filter function should look something like:
+int SDLEventFilter(const SDL_Event* filterEvent) {                 
+	if(filterEvent->type == SDL_KEYDOWN ||			/**< Keys pressed */
+       filterEvent->type == SDL_KEYUP ||			/**< Keys released */
+       filterEvent->type == SDL_MOUSEMOTION ||			/**< Mouse moved */
+       filterEvent->type == SDL_MOUSEBUTTONDOWN ||		/**< Mouse button pressed */
+       filterEvent->type == SDL_MOUSEBUTTONUP)		/**< Mouse button released */
+	{
+        return 0;
+	}
+    return 1;
+}
+
 void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		int X = 0;
-		int Y = 0;
-		SDL_GetMouseState(&X,&Y);
-		programState->setStartXY(X,Y);
+		if(dynamic_cast<Game *>(programState) != NULL) {
+			int X = 0;
+			int Y = 0;
+			SDL_GetMouseState(&X,&Y);
+			programState->setStartXY(X,Y);
 
-		showCursor(true);
-		sleep(0);
+			SDL_PumpEvents();
+			
+			showCursor(true);
+			SDL_PumpEvents();
+			sleep(0);
+		}
 
 		if(cleanupOldState == true) {
 			if(this->programState != programState) {

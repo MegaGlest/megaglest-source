@@ -60,6 +60,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         for(int i=0; i<filenames.size(); ++i){
             str=dir+"/resources/"+filenames[i];
             resourceTypes[i].load(str, checksum);
+			SDL_PumpEvents();
         }
     }
     catch(const exception &e){
@@ -68,7 +69,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-	//SDL_PumpEvents();
+	SDL_PumpEvents();
 
 	//load tech tree xml info
 	try{
@@ -87,6 +88,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
 			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
 			attackTypes[i].setId(i);
+			SDL_PumpEvents();
 		}
 
 	    // give CPU time to update other things to avoid apperance of hanging
@@ -100,6 +102,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
 			armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
 			armorTypes[i].setId(i);
+			SDL_PumpEvents();
 		}
 
 		//damage multipliers
@@ -111,6 +114,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
 			float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
 			damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
+			SDL_PumpEvents();
 		}
     }
     catch(const exception &e){
@@ -139,7 +143,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
-			//SDL_PumpEvents();
+			SDL_PumpEvents();
 
         }
     }
