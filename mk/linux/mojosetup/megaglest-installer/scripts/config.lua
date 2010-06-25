@@ -55,10 +55,33 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-            icon = "glest.ico",
+            icon = "megaglest.ico",
             commandline = "%0/glest",
             category = "Game"
         }
+        Setup.DesktopMenuItem
+        {
+            disabled = false,
+            name = _("MegaGlest Map Editor"),
+            genericname = _("MegaGlest"),
+            tooltip = _("A real time strategy game."),
+            builtin_icon = false,
+            icon = "editor.ico",
+            commandline = "%0/editor",
+            category = "Game"
+        }
+        Setup.DesktopMenuItem
+        {
+            disabled = false,
+            name = _("MegaGlest G3D Model Viewer"),
+            genericname = _("MegaGlest"),
+            tooltip = _("A real time strategy game."),
+            builtin_icon = false,
+            icon = "g3dviewer.ico",
+            commandline = "%0/g3dviewer",
+            category = "Game"
+        }
+		
     }
 }
 

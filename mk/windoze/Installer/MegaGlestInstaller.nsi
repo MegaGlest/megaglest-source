@@ -2,16 +2,16 @@
 ; General Attributes
 
 !define APNAME Mega-Glest
-!define APVER 3.3.4
+!define APVER 3.3.5
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 64
 OutFile "${APNAME}-Installer-${APVER}_i386_win32.exe"
-Icon "..\glest.ico"
-UninstallIcon "..\glest.ico"
-!define MUI_ICON "..\glest.ico"
-!define MUI_UNICON "..\glest.ico"
+Icon "..\megaglest.ico"
+UninstallIcon "..\megaglest.ico"
+!define MUI_ICON "..\megaglest.ico"
+!define MUI_UNICON "..\megaglest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}_${APVER}"
 ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
@@ -123,8 +123,9 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\glest_configurator.exe"
   File "..\..\..\data\glest_game\g3d_viewer.exe"
   File "..\..\..\data\glest_game\configuration.xml"
-  File "..\..\..\data\glest_game\glest.ico"
+  File "..\..\..\data\glest_game\megaglest.ico"
   File "..\..\..\data\glest_game\glest.ini"
+  File "..\..\..\data\glest_game\glestkeys.ini"
   File "..\..\..\data\glest_game\servers.ini"
 #  File "..\..\..\data\glest_game\dsound.dll"
   File "..\..\..\data\glest_game\openal32.dll"
@@ -192,8 +193,9 @@ Section "Uninstall"
   Delete $INSTDIR\glest_configurator.exe
   Delete $INSTDIR\g3d_viewer.exe
   Delete $INSTDIR\configuration.xml
-  Delete $INSTDIR\glest.ico
+  Delete $INSTDIR\megaglest.ico
   Delete $INSTDIR\glest.ini
+  Delete $INSTDIR\glestkeys.ini
   Delete $INSTDIR\servers.ini
  # Delete $INSTDIR\dsound.dll
   Delete $INSTDIR\openal32.dll

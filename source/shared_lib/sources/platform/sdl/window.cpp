@@ -65,9 +65,17 @@ Window::Window()  {
 	lastMouseEvent = 0;
 	mousePos = Vec2i(0);
 	mouseState.clear();
+
+#ifdef WIN32
+	init_win32();
+#endif
 }
 
 Window::~Window() {
+#ifdef WIN32
+	done_win32();
+#endif
+
 	assert(global_window == this);
 	global_window = 0;
 }

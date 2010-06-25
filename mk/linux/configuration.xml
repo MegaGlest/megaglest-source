@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="yes"?>
 <configuration>
 	<title value="Mega Glest"/>
-	<file-name value="glest.ini"/>
+	<file-name value="megaglest.ini"/>
 	<icon value="true" path="glest.ico"/>
 	<field-groups>
 		<field-group name="General">

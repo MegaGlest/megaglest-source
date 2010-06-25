@@ -10,8 +10,9 @@ rm -rf $RELEASEDIR
 mkdir -p $RELEASEDIR
 # copy sources
 pushd "`pwd`/../../data/glest_game"
-find glest.ico \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find megaglest.ico \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find servers.ini \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find glestkeys.ini \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find data/ \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find docs/ \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find maps/ \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
