@@ -59,6 +59,14 @@ public:
     	enableObserverModeAtEndGame = false;
     	enableServerControlledAI    = false;
     	networkFramePeriod			= GameConstants::networkFramePeriod;
+
+    	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+    		factionTypeNames[i] = "";
+    		networkPlayerNames[i] = "";
+    		factionControls[i] = ctClosed;
+    		teams[i] = 0;
+    		startLocationIndex[i] = i;
+    	}
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
