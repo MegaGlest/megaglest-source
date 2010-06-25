@@ -1145,42 +1145,57 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0);
 	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 
-    for(int i=0; i<mapInfo.players; ++i)
-    {
+	// First save Used slots
+    //for(int i=0; i<mapInfo.players; ++i)
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-		if(ct != ctClosed)
-		{
-			if(ct == ctHuman)
-			{
-				gameSettings->setThisFactionIndex(factionCount);
+		if(ct != ctClosed) {
+			int slotIndex = factionCount;
+
+			if(ct == ctHuman) {
+				gameSettings->setThisFactionIndex(slotIndex);
 			}
-			gameSettings->setFactionControl(factionCount, ct);
-			gameSettings->setTeam(factionCount, listBoxTeams[i].getSelectedItemIndex());
-			gameSettings->setStartLocationIndex(factionCount, i);
-			gameSettings->setFactionTypeName(factionCount, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
-			{
+			gameSettings->setFactionControl(slotIndex, ct);
+			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setStartLocationIndex(slotIndex, i);
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-				if((connectionSlot!=NULL) && (connectionSlot->isConnected()))
-				{
-					gameSettings->setNetworkPlayerName(factionCount, connectionSlot->getName());
+				if(connectionSlot != NULL && connectionSlot->isConnected()) {
+					gameSettings->setNetworkPlayerName(slotIndex, connectionSlot->getName());
 				}
-				else
-				{
-					gameSettings->setNetworkPlayerName(factionCount, "???");
+				else {
+					gameSettings->setNetworkPlayerName(slotIndex, "Network");
 				}
 			}
-			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman)
-			{
-				gameSettings->setNetworkPlayerName(factionCount, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman) {
+				gameSettings->setNetworkPlayerName(slotIndex, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
 			}
-			else
-			{
-				gameSettings->setNetworkPlayerName(factionCount, "");
+			else {
+				gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 			}
+
 			factionCount++;
 		}
     }
+	// Next save closed slots
+	int closedCount = 0;
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+		if(ct == ctClosed) {
+			int slotIndex = factionCount + closedCount;
+
+			gameSettings->setFactionControl(slotIndex, ct);
+			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setStartLocationIndex(slotIndex, i);
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+
+			closedCount++;
+		}
+    }
+
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
 	gameSettings->setNetworkFramePeriod((listBoxNetworkFramePeriod.getSelectedItemIndex()+1)*10);
@@ -1225,12 +1240,15 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
 	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
 
-    for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
-		saveGameFile << "FactionControlForIndex" << i << "=" << gameSettings.getFactionControl(i) << std::endl;
-		saveGameFile << "FactionTeamForIndex" << i << "=" << gameSettings.getTeam(i) << std::endl;
-		saveGameFile << "FactionStartLocationForIndex" << i << "=" << gameSettings.getStartLocationIndex(i) << std::endl;
-		saveGameFile << "FactionTypeNameForIndex" << i << "=" << gameSettings.getFactionTypeName(i) << std::endl;
-		saveGameFile << "FactionPlayerNameForIndex" << i << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
+    //for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		int slotIndex = gameSettings.getStartLocationIndex(i);
+
+		saveGameFile << "FactionControlForIndex" 		<< slotIndex << "=" << gameSettings.getFactionControl(i) << std::endl;
+		saveGameFile << "FactionTeamForIndex" 			<< slotIndex << "=" << gameSettings.getTeam(i) << std::endl;
+		saveGameFile << "FactionStartLocationForIndex" 	<< slotIndex << "=" << gameSettings.getStartLocationIndex(i) << std::endl;
+		saveGameFile << "FactionTypeNameForIndex" 		<< slotIndex << "=" << gameSettings.getFactionTypeName(i) << std::endl;
+		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
     }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1272,12 +1290,13 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
 		gameSettings.setFactionCount(properties.getInt("FactionCount"));
 
-		for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
-			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i)) );
-			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i)) );
-			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i)) );
-			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i)) );
-			gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i)) );
+		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
+			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
+			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
+			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
+			gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"?") );
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1320,7 +1339,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
 
-		for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
 			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
 
