@@ -115,11 +115,18 @@ MainWindow::MainWindow(const string &modelPath)
 
 	CreateStatusBar();
 
+	//std::cout << "A" << std::endl;
+	wxInitAllImageHandlers();
 #ifdef WIN32
-    wxInitAllImageHandlers();
+	//std::cout << "B" << std::endl;
 	wxIcon icon("IDI_ICON1");
-	SetIcon(icon);
+#else
+	//std::cout << "B" << std::endl;
+	wxIcon icon;
+	icon.LoadFile(wxT("g3dviewer.ico"),wxBITMAP_TYPE_ICO);
 #endif
+	//std::cout << "C" << std::endl;
+	SetIcon(icon);
 
 	timer = new wxTimer(this);
 	timer->Start(100);
