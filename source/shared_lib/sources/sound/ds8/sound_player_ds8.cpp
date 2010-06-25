@@ -12,7 +12,7 @@
 #include "sound_player_ds8.h"
 
 #include <cassert>
-#include <cmath>
+#include "math_wrapper.h"
 
 #include "util.h"
 #include "leak_dumper.h"
