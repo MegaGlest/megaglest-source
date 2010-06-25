@@ -269,6 +269,11 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		int X = 0;
+		int Y = 0;
+		SDL_GetMouseState(&X,&Y);
+		programState->setStartXY(X,Y);
+
 		showCursor(true);
 		sleep(0);
 
