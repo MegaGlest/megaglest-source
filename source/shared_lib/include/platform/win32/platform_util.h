@@ -50,6 +50,8 @@ void message(string message);
 bool ask(string message);
 void exceptionMessage(const exception &excp);
 string getCommandLine();
+void init_win32();
+void done_win32();
 
 }}//end namespace
 

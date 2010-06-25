@@ -115,6 +115,12 @@ MainWindow::MainWindow(const string &modelPath)
 
 	CreateStatusBar();
 
+#ifdef WIN32
+    wxInitAllImageHandlers();
+	wxIcon icon("IDI_ICON1");
+	SetIcon(icon);
+#endif
+
 	timer = new wxTimer(this);
 	timer->Start(100);
 
@@ -126,6 +132,7 @@ MainWindow::~MainWindow(){
 	delete model;
 	delete timer;
 	delete glCanvas;
+
 }
 
 void MainWindow::init(){

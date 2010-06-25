@@ -132,6 +132,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	find glest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glest.bin -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
 	find glest.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find glestkeys.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glest_configurator -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glest_editor -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glest_g3dviewer -exec cp -p --parents "{}" $INSTALLDATADIR ';'
@@ -146,7 +147,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	pushd "`pwd`/$megaglest_data_path"
 
 	find configuration.xml -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find glest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find data/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find docs/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find maps/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'

@@ -289,6 +289,12 @@ MainWindow::MainWindow()
 	this->panel->SetSizer(boxsizer);
 	this->Layout();
 
+#ifdef WIN32
+    wxInitAllImageHandlers();
+	wxIcon icon("IDI_ICON1");
+	SetIcon(icon);
+#endif
+
 //#ifndef WIN32
 	timer = new wxTimer(this);
 	timer->Start(100);

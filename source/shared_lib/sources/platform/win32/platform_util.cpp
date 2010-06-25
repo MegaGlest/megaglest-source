@@ -17,6 +17,7 @@
 #include <cassert>
 #include <algorithm>
 #include <string.h>
+#include "SDL_syswm.h"
 
 #include "leak_dumper.h"
 
@@ -178,5 +179,28 @@ void exceptionMessage(const exception &excp){
 //int getScreenH(){
 //	return GetSystemMetrics(SM_CYSCREEN);
 //}
+
+// This lets us set the SDL Window Icon in Windows
+// since its a console application
+HICON icon;
+
+void init_win32() {
+	HINSTANCE handle = ::GetModuleHandle(NULL);
+	icon = ::LoadIcon(handle, "IDI_ICON1");
+
+	SDL_SysWMinfo wminfo;
+	SDL_VERSION(&wminfo.version)
+	if (SDL_GetWMInfo(&wminfo) != 1)
+	{
+		// error: wrong SDL version
+	}
+
+	HWND hwnd = wminfo.window;
+
+	::SetClassLong(hwnd, GCL_HICON, (LONG) icon);
+}
+void done_win32() {
+	::DestroyIcon(icon);
+}
 
 }}//end namespace
