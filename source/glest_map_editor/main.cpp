@@ -289,11 +289,18 @@ MainWindow::MainWindow()
 	this->panel->SetSizer(boxsizer);
 	this->Layout();
 
+	//std::cout << "A" << std::endl;
+	wxInitAllImageHandlers();
 #ifdef WIN32
-    wxInitAllImageHandlers();
+	//std::cout << "B" << std::endl;
 	wxIcon icon("IDI_ICON1");
-	SetIcon(icon);
+#else
+	//std::cout << "B" << std::endl;
+	wxIcon icon;
+	icon.LoadFile(wxT("editor.ico"),wxBITMAP_TYPE_ICO);
 #endif
+	//std::cout << "C" << std::endl;
+	SetIcon(icon);
 
 //#ifndef WIN32
 	timer = new wxTimer(this);
