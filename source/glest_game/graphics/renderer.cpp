@@ -458,7 +458,7 @@ void Renderer::renderParticleManager(ResourceScope rs){
 }
 
 void Renderer::swapBuffers(){
-	glFlush();
+	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
 

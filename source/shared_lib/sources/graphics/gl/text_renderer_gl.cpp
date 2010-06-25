@@ -32,14 +32,14 @@ void TextRenderer2DGl::begin(const Font2D *font){
 	this->font= static_cast<const Font2DGl*>(font);
 }
 
-void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, Vec3f color) {
+void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, Vec3f *color) {
 	assert(rendering);
 	
 	assertGl();
 
-	if(color.x >= 0) {
+	if(color != NULL) {
 		glPushAttrib(GL_CURRENT_BIT);
-		glColor3fv(color.ptr());
+		glColor3fv(color->ptr());
 	}
 
 	int line=0;
@@ -73,7 +73,7 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 		}
 	}
 
-	if(color.x >= 0) {
+	if(color != NULL) {
 		glPopAttrib();
 	}
 	assertGl();

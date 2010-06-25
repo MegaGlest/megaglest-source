@@ -106,10 +106,10 @@ void BattleEnd::render(){
 		Vec3f color = stats.getPlayerColor(i);
 
 		if(stats.getPlayerName(i) != "") {
-			textRenderer->render(stats.getPlayerName(i).c_str(), textX, bm+400, false, color);
+			textRenderer->render(stats.getPlayerName(i).c_str(), textX, bm+400, false, &color);
 		}
 		else {
-			textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400,false, color);
+			textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
 		textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
 		textRenderer->render(controlString, textX, bm+320);
