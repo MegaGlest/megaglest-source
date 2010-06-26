@@ -148,6 +148,7 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	find configuration.xml -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find megaglest.bmp -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find data/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find docs/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find maps/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
