@@ -23,6 +23,7 @@
 #include "util.h"
 #include "window.h"
 #include <vector>
+//#include <SDL_image.h>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
@@ -53,6 +54,31 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 
 	int resW = PlatformCommon::Private::ScreenWidth;
 	int resH = PlatformCommon::Private::ScreenHeight;
+
+#ifndef WIN32
+	if(fileExists("megaglest.bmp")) {
+		SDL_Surface *icon = SDL_LoadBMP("megaglest.bmp");
+	//SDL_Surface *icon = IMG_Load("megaglest.ico");
+
+
+//#if !defined(MACOSX)
+	// Set Icon (must be done before any sdl_setvideomode call)
+	// But don't set it on OS X, as we use a nicer external icon there.
+//#if WORDS_BIGENDIAN
+//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,8,128,0xff000000,0x00ff0000,0x0000ff00,0);
+//#else
+//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
+//#endif
+
+		printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
+		if(icon == NULL) {
+			printf("Error: %s\n", SDL_GetError());
+		}
+		if(icon != NULL) {
+			SDL_WM_SetIcon(icon, NULL);
+		}
+	}
+#endif
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",__FILE__,__FUNCTION__,__LINE__,resW,resH,colorBits);
 

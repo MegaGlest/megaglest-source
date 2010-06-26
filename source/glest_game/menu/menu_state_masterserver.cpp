@@ -382,66 +382,102 @@ void MenuStateMasterserver::simpleTask() {
 		return;
 	}
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-	if(needUpdateFromServer == true) {
+	bool needUpdate = needUpdateFromServer;
+	safeMutex.ReleaseLock();
+
+	if(needUpdate == true) {
 		updateServerInfo();
 	}
 }
 
 void MenuStateMasterserver::updateServerInfo() {
 	try {
-		needUpdateFromServer = false;
 
+		if( updateFromMasterserverThread == NULL ||
+			updateFromMasterserverThread->getQuitStatus() == true) {
+			return;
+		}
+
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needUpdateFromServer = false;
 		int numberOfOldServerLines=serverLines.size();
 		clearServerLines();
-
+		safeMutex.ReleaseLock(true);
 
 		if(Config::getInstance().getString("Masterserver","") != "") {
-			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver")+"showServersForGlest.php");
+			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
 
-			std::vector<std::string> serverList;
-			Tokenize(serverInfo,serverList,"\n");
-			for(int i=0; i < serverList.size(); i++) {
-				string &server = serverList[i];
-				std::vector<std::string> serverEntities;
-				Tokenize(server,serverEntities,"|");
+			if(serverInfo != "") {
+				std::vector<std::string> serverList;
+				Tokenize(serverInfo,serverList,"\n");
+				for(int i=0; i < serverList.size(); i++) {
+					string &server = serverList[i];
+					std::vector<std::string> serverEntities;
+					Tokenize(server,serverEntities,"|");
 
-				const int MIN_FIELDS_EXPECTED = 11;
-				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
-					MasterServerInfo *masterServerInfo=new MasterServerInfo();
+					const int MIN_FIELDS_EXPECTED = 11;
+					if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 
-					//general info:
-					masterServerInfo->setGlestVersion(serverEntities[0]);
-					masterServerInfo->setPlatform(serverEntities[1]);
-					masterServerInfo->setBinaryCompileDate(serverEntities[2]);
+						Lang &lang= Lang::getInstance();
+						labelTitle.setText(lang.get("AvailableServers"));
 
-					//game info:
-					masterServerInfo->setServerTitle(serverEntities[3]);
-					masterServerInfo->setIpAddress(serverEntities[4]);
+						if(Config::getInstance().getString("Masterserver","") == "") {
+							labelTitle.setText("*** " + lang.get("AvailableServers"));
+						}
 
-					//game setup info:
-					masterServerInfo->setTech(serverEntities[5]);
-					masterServerInfo->setMap(serverEntities[6]);
-					masterServerInfo->setTileset(serverEntities[7]);
-					masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
-					masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
-					masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+						MasterServerInfo *masterServerInfo=new MasterServerInfo();
 
-					//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
-					float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
-					//printf("Ping time = %f\n",pingTime);
-					char szBuf[1024]="";
-					sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
-					masterServerInfo->setServerTitle(szBuf);
+						//general info:
+						masterServerInfo->setGlestVersion(serverEntities[0]);
+						masterServerInfo->setPlatform(serverEntities[1]);
+						masterServerInfo->setBinaryCompileDate(serverEntities[2]);
 
-					serverLines.push_back(new ServerLine( masterServerInfo, i));
+						//game info:
+						masterServerInfo->setServerTitle(serverEntities[3]);
+						masterServerInfo->setIpAddress(serverEntities[4]);
+
+						//game setup info:
+						masterServerInfo->setTech(serverEntities[5]);
+						masterServerInfo->setMap(serverEntities[6]);
+						masterServerInfo->setTileset(serverEntities[7]);
+						masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
+						masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
+						masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+
+						//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
+						float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
+						//printf("Ping time = %f\n",pingTime);
+						char szBuf[1024]="";
+						sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
+						masterServerInfo->setServerTitle(szBuf);
+
+						if( updateFromMasterserverThread == NULL ||
+							updateFromMasterserverThread->getQuitStatus() == true) {
+							return;
+						}
+
+						safeMutex.Lock();
+						serverLines.push_back(new ServerLine( masterServerInfo, i));
+						safeMutex.ReleaseLock(true);
+					}
+					else {
+						Lang &lang= Lang::getInstance();
+						labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
+					}
 				}
 			}
 		}
+
+		if( updateFromMasterserverThread == NULL ||
+			updateFromMasterserverThread->getQuitStatus() == true) {
+			return;
+		}
 		
-		if(serverLines.size()>numberOfOldServerLines)
-		{
+		safeMutex.Lock();
+		if(serverLines.size()>numberOfOldServerLines) {
 			playServerFoundSound=true;
 		}
+		safeMutex.ReleaseLock(true);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
