@@ -7,7 +7,7 @@ Setup.Package
     vendor = "glest.org",
     id = "megaglest",
     description = _("Mega Glest"),
-    version = "3.3.4",
+    version = "3.3.5",
     splash = "glestforumsheader.bmp",
     superuser = false,
     write_manifest = true,
@@ -58,7 +58,8 @@ Setup.Package
             icon = "megaglest.ico",
             commandline = "%0/glest",
             category = "Game"
-        }
+        },
+
         Setup.DesktopMenuItem
         {
             disabled = false,
@@ -67,9 +68,10 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "editor.ico",
-            commandline = "%0/editor",
+            commandline = "%0/glest_editor",
             category = "Game"
-        }
+        },
+
         Setup.DesktopMenuItem
         {
             disabled = false,
@@ -78,7 +80,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "g3dviewer.ico",
-            commandline = "%0/g3dviewer",
+            commandline = "%0/glest_g3dviewer",
             category = "Game"
         }
 		
