@@ -108,18 +108,25 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
 
-	//curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
+	if(getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
+		curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	char errbuf[CURL_ERROR_SIZE]="";
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
 
 	/* get contents from the URL */
-	curl_easy_perform(handle);
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	CURLcode result = curl_easy_perform(handle);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
 
 	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
 	if(chunk.memory) {
 		free(chunk.memory);
+	}
+	if(result != CURLE_OK) {
+		serverResponse = errbuf;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());

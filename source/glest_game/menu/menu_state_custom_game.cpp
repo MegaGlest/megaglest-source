@@ -1098,7 +1098,7 @@ void MenuStateCustomGame::simpleTask() {
 		// uncomment to enable router setup check of this server
 		if(EndsWith(serverInfo, "OK") == false) {
 			showMasterserverError=true;
-			masterServererErrorToShow=serverInfo;
+			masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
 		}
 	}
 

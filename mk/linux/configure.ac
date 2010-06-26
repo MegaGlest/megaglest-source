@@ -93,6 +93,10 @@ else
 fi
 ])
 
+#AC_CHECK_LIB(SDL_image, IMG_Load,
+#             LIBS="$LIBS -lSDL_image",	
+#             AC_MSG_ERROR([*** SDL_image library not found!]))
+
 AC_LANG_PUSH([C++])
 NP_FINDLIB([XERCES], [xerces], [xerces],
 		NP_LANG_PROGRAM([#include <xercesc/util/PlatformUtils.hpp>
