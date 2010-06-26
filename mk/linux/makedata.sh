@@ -11,6 +11,8 @@ mkdir -p $RELEASEDIR
 # copy sources
 pushd "`pwd`/../../data/glest_game"
 find megaglest.ico \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find g3dviewer.ico \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find editor.ico \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find megaglest.bmp \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find servers.ini \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find glestkeys.ini \( -name "*.*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
