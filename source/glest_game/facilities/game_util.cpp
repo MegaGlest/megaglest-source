@@ -41,6 +41,11 @@ string getPlatformNameString() {
 #else
 	platform = "???";
 #endif
+
+#if defined(_M_X64) || defined(_M_IA64)
+	platform += "_64bit";
+#endif
+
 	return platform;
 }
 
@@ -48,9 +53,6 @@ string getCompilerNameString() {
 	string version = "";
 #if defined(WIN32) && defined(_MSC_VER)
 	version = "VC++: " + intToStr(_MSC_VER);
-	#if defined(DEBUG) || defined(_DEBUG)
-	version += " [DEBUG]";
-	#endif
 
 #elif defined(__GNUC__)
 	#if defined(__GNUC__)
@@ -64,13 +66,19 @@ string getCompilerNameString() {
 	# endif
 	#endif
 	version = "GNUC: " + intToStr(__GNUC_VERSION__);
-	#if defined(DEBUG) || defined(_DEBUG)
-	version += " [DEBUG]";
-	#endif
 
 #else
 	version = "???";
 #endif
+
+#if defined(DEBUG) || defined(_DEBUG)
+version += " [DEBUG]";
+#endif
+
+#if defined(_M_X64) || defined(_M_IA64)
+	version += " [64bit]";
+#endif
+
 	return version;
 }
 
