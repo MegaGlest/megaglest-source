@@ -34,6 +34,11 @@
 
 #include "leak_dumper.h"
 
+#ifndef WIN32 
+  #define stricmp strcasecmp 
+  #define strnicmp strncasecmp 
+#endif
+
 using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
