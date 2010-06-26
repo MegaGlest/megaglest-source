@@ -165,13 +165,13 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\${APNAME}_${APVER}"
-  CreateShortCut "$SMPROGRAMS\${APNAME}_${APVER}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME}_${APVER}\${APNAME}_${APVER}_game.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0 "" "" "${APNAME} - ${APVER}" 
+  CreateDirectory "$SMPROGRAMS\${APNAME} ${APVER}"
+  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} - ${APVER}.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0 "" "" "${APNAME} - ${APVER}"
   
-;  CreateShortCut "$SMPROGRAMS\${APNAME}_${APVER}\${APNAME}_${APVER}_config.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME}_${APVER}\${APNAME}_${APVER}_editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0 "" "" "${APNAME} Map Editor" 
-  CreateShortCut "$SMPROGRAMS\${APNAME}_${APVER}\${APNAME}_${APVER}_viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0 "" "" "${APNAME} G3D Viewer" 
+;  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Configurator.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0 "" "" "${APNAME} Config Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Map Editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0 "" "" "${APNAME} Map Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} G3D Viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0 "" "" "${APNAME} G3D Viewer"
 
 SectionEnd
 
