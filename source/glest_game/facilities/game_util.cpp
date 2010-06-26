@@ -42,7 +42,7 @@ string getPlatformNameString() {
 	platform = "???";
 #endif
 
-#if defined(_M_X64) || defined(_M_IA64)
+#if defined(_M_X64) || defined(_M_IA64) || defined(_M_AMD64) || defined(__x86_64__)
 	platform += "_64bit";
 #endif
 
@@ -75,7 +75,7 @@ string getCompilerNameString() {
 version += " [DEBUG]";
 #endif
 
-#if defined(_M_X64) || defined(_M_IA64)
+#if defined(_M_X64) || defined(_M_IA64) || defined(_M_AMD64) || defined(__x86_64__)
 	version += " [64bit]";
 #endif
 
