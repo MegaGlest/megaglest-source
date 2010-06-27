@@ -24,7 +24,7 @@ elif [ "`uname -r`" = $ubuntu804_32 ]; then
 elif [ "$OSTYPE" = "x86_64" ]; then
   echo "=====> Using build deps for 64 bit linux..."
 
-  sudo apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev
+  sudo apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libircclient-dev cmake-curses-gui libgtk2.0-dev
 
 else
   echo "=====> Using build deps for 32 bit Linux..."
