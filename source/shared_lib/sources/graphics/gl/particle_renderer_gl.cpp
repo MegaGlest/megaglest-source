@@ -243,9 +243,20 @@ void ParticleRendererGl::renderSingleModel(AttackParticleSystem *ps, ModelRender
 		Vec3f flatDirection= Vec3f(direction.x, 0.f, direction.z);
 		Vec3f rotVector= Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
 
+#ifdef USE_STREFLOP
+		float angleV= radToDeg(streflop::atan2(flatDirection.length(), direction.y)) - 90.f;
+#else
 		float angleV= radToDeg(atan2(flatDirection.length(), direction.y)) - 90.f;
+#endif
+
 		glRotatef(angleV, rotVector.x, rotVector.y, rotVector.z);
+
+#ifdef USE_STREFLOP
+		float angleH= radToDeg(streflop::atan2(direction.x, direction.z));
+#else
 		float angleH= radToDeg(atan2(direction.x, direction.z));
+#endif
+
 		glRotatef(angleH, 0.f, 1.f, 0.f);
 
 		//render
