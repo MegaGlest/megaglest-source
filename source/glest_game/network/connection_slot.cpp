@@ -33,12 +33,14 @@ namespace Glest{ namespace Game{
 //	class ConnectionSlotThread
 // =====================================================
 
-ConnectionSlotThread::ConnectionSlotThread() : BaseThread() {
+ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
+	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
 	this->event = NULL;
 }
 
-ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface) : BaseThread() {
+ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
+	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
 	this->event = NULL;
 }
@@ -80,13 +82,13 @@ void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
 }
 
 bool ConnectionSlotThread::isSignalCompleted() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 
 	MutexSafeWrapper safeMutex(&triggerIdMutex);
 	bool result = (this->event != NULL ? this->event->eventCompleted : true);
 	safeMutex.ReleaseLock();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
 
 	return result;
 }
@@ -158,7 +160,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->lastReceiveCommandListTime	= 0;
 	this->socket		   	= NULL;
 	this->slotThreadWorker 	= NULL;
-	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface);
+	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
 	this->slotThreadWorker->setUniqueID(__FILE__);
 	this->slotThreadWorker->start();
 
@@ -213,7 +215,9 @@ void ConnectionSlot::update(bool checkForNewClients) {
 				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
 				if(serverInterface->getServerSocket()->hasDataToRead() == true) {
 					socket = serverInterface->getServerSocket()->accept();
-					serverInterface->updateListen();
+					if(socket != NULL) {
+						serverInterface->updateListen();
+					}
 				}
 				//send intro message when connected
 				if(socket != NULL) {
@@ -549,9 +553,14 @@ void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
 bool ConnectionSlot::updateCompleted() {
 	assert(slotThreadWorker != NULL);
 
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+
 	bool waitingForThread = (slotThreadWorker->isSignalCompleted() 	== false &&
 							 slotThreadWorker->getQuitStatus() 		== false &&
 							 slotThreadWorker->getRunningStatus() 	== true);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
+
 	return (waitingForThread == false);
 }
 

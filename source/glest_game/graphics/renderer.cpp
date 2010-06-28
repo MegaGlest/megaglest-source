@@ -460,7 +460,6 @@ void Renderer::renderParticleManager(ResourceScope rs){
 void Renderer::swapBuffers(){
 
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
-	glFlush(); // <--- this might actually be needed for better Render performance???
 
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }

@@ -360,29 +360,33 @@ void ServerInterface::update() {
 							connectionSlot->clearThreadErrorList();
 						}
 
+
 						// Not done waiting for data yet
-    					if(connectionSlot->updateCompleted() == false) {
-    						threadsDone = false;
-    						break;
-    					}
-    					else {
-    						// New lag check
-    						bool clientLagExceeded = clientLagCheck(connectionSlot);
-    						// If the client has exceeded lag and the server wants
-    						// to pause while they catch up, re-trigger the
-    						// client reader thread
-    						if(clientLagExceeded == true && pauseGameForLaggedClients == true) {
-    			                bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
-    			                ConnectionSlotEvent &event = eventList[i];
-    			                signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
-    						}
-    						else {
-    							slotsCompleted[i] = true;
-    						}
-    					}
+						if(connectionSlot->updateCompleted() == false) {
+							threadsDone = false;
+							break;
+						}
+						else {
+							// New lag check
+							bool clientLagExceeded = false;
+							if(connectionSlot->isConnected() == true) {
+								clientLagExceeded = clientLagCheck(connectionSlot);
+							}
+							// If the client has exceeded lag and the server wants
+							// to pause while they catch up, re-trigger the
+							// client reader thread
+							if(clientLagExceeded == true && pauseGameForLaggedClients == true) {
+								bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
+								ConnectionSlotEvent &event = eventList[i];
+								signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+							}
+							else {
+								slotsCompleted[i] = true;
+							}
+						}
     				}
     			}
-    			//sleep(0);
+    			sleep(0);
             }
 
             // Step #3 dispatch network commands to the pending list so that they are done in proper order

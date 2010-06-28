@@ -74,17 +74,18 @@ protected:
 	Semaphore semTaskSignalled;
 	Mutex triggerIdMutex;
 	ConnectionSlotEvent *event;
+	int slotIndex;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(ConnectionSlotEvent *event);
 
 public:
-	ConnectionSlotThread();
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface);
+	ConnectionSlotThread(int slotIndex);
+	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted();
-
+    int getSlotIndex() const {return slotIndex; }
 };
 
 // =====================================================
