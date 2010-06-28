@@ -37,7 +37,7 @@ namespace Glest{ namespace Game{
 
 const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
 const int ClientInterface::waitSleepTime= 10;
-const int ClientInterface::maxNetworkCommandListSendTimeWait = 5;
+const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 
 ClientInterface::ClientInterface(){
 	clientSocket= NULL;
@@ -681,6 +681,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	//delay the start a bit, so clients have more room to get messages
 	//sleep(GameConstants::networkExtraLatency);
+
+	// This triggers LAG update packets to begin as required
+	lastNetworkCommandListSendTime = time(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }

@@ -45,10 +45,14 @@ double warnFrameCountLagPercent = 0.65;
 // Should we wait for lagged clients instead of disconnect them?
 bool pauseGameForLaggedClients = false;
 
+// Seconds grace period before we start checking LAG
+double LAG_CHECK_GRACE_PERIOD = 15;
+
 ServerInterface::ServerInterface(){
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
     currentFrameCount = 0;
+    gameStartTime = 0;
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
@@ -218,58 +222,60 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 // Only call when client has just sent us data
 bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 	bool clientLagExceeded = false;
-	if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
-		int clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
-		int clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
-		connectionSlot->setCurrentLagCount(clientLagCount);
+	if(difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
+		if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+			int clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
+			int clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
+			connectionSlot->setCurrentLagCount(clientLagCount);
 
-		if(this->getCurrentFrameCount() > 0) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %d, clientLagCount = %d, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getPlayerIndex(),clientLag,clientLagCount,this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount());
-		}
-
-		// New lag check
-		if(maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) {
-			clientLagExceeded = true;
-			char szBuf[4096]="";
-
-			const char* msgTemplate = "%s exceeded max allowed LAG count of %d, clientLag = %d, disconnecting client.";
-			if(pauseGameForLaggedClients == true) {
-				msgTemplate = "%s exceeded max allowed LAG count of %d, clientLag = %d, pausing game to wait for client to catch up...";
+			if(this->getCurrentFrameCount() > 0) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %d, clientLagCount = %d, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getPlayerIndex(),clientLag,clientLagCount,this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount());
 			}
-#ifdef WIN32
-			_snprintf(szBuf,4095,msgTemplate,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
-#else
-			snprintf(szBuf,4095,msgTemplate,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
-#endif
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-			string sMsg = szBuf;
-			sendTextMessage(sMsg,-1);
-
-			if(pauseGameForLaggedClients == true) {
-				connectionSlot->close();
-			}
-		}
-		// New lag check warning
-		else if(maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
-				(clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent))) {
-			if(connectionSlot->getLagCountWarning() == false) {
-				connectionSlot->setLagCountWarning(true);
-
+			// New lag check
+			if(maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) {
+				clientLagExceeded = true;
 				char szBuf[4096]="";
-#ifdef WIN32
-				_snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
-#else
-				snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
-#endif
+
+				const char* msgTemplate = "%s exceeded max allowed LAG count of %d, clientLag = %d, disconnecting client.";
+				if(pauseGameForLaggedClients == true) {
+					msgTemplate = "%s exceeded max allowed LAG count of %d, clientLag = %d, pausing game to wait for client to catch up...";
+				}
+	#ifdef WIN32
+				_snprintf(szBuf,4095,msgTemplate,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+	#else
+				snprintf(szBuf,4095,msgTemplate,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+	#endif
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 				string sMsg = szBuf;
 				sendTextMessage(sMsg,-1);
+
+				if(pauseGameForLaggedClients == false) {
+					connectionSlot->close();
+				}
 			}
-		}
-		else if(connectionSlot->getLagCountWarning() == true) {
-			connectionSlot->setLagCountWarning(false);
+			// New lag check warning
+			else if(maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
+					(clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent))) {
+				if(connectionSlot->getLagCountWarning() == false) {
+					connectionSlot->setLagCountWarning(true);
+
+					char szBuf[4096]="";
+	#ifdef WIN32
+					_snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+	#else
+					snprintf(szBuf,4095,"%s may exceed max allowed LAG count of %d, clientLag = %d, WARNING...",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),maxFrameCountLagAllowed,clientLagCount);
+	#endif
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+					string sMsg = szBuf;
+					sendTextMessage(sMsg,-1);
+				}
+			}
+			else if(connectionSlot->getLagCountWarning() == true) {
+				connectionSlot->setLagCountWarning(false);
+			}
 		}
 	}
 
@@ -345,6 +351,7 @@ void ServerInterface::update() {
     				ConnectionSlot* connectionSlot = slots[i];
     				if(connectionSlot != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+						// Show any collected errors from threads
 						if(errorList.size() > 0) {
 							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
 								string &sErr = errorList[iErrIdx];
@@ -353,6 +360,7 @@ void ServerInterface::update() {
 							connectionSlot->clearThreadErrorList();
 						}
 
+						// Not done waiting for data yet
     					if(connectionSlot->updateCompleted() == false) {
     						threadsDone = false;
     						break;
@@ -374,7 +382,7 @@ void ServerInterface::update() {
     					}
     				}
     			}
-    			sleep(0);
+    			//sleep(0);
             }
 
             // Step #3 dispatch network commands to the pending list so that they are done in proper order
@@ -669,6 +677,8 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 			connectionSlot->sendMessage(&networkMessageReady);
 		}
 	}
+
+	gameStartTime = time(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] END\n",__FUNCTION__);
 }

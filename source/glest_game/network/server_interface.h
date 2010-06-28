@@ -39,7 +39,7 @@ private:
 	Mutex serverSynchAccessor;
 	int currentFrameCount;
 
-	//ConnectionSlotThread* slotThreads[GameConstants::maxPlayers];
+	time_t gameStartTime;
 
 public:
 	ServerInterface();
