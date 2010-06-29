@@ -100,7 +100,7 @@ void BaseThread::shutdownAndWait(BaseThread *pThread) {
 		pThread->signalQuit();
 		//sleep(0);
 
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
+		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 7; ) {
 			if(pThread->getRunningStatus() == false) {
 				break;
 			}

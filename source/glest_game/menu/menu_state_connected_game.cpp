@@ -235,7 +235,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 					break;
 				}
 			}
-			if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) && (labelNetStatus[i].getText()=="???")){
+			if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
+			   (labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
 				if(grabSlotButton[i].mouseClick(x, y) )
 				{
 					soundRenderer.playFx(coreData.getClickSoundA());
@@ -354,7 +355,8 @@ void MenuStateConnectedGame::render(){
 				renderer.renderListBox(&listBoxTeams[i]);
 				//renderer.renderLabel(&labelNetStatus[i]);
 				
-				if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) && (labelNetStatus[i].getText()=="???")){
+				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
+					(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
 					renderer.renderButton(&grabSlotButton[i]);
 				}
 				else if((listBoxControls[i].getSelectedItemIndex()==ctNetwork) ||

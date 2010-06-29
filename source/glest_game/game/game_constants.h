@@ -46,6 +46,8 @@ public:
 	static const char *folder_path_techs;
 	static const char *folder_path_tilesets;
 	static const char *folder_path_tutorials;
+
+	static const char *NETWORK_SLOT_UNCONNECTED_SLOTNAME;
 };
 
 enum PathType {

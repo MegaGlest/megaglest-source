@@ -154,6 +154,7 @@ const Vec4f Renderer::defDiffuseColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 const Vec4f Renderer::defAmbientColor= Vec4f(1.f * ambFactor, 1.f * ambFactor, 1.f * ambFactor, 1.f);
 const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
+//const float Renderer::maxLightDist= 100.f;
 const float Renderer::maxLightDist= 1000.f;
 
 // ==================== constructor and destructor ====================
@@ -666,9 +667,11 @@ void Renderer::renderMouse3d() {
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
 			const Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 
-			float rotateAmount = gui->getSelectedFacing() * 90.f;
-			if(rotateAmount > 0) {
-				glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+			if(gui->getSelectedFacing() != CardinalDir::NORTH) {
+				float rotateAmount = gui->getSelectedFacing() * 90.f;
+				if(rotateAmount > 0) {
+					glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+				}
 			}
 
 			buildingModel->updateInterpolationData(0.f, false);

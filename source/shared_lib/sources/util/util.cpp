@@ -117,6 +117,9 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
 	char errbuf[CURL_ERROR_SIZE]="";
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
 
+	// max 5 seconds to connect to the URL
+	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 5);
+
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);

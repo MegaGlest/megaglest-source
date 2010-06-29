@@ -1167,7 +1167,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 					gameSettings->setNetworkPlayerName(slotIndex, connectionSlot->getName());
 				}
 				else {
-					gameSettings->setNetworkPlayerName(slotIndex, "Network");
+					gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
 				}
 			}
 			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman) {
