@@ -82,7 +82,7 @@ public:
 	int getCurrentFrameCount() const { return currentFrameCount; }
 	bool clientLagCheck(ConnectionSlot* connectionSlot);
 
-	void signalClientReceiveCommands(ConnectionSlot* connectionSlot,
+	bool signalClientReceiveCommands(ConnectionSlot* connectionSlot,
 									 int slotIndex,
 									 bool socketTriggered,
 									 ConnectionSlotEvent &event);

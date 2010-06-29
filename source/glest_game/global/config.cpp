@@ -37,6 +37,7 @@ const char *GameConstants::folder_path_techs        = "techs";
 const char *GameConstants::folder_path_tilesets     = "tilesets";
 const char *GameConstants::folder_path_tutorials    = "tutorials";
 
+const char *GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME = "???";
 
 // =====================================================
 // 	class Config

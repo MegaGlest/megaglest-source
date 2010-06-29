@@ -273,6 +273,9 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
 		safeMutex.ReleaseLock();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
