@@ -91,6 +91,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 			<< depthBits << " depth-buffer). SDL Error is: " << SDL_GetError();
 		throw std::runtime_error(msg.str());
 	}
+
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
 void PlatformContextGl::end() {

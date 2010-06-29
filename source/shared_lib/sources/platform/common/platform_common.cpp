@@ -783,6 +783,7 @@ void showCursor(bool b) {
 		//SDL_GetMouseState( &x, &y );
 	}
 	SDL_ShowCursor(b ? SDL_ENABLE : SDL_DISABLE);
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
 	if(b) {
 		//SDL_WM_GrabInput(SDL_GRAB_OFF);
 		//SDL_WarpMouse(x,y);
