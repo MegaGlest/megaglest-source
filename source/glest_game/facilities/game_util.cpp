@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -116,11 +116,11 @@ string getAboutString2(int i){
 
 string getTeammateName(int i){
 	switch(i){
-	case 0: return "MartiÃ±o Figueroa";
-	case 1: return "JosÃ© Luis GonzÃ¡lez";
-	case 2: return "Tucho  FernÃ¡ndez";
-	case 3: return "JosÃ© Zanni";
-	case 4: return "FÃ©lix MenÃ©ndez";
+	case 0: return "Martiño Figueroa";
+	case 1: return "José Luis González";
+	case 2: return "Tucho Fernández";
+	case 3: return "José Zanni";
+	case 4: return "Félix Menéndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	case 7: return "Titus Tscharntke";
