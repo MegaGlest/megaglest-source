@@ -50,6 +50,11 @@ SDL_keysym Window::keystate;
 
 bool Window::isActive = false;
 bool Window::no2DMouseRendering = false;
+#ifdef WIN32
+bool Window::allowAltEnterFullscreenToggle = false;
+#else
+bool Window::allowAltEnterFullscreenToggle = true;
+#endif
 
 // ========== PUBLIC ==========
 
@@ -352,92 +357,83 @@ void Window::toggleFullscreen() {
 	width and height of the current video mode (or the desktop mode, if no mode has been set).
 	Use 0 for Height, Width, and Color Depth to keep the current values. */
 
-	/*
-
-	//setupGraphicsScreen();
-	//SDL_Surface *surface = SDL_GetVideoSurface();
-	//int flags = surface->flags ^ SDL_FULLSCREEN;
-	//int flags = SDL_OPENGL;
-	//if(Window::isFullScreen) {
-	//	flags |= SDL_FULLSCREEN;
-	//}
-
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//SDL_SetVideoMode(0, 0, 0, flags);
+	if(Window::allowAltEnterFullscreenToggle == true) {
+		SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(cur_surface != NULL) {
+			Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
+		}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SDL_Surface *sf = SDL_GetVideoSurface();
+		SDL_Surface **surface = &sf;
+		uint32 *flags = NULL;
+		void *pixels = NULL;
+		SDL_Color *palette = NULL;
+		SDL_Rect clip;
+		int ncolors = 0;
+		Uint32 tmpflags = 0;
+		int w = 0;
+		int h = 0;
+		int bpp = 0;
 
-	SDL_Surface *sf = SDL_GetVideoSurface();
-	SDL_Surface **surface = &sf;
-	uint32 *flags = NULL;
-	void *pixels = NULL;
-    SDL_Color *palette = NULL;
-    SDL_Rect clip;
-    int ncolors = 0;
-    Uint32 tmpflags = 0;
-    int w = 0;
-    int h = 0;
-    int bpp = 0;
+		if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
+			return;
 
-    if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
-        return;
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    tmpflags = (*surface)->flags;
-    w = (*surface)->w;
-    h = (*surface)->h;
-    bpp = (*surface)->format->BitsPerPixel;
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",__FILE__,__FUNCTION__,__LINE__,w,h,bpp);
-
-    if (flags == NULL)  // use the surface's flags.
-        flags = &tmpflags;
-
-    //
-	if ( *flags & SDL_FULLSCREEN )
-		*flags &= ~SDL_FULLSCREEN;
-	//
-	else
-		*flags |= SDL_FULLSCREEN;
-
-    SDL_GetClipRect(*surface, &clip);
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    *surface = SDL_SetVideoMode(w, h, bpp, (*flags));
-
-    if (*surface == NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-    } // if
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		tmpflags = (*surface)->flags;
+		w = (*surface)->w;
+		h = (*surface)->h;
+		bpp = (*surface)->format->BitsPerPixel;
 
-    SDL_SetClipRect(*surface, &clip);
-	*/
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",__FILE__,__FUNCTION__,__LINE__,w,h,bpp);
 
-	HWND handle = GetSDLWindow();
+		if (flags == NULL)  // use the surface's flags.
+			flags = &tmpflags;
 
-	if(Window::isFullScreen == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
-		ShowWindow(handle, SW_MAXIMIZE);
-		//if(Window::getUseDefaultCursorOnly() == false) {
-		//	showCursor(false);
-		//}
+		//
+		if ( *flags & SDL_FULLSCREEN )
+			*flags &= ~SDL_FULLSCREEN;
+		//
+		else
+			*flags |= SDL_FULLSCREEN;
+
+		SDL_GetClipRect(*surface, &clip);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		*surface = SDL_SetVideoMode(w, h, bpp, (*flags));
+
+		if (*surface == NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			*surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
+		} // if
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		SDL_SetClipRect(*surface, &clip);
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
-		ShowWindow(handle, SW_RESTORE);
-		//showCursor(true);
+		HWND handle = GetSDLWindow();
+		if(Window::isFullScreen == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+			ShowWindow(handle, SW_MAXIMIZE);
+			//if(Window::getUseDefaultCursorOnly() == false) {
+			//	showCursor(false);
+			//}
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+			ShowWindow(handle, SW_RESTORE);
+			//showCursor(true);
+		}
 	}
-
-	//SDL_Surface *sf = SDL_GetVideoSurface();
-	//SDL_SetVideoMode(0, 0, 0, sf->flags ^SDL_FULLSCREEN);
 	
 #else
-	SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+	if(Window::allowAltEnterFullscreenToggle == true) {
+		SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+	}
 #endif
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
