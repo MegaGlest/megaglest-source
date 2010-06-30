@@ -244,6 +244,20 @@ void MainWindow::eventKeyUp(char key){
 
 void MainWindow::eventKeyPress(char c){
 	program->keyPress(c);
+
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
+		bool showCursorState = false;
+		int state = SDL_ShowCursor(SDL_QUERY);
+		if(state == SDL_DISABLE) {
+			showCursorState = true;
+		}
+
+		showCursor(showCursorState);
+		Renderer &renderer= Renderer::getInstance();
+		renderer.setNo2DMouseRendering(showCursorState);
+	}
+
 }
 
 void MainWindow::eventActivate(bool active){
