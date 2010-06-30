@@ -423,14 +423,14 @@ void Window::toggleFullscreen() {
 	if(Window::isFullScreen == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
 		ShowWindow(handle, SW_MAXIMIZE);
-		if(Window::getUseDefaultCursorOnly() == false) {
-			showCursor(false);
-		}
+		//if(Window::getUseDefaultCursorOnly() == false) {
+		//	showCursor(false);
+		//}
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
 		ShowWindow(handle, SW_RESTORE);
-		showCursor(true);
+		//showCursor(true);
 	}
 
 	//SDL_Surface *sf = SDL_GetVideoSurface();
