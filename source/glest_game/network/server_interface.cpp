@@ -263,8 +263,10 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 				}
 			}
 			// New lag check warning
-			else if(maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
-					(clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent))) {
+			else if((maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
+					 clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent)) ||
+					(maxClientLagTimeAllowed > 0 && warnFrameCountLagPercent > 0 &&
+					 clientLagTime > (maxClientLagTimeAllowed * warnFrameCountLagPercent)) ) {
 				if(connectionSlot->getLagCountWarning() == false) {
 					connectionSlot->setLagCountWarning(true);
 
