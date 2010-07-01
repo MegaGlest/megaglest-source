@@ -76,6 +76,7 @@ private:
 	float scrollSpeed;
 	Speed speed;
 	GraphicMessageBox mainMessageBox;
+	GraphicMessageBox errorMessageBox;
 
 	//misc ptr
 	ParticleSystem *weatherParticleSystem;
@@ -137,9 +138,12 @@ private:
 	void incSpeed();
 	void decSpeed();
 	int getUpdateLoops();
+
 	void showLoseMessageBox();
 	void showWinMessageBox();
 	void showMessageBox(const string &text, const string &header, bool toggle);
+	void showErrorMessageBox(const string &text, const string &header, bool toggle);
+
 	void renderWorker();
 	static int ErrorDisplayMessage(const char *msg, bool exitApp);
 };

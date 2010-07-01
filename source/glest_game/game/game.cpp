@@ -110,7 +110,7 @@ int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
 
 	if(thisGamePtr != NULL) {
 		string text = msg;
-		thisGamePtr->showMessageBox(text, "Error detected", false);
+		thisGamePtr->showErrorMessageBox(text, "Error detected", false);
 	}
 
     return 0;
@@ -312,6 +312,10 @@ void Game::init()
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
+	//mesage box
+	errorMessageBox.init(lang.get("Ok"));
+	errorMessageBox.setEnabled(false);
+
 	//init world, and place camera
 	commander.init(&world);
 
@@ -435,6 +439,8 @@ void Game::init()
 
 	logger.add("Launching game");
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -517,7 +523,9 @@ void Game::update(){
 		chatManager.updateNetwork();
 
 		//check for quiting status
-		if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() && mainMessageBox.getEnabled() == false) {
+		if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
+		   mainMessageBox.getEnabled() == false &&
+		   errorMessageBox.getEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			quitGame();
 		}
@@ -629,7 +637,9 @@ void Game::mouseDownLeft(int x, int y){
 		bool messageBoxClick= false;
 
 		//scrip message box, only if the exit box is not enabled
-		if(!mainMessageBox.getEnabled() && scriptManager.getMessageBox()->getEnabled()){
+		if( mainMessageBox.getEnabled() == false &&
+			errorMessageBox.getEnabled() == false &&
+			scriptManager.getMessageBox()->getEnabled()) {
 			int button= 1;
 			if(scriptManager.getMessageBox()->mouseClick(x, y, button)){
 				scriptManager.onMessageBoxOk();
@@ -638,9 +648,8 @@ void Game::mouseDownLeft(int x, int y){
 		}
 
 		//minimap panel
-		if(!messageBoxClick){
+		if(messageBoxClick == false) {
 			if(metrics.isInMinimap(x, y) && !gui.isSelectingPos()){
-
 				int xm= x - metrics.getMinimapX();
 				int ym= y - metrics.getMinimapY();
 				int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
@@ -685,6 +694,14 @@ void Game::mouseDownLeft(int x, int y){
 					//close message box
 					mainMessageBox.setEnabled(false);
 				}
+			}
+		}
+		if(errorMessageBox.getEnabled() == true) {
+			int button= 1;
+			if(errorMessageBox.mouseClick(x, y, button)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//close message box
+				errorMessageBox.setEnabled(false);
 			}
 		}
 	}
@@ -802,6 +819,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 
 			if (mainMessageBox.getEnabled()) {
 				mainMessageBox.mouseMove(x, y);
+			}
+			if (errorMessageBox.getEnabled()) {
+				errorMessageBox.mouseMove(x, y);
 			}
 			if (scriptManager.getMessageBox()->getEnabled()) {
 				scriptManager.getMessageBox()->mouseMove(x, y);
@@ -1164,8 +1184,14 @@ void Game::render2d(){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 
+	if(errorMessageBox.getEnabled()){
+		renderer.renderMessageBox(&errorMessageBox);
+	}
+
 	//script message box
-	if(!mainMessageBox.getEnabled() && scriptManager.getMessageBoxEnabled()){
+	if( mainMessageBox.getEnabled() == false &&
+		errorMessageBox.getEnabled() == false &&
+		scriptManager.getMessageBoxEnabled()){
 		renderer.renderMessageBox(scriptManager.getMessageBox());
 	}
 
@@ -1439,23 +1465,38 @@ void Game::showLoseMessageBox(){
 	}
 }
 
-void Game::showWinMessageBox(){
+void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 	showMessageBox(lang.get("YouWin")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 }
 
-void Game::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
+void Game::showMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
 		mainMessageBox.setEnabled(false);
 	}
 
-	if(!mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled() == false) {
 		mainMessageBox.setText(text);
 		mainMessageBox.setHeader(header);
 		mainMessageBox.setEnabled(true);
 	}
-	else{
+	else {
 		mainMessageBox.setEnabled(false);
+	}
+}
+
+void Game::showErrorMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
+		errorMessageBox.setEnabled(false);
+	}
+
+	if(errorMessageBox.getEnabled() == false) {
+		errorMessageBox.setText(text);
+		errorMessageBox.setHeader(header);
+		errorMessageBox.setEnabled(true);
+	}
+	else {
+		errorMessageBox.setEnabled(false);
 	}
 }
 
