@@ -235,7 +235,10 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 			double clientLagTime = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
 
 			if(this->getCurrentFrameCount() > 0) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %d, clientLagCount = %d, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d, clientLagTime = %f\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getPlayerIndex(),clientLag,clientLagCount,this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount(),clientLagTime);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %f, clientLagCount = %f, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d, clientLagTime = %f\n",
+						                                                 __FILE__,__FUNCTION__,__LINE__,
+						                                                 connectionSlot->getPlayerIndex(),clientLag,clientLagCount,
+						                                                 this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount(),clientLagTime);
 			}
 
 			// TEST LAG Error and warnings!!!
