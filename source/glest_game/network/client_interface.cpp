@@ -127,13 +127,14 @@ void ClientInterface::update()
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
         string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
-        sendTextMessage(sMsg,-1);
+        sendTextMessage(sMsg,-1, true);
 	}
 
 	//clear chat variables
-	chatText.clear();
-	chatSender.clear();
-	chatTeamIndex= -1;
+	//chatText.clear();
+	//chatSender.clear();
+	//chatTeamIndex= -1;
+	clearChatInfo();
 }
 
 std::string ClientInterface::getServerIpAddress() {
@@ -143,9 +144,10 @@ std::string ClientInterface::getServerIpAddress() {
 void ClientInterface::updateLobby()
 {
 	//clear chat variables
-	chatText.clear();
-	chatSender.clear();
-	chatTeamIndex= -1;
+	//chatText.clear();
+	//chatSender.clear();
+	//chatTeamIndex= -1;
+	clearChatInfo();
 
     NetworkMessageType networkMessageType = getNextMessageType(true);
 
@@ -175,9 +177,9 @@ void ClientInterface::updateLobby()
     					"\nClient: " + getNetworkVersionString();
                         printf("%s\n",sErr.c_str());
 
-                        sendTextMessage("Server and client binary mismatch!!",-1);
-                        sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
-                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
+                        sendTextMessage("Server and client binary mismatch!!",-1, true);
+                        sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
+                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
                 	}
                 	else {
                 		versionMatched = true;
@@ -185,9 +187,9 @@ void ClientInterface::updateLobby()
 										networkMessageIntro.getVersionString() + "\nClient: " + getNetworkVersionString();
 						printf("%s\n",sErr.c_str());
 
-						sendTextMessage("Server and client platform mismatch.",-1);
-						sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1);
-						sendTextMessage(" Client: "+ getNetworkVersionString(),-1);
+						sendTextMessage("Server and client platform mismatch.",-1, true);
+						sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
+						sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
                 	}
 
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
@@ -356,9 +358,12 @@ void ClientInterface::updateLobby()
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
-                chatText      = networkMessageText.getText();
-                chatSender    = networkMessageText.getSender();
-                chatTeamIndex = networkMessageText.getTeamIndex();
+                //chatText      = networkMessageText.getText();
+                //chatSender    = networkMessageText.getSender();
+                //chatTeamIndex = networkMessageText.getTeamIndex();
+
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+        		this->addChatInfo(msg);
             }
         }
         break;
@@ -434,7 +439,7 @@ void ClientInterface::updateLobby()
             {
             string sErr = string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
             //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
-            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
+            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
             DisplayErrorMessage(sErr);
             quit= true;
             close();
@@ -484,7 +489,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
 				    string sErr = "Network synchronization error, frame counts do not match, server frameCount = " + intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " + intToStr(frameCount);
 					//throw runtime_error("Network synchronization error, frame counts do not match");
-                    sendTextMessage(sErr,-1);
+                    sendTextMessage(sErr,-1, true);
                     DisplayErrorMessage(sErr);
                     quit= true;
                     close();
@@ -523,9 +528,11 @@ void ClientInterface::updateKeyframe(int frameCount)
 					sleep(0);
 				}
 
-				chatText      = networkMessageText.getText();
-				chatSender    = networkMessageText.getSender();
-				chatTeamIndex = networkMessageText.getTeamIndex();
+				//chatText      = networkMessageText.getText();
+				//chatSender    = networkMessageText.getSender();
+				//chatTeamIndex = networkMessageText.getTeamIndex();
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+        		this->addChatInfo(msg);
 			}
 			break;
             case nmtInvalid:
@@ -535,7 +542,7 @@ void ClientInterface::updateKeyframe(int frameCount)
                 {
 				//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
 
-                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1);
+                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true);
                 DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
 				quit= true;
 				close();
@@ -600,7 +607,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				//throw runtime_error("Timeout waiting for server");
 				string sErr = "Timeout waiting for server";
-                sendTextMessage(sErr,-1);
+                sendTextMessage(sErr,-1, true);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -627,7 +634,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
-            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1);
+            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -653,13 +660,13 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		string sErr = "Checksum error, you don't have the same data as the server";
-        sendTextMessage(sErr,-1);
+        sendTextMessage(sErr,-1, true);
 
 		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
-        sendTextMessage(sErr1,-1);
+        sendTextMessage(sErr1,-1, true);
 
 		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
-        sendTextMessage(sErr2,-1);
+        sendTextMessage(sErr2,-1, true);
 
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
 
@@ -688,9 +695,15 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ClientInterface::sendTextMessage(const string &text, int teamIndex){
+void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal){
 	NetworkMessageText networkMessageText(text, getHostName(), teamIndex);
 	sendMessage(&networkMessageText);
+
+	if(echoLocal == true) {
+		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+		this->addChatInfo(msg);
+	}
+
 }
 
 string ClientInterface::getNetworkStatus() {
@@ -720,7 +733,7 @@ void ClientInterface::waitForMessage()
 	while(getNextMessageType(true) == nmtInvalid) {
 		if(isConnected() == false) {
 			//throw runtime_error("Disconnected");
-            sendTextMessage("Server has Disconnected.",-1);
+            //sendTextMessage("Server has Disconnected.",-1);
             DisplayErrorMessage("Server has Disconnected.");
             quit= true;
             close();
@@ -733,7 +746,7 @@ void ClientInterface::waitForMessage()
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            sendTextMessage("Timeout waiting for message",-1);
+            sendTextMessage("Timeout waiting for message",-1, true);
             DisplayErrorMessage("Timeout waiting for message");
             quit= true;
             close();

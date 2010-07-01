@@ -38,6 +38,41 @@ namespace Glest{ namespace Game{
 //	class NetworkInterface
 // =====================================================
 
+class ChatMsgInfo {
+
+protected:
+
+	void copyAll(const ChatMsgInfo &obj) {
+		this->chatText		= obj.chatText.c_str();
+		this->chatSender	= obj.chatSender.c_str();
+		this->chatTeamIndex	= obj.chatTeamIndex;
+	}
+public:
+
+	ChatMsgInfo() {
+		this->chatText		= "";
+		this->chatSender	= "";
+		this->chatTeamIndex	= -1;
+	}
+	ChatMsgInfo(string chatText, string chatSender,int chatTeamIndex) {
+		this->chatText		= chatText;
+		this->chatSender	= chatSender;
+		this->chatTeamIndex	= chatTeamIndex;
+	}
+	ChatMsgInfo(const ChatMsgInfo& obj) {
+		copyAll(obj);
+	}
+	ChatMsgInfo & operator=(const ChatMsgInfo & obj) {
+		copyAll(obj);
+		return *this;
+	}
+
+	string chatText;
+	string chatSender;
+	int chatTeamIndex;
+
+};
+
 typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
 
 class NetworkInterface {
@@ -49,9 +84,11 @@ protected:
 	bool networkGameDataSynchCheckOkTile;
 	bool networkGameDataSynchCheckOkTech;
 
-	string chatText;
-	string chatSender;
-	int chatTeamIndex;
+	//string chatText;
+	//string chatSender;
+	//int chatTeamIndex;
+	std::vector<ChatMsgInfo> chatTextList;
+
 	static DisplayMessageFunction pCB_DisplayMessage;
 	void DisplayErrorMessage(string sErr, bool closeSocket=true);
 
@@ -99,11 +136,13 @@ public:
     //virtual bool getNetworkGameDataSynchCheckOkFogOfWar()       { return networkGameDataSynchCheckOkFogOfWar; }
     //virtual void setNetworkGameDataSynchCheckOkFogOfWar(bool value)  { networkGameDataSynchCheckOkFogOfWar = value; }
 
-	const string getChatText() const							{return chatText;}
-	const string getChatSender() const							{return chatSender;}
-	int getChatTeamIndex() const								{return chatTeamIndex;}
+	//const string getChatText() const							{return chatText;}
+	//const string getChatSender() const							{return chatSender;}
+	//int getChatTeamIndex() const								{return chatTeamIndex;}
 
+    const std::vector<ChatMsgInfo> & getChatTextList() const  { return chatTextList; }
 	void clearChatInfo();
+	void addChatInfo(const ChatMsgInfo &msg) { chatTextList.push_back(msg); }
 
 	virtual bool getConnectHasHandshaked() const= 0;
 
@@ -138,7 +177,7 @@ public:
 	virtual void waitUntilReady(Checksum* checksum)= 0;
 
 	//message sending
-	virtual void sendTextMessage(const string &text, int teamIndex)= 0;
+	virtual void sendTextMessage(const string &text, int teamIndex,bool echoLocal=false)= 0;
 	virtual void quitGame(bool userManuallyQuit)=0;
 
 	//misc

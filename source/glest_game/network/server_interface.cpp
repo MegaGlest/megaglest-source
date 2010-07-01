@@ -39,9 +39,9 @@ namespace Glest{ namespace Game{
 bool enabledThreadedClientCommandBroadcast = false;
 
 // The maximum amount of network update iterations a client is allowed to fall behind
-int maxFrameCountLagAllowed = 30;
+double maxFrameCountLagAllowed = 30;
 // The maximum amount of seconds a client is allowed to not communicate with the server
-int maxClientLagTimeAllowed = 20;
+double maxClientLagTimeAllowed = 20;
 
 // 65% of max we warn all users about the lagged client
 double warnFrameCountLagPercent = 0.65;
@@ -62,7 +62,7 @@ ServerInterface::ServerInterface(){
     maxClientLagTimeAllowed = Config::getInstance().getInt("MaxClientLagTimeAllowed",intToStr(maxClientLagTimeAllowed).c_str());
     warnFrameCountLagPercent = Config::getInstance().getFloat("WarnFrameCountLagPercent",doubleToStr(warnFrameCountLagPercent).c_str());
     pauseGameForLaggedClients = Config::getInstance().getFloat("PauseGameForLaggedClients",boolToStr(pauseGameForLaggedClients).c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %d, maxClientLagTimeAllowed = %d, pauseGameForLaggedClients = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed,pauseGameForLaggedClients);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %d, pauseGameForLaggedClients = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed,pauseGameForLaggedClients);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
@@ -228,8 +228,8 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 	bool clientLagExceeded = false;
 	if(difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
 		if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
-			int clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
-			int clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
+			double clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
+			double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
 			connectionSlot->setCurrentLagCount(clientLagCount);
 
 			double clientLagTime = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
@@ -238,15 +238,26 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %d, clientLagCount = %d, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d, clientLagTime = %f\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getPlayerIndex(),clientLag,clientLagCount,this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount(),clientLagTime);
 			}
 
+			// TEST LAG Error and warnings!!!
+			//clientLagCount = maxFrameCountLagAllowed + 1;
+			//clientLagTime = maxClientLagTimeAllowed + 1;
+			//if(difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD + 5) {
+			//	clientLagTime = maxClientLagTimeAllowed + 1;
+			//}
+			//else if(difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
+			//	clientLagTime = (maxClientLagTimeAllowed * warnFrameCountLagPercent) + 1;
+			//}
+			// END test
+
 			// New lag check
 			if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
 				(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
 				clientLagExceeded = true;
 				char szBuf[4096]="";
 
-				const char* msgTemplate = "%s exceeded max allowed LAG count of %d [time = %d], clientLag = %d [%f], disconnecting client.";
+				const char* msgTemplate = "%s exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
 				if(pauseGameForLaggedClients == true) {
-					msgTemplate = "%s exceeded max allowed LAG count of %d [time = %d], clientLag = %d [%f], pausing game to wait for client to catch up...";
+					msgTemplate = "%s exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], pausing game to wait for client to catch up...";
 				}
 	#ifdef WIN32
 				_snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str() ,maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
@@ -256,7 +267,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 				string sMsg = szBuf;
-				sendTextMessage(sMsg,-1);
+				sendTextMessage(sMsg,-1, true);
 
 				if(pauseGameForLaggedClients == false) {
 					connectionSlot->close();
@@ -272,7 +283,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 
 					char szBuf[4096]="";
 
-					const char* msgTemplate = "WARNING, %s may exceed max allowed LAG count of %d [time = %d], clientLag = %d [%f], WARNING...";
+					const char* msgTemplate = "WARNING, %s may exceed max allowed LAG count of %f [time = %f], clientLag = %f [%f], WARNING...";
 	#ifdef WIN32
 					_snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
 	#else
@@ -281,7 +292,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 					string sMsg = szBuf;
-					sendTextMessage(sMsg,-1);
+					sendTextMessage(sMsg,-1, true);
 				}
 			}
 			else if(connectionSlot->getLagCountWarning() == true) {
@@ -335,195 +346,218 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 void ServerInterface::update() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
-	//update all slots
-    updateSocketTriggeredList(socketTriggeredList);
+	std::vector<string> errorMsgList;
+	try {
+		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
+		//update all slots
+		updateSocketTriggeredList(socketTriggeredList);
 
-    if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
-        std::map<int,ConnectionSlotEvent> eventList;
-        bool hasData = Socket::hasDataToRead(socketTriggeredList);
+		if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
+			std::map<int,ConnectionSlotEvent> eventList;
+			bool hasData = Socket::hasDataToRead(socketTriggeredList);
 
-        if(hasData) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",__FILE__,__FUNCTION__);
+			if(hasData) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",__FILE__,__FUNCTION__);
 
-        if(gameHasBeenInitiated == false || hasData == true) {
-        	std::map<int,bool> mapSlotSignalledList;
+			if(gameHasBeenInitiated == false || hasData == true) {
+				std::map<int,bool> mapSlotSignalledList;
 
-        	// Step #1 tell all connection slot worker threads to receive socket data
-            bool checkForNewClients = true;
-            for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-                ConnectionSlot* connectionSlot = slots[i];
+				// Step #1 tell all connection slot worker threads to receive socket data
+				bool checkForNewClients = true;
+				for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+					ConnectionSlot* connectionSlot = slots[i];
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-                bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
-                ConnectionSlotEvent &event = eventList[i];
-                mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
-            }
+					bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
+					ConnectionSlotEvent &event = eventList[i];
+					mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+				}
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-            // Step #2 check all connection slot worker threads for completed status
-            std::map<int,bool> slotsCompleted;
-            for(bool threadsDone = false; threadsDone == false;) {
-            	threadsDone = true;
-    			// Examine all threads for completion of delegation
-    			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-    				ConnectionSlot* connectionSlot = slots[i];
-    				if(connectionSlot != NULL &&
-    					mapSlotSignalledList[i] == true &&
-    					slotsCompleted.find(i) == slotsCompleted.end()) {
-    					try {
-							std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
-							// Show any collected errors from threads
-							if(errorList.size() > 0) {
-								for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
-									string &sErr = errorList[iErrIdx];
-									if(sErr != "") {
-										DisplayErrorMessage(sErr);
+				// Step #2 check all connection slot worker threads for completed status
+				std::map<int,bool> slotsCompleted;
+				for(bool threadsDone = false; threadsDone == false;) {
+					threadsDone = true;
+					// Examine all threads for completion of delegation
+					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+						ConnectionSlot* connectionSlot = slots[i];
+						if(connectionSlot != NULL &&
+							mapSlotSignalledList[i] == true &&
+							slotsCompleted.find(i) == slotsCompleted.end()) {
+							try {
+								std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+								// Show any collected errors from threads
+								if(errorList.size() > 0) {
+									for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+										string &sErr = errorList[iErrIdx];
+										if(sErr != "") {
+											//DisplayErrorMessage(sErr);
+											errorMsgList.push_back(sErr);
+										}
 									}
+									connectionSlot->clearThreadErrorList();
 								}
-								connectionSlot->clearThreadErrorList();
-							}
 
-							// Not done waiting for data yet
-							bool updateFinished = connectionSlot->updateCompleted();
-							if(updateFinished == false) {
-								threadsDone = false;
-								sleep(0);
-								break;
-							}
-							else {
-								// New lag check
-								bool clientLagExceeded = false;
-								if(gameHasBeenInitiated == true && connectionSlot->isConnected() == true) {
-									clientLagExceeded = clientLagCheck(connectionSlot);
-								}
-								// If the client has exceeded lag and the server wants
-								// to pause while they catch up, re-trigger the
-								// client reader thread
-								if(clientLagExceeded == true && pauseGameForLaggedClients == true) {
-									bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
-									ConnectionSlotEvent &event = eventList[i];
-									signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+								// Not done waiting for data yet
+								bool updateFinished = connectionSlot->updateCompleted();
+								if(updateFinished == false) {
+									threadsDone = false;
 									sleep(0);
+									break;
 								}
 								else {
-									slotsCompleted[i] = true;
-								}
-							}
-    					}
-						catch(const exception &ex) {
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-							DisplayErrorMessage(ex.what());
-						}
-    				}
-    			}
-            }
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            // Step #3 dispatch network commands to the pending list so that they are done in proper order
-            if(gameHasBeenInitiated == true) {
-				for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-					ConnectionSlot* connectionSlot= slots[i];
-					if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
-						if(connectionSlot->getPendingNetworkCommandList().size() > 0) {
-							// New lag check
-							bool clientLagExceeded = clientLagCheck(connectionSlot);
-							if(clientLagExceeded) {
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, clientLagExceeded = %d\n",__FILE__,__FUNCTION__,__LINE__,i,clientLagExceeded);
-							}
-							else {
-								vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
-
-								for(int idx = 0; idx < vctPendingNetworkCommandList.size(); ++idx) {
-									NetworkCommand &cmd = vctPendingNetworkCommandList[idx];
-									this->requestCommand(&cmd);
-								}
-								connectionSlot->clearPendingNetworkCommandList();
-							}
-						}
-					}
-				}
-            }
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            // Step #4 dispatch pending chat messages
-			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-				ConnectionSlot* connectionSlot= slots[i];
-				if(connectionSlot != NULL &&
-				   connectionSlot->getChatText().empty() == false) {
-					try {
-						string newChatText     = connectionSlot->getChatText().c_str();
-						string newChatSender   = connectionSlot->getChatSender().c_str();
-						int newChatTeamIndex   = connectionSlot->getChatTeamIndex();
-
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
-
-						NetworkMessageText networkMessageText(newChatText,newChatSender,newChatTeamIndex);
-						broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
-
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
-
-						connectionSlot->clearChatInfo();
-
-						chatText        = newChatText.c_str();
-						chatSender      = newChatSender.c_str();
-						chatTeamIndex   = newChatTeamIndex;
-
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
-					}
-					catch(const exception &ex) {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-						DisplayErrorMessage(ex.what());
-					}
-				}
-			}
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            //process text messages
-            if(chatText.empty() == true) {
-            	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                //chatText.clear();
-                //chatSender.clear();
-                //chatTeamIndex= -1;
-
-                for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-                    ConnectionSlot* connectionSlot= slots[i];
-
-                    if(connectionSlot!= NULL &&
-                        (gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true))) {
-                        if(connectionSlot->isConnected() && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true) {
-                            if(connectionSlot->getSocket() != NULL) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling connectionSlot->getNextMessageType() for slots[i]->getSocket()->getSocketId() = %d\n",
-                                __FILE__,__FUNCTION__,connectionSlot->getSocket()->getSocketId());
-
-                            try {
-								if(connectionSlot->getNextMessageType() == nmtText) {
-									NetworkMessageText networkMessageText;
-									if(connectionSlot->receiveMessage(&networkMessageText)) {
-										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 about to broadcast nmtText msg for SlotIndex# %d\n",__FILE__,__FUNCTION__,i);
-
-										broadcastMessage(&networkMessageText, i);
-										chatText= networkMessageText.getText();
-										chatSender= networkMessageText.getSender();
-										chatTeamIndex= networkMessageText.getTeamIndex();
-										break;
+									// New lag check
+									bool clientLagExceeded = false;
+									if(gameHasBeenInitiated == true && connectionSlot->isConnected() == true) {
+										clientLagExceeded = clientLagCheck(connectionSlot);
+									}
+									// If the client has exceeded lag and the server wants
+									// to pause while they catch up, re-trigger the
+									// client reader thread
+									if(clientLagExceeded == true && pauseGameForLaggedClients == true) {
+										bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
+										ConnectionSlotEvent &event = eventList[i];
+										signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+										sleep(0);
+									}
+									else {
+										slotsCompleted[i] = true;
 									}
 								}
-                            }
-    						catch(const exception &ex) {
-    							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-    							DisplayErrorMessage(ex.what());
-    						}
-                        }
-                    }
-                }
-            }
+							}
+							catch(const exception &ex) {
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+								errorMsgList.push_back(ex.what());
+							}
+						}
+					}
+				}
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-        }
-    }
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				// Step #3 dispatch network commands to the pending list so that they are done in proper order
+				if(gameHasBeenInitiated == true) {
+					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+						ConnectionSlot* connectionSlot= slots[i];
+						if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+							if(connectionSlot->getPendingNetworkCommandList().size() > 0) {
+								// New lag check
+								bool clientLagExceeded = clientLagCheck(connectionSlot);
+								if(clientLagExceeded) {
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, clientLagExceeded = %d\n",__FILE__,__FUNCTION__,__LINE__,i,clientLagExceeded);
+								}
+								else {
+									vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
+
+									for(int idx = 0; idx < vctPendingNetworkCommandList.size(); ++idx) {
+										NetworkCommand &cmd = vctPendingNetworkCommandList[idx];
+										this->requestCommand(&cmd);
+									}
+									connectionSlot->clearPendingNetworkCommandList();
+								}
+							}
+						}
+					}
+				}
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				// Step #4 dispatch pending chat messages
+				for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+					ConnectionSlot* connectionSlot= slots[i];
+					if(connectionSlot != NULL &&
+					   connectionSlot->getChatTextList().empty() == false) {
+						try {
+							for(int chatIdx = 0; chatIdx < connectionSlot->getChatTextList().size(); chatIdx++) {
+								const ChatMsgInfo &msg = connectionSlot->getChatTextList()[chatIdx];
+
+								string newChatText     = msg.chatText.c_str();
+								string newChatSender   = msg.chatSender.c_str();
+								int newChatTeamIndex   = msg.chatTeamIndex;
+
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+
+								NetworkMessageText networkMessageText(newChatText,newChatSender,newChatTeamIndex);
+								broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
+
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+
+								connectionSlot->clearChatInfo();
+
+								//chatText        = newChatText.c_str();
+								//chatSender      = newChatSender.c_str();
+								//chatTeamIndex   = newChatTeamIndex;
+								this->addChatInfo(msg);
+
+								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+							}
+						}
+						catch(const exception &ex) {
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+							errorMsgList.push_back(ex.what());
+						}
+					}
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				//process text messages
+				if(this->getChatTextList().empty() == true) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+						ConnectionSlot* connectionSlot= slots[i];
+
+						if(connectionSlot!= NULL &&
+							(gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true))) {
+							if(connectionSlot->isConnected() && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true) {
+								if(connectionSlot->getSocket() != NULL) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling connectionSlot->getNextMessageType() for slots[i]->getSocket()->getSocketId() = %d\n",
+									__FILE__,__FUNCTION__,connectionSlot->getSocket()->getSocketId());
+
+								try {
+									if(connectionSlot->getNextMessageType() == nmtText) {
+										NetworkMessageText networkMessageText;
+										if(connectionSlot->receiveMessage(&networkMessageText)) {
+											SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 about to broadcast nmtText msg for SlotIndex# %d\n",__FILE__,__FUNCTION__,i);
+
+											broadcastMessage(&networkMessageText, i);
+
+											//chatText= networkMessageText.getText();
+											//chatSender= networkMessageText.getSender();
+											//chatTeamIndex= networkMessageText.getTeamIndex();
+											//break;
+
+											ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+											this->addChatInfo(msg);
+										}
+									}
+								}
+								catch(const exception &ex) {
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+									errorMsgList.push_back(ex.what());
+								}
+							}
+						}
+					}
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+		}
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		errorMsgList.push_back(ex.what());
+	}
+
+	if(errorMsgList.size() > 0) {
+		for(int iErrIdx = 0; iErrIdx < errorMsgList.size(); ++iErrIdx) {
+			string &sErr = errorMsgList[iErrIdx];
+			if(sErr != "") {
+				DisplayErrorMessage(sErr);
+			}
+		}
+	}
 
     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -556,7 +590,7 @@ void ServerInterface::updateKeyframe(int frameCount){
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,requestedCommands.size());
 
 			string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
-			sendTextMessage(sMsg,-1);
+			sendTextMessage(sMsg,-1, true);
 		}
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] build command list took %d msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
@@ -680,7 +714,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 						else if(networkMessageType != nmtInvalid) {
 							//throw runtime_error("Unexpected network message: " + intToStr(networkMessageType));
 							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
-							sendTextMessage(sErr,-1);
+							sendTextMessage(sErr,-1, true);
 							DisplayErrorMessage(sErr);
 							return;
 						}
@@ -698,7 +732,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
             if(chrono.getMillis() > readyWaitTimeout) {
                 //throw runtime_error("Timeout waiting for clients");
                 string sErr = "Timeout waiting for clients.";
-                sendTextMessage(sErr,-1);
+                sendTextMessage(sErr,-1, true);
                 DisplayErrorMessage(sErr);
                 return;
             }
@@ -745,11 +779,19 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] END\n",__FUNCTION__);
 }
 
-void ServerInterface::sendTextMessage(const string &text, int teamIndex){
+void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), teamIndex);
 	broadcastMessage(&networkMessageText);
+
+	if(echoLocal == true) {
+		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+		this->addChatInfo(msg);
+		//chatText        = newChatText.c_str();
+		//chatSender      = newChatSender.c_str();
+		//chatTeamIndex   = newChatTeamIndex;
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -947,7 +989,8 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
     }
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-    	throw runtime_error(ex.what());
+    	//throw runtime_error(ex.what());
+    	DisplayErrorMessage(ex.what());
     }
 	//serverSynchAccessor.v();
 
@@ -957,17 +1000,24 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot){
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-		ConnectionSlot* connectionSlot= slots[i];
+	try {
+		for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+			ConnectionSlot* connectionSlot= slots[i];
 
-		if(i!= excludeSlot && connectionSlot!= NULL) {
-			if(connectionSlot->isConnected()) {
+			if(i!= excludeSlot && connectionSlot!= NULL) {
+				if(connectionSlot->isConnected()) {
 
-			    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
-				connectionSlot->sendMessage(networkMessage);
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage\n",__FILE__,__FUNCTION__);
+					connectionSlot->sendMessage(networkMessage);
+				}
 			}
 		}
 	}
+    catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+    	//throw runtime_error(ex.what());
+    	DisplayErrorMessage(ex.what());
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
