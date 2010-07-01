@@ -477,12 +477,10 @@ void ServerInterface::update() {
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
 
-								NetworkMessageText networkMessageText(newChatText,newChatSender,newChatTeamIndex);
+								NetworkMessageText networkMessageText(newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
 								broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
-
-								connectionSlot->clearChatInfo();
 
 								//chatText        = newChatText.c_str();
 								//chatSender      = newChatSender.c_str();
@@ -491,6 +489,7 @@ void ServerInterface::update() {
 
 								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}
+							connectionSlot->clearChatInfo();
 						}
 						catch(const exception &ex) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
