@@ -113,7 +113,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="0"
 				RuntimeTypeInfo="true"
 				WarningLevel="3"

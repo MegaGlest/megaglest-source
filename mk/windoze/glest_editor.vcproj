@@ -122,6 +122,7 @@
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="c:\temp\release\$(TargetName).pch"

@@ -304,7 +304,7 @@ MainWindow::MainWindow()
 
 //#ifndef WIN32
 	timer = new wxTimer(this);
-	timer->Start(100);
+	timer->Start(250);
 //#endif
 	glCanvas->SetFocus();
 }
@@ -379,7 +379,7 @@ void MainWindow::onTimer(wxTimerEvent &event) {
 	wxPaintEvent paintEvent;
 	onPaint(paintEvent);
 #ifdef WIN32
-	Update();
+	//Update();
 #endif
 }
 
@@ -915,12 +915,14 @@ GlCanvas::GlCanvas(MainWindow *mainWindow, wxWindow *parent, int *args)
 }
 
 void translateCoords(wxWindow *wnd, int &x, int &y) {
+/*
 #ifdef WIN32
 	int cx, cy;
 	wnd->GetPosition(&cx, &cy);
 	x += cx;
 	y += cy;
 #endif
+	*/
 }
 
 void GlCanvas::onMouseDown(wxMouseEvent &event) {
