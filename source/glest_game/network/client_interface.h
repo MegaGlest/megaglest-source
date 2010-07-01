@@ -67,7 +67,7 @@ public:
 	virtual void waitUntilReady(Checksum* checksum);
 
 	// message sending
-	virtual void sendTextMessage(const string &text, int teamIndex);
+	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
 	virtual void quitGame(bool userManuallyQuit);
 
 	//misc

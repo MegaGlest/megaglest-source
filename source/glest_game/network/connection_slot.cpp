@@ -172,9 +172,10 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	networkGameDataSynchCheckOkTech     = false;
 	//networkGameDataSynchCheckOkFogOfWar = false;
 
-    chatText.clear();
-    chatSender.clear();
-    chatTeamIndex= -1;
+    //chatText.clear();
+    //chatSender.clear();
+    //chatTeamIndex= -1;
+	this->clearChatInfo();
 }
 
 ConnectionSlot::~ConnectionSlot()
@@ -228,9 +229,10 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 					connectedTime = time(NULL);
 
-					chatText.clear();
-					chatSender.clear();
-					chatTeamIndex= -1;
+					//chatText.clear();
+					//chatSender.clear();
+					//chatTeamIndex= -1;
+					this->clearChatInfo();
 
 					if(hasOpenSlots == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
@@ -253,9 +255,10 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(socket->isConnected()) {
-				chatText.clear();
-				chatSender.clear();
-				chatTeamIndex= -1;
+				//chatText.clear();
+				//chatSender.clear();
+				//chatTeamIndex= -1;
+				this->clearChatInfo();
 
 				if(socket->hasDataToRead() == true) {
 					NetworkMessageType networkMessageType= getNextMessageType();
@@ -275,11 +278,14 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 							NetworkMessageText networkMessageText;
 							if(receiveMessage(&networkMessageText)) {
-								chatText      = networkMessageText.getText();
-								chatSender    = networkMessageText.getSender();
-								chatTeamIndex = networkMessageText.getTeamIndex();
+								//chatText      = networkMessageText.getText();
+								//chatSender    = networkMessageText.getSender();
+								//chatTeamIndex = networkMessageText.getTeamIndex();
 
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
+								ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+								this->addChatInfo(msg);
+
+								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}
 						}
 						break;

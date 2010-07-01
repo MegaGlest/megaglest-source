@@ -113,9 +113,10 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 void NetworkInterface::clearChatInfo() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    chatText.clear();
-    chatSender.clear();
-    chatTeamIndex= -1;
+    //chatText.clear();
+    //chatSender.clear();
+    //chatTeamIndex= -1;
+	chatTextList.clear();
 }
 
 std::string NetworkInterface::getIpAddress() {

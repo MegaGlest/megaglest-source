@@ -606,7 +606,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 
 		char szMsg[1024]="";
 		sprintf(szMsg,"Player: %s is missing the techtree: %s",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),gameSettings->getTech().c_str());
-		clientInterface->sendTextMessage(szMsg,-1);
+		clientInterface->sendTextMessage(szMsg,-1, true);
 
 		foundFactions = false;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

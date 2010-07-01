@@ -148,28 +148,29 @@ void ChatManager::keyPress(char c){
 void ChatManager::updateNetwork() {
 	try {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-		string text;
-		string sender;
+		//string text;
+		//string sender;
 		Config &config= Config::getInstance();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
-		if(gameNetworkInterface->getChatText().empty() == false) {
-			int teamIndex= gameNetworkInterface->getChatTeamIndex();
+		if(gameNetworkInterface->getChatTextList().empty() == false) {
+			for(int idx = 0; idx < gameNetworkInterface->getChatTextList().size(); idx++) {
+				const ChatMsgInfo &msg = gameNetworkInterface->getChatTextList()[idx];
+				int teamIndex= msg.chatTeamIndex;
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,gameNetworkInterface->getChatText().c_str(),teamIndex);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
 
-			if(teamIndex==-1 || teamIndex==thisTeamIndex){
-				console->addLine(gameNetworkInterface->getChatText(), true);
+				if(teamIndex==-1 || teamIndex==thisTeamIndex){
+					console->addLine(msg.chatText, true);
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
-
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			gameNetworkInterface->clearChatInfo();
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
 	catch(const std::exception &ex) {
