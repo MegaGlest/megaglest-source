@@ -20,10 +20,12 @@
 
 #include "program.h"
 #include "util.h"
+#include "platform_common.h"
 
 using std::string;
 using std::vector;
 using std::pair;
+using namespace Shared::PlatformCommon;
 
 namespace MapEditor {
 
@@ -165,6 +167,7 @@ private:
 
 	string fileName;
 	bool fileModified;
+	Chrono lastPaintEvent;
 
 public:
 	MainWindow();

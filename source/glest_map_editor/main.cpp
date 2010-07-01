@@ -54,7 +54,8 @@ MainWindow::MainWindow()
 		, enabledGroup(ctHeight)
 		, fileModified(false)
 		, menuBar(NULL)
-		, panel(NULL) {
+		, panel(NULL)
+		, timer(NULL) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -302,9 +303,11 @@ MainWindow::MainWindow()
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
 
+	lastPaintEvent.start();
+
 //#ifndef WIN32
-	timer = new wxTimer(this);
-	timer->Start(250);
+	//timer = new wxTimer(this);
+	//timer->Start(250);
 //#endif
 	glCanvas->SetFocus();
 }
@@ -342,8 +345,8 @@ MainWindow::~MainWindow() {
 	if(timer != NULL) delete timer;
 	timer = NULL;
 
-	delete program;
 	delete glCanvas;
+	delete program;
 }
 
 void MainWindow::setDirty(bool val) {
@@ -430,6 +433,12 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
+	if(lastPaintEvent.getMillis() < 100) {
+		sleep(5);
+		return;
+	}
+	lastPaintEvent.start();
+
 	if(panel) panel->Update();
 	if(menuBar) menuBar->Update();
 
