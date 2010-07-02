@@ -86,13 +86,26 @@ Game::~Game(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	renderer.endGame();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	SoundRenderer::getInstance().stopAllSounds();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	NetworkManager::getInstance().end();
+	sleep(15);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	gui.end();		//selection must be cleared before deleting units
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	world.end();	//must die before selection because of referencers
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -101,6 +114,8 @@ Game::~Game(){
 	if(originalDisplayMsgCallback != NULL) {
 		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== init and load ====================
@@ -1067,8 +1082,6 @@ void Game::quitGame(){
 	Stats stats = *(world.getStats());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	NetworkManager::getInstance().end();
 
 	program->setState(new BattleEnd(program, &stats));
 }

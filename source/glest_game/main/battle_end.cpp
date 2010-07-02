@@ -39,19 +39,35 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats): ProgramState(program
 	if(stats != NULL) {
 		this->stats= *stats;
 	}
+	mouseX = 0;
+	mouseY = 0;
+	mouse2d = 0;
+
+	const Metrics &metrics= Metrics::getInstance();
+	Lang &lang= Lang::getInstance();
+	int buttonWidth = 125;
+	int xLocation = (metrics.getVirtualW() / 2) - (buttonWidth / 2);
+	buttonExit.init(xLocation, 80, buttonWidth);
+	buttonExit.setText(lang.get("Exit"));
+
+	//mesage box
+	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	mainMessageBox.setEnabled(false);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-BattleEnd::~BattleEnd(){
+BattleEnd::~BattleEnd() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SoundRenderer::getInstance().playMusic(CoreData::getInstance().getMenuMusic());
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void BattleEnd::update(){
+void BattleEnd::update() {
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateBattleEnd(program);
 	}
+	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 }
 
 void BattleEnd::render(){
@@ -148,17 +164,87 @@ void BattleEnd::render(){
 	textRenderer->render(header, lm+250, bm+550);
 
 	textRenderer->end();
+
+	renderer.renderButton(&buttonExit);
+
+	//exit message box
+	if(mainMessageBox.getEnabled()){
+		renderer.renderMessageBox(&mainMessageBox);
+	}
+
+	renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
+
 	renderer.swapBuffers();
 }
 
 void BattleEnd::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	program->setState(new MainMenu(program));
+	if(key == vkEscape) {
+		//program->setState(new MainMenu(program));
+
+		if(mainMessageBox.getEnabled()) {
+			mainMessageBox.setEnabled(false);
+		}
+		else {
+			Lang &lang= Lang::getInstance();
+			showMessageBox(lang.get("ExitGame?"), "", true);
+		}
+	}
+	else if(key == vkReturn && mainMessageBox.getEnabled()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		program->setState(new MainMenu(program));
+	}
 }
 
 void BattleEnd::mouseDownLeft(int x, int y){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	program->setState(new MainMenu(program));
+	//program->setState(new MainMenu(program));
+
+	if(buttonExit.mouseClick(x,y)) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		program->setState(new MainMenu(program));
+	}
+	else if(mainMessageBox.getEnabled()) {
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button)) {
+			if(button==1) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				program->setState(new MainMenu(program));
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//close message box
+				mainMessageBox.setEnabled(false);
+			}
+		}
+	}
+
+}
+
+void BattleEnd::mouseMove(int x, int y, const MouseState *ms){
+	mouseX = x;
+	mouseY = y;
+
+	buttonExit.mouseMove(x, y);
+	if (mainMessageBox.getEnabled()) {
+		mainMessageBox.mouseMove(x, y);
+	}
+
+}
+
+void BattleEnd::showMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(mainMessageBox.getEnabled() == false) {
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else {
+		mainMessageBox.setEnabled(false);
+	}
 }
 
 }}//end namespace
