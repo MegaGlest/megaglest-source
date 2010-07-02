@@ -741,10 +741,12 @@ void ClientInterface::waitForMessage()
 	int waitLoopCount = 0;
 	while(getNextMessageType(true) == nmtInvalid) {
 		if(isConnected() == false) {
-			//throw runtime_error("Disconnected");
-            //sendTextMessage("Server has Disconnected.",-1);
-            DisplayErrorMessage("Server has Disconnected.");
-            quit= true;
+			if(quit == false) {
+				//throw runtime_error("Disconnected");
+				//sendTextMessage("Server has Disconnected.",-1);
+				DisplayErrorMessage("Server has Disconnected.");
+				quit= true;
+			}
             close();
 			return;
 		}

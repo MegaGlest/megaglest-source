@@ -535,7 +535,8 @@ void ServerInterface::update() {
 					   connectionSlot->getChatTextList().empty() == false) {
 						try {
 							for(int chatIdx = 0; chatIdx < connectionSlot->getChatTextList().size(); chatIdx++) {
-								const ChatMsgInfo &msg = connectionSlot->getChatTextList()[chatIdx];
+								ChatMsgInfo msg(connectionSlot->getChatTextList()[chatIdx]);
+								this->addChatInfo(msg);
 
 								string newChatText     = msg.chatText.c_str();
 								string newChatSender   = msg.chatSender.c_str();
@@ -547,19 +548,13 @@ void ServerInterface::update() {
 								broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
-
-								//chatText        = newChatText.c_str();
-								//chatSender      = newChatSender.c_str();
-								//chatTeamIndex   = newChatTeamIndex;
-								this->addChatInfo(msg);
-
-								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}
 
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 							// Its possible that the slot is disconnected here
 							// so check the original pointer again
 							if(slots[i] != NULL) {
-								connectionSlot->clearChatInfo();
+								slots[i]->clearChatInfo();
 							}
 						}
 						catch(const exception &ex) {
