@@ -188,6 +188,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		    {
                 string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
                 clientInterface->sendTextMessage(sQuitText,-1);
+                sleep(1);
 		    }
 		    clientInterface->close();
 		}
@@ -197,9 +198,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		currentMap="";
 		returnToJoinMenu();
     }
-
 	// Only allow changes after we get game settings from the server
-	if(	clientInterface->isConnected() == true &&
+	else if(	clientInterface->isConnected() == true &&
 		clientInterface->getGameSettingsReceived() == true) {
 		if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -257,17 +257,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateConnectedGame::returnToJoinMenu(){
-	if(returnMenuInfo==jmSimple)
-	{
+void MenuStateConnectedGame::returnToJoinMenu() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(returnMenuInfo == jmSimple) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
 	}
-	else
-	{
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 	}
 }
-
 
 void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 

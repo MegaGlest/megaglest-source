@@ -96,6 +96,7 @@ bool NetworkInterface::isConnected(){
 }
 
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
     if(closeSocket == true && getSocket() != NULL)
     {
@@ -111,12 +112,11 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 }
 
 void NetworkInterface::clearChatInfo() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 
-    //chatText.clear();
-    //chatSender.clear();
-    //chatTeamIndex= -1;
-	chatTextList.clear();
+	if(chatTextList.size() > 0) {
+		chatTextList.clear();
+	}
 }
 
 std::string NetworkInterface::getIpAddress() {
