@@ -712,8 +712,7 @@ void Game::mouseDownLeft(int x, int y){
 			}
 		}
 		if(errorMessageBox.getEnabled() == true) {
-			int button= 1;
-			if(errorMessageBox.mouseClick(x, y, button)) {
+			if(errorMessageBox.mouseClick(x, y)) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				//close message box
 				errorMessageBox.setEnabled(false);
