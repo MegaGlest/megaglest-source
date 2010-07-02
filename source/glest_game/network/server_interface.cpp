@@ -460,17 +460,22 @@ void ServerInterface::update() {
 									connectionSlot->clearThreadErrorList();
 								}
 
+								connectionSlot = slots[i];
+
 								// Not done waiting for data yet
-								bool updateFinished = connectionSlot->updateCompleted();
+								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted() : true);
 								if(updateFinished == false) {
 									threadsDone = false;
 									sleep(0);
 									break;
 								}
 								else {
+									connectionSlot = slots[i];
+
 									// New lag check
 									bool clientLagExceeded = false;
-									if(gameHasBeenInitiated == true && connectionSlot->isConnected() == true) {
+									if( gameHasBeenInitiated == true && connectionSlot != NULL &&
+										connectionSlot->isConnected() == true) {
 										clientLagExceeded = clientLagCheck(connectionSlot);
 									}
 									// If the client has exceeded lag and the server wants
@@ -550,7 +555,12 @@ void ServerInterface::update() {
 
 								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after connectionSlot->clearChatInfo chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}
-							connectionSlot->clearChatInfo();
+
+							// Its possible that the slot is disconnected here
+							// so check the original pointer again
+							if(slots[i] != NULL) {
+								connectionSlot->clearChatInfo();
+							}
 						}
 						catch(const exception &ex) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -570,9 +580,9 @@ void ServerInterface::update() {
 
 						if(connectionSlot!= NULL &&
 							(gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true))) {
-							if(connectionSlot->isConnected() && socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true) {
-								if(connectionSlot->getSocket() != NULL) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling connectionSlot->getNextMessageType() for slots[i]->getSocket()->getSocketId() = %d\n",
-									__FILE__,__FUNCTION__,connectionSlot->getSocket()->getSocketId());
+							if( connectionSlot->isConnected() &&
+								socketTriggeredList[connectionSlot->getSocket()->getSocketId()] == true) {
+								if(connectionSlot->getSocket() != NULL) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling connectionSlot->getNextMessageType() for slots[i]->getSocket()->getSocketId() = %d\n",__FILE__,__FUNCTION__,connectionSlot->getSocket()->getSocketId());
 
 								try {
 									if(connectionSlot->getNextMessageType() == nmtText) {
@@ -886,9 +896,10 @@ string ServerInterface::getNetworkStatus() {
 			if(connectionSlot->isConnected()){
 				int clientLagCount = connectionSlot->getCurrentLagCount();
 				double lastClientCommandListTimeLag = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
-				float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
+				//float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
 				char szBuf[100]="";
-				sprintf(szBuf,", lag = %d [%.2f], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
+				//sprintf(szBuf,", lag = %d [%.2f], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
+				sprintf(szBuf,", lag = %d [%.2f]",clientLagCount,lastClientCommandListTimeLag);
 
                 str+= connectionSlot->getName() + string(szBuf);
 			}

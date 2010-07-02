@@ -87,16 +87,19 @@ Window::~Window() {
 
 bool Window::handleEvent() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	string codeLocation = "a";
 
 	SDL_Event event;
 	SDL_GetMouseState(&oldX,&oldY);
 
+	codeLocation = "b";
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	while(SDL_PollEvent(&event)) {
 		try {
 			//printf("START [%d]\n",event.type);
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			codeLocation = "c";
 
 			switch(event.type) {
 				case SDL_MOUSEBUTTONDOWN:
@@ -104,25 +107,32 @@ bool Window::handleEvent() {
 				case SDL_MOUSEMOTION:
 
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					codeLocation = "d";
+
            			setLastMouseEvent(Chrono::getCurMillis());
            			setMousePos(Vec2i(event.button.x, event.button.y));
 					break;
 			}
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			codeLocation = "d";
 
 			switch(event.type) {
 				case SDL_QUIT:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					codeLocation = "e";
 					return false;
 				case SDL_MOUSEBUTTONDOWN:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					codeLocation = "f";
+
 					if(global_window) {
 						global_window->handleMouseDown(event);
 					}
 					break;
 				case SDL_MOUSEBUTTONUP: {
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
+					codeLocation = "g";
 					if(global_window) {
 						MouseButton b = getMouseButton(event.button.button);
 						setMouseState(b, false);
@@ -138,6 +148,8 @@ bool Window::handleEvent() {
 					//ms.leftMouse = (event.motion.state & SDL_BUTTON_LMASK) != 0;
 					//ms.rightMouse = (event.motion.state & SDL_BUTTON_RMASK) != 0;
 					//ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
+					codeLocation = "h";
+
 					setMouseState(mbLeft, event.motion.state & SDL_BUTTON_LMASK);
 					setMouseState(mbRight, event.motion.state & SDL_BUTTON_RMASK);
 					setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
@@ -150,6 +162,7 @@ bool Window::handleEvent() {
 				case SDL_KEYDOWN:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
+					codeLocation = "i";
 					Window::isKeyPressedDown = true;
 					keystate = event.key.keysym;
 					/* handle ALT+Return */
@@ -170,6 +183,8 @@ bool Window::handleEvent() {
 				case SDL_KEYUP:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
+					codeLocation = "j";
+
 					Window::isKeyPressedDown = false;
 					keystate = event.key.keysym;
 
@@ -179,6 +194,7 @@ bool Window::handleEvent() {
 					break;
 				case SDL_ACTIVEEVENT:
 				{
+					codeLocation = "k";
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT.\n",__FILE__,__FUNCTION__,__LINE__);
 
 					// Check if the program has lost keyboard focus
@@ -234,17 +250,17 @@ bool Window::handleEvent() {
 			}
 		} 
 		catch(std::runtime_error& e) {
-			std::cerr << "(a) Couldn't process event: " << e.what() << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a) Couldn't process event: [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+			std::cerr << "(a) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 			throw runtime_error(e.what());
 		}
 		catch(std::exception& e) {
-			std::cerr << "(b) Couldn't process event: " << e.what() << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+			std::cerr << "(b) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 		}
 		catch(...) {
-			std::cerr << "(b) Couldn't process event: [UNKNOWN ERROR]\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR]\n",__FILE__,__FUNCTION__,__LINE__);
+			std::cerr << "(c) Couldn't process event: [UNKNOWN ERROR] " << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

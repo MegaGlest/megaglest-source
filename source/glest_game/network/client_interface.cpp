@@ -56,18 +56,26 @@ ClientInterface::ClientInterface(){
 
 ClientInterface::~ClientInterface()
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(clientSocket != NULL && clientSocket->isConnected() == true)
     {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
     }
 
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    close();
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	delete clientSocket;
 	clientSocket = NULL;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ClientInterface::connect(const Ip &ip, int port)
@@ -708,9 +716,10 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 
 string ClientInterface::getNetworkStatus() {
 	std::string label = Lang::getInstance().get("Server") + ": " + serverName;
-	float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
+	//float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
 	char szBuf[1024]="";
-	sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+	//sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
+	sprintf(szBuf,"%s",label.c_str());
 
 	return szBuf;
 }
