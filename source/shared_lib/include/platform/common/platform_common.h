@@ -122,6 +122,8 @@ void restoreVideoMode(bool exitingApp=false);
 
 bool EndsWith(const string &str, const string& key);
 
+string replaceAll(string& context, const string& from, const string& to);
+
 int getScreenW();
 int getScreenH();
 
