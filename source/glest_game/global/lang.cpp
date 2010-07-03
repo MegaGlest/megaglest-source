@@ -72,7 +72,9 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 
 string Lang::get(const string &s){
 	try{
-		return strings.getString(s);
+		string result = strings.getString(s);
+		replaceAll(result, "\\n", "\n");
+		return result;
 	}
 	catch(exception &){
 		return "???" + s + "???";

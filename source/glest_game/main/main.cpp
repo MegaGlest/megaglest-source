@@ -448,6 +448,10 @@ int glestMain(int argc, char** argv){
         //throw runtime_error("test!");
         //ExceptionHandler::DisplayMessage("test!", false);
 
+		//Lang &lang= Lang::getInstance();
+		//string test = lang.get("ExitGameServer?");
+		//printf("[%s]",test.c_str());
+
 		//main loop
 		while(Window::handleEvent()){
 			program->loop();
