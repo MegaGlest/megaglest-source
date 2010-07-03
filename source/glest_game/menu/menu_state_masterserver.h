@@ -46,6 +46,8 @@ private:
 	GraphicLabel tilesetLabel;
 	GraphicLabel activeSlotsLabel;
 
+	GraphicLabel externalConnectPort;
+
 public:
 	ServerLine( MasterServerInfo *mServerInfo, int lineIndex);
 	virtual ~ServerLine();
@@ -105,7 +107,7 @@ public:
 
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
-	bool connectToServer(string ipString);
+	bool connectToServer(string ipString, int port);
 	void clearServerLines();
 	void updateServerInfo();
 	
