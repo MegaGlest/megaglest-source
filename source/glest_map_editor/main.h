@@ -135,8 +135,6 @@ private:
 
 	wxPanel *panel;
 	
-	wxTimer *timer;
-
 	wxMenuBar *menuBar;
 	wxMenu *menuFile;
 	wxMenu *menuEdit;
@@ -214,8 +212,6 @@ public:
 	void onMenuRadius(wxCommandEvent &event);
 	
 	void onToolPlayer(wxCommandEvent &event);
-
-	void onTimer(wxTimerEvent &event);
 
 	void change(int x, int y);
 
