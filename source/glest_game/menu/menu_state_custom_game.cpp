@@ -899,7 +899,7 @@ void MenuStateCustomGame::update() {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
 					string port=intToStr(config.getInt("ServerPort"));
 					if(port!="61357"){
-						port=port +lang.get(" NonStandardPort")+"!";
+						port = port + " " + lang.get("NonStandardPort")+"!)";
 					}
 					else
 					{

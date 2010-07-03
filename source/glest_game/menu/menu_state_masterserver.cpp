@@ -448,10 +448,11 @@ void MenuStateMasterserver::updateServerInfo() {
 						masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
 
 						//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
-						float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
+						//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
 						//printf("Ping time = %f\n",pingTime);
 						char szBuf[1024]="";
-						sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
+						//sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
+						sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
 						masterServerInfo->setServerTitle(szBuf);
 
 						if( updateFromMasterserverThread == NULL ||
