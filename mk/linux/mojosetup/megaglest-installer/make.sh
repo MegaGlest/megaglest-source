@@ -149,8 +149,8 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	find configuration.xml -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
+	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
 	find data/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find docs/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find maps/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
