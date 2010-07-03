@@ -538,7 +538,8 @@ void Game::update(){
 		chatManager.updateNetwork();
 
 		//check for quiting status
-		if(NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
+		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
+			NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
 		   mainMessageBox.getEnabled() == false &&
 		   errorMessageBox.getEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -557,7 +558,9 @@ void Game::update(){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -696,12 +699,21 @@ void Game::mouseDownLeft(int x, int y){
 		}
 
 		//exit message box, has to be the last thing to do in this function
+		if(errorMessageBox.getEnabled() == true) {
+			if(errorMessageBox.mouseClick(x, y)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//close message box
+				errorMessageBox.setEnabled(false);
+			}
+		}
 		if(mainMessageBox.getEnabled()){
 			int button= 1;
 			if(mainMessageBox.mouseClick(x, y, button)) {
 				if(button==1) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					networkManager.getGameNetworkInterface()->quitGame(true);
+					if(networkManager.getGameNetworkInterface() != NULL) {
+						networkManager.getGameNetworkInterface()->quitGame(true);
+					}
 					quitGame();
 				}
 				else {
@@ -711,18 +723,13 @@ void Game::mouseDownLeft(int x, int y){
 				}
 			}
 		}
-		if(errorMessageBox.getEnabled() == true) {
-			if(errorMessageBox.mouseClick(x, y)) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				//close message box
-				errorMessageBox.setEnabled(false);
-			}
-		}
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -734,7 +741,9 @@ void Game::mouseDownRight(int x, int y){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -746,7 +755,9 @@ void Game::mouseUpLeft(int x, int y){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -770,7 +781,9 @@ void Game::mouseDoubleClickLeft(int x, int y){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -861,7 +874,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -876,7 +891,9 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -1025,7 +1042,9 @@ void Game::keyDown(char key){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -1066,7 +1085,9 @@ void Game::keyUp(char key){
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.getGameNetworkInterface()->quitGame(true);
+		if(networkManager.getGameNetworkInterface() != NULL) {
+			networkManager.getGameNetworkInterface()->quitGame(true);
+		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
 }
@@ -1301,10 +1322,12 @@ void Game::render2d(){
 
 	//network status
 	if(renderNetworkStatus) {
-		renderer.renderText(
-			NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
-			coreData.getMenuFontNormal(),
-			Vec3f(1.0f), 20, 500, false);
+		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
+			renderer.renderText(
+				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
+				coreData.getMenuFontNormal(),
+				Vec3f(1.0f), 20, 500, false);
+		}
 	}
 
     //resource info
