@@ -84,6 +84,10 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	activeSlotsLabel.setText(intToStr(masterServerInfo->getActiveSlots())+"/"+intToStr(masterServerInfo->getNetworkSlots())+"/"+intToStr(masterServerInfo->getConnectedClients()));
 
 	i+=50;
+	externalConnectPort.init(i,startOffset-lineOffset);
+	externalConnectPort.setText(intToStr(masterServerInfo->getExternalConnectPort()));
+
+	i+=50;
 	selectButton.init(i, startOffset-lineOffset, 30);
 	selectButton.setText(">");
 	if(glestVersionString!=masterServerInfo->getGlestVersion())
@@ -122,7 +126,8 @@ void ServerLine::render(){
 	renderer.renderLabel(&techLabel);
 	renderer.renderLabel(&mapLabel); 
 	renderer.renderLabel(&tilesetLabel);
-	renderer.renderLabel(&activeSlotsLabel);	
+	renderer.renderLabel(&activeSlotsLabel);
+	renderer.renderLabel(&externalConnectPort);
 }
 
 // =====================================================
@@ -298,7 +303,8 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	    		soundRenderer.playFx(coreData.getClickSoundB());
 	    		string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
-	    		connectToServer(connectServerIP);
+	    		int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
+	    		connectToServer(connectServerIP,connectServerPort);
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	    		safeMutex.ReleaseLock();
 
@@ -418,7 +424,7 @@ void MenuStateMasterserver::updateServerInfo() {
 					std::vector<std::string> serverEntities;
 					Tokenize(server,serverEntities,"|");
 
-					const int MIN_FIELDS_EXPECTED = 11;
+					const int MIN_FIELDS_EXPECTED = 12;
 					if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 
 						Lang &lang= Lang::getInstance();
@@ -446,6 +452,7 @@ void MenuStateMasterserver::updateServerInfo() {
 						masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
 						masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
 						masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+						masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
 
 						//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
 						//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
@@ -490,7 +497,7 @@ void MenuStateMasterserver::updateServerInfo() {
 }
 
 
-bool MenuStateMasterserver::connectToServer(string ipString)
+bool MenuStateMasterserver::connectToServer(string ipString, int port)
 {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START  ipString='%s'\n",__FILE__,__FUNCTION__,ipString.c_str());
 
@@ -498,11 +505,11 @@ bool MenuStateMasterserver::connectToServer(string ipString)
 	Config& config= Config::getInstance();
 	Ip serverIp(ipString);
 
-	int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	//int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	int serverPort = port;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s] serverPort = %d\n",__FILE__,__FUNCTION__,serverIp.getString().c_str(),serverPort);
 	clientInterface->connect(serverIp, serverPort);
-	if(!clientInterface->isConnected())
-	{
+	if(clientInterface->isConnected() == false) {
 		NetworkManager::getInstance().end();
 		NetworkManager::getInstance().init(nrClient);
 		
@@ -513,8 +520,7 @@ bool MenuStateMasterserver::connectToServer(string ipString)
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",__FILE__,__FUNCTION__);	
 	}
-	else
-	{
+	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connected to [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
 	
 		//save server ip
@@ -522,7 +528,6 @@ bool MenuStateMasterserver::connectToServer(string ipString)
 		//config.save();
 
 		return true;
-		
 	}
 }
 

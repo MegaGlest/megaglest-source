@@ -41,6 +41,7 @@ protected:
 	int activeSlots;
 	int networkSlots;
 	int connectedClients;
+	int externalconnectport;
 
 public:
 	const string &getGlestVersion() const	{return glestVersion;}
@@ -56,6 +57,7 @@ public:
 	const int getActiveSlots() const	{return activeSlots;}
 	const int getNetworkSlots() const	{return networkSlots;}
 	const int getConnectedClients() const	{return connectedClients;}
+	const int getExternalConnectPort() const	{return externalconnectport;}
 	
 	
 	
@@ -76,6 +78,7 @@ public:
 	void setActiveSlots(int value) { activeSlots = value; }
 	void setNetworkSlots(int value) { networkSlots = value; }
 	void setConnectedClients(int value) { connectedClients = value; }	
+	void setExternalConnectPort(int value) { externalconnectport = value; }
 };
 
 }}//end namespace

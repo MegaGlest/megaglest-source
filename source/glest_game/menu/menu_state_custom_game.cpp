@@ -897,16 +897,16 @@ void MenuStateCustomGame::update() {
 				else
 				{
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
-					string port=intToStr(config.getInt("ServerPort"));
-					if(port!="61357"){
-						port = port + " " + lang.get("NonStandardPort")+"!)";
+					string port = intToStr(config.getInt("ServerPort"));
+					if(port != intToStr(GameConstants::serverPort)){
+						port = port + " " + lang.get("NonStandardPort") + "!)";
 					}
 					else
 					{
-						port=port+")";
+						port = port + ")";
 					}
-					port="("+port;
-					labelNetStatus[i].setText("--- "+port);
+					port = "(" + port;
+					labelNetStatus[i].setText("--- " + port);
 				}
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END - ctNetwork\n",__FILE__,__FUNCTION__);
@@ -1054,6 +1054,8 @@ void MenuStateCustomGame::publishToMasterserver()
 	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
+	string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
+	publishToServerInfo["externalconnectport"] = externalport;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
