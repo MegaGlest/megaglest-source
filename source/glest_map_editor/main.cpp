@@ -54,8 +54,7 @@ MainWindow::MainWindow()
 		, enabledGroup(ctHeight)
 		, fileModified(false)
 		, menuBar(NULL)
-		, panel(NULL)
-		, timer(NULL) {
+		, panel(NULL) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -305,10 +304,6 @@ MainWindow::MainWindow()
 
 	lastPaintEvent.start();
 
-//#ifndef WIN32
-	//timer = new wxTimer(this);
-	//timer->Start(250);
-//#endif
 	glCanvas->SetFocus();
 }
 
@@ -333,18 +328,10 @@ void MainWindow::init(string fname) {
 }
 
 void MainWindow::onClose(wxCloseEvent &event) {
-	if(timer != NULL) timer->Stop();
-	if(timer != NULL) delete timer;
-	timer = NULL;
-
 	delete this;
 }
 
 MainWindow::~MainWindow() {
-	if(timer != NULL) timer->Stop();
-	if(timer != NULL) delete timer;
-	timer = NULL;
-
 	delete glCanvas;
 	delete program;
 }
@@ -376,14 +363,6 @@ void MainWindow::setExtension() {
 		SetStatusText(wxT(".mgm"), siFILE_TYPE);
 		currentFile += ".mgm";
 	}
-}
-
-void MainWindow::onTimer(wxTimerEvent &event) {
-	wxPaintEvent paintEvent;
-	onPaint(paintEvent);
-#ifdef WIN32
-	//Update();
-#endif
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
@@ -433,8 +412,8 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
-	if(lastPaintEvent.getMillis() < 100) {
-		sleep(5);
+	if(lastPaintEvent.getMillis() < 70) {
+		sleep(1);
 		return;
 	}
 	lastPaintEvent.start();
@@ -869,8 +848,6 @@ void MainWindow::uncheckRadius() {
 }
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
-
-	EVT_TIMER(-1, MainWindow::onTimer)
 
 	EVT_CLOSE(MainWindow::onClose)
 

@@ -479,19 +479,20 @@ void Window::handleMouseDown(SDL_Event event) {
 	int n = (int) button;
 
 	assert(n >= 0 && n < mbCount);
-
-	if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
-			&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
-			&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
-		eventMouseDown(event.button.x, event.button.y, button);
-		eventMouseDoubleClick(event.button.x, event.button.y, button);
+	if(n >= 0 && n < mbCount) {
+		if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
+				&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
+				&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
+			eventMouseDown(event.button.x, event.button.y, button);
+			eventMouseDoubleClick(event.button.x, event.button.y, button);
+		}
+		else {
+			eventMouseDown(event.button.x, event.button.y, button);
+		}
+		lastMouseDown[n] = ticks;
+		lastMouseX[n] = event.button.x;
+		lastMouseY[n] = event.button.y;
 	}
-	else {
-		eventMouseDown(event.button.x, event.button.y, button);
-	}
-	lastMouseDown[n] = ticks;
-	lastMouseX[n] = event.button.x;
-	lastMouseY[n] = event.button.y;
 }
 
 MouseButton Window::getMouseButton(int sdlButton) {
