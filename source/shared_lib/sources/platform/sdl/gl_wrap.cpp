@@ -182,7 +182,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 				if(charinfo != NULL) {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] charinfo->width = %d\n",__FILE__,__FUNCTION__,__LINE__,type.c_str(),charinfo->width);
-					metrics.setWidth(i, static_cast<float> (charinfo->width));
+					metrics.setWidth(i, static_cast<float> (std::max((short)0,charinfo->width)));
 				}
 				else {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] type = [%s] using size 6\n",__FILE__,__FUNCTION__,__LINE__,type.c_str());
