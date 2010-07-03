@@ -19,8 +19,7 @@
 #include "conversion.h"
 #include "window.h"
 #include <stdexcept>
-//#include <cstdio>
-//#include <cstdlib>
+#include <fstream>
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -82,6 +81,20 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
     }
+
+    try {
+		if(fileName.second != "" && fileExists(fileName.second) == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] attempting to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+
+			std::ofstream userFile;
+			userFile.open(fileName.second.c_str(), ios_base::out | ios_base::trunc);
+			userFile.close();
+		}
+    }
+    catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR trying to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+    }
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 
 }
