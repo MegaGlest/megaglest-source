@@ -173,15 +173,31 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTechTree.init(600, mapHeadPos);
 
 
-	labelPublishServer.init(190, networkHeadPos, 100);
+	labelPublishServer.init(120, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(200, networkPos, 100);
+	listBoxPublishServer.init(130, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
 		listBoxPublishServer.setSelectedItemIndex(0);
 	else
 		listBoxPublishServer.setSelectedItemIndex(1);
+
+
+	labelPublishServerExternalPort.init(290, networkHeadPos, 150);
+	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
+
+	listBoxPublishServerExternalPort.init(300, networkPos, 100);
+	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> externalPortList;
+	Tokenize(supportExternalPortList,externalPortList,",");
+
+	for(int idx = 0; idx < externalPortList.size(); idx++) {
+		if(externalPortList[idx] != "" && IsNumeric(externalPortList[idx].c_str(),false)) {
+			listBoxPublishServerExternalPort.pushBackItem(externalPortList[idx]);
+		}
+	}
+	listBoxPublishServer.setSelectedItemIndex(0);
 
 	// Network Frame Period
 	labelNetworkFramePeriod.init(440, networkHeadPos, 80);
@@ -543,7 +559,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
-	else if(listBoxPublishServer.mouseClick(x, y)&&listBoxPublishServer.getEditable()){
+	else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+		soundRenderer.playFx(coreData.getClickSoundC());
+	}
+	else if(listBoxPublishServerExternalPort.mouseClick(x, y) && listBoxPublishServerExternalPort.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
@@ -634,6 +655,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPublishServer.mouseMove(x, y);
+	listBoxPublishServerExternalPort.mouseMove(x, y);
+
 	listBoxEnableObserverMode.mouseMove(x, y);
 	listBoxEnableServerControlledAI.mouseMove(x, y);
 	labelNetworkFramePeriod.mouseMove(x, y);
@@ -686,6 +709,8 @@ void MenuStateCustomGame::render(){
 			{
 				renderer.renderListBox(&listBoxPublishServer);
 				renderer.renderLabel(&labelPublishServer);
+				renderer.renderListBox(&listBoxPublishServerExternalPort);
+				renderer.renderLabel(&labelPublishServerExternalPort);
 				renderer.renderListBox(&listBoxEnableServerControlledAI);
 				renderer.renderLabel(&labelEnableServerControlledAI);
 				renderer.renderLabel(&labelNetworkFramePeriod);
@@ -934,16 +959,17 @@ void MenuStateCustomGame::update() {
 		
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(hasOneNetworkSlotOpen)
-		{
+		if(hasOneNetworkSlotOpen) {
 			//listBoxPublishServer.setSelectedItemIndex(0);
 			listBoxPublishServer.setEditable(true);
+			listBoxPublishServerExternalPort.setEditable(true);
 			listBoxEnableServerControlledAI.setEditable(true);
 		}
 		else
 		{
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
+			listBoxPublishServerExternalPort.setEditable(false);
 			listBoxEnableServerControlledAI.setEditable(false);
 		}
 		
@@ -1054,7 +1080,8 @@ void MenuStateCustomGame::publishToMasterserver()
 	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
-	string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
+	//string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
+	string externalport = listBoxPublishServerExternalPort.getSelectedItem();
 	publishToServerInfo["externalconnectport"] = externalport;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1241,6 +1268,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
 	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
 	saveGameFile << "NetworkFramePeriod=" << gameSettings.getNetworkFramePeriod() << std::endl;
+	saveGameFile << "ExternalPortNumber=" << listBoxPublishServerExternalPort.getSelectedItem() << std::endl;
 
 	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
 	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
@@ -1335,7 +1363,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
 		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-		
+
+		listBoxPublishServerExternalPort.setSelectedItem(intToStr(properties.getInt("ExternalPortNumber",listBoxPublishServerExternalPort.getSelectedItem().c_str())));
+
 		listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
