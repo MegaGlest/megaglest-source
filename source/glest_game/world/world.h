@@ -91,6 +91,8 @@ private:
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
 	Game *game;
+	Chrono chronoPerfTimer;
+	bool perfTimerEnabled;
 
 public:
 	World();
