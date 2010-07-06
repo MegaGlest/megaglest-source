@@ -97,10 +97,8 @@ public:
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }
-
-private:
-
 	void waitForMessage();
+	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 };
 
 }}//end namespace

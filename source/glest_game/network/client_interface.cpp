@@ -366,10 +366,6 @@ void ClientInterface::updateLobby()
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
-                //chatText      = networkMessageText.getText();
-                //chatSender    = networkMessageText.getSender();
-                //chatTeamIndex = networkMessageText.getTeamIndex();
-
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
         		this->addChatInfo(msg);
             }
@@ -455,7 +451,7 @@ void ClientInterface::updateLobby()
     }
 
 	if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %d\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
 		close();
 	}
 }
@@ -490,7 +486,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					waitCount++;
 				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %d msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
 
 				chrono.start();
 				//check that we are in the right frame
@@ -509,7 +505,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				done= true;
 			}
@@ -604,61 +600,65 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
             return;
 		}
 		NetworkMessageType networkMessageType = getNextMessageType(true);
-		if(networkMessageType == nmtReady) {
-			if(receiveMessage(&networkMessageReady)) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
+
+		// consume old messages from the lobby
+		bool discarded = shouldDiscardNetworkMessage(networkMessageType);
+		if(discarded == false) {
+			if(networkMessageType == nmtReady) {
+				if(receiveMessage(&networkMessageReady)) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
 			}
-		}
-		else if(networkMessageType == nmtInvalid) {
-			if(chrono.getMillis() > readyWaitTimeout) {
+			else if(networkMessageType == nmtInvalid) {
+				if(chrono.getMillis() > readyWaitTimeout) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					//throw runtime_error("Timeout waiting for server");
+					string sErr = "Timeout waiting for server";
+					sendTextMessage(sErr,-1, true);
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					DisplayErrorMessage(sErr);
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					quit= true;
+					close();
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					return;
+				}
+				else {
+					if(chrono.getMillis() / 1000 > lastMillisCheck) {
+						lastMillisCheck = (chrono.getMillis() / 1000);
+
+						char szBuf[1024]="";
+						sprintf(szBuf,"Waiting for network: %llu seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
+						logger.add(szBuf, true);
+					}
+				}
+			}
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-				//throw runtime_error("Timeout waiting for server");
-				string sErr = "Timeout waiting for server";
-                sendTextMessage(sErr,-1, true);
+				//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
+				sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-                DisplayErrorMessage(sErr);
+				DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 				quit= true;
 				close();
 
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-                return;
+				return;
 			}
-			else {
-                if(chrono.getMillis() / 1000 > lastMillisCheck) {
-                    lastMillisCheck = (chrono.getMillis() / 1000);
-
-                    char szBuf[1024]="";
-                    sprintf(szBuf,"Waiting for network: %llu seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
-                    logger.add(szBuf, true);
-                }
-			}
+			// sleep a bit
+			sleep(waitSleepTime);
 		}
-		else {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
-            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            quit= true;
-            close();
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-            return;
-		}
-
-		// sleep a bit
-		sleep(waitSleepTime);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -768,7 +768,7 @@ void ClientInterface::waitForMessage()
 		waitLoopCount++;
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %d msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
 }
 
 void ClientInterface::quitGame(bool userManuallyQuit)
@@ -821,10 +821,80 @@ void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 cu
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-/*
-bool ClientInterface::getFogOfWar()
-{
-    return Config::getInstance().getBool("FogOfWar");
+bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMessageType) {
+	bool discard = false;
+
+	switch(networkMessageType) {
+		case nmtIntro:
+			{
+			discard = true;
+			NetworkMessageIntro msg = NetworkMessageIntro();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtLaunch:
+			{
+			discard = true;
+			NetworkMessageLaunch msg = NetworkMessageLaunch();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtText:
+			{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtText\n",__FILE__,__FUNCTION__,__LINE__);
+			discard = true;
+			NetworkMessageText netMsg = NetworkMessageText();
+			this->receiveMessage(&netMsg);
+
+    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex());
+    		this->addChatInfo(msg);
+			}
+			break;
+		case nmtSynchNetworkGameData:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameData msg = NetworkMessageSynchNetworkGameData();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataStatus:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataStatus msg = NetworkMessageSynchNetworkGameDataStatus();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataFileCRCCheck:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataFileCRCCheck msg = NetworkMessageSynchNetworkGameDataFileCRCCheck();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataFileGet:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataFileGet msg = NetworkMessageSynchNetworkGameDataFileGet();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSwitchSetupRequest:
+			{
+			discard = true;
+			SwitchSetupRequest msg = SwitchSetupRequest();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtPlayerIndexMessage:
+			{
+			discard = true;
+			PlayerIndexMessage msg = PlayerIndexMessage(0);
+			this->receiveMessage(&msg);
+			}
+			break;
+	}
+
+	return discard;
 }
-*/
+
 }}//end namespace

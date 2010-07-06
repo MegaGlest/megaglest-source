@@ -249,18 +249,23 @@ bool Window::handleEvent() {
 				break;
 			}
 		} 
-		catch(std::runtime_error& e) {
-			std::cerr << "(a) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
+		catch(const char *e){
+			std::cerr << "(a1) Couldn't process event: " << e << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a1) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e,codeLocation.c_str());
+			throw runtime_error(e);
+		}
+		catch(const std::runtime_error& e) {
+			std::cerr << "(a2) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a2) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 			throw runtime_error(e.what());
 		}
-		catch(std::exception& e) {
+		catch(const std::exception& e) {
 			std::cerr << "(b) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 		}
 		catch(...) {
 			std::cerr << "(c) Couldn't process event: [UNKNOWN ERROR] " << " codelocation = " << codeLocation << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (c) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -448,7 +453,13 @@ void Window::toggleFullscreen() {
 	
 #else
 	if(Window::allowAltEnterFullscreenToggle == true) {
-		SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(cur_surface != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SDL_WM_ToggleFullScreen(cur_surface);
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 #endif
 

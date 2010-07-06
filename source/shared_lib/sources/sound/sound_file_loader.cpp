@@ -159,7 +159,7 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 		throw runtime_error("Can't read ogg header info for file: "+path);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %d, vi->bitrate_upper = %d, vi->bitrate_nominal = %d, vi->bitrate_lower = %d, vi->bitrate_window = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %ld, vi->bitrate_upper = %ld, vi->bitrate_nominal = %ld, vi->bitrate_lower = %ld, vi->bitrate_window = %ld\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window);
 
 	soundInfo->setChannels(vi->channels);
 	soundInfo->setsamplesPerSecond(vi->rate);

@@ -17,6 +17,7 @@
 #include <map>
 #include "thread.h"
 #include <curl/curl.h>
+#include <cstdio>
 
 using std::string;
 using namespace Shared::Platform;
@@ -130,6 +131,9 @@ public:
 
 #ifndef WIN32
 #define OutputDebug(type, fmt, ...) SystemFlags::handleDebug (type, fmt, ##__VA_ARGS__)
+// Uncomment the line below to get the compiler to warn us of badly formatted printf like statements which could trash memory
+//#define OutputDebug(type, fmt, ...) type; printf(fmt, ##__VA_ARGS__)
+
 #else
 #define OutputDebug(type, fmt, ...) handleDebug (type, fmt, ##__VA_ARGS__)
 #endif
