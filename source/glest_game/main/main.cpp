@@ -118,28 +118,33 @@ MainWindow::MainWindow(Program *program){
 
 MainWindow::~MainWindow(){
 	delete program;
+	program = NULL;
 }
 
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
-
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
-    ProgramState *programState = program->getState();
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
+    }
 
-    switch(mouseButton) {
-    case mbLeft:
-        programState->mouseDownLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseDownRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseDownCenter(vx, vy);
-        break;
-    default:
-        break;
+    ProgramState *programState = program->getState();
+    if(programState != NULL) {
+		switch(mouseButton) {
+			case mbLeft:
+				programState->mouseDownLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseDownRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseDownCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
     }
 }
 
@@ -149,43 +154,54 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
+    }
+
     ProgramState *programState = program->getState();
 
-    switch(mouseButton) {
-    case mbLeft:
-        programState->mouseUpLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseUpRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseUpCenter(vx, vy);
-        break;
-    default:
-        break;
+    if(programState != NULL) {
+		switch(mouseButton) {
+			case mbLeft:
+				programState->mouseUpLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseUpRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseUpCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
     }
 }
 
 void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
-
     const Metrics &metrics= Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
+    }
+
     ProgramState *programState = program->getState();
 
-    switch(mouseButton){
-    case mbLeft:
-        programState->mouseDoubleClickLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseDoubleClickRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseDoubleClickCenter(vx, vy);
-        break;
-    default:
-        break;
+    if(programState != NULL) {
+		switch(mouseButton){
+			case mbLeft:
+				programState->mouseDoubleClickLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseDoubleClickRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseDoubleClickCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
     }
 }
 
@@ -195,8 +211,14 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    }
+
     ProgramState *programState = program->getState();
-    programState->mouseMove(vx, vy, ms);
+    if(programState != NULL) {
+    	programState->mouseMove(vx, vy, ms);
+    }
 }
 
 void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
@@ -207,14 +229,26 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	int vx = metrics.toVirtualX(x);
 	int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    }
+
     ProgramState *programState = program->getState();
-	programState->eventMouseWheel(vx, vy, zDelta);
+
+    if(programState != NULL) {
+    	programState->eventMouseWheel(vx, vy, zDelta);
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    }
+
 	program->keyDown(key);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -241,10 +275,18 @@ void MainWindow::eventKeyDown(char key){
 }
 
 void MainWindow::eventKeyUp(char key){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
+    }
+
 	program->keyUp(key);
 }
 
 void MainWindow::eventKeyPress(char c){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
+    }
+
 	program->keyPress(c);
 
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -259,7 +301,6 @@ void MainWindow::eventKeyPress(char c){
 		Renderer &renderer= Renderer::getInstance();
 		renderer.setNo2DMouseRendering(showCursorState);
 	}
-
 }
 
 void MainWindow::eventActivate(bool active){
@@ -269,6 +310,10 @@ void MainWindow::eventActivate(bool active){
 }
 
 void MainWindow::eventResize(SizeState sizeState){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventResize] ERROR, program == NULL!");
+    }
+
 	program->resize(sizeState);
 }
 
