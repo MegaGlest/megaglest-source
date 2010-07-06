@@ -39,14 +39,15 @@ InterpolationData::InterpolationData(const Mesh *mesh){
 		normals= new Vec3f[mesh->getVertexCount()];
 	}
 
-	cacheVertices.clear();
-	cacheNormals.clear();
+	//cacheVertices.clear();
+	//cacheNormals.clear();
 }
 
 InterpolationData::~InterpolationData(){
 	delete [] vertices;
 	delete [] normals;
 
+/*
 	for(std::map<std::string, Vec3f *>::iterator iterVert = cacheVertices.begin();
 		iterVert != cacheVertices.end(); iterVert++) {
 		delete [] iterVert->second;
@@ -55,6 +56,7 @@ InterpolationData::~InterpolationData(){
 		iterVert != cacheNormals.end(); iterVert++) {
 		delete [] iterVert->second;
 	}
+*/
 }
 
 void InterpolationData::update(float t, bool cycle){
@@ -69,6 +71,7 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	uint32 vertexCount= mesh->getVertexCount();
 
 	if(frameCount > 1) {
+/*
 		std::string lookupKey = floatToStr(t) + "_" + boolToStr(cycle);
 		std::map<std::string, Vec3f *>::iterator iterFind = cacheVertices.find(lookupKey);
 
@@ -82,7 +85,7 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 			cacheVertices[lookupKey] = new Vec3f[vertexCount];
 			iterFind = cacheVertices.find(lookupKey);
 		}
-	
+*/
 		const Vec3f *meshVertices= mesh->getVertices();
 
 		//misc vars
@@ -99,7 +102,7 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 		//interpolate vertices
 		for(uint32 j=0; j<vertexCount; ++j){
 			vertices[j]= meshVertices[prevFrameBase+j].lerp(localT, meshVertices[nextFrameBase+j]);
-			iterFind->second[j] = vertices[j];
+//			iterFind->second[j] = vertices[j];
 		}
 	}
 }
@@ -111,6 +114,7 @@ void InterpolationData::updateNormals(float t, bool cycle){
 	uint32 vertexCount= mesh->getVertexCount();
 
 	if(frameCount > 1) {
+/*
 		std::string lookupKey = floatToStr(t) + "_" + boolToStr(cycle);
 		std::map<std::string, Vec3f *>::iterator iterFind = cacheNormals.find(lookupKey);
 		if(iterFind != cacheNormals.end()) {
@@ -123,7 +127,7 @@ void InterpolationData::updateNormals(float t, bool cycle){
 			cacheNormals[lookupKey] = new Vec3f[mesh->getVertexCount()];
 			iterFind = cacheNormals.find(lookupKey);
 		}
-
+*/
 		const Vec3f *meshNormals= mesh->getNormals();
 
 		//misc vars
@@ -140,7 +144,7 @@ void InterpolationData::updateNormals(float t, bool cycle){
 		//interpolate vertices
 		for(uint32 j=0; j<vertexCount; ++j){
 			normals[j]= meshNormals[prevFrameBase+j].lerp(localT, meshNormals[nextFrameBase+j]);
-			iterFind->second[j] = normals[j];
+//			iterFind->second[j] = normals[j];
 		}
 	}
 }
