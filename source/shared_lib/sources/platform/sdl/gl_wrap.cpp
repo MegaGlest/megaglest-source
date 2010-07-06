@@ -52,6 +52,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 		Window::setIsFullScreen(false);
 	}
 
+	//flags |= SDL_HWSURFACE
+
 	int resW = PlatformCommon::Private::ScreenWidth;
 	int resH = PlatformCommon::Private::ScreenHeight;
 
