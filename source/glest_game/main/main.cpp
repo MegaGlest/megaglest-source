@@ -271,6 +271,13 @@ void MainWindow::eventKeyDown(char key){
 		}
 	}
 
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+		Renderer &renderer= Renderer::getInstance();
+		bool showDebugUI = renderer.getShowDebugUI();
+		renderer.setShowDebugUI(!showDebugUI);
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
