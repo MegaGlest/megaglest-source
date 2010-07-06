@@ -346,6 +346,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits) {
 	if(stencilBits >= 0)
 		newStencilBits = stencilBits;
 
+	//SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
