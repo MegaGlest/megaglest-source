@@ -161,6 +161,8 @@ Renderer::Renderer(){
 	no2DMouseRendering = config.getBool("No2DMouseRendering","false");
 	maxConsoleLines= config.getInt("ConsoleMaxLines");
 
+	showDebugUI = false;
+
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 

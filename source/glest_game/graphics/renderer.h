@@ -257,6 +257,7 @@ private:
 	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 
 	bool no2DMouseRendering;
+	bool showDebugUI;
 
 private:
 	Renderer();
@@ -387,6 +388,9 @@ public:
 
 	bool getNo2DMouseRendering() const { return no2DMouseRendering; }
 	void setNo2DMouseRendering(bool value) { no2DMouseRendering = value; }
+
+	bool getShowDebugUI() const { return showDebugUI; }
+	void setShowDebugUI(bool value) { showDebugUI = value; }
 
 private:
 	//private misc

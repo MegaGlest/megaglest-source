@@ -1239,9 +1239,16 @@ void Game::render2d(){
 	renderer.renderChatManager(&chatManager);
 
     //debug info
-	
+
+	bool perfLogging = false;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true ||
+	   SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		perfLogging = true;
+	}
+
     string str;
-	if(gui.getShowDebugUI() == true || difftime(time(NULL),lastRenderLog2d) >= 1) {
+	if( renderer.getShowDebugUI() == true || 
+		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
 		str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 		str+= "PosObjWord: " + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
 		str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
@@ -1305,7 +1312,7 @@ void Game::render2d(){
 		}
 	}
 
-	if(gui.getShowDebugUI() == true) {
+	if(renderer.getShowDebugUI() == true) {
 		renderer.renderText(str, coreData.getMenuFontNormal(),
 							Vec3f(1.0f), 10, 500, false);
 
@@ -1314,14 +1321,12 @@ void Game::render2d(){
 		}
 		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
-	else {
-		if(renderer.getAllowRenderUnitTitles() == true) {
-			renderer.setAllowRenderUnitTitles(false);
-		}
+	else if(renderer.getAllowRenderUnitTitles() == true) {
+		renderer.setAllowRenderUnitTitles(false);
 	}
 
 	//network status
-	if(renderNetworkStatus) {
+	if(renderNetworkStatus == true) {
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
 			renderer.renderText(
 				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
@@ -1339,10 +1344,10 @@ void Game::render2d(){
     //2d mouse
 	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
 
-	if(difftime(time(NULL),lastRenderLog2d) >= 1) {
+	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
+		
 		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
-
 		SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
 	}
 }

@@ -116,7 +116,6 @@ void Gui::init(Game *game){
 	this->console= game->getConsole();
 	this->world= game->getWorld();
 	selection.init(this, world->getThisFactionIndex());
-	this->showDebugUI = false;
 }
 
 void Gui::end(){
@@ -337,9 +336,6 @@ void Gui::hotKey(char key) {
 	}
 	else if(key == configKeys.getCharKey("HotKeySelectBuiltBuilding")) {
 		selectInterestingUnit(iutBuiltBuilding);
-	}
-	else if(key == configKeys.getCharKey("HotKeyShowDebug")) {
-		this->showDebugUI = !this->showDebugUI;
 	}
 	else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
 		std::string worldLog = world->DumpWorldToLog();
