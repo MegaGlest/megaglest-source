@@ -41,12 +41,6 @@ namespace Glest { namespace Game{
 
 bool MeshCallbackTeamColor::noTeamColors = false;
 
-// if FPS is less than this we start to skip 3D renders
-//int MIN_RENDER_FPS_ALLOWED = 10;
-int MIN_RENDER_FPS_ALLOWED = -1;
-int MIN_RENDER_LAG_ALLOWED = 1;
-int MAX_RENDER_LAG_ITEMCOUNT_ALLOWED = 200;
-
 bool RenderEntity::operator<(const RenderEntity &rhs) const {
 	if(this->type == retUnit || this->type == retUnitFast) {
 		return(this->unit->getLastRenderFrame() < rhs.unit->getLastRenderFrame());
@@ -144,8 +138,8 @@ const float Renderer::magicCircleRadius= 1.f;
 //perspective values
 const float Renderer::perspFov= 60.f;
 const float Renderer::perspNearPlane= 1.f;
-//const float Renderer::perspFarPlane= 50.f;
-const float Renderer::perspFarPlane= 1000.f;
+const float Renderer::perspFarPlane= 50.f;
+//const float Renderer::perspFarPlane= 1000.f;
 
 const float Renderer::ambFactor= 0.7f;
 const Vec4f Renderer::fowColor= Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -154,8 +148,8 @@ const Vec4f Renderer::defDiffuseColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 const Vec4f Renderer::defAmbientColor= Vec4f(1.f * ambFactor, 1.f * ambFactor, 1.f * ambFactor, 1.f);
 const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
-//const float Renderer::maxLightDist= 100.f;
-const float Renderer::maxLightDist= 1000.f;
+const float Renderer::maxLightDist= 100.f;
+//const float Renderer::maxLightDist= 1000.f;
 
 // ==================== constructor and destructor ====================
 
@@ -1314,19 +1308,6 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 			bool isVisible = true;
 
 			if(isExplored == true && isVisible == true) {
-/*
-				//
-				//if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-				//	int renderLag = worldFrameCount - o->getLastRenderFrame();
-				//	if(renderLag > MIN_RENDER_LAG_ALLOWED) {
-				//		vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
-				//	}
-				//}
-				//else {
-				//
-				vctEntity.push_back(RenderEntity(retObject,o,mapPos,NULL));
-				//}
-*/
 				const Model *objModel= o->getModel();
 				if(objModel != NULL) {
 					objModel->updateInterpolationData(0.f, true);
@@ -1346,29 +1327,11 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 }
 
 void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount) {
-	// Need to do something to manage bad FPS
-/*
-	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-		// Oldest rendered objects go to top
-		std::sort(vctEntity.begin(), vctEntity.end());
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			RenderEntity &entity = vctEntity[idx];
-			prepareObjectForRender(entity);
-			renderObject(entity,baseFogColor,renderFps, worldFrameCount);
-
-			if(idx >= MAX_RENDER_LAG_ITEMCOUNT_ALLOWED) {
-				break;
-			}
-		}
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		RenderEntity &entity = vctEntity[idx];
+		prepareObjectForRender(entity);
+		renderObject(entity,baseFogColor,renderFps, worldFrameCount);
 	}
-	else {
-*/
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			RenderEntity &entity = vctEntity[idx];
-			prepareObjectForRender(entity);
-			renderObject(entity,baseFogColor,renderFps, worldFrameCount);
-		}
-	//}
 }
 
 void Renderer::prepareObjectForRender(RenderEntity &entity) {
@@ -1582,18 +1545,6 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			Unit *unit = world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
-/*
-				if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-					int unitRenderLag = worldFrameCount - unit->getLastRenderFrame();
-					if(unitRenderLag > MIN_RENDER_LAG_ALLOWED) {
-						vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,teamTexture));
-					}
-				}
-				else {
-					vctEntity.push_back(RenderEntity(retUnit,NULL,Vec2i(),unit,teamTexture));
-				}
-*/
-
 				const Model *model= unit->getCurrentModel();
 				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
 				renderUnit(unit,&meshCallbackTeamColor, teamTexture, worldFrameCount);
@@ -1617,26 +1568,10 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 }
 
 void Renderer::renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount) {
-	// Need to do something to manage bad FPS
-	if(renderFps >= 0 && renderFps < MIN_RENDER_FPS_ALLOWED) {
-		// Oldest rendered units go to top
-		std::sort(vctEntity.begin(), vctEntity.end());
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			RenderEntity &entity = vctEntity[idx];
-			prepareUnitForRender(entity);
-			renderUnit(entity,meshCallbackTeamColor,renderFps, worldFrameCount);
-
-			if(idx >= MAX_RENDER_LAG_ITEMCOUNT_ALLOWED) {
-				break;
-			}
-		}
-	}
-	else {
-		for(int idx=0; idx < vctEntity.size(); ++idx) {
-			RenderEntity &entity = vctEntity[idx];
-			prepareUnitForRender(entity);
-			renderUnit(entity,meshCallbackTeamColor,renderFps, worldFrameCount);
-		}
+	for(int idx=0; idx < vctEntity.size(); ++idx) {
+		RenderEntity &entity = vctEntity[idx];
+		prepareUnitForRender(entity);
+		renderUnit(entity,meshCallbackTeamColor,renderFps, worldFrameCount);
 	}
 }
 
@@ -2339,168 +2274,131 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(const int renderFps){
-	Chrono chrono;
-	chrono.start();
+	if(shadows==sProjected || shadows==sShadowMapping){
+		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
 
-	if(renderFps >= 0 && renderFps >= MIN_RENDER_FPS_ALLOWED) {
-		if(shadows==sProjected || shadows==sShadowMapping){
+		if(shadowMapFrame==0){
+			assertGl();
 
-			shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
+			glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
 
-			if(shadowMapFrame==0){
+			if(shadows==sShadowMapping){
+				glClear(GL_DEPTH_BUFFER_BIT);
+			}
+			else{
+				float color= 1.0f-shadowAlpha;
+				glColor3f(color, color, color);
+				glClearColor(1.f, 1.f, 1.f, 1.f);
+				glDisable(GL_DEPTH_TEST);
+				glClear(GL_COLOR_BUFFER_BIT);
+			}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
+			//clear color buffer
+			//
+			//set viewport, we leave one texel always in white to avoid problems
+			glViewport(1, 1, shadowTextureSize-2, shadowTextureSize-2);
 
-				assertGl();
+			if(nearestLightPos.w==0.f){
+				//directional light
 
-				glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
+				//light pos
+				assert(game != NULL);
+				assert(game->getWorld() != NULL);
+				const TimeFlow *tf= game->getWorld()->getTimeFlow();
+				assert(tf != NULL);
+				float ang= tf->isDay()? computeSunAngle(tf->getTime()): computeMoonAngle(tf->getTime());
+				ang= radToDeg(ang);
 
-				if(shadows==sShadowMapping){
-					glClear(GL_DEPTH_BUFFER_BIT);
-				}
-				else{
-					float color= 1.0f-shadowAlpha;
-					glColor3f(color, color, color);
-					glClearColor(1.f, 1.f, 1.f, 1.f);
-					glDisable(GL_DEPTH_TEST);
-					glClear(GL_COLOR_BUFFER_BIT);
-				}
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
-
-				//clear color buffer
-				//
-				//set viewport, we leave one texel always in white to avoid problems
-				glViewport(1, 1, shadowTextureSize-2, shadowTextureSize-2);
-
-				if(nearestLightPos.w==0.f){
-					//directional light
-
-					//light pos
-					assert(game != NULL);
-					assert(game->getWorld() != NULL);
-					const TimeFlow *tf= game->getWorld()->getTimeFlow();
-					assert(tf != NULL);
-					float ang= tf->isDay()? computeSunAngle(tf->getTime()): computeMoonAngle(tf->getTime());
-					ang= radToDeg(ang);
-
-					//push and set projection
-					glMatrixMode(GL_PROJECTION);
-					glPushMatrix();
-					glLoadIdentity();
-					if(game->getGameCamera()->getState()==GameCamera::sGame){
-						glOrtho(-35, 5, -15, 15, -1000, 1000);
-					}
-					else{
-						glOrtho(-30, 30, -20, 20, -1000, 1000);
-					}
-
-					//push and set modelview
-					glMatrixMode(GL_MODELVIEW);
-					glPushMatrix();
-					glLoadIdentity();
-
-					glRotatef(15, 0, 1, 0);
-
-					glRotatef(ang, 1, 0, 0);
-					glRotatef(90, 0, 1, 0);
-					Vec3f pos= game->getGameCamera()->getPos();
-
-					glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
-
-					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-					chrono.start();
-				}
-				else{
-					//non directional light
-
-					//push projection
-					glMatrixMode(GL_PROJECTION);
-					glPushMatrix();
-					glLoadIdentity();
-					gluPerspective(150, 1.f, perspNearPlane, perspFarPlane);
-
-					//push modelview
-					glMatrixMode(GL_MODELVIEW);
-					glPushMatrix();
-					glLoadIdentity();
-					glRotatef(-90, -1, 0, 0);
-					glTranslatef(-nearestLightPos.x, -nearestLightPos.y-2, -nearestLightPos.z);
-
-					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-					chrono.start();
-				}
-
-				if(shadows==sShadowMapping){
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(1.0f, 0.001f);
-
-					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-					chrono.start();
-				}
-
-				//render 3d
-				renderUnitsFast();
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
-
-				renderObjectsFast();
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
-
-				//read color buffer
-				glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
-				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, shadowTextureSize, shadowTextureSize);
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
-
-				//get elemental matrices
-				Matrix4f matrix1;
-				matrix1[0]= 0.5f;	matrix1[4]= 0.f;	matrix1[8]= 0.f;	matrix1[12]= 0.5f;
-				matrix1[1]= 0.f;	matrix1[5]= 0.5f;	matrix1[9]= 0.f;	matrix1[13]= 0.5f;
-				matrix1[2]= 0.f;	matrix1[6]= 0.f;	matrix1[10]= 0.5f;	matrix1[14]= 0.5f;
-				matrix1[3]= 0.f;	matrix1[7]= 0.f;	matrix1[11]= 0.f;	matrix1[15]= 1.f;
-
-				Matrix4f matrix2;
-				glGetFloatv(GL_PROJECTION_MATRIX, matrix2.ptr());
-
-				Matrix4f matrix3;
-				glGetFloatv(GL_MODELVIEW_MATRIX, matrix3.ptr());
-
-				//pop both matrices
-				glPopMatrix();
-				glMatrixMode(GL_PROJECTION);
-				glPopMatrix();
-
+				//push and set projection
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
+				glLoadIdentity();
+				if(game->getGameCamera()->getState()==GameCamera::sGame){
+					glOrtho(-35, 5, -15, 15, -1000, 1000);
+				}
+				else{
+					glOrtho(-30, 30, -20, 20, -1000, 1000);
+				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
+				//push and set modelview
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glLoadIdentity();
 
-				//compute texture matrix
-				glLoadMatrixf(matrix1.ptr());
-				glMultMatrixf(matrix2.ptr());
-				glMultMatrixf(matrix3.ptr());
-				glGetFloatv(GL_TRANSPOSE_PROJECTION_MATRIX_ARB, shadowMapMatrix.ptr());
+				glRotatef(15, 0, 1, 0);
 
-				//pop
-				glPopMatrix();
+				glRotatef(ang, 1, 0, 0);
+				glRotatef(90, 0, 1, 0);
+				Vec3f pos= game->getGameCamera()->getPos();
 
-				glPopAttrib();
-
-				assertGl();
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
+				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
 			}
+			else{
+				//non directional light
+
+				//push projection
+				glMatrixMode(GL_PROJECTION);
+				glPushMatrix();
+				glLoadIdentity();
+				gluPerspective(150, 1.f, perspNearPlane, perspFarPlane);
+
+				//push modelview
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glLoadIdentity();
+				glRotatef(-90, -1, 0, 0);
+				glTranslatef(-nearestLightPos.x, -nearestLightPos.y-2, -nearestLightPos.z);
+			}
+
+			if(shadows==sShadowMapping){
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(1.0f, 0.001f);
+			}
+
+			//render 3d
+			renderUnitsFast();
+
+			renderObjectsFast();
+
+			//read color buffer
+			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, shadowTextureSize, shadowTextureSize);
+
+			//get elemental matrices
+			Matrix4f matrix1;
+			matrix1[0]= 0.5f;	matrix1[4]= 0.f;	matrix1[8]= 0.f;	matrix1[12]= 0.5f;
+			matrix1[1]= 0.f;	matrix1[5]= 0.5f;	matrix1[9]= 0.f;	matrix1[13]= 0.5f;
+			matrix1[2]= 0.f;	matrix1[6]= 0.f;	matrix1[10]= 0.5f;	matrix1[14]= 0.5f;
+			matrix1[3]= 0.f;	matrix1[7]= 0.f;	matrix1[11]= 0.f;	matrix1[15]= 1.f;
+
+			Matrix4f matrix2;
+			glGetFloatv(GL_PROJECTION_MATRIX, matrix2.ptr());
+
+			Matrix4f matrix3;
+			glGetFloatv(GL_MODELVIEW_MATRIX, matrix3.ptr());
+
+			//pop both matrices
+			glPopMatrix();
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+
+			//compute texture matrix
+			glLoadMatrixf(matrix1.ptr());
+			glMultMatrixf(matrix2.ptr());
+			glMultMatrixf(matrix3.ptr());
+			glGetFloatv(GL_TRANSPOSE_PROJECTION_MATRIX_ARB, shadowMapMatrix.ptr());
+
+			//pop
+			glPopMatrix();
+
+			glPopAttrib();
+
+			assertGl();
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
@@ -2729,7 +2627,7 @@ void Renderer::renderUnitsFast(){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
-	std::vector<RenderEntity> vctEntity;
+	//std::vector<RenderEntity> vctEntity;
 
 	modelRenderer->begin(false, false, false);
 	glInitNames();
