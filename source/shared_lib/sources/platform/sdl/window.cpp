@@ -55,6 +55,7 @@ bool Window::allowAltEnterFullscreenToggle = false;
 #else
 bool Window::allowAltEnterFullscreenToggle = true;
 #endif
+int Window::lastShowMouseState = 0;
 
 // ========== PUBLIC ==========
 
@@ -165,6 +166,9 @@ bool Window::handleEvent() {
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
 					keystate = event.key.keysym;
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
+
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -172,8 +176,6 @@ bool Window::handleEvent() {
 						toggleFullscreen();
 					}
 					if(global_window) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 						global_window->eventKeyDown(getKey(event.key.keysym,true));
 						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 
@@ -207,7 +209,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPACTIVE) {
@@ -219,7 +223,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPMOUSEFOCUS) {
@@ -231,7 +237,8 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					else {
 						if (event.active.gain == 0) {
@@ -242,9 +249,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
-
 				} 
 				break;
 			}
@@ -561,6 +568,8 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		case SDLK_RETURN:
 		case SDLK_KP_ENTER:
 			return vkReturn;
+		case SDLK_TAB:
+			return vkTab;
 		case SDLK_BACKSPACE:
 			return vkBack;
 		case SDLK_0:
@@ -638,10 +647,20 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		case SDLK_z:
 			return 'Z';
 		default:
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			Uint16 c = keysym.unicode;
 			if((c & 0xFF80) == 0) {
-				return toupper(c);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				c = keysym.unicode & 0x7F;
+				c = toupper(c);
 			}
+			if(c == 0) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				c = keysym.sym;
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+			return c;
 			break;
 	}
 

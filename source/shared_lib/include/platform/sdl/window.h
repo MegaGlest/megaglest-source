@@ -94,6 +94,7 @@ const char vkRight = -9;
 const char vkDown = -10;
 const char vkReturn = -11;
 const char vkBack = -12;
+const char vkTab = -13;
 
 enum WindowStyle{
 	wsFullscreen,
@@ -134,6 +135,7 @@ protected:
 	static bool isActive;
 	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
+	static int lastShowMouseState;
 
 public:
 	static bool handleEvent();

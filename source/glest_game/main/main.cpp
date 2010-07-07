@@ -243,6 +243,10 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 }
 
 void MainWindow::eventKeyDown(char key){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
+
+	SDL_keysym keystate = Window::getKeystate();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
     if(program == NULL) {
@@ -253,9 +257,8 @@ void MainWindow::eventKeyDown(char key){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(key == vkReturn) {
-		SDL_keysym keystate = Window::getKeystate();
-		if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+		if(key == vkReturn) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// This stupidity only required in win32.
@@ -307,6 +310,9 @@ void MainWindow::eventKeyPress(char c){
 		showCursor(showCursorState);
 		Renderer &renderer= Renderer::getInstance();
 		renderer.setNo2DMouseRendering(showCursorState);
+
+		Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 	}
 }
 
@@ -357,7 +363,6 @@ int glestMain(int argc, char** argv){
 #endif
 
 #ifdef USE_STREFLOP
-
 	streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
 #else
@@ -425,7 +430,13 @@ int glestMain(int argc, char** argv){
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
-		
+
+#ifdef USE_STREFLOP
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
+#else
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
+#endif
+
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
