@@ -48,8 +48,6 @@ World::World(){
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
-	bool perfTimerEnabled = SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled;
-
 	frameCount= 0;
 	//nextUnitId= 0;
 
@@ -179,19 +177,18 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::update(){
-	if(perfTimerEnabled == true) {
-		chronoPerfTimer.start();
-	}
+	Chrono chrono;
+	chrono.start();
 
 	++frameCount;
 
 	//time
 	timeFlow.update();
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//water effects
 	waterEffects.update();
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//units
 	for(int i=0; i<getFactionCount(); ++i){
@@ -199,7 +196,7 @@ void World::update(){
 			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
 		}
 	}
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//undertake the dead
 	for(int i=0; i<getFactionCount(); ++i){
@@ -213,7 +210,7 @@ void World::update(){
 			}
 		}
 	}
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//food costs
 	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
@@ -224,21 +221,21 @@ void World::update(){
 			}
 		}
 	}
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//fow smoothing
 	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0){
 		float fogFactor= static_cast<float>(frameCount%GameConstants::updateFps)/GameConstants::updateFps;
 		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 	}
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
 	if(frameCount%GameConstants::updateFps==0){
 		computeFow();
 		tick();
 	}
-	if(perfTimerEnabled == true && chronoPerfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chronoPerfTimer.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void World::tick(){
@@ -796,8 +793,9 @@ void World::computeFow(){
 					//iterate through all cells
 					PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
 					while(pci.next()){
-						const Vec2i &pos= pci.getPos();
+						Vec2i pos= pci.getPos();
 						Vec2i surfPos= Map::toSurfCoords(pos);
+
 
 						//compute max alpha
 						float maxAlpha;

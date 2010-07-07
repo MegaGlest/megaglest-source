@@ -449,6 +449,10 @@ int glestMain(int argc, char** argv){
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
 		}
+		if(config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str()) >= 0) {
+			SystemFlags::DEFAULT_HTTP_TIMEOUT = config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str());
+		}
+
 		bool allowAltEnterFullscreenToggle = config.getBool("AllowAltEnterFullscreenToggle",boolToStr(Window::getAllowAltEnterFullscreenToggle()).c_str());
 		Window::setAllowAltEnterFullscreenToggle(allowAltEnterFullscreenToggle);
 

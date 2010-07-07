@@ -267,8 +267,6 @@ void Renderer::initGame(const Game *game){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
 		if(shadows==sShadowMapping){
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1274,7 +1272,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
-	assertGl();
+    assertGl();
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
 	Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
 
@@ -1293,107 +1291,53 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	glActiveTexture(baseTexUnit);
 
 	glEnable(GL_COLOR_MATERIAL);
-	glAlphaFunc(GL_GREATER, 0.5f);
+    glAlphaFunc(GL_GREATER, 0.5f);
 
 	modelRenderer->begin(true, true, false);
 	int thisTeamIndex= world->getThisTeamIndex();
 
-	std::vector<RenderEntity> vctEntity;
-
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
-		const Vec2i &pos= pqi.getPos();
-		bool isPosVisible = map->isInside(pos.x, pos.y);
-		if(isPosVisible == true) {
-			const Vec2i &mapPos = Map::toSurfCoords(pos);
-			SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
-			Object *o= sc->getObject();
-			bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-			//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
-			bool isVisible = true;
+		const Vec2i pos= pqi.getPos();
 
-			if(isExplored == true && isVisible == true) {
-				const Model *objModel= o->getModel();
-				if(objModel != NULL) {
-					objModel->updateInterpolationData(0.f, true);
-				}
-				renderObject(o,mapPos,baseFogColor,worldFrameCount);
+		if(map->isInside(pos)){
+
+			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
+			Object *o= sc->getObject();
+			if(sc->isExplored(thisTeamIndex) && o!=NULL){
+
+				const Model *objModel= sc->getObject()->getModel();
+				Vec3f v= o->getPos();
+
+				//ambient and diffuse color is taken from cell color
+				float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+				Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
+				glColor4fv(color.ptr());
+				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
+				glFogfv(GL_FOG_COLOR, (baseFogColor*fowFactor).ptr());
+
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glTranslatef(v.x, v.y, v.z);
+				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+
+				objModel->updateInterpolationData(0.f, true);
+				modelRenderer->render(objModel);
+
+				triangleCount+= objModel->getTriangleCount();
+				pointCount+= objModel->getVertexCount();
+
+				glPopMatrix();
+
 			}
 		}
 	}
 
-	//modelRenderer->begin(true, true, false);
-	//renderObjectList(vctEntity,baseFogColor,renderFps, worldFrameCount);
 	modelRenderer->end();
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 	glPopAttrib();
-}
-
-void Renderer::renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount) {
-	for(int idx=0; idx < vctEntity.size(); ++idx) {
-		RenderEntity &entity = vctEntity[idx];
-		prepareObjectForRender(entity);
-		renderObject(entity,baseFogColor,renderFps, worldFrameCount);
-	}
-}
-
-void Renderer::prepareObjectForRender(RenderEntity &entity) {
-	Object *o = entity.o;
-	if(o != NULL) {
-		const Model *objModel= o->getModel();
-		if(objModel != NULL) {
-			objModel->updateInterpolationData(0.f, true);
-		}
-	}
-	entity.setState(resInterpolated);
-}
-
-void Renderer::renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount) {
-	Object *o = entity.o;
-	Vec2i &mapPos = entity.mapPos;
-	if(o != NULL) {
-		const Model *objModel= o->getModel();
-		if(objModel != NULL) {
-			renderObject(o,mapPos,baseFogColor,worldFrameCount);
-			entity.setState(resRendered);
-		}
-	}
-}
-
-void Renderer::renderObject(Object *o,const Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount) {
-	if(o != NULL) {
-		const Model *objModel= o->getModel();
-		if(objModel != NULL) {
-			//objModel->updateInterpolationData(0.f, true);
-
-			const Vec3f &v= o->getConstPos();
-
-			//ambient and diffuse color is taken from cell color
-			const World *world= game->getWorld();
-			const Texture2D *fowTex= world->getMinimap()->getFowTexture();
-			float fowFactor= fowTex->getPixmap()->getPixelf(mapPos.x,mapPos.y);
-
-			Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
-			glColor4fv(color.ptr());
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
-			glFogfv(GL_FOG_COLOR, (baseFogColor * fowFactor).ptr());
-
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glTranslatef(v.x, v.y, v.z);
-			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-			modelRenderer->render(objModel);
-			o->setLastRenderFrame(worldFrameCount);
-
-			triangleCount+= objModel->getTriangleCount();
-			pointCount+= objModel->getVertexCount();
-
-			glPopMatrix();
-		}
-	}
 }
 
 void Renderer::renderWater(){
@@ -1522,6 +1466,7 @@ void Renderer::renderWater(){
 }
 
 void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
+	Unit *unit;
 	const World *world= game->getWorld();
 	MeshCallbackTeamColor meshCallbackTeamColor;
 
@@ -1541,27 +1486,55 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		enableProjectiveTexturing();
 	}
 	glActiveTexture(baseTexUnit);
+
 	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
 
-	std::vector<RenderEntity> vctEntity;
-
-	for(int i=0; i<world->getFactionCount(); ++i) {
-		const Texture2D *teamTexture = world->getFaction(i)->getTexture();
+	for(int i=0; i<world->getFactionCount(); ++i){
+		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-			Unit *unit = world->getFaction(i)->getUnit(j);
+			unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+
+				//translate
+				Vec3f currVec= unit->getCurrVectorFlat();
+				glTranslatef(currVec.x, currVec.y, currVec.z);
+
+				//rotate
+				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+				glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
+
+				//dead alpha
+				float alpha= 1.0f;
+				const SkillType *st= unit->getCurrSkill();
+				if(st->getClass()==scDie && static_cast<const DieSkillType*>(st)->getFade()){
+					alpha= 1.0f-unit->getAnimProgress();
+					glDisable(GL_COLOR_MATERIAL);
+					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
+				}
+				else{
+					glEnable(GL_COLOR_MATERIAL);
+				}
+
+				//render
 				const Model *model= unit->getCurrentModel();
 				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
-				renderUnit(unit,&meshCallbackTeamColor, teamTexture, worldFrameCount);
+
+				modelRenderer->render(model);
+				triangleCount+= model->getTriangleCount();
+				pointCount+= model->getVertexCount();
+
+				glPopMatrix();
+				unit->setVisible(true);
 			}
-			else {
+			else
+			{
 				unit->setVisible(false);
 			}
 		}
 	}
-
-	//modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
-	//renderUnitList(vctEntity,&meshCallbackTeamColor,renderFps, worldFrameCount);
 	modelRenderer->end();
 
 	//restore
@@ -2280,9 +2253,11 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 
 void Renderer::renderShadowsToTexture(const int renderFps){
 	if(shadows==sProjected || shadows==sShadowMapping){
+
 		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
 
 		if(shadowMapFrame==0){
+
 			assertGl();
 
 			glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
@@ -2337,6 +2312,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				Vec3f pos= game->getGameCamera()->getPos();
 
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
+
 			}
 			else{
 				//non directional light
@@ -2362,7 +2338,6 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 			//render 3d
 			renderUnitsFast();
-
 			renderObjectsFast();
 
 			//read color buffer
@@ -2632,83 +2607,40 @@ void Renderer::renderUnitsFast(){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
-	//std::vector<RenderEntity> vctEntity;
-
 	modelRenderer->begin(false, false, false);
 	glInitNames();
-
 	for(int i=0; i<world->getFactionCount(); ++i){
-//		glPushName(i);
+		glPushName(i);
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-//			glPushName(j);
+			glPushName(j);
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
-				//Vec2i mapPos = Vec2i(i,j);
-				//vctEntity.push_back(RenderEntity(retUnitFast,NULL,mapPos,unit));
+				glMatrixMode(GL_MODELVIEW);
 
+				//debuxar modelo
+				glPushMatrix();
+
+				//translate
+				Vec3f currVec= unit->getCurrVectorFlat();
+				glTranslatef(currVec.x, currVec.y, currVec.z);
+
+				//rotate
+				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+				//render
 				const Model *model= unit->getCurrentModel();
-				if(model != NULL) {
-					model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
-				}
+				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+				modelRenderer->render(model);
 
-				renderUnitFast(unit, i,j);
+				glPopMatrix();
+
 			}
-			//glPopName();
+			glPopName();
 		}
-//		glPopName();
+		glPopName();
 	}
-
-//	glInitNames();
-
-//	modelRenderer->begin(false, false, false);
-//	renderUnitFastList(vctEntity);
 	modelRenderer->end();
-
 	glPopAttrib();
-}
-
-void Renderer::renderUnitFastList(std::vector<RenderEntity> &vctEntity) {
-	for(int idx=0; idx < vctEntity.size(); ++idx) {
-		RenderEntity &entity = vctEntity[idx];
-		prepareUnitFastForRender(entity);
-		renderUnitFast(entity);
-	}
-}
-
-void Renderer::renderUnitFast(RenderEntity &entity) {
-	Unit *unit = entity.unit;
-	if(unit != NULL) {
-		renderUnitFast(unit, entity.mapPos.x,entity.mapPos.y);
-		entity.setState(resRendered);
-	}
-}
-
-void Renderer::renderUnitFast(Unit *unit, int x, int y) {
-	if(unit != NULL) {
-		glPushName(x);
-		glPushName(y);
-
-		glMatrixMode(GL_MODELVIEW);
-
-		//debuxar modelo
-		glPushMatrix();
-
-		//translate
-		Vec3f currVec= unit->getCurrVectorFlat();
-		glTranslatef(currVec.x, currVec.y, currVec.z);
-
-		//rotate
-		glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-		//render
-		const Model *model= unit->getCurrentModel();
-		//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
-		modelRenderer->render(model);
-
-		glPopMatrix();
-		glPopName();
-		glPopName();
-	}
 }
 
 void Renderer::prepareUnitFastForRender(RenderEntity &entity) {

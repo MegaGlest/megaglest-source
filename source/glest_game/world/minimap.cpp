@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -88,9 +88,12 @@ void Minimap::resetFowTex(){
 	fowPixmap0= fowPixmap1;
 	fowPixmap1= tmpPixmap;
 
+	// Could turn off ONLY fog of war by setting below to false
+	bool overridefogOfWarValue = fogOfWar;
+
 	for(int i=0; i<fowTex->getPixmap()->getW(); ++i){
 		for(int j=0; j<fowTex->getPixmap()->getH(); ++j){
-			if(fogOfWar){
+			if(fogOfWar && overridefogOfWarValue){
 				float p0= fowPixmap0->getPixelf(i, j);
 				float p1= fowPixmap1->getPixelf(i, j);
 

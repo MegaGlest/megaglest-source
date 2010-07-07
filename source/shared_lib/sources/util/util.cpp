@@ -43,6 +43,7 @@ int SystemFlags::lockFile				= -1;
 int SystemFlags::lockFileCountIndex		= -1;
 string SystemFlags::lockfilename		= "";
 CURL *SystemFlags::curl_handle			= NULL;
+int SystemFlags::DEFAULT_HTTP_TIMEOUT	= 10;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -83,7 +84,7 @@ std::string SystemFlags::escapeURL(std::string URL, CURL *handle) {
 	return result;
 }
 
-std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
+std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 	if(handle == NULL) {
 		handle = SystemFlags::curl_handle;
 	}
@@ -117,8 +118,11 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
 	char errbuf[CURL_ERROR_SIZE]="";
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
 
-	// max 5 seconds to connect to the URL
-	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 5);
+	// max X seconds to connect to the URL
+	if(timeOut < 0) {
+		timeOut = SystemFlags::DEFAULT_HTTP_TIMEOUT;
+	}
+	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeOut);
 
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);

@@ -166,12 +166,12 @@ void GameCamera::update(){
 
 Quad2i GameCamera::computeVisibleQuad() const {
 	//
-	quadCacheLookup lookup(fov, hAng, pos);
-	string lookupKey = lookup.getString();
-	std::map<std::string,  Quad2i>::const_iterator iterFind = cacheVisibleQuad.find(lookupKey);
-	if(iterFind != cacheVisibleQuad.end()) {
-		return iterFind->second;
-	}
+	//quadCacheLookup lookup(fov, hAng, pos);
+	//string lookupKey = lookup.getString();
+	//std::map<std::string,  Quad2i>::const_iterator iterFind = cacheVisibleQuad.find(lookupKey);
+	//if(iterFind != cacheVisibleQuad.end()) {
+	//	return iterFind->second;
+	//}
 	//
 
 	float nearDist = 20.f;
@@ -209,9 +209,9 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	}
 
 	//cacheVisibleQuad[lookupKey] = Quad2i(p4, p3, p2, p1);
-	cacheVisibleQuad.insert(std::make_pair(lookupKey,Quad2i(p4, p3, p2, p1)));
-	return cacheVisibleQuad[lookupKey];
-//	return Quad2i(p4, p3, p2, p1);
+	//cacheVisibleQuad.insert(std::make_pair(lookupKey,Quad2i(p4, p3, p2, p1)));
+	//return cacheVisibleQuad[lookupKey];
+	return Quad2i(p4, p3, p2, p1);
 }
 
 void GameCamera::switchState(){
