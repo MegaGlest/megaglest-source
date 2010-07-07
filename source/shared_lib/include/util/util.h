@@ -110,6 +110,7 @@ protected:
 public:
 
 	static CURL *curl_handle;
+	static int DEFAULT_HTTP_TIMEOUT;
 
 	SystemFlags();
 	~SystemFlags();
@@ -117,7 +118,7 @@ public:
 	static void init();
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
-	static std::string getHTTP(std::string URL,CURL *handle=NULL);
+	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1);
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);
 
 	static CURL *initHTTP();
