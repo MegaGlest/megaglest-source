@@ -180,24 +180,28 @@ void ClientInterface::updateLobby()
                 	string sErr = "";
 
                 	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
-    					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
-    					networkMessageIntro.getVersionString() +
-    					"\nClient: " + getNetworkVersionString();
+						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+    					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " + networkMessageIntro.getVersionString() +
+    							"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
                         printf("%s\n",sErr.c_str());
 
                         sendTextMessage("Server and client binary mismatch!!",-1, true);
                         sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
                         sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
                 	}
                 	else {
                 		versionMatched = true;
-						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +
-										networkMessageIntro.getVersionString() + "\nClient: " + getNetworkVersionString();
+
+						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() + 
+								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
 
-						sendTextMessage("Server and client platform mismatch.",-1, true);
-						sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
-						sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						//sendTextMessage("Server and client have different platform mismatch.",-1, true);
+						//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
+						//sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						//sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
                 	}
 
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
@@ -669,6 +673,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 		string sErr = "Checksum error, you don't have the same data as the server";
         sendTextMessage(sErr,-1, true);
+
+		string playerNameStr = "Player with error is [" + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + "]";
+		sendTextMessage(playerNameStr,-1, true);
 
 		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
         sendTextMessage(sErr1,-1, true);
