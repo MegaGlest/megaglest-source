@@ -717,6 +717,8 @@ void MenuStateCustomGame::render(){
 				renderer.renderListBox(&listBoxNetworkFramePeriod);
 			}
 		}
+
+		if(program != NULL) program->renderProgramMsgBox();
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";

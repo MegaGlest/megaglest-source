@@ -149,7 +149,7 @@ void MenuStateRoot::render(){
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
-
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateRoot::update(){

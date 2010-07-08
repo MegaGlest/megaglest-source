@@ -290,13 +290,22 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateConnectedGame::render(){
 
 	try {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if (!settingsReceivedFromServer) return;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		Renderer &renderer= Renderer::getInstance();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int i;
 
 		renderer.renderButton(&buttonDisconnect);
 		//renderer.renderButton(&buttonPlayNow);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		for(i=0; i<GameConstants::maxPlayers; ++i){
 			renderer.renderLabel(&labelPlayers[i]);
@@ -316,6 +325,8 @@ void MenuStateConnectedGame::render(){
 				}
 			}
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		renderer.renderLabel(&labelStatus);
 		renderer.renderLabel(&labelInfo);
 		renderer.renderLabel(&labelMap);
@@ -331,6 +342,8 @@ void MenuStateConnectedGame::render(){
 		renderer.renderListBox(&listBoxFogOfWar);
 		renderer.renderListBox(&listBoxTileset);
 		renderer.renderListBox(&listBoxTechTree);
+
+		if(program != NULL) program->renderProgramMsgBox();
 
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
@@ -348,8 +361,7 @@ void MenuStateConnectedGame::update()
 	Lang &lang= Lang::getInstance();
 
 	//update status label
-	if(clientInterface->isConnected())
-	{
+	if(clientInterface != NULL && clientInterface->isConnected()) {
 		buttonDisconnect.setText(lang.get("Disconnect"));
 
 		if(clientInterface->getAllowDownloadDataSynch() == false)
@@ -439,12 +451,14 @@ void MenuStateConnectedGame::update()
             labelStatus.setText(szBuf);
 		}
 	}
-	else
-	{
-		if(clientInterface->getSocket() != NULL)
-		{
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(clientInterface != NULL && clientInterface->isConnected() == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		    clientInterface->close();
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		returnToJoinMenu();
 		return;
 	}
@@ -535,41 +549,43 @@ void MenuStateConnectedGame::update()
 		//update lobby
 		clientInterface->updateLobby();
 
-        //call the chat manager
-        chatManager.updateNetwork();
+		clientInterface= NetworkManager::getInstance().getClientInterface();
+		if(clientInterface != NULL && clientInterface->isConnected()) {
+			//call the chat manager
+			chatManager.updateNetwork();
 
-        //console
-        console.update();
+			//console
+			console.update();
 
-		//intro
-		if(clientInterface->getIntroDone())
-		{
-			labelInfo.setText(lang.get("WaitingHost"));
-			//servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+			//intro
+			if(clientInterface->getIntroDone())
+			{
+				labelInfo.setText(lang.get("WaitingHost"));
+				//servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+			}
+
+			//launch
+			if(clientInterface->getLaunchGame())
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				//servers.save(serversSavedFile);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				assert(clientInterface != NULL);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				program->setState(new Game(program, clientInterface->getGameSettings()));
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			}
 		}
-
-		//launch
-		if(clientInterface->getLaunchGame())
-		{
-		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			//servers.save(serversSavedFile);
-
-		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		    assert(clientInterface != NULL);
-
-		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			program->setState(new Game(program, clientInterface->getGameSettings()));
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		}
-
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
-    if(clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
+    if(clientInterface != NULL && clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 
 }
 

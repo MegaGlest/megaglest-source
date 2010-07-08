@@ -87,6 +87,8 @@ void MenuStateNewGame::render(){
 	renderer.renderButton(&buttonScenario);
 	renderer.renderButton(&buttonTutorial);
 	renderer.renderButton(&buttonReturn);
+
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateNewGame::update(){

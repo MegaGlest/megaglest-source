@@ -116,6 +116,8 @@ private:
     WindowGl *window;
     static Program *singleton;
 
+    GraphicMessageBox msgBox;
+
 public:
     Program();
     ~Program();
@@ -144,6 +146,11 @@ public:
 	void exit();
 
 	virtual void simpleTask();
+
+	void mouseDownLeft(int x, int y);
+	void eventMouseMove(int x, int y, const MouseState *ms);
+
+	void renderProgramMsgBox();
 
 private:
 	

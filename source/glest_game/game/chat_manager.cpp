@@ -154,7 +154,7 @@ void ChatManager::updateNetwork() {
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
-		if(gameNetworkInterface->getChatTextList().empty() == false) {
+		if(gameNetworkInterface != NULL && gameNetworkInterface->getChatTextList().empty() == false) {
 			for(int idx = 0; idx < gameNetworkInterface->getChatTextList().size(); idx++) {
 				const ChatMsgInfo &msg = gameNetworkInterface->getChatTextList()[idx];
 				int teamIndex= msg.chatTeamIndex;

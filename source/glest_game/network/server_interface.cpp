@@ -1073,9 +1073,11 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	//throw runtime_error(ex.what());
-    	DisplayErrorMessage(ex.what());
+
+    	//DisplayErrorMessage(ex.what());
+		string sMsg = ex.what();
+		sendTextMessage(sMsg,-1, true);
     }
-	//serverSynchAccessor.v();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }

@@ -356,7 +356,8 @@ void MenuStateMasterserver::render(){
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
 	    }
-	}	
+	}
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateMasterserver::update(){

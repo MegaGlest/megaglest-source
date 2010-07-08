@@ -1235,6 +1235,7 @@ void Game::render2d(){
 			Vec3f(1.0f), 200, 680, false);
 	}
 
+	if(program != NULL) program->renderProgramMsgBox();
 
 	renderer.renderChatManager(&chatManager);
 

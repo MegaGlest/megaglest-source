@@ -86,7 +86,7 @@ public:
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         Program *program = Program::getInstance();
         if(program && gameInitialized == true) {
@@ -129,6 +129,20 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
+
+	switch(mouseButton) {
+		case mbLeft:
+			program->mouseDownLeft(vx, vy);
+			break;
+		case mbRight:
+			//program->mouseDownRight(vx, vy);
+			break;
+		case mbCenter:
+			//program->mouseDownCenter(vx, vy);
+			break;
+		default:
+			break;
+	}
 
     ProgramState *programState = program->getState();
     if(programState != NULL) {
@@ -214,6 +228,8 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
     }
+
+    program->eventMouseMove(vx, vy, ms);
 
     ProgramState *programState = program->getState();
     if(programState != NULL) {

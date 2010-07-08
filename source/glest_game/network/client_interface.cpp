@@ -158,7 +158,6 @@ void ClientInterface::updateLobby()
 	clearChatInfo();
 
     NetworkMessageType networkMessageType = getNextMessageType(true);
-
     switch(networkMessageType)
     {
         case nmtInvalid:
@@ -171,10 +170,12 @@ void ClientInterface::updateLobby()
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d\n",__FILE__,__FUNCTION__,networkMessageIntro.getGameState());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState());
 
                 //check consistency
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
+                	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
                 	bool versionMatched = false;
                 	string platformFreeVersion = getNetworkPlatformFreeVersionString();
                 	string sErr = "";
@@ -213,7 +214,11 @@ void ClientInterface::updateLobby()
             		}
                 }
 
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
                 if(networkMessageIntro.getGameState() == nmgstOk) {
+                	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 					//send intro message
 					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1, nmgstOk);
 
@@ -221,14 +226,32 @@ void ClientInterface::updateLobby()
 					serverName= networkMessageIntro.getName();
 					sendMessage(&sendNetworkMessageIntro);
 
-					assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
-					introDone= true;
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					if(clientSocket == NULL || clientSocket->isConnected() == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	                	string sErr = "Disconnected from server during intro handshake.";
+						DisplayErrorMessage(sErr);
+	                    quit= true;
+	                    close();
+
+	                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	                	return;
+					}
+					else {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+						introDone= true;
+					}
                 }
                 else if(networkMessageIntro.getGameState() == nmgstNoSlots) {
                 	string sErr = "Cannot join the server because there are no open slots for new players.";
 					DisplayErrorMessage(sErr);
                     quit= true;
                     close();
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 	return;
                 }
                 else {
@@ -236,6 +259,7 @@ void ClientInterface::updateLobby()
 					DisplayErrorMessage(sErr);
                     quit= true;
                     close();
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 	return;
                 }
             }
@@ -454,7 +478,8 @@ void ClientInterface::updateLobby()
             }
     }
 
-	if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+	if( clientSocket != NULL && clientSocket->isConnected() == true &&
+		gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
 		close();
 	}
@@ -795,13 +820,15 @@ void ClientInterface::quitGame(bool userManuallyQuit)
 
 void ClientInterface::close()
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] START, clientSocket = %p\n",__FILE__,__FUNCTION__,__LINE__,clientSocket);
 
 	delete clientSocket;
 	clientSocket= NULL;
 
 	connectedTime = 0;
 	gotIntro = false;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ClientInterface::discoverServers(DiscoveredServersInterface *cb) {
@@ -892,6 +919,14 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			this->receiveMessage(&msg);
 			}
 			break;
+		case nmtBroadCastSetup:
+			{
+			discard = true;
+			NetworkMessageLaunch msg = NetworkMessageLaunch();
+			this->receiveMessage(&msg);
+			}
+			break;
+
 		case nmtPlayerIndexMessage:
 			{
 			discard = true;
