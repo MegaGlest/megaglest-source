@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -108,6 +108,8 @@ void MenuStateScenario::render(){
 
 	renderer.renderButton(&buttonReturn);
 	renderer.renderButton(&buttonPlayNow);
+
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateScenario::update(){

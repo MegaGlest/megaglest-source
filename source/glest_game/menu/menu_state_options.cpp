@@ -425,6 +425,8 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelFullscreenWindowed);
 		renderer.renderListBox(&listBoxFullscreenWindowed);
 	}
+
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateOptions::saveConfig(){

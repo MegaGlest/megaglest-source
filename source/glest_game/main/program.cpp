@@ -120,6 +120,11 @@ Program::Program() {
 	programState= NULL;
 	singleton = this;
 	soundThreadManager = NULL;
+
+	//mesage box
+	Lang &lang= Lang::getInstance();
+	msgBox.init(lang.get("Ok"));
+	msgBox.setEnabled(false);
 }
 
 void Program::initNormal(WindowGl *window){
@@ -168,6 +173,15 @@ Program::~Program(){
 }
 
 void Program::keyDown(char key){
+
+	if(msgBox.getEnabled()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(key == vkEscape || key == vkReturn) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			msgBox.setEnabled(false);
+
+		}
+	}
 	//delegate event
 	programState->keyDown(key);
 }
@@ -180,6 +194,23 @@ void Program::keyPress(char c){
 	programState->keyPress(c);
 }
 
+void Program::mouseDownLeft(int x, int y) {
+	if(msgBox.getEnabled()) {
+		int button= 1;
+		if(msgBox.mouseClick(x, y, button)) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//close message box
+			msgBox.setEnabled(false);
+		}
+	}
+}
+
+void Program::eventMouseMove(int x, int y, const MouseState *ms) {
+	if (msgBox.getEnabled()) {
+		msgBox.mouseMove(x, y);
+	}
+}
+
 void Program::simpleTask() {
 	loopWorker();
 }
@@ -189,20 +220,26 @@ void Program::loop() {
 }
 
 void Program::loopWorker() {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] programState = %p\n",__FILE__,__FUNCTION__,__LINE__,programState);
 
 	Chrono chrono;
 	chrono.start();
 
 	//getWindow()->makeCurrentGl();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//render
     assert(programState != NULL);
+
+    ProgramState *prevState = this->programState;
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	programState->render();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//update camera
 	chrono.start();
@@ -216,36 +253,44 @@ void Program::loopWorker() {
 
 	//update world
 	chrono.start();
-	while(updateTimer.isTime()){
+
+	while(prevState == this->programState && updateTimer.isTime()) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		GraphicComponent::update();
 		programState->update();
+		if(prevState == this->programState) {
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(soundThreadManager == NULL) {
+				SoundRenderer::getInstance().update();
+			}
 
-		if(soundThreadManager == NULL) {
-			SoundRenderer::getInstance().update();
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			NetworkManager::getInstance().update();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		NetworkManager::getInstance().update();
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//fps timer
-	chrono.start();
-	while(fpsTimer.isTime()){
-		programState->tick();
+	if(prevState == this->programState) {
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//fps timer
+		chrono.start();
+		while(fpsTimer.isTime()) {
+			programState->tick();
+		}
+
+		//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::resize(SizeState sizeState){
@@ -264,17 +309,11 @@ void Program::resize(SizeState sizeState){
 
 // ==================== misc ====================
 
-//Your filter function should look something like:
-int SDLEventFilter(const SDL_Event* filterEvent) {                 
-	if(filterEvent->type == SDL_KEYDOWN ||			/**< Keys pressed */
-       filterEvent->type == SDL_KEYUP ||			/**< Keys released */
-       filterEvent->type == SDL_MOUSEMOTION ||			/**< Mouse moved */
-       filterEvent->type == SDL_MOUSEBUTTONDOWN ||		/**< Mouse button pressed */
-       filterEvent->type == SDL_MOUSEBUTTONUP)		/**< Mouse button released */
-	{
-        return 0;
+void Program::renderProgramMsgBox() {
+	if(msgBox.getEnabled()) {
+		Renderer &renderer= Renderer::getInstance();
+		renderer.renderMessageBox(&msgBox);
 	}
-    return 1;
 }
 
 void Program::setState(ProgramState *programState, bool cleanupOldState)
@@ -308,6 +347,11 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//mesage box
+		Lang &lang= Lang::getInstance();
+		msgBox.init(lang.get("Ok"));
+		msgBox.setEnabled(false);
 
 		this->programState= programState;
 		programState->load();
@@ -481,7 +525,15 @@ void Program::restoreDisplaySettings(){
 }
 
 void Program::showMessage(const char *msg) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg);
+
+	msgBox.setText(msg);
+	//msgBox.setHeader(header);
+	msgBox.setEnabled(true);
+
+
+/*
+    int showMouseState = SDL_ShowCursor(SDL_QUERY);
 
     ProgramState *originalState = NULL;
     if(this->programState) {
@@ -491,16 +543,14 @@ void Program::showMessage(const char *msg) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    showCursor(true);
-
-    //SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
     ShowMessageProgramState *showMsg = new ShowMessageProgramState(this, msg);
-    //this->programState = showMsg;
 
     this->programState = NULL;
     setState(showMsg);
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    showCursor(true);
 
     while(Window::handleEvent() && showMsg->wantExit() == false) {
         loop();
@@ -514,13 +564,11 @@ void Program::showMessage(const char *msg) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Config &config = Config::getInstance();
-	if(config.getBool("No2DMouseRendering","false") == false) {
-		showCursor(false);
-	}
+	//if(config.getBool("No2DMouseRendering","false") == false) {
+	showCursor((showMouseState == SDL_ENABLE));
+	//}
 
-    //MainWindow *mainWindow= new MainWindow(this);
 	init(this->window,false);
-    //setState(originalState);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
@@ -529,20 +577,9 @@ void Program::showMessage(const char *msg) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->programState= originalState;
-	//programState->load();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//programState->init();
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//updateTimer.reset();
-	//updateCameraTimer.reset();
-	//fpsTimer.reset();
-
-
-	//this->programState = originalState;
+*/
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
