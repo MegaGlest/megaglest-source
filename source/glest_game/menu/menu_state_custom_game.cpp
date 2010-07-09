@@ -1163,6 +1163,7 @@ void MenuStateCustomGame::simpleTask() {
 	if(needPing == true) {
 		lastNetworkPing = time(NULL);
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
 		serverInterface->broadcastPing(&msg);
