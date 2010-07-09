@@ -38,6 +38,7 @@ public:
 	static const int updateFps= 40;
 	static const int cameraFps= 100;
 	static int networkFramePeriod;
+	static const int networkPingInterval = 5;
 	//static const int networkExtraLatency= 200;
 	static const int maxClientConnectHandshakeSecs= 10;
 

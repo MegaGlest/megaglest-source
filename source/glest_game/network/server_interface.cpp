@@ -690,6 +690,7 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				discard = true;
 				NetworkMessagePing msg = NetworkMessagePing();
 				connectionSlot->receiveMessage(&msg);
+				lastPingInfo = msg;
 				}
 				break;
 

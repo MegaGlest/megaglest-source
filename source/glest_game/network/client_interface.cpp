@@ -273,6 +273,7 @@ void ClientInterface::updateLobby()
 			NetworkMessagePing networkMessagePing;
 			if(receiveMessage(&networkMessagePing)) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				lastPingInfo = networkMessagePing;
 			}
 		}
 		break;
@@ -558,6 +559,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				NetworkMessagePing networkMessagePing;
 				if(receiveMessage(&networkMessagePing)) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					lastPingInfo = networkMessagePing;
 				}
 			}
 			break;
@@ -898,6 +900,7 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			discard = true;
 			NetworkMessagePing msg = NetworkMessagePing();
 			this->receiveMessage(&msg);
+			lastPingInfo = msg;
 			}
 			break;
 		case nmtLaunch:

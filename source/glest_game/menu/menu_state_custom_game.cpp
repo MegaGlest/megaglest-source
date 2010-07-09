@@ -95,6 +95,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	masterServererErrorToShow = "---";
 	lastSetChangedGameSettings  = 0;
 	lastMasterserverPublishing 	= 0;
+	lastNetworkPing				= 0;
 	soundConnectionCount=0;
 
 	vector<string> teamItems, controlItems, results;
@@ -1098,8 +1099,11 @@ void MenuStateCustomGame::simpleTask() {
 	needToRepublishToMasterserver = false;
 	std::map<string,string> newPublishToServerInfo = publishToServerInfo;
 	publishToServerInfo.clear();
+
 	bool broadCastSettings = needToBroadcastServerSettings;
 	needToBroadcastServerSettings=false;
+
+	bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
 	safeMutex.ReleaseLock();
 
 	if(republish == true) {
@@ -1154,6 +1158,14 @@ void MenuStateCustomGame::simpleTask() {
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);
 		}
+	}
+
+	if(needPing == true) {
+		lastNetworkPing = time(NULL);
+
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
+		serverInterface->broadcastPing(&msg);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);

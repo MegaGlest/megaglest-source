@@ -91,6 +91,10 @@ public:
 	bool isPortBound() const { return serverSocket.isPortBound(); }
 	int getBindPort() const { return serverSocket.getBindPort(); }
 
+	void broadcastPing(const NetworkMessagePing* networkMessage, int excludeSlot= -1) {
+		this->broadcastMessage(networkMessage,excludeSlot);
+	}
+
 public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
