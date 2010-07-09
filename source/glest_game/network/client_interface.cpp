@@ -266,6 +266,17 @@ void ClientInterface::updateLobby()
         }
         break;
 
+		case nmtPing:
+		{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+			NetworkMessagePing networkMessagePing;
+			if(receiveMessage(&networkMessagePing)) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+		}
+		break;
+
         case nmtSynchNetworkGameData:
         {
             NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData;
@@ -540,6 +551,17 @@ void ClientInterface::updateKeyframe(int frameCount)
 			}
 			break;
 
+			case nmtPing:
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+				NetworkMessagePing networkMessagePing;
+				if(receiveMessage(&networkMessagePing)) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
+			break;
+
 			case nmtQuit:
 			{
 				NetworkMessageQuit networkMessageQuit;
@@ -746,6 +768,11 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 
 }
 
+void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
+	NetworkMessagePing networkMessagePing(pingFrequency,pingTime);
+	sendMessage(&networkMessagePing);
+}
+
 string ClientInterface::getNetworkStatus() {
 	std::string label = Lang::getInstance().get("Server") + ": " + serverName;
 	//float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
@@ -863,6 +890,13 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			{
 			discard = true;
 			NetworkMessageIntro msg = NetworkMessageIntro();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtPing:
+			{
+			discard = true;
+			NetworkMessagePing msg = NetworkMessagePing();
 			this->receiveMessage(&msg);
 			}
 			break;

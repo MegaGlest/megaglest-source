@@ -170,11 +170,6 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
 	networkGameDataSynchCheckOkTech     = false;
-	//networkGameDataSynchCheckOkFogOfWar = false;
-
-    //chatText.clear();
-    //chatSender.clear();
-    //chatTeamIndex= -1;
 	this->clearChatInfo();
 }
 
@@ -229,9 +224,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 					connectedTime = time(NULL);
 
-					//chatText.clear();
-					//chatSender.clear();
-					//chatTeamIndex= -1;
 					this->clearChatInfo();
 
 					if(hasOpenSlots == false) {
@@ -255,9 +247,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(socket->isConnected()) {
-				//chatText.clear();
-				//chatSender.clear();
-				//chatTeamIndex= -1;
 				this->clearChatInfo();
 
 				if(socket->hasDataToRead() == true) {
@@ -272,16 +261,23 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtInvalid\n",__FILE__,__FUNCTION__,__LINE__);
 							break;
 
+						case nmtPing:
+						{
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+							NetworkMessagePing networkMessagePing;
+							if(receiveMessage(&networkMessagePing)) {
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							}
+						}
+						break;
+
 						case nmtText:
 						{
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
 							NetworkMessageText networkMessageText;
 							if(receiveMessage(&networkMessageText)) {
-								//chatText      = networkMessageText.getText();
-								//chatSender    = networkMessageText.getSender();
-								//chatTeamIndex = networkMessageText.getTeamIndex();
-
 								ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
 								this->addChatInfo(msg);
 

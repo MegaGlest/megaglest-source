@@ -567,6 +567,7 @@ void ServerInterface::update() {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 				//process text messages
+/*
 				if(this->getChatTextList().empty() == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -607,6 +608,7 @@ void ServerInterface::update() {
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+*/
 			}
 		}
 	}
@@ -683,6 +685,14 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				connectionSlot->receiveMessage(&msg);
 				}
 				break;
+			case nmtPing:
+				{
+				discard = true;
+				NetworkMessagePing msg = NetworkMessagePing();
+				connectionSlot->receiveMessage(&msg);
+				}
+				break;
+
 			case nmtLaunch:
 				{
 				discard = true;
