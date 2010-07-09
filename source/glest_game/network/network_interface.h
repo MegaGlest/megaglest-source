@@ -140,7 +140,7 @@ public:
 
 	NetworkMessagePing getLastPingInfo() const { return lastPingInfo; }
 	double getLastPingLag() const {
-		return difftime(time(NULL),lastPingInfo.getPingTime());
+		return difftime(time(NULL),lastPingInfo.getPingReceivedLocalTime());
 	}
 
 	std::string getIpAddress();
