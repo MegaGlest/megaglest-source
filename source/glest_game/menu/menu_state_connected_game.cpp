@@ -292,22 +292,22 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateConnectedGame::render(){
 
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if (!settingsReceivedFromServer) return;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Renderer &renderer= Renderer::getInstance();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int i;
 
 		renderer.renderButton(&buttonDisconnect);
 		//renderer.renderButton(&buttonPlayNow);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		for(i=0; i<GameConstants::maxPlayers; ++i){
 			renderer.renderLabel(&labelPlayers[i]);
@@ -327,7 +327,7 @@ void MenuStateConnectedGame::render(){
 				}
 			}
 		}
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		renderer.renderLabel(&labelStatus);
 		renderer.renderLabel(&labelInfo);
@@ -364,6 +364,8 @@ void MenuStateConnectedGame::update()
 
 	const int pingFrequency = 5;
 	if(difftime(time(NULL),lastNetworkSend) >= pingFrequency) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
+
 		lastNetworkSend = time(NULL);
 		clientInterface->sendPingMessage(pingFrequency, time(NULL));
 	}
@@ -497,7 +499,7 @@ void MenuStateConnectedGame::update()
 				hasFactions = loadFactions(gameSettings,false);
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
 			// map
 			maps.push_back(formatString(gameSettings->getMap()));
@@ -507,7 +509,7 @@ void MenuStateConnectedGame::update()
 				currentMap = gameSettings->getMap();
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// FogOfWar
 			if(gameSettings->getFogOfWar()){
@@ -527,7 +529,7 @@ void MenuStateConnectedGame::update()
 				listBoxTeams[i].setEditable(false);
 			}
 			
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(hasFactions == true) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);

@@ -112,9 +112,10 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 }
 
 void NetworkInterface::clearChatInfo() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 
 	if(chatTextList.size() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
 	}
 }
