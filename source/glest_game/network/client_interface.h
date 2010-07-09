@@ -94,6 +94,8 @@ public:
 
 	int getCurrentFrameCount() const { return currentFrameCount; }
 
+	virtual void sendPingMessage(int32 pingFrequency, int64 pingTime);
+
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }

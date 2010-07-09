@@ -142,6 +142,29 @@ void NetworkMessageIntro::send(Socket* socket) const{
 }
 
 // =====================================================
+//	class NetworkMessagePing
+// =====================================================
+
+NetworkMessagePing::NetworkMessagePing(){
+	data.messageType= nmtPing;
+}
+
+NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
+	data.messageType= nmtPing;
+	data.pingFrequency= pingFrequency;
+	data.pingTime= pingTime;
+}
+
+bool NetworkMessagePing::receive(Socket* socket){
+	return NetworkMessage::receive(socket, &data, sizeof(data));
+}
+
+void NetworkMessagePing::send(Socket* socket) const{
+	assert(data.messageType==nmtPing);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+// =====================================================
 //	class NetworkMessageReady
 // =====================================================
 

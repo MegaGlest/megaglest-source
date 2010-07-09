@@ -696,8 +696,7 @@ Socket::Socket()
 {
 	this->pingThread = NULL;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(isSocketValid() == false)
-	{
+	if(isSocketValid() == false) {
 		throwException("Error creating socket");
 	}
 }
@@ -877,7 +876,7 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
     return bResult;
 }
 
-int Socket::getDataToRead(){
+int Socket::getDataToRead(bool wantImmediateReply) {
 	unsigned long size = 0;
 
     //fd_set rfds;
@@ -924,6 +923,10 @@ int Socket::getDataToRead(){
 			}
 			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				break;
+			}
+
+			if(wantImmediateReply == true) {
 				break;
 			}
 
@@ -1091,7 +1094,6 @@ bool Socket::isReadable() {
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
         }
 	}
-	//return (i == 1 && FD_ISSET(sock, &set));
 	bool result = (i == 1);
 	return result;
 }
@@ -1153,23 +1155,11 @@ bool Socket::isConnected() {
 	//if the socket is readable it is connected if we can read a byte from it
 	if(isReadable()) {
 		char tmp;
-		int err = peek(&tmp, sizeof(tmp));
+		int err = peek(&tmp, 1);
 		if(err <= 0) {
 			return false;
 		}
 	}
-
-#ifndef WIN32
-	// Need this extra check for proper linux disconnect checking
-	struct sockaddr name;
-	socklen_t namelen = sizeof (name);
-
-	int peer_result = getpeername(sock, &name, &namelen);
-	if(peer_result != 0) {
-		return false;
-	}
-
-#endif
 
 	//otherwise the socket is connected
 	return true;

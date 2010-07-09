@@ -107,9 +107,37 @@ public:
 };
 
 // =====================================================
+//	class NetworkMessagePing
+//
+//	Message sent at any time
+// =====================================================
+
+class NetworkMessagePing: public NetworkMessage{
+private:
+	struct Data{
+		int8 messageType;
+		int32 pingFrequency;
+		int64 pingTime;
+	};
+
+private:
+	Data data;
+
+public:
+	NetworkMessagePing();
+	NetworkMessagePing(int32 pingFrequency, int64 pingTime);
+
+	int32 getPingFrequency() const	{return data.pingFrequency;}
+	int64 getPingTime() const	{return data.pingTime;}
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+};
+
+// =====================================================
 //	class NetworkMessageReady
 //
-//	Message sent at the beggining of the game
+//	Message sent at the beginning of the game
 // =====================================================
 
 class NetworkMessageReady: public NetworkMessage{

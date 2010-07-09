@@ -48,6 +48,8 @@ struct FormatString {
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
 {
+	lastNetworkSend = time(NULL);
+
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -359,6 +361,12 @@ void MenuStateConnectedGame::update()
 {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
+
+	const int pingFrequency = 5;
+	if(difftime(time(NULL),lastNetworkSend) >= pingFrequency) {
+		lastNetworkSend = time(NULL);
+		clientInterface->sendPingMessage(pingFrequency, time(NULL));
+	}
 
 	//update status label
 	if(clientInterface != NULL && clientInterface->isConnected()) {
