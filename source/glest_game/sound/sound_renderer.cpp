@@ -41,7 +41,7 @@ SoundRenderer::SoundRenderer(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void SoundRenderer::init(Window *window){
+bool SoundRenderer::init(Window *window) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SoundInterface &si= SoundInterface::getInstance();
@@ -64,6 +64,16 @@ void SoundRenderer::init(Window *window){
 	//}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return wasInitOk();
+}
+
+bool SoundRenderer::wasInitOk() const {
+	bool result = false;
+	if(soundPlayer != NULL) {
+		result = soundPlayer->wasInitOk();
+	}
+	return result;
 }
 
 SoundRenderer::~SoundRenderer(){

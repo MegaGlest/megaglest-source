@@ -91,7 +91,7 @@ class SoundPlayerOpenAL : public SoundPlayer {
 public:
 	SoundPlayerOpenAL();
 	virtual ~SoundPlayerOpenAL();
-	virtual void init(const SoundPlayerParams *params);
+	virtual bool init(const SoundPlayerParams *params);
 	virtual void end();
 	virtual void play(StaticSound *staticSound);
 	virtual void play(StrSound *strSound, int64 fadeOn=0);
