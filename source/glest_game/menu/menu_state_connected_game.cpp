@@ -48,7 +48,7 @@ struct FormatString {
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
 {
-	lastNetworkSendPing = time(NULL);
+	lastNetworkSendPing = 0;
 
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
@@ -362,17 +362,19 @@ void MenuStateConnectedGame::update()
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
 
-	if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
+	if(clientInterface != NULL && clientInterface->isConnected()) {
+		if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
 
-		bool isFirstPing = (lastNetworkSendPing == 0);
-		lastNetworkSendPing = time(NULL);
-		clientInterface->sendPingMessage(GameConstants::networkPingInterval, time(NULL));
+			bool isFirstPing = (lastNetworkSendPing == 0);
+			lastNetworkSendPing = time(NULL);
+			clientInterface->sendPingMessage(GameConstants::networkPingInterval, time(NULL));
 
-		if(isFirstPing == false && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 2)) {
-			string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
-			clientInterface->sendTextMessage(playerNameStr + "'s connection timed out communicating with server.",-1);
-			clientInterface->close();
+			if(isFirstPing == false && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 2)) {
+				string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+				clientInterface->sendTextMessage(playerNameStr + "'s connection timed out communicating with server.",-1);
+				clientInterface->close();
+			}
 		}
 	}
 
