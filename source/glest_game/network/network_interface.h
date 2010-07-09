@@ -23,6 +23,7 @@
 
 #include "thread.h"
 #include "types.h"
+#include <time.h>
 
 using std::string;
 using std::vector;
