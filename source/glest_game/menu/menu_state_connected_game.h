@@ -71,7 +71,7 @@ private:
 	string currentMap;
 	JoinMenu returnMenuInfo;
 	bool settingsReceivedFromServer;
-	time_t lastNetworkSend;
+	time_t lastNetworkSendPing;
 	
 	
 public:

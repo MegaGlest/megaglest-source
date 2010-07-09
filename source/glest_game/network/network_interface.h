@@ -84,10 +84,8 @@ protected:
 	bool networkGameDataSynchCheckOkTile;
 	bool networkGameDataSynchCheckOkTech;
 
-	//string chatText;
-	//string chatSender;
-	//int chatTeamIndex;
 	std::vector<ChatMsgInfo> chatTextList;
+	NetworkMessagePing lastPingInfo;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	void DisplayErrorMessage(string sErr, bool closeSocket=true);
@@ -117,7 +115,6 @@ public:
 
 	bool isConnected();
 
-	//virtual void setGameSettings(GameSettings *serverGameSettings) { gameSettings = *serverGameSettings; }
 	const virtual GameSettings * getGameSettings() { return &gameSettings; }
 
 	static void setAllowDownloadDataSynch(bool value)          { allowDownloadDataSynch = value; }
@@ -133,18 +130,17 @@ public:
     virtual bool getNetworkGameDataSynchCheckOkMap()            { return networkGameDataSynchCheckOkMap; }
     virtual bool getNetworkGameDataSynchCheckOkTile()           { return networkGameDataSynchCheckOkTile; }
     virtual bool getNetworkGameDataSynchCheckOkTech()           { return networkGameDataSynchCheckOkTech; }
-    //virtual bool getNetworkGameDataSynchCheckOkFogOfWar()       { return networkGameDataSynchCheckOkFogOfWar; }
-    //virtual void setNetworkGameDataSynchCheckOkFogOfWar(bool value)  { networkGameDataSynchCheckOkFogOfWar = value; }
-
-	//const string getChatText() const							{return chatText;}
-	//const string getChatSender() const							{return chatSender;}
-	//int getChatTeamIndex() const								{return chatTeamIndex;}
 
     const std::vector<ChatMsgInfo> & getChatTextList() const  { return chatTextList; }
 	void clearChatInfo();
 	void addChatInfo(const ChatMsgInfo &msg) { chatTextList.push_back(msg); }
 
 	virtual bool getConnectHasHandshaked() const= 0;
+
+	NetworkMessagePing getLastPingInfo() const { return lastPingInfo; }
+	double getLastPingLag() const {
+		return difftime(time(NULL),lastPingInfo.getPingTime());
+	}
 
 	std::string getIpAddress();
 	float getThreadedPingMS(std::string host);

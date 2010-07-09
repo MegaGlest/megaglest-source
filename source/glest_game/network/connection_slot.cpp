@@ -268,6 +268,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							NetworkMessagePing networkMessagePing;
 							if(receiveMessage(&networkMessagePing)) {
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								lastPingInfo = networkMessagePing;
 							}
 						}
 						break;

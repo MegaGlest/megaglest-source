@@ -72,6 +72,8 @@ private:
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
+	time_t lastNetworkPing;
+
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;

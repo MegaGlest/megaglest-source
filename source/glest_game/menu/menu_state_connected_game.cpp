@@ -48,7 +48,7 @@ struct FormatString {
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
 {
-	lastNetworkSend = time(NULL);
+	lastNetworkSendPing = time(NULL);
 
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
@@ -362,12 +362,18 @@ void MenuStateConnectedGame::update()
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
 
-	const int pingFrequency = 5;
-	if(difftime(time(NULL),lastNetworkSend) >= pingFrequency) {
+	if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
 
-		lastNetworkSend = time(NULL);
-		clientInterface->sendPingMessage(pingFrequency, time(NULL));
+		bool isFirstPing = (lastNetworkSendPing == 0);
+		lastNetworkSendPing = time(NULL);
+		clientInterface->sendPingMessage(GameConstants::networkPingInterval, time(NULL));
+
+		if(isFirstPing == false && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 2)) {
+			string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+			clientInterface->sendTextMessage(playerNameStr + "'s connection timed out communicating with server.",-1);
+			clientInterface->close();
+		}
 	}
 
 	//update status label
