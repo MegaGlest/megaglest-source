@@ -1092,7 +1092,8 @@ bool Socket::isReadable() {
         }
 	}
 	//return (i == 1 && FD_ISSET(sock, &set));
-	return (i == 1);
+	bool result = (i == 1);
+	return result;
 }
 
 bool Socket::isWritable(bool waitOnDelayedResponse) {
@@ -1153,8 +1154,22 @@ bool Socket::isConnected() {
 	if(isReadable()) {
 		char tmp;
 		int err = peek(&tmp, sizeof(tmp));
-		return (err > 0);
+		if(err <= 0) {
+			return false;
+		}
 	}
+
+#ifndef WIN32
+	// Need this extra check for proper linux disconnect checking
+	struct sockaddr name;
+	socklen_t namelen = sizeof (name);
+
+	int peer_result = getpeername(sock, &name, &namelen);
+	if(peer_result != 0) {
+		return false;
+	}
+
+#endif
 
 	//otherwise the socket is connected
 	return true;
