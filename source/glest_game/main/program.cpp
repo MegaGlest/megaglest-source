@@ -321,6 +321,8 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		bool msgBoxEnabled = msgBox.getEnabled();
+
 		if(dynamic_cast<Game *>(programState) != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -351,7 +353,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		//mesage box
 		Lang &lang= Lang::getInstance();
 		msgBox.init(lang.get("Ok"));
-		msgBox.setEnabled(false);
+		msgBox.setEnabled(msgBoxEnabled);
 
 		this->programState= programState;
 		programState->load();
@@ -371,6 +373,10 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			showCursor(false);
 		}
 		sleep(0);
+
+		if(dynamic_cast<Intro *>(programState) != NULL && msgBoxEnabled == true) {
+			showCursor(true);
+		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -470,7 +476,18 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	//sound
 	if(initSound == true && toggleFullScreen == false) {
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-        soundRenderer.init(window);
+        bool initOk = soundRenderer.init(window);
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initOk = %d\n",__FILE__,__FUNCTION__,__LINE__,initOk);
+
+        // Test sound system failed
+        //initOk = false;
+        // END
+
+        if(initOk == false) {
+        	string sError = "Sound System could not be initialzed!";
+        	this->showMessage(sError.c_str());
+        }
 
 		// Run sound streaming in a background thread if enabled
 		if(config.getBool("ThreadedSoundStream","false") == true) {

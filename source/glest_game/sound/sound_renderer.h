@@ -55,7 +55,7 @@ public:
 	//misc
 	~SoundRenderer();
 	static SoundRenderer &getInstance();
-	void init(Window *window);
+	bool init(Window *window);
 	void update();
 	virtual void simpleTask() { update(); }
 	SoundPlayer *getSoundPlayer() const	{return soundPlayer;}
@@ -77,6 +77,8 @@ public:
 	//misc
 	void stopAllSounds();
 	void loadConfig();
+
+	bool wasInitOk() const;
 };
 
 }}//end namespace

@@ -23,7 +23,7 @@
 #include "platform_util.h"
 #include "platform_main.h"
 #include "network_interface.h"
-#include "sound_renderer.h"
+//#include "sound_renderer.h"
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
