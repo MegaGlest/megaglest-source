@@ -122,6 +122,7 @@ private:
 
 private:
 	Data data;
+	int64 pingReceivedLocalTime;
 
 public:
 	NetworkMessagePing();
@@ -129,6 +130,7 @@ public:
 
 	int32 getPingFrequency() const	{return data.pingFrequency;}
 	int64 getPingTime() const	{return data.pingTime;}
+	int64 getPingReceivedLocalTime() const { return pingReceivedLocalTime; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

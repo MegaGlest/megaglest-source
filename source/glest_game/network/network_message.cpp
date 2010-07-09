@@ -147,6 +147,7 @@ void NetworkMessageIntro::send(Socket* socket) const{
 
 NetworkMessagePing::NetworkMessagePing(){
 	data.messageType= nmtPing;
+	pingReceivedLocalTime = 0;
 }
 
 NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
@@ -156,7 +157,9 @@ NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
 }
 
 bool NetworkMessagePing::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	pingReceivedLocalTime = time(NULL);
+	return result;
 }
 
 void NetworkMessagePing::send(Socket* socket) const{

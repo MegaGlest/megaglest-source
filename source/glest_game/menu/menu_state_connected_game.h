@@ -72,6 +72,7 @@ private:
 	JoinMenu returnMenuInfo;
 	bool settingsReceivedFromServer;
 	time_t lastNetworkSendPing;
+	int pingCount;
 	
 	
 public:
