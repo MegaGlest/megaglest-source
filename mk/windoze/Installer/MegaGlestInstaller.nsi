@@ -101,10 +101,13 @@ FunctionEnd
 
 Function .onInstSuccess
 
-    MessageBox MB_OK "${APNAME} v${APVER} installed successfully, click OK to launch game."
+    MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
+    click Yes to launch the game$\nor 'No' to exit." IDNO noLaunch
 
     SetOutPath $INSTDIR
     Exec 'glest_game.exe'
+
+noLaunch:
 
 FunctionEnd
 
