@@ -36,6 +36,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelEnableObserverMode;
 	GraphicLabel labelEnableServerControlledAI;
+	GraphicLabel labelLocalIP;
 	
 
 	GraphicListBox listBoxMap;

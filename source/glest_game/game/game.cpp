@@ -1382,9 +1382,14 @@ void Game::checkWinnerStandard(){
 		if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 			// Let the poor user watch everything unfold
 			world.setFogOfWar(false);
-			//gameCamera.setClampBounds(false);
-			Renderer::getInstance().setPhotoMode(true);
-			gameCamera.setMaxHeight(500);
+
+			// This caused too much LAG for network games
+			if(this->gameSettings.isNetworkGame() == false) {
+				Renderer::getInstance().setPhotoMode(true);
+				gameCamera.setMaxHeight(500);
+			}
+			// END
+
 			// but don't let him cheat via teamchat
 			chatManager.setDisableTeamMode(true);
 		}
@@ -1413,9 +1418,13 @@ void Game::checkWinnerStandard(){
 			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the happy winner view everything left in the world
 				world.setFogOfWar(false);
-				//gameCamera.setClampBounds(false);
-				Renderer::getInstance().setPhotoMode(true);
-				gameCamera.setMaxHeight(500);
+
+				// This caused too much LAG for network games
+				if(this->gameSettings.isNetworkGame() == false) {
+					Renderer::getInstance().setPhotoMode(true);
+					gameCamera.setMaxHeight(500);
+				}
+				// END
 			}
 
 			showWinMessageBox();
