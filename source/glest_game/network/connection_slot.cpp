@@ -564,13 +564,13 @@ void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
 bool ConnectionSlot::updateCompleted() {
 	assert(slotThreadWorker != NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 	bool waitingForThread = (slotThreadWorker->isSignalCompleted() 	== false &&
 							 slotThreadWorker->getQuitStatus() 		== false &&
 							 slotThreadWorker->getRunningStatus() 	== true);
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
 
 	return (waitingForThread == false);
 }

@@ -131,6 +131,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	mapFiles = results;
 	std::for_each(results.begin(), results.end(), FormatString());
 
+	labelLocalIP.init(410, networkHeadPos+30);
+
+	string ipText = "none";
+	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+	if(ipList.size() > 0) {
+		ipText = "";
+		for(int idx = 0; idx < ipList.size(); idx++) {
+			string ip = ipList[idx];
+			if(ipText != "") {
+				ipText += ", ";
+			}
+			ipText += ip;
+		}
+	}
+	labelLocalIP.setText(lang.get("LanIP") + ipText);
+
 	labelMap.init(100, mapHeadPos);
 	listBoxMap.init(100, mapPos, 200);
     listBoxMap.setItems(results);
@@ -687,6 +703,7 @@ void MenuStateCustomGame::render(){
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
 			}
+			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
 			renderer.renderLabel(&labelFogOfWar);
 			renderer.renderLabel(&labelTileset);
