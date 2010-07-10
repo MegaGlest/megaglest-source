@@ -3,7 +3,7 @@
 
 !define APNAME Mega-Glest
 !define APVER 3.3.5
-!define APVER_UPDATE 3.3.5.1-alpha1
+!define APVER_UPDATE 3.3.5.1-alpha2
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -141,7 +141,7 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\glest_editor.exe"
   File "..\..\..\data\glest_game\glest_configurator.exe"
   File "..\..\..\data\glest_game\g3d_viewer.exe"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\data\*.lng"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\*.lng"
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 
