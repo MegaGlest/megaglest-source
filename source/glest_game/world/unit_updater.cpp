@@ -379,7 +379,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			if(r!=NULL && hct->canHarvest(r->getType())){
 				//if can harvest dest. pos
 				if(unit->getPos().dist(command->getPos())<harvestDistance &&
-					map->isResourceNear(unit->getPos(), r->getType(), targetPos)) {
+					map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos)) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
 						unit->setTargetPos(targetPos);

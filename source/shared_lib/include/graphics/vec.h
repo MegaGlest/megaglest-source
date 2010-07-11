@@ -125,6 +125,11 @@ public:
 		return Vec2<T>(v-*this).length();
 	}
 
+	// strict week ordering, so Vec2<T> can be used as key for set<> or map<>
+	bool operator<(const Vec2<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y);
+	}
+
 	float length() const{
 #ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(static_cast<float>(x*x + y*y)));

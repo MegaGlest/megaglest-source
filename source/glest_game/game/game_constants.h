@@ -42,6 +42,9 @@ public:
 	//static const int networkExtraLatency= 200;
 	static const int maxClientConnectHandshakeSecs= 10;
 
+	static const int cellScale = 2;
+	static const int clusterSize = 16;
+
 	static const char *folder_path_maps;
 	static const char *folder_path_scenarios;
 	static const char *folder_path_techs;

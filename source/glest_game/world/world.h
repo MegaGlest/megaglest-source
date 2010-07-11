@@ -43,6 +43,8 @@ class Config;
 class Game;
 class GameSettings;
 class ScriptManager;
+class Cartographer;
+class RoutePlanner;
 
 // =====================================================
 // 	class World
@@ -78,6 +80,8 @@ private:
 	RandomGen random;
 
 	ScriptManager* scriptManager;
+	Cartographer *cartographer;
+	RoutePlanner *routePlanner;
 
 	int thisFactionIndex;
 	int thisTeamIndex;
@@ -112,6 +116,8 @@ public:
 	const TimeFlow *getTimeFlow() const				{return &timeFlow;}
 	Tileset *getTileset() 							{return &tileset;}
 	Map *getMap() 									{return &map;}
+	Cartographer* getCartographer()					{return cartographer;}
+	RoutePlanner* getRoutePlanner()					{return routePlanner;}
 	const Faction *getFaction(int i) const			{return &factions[i];}
 	Faction *getFaction(int i) 						{return &factions[i];}
 	const Minimap *getMinimap() const				{return &minimap;}

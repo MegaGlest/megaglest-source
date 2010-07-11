@@ -885,7 +885,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\include\util\heap.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\util\leak_dumper.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\util\line.h"
 					>
 				</File>
 				<File
