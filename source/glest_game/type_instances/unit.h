@@ -97,30 +97,49 @@ public:
 
 // =====================================================
 // 	class UnitPath
-//
-/// Holds the next cells of a Unit movement
 // =====================================================
-
-class UnitPath {
+/** Holds the next cells of a Unit movement 
+  * @extends std::list<Shared::Math::Vec2i>
+  */
+class UnitPath : public list<Vec2i> {
 private:
-	static const int maxBlockCount;
+	static const int maxBlockCount = 10; /**< number of command updates to wait on a blocked path */
 
 private:
-	int blockCount;
-	vector<Vec2i> pathQueue;
+	int blockCount;		/**< number of command updates this path has been blocked */
 
 public:
-	UnitPath();
-	bool isBlocked();
-	bool isEmpty();
+	UnitPath() : blockCount(0) {} /**< Construct path object */
+	bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
+	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
+	int  size() const		{return list<Vec2i>::size();}	/**< size of path				 */
+	void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
+	void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
+	void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+	
+#if 1
+	// old style, to work with original PathFinder
+	Vec2i peek()			{return back();}	 /**< peek at the next position			 */	
+	void pop()				{this->pop_back();}	/**< pop the next position off the path */
+#else
+	// new style, for the new RoutePlanner
+	Vec2i peek()			{return front();}	 /**< peek at the next position			 */	
+	void pop()				{erase(begin());}	/**< pop the next position off the path */
+#endif
+	int getBlockCount() const { return blockCount; }
 
-	void clear();
-	void incBlockCount();
-	void push(const Vec2i &path);
-	Vec2i pop();
-
-	std::string toString() const;
+	std::string UnitPath::toString() const;
 };
+
+class WaypointPath : public list<Vec2i> {
+public:
+	WaypointPath() {}
+	void push(const Vec2i &pos)	{ push_front(pos); }
+	Vec2i peek() const			{return front();}
+	void pop()					{erase(begin());}
+	void condense();
+};
+
 
 // ===============================
 // 	class Unit
@@ -187,6 +206,7 @@ private:
 	Map *map;
 
 	UnitPath unitPath;
+	WaypointPath waypointPath;
 
     Commands commands;
 	Observers observers;
@@ -238,6 +258,7 @@ public:
 	string getFullName() const;
 	const UnitPath *getPath() const				{return &unitPath;}
 	UnitPath *getPath()							{return &unitPath;}
+	WaypointPath *getWaypointPath()				{return &waypointPath;}
 
     //pos
 	Vec2i getPos() const				{return pos;}
@@ -315,7 +336,7 @@ public:
 	void applyCommand(Command *command);
 
 	void setModelFacing(CardinalDir value);
-	CardinalDir getModelFacing() { return modelFacing; }
+	CardinalDir getModelFacing() const { return modelFacing; }
 
 	bool isMeetingPointSettable() const;
 

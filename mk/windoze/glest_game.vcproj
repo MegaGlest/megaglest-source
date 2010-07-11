@@ -327,7 +327,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.cpp"
+				RelativePath="..\..\source\glest_game\facilities\pos_iterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\facilities\pos_iterator.h"
 				>
 			</File>
 		</Filter>
@@ -361,7 +365,47 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.h"
+				RelativePath="..\..\source\glest_game\ai\annotated_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\annotated_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cartographer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cartographer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cluster_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cluster_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\influence_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_pool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_pool.h"
 				>
 			</File>
 			<File
@@ -370,6 +414,18 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\ai\path_finder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\route_planner.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\route_planner.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\search_engine.h"
 				>
 			</File>
 		</Filter>
@@ -590,6 +646,14 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_about.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.h"
 				>
 			</File>
 			<File

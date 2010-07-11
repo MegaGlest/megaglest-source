@@ -45,6 +45,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#define NOMINMAX
 #include <windows.h>
 
 #define NUM_ELEMENTS(ar)      (sizeof(ar) / sizeof(ar[0]))

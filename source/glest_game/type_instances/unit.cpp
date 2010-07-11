@@ -38,47 +38,28 @@ namespace Glest{ namespace Game{
 // 	class UnitPath
 // =====================================================
 
-const int UnitPath::maxBlockCount= 10;
-
-UnitPath::UnitPath() {
-	this->blockCount = 0;
-	this->pathQueue.clear();
-}
-
-bool UnitPath::isEmpty(){
-	return pathQueue.empty();
-}
-
-bool UnitPath::isBlocked(){
-	return blockCount>=maxBlockCount;
-}
-
-void UnitPath::clear(){
-	pathQueue.clear();
-	blockCount= 0;
-}
-
-void UnitPath::incBlockCount(){
-	pathQueue.clear();
-	blockCount++;
-}
-
-void UnitPath::push(const Vec2i &path){
-	pathQueue.push_back(path);
-}
-
-Vec2i UnitPath::pop(){
-	Vec2i p= pathQueue.front();
-	pathQueue.erase(pathQueue.begin());
-	return p;
+void WaypointPath::condense() {
+	if (size() < 2) {
+		return;
+	}
+	iterator prev, curr;
+	prev = curr = begin();
+	while (++curr != end()) {
+		if (prev->dist(*curr) < 3.f) {
+			prev = erase(prev);
+		} else {
+			++prev;
+		}
+	}
 }
 
 std::string UnitPath::toString() const {
 	std::string result = "";
 
-	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
-	for(int idx = 0; idx < pathQueue.size(); idx++) {
-		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
+	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(size());
+	result += " path = ";
+	for (const_iterator it = begin(); it != end(); ++it) {
+		result += " [" + intToStr(it->x) + "," + intToStr(it->y) + "]";
 	}
 
 	return result;

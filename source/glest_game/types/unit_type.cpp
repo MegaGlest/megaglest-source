@@ -196,6 +196,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			}
 		}
 
+		if (fields[fLand]) {
+			field = fLand;
+		} else if (fields[fAir]) {
+			field = fAir;
+		} else {
+			throw runtime_error("Unit has no field: " + path);
+		}
+
 		//properties
 		const XmlNode *propertiesNode= parametersNode->getChild("properties");
 		for(int i=0; i<propertiesNode->getChildCount(); ++i){
