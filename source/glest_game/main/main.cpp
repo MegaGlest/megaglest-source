@@ -535,6 +535,9 @@ int glestMain(int argc, char** argv){
 		//string test = lang.get("ExitGameServer?");
 		//printf("[%s]",test.c_str());
 
+		Renderer &renderer= Renderer::getInstance();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
+
 		//main loop
 		while(Window::handleEvent()){
 			program->loop();

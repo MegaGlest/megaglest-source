@@ -141,7 +141,7 @@ public:
 	static bool handleEvent();
 	static void revertMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
-	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1);
+	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	static SDL_keysym getKeystate() { return keystate; }

@@ -25,6 +25,7 @@ private:
 	GraphicButton buttonOk;	
 	GraphicButton buttonAbort;
 	GraphicButton buttonAutoConfig;	
+	GraphicButton buttonVideoInfo;
 	
 	GraphicLabel labelLang;
 	GraphicLabel labelShadows;
