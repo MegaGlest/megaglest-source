@@ -35,11 +35,11 @@ namespace Shared{ namespace Platform{
 //	class PlatformContextGl
 // ======================================
 
-void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
+void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing) {
 	
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Window::setupGraphicsScreen(depthBits, stencilBits);
+	Window::setupGraphicsScreen(depthBits, stencilBits, hardware_acceleration, fullscreen_anti_aliasing);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

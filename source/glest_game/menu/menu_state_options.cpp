@@ -17,6 +17,7 @@
 #include "config.h"
 #include "menu_state_root.h"
 #include "util.h"
+#include "menu_state_graphic_info.h"
 
 #include "leak_dumper.h"
 
@@ -226,6 +227,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	buttonAutoConfig.setText(lang.get("AutoConfig"));
 	buttonAutoConfig.init(450, buttonRowPos, 125);
 
+	buttonVideoInfo.setText(lang.get("VideoInfo"));
+	buttonVideoInfo.init(620, buttonRowPos, 100);
+
 }
 
 void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
@@ -311,6 +315,10 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		saveConfig();
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 	}
+	else if(buttonVideoInfo.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundA());
+		mainMenu->setState(new MenuStateGraphicInfo(program, mainMenu));
+	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
 	}
@@ -338,6 +346,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	buttonOk.mouseMove(x, y);
 	buttonAbort.mouseMove(x, y);
 	buttonAutoConfig.mouseMove(x, y);
+	buttonVideoInfo.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
 	listBoxVolumeFx.mouseMove(x, y);
 	listBoxVolumeAmbient.mouseMove(x, y);
@@ -393,6 +402,7 @@ void MenuStateOptions::render(){
 		renderer.renderButton(&buttonOk);
 		renderer.renderButton(&buttonAbort);
 		renderer.renderButton(&buttonAutoConfig);
+		renderer.renderButton(&buttonVideoInfo);
 		renderer.renderListBox(&listBoxLang);
 		renderer.renderListBox(&listBoxShadows);
 		renderer.renderListBox(&listBoxTextures3D);

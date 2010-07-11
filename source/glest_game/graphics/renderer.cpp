@@ -1876,8 +1876,9 @@ void Renderer::renderMinimap(){
 
     glEnable(GL_BLEND);
 
-	glBegin(GL_TRIANGLES);
     glColor4f(1.f, 1.f, 1.f, 1.f);
+    glBegin(GL_TRIANGLES);
+
 	glVertex2i(mx+x, my+mh-y);
 
 	glColor4f(1.f, 1.f, 1.f, 0.0f);
