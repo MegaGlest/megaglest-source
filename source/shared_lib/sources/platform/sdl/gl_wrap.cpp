@@ -72,7 +72,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 //	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
 //#endif
 
-		printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
+		//printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
 		if(icon == NULL) {
 			printf("Error: %s\n", SDL_GetError());
 		}

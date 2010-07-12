@@ -378,18 +378,28 @@ int glestMain(int argc, char** argv){
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
+	bool haveSpecialOutputCommandLineOption = false;
+	if( hasCommandArgument(argc, argv,"--opengl-info") 	== true ||
+		hasCommandArgument(argc, argv,"--version") 		== true) {
+		haveSpecialOutputCommandLineOption = true;
+	}
+
+	if( haveSpecialOutputCommandLineOption == false ||
+		hasCommandArgument(argc, argv,"--version") == true) {
 #ifdef USE_STREFLOP
 	streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
 #else
 	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
 #endif
+	}
 
-	if(hasCommandArgument(argc, argv,"--version") == true) {
+	if( hasCommandArgument(argc, argv,"--version") 		== true &&
+		hasCommandArgument(argc, argv,"--opengl-info") 	== false) {
 		return -1;
 	}
 
-	SystemFlags::init();
+	SystemFlags::init(haveSpecialOutputCommandLineOption);
 	SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
 	SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;
 
@@ -437,12 +447,14 @@ int glestMain(int argc, char** argv){
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName  = debugUnitCommandsLogFile;
 
-		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d]\n",
-			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled);
+        if(haveSpecialOutputCommandLineOption == false) {
+        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d]\n",
+        			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled);
+        }
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -537,6 +549,13 @@ int glestMain(int argc, char** argv){
 
 		Renderer &renderer= Renderer::getInstance();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
+
+		if(hasCommandArgument(argc, argv,"--opengl-info") == true) {
+			Renderer &renderer= Renderer::getInstance();
+			printf("%s",renderer.getGlInfo().c_str());
+
+			return -1;
+		}
 
 		//main loop
 		while(Window::handleEvent()){
