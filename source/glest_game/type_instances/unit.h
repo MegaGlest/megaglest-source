@@ -128,7 +128,7 @@ public:
 #endif
 	int getBlockCount() const { return blockCount; }
 
-	std::string UnitPath::toString() const;
+	std::string toString() const;
 };
 
 class WaypointPath : public list<Vec2i> {
