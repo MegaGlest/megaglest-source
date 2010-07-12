@@ -107,6 +107,8 @@ protected:
 
 	static std::map<DebugType,SystemFlagsType> debugLogFileList;
 
+	static bool haveSpecialOutputCommandLineOption;
+
 public:
 
 	static CURL *curl_handle;
@@ -115,7 +117,7 @@ public:
 	SystemFlags();
 	~SystemFlags();
 
-	static void init();
+	static void init(bool haveSpecialOutputCommandLineOption);
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1);

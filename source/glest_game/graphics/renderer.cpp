@@ -182,6 +182,15 @@ Renderer::Renderer(){
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
+
+	glHint(GL_FOG_HINT, GL_FASTEST);
+	//glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+	glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+	//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+	//glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+
+	//glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
 }
 
 Renderer::~Renderer(){
@@ -1184,6 +1193,7 @@ void Renderer::renderSurface(){
 	glEnable(GL_BLEND);
 	glEnable(GL_COLOR_MATERIAL);
 	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_CULL_FACE);
 
 	//fog of war tex unit
 	glActiveTexture(fowTexUnit);
@@ -2391,11 +2401,11 @@ string Renderer::getGlInfo(){
 
 	infoStr+= lang.get("OpenGlInfo")+":\n";
 	infoStr+= "   "+lang.get("OpenGlVersion")+": ";
-    infoStr+= string(getGlVersion())+"\n";
+    infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
     infoStr+= "   "+lang.get("OpenGlRenderer")+": ";
-    infoStr+= string(getGlRenderer())+"\n";
+    infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
     infoStr+= "   "+lang.get("OpenGlVendor")+": ";
-    infoStr+= string(getGlVendor())+"\n";
+    infoStr+= string((getGlVendor() != NULL ? getGlVendor() : "?"))+"\n";
 	infoStr+= "   "+lang.get("OpenGlMaxLights")+": ";
     infoStr+= intToStr(getGlMaxLights())+"\n";
 	infoStr+= "   "+lang.get("OpenGlMaxTextureSize")+": ";
