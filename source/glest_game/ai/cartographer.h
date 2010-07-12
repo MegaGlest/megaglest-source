@@ -16,6 +16,7 @@
 #include "influence_map.h"
 #include "annotated_map.h"
 #include "node_map.h"
+#include "cluster_map.h"
 
 #include "world.h"
 #include "config.h"

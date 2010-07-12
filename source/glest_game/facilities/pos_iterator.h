@@ -13,7 +13,7 @@
 #define _GLEST_GAME_UTIL_POSITERATOR_H_
 
 #include <cassert>
-
+#include <stdexcept>
 #include "math_util.h"
 
 namespace Glest { namespace Util {
