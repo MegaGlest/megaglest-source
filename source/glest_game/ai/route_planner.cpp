@@ -98,19 +98,15 @@ RoutePlanner::RoutePlanner(World *world)
 		, nodeStore(NULL)
 		, tSearchEngine(NULL)
 		, tNodeStore(NULL) {
-	Logger::getInstance().add( "Initialising SearchEngine", true );
-
 	const int &w = world->getMap()->getW();
 	const int &h = world->getMap()->getH();
 
-	//cout << "NodePool SearchEngine\n";
 	nodeStore = new NodePool(w, h);
 	GridNeighbours gNeighbours(w, h);
 	nsgSearchEngine = new SearchEngine<NodePool>(gNeighbours, nodeStore, true);
 	nsgSearchEngine->setInvalidKey(Vec2i(-1));
 	nsgSearchEngine->getNeighbourFunc().setSearchSpace(ssCellMap);
 
-	//cout << "Transition SearchEngine\n";
 	int numNodes = w * h / 4096 * 250; // 250 nodes for every 16 clusters
 	tNodeStore = new TransitionNodeStore(numNodes);
 	TransitionNeighbours tNeighbours;
@@ -134,8 +130,9 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 	assert(world->getMap()->isInside(pos2));
 	assert(unit->getPos().dist(pos2) < 1.5);
 
-	if (unit->getPos().dist(pos2) > 1.5) {
-		throw runtime_error("Boo!!!");
+	float d = unit->getPos().dist(pos2);
+	if (d > 1.5 || d < 0.9f) {
+		throw runtime_error("The new Pathfinder lied.");
 	}
 
 	const Vec2i &pos1 = unit->getPos();
@@ -172,7 +169,30 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 	return true;
 }
 
+TravelState RoutePlanner::findPathToResource(Unit *unit, const Vec2i &targetPos, const ResourceType *rt) {
+	PF_TRACE();
+	assert(rt && (rt->getClass() == rcTech || rt->getClass() == rcTileset));
+	ResourceMapKey mapKey(rt, unit->getCurrField(), unit->getType()->getSize());
+	PMap1Goal goal(world->getCartographer()->getResourceMap(mapKey));
+	return findPathToGoal(unit, goal, targetPos);
+}
+
+TravelState RoutePlanner::findPathToStore(Unit *unit, const Unit *store) {
+	PF_TRACE();
+	Vec2i target = store->getCenteredPos();
+	PMap1Goal goal(world->getCartographer()->getStoreMap(store, unit));
+	return findPathToGoal(unit, goal, target);
+}
+
+TravelState RoutePlanner::findPathToBuildSite(Unit *unit, const UnitType *buildingType, const Vec2i &buildingPos) {
+	PF_TRACE();
+	PMap1Goal goal(world->getCartographer()->getSiteMap(buildingType, buildingPos, unit));
+	return findPathToGoal(unit, goal, buildingPos + Vec2i(buildingType->getSize() / 2));
+}
+
+
 float RoutePlanner::quickSearch(Field field, int size, const Vec2i &start, const Vec2i &dest) {
+	PF_TRACE();
 	// setup search
 	MoveCost moveCost(field, size, world->getCartographer()->getMasterMap());
 	DiagonalDistance heuristic(dest);
@@ -186,6 +206,7 @@ float RoutePlanner::quickSearch(Field field, int size, const Vec2i &start, const
 }
 
 HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &dest, TransitionGoal &goalFunc) {
+	PF_TRACE();
 	// get Transitions for start cluster
 	Transitions transitions;
 	Vec2i startCluster = ClusterMap::cellToCluster(unit->getPos());
@@ -270,6 +291,7 @@ HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &des
 }
 
 HAAStarResult RoutePlanner::findWaypointPath(Unit *unit, const Vec2i &dest, WaypointPath &waypoints) {
+	PF_TRACE();
 	TransitionGoal goal;
 	HAAStarResult setupResult = setupHierarchicalSearch(unit, dest, goal);
 	nsgSearchEngine->getNeighbourFunc().setSearchSpace(ssCellMap);
@@ -297,6 +319,7 @@ HAAStarResult RoutePlanner::findWaypointPath(Unit *unit, const Vec2i &dest, Wayp
   * @return true if successful, in which case waypoint will have been popped.
   * false on failure, in which case waypoint will not be popped. */
 bool RoutePlanner::refinePath(Unit *unit) {
+	PF_TRACE();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	UnitPath &path = *unit->getPath();
 	assert(!wpPath.empty());
@@ -333,6 +356,7 @@ bool RoutePlanner::refinePath(Unit *unit) {
 #undef max
 
 void RoutePlanner::smoothPath(Unit *unit) {
+	PF_TRACE();
 	if (unit->getPath()->size() < 3) {
 		return;
 	}
@@ -402,6 +426,7 @@ void RoutePlanner::smoothPath(Unit *unit) {
 }
 
 TravelState RoutePlanner::doRouteCache(Unit *unit) {
+	PF_TRACE();
 	UnitPath &path = *unit->getPath();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	assert(unit->getPos().dist(path.front()) < 1.5f);
@@ -428,10 +453,12 @@ TravelState RoutePlanner::doRouteCache(Unit *unit) {
 //		IF_DEBUG_EDITION( collectPath(unit); )
 		return tsMoving;
 	}
+	unit->setCurrSkill(scStop);
 	return tsBlocked;
 }
 
 TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
+	PF_TRACE();
 	AnnotatedMap *aMap = world->getCartographer()->getAnnotatedMap(unit);
 	UnitPath &path = *unit->getPath();
 //	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
@@ -458,6 +485,7 @@ TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 }
 
 TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
+	PF_TRACE();
 	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
 	UnitPath &path = *unit->getPath();
 	PosGoal goal(targetPos);
@@ -486,6 +514,7 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
 		}
 	}
 	path.incBlockCount();
+	unit->setCurrSkill(scStop);
 	return tsBlocked;
 }
 
@@ -495,6 +524,7 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
   * @return ARRIVED, MOVING, BLOCKED or IMPOSSIBLE
   */
 TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) {
+	PF_TRACE();
 	UnitPath &path = *unit->getPath();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
@@ -532,6 +562,9 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 			return tsMoving;
 		}
 	}
+
+	PF_TRACE();
+
 	// Hierarchical Search
 	tSearchEngine->reset();
 	HAAStarResult res = findWaypointPath(unit, target, wpPath);
@@ -544,9 +577,12 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	} else if (res == hsrStartTrap) {
 		if (wpPath.size() < 2) {
 			CONSOLE_LOG( "START_TRAP" );
+			unit->setCurrSkill(scStop);
 			return tsBlocked;
 		}
 	}
+
+	PF_TRACE();
 
 //	IF_DEBUG_EDITION( collectWaypointPath(unit); )
 	//CONSOLE_LOG( "WaypointPath size : " + intToStr(wpPath.size()) )
@@ -568,6 +604,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 			aMap->clearLocalAnnotations(unit);
 			path.incBlockCount();
 			//CONSOLE_LOG( "   blockCount = " + intToStr(path.getBlockCount()) )
+			unit->setCurrSkill(scStop);
 			return tsBlocked;
 		}
 	}
@@ -576,6 +613,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 //	IF_DEBUG_EDITION( collectPath(unit); )
 	if (path.empty()) {
 		CONSOLE_LOG( "post hierarchical search failure, path empty." );
+		unit->setCurrSkill(scStop);
 		return tsBlocked;
 	}
 	if (attemptMove(unit)) {
@@ -588,6 +626,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 }
 
 TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Vec2i &target) {
+	PF_TRACE();
 	UnitPath &path = *unit->getPath();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	const Vec2i &start = unit->getPos();
@@ -602,6 +641,8 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 	aMap->annotateLocal(unit);
 	r = nsgSearchEngine->aStar(goal, moveCost, heuristic);
 	aMap->clearLocalAnnotations(unit);
+
+	PF_TRACE();
 	if (r == asrComplete) {
 		Vec2i pos = nsgSearchEngine->getGoalPos();
 //		IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), pos); )
@@ -612,7 +653,7 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 		}
 		if (!path.empty()) path.pop();
 //		IF_DEBUG_EDITION( collectPath(unit); )
-		if (attemptMove(unit)) {
+		if (!path.empty() && attemptMove(unit)) {
 			return tsMoving;
 		}
 		path.clear();
@@ -621,6 +662,7 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 }
 
 TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2i &target) {
+	PF_TRACE();
 	UnitPath &path = *unit->getPath();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
@@ -642,9 +684,12 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 		if (customGoalSearch(goal, unit, target) == tsMoving) {
 			return tsMoving;
 		} else {
+			unit->setCurrSkill(scStop);
 			return tsBlocked;
 		}
 	}
+
+	PF_TRACE();
 	// Hierarchical Search
 	tSearchEngine->reset();
 	if (!findWaypointPath(unit, target, wpPath)) {
@@ -669,6 +714,7 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 		if (!refinePath(unit)) {
 			CONSOLE_LOG( "refinePath failed! [Custom Goal Search]" )
 			aMap->clearLocalAnnotations(unit);
+			unit->setCurrSkill(scStop);
 			return tsBlocked;
 		}
 	}
@@ -687,6 +733,7 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
   * @param unit unit whose path is blocked 
   * @return true if repair succeeded */
 bool RoutePlanner::repairPath(Unit *unit) {
+	PF_TRACE();
 	UnitPath &path = *unit->getPath();
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	
@@ -803,6 +850,7 @@ TravelState RoutePlanner::doFullLowLevelAStar(Unit *unit, const Vec2i &dest) {
   * @todo reimplement with Dijkstra search
   */
 Vec2i RoutePlanner::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos) {
+	PF_TRACE();
 	//unit data
 	Vec2i unitPos= unit->getPos();
 	int size= unit->getType()->getSize();

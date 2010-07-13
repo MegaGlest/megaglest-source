@@ -305,6 +305,8 @@ void Renderer::initGame(const Game *game){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	IF_DEBUG_EDITION( getDebugRenderer().init(); )
+
 	//texture init
 	modelManager[rsGame]->init();
 	textureManager[rsGame]->init();
@@ -1176,7 +1178,11 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 // ==================== complex rendering ====================
 
 void Renderer::renderSurface(){
-
+	IF_DEBUG_EDITION(
+		if (getDebugRenderer().willRenderSurface()) {
+			getDebugRenderer().renderSurface(visibleQuad / Map::cellScale);
+		} else {
+	)
 	int lastTex=-1;
 	int currTex;
 	const World *world= game->getWorld();
@@ -1276,6 +1282,11 @@ void Renderer::renderSurface(){
 	//assert
 	glGetError();	//remove when first mtex problem solved
 	assertGl();
+
+	IF_DEBUG_EDITION(
+		} // end else, if not renderering debug textures instead of regular terrain
+		getDebugRenderer().renderEffects(visibleQuad / Map::cellScale);
+	)
 }
 
 void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {

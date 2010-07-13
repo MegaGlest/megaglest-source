@@ -117,6 +117,8 @@ public:
 	CellMetrics& operator[](const Vec2i &pos) const { return metrics[pos.y * width + pos.x]; }
 };
 
+class PathFinderTextureCallback;
+
 // =====================================================
 // class AnnotatedMap
 // =====================================================
@@ -130,6 +132,7 @@ public:
 //TODO: pretty pictures for the doco...
 class AnnotatedMap {
 	friend class ClusterMap;
+	friend class PathFinderTextureCallback;
 
 private:
 	int width, height;

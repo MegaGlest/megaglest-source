@@ -27,6 +27,8 @@
 #include "object.h"
 #include "faction.h"
 #include "network_manager.h"
+#include "cartographer.h"
+#include "route_planner.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -49,7 +51,8 @@ void UnitUpdater::init(Game *game){
 	this->map= world->getMap();
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
-	pathFinder.init(map);
+	routePlanner = world->getRoutePlanner();
+	//pathFinder.init(map);
 }
 
 
@@ -189,12 +192,13 @@ void UnitUpdater::updateMove(Unit *unit){
 
 	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
 
-	switch(pathFinder.findPath(unit, pos)){
+	switch (routePlanner->findPath(unit, pos)) {
 	case PathFinder::tsOnTheWay:
 		unit->setCurrSkill(mct->getMoveSkillType());
         break;
 
 	case PathFinder::tsBlocked:
+		unit->setCurrSkill(scStop);
 		if(unit->getPath()->isBlocked()){
 			unit->finishCommand();
 		}
@@ -238,7 +242,7 @@ void UnitUpdater::updateAttack(Unit *unit){
 		}
 
 		//if unit arrives destPos order has ended
-        switch (pathFinder.findPath(unit, pos)){
+        switch (routePlanner->findPath(unit, pos)){
         case PathFinder::tsOnTheWay:
             unit->setCurrSkill(act->getMoveSkillType());
             break;
@@ -283,7 +287,7 @@ void UnitUpdater::updateBuild(Unit *unit){
         //if not building
         const UnitType *ut= command->getUnitType();
 
-		switch (pathFinder.findPath(unit, command->getPos()-Vec2i(1))){
+		switch (routePlanner->findPathToBuildSite(unit, ut, command->getPos())) {
         case PathFinder::tsOnTheWay:
             unit->setCurrSkill(bct->getMoveSkillType());
             break;
@@ -305,6 +309,7 @@ void UnitUpdater::updateBuild(Unit *unit){
 				unit->setCurrSkill(bct->getBuildSkillType());
 				unit->setTarget(builtUnit);
 				map->prepareTerrain(builtUnit);
+				world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
 				command->setUnit(builtUnit);
 
 				//play start sound
@@ -378,22 +383,23 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			Resource *r= map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
 			if(r!=NULL && hct->canHarvest(r->getType())){
 				//if can harvest dest. pos
-				if(unit->getPos().dist(command->getPos())<harvestDistance &&
+				if(/*unit->getPos().dist(command->getPos())<harvestDistance &&*/
 					map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos)) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
 						unit->setTargetPos(targetPos);
+						command->setPos(targetPos);
 						unit->setLoadCount(0);
 						unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
 				}
 				else{
 					//if not continue walking
-					switch(pathFinder.findPath(unit, command->getPos())){
-					case PathFinder::tsOnTheWay:
-						unit->setCurrSkill(hct->getMoveSkillType());
-						break;
-					default:
-						break;
+					switch (routePlanner->findPathToResource(unit, command->getPos(), r->getType())) {
+						case tsMoving:
+							unit->setCurrSkill(hct->getMoveSkillType());
+							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -409,7 +415,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
 			if(store!=NULL){
-				switch(pathFinder.findPath(unit, store->getCenteredPos())){
+				switch(routePlanner->findPathToStore(unit, store)){
 				case PathFinder::tsOnTheWay:
 					unit->setCurrSkill(hct->getMoveLoadedSkillType());
 					break;
@@ -448,42 +454,13 @@ void UnitUpdater::updateHarvest(Unit *unit){
 		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()));
 		Resource *r= sc->getResource();
 
-		/*
-		if(r!=NULL){
-			//if there is a resource, continue working, until loaded
-			unit->update2();
-			if(unit->getProgress2()>=hct->getHitsPerUnit()){
-				unit->setProgress2(0);
-				unit->setLoadCount(unit->getLoadCount()+1);
-
-				//if resource exausted, then delete it and stop
-				if(r->decAmount(1)){
-					sc->deleteResource();
-					unit->setCurrSkill(hct->getStopLoadedSkillType());
-				}
-
-				if(unit->getLoadCount()==hct->getMaxLoad()){
-					unit->setCurrSkill(hct->getStopLoadedSkillType());
-					unit->getPath()->clear();
-				}
-
-			}
-		}
-		else{
-			//if there is no resource, just stop
-			unit->setCurrSkill(hct->getStopLoadedSkillType());
-		}
-		*/
-
 		if (r != NULL) {
-			// Fix from Silnarm to disable cheating - START
 			if (!hct->canHarvest(r->getType()) || r->getType() != unit->getLoadType()) {
 				// hct has changed to a different harvest command.
 				unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
 				unit->getPath()->clear();
 				return;
 			}
-			// Fix from Silnarm to disable cheating - END
 
 			// if there is a resource, continue working, until loaded
 			unit->update2();
@@ -494,7 +471,9 @@ void UnitUpdater::updateHarvest(Unit *unit){
 
 					//if resource exausted, then delete it and stop
 					if (r->decAmount(1)) {
+						const ResourceType *rt = r->getType();
 						sc->deleteResource();
+						world->getCartographer()->onResourceDepleted(unit->getTargetPos(), rt);
 						unit->setCurrSkill(hct->getStopLoadedSkillType());
 					}
 				}
@@ -532,7 +511,7 @@ void UnitUpdater::updateRepair(Unit *unit){
                 unit->setCurrSkill(rct->getRepairSkillType());
 			}
 			else{
-				switch(pathFinder.findPath(unit, command->getPos())){
+				switch(routePlanner->findPath(unit, command->getPos())){
 				case PathFinder::tsOnTheWay:
 					unit->setCurrSkill(rct->getMoveSkillType());
 					break;
@@ -656,11 +635,16 @@ void UnitUpdater::updateMorph(Unit *unit){
 		unit->update2();
         if(unit->getProgress2()>mct->getProduced()->getProductionTime()){
 
+			bool needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
+
 			//finish the command
 			if(unit->morph(mct)){
 				unit->finishCommand();
 				if(gui->isSelected(unit)){
 					gui->onSelectionChanged();
+				}
+				if (needMapUpdate) {
+					world->getCartographer()->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
 				}
 				scriptManager->onUnitCreated(unit);
 			}
@@ -730,6 +714,9 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	if(attacked->decHp(static_cast<int>(damage))){
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex());
 		attacker->incKills();
+		if (!attacked->getType()->isMobile()) {
+			world->getCartographer()->updateMapMetrics(attacked->getPos(), attacked->getType()->getSize());
+		}
 		scriptManager->onUnitDied(attacked);
 	}
 }

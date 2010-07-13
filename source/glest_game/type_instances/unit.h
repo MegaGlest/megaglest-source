@@ -117,7 +117,7 @@ public:
 	void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
 	void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
 	
-#if 1
+#if 0
 	// old style, to work with original PathFinder
 	Vec2i peek()			{return back();}	 /**< peek at the next position			 */	
 	void pop()				{this->pop_back();}	/**< pop the next position off the path */

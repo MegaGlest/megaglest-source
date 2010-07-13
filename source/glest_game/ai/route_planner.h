@@ -27,6 +27,8 @@
 #include "world.h"
 #include "types.h"
 
+#define PF_TRACE() SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__)
+
 using Shared::Graphics::Vec2i;
 using Shared::Platform::uint32;
 
@@ -105,14 +107,14 @@ public:
 	  * @return cost of move, possibly infinite */
 	float operator()(const Vec2i &p1, const Vec2i &p2) const {
 		assert(p1.dist(p2) < 1.5 && p1 != p2);
-		assert(g_map.isInside(p2));
+		//assert(g_map.isInside(p2));
 		if (!aMap->canOccupy(p2, size, field)) {
 			return -1.f;
 		}
 		if (p1.x != p2.x && p1.y != p2.y) {
 			Vec2i d1, d2;
 			getDiags(p1, p2, size, d1, d2);
-			assert(g_map.isInside(d1) && g_map.isInside(d2));
+			//assert(g_map.isInside(d1) && g_map.isInside(d2));
 			if (!aMap->canOccupy(d1, 1, field) || !aMap->canOccupy(d2, 1, field) ) {
 				return -1.f;
 			}
@@ -153,23 +155,11 @@ public:
 		return findPathToLocation(unit, finalPos); 
 	}
 
-	TravelState findPathToResource(Unit *unit, const Vec2i &targetPos, const ResourceType *rt) {
-		assert(rt->getClass() == rcTechTree || rt->getClass() == rcTileset);
-		ResourceMapKey mapKey(rt, unit->getCurrField(), unit->getType()->getSize());
-		PMap1Goal goal(world->getCartographer()->getResourceMap(mapKey));
-		return findPathToGoal(unit, goal, targetPos);
-	}
+	TravelState findPathToResource(Unit *unit, const Vec2i &targetPos, const ResourceType *rt);
 
-	TravelState findPathToStore(Unit *unit, const Unit *store) {
-		Vec2i target = store->getCenteredPos();
-		PMap1Goal goal(world->getCartographer()->getStoreMap(store, unit));
-		return findPathToGoal(unit, goal, target);
-	}
+	TravelState findPathToStore(Unit *unit, const Unit *store);
 
-	TravelState findPathToBuildSite(Unit *unit, const UnitType *buildingType, const Vec2i &buildingPos) {
-		PMap1Goal goal(world->getCartographer()->getSiteMap(buildingType, buildingPos, unit));
-		return findPathToGoal(unit, goal, unit->getTargetPos());
-	}
+	TravelState findPathToBuildSite(Unit *unit, const UnitType *buildingType, const Vec2i &buildingPos);
 
 	bool isLegalMove(Unit *unit, const Vec2i &pos) const;
 
