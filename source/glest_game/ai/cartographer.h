@@ -59,11 +59,13 @@ struct StoreMapKey {
 struct BuildSiteMapKey {
 	const UnitType *buildingType;
 	Vec2i buildingPosition;
+	CardinalDir buildingFacing;
 	Field workerField;
 	int workerSize;
 
-	BuildSiteMapKey(const UnitType *type, const Vec2i &pos, Field f, int s)
-			: buildingType(type), buildingPosition(pos), workerField(f), workerSize(s) {}
+	BuildSiteMapKey(const UnitType *type, const Vec2i &pos, CardinalDir facing, Field f, int s)
+			: buildingType(type), buildingPosition(pos), buildingFacing(facing)
+			, workerField(f), workerSize(s) {}
 
 	bool operator<(const BuildSiteMapKey &that) const {
 		return (memcmp(this, &that, sizeof(BuildSiteMapKey)) < 0);
@@ -115,18 +117,19 @@ private:
 	void initResourceMap(ResourceMapKey key, PatchMap<1> *pMap);
 	void fixupResourceMaps(const ResourceType *rt, const Vec2i &pos);
 
-	PatchMap<1>* buildAdjacencyMap(const UnitType *uType, const Vec2i &pos, Field f, int sz);
-	PatchMap<1>* buildAdjacencyMap(const UnitType *uType, const Vec2i &pos) {
-		return buildAdjacencyMap(uType, pos, fLand, 1);
-	}
+	PatchMap<1>* buildAdjacencyMap(const UnitType *uType, const Vec2i &pos, CardinalDir facing, Field f, int sz);
 
 	PatchMap<1>* buildStoreMap(StoreMapKey key) {
-		return (storeMaps[key] = buildAdjacencyMap(key.storeUnit->getType(), 
-			key.storeUnit->getPos(), key.workerField, key.workerSize));
+		return (storeMaps[key] = 
+			buildAdjacencyMap(key.storeUnit->getType(), key.storeUnit->getPos(), 
+			key.storeUnit->getModelFacing(), key.workerField, key.workerSize));
 	}
 
-//	IF_DEBUG_EDITION( void debugAddBuildSiteMap(PatchMap<1>*); )
 	PatchMap<1>* buildSiteMap(BuildSiteMapKey key);
+
+#	ifdef DEBUG_RENDERING_ENABLED
+		void debugAddBuildSiteMap(PatchMap<1>*);
+#	endif
 
 public:
 	Cartographer(World *world);
@@ -153,7 +156,7 @@ public:
 	PatchMap<1>* getStoreMap(const Unit *store, const Unit *worker);
 	
 	PatchMap<1>* getSiteMap(BuildSiteMapKey key);
-	PatchMap<1>* getSiteMap(const UnitType *ut, const Vec2i &pos, Unit *worker);
+	PatchMap<1>* getSiteMap(const UnitType *ut, const Vec2i &pos, CardinalDir facing, Unit *worker);
 
 	void adjustGlestimalMap(Field f, TypeMap<float> &iMap, const Vec2i &pos, float range);
 	void buildGlestimalMap(Field f, V2iList &positions);

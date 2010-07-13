@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-#if _GAE_DEBUG_EDITION_
+#if DEBUG_RENDERING_ENABLED
 #	include "debug_renderer.h"
 #endif
 
@@ -177,8 +177,10 @@ void Cartographer::fixupResourceMaps(const ResourceType *rt, const Vec2i &pos) {
 PatchMap<1>* Cartographer::buildSiteMap(BuildSiteMapKey key) {
 	PF_TRACE();
 	PatchMap<1> *sMap = siteMaps[key] = buildAdjacencyMap(key.buildingType, key.buildingPosition,
-		key.workerField, key.workerSize);
-//		IF_DEBUG_EDITION( debugAddBuildSiteMap(sMap); )
+		key.buildingFacing, key.workerField, key.workerSize);
+#	ifdef DEBUG_RENDERING_ENABLED
+		debugAddBuildSiteMap(sMap);
+#	endif
 	return sMap;
 }
 
@@ -216,12 +218,12 @@ PatchMap<1>* Cartographer::getSiteMap(BuildSiteMapKey key) {
 
 }
 
-PatchMap<1>* Cartographer::getSiteMap(const UnitType *ut, const Vec2i &pos, Unit *worker) {
+PatchMap<1>* Cartographer::getSiteMap(const UnitType *ut, const Vec2i &pos,
+									  CardinalDir facing, Unit *worker) {
 	PF_TRACE();
-	BuildSiteMapKey key(ut, pos, worker->getCurrField(), worker->getType()->getSize());
+	BuildSiteMapKey key(ut, pos, facing, worker->getCurrField(), worker->getType()->getSize());
 	return getSiteMap(key);
 }
-
 
 void Cartographer::onStoreDestroyed(Unit *unit) {
 	///@todo fixme
@@ -229,7 +231,8 @@ void Cartographer::onStoreDestroyed(Unit *unit) {
 //	storeMaps.erase(unit);
 }
 
-PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i &pos, Field f, int size) {
+PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i &pos,
+											 CardinalDir facing, Field f, int size) {
 	PF_TRACE();
 	const Vec2i mapPos = pos + (OrdinalOffsets[odNorthWest] * size);
 	const int sx = pos.x;
@@ -246,7 +249,7 @@ PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i 
 	Util::RectIterator rIter(pos, pos + Vec2i(uType->getSize() - 1));
 	while (rIter.more()) {
 		Vec2i gpos = rIter.next();
-		if (!uType->hasCellMap() || uType->getCellMapCell(gpos.x - sx, gpos.y - sy, CardinalDir::NORTH)) {
+		if (!uType->hasCellMap() || uType->getCellMapCell(gpos.x - sx, gpos.y - sy, facing)) {
 			tmpMap.setInfluence(gpos, 1);
 		}
 	}
@@ -269,7 +272,8 @@ PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i 
 	return pMap;
 }
 
-/*IF_DEBUG_EDITION(
+#ifdef DEBUG_RENDERING_ENABLED
+
 	void Cartographer::debugAddBuildSiteMap(PatchMap<1> *siteMap) {
 		Rectangle mapBounds = siteMap->getBounds();
 		for (int ly = 0; ly < mapBounds.h; ++ly) {
@@ -277,13 +281,14 @@ PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i 
 			for (int lx = 0; lx < mapBounds.w; ++lx) {
 				Vec2i pos(mapBounds.x + lx, y);
 				if (siteMap->getInfluence(pos)) {
-					g_debugRenderer.addBuildSiteCell(pos);
+					getDebugRenderer().addBuildSiteCell(pos);
 				}
 			}
 		}
 	}
-)
-*/
+
+#endif
+
 void Cartographer::tick() {
 	PF_TRACE();
 	if (clusterMap->isDirty()) {
