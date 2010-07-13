@@ -64,7 +64,7 @@ enum PathType {
 
 struct CardinalDir {
 public:
-	enum Enum { NORTH, EAST, SOUTH, WEST };
+	enum Enum { NORTH, EAST, SOUTH, WEST, COUNT };
 
 	CardinalDir() : value(NORTH) {}
 	CardinalDir(Enum v) : value(v) {}

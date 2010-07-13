@@ -128,8 +128,6 @@ void Cartographer::initResourceMap(ResourceMapKey key, PatchMap<1> *pMap) {
 		Resource *r = world->getMap()->getSurfaceCell(*it)->getResource();
 		assert(r);
 
-//		r->Depleted.connect(this, &Cartographer::onResourceDepleted);
-
 		Vec2i tl = *it * GameConstants::cellScale + OrdinalOffsets[odNorthWest] * size;
 		Vec2i br(tl.x + size + 2, tl.y + size + 2);
 
@@ -143,16 +141,14 @@ void Cartographer::initResourceMap(ResourceMapKey key, PatchMap<1> *pMap) {
 	}
 }
 
-
-void Cartographer::onResourceDepleted(Vec2i pos) {
-	const ResourceType *rt = cellMap->getSurfaceCell(pos/GameConstants::cellScale)->getResource()->getType();
+void Cartographer::onResourceDepleted(Vec2i pos, const ResourceType *rt) {
+	PF_TRACE();
+	updateMapMetrics(pos, GameConstants::cellScale);
 	resDirtyAreas[rt].push_back(pos);
-//	Vec2i tl = pos + OrdinalOffsets[odNorthWest];
-//	Vec2i br = pos + OrdinalOffsets[OrdinalDir::SOUTH_EAST] * 2;
-//	resDirtyAreas[rt].push_back(pair<Vec2i,Vec2i>(tl,br));
 }
 
 void Cartographer::fixupResourceMaps(const ResourceType *rt, const Vec2i &pos) {
+	PF_TRACE();
 	const Map &map = *world->getMap();
 	Vec2i junk;
 	for (set<ResourceMapKey>::iterator it = resourceMapKeys.begin(); it != resourceMapKeys.end(); ++it) {
@@ -178,6 +174,55 @@ void Cartographer::fixupResourceMaps(const ResourceType *rt, const Vec2i &pos) {
 	}
 }
 
+PatchMap<1>* Cartographer::buildSiteMap(BuildSiteMapKey key) {
+	PF_TRACE();
+	PatchMap<1> *sMap = siteMaps[key] = buildAdjacencyMap(key.buildingType, key.buildingPosition,
+		key.workerField, key.workerSize);
+//		IF_DEBUG_EDITION( debugAddBuildSiteMap(sMap); )
+	return sMap;
+}
+
+PatchMap<1>* Cartographer::getResourceMap(ResourceMapKey key) {
+	PF_TRACE();
+	return resourceMaps[key];
+}
+
+PatchMap<1>* Cartographer::getStoreMap(StoreMapKey key, bool build) {
+	PF_TRACE();
+	StoreMaps::iterator it = storeMaps.find(key);
+	if (it != storeMaps.end()) {
+		return it->second;
+	}
+	if (build) {
+		return buildStoreMap(key);
+	} else {
+		return 0;
+	}
+}
+
+PatchMap<1>* Cartographer::getStoreMap(const Unit *store, const Unit *worker) {
+	PF_TRACE();
+	StoreMapKey key(store, worker->getCurrField(), worker->getType()->getSize());
+	return getStoreMap(key);
+}
+
+PatchMap<1>* Cartographer::getSiteMap(BuildSiteMapKey key) {
+	PF_TRACE();
+	SiteMaps::iterator it = siteMaps.find(key);
+	if (it != siteMaps.end()) {
+		return it->second;
+	}
+	return buildSiteMap(key);
+
+}
+
+PatchMap<1>* Cartographer::getSiteMap(const UnitType *ut, const Vec2i &pos, Unit *worker) {
+	PF_TRACE();
+	BuildSiteMapKey key(ut, pos, worker->getCurrField(), worker->getType()->getSize());
+	return getSiteMap(key);
+}
+
+
 void Cartographer::onStoreDestroyed(Unit *unit) {
 	///@todo fixme
 //	delete storeMaps[unit];
@@ -185,6 +230,7 @@ void Cartographer::onStoreDestroyed(Unit *unit) {
 }
 
 PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i &pos, Field f, int size) {
+	PF_TRACE();
 	const Vec2i mapPos = pos + (OrdinalOffsets[odNorthWest] * size);
 	const int sx = pos.x;
 	const int sy = pos.y;
@@ -239,6 +285,7 @@ PatchMap<1>* Cartographer::buildAdjacencyMap(const UnitType *uType, const Vec2i 
 )
 */
 void Cartographer::tick() {
+	PF_TRACE();
 	if (clusterMap->isDirty()) {
 		clusterMap->update();
 	}

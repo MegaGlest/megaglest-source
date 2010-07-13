@@ -22,7 +22,10 @@
 #include "sound_renderer.h"
 #include "game_settings.h"
 #include "cache_manager.h"
+#include "route_planner.h"
+
 #include <iostream>
+
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -48,6 +51,9 @@ World::World(){
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
+	routePlanner = 0;
+	cartographer = 0;
+
 	frameCount= 0;
 	//nextUnitId= 0;
 
@@ -61,6 +67,10 @@ World::~World() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete techTree;
 	techTree = NULL;
+	delete routePlanner;
+	routePlanner = 0;
+	delete cartographer;
+	cartographer = 0;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -98,8 +108,6 @@ void World::init(Game *game, bool createUnits){
     this->game = game;
 	scriptManager= game->getScriptManager();
 
-	unitUpdater.init(game);
-
 	GameSettings *gs = game->getGameSettings();
 	if(fogOfWarOverride == false) {
 		fogOfWar = gs->getFogOfWar();
@@ -109,6 +117,12 @@ void World::init(Game *game, bool createUnits){
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
 	initSplattedTextures();
+
+	// must be done after initMap()
+	routePlanner = new RoutePlanner(this);
+	cartographer = new Cartographer(this);
+
+	unitUpdater.init(game);
 
 	//minimap must be init after sum computation
 	initMinimap();
@@ -276,6 +290,7 @@ void World::tick(){
 			}
 		}
 	}
+	cartographer->tick();
 }
 
 Unit* World::findUnitById(int id){
@@ -690,10 +705,10 @@ void World::initUnits(){
 				else{
 					throw runtime_error("Unit cant be placed, this error is caused because there is no enough place to put the units near its start location, make a better map: "+unit->getType()->getName() + " Faction: "+intToStr(i));
 				}
-				if(unit->getType()->hasSkillClass(scBeBuilt)){
-                    map.flatternTerrain(unit);
+				if (unit->getType()->hasSkillClass(scBeBuilt)) {
+					map.flatternTerrain(unit);
+					cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
 				}
-
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
             }
 		}

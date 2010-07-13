@@ -126,27 +126,7 @@ private:
 	}
 
 //	IF_DEBUG_EDITION( void debugAddBuildSiteMap(PatchMap<1>*); )
-
-	PatchMap<1>* buildSiteMap(BuildSiteMapKey key) {
-		PatchMap<1> *sMap = siteMaps[key] = buildAdjacencyMap(key.buildingType, key.buildingPosition,
-			key.workerField, key.workerSize);
-//		IF_DEBUG_EDITION( debugAddBuildSiteMap(sMap); )
-		return sMap;
-	}
-
-	// slots
-	void onResourceDepleted(Vec2i pos);
-	void onStoreDestroyed(Unit *unit);
-
-	void onUnitBorn(Unit *unit);
-	void onUnitMoved(Unit *unit);
-	void onUnitMorphed(Unit *unit, const UnitType *type);
-	void onUnitDied(Unit *unit);
-
-	void maintainUnitVisibility(Unit *unit, bool add);
-
-	void saveResourceState(XmlNode *node);
-	void loadResourceState(XmlNode *node);
+	PatchMap<1>* buildSiteMap(BuildSiteMapKey key);
 
 public:
 	Cartographer(World *world);
@@ -156,52 +136,24 @@ public:
 	RoutePlanner* getRoutePlanner() { return routePlanner; }
 
 	/** Update the annotated maps when an obstacle has been added or removed from the map.
-	  * Unconditionally updates the master map, updates team maps if the team can see the cells,
-	  * or mark as 'dirty' if they cannot currently see the change. @todo implement team maps
 	  * @param pos position (north-west most cell) of obstacle
 	  * @param size size of obstacle	*/
 	void updateMapMetrics(const Vec2i &pos, const int size) { 
 		masterMap->updateMapMetrics(pos, size);
-		// who can see it ? update their maps too.
-		// set cells as dirty for those that can't see it
 	}
+
+	void onResourceDepleted(Vec2i pos, const ResourceType *rt);
+	void onStoreDestroyed(Unit *unit);
 
 	void tick();
 
-	PatchMap<1>* getResourceMap(ResourceMapKey key) {
-		return resourceMaps[key];
-	}
+	PatchMap<1>* getResourceMap(ResourceMapKey key);
 
-	PatchMap<1>* getStoreMap(StoreMapKey key, bool build=true) {
-		StoreMaps::iterator it = storeMaps.find(key);
-		if (it != storeMaps.end()) {
-			return it->second;
-		}
-		if (build) {
-			return buildStoreMap(key);
-		} else {
-			return 0;
-		}
-	}
-
-	PatchMap<1>* getStoreMap(const Unit *store, const Unit *worker) {
-		StoreMapKey key(store, worker->getCurrField(), worker->getType()->getSize());
-		return getStoreMap(key);
-	}
-
-	PatchMap<1>* getSiteMap(BuildSiteMapKey key) {
-		SiteMaps::iterator it = siteMaps.find(key);
-		if (it != siteMaps.end()) {
-			return it->second;
-		}
-		return buildSiteMap(key);
-
-	}
-
-	PatchMap<1>* getSiteMap(const UnitType *ut, const Vec2i &pos, Unit *worker) {
-		BuildSiteMapKey key(ut, pos, worker->getCurrField(), worker->getType()->getSize());
-		return getSiteMap(key);
-	}
+	PatchMap<1>* getStoreMap(StoreMapKey key, bool build=true);
+	PatchMap<1>* getStoreMap(const Unit *store, const Unit *worker);
+	
+	PatchMap<1>* getSiteMap(BuildSiteMapKey key);
+	PatchMap<1>* getSiteMap(const UnitType *ut, const Vec2i &pos, Unit *worker);
 
 	void adjustGlestimalMap(Field f, TypeMap<float> &iMap, const Vec2i &pos, float range);
 	void buildGlestimalMap(Field f, V2iList &positions);

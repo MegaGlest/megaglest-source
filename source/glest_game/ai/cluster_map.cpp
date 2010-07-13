@@ -22,7 +22,7 @@ using Shared::Util::line;
 
 #define _USE_LINE_PATH_ 1
 
-#if _GAE_DEBUG_EDITION_
+#if DEBUG_RENDERING_ENABLED
 #	include "debug_renderer.h"
 #endif
 
@@ -54,8 +54,6 @@ ClusterMap::ClusterMap(AnnotatedMap *aMap, Cartographer *carto)
 	Edge::zeroCounters();
 	Transition::zeroCounters();
 
-	//g_logger.setClusterCount(w * h);
-
 	// init Borders (and hence inter-cluster edges) & evaluate clusters (intra-cluster edges)
 	for (int i = h - 1; i >= 0; --i) {
 		for (int j = w - 1; j >= 0; --j) {
@@ -71,8 +69,8 @@ ClusterMap::~ClusterMap() {
 	delete [] vertBorders;
 	delete [] horizBorders;
 	for (int f = 0; f < fieldCount; ++f) {
-		assert(Edge::NumEdges(f) == 0);
-		assert(Transition::NumTransitions(f) == 0);
+		assert(Edge::NumEdges(Field(f)) == 0);
+		assert(Transition::NumTransitions(Field(f)) == 0);
 		if (Edge::NumEdges(Field(f)) != 0 || Transition::NumTransitions(Field(f)) != 0) {
 			throw runtime_error("memory leak");
 		}
@@ -302,17 +300,17 @@ void ClusterMap::initClusterBorder(const Vec2i &cluster, bool north) {
 		inf.run = 0;	 // to count entrance 'width'
 		for (int f = 0; f < fieldCount; ++f) {
 			if (!aMap->maxClearance[f] || f == fAir) continue;
-/*
-			IF_DEBUG_EDITION(
+
+#			if DEBUG_RENDERING_ENABLED
 				if (f == fLand) {	
 					for (int i=0; i < cb->transitions[f].n; ++i) {
-						g_debugRenderer.getCMOverlay().entranceCells.erase(
+						getDebugRenderer().getCMOverlay().entranceCells.erase(
 							cb->transitions[f].transitions[i]->nwPos
 						);
 					}
 				}
-			) // DEBUG_EDITION
-*/
+#			endif
+
 			cb->transitions[f].clear();
 			clear = false;
 			inf.f = Field(f);
@@ -353,15 +351,15 @@ void ClusterMap::initClusterBorder(const Vec2i &cluster, bool north) {
 				clear = false;
 			}
 		}// for each Field
-/*
-		IF_DEBUG_EDITION(
+
+#		if DEBUG_RENDERING_ENABLED
 			for (int i=0; i < cb->transitions[fLand].n; ++i) {
-				g_debugRenderer.getCMOverlay().entranceCells.insert(
+				getDebugRenderer().getCMOverlay().entranceCells.insert(
 					cb->transitions[fLand].transitions[i]->nwPos
 				);
 			}
-		) // DEBUG_EDITION
-*/
+#		endif
+
 	} // if not sentinel
 }
 
@@ -389,8 +387,13 @@ float ClusterMap::linePathLength(Field f, int size, const Vec2i &start, const Ve
 	vector<Vec2i>::iterator it = linePath.begin();
 	vector<Vec2i>::iterator nIt = it + 1;
 	float cost = 0.f;
-	while (nIt != linePath.end() && cost != -1.f) {
-		cost += costFunc(*it++, *nIt++);
+	while (nIt != linePath.end()) {
+		float add = costFunc(*it++, *nIt++);
+		if (add != -1.f) {
+			cost += add;
+		} else {
+			return -1.f;
+		}
 	}
 	return cost;
 }

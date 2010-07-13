@@ -666,7 +666,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
-			return c;
+			return (c & 0xFF);
 			break;
 	}
 
