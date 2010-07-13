@@ -53,8 +53,10 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="c:\temp\glest\$(TargetName).pch"
+				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
 				WarningLevel="2"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4250"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -126,9 +128,11 @@
 				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="0"
 				RuntimeTypeInfo="true"
+				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4250"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
