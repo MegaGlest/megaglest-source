@@ -184,10 +184,12 @@ TravelState RoutePlanner::findPathToStore(Unit *unit, const Unit *store) {
 	return findPathToGoal(unit, goal, target);
 }
 
-TravelState RoutePlanner::findPathToBuildSite(Unit *unit, const UnitType *buildingType, const Vec2i &buildingPos) {
+TravelState RoutePlanner::findPathToBuildSite(Unit *unit, const UnitType *bType, 
+											  const Vec2i &bPos, CardinalDir bFacing) {
 	PF_TRACE();
-	PMap1Goal goal(world->getCartographer()->getSiteMap(buildingType, buildingPos, unit));
-	return findPathToGoal(unit, goal, buildingPos + Vec2i(buildingType->getSize() / 2));
+	PatchMap<1> *pMap = world->getCartographer()->getSiteMap(bType, bPos, bFacing, unit);
+	PMap1Goal goal(pMap);
+	return findPathToGoal(unit, goal, bPos + Vec2i(bType->getSize() / 2));
 }
 
 

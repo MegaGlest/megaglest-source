@@ -287,7 +287,7 @@ void UnitUpdater::updateBuild(Unit *unit){
         //if not building
         const UnitType *ut= command->getUnitType();
 
-		switch (routePlanner->findPathToBuildSite(unit, ut, command->getPos())) {
+		switch (routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing())) {
         case PathFinder::tsOnTheWay:
             unit->setCurrSkill(bct->getMoveSkillType());
             break;
@@ -383,8 +383,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			Resource *r= map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
 			if(r!=NULL && hct->canHarvest(r->getType())){
 				//if can harvest dest. pos
-				if(/*unit->getPos().dist(command->getPos())<harvestDistance &&*/
-					map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos)) {
+				if (map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos)) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
 						unit->setTargetPos(targetPos);
@@ -635,6 +634,7 @@ void UnitUpdater::updateMorph(Unit *unit){
 		unit->update2();
         if(unit->getProgress2()>mct->getProduced()->getProductionTime()){
 
+			int oldSize = unit->getType()->getSize();
 			bool needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
 
 			//finish the command
@@ -644,7 +644,8 @@ void UnitUpdater::updateMorph(Unit *unit){
 					gui->onSelectionChanged();
 				}
 				if (needMapUpdate) {
-					world->getCartographer()->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+					int size = std::max(oldSize, unit->getType()->getSize());
+					world->getCartographer()->updateMapMetrics(unit->getPos(), size);
 				}
 				scriptManager->onUnitCreated(unit);
 			}

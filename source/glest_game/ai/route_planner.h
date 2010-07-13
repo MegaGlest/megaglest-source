@@ -159,7 +159,7 @@ public:
 
 	TravelState findPathToStore(Unit *unit, const Unit *store);
 
-	TravelState findPathToBuildSite(Unit *unit, const UnitType *buildingType, const Vec2i &buildingPos);
+	TravelState findPathToBuildSite(Unit *unit, const UnitType *bType, const Vec2i &bPos, CardinalDir bFacing);
 
 	bool isLegalMove(Unit *unit, const Vec2i &pos) const;
 
