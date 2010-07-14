@@ -339,6 +339,22 @@ bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamInde
     return true;
 }
 
+bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
+	if (ut->hasCellMap()) {
+		for (int y=0; y < ut->getSize(); ++y) {
+			for (int x=0; x < ut->getSize(); ++x) {
+				if (ut->getCellMapCell(x, y, facing)) {
+					if (!isFreeCell(pos + Vec2i(x, y), field)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	} else {
+		return isFreeCells(pos, ut->getSize(), field);
+	}
+}
 
 // ==================== unit placement ====================
 

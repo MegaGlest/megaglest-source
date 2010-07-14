@@ -294,8 +294,9 @@ void UnitUpdater::updateBuild(Unit *unit){
 
         case PathFinder::tsArrived:
             //if arrived destination
-            assert(command->getUnitType()!=NULL);
-            if(map->isFreeCells(command->getPos(), ut->getSize(), fLand)){
+            assert(ut);
+			if (map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing())) {
+			//if(map->isFreeCells(command->getPos(), ut->getSize(), fLand)){
 				const UnitType *builtUnitType= command->getUnitType();
 				CardinalDir facing = command->getFacing();
 				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
@@ -510,7 +511,13 @@ void UnitUpdater::updateRepair(Unit *unit){
                 unit->setCurrSkill(rct->getRepairSkillType());
 			}
 			else{
-				switch(routePlanner->findPath(unit, command->getPos())){
+				TravelState ts;
+				if (repaired && !repaired->getType()->isMobile()) {
+					ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
+				} else {
+					ts = routePlanner->findPath(unit, command->getPos());
+				}
+				switch(ts) {
 				case PathFinder::tsOnTheWay:
 					unit->setCurrSkill(rct->getMoveSkillType());
 					break;

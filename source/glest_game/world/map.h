@@ -206,6 +206,8 @@ public:
 	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
 
+	bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);
+
 	//unit placement
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
 	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
