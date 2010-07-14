@@ -3,16 +3,13 @@
 # Library directory
 LIBDIR="lib"
 
-# If we are launching from a symlink, such as /usr/local/bin/runglest.sh, we need to get where
-# the symlink points to
-pth="`readlink $0`"
+# As a first step to determine the absolute path of the directory the game 
+# resides in, dereference symlinks to this script and convert relative to 
+# absolute paths along the way.
+MYLOCATION="`readlink -f $0`"
 
-# $pth will be empty if our start path wasnt a symlink
-if [ $pth ]; then
-	GAMEDIR="`dirname $pth`"
-else
-	GAMEDIR="`dirname $0`"
-fi
+# The game directory is the directory the script resides in
+GAMEDIR="`dirname $MYLOCATION`"
 
 # Change to the game dir, and go!
 cd $GAMEDIR
@@ -21,8 +18,28 @@ echo gamedir [$GAMEDIR]
 # export game library directory
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
+# ensure ldconfig is found (was an issue on OpenSuSE 11.2)
+if [ "$LDCONFIG"'x' = 'x' ]  # 'LDCONFIG' environment variable, if set, overrides the following detection 
+then
+  if [ `which ldconfig 2>/dev/null` ]
+  then 
+    LDCONFIG=`which ldconfig 2>/dev/null`
+  else
+    if [ -x /sbin/ldconfig ]
+    then
+      LDCONFIG=/sbin/ldconfig
+    # optionally add more custom locations using 'elseif' here
+    else
+      echo 'ERROR: Could not find the "ldconfig" command.' >&2
+      echo 'Try running "LDCONFIG=`which ldconfig` '"$0"' instead.' >&2
+      exit 1
+    fi
+  fi
+fi
+
+
 # now deal with the openal library [libopenal.so.0]
-OSTYPE=`uname -m`
+OS_TYPE=`uname -m`
 
 OPENAL_LINKEDLIBNAME="libopenal.so.0"
 OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
@@ -40,7 +57,7 @@ DIRECT_LINKEDLIBNAME="libdirect-1.0.so.0"
 DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
 DIRECT_LIBLOOKUP2="libdirect-1.2.so.0"
 
-if [ "$OSTYPE" = "x86_64" ]; then
+if [ "$OS_TYPE" = "x86_64" ]; then
   OPENAL_LIBLOOKUP1="${OPENAL_LIBLOOKUP1} (libc6)"
   OPENAL_LIBLOOKUP2="${OPENAL_LIBLOOKUP2} (libc6)"
 
@@ -54,62 +71,61 @@ if [ "$OSTYPE" = "x86_64" ]; then
   DIRECT_LIBLOOKUP2="${DIRECT_LIBLOOKUP2} (libc6)"
 fi
 
-hasopenal=`ldconfig -p | grep -m 1 "$OPENAL_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+hasopenal=`$LDCONFIG -p | grep -m 1 "$OPENAL_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
 #echo "openal search = [$hasopenal]"
 if [ -n "$hasopenal" ]; then
   echo "default openal library was found in [$hasopenal]"
 else
   echo "default openal library is missing, attempting to find and link to a newer version if available..."
 
-  hasopenal=`ldconfig -p | grep -m 1 "$OPENAL_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  hasopenal=`$LDCONFIG -p | grep -m 1 "$OPENAL_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasopenal" ]; then
     echo "new openal library link = $hasopenal"
-    ln -f -s $hasopenal lib/${OPENAL_LINKEDLIBNAME}
+    ln -f -s $hasopenal $GAMEDIR/$LIBDIR/${OPENAL_LINKEDLIBNAME}
   fi
 fi
 
-hasdirectfb=`ldconfig -p | grep -m 1 "$DIRECTFB_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+hasdirectfb=`$LDCONFIG -p | grep -m 1 "$DIRECTFB_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
 #echo "directfb search = [$hasdirectfb]"
 if [ -n "$hasdirectfb" ]; then
   echo "default directfb library was found in [$hasdirectfb]"
 else
   echo "default directfb library is missing, attempting to find and link to a different location if available..."
 
-  hasdirectfb=`ldconfig -p | grep -m 1 "$DIRECTFB_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  hasdirectfb=`$LDCONFIG -p | grep -m 1 "$DIRECTFB_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasdirectfb" ]; then
     echo "new directfb library link = $hasdirectfb"
-    ln -f -s $hasdirectfb lib/${DIRECTFB_LINKEDLIBNAME}
+    ln -f -s $hasdirectfb $GAMEDIR/$LIBDIR/${DIRECTFB_LINKEDLIBNAME}
   fi
 fi
 
-hasfusion=`ldconfig -p | grep -m 1 "$FUSION_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+hasfusion=`$LDCONFIG -p | grep -m 1 "$FUSION_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
 #echo "fusion search = [$hasfusion]"
 if [ -n "$hasfusion" ]; then
   echo "default fusion library was found in [$hasfusion]"
 else
   echo "default fusion library is missing, attempting to find and link to a different location if available..."
 
-  hasfusion=`ldconfig -p | grep -m 1 "$FUSION_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  hasfusion=`$LDCONFIG -p | grep -m 1 "$FUSION_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasfusion" ]; then
     echo "new fusion library link = $hasfusion"
-    ln -f -s $hasfusion lib/${FUSION_LINKEDLIBNAME}
+    ln -f -s $hasfusion $GAMEDIR/$LIBDIR/${FUSION_LINKEDLIBNAME}
   fi
 fi
 
-hasdirect=`ldconfig -p | grep -m 1 "$DIRECT_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+hasdirect=`$LDCONFIG -p | grep -m 1 "$DIRECT_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
 #echo "direct search = [$hasdirect]"
 if [ -n "$hasdirect" ]; then
   echo "default direct library was found in [$hasdirect]"
 else
   echo "default direct library is missing, attempting to find and link to a different location if available..."
 
-  hasdirect=`ldconfig -p | grep -m 1 "$DIRECT_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+  hasdirect=`$LDCONFIG -p | grep -m 1 "$DIRECT_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
   if [ -n "$hasdirect" ]; then
     echo "new direct library link = $hasdirect"
-    ln -f -s $hasdirect lib/${DIRECT_LINKEDLIBNAME}
+    ln -f -s $hasdirect $GAMEDIR/$LIBDIR/${DIRECT_LINKEDLIBNAME}
   fi
 fi
 
-./bin/glest.bin 2>&1 | tee -a glest.log
-# ./bin/glest.bin 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
-
+./bin/glest.bin $@ 2>&1 | tee -a glest.log
+# ./bin/glest.bin $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
