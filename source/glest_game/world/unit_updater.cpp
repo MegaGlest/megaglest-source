@@ -60,7 +60,6 @@ void UnitUpdater::init(Game *game){
 
 //skill dependent actions
 void UnitUpdater::updateUnit(Unit *unit){
-
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	//play skill sound
@@ -121,8 +120,7 @@ void UnitUpdater::updateUnit(Unit *unit){
 
 //VERY IMPORTANT: compute next state depending on the first order of the list
 void UnitUpdater::updateUnitCommand(Unit *unit){
-
-	//if unis has command process it
+	//if unit has command process it
     if(unit->anyCommand()) {
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
@@ -132,7 +130,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit){
 	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		unit->setCurrSkill(scStop);
 		if(unit->getType()->hasCommandClass(ccStop)){
-		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 		}
 	}

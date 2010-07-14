@@ -52,9 +52,22 @@ class RoutePlanner;
 ///	The game world: Map + Tileset + TechTree
 // =====================================================
 
+class ExploredCellsLookupItem {
+public:
+
+	Vec2i pos;
+	int sightRange;
+	int teamIndex;
+
+	std::vector<SurfaceCell *> exploredCellList;
+	std::vector<SurfaceCell *> visibleCellList;
+};
+
 class World{
 private:
 	typedef vector<Faction> Factions;
+
+	std::vector<ExploredCellsLookupItem> ExploredCellsLookupItemCache;
 
 public:
 	static const int generationArea= 100;

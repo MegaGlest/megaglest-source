@@ -247,6 +247,9 @@ void World::update(){
 	//tick
 	if(frameCount%GameConstants::updateFps==0){
 		computeFow();
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		tick();
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -296,7 +299,11 @@ void World::tick(){
 Unit* World::findUnitById(int id){
 	for(int i= 0; i<getFactionCount(); ++i){
 		Faction* faction= getFaction(i);
-
+		Unit* unit = faction->findUnit(id);
+		if(unit != NULL) {
+			return unit;
+		}
+/*
 		for(int j= 0; j<faction->getUnitCount(); ++j){
 			Unit* unit= faction->getUnit(j);
 
@@ -304,6 +311,7 @@ Unit* World::findUnitById(int id){
 				return unit;
 			}
 		}
+*/
 	}
 	return NULL;
 }
@@ -727,6 +735,28 @@ void World::initMap(){
 // ==================== exploration ====================
 
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
+	// Experimental cache lookup of previously calculated cells + sight range
+	for(int idx = 0; idx < ExploredCellsLookupItemCache.size(); ++idx) {
+		ExploredCellsLookupItem &item = ExploredCellsLookupItemCache[idx];
+		if(item.pos == newPos && item.sightRange == sightRange && item.teamIndex == teamIndex) {
+			std::vector<SurfaceCell *> &cellList = item.exploredCellList;
+			for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+				SurfaceCell *sc = cellList[idx2];
+				sc->setExplored(teamIndex, true);
+			}
+			cellList = item.visibleCellList;
+			for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+				SurfaceCell *sc = cellList[idx2];
+				sc->setVisible(teamIndex, true);
+			}
+
+			break;
+		}
+	}
+	ExploredCellsLookupItem item;
+	item.pos = newPos;
+	item.sightRange = sightRange;
+	item.teamIndex = teamIndex;
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
@@ -743,22 +773,33 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 				//explore
 				if(Vec2i(0).dist(currRelPos) < surfSightRange+indirectSightRange+1){
                     sc->setExplored(teamIndex, true);
+
+                    item.exploredCellList.push_back(sc);
 				}
 
 				//visible
 				if(Vec2i(0).dist(currRelPos) < surfSightRange){
 					sc->setVisible(teamIndex, true);
+					item.visibleCellList.push_back(sc);
 				}
             }
         }
+    }
+
+    if(item.exploredCellList.size() > 0 || item.visibleCellList.size() > 0) {
+    	ExploredCellsLookupItemCache.push_back(item);
     }
 }
 
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(){
+	Chrono chrono;
+	chrono.start();
 
 	//reset texture
 	minimap.resetFowTex();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//reset cells
 	for(int i=0; i<map.getSurfaceW(); ++i){
@@ -770,6 +811,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute cells
 	for(int i=0; i<getFactionCount(); ++i){
@@ -783,6 +826,8 @@ void World::computeFow(){
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	//fire
 	for(int i=0; i<getFactionCount(); ++i){
 		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
@@ -795,6 +840,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute texture
 	for(int i=0; i<getFactionCount(); ++i){
@@ -839,6 +886,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // WARNING! This id is critical! MAke sure it fits inside the network packet
