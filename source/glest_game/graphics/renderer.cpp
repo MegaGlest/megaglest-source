@@ -148,8 +148,8 @@ const Vec4f Renderer::defDiffuseColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 const Vec4f Renderer::defAmbientColor= Vec4f(1.f * ambFactor, 1.f * ambFactor, 1.f * ambFactor, 1.f);
 const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
-const float Renderer::maxLightDist= 100.f;
-//const float Renderer::maxLightDist= 1000.f;
+//const float Renderer::maxLightDist= 100.f;
+const float Renderer::maxLightDist= 1000.f;
 
 // ==================== constructor and destructor ====================
 
