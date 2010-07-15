@@ -553,6 +553,15 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			case SDLK_RSHIFT:
 				return vkShift;
 		}
+		if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+			return vkAlt;
+		}
+		else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+			return vkControl;
+		}
+		else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+			return vkShift;
+		}
 	}
 	switch(keysym.sym) {
 		case SDLK_PLUS:
@@ -663,7 +672,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			if(c == 0) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				if(skipSpecialKeys == false) {
+				if(skipSpecialKeys == true) {
 					switch(keysym.sym) {
 						case SDLK_LALT:
 						case SDLK_RALT:
@@ -674,6 +683,16 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
 							return vkShift;
+					}
+
+					if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+						return vkAlt;
+					}
+					else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+						return vkControl;
+					}
+					else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+						return vkShift;
 					}
 				}
 
