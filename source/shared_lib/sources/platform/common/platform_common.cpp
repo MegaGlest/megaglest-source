@@ -794,8 +794,12 @@ bool isKeyDown(int virtualKey) {
 	char key = static_cast<char> (virtualKey);
 	const Uint8* keystate = SDL_GetKeyState(0);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
 	// kinda hack and wrong...
 	if(key >= 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
+
 		return keystate[key];
 	}
 	switch(key) {
@@ -827,6 +831,7 @@ bool isKeyDown(int virtualKey) {
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
 	return false;
 }
 
