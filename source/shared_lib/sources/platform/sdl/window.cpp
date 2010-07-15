@@ -662,6 +662,21 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			}
 			if(c == 0) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(skipSpecialKeys == false) {
+					switch(keysym.sym) {
+						case SDLK_LALT:
+						case SDLK_RALT:
+							return vkAlt;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							return vkControl;
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							return vkShift;
+					}
+				}
+
 				c = keysym.sym;
 			}
 
