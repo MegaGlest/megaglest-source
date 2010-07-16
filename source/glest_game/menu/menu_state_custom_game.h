@@ -69,6 +69,9 @@ private:
 	GraphicListBox listBoxNetworkFramePeriod;
 	GraphicLabel labelNetworkFramePeriod;
 	
+	GraphicLabel labelNetworkPauseGameForLaggedClients;
+	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
