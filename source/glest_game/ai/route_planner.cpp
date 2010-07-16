@@ -131,9 +131,10 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 	assert(unit->getPos().dist(pos2) < 1.5);
 
 	float d = unit->getPos().dist(pos2);
-	if (d > 1.5 || d < 0.9f) {
-		throw runtime_error("The new Pathfinder lied.");
-	}
+	//if (d > 1.6 || d < 0.7f) {
+	//	printf("\nd = %g", d);
+	//	throw runtime_error("The new Pathfinder lied.");
+	//}
 
 	const Vec2i &pos1 = unit->getPos();
 	const int &size = unit->getType()->getSize();
@@ -207,15 +208,14 @@ float RoutePlanner::quickSearch(Field field, int size, const Vec2i &start, const
 	return -1.f;
 }
 
-HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &dest, TransitionGoal &goalFunc) {
-	PF_TRACE();
+HAAStarResult RoutePlanner::setupHierarchicalOpenList(Unit *unit, const Vec2i &target) {
 	// get Transitions for start cluster
 	Transitions transitions;
 	Vec2i startCluster = ClusterMap::cellToCluster(unit->getPos());
 	ClusterMap *clusterMap = world->getCartographer()->getClusterMap();
 	clusterMap->getTransitions(startCluster, unit->getCurrField(), transitions);
 
-	DiagonalDistance dd(dest);
+	DiagonalDistance dd(target);
 	nsgSearchEngine->getNeighbourFunc().setSearchCluster(startCluster);
 
 	bool startTrap = true;
@@ -231,9 +231,9 @@ HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &des
 			startTrap = false;
 		}
 	}
+	aMap->clearLocalAnnotations(unit);
 	if (startTrap) {
 		// do again, without annnotations, return TRAPPED if all else goes well
-		aMap->clearLocalAnnotations(unit);
 		bool locked = true;
 		for (Transitions::iterator it = transitions.begin(); it != transitions.end(); ++it) {
 			float cost = quickSearch(unit->getCurrField(), unit->getType()->getSize(), unit->getPos(), (*it)->nwPos);
@@ -245,23 +245,28 @@ HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &des
 		if (locked) {
 			return hsrFailed;
 		}
+		return hsrStartTrap;
 	}
+	return hsrComplete;
+}
+
+HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &dest, TransitionGoal &goalFunc) {
+	PF_TRACE();
+
+	// set-up open list
+	HAAStarResult res = setupHierarchicalOpenList(unit, dest);
+	if (res == hsrFailed) {
+		return hsrFailed;
+	}
+	bool startTrap = res == hsrStartTrap;
 
 	// transitions to goal
-	transitions.clear();
+	Transitions transitions;
 	Vec2i cluster = ClusterMap::cellToCluster(dest);
-	clusterMap->getTransitions(cluster, unit->getCurrField(), transitions);
-
+	world->getCartographer()->getClusterMap()->getTransitions(cluster, unit->getCurrField(), transitions);
 	nsgSearchEngine->getNeighbourFunc().setSearchCluster(cluster);
 
 	bool goalTrap = true;
-	bool stillAnnotated = startCluster.dist(cluster) < 1.5;
-	if (!stillAnnotated) {
-		aMap->clearLocalAnnotations(unit);
-	}
-	if (stillAnnotated && startTrap) {
-		stillAnnotated = false;
-	}
 	// attempt quick path from dest to each transition, 
 	// if successful add transition to goal set
 	for (Transitions::iterator it = transitions.begin(); it != transitions.end(); ++it) {
@@ -269,22 +274,6 @@ HAAStarResult RoutePlanner::setupHierarchicalSearch(Unit *unit, const Vec2i &des
 		if (cost != -1.f) {
 			goalFunc.goalTransitions().insert(*it);
 			goalTrap = false;
-		}
-	}
-	if (stillAnnotated) {
-		aMap->clearLocalAnnotations(unit);
-	}
-	if (goalTrap) {
-		if (stillAnnotated) {
-			for (Transitions::iterator it = transitions.begin(); it != transitions.end(); ++it) {
-				float cost = quickSearch(unit->getCurrField(), unit->getType()->getSize(), dest, (*it)->nwPos);
-				if (cost != -1.f) {
-					goalFunc.goalTransitions().insert(*it);
-				}
-			}
-			if (goalFunc.goalTransitions().empty()) {
-				return hsrFailed;
-			}
 		}
 	}
 	return startTrap ? hsrStartTrap
@@ -316,6 +305,95 @@ HAAStarResult RoutePlanner::findWaypointPath(Unit *unit, const Vec2i &dest, Wayp
 	}
 	return hsrFailed;
 }
+
+/** goal function for search on cluster map when goal position is unexplored */
+class UnexploredGoal {
+private:
+	set<const Transition*> potentialGoals;
+	int team;
+	Map *map;
+
+public:
+	UnexploredGoal(Map *map, int teamIndex) : team(teamIndex), map(map) {}
+	bool operator()(const Transition *t, const float d) const {
+		Edges::const_iterator it =  t->edges.begin();
+		for ( ; it != t->edges.end(); ++it) {
+			if (!map->getSurfaceCell(Map::toSurfCoords((*it)->transition()->nwPos))->isExplored(team)) {
+				// leads to unexplored area, is a potential goal
+				const_cast<UnexploredGoal*>(this)->potentialGoals.insert(t);
+				return false;
+			}
+		}
+		// always 'fails', is used to build a list of possible 'avenues of exploration'
+		return false;
+	}
+
+	/** returns the 'potential goal' transition closest to target, or null if no potential goals */
+	const Transition* getBestSeen(const Vec2i &currPos, const Vec2i &target) {
+		const Transition *best = 0;
+		float distToBest = Shared::Graphics::infinity;//1e6f//numeric_limits<float>::infinity();
+		set<const Transition*>::iterator itEnd = potentialGoals.end();
+		for (set<const Transition*>::iterator it = potentialGoals.begin(); it != itEnd; ++it) {
+			float myDist = (*it)->nwPos.dist(target) + (*it)->nwPos.dist(currPos);
+			if (myDist < distToBest) {
+				best = *it;
+				distToBest = myDist;
+			}
+		}
+		return best;
+	}
+};
+
+/** cost function for searching cluster map with a unexplored target */
+class UnexploredCost {
+	Field field;
+	int size;
+	int team;
+	Map *map;
+
+public:
+	UnexploredCost(Field f, int s, int team, Map *map) : field(f), size(s), team(team), map(map) {}
+	float operator()(const Transition *t, const Transition *t2) const {
+		Edges::const_iterator it =  t->edges.begin();
+		for ( ; it != t->edges.end(); ++it) {
+			if ((*it)->transition() == t2) {
+				break;
+			}
+		}
+		assert(it != t->edges.end());
+		if ((*it)->maxClear() >= size 
+		&& map->getSurfaceCell(Map::toSurfCoords((*it)->transition()->nwPos))->isExplored(team)) {
+			return (*it)->cost(size);
+		}
+		return -1.f;
+	}
+};
+
+HAAStarResult RoutePlanner::findWaypointPathUnExplored(Unit *unit, const Vec2i &dest, WaypointPath &waypoints) {
+	// set-up open list
+	HAAStarResult res = setupHierarchicalOpenList(unit, dest);
+	nsgSearchEngine->getNeighbourFunc().setSearchSpace(ssCellMap);
+	if (res == hsrFailed) {
+		return hsrFailed;
+	}
+	bool startTrap = res == hsrStartTrap;
+	UnexploredGoal goal(world->getMap(), unit->getTeam());
+	UnexploredCost cost(unit->getCurrField(), unit->getType()->getSize(), unit->getTeam(), world->getMap());
+	TransitionHeuristic heuristic(dest);
+	tSearchEngine->aStar(goal, cost, heuristic);
+	const Transition *t = goal.getBestSeen(unit->getPos(), dest);
+	if (!t) {
+		return hsrFailed;
+	}
+	WaypointPath &wpPath = *unit->getWaypointPath();
+	wpPath.clear();
+	while (t) {
+		waypoints.push(t->nwPos);
+		t = tSearchEngine->getPreviousPos(t);
+	}
+	return res; // return setup res (in case of start trap)
+}
+
 
 /** refine waypoint path, extend low level path to next waypoint.
   * @return true if successful, in which case waypoint will have been popped.
@@ -569,7 +647,13 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 
 	// Hierarchical Search
 	tSearchEngine->reset();
-	HAAStarResult res = findWaypointPath(unit, target, wpPath);
+	Map *map = world->getMap();
+	HAAStarResult res;
+	if (map->getSurfaceCell(Map::toSurfCoords(target))->isExplored(unit->getTeam())) {
+		res = findWaypointPath(unit, target, wpPath);
+	} else {
+		res = findWaypointPathUnExplored(unit, target, wpPath);
+	}
 	if (res == hsrFailed) {
 		if (unit->getFaction()->getThisFaction()) {
 			world->getGame()->getConsole()->addLine(Lang::getInstance().get("ImpossibleRoute"));
@@ -586,12 +670,14 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 
 	PF_TRACE();
 
-//	IF_DEBUG_EDITION( collectWaypointPath(unit); )
+	//	IF_DEBUG_EDITION( collectWaypointPath(unit); )
 	//CONSOLE_LOG( "WaypointPath size : " + intToStr(wpPath.size()) )
-	//TODO post process, scan wpPath, if prev.dist(pos) < 4 cull prev
-	assert(wpPath.size() > 1);
-	wpPath.pop();
-//	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
+	if (wpPath.size() > 1) {
+		wpPath.pop();
+	}
+	assert(!wpPath.empty());
+	
+	//	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
 	// refine path, to at least 20 steps (or end of path)
 	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
 	aMap->annotateLocal(unit);

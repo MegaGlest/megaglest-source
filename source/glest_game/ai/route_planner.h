@@ -180,8 +180,10 @@ private:
 	bool refinePath(Unit *unit);
 	void smoothPath(Unit *unit);
 
+	HAAStarResult setupHierarchicalOpenList(Unit *unit, const Vec2i &target);
 	HAAStarResult setupHierarchicalSearch(Unit *unit, const Vec2i &dest, TransitionGoal &goalFunc);
 	HAAStarResult findWaypointPath(Unit *unit, const Vec2i &dest, WaypointPath &waypoints);
+	HAAStarResult findWaypointPathUnExplored(Unit *unit, const Vec2i &dest, WaypointPath &waypoints);
 
 	World *world;
 	SearchEngine<NodePool>	 *nsgSearchEngine;
