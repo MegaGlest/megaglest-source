@@ -131,10 +131,9 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 	assert(unit->getPos().dist(pos2) < 1.5);
 
 	float d = unit->getPos().dist(pos2);
-	//if (d > 1.6 || d < 0.7f) {
-	//	printf("\nd = %g", d);
-	//	throw runtime_error("The new Pathfinder lied.");
-	//}
+	if (d > 1.5 || d < 0.9f) {
+		throw runtime_error("The new Pathfinder lied.");
+	}
 
 	const Vec2i &pos1 = unit->getPos();
 	const int &size = unit->getType()->getSize();
