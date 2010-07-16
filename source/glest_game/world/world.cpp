@@ -48,6 +48,7 @@ World::World(){
 	Config &config= Config::getInstance();
 
 	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimerCount = 0;
 
 	techTree = NULL;
 	fogOfWarOverride = false;
@@ -750,7 +751,9 @@ time_t ExploredCellsLookupItem::lastDebug = 0;
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	// Experimental cache lookup of previously calculated cells + sight range
 	if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
-		printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+		ExploredCellsLookupItem::lastDebug = time(NULL);
+		//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 	}
 
 	// Ok we limit the cache size doe to possible RAM constraints when
