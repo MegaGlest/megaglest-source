@@ -57,6 +57,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	leftline-=30;
 	
 	//soundboxes
+	labelSoundFactory.init(leftLabelStart, leftline);
+	labelSoundFactory.setText(lang.get("SoundAndMusic"));
+	listBoxSoundFactory.init(leftColumnStart, leftline, 80);
+	listBoxSoundFactory.pushBackItem("None");
+	listBoxSoundFactory.pushBackItem("OpenAL");
+#ifdef WIN32
+	listBoxSoundFactory.pushBackItem("DirectSound8");
+#endif
+
+	listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
+	leftline-=30;
+
 	labelVolumeFx.init(leftLabelStart, leftline);
 	labelVolumeFx.setText(lang.get("FxVolume"));
 	listBoxVolumeFx.init(leftColumnStart, leftline, 80);
@@ -330,6 +342,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxTextures3D.mouseClick(x, y);
 		listBoxUnitParticles.mouseClick(x, y);
 		listBoxLights.mouseClick(x, y);
+		listBoxSoundFactory.mouseClick(x, y);
 		listBoxVolumeFx.mouseClick(x, y);
 		listBoxVolumeAmbient.mouseClick(x, y);
 		listBoxVolumeMusic.mouseClick(x, y);
@@ -348,6 +361,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	buttonAutoConfig.mouseMove(x, y);
 	buttonVideoInfo.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
+	listBoxSoundFactory.mouseMove(x, y);
 	listBoxVolumeFx.mouseMove(x, y);
 	listBoxVolumeAmbient.mouseMove(x, y);
 	listBoxVolumeMusic.mouseMove(x, y);
@@ -409,6 +423,7 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listBoxUnitParticles);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
+		renderer.renderListBox(&listBoxSoundFactory);
 		renderer.renderListBox(&listBoxVolumeFx);
 		renderer.renderListBox(&listBoxVolumeAmbient);
 		renderer.renderListBox(&listBoxVolumeMusic);
@@ -420,6 +435,7 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelUnitParticles);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
+		renderer.renderLabel(&labelSoundFactory);
 		renderer.renderLabel(&labelVolumeFx);
 		renderer.renderLabel(&labelVolumeAmbient);
 		renderer.renderLabel(&labelVolumeMusic);
@@ -460,6 +476,7 @@ void MenuStateOptions::saveConfig(){
 	config.setBool("Textures3D", listBoxTextures3D.getSelectedItemIndex());
 	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
+	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
 	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
 	config.setString("FontSizeAdjustment", listFontSizeAdjustment.getSelectedItem());
@@ -480,8 +497,14 @@ void MenuStateOptions::saveConfig(){
 	}
 	
 	config.save();
-	SoundRenderer::getInstance().loadConfig();
-	SoundRenderer::getInstance().setMusicVolume(CoreData::getInstance().getMenuMusic());
+
+    SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+    soundRenderer.stopAllSounds();
+    bool initOk = soundRenderer.init(program->getWindow());
+    soundRenderer.loadConfig();
+    soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
+	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
+
 	Renderer::getInstance().loadConfig();
 }
 

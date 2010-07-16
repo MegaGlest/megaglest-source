@@ -50,17 +50,18 @@ bool SoundRenderer::init(Window *window) {
 	runThreadSafe = config.getBool("ThreadedSoundStream","false");
 
     //if(soundPlayer == NULL) {
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
 
-        stopAllSounds();
+	stopAllSounds();
 
-        soundPlayer= si.newSoundPlayer();
-
-        SoundPlayerParams soundPlayerParams;
-        soundPlayerParams.staticBufferCount= config.getInt("SoundStaticBuffers");
-        soundPlayerParams.strBufferCount= config.getInt("SoundStreamingBuffers");
-        soundPlayer->init(&soundPlayerParams);
+	soundPlayer= si.newSoundPlayer();
+	if(soundPlayer != NULL) {
+		SoundPlayerParams soundPlayerParams;
+		soundPlayerParams.staticBufferCount= config.getInt("SoundStaticBuffers");
+		soundPlayerParams.strBufferCount= config.getInt("SoundStreamingBuffers");
+		soundPlayer->init(&soundPlayerParams);
+	}
 	//}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -72,6 +73,13 @@ bool SoundRenderer::wasInitOk() const {
 	bool result = false;
 	if(soundPlayer != NULL) {
 		result = soundPlayer->wasInitOk();
+	}
+	else {
+		Config &config= Config::getInstance();
+		if(config.getString("FactorySound") == "" ||
+			config.getString("FactorySound") == "None") {
+			result = true;
+		}
 	}
 	return result;
 }
