@@ -46,7 +46,7 @@ double maxClientLagTimeAllowed = 20;
 // 65% of max we warn all users about the lagged client
 double warnFrameCountLagPercent = 0.65;
 // Should we wait for lagged clients instead of disconnect them?
-bool pauseGameForLaggedClients = false;
+//bool pauseGameForLaggedClients = false;
 
 // Seconds grace period before we start checking LAG
 double LAG_CHECK_GRACE_PERIOD = 15;
@@ -61,8 +61,9 @@ ServerInterface::ServerInterface(){
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
     maxClientLagTimeAllowed = Config::getInstance().getInt("MaxClientLagTimeAllowed",intToStr(maxClientLagTimeAllowed).c_str());
     warnFrameCountLagPercent = Config::getInstance().getFloat("WarnFrameCountLagPercent",doubleToStr(warnFrameCountLagPercent).c_str());
-    pauseGameForLaggedClients = Config::getInstance().getFloat("PauseGameForLaggedClients",boolToStr(pauseGameForLaggedClients).c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %f, pauseGameForLaggedClients = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed,pauseGameForLaggedClients);
+    //pauseGameForLaggedClients = Config::getInstance().getFloat("PauseGameForLaggedClients",boolToStr(pauseGameForLaggedClients).c_str());
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %f, pauseGameForLaggedClients = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed,pauseGameForLaggedClients);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %f\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
@@ -309,7 +310,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 					char szBuf[4096]="";
 
 					const char* msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
-					if(pauseGameForLaggedClients == true) {
+					if(gameSettings.getNetworkPauseGameForLaggedClients() == true) {
 						msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
 					}
 		#ifdef WIN32
@@ -322,7 +323,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 					string sMsg = szBuf;
 					sendTextMessage(sMsg,-1, true);
 
-					if(pauseGameForLaggedClients == false) {
+					if(gameSettings.getNetworkPauseGameForLaggedClients() == false) {
 						connectionSlot->close();
 					}
 				}
@@ -481,7 +482,7 @@ void ServerInterface::update() {
 									// If the client has exceeded lag and the server wants
 									// to pause while they catch up, re-trigger the
 									// client reader thread
-									if(clientLagExceeded == true && pauseGameForLaggedClients == true) {
+									if(clientLagExceeded == true && gameSettings.getNetworkPauseGameForLaggedClients() == true) {
 										bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
 										ConnectionSlotEvent &event = eventList[i];
 										signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);

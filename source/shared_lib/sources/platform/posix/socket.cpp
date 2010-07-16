@@ -618,7 +618,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		   //printf("%s\n",myhostaddr);
 		   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
-		   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+		   if(strlen(myhostaddr) > 0 &&
+			  strncmp(myhostaddr,"127.",4) != 0 &&
+			  strncmp(myhostaddr,"0.",2) != 0) {
 			   ipList.push_back(myhostaddr);
 		   }
 		   ipIdx++;
