@@ -235,7 +235,7 @@ public:
 	  * @param heuristic heuristic function object
 	  */
 	template< typename GoalFunc, typename CostFunc, typename Heuristic >
-	AStarResult aStar(GoalFunc goalFunc, CostFunc costFunc, Heuristic heuristic) {
+	AStarResult aStar(GoalFunc &goalFunc, CostFunc &costFunc, Heuristic &heuristic) {
 		expanded = 0;
 		DomainKey minPos(invalidKey);
 		vector<DomainKey> neighbours;
