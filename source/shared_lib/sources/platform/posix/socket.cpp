@@ -21,7 +21,6 @@
   #include <sys/filio.h>
 #endif
 
-
 #include "conversion.h"
 #include "util.h"
 #include "platform_util.h"
@@ -631,34 +630,52 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 	// Now check all linux network devices
 	std::vector<string> intfTypes;
+	intfTypes.push_back("lo");
 	intfTypes.push_back("eth");
 	intfTypes.push_back("wlan");
+	intfTypes.push_back("vlan");
 	intfTypes.push_back("vboxnet");
+	intfTypes.push_back("br-lan");
+	intfTypes.push_back("br-gest");
 
 	for(int intfIdx = 0; intfIdx < intfTypes.size(); intfIdx++) {
 		string intfName = intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
+			//PLATFORM_SOCKET fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 			/* I want to get an IPv4 IP address */
 			struct ifreq ifr;
+			struct ifreq ifrA;
 			ifr.ifr_addr.sa_family = AF_INET;
+			ifrA.ifr_addr.sa_family = AF_INET;
 
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			sprintf(szBuf,"%s%d",intfName.c_str(),idx);
-			strncpy(ifr.ifr_name, szBuf, IFNAMSIZ-1);
+			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
+
+			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
+			ifr.ifr_name[maxIfNameLength] = '\0';
+			strncpy(ifrA.ifr_name, szBuf, maxIfNameLength);
+			ifrA.ifr_name[maxIfNameLength] = '\0';
+
 			ioctl(fd, SIOCGIFADDR, &ifr);
+			ioctl(fd, SIOCGIFFLAGS, &ifrA);
 			close(fd);
 
 			sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
-			if( strlen(myhostaddr) > 0 &&
-				strncmp(myhostaddr,"127.",4) != 0  &&
-				strncmp(myhostaddr,"0.",2) != 0) {
-				if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
-					ipList.push_back(myhostaddr);
+			// Now only include interfaces that are both UP and running
+			if( (ifrA.ifr_flags & IFF_UP) 		== IFF_UP &&
+				(ifrA.ifr_flags & IFF_RUNNING) 	== IFF_RUNNING) {
+				if( strlen(myhostaddr) > 0 &&
+					strncmp(myhostaddr,"127.",4) != 0  &&
+					strncmp(myhostaddr,"0.",2) != 0) {
+					if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
+						ipList.push_back(myhostaddr);
+					}
 				}
 			}
 		}
