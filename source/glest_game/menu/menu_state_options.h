@@ -33,6 +33,7 @@ private:
 	GraphicLabel labelTextures3D;
 	GraphicLabel labelLights;
 	GraphicLabel labelUnitParticles;
+	GraphicLabel labelSoundFactory;
 	GraphicLabel labelVolumeFx;
 	GraphicLabel labelVolumeAmbient;
 	GraphicLabel labelVolumeMusic;
@@ -42,6 +43,7 @@ private:
 	GraphicListBox listBoxTextures3D;
 	GraphicListBox listBoxLights;
 	GraphicListBox listBoxUnitParticles;
+	GraphicListBox listBoxSoundFactory;
 	GraphicListBox listBoxVolumeFx;
 	GraphicListBox listBoxVolumeAmbient;
 	GraphicListBox listBoxVolumeMusic;
