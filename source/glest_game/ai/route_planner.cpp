@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //				  2009-2010 James McCulloch
 //
 //	You can redistribute this code and/or modify it under
@@ -201,7 +201,8 @@ float RoutePlanner::quickSearch(Field field, int size, const Vec2i &start, const
 	DiagonalDistance heuristic(dest);
 	nsgSearchEngine->setStart(start, heuristic(start));
 
-	AStarResult r = nsgSearchEngine->aStar(PosGoal(dest), moveCost, heuristic);
+	PosGoal goal(dest);
+	AStarResult r = nsgSearchEngine->aStar(goal, moveCost, heuristic);
 	if (r == asrComplete && nsgSearchEngine->getGoalPos() == dest) {
 		return nsgSearchEngine->getCostTo(dest);
 	}
