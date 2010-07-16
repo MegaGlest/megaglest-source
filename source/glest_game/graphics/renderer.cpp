@@ -182,15 +182,6 @@ Renderer::Renderer(){
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
-
-	glHint(GL_FOG_HINT, GL_FASTEST);
-	//glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-	glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
-	//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-	//glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
-
-	//glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
-	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
 }
 
 Renderer::~Renderer(){
@@ -247,6 +238,16 @@ void Renderer::init(){
 	fontManager[rsGlobal]->init();
 
 	init2dList();
+
+	glHint(GL_FOG_HINT, GL_FASTEST);
+	//glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+	glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+	//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+	//glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+
+	//glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+
 }
 
 void Renderer::initGame(const Game *game){
