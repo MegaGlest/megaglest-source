@@ -654,7 +654,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr);
 
-			if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+			if( strlen(myhostaddr) > 0 &&
+				strncmp(myhostaddr,"127.",4) != 0  &&
+				strncmp(myhostaddr,"0.",2) != 0) {
 				if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
 					ipList.push_back(myhostaddr);
 				}
