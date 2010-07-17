@@ -35,8 +35,8 @@ if $(USE_STREFLOP)
 
 CPPFLAGS                   += $(MGFLAGS) ;
 COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare $(MGFLAGS) ;
-COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG $(MGFLAGS) ;
-COMPILER_CXXFLAGS_optimize += -O3 -DNDEBUG $(MGFLAGS) ;
+COMPILER_CFLAGS_optimize   += -O3 -g -DNDEBUG $(MGFLAGS) ;
+COMPILER_CXXFLAGS_optimize += -O3 -g -DNDEBUG $(MGFLAGS) ;
 COMPILER_LIBS_optimize     += ;
 COMPILER_CFLAGS_debug      += -DDEBUG -g3 ;
 COMPILER_CXXFLAGS_debug    += -DDEBUG -g3 ;
