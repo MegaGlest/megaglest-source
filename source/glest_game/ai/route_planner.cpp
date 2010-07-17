@@ -656,7 +656,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	}
 	if (res == hsrFailed) {
 		if (unit->getFaction()->getThisFaction()) {
-			world->getGame()->getConsole()->addLine(Lang::getInstance().get("ImpossibleRoute"));
+			world->getGame()->getConsole()->addLine(Lang::getInstance().get("InvalidPosition"));
 			//g_console.addLine("Can not reach destination.");
 		}
 		return tsImpossible;
