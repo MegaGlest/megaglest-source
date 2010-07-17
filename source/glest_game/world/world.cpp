@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const float World::airHeight= 5.f;
 // This limit is to keep RAM use under control while offering better performance.
-const int MaxExploredCellsLookupItemCache = 5000;
+int MaxExploredCellsLookupItemCache = 5000;
 
 // ===================== PUBLIC ========================
 
@@ -48,6 +48,7 @@ World::World(){
 	Config &config= Config::getInstance();
 
 	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
 
 	techTree = NULL;
@@ -55,6 +56,8 @@ World::World(){
 
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
+
+	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
 
 	routePlanner = 0;
 	cartographer = 0;
@@ -72,6 +75,7 @@ World::~World() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
 
 	delete techTree;
 	techTree = NULL;
@@ -87,6 +91,7 @@ void World::end(){
     Logger::getInstance().add("World", true);
 
     ExploredCellsLookupItemCache.clear();
+    ExploredCellsLookupItemCacheTimer.clear();
 
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i].end();
@@ -116,6 +121,7 @@ void World::init(Game *game, bool createUnits){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
 
 	this->game = game;
 	scriptManager= game->getScriptManager();
@@ -752,14 +758,15 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	// Experimental cache lookup of previously calculated cells + sight range
 	if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
 		ExploredCellsLookupItem::lastDebug = time(NULL);
-		//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+		printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 	}
 
 	// Ok we limit the cache size doe to possible RAM constraints when
 	// the threshold is met
+	bool MaxExploredCellsLookupItemCacheTriggered = false;
 	if(ExploredCellsLookupItemCache.size() >= MaxExploredCellsLookupItemCache) {
-
+		MaxExploredCellsLookupItemCacheTriggered = true;
 		// Snag the oldest entry in the list
 		std::map<int,ExploredCellsLookupKey>::reverse_iterator purgeItem = ExploredCellsLookupItemCacheTimer.rbegin();
 
@@ -794,49 +801,33 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 					sc->setVisible(teamIndex, true);
 				}
 
-				// Remove the old timer entry since the search key id is stale
-				ExploredCellsLookupItemCacheTimer.erase(iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex);
-				iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+				// Only start worrying about updating the cache timer if we
+				// have hit the threshold
+				if(MaxExploredCellsLookupItemCacheTriggered == true) {
+					// Remove the old timer entry since the search key id is stale
+					ExploredCellsLookupItemCacheTimer.erase(iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex);
+					iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
 
-		    	ExploredCellsLookupKey lookupKey;
-		    	lookupKey.pos = newPos;
-		    	lookupKey.sightRange = sightRange;
-		    	lookupKey.teamIndex = teamIndex;
+					ExploredCellsLookupKey lookupKey;
+					lookupKey.pos = newPos;
+					lookupKey.sightRange = sightRange;
+					lookupKey.teamIndex = teamIndex;
 
-		    	// Add a new search key since we just used this item
-				ExploredCellsLookupItemCacheTimer[iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+					// Add a new search key since we just used this item
+					ExploredCellsLookupItemCacheTimer[iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+				}
+
+				return;
 			}
 		}
 	}
-
-/*
-	for(int idx = 0; idx < ExploredCellsLookupItemCache.size(); ++idx) {
-		ExploredCellsLookupItem &item = ExploredCellsLookupItemCache[idx];
-		if(item.pos == newPos && item.sightRange == sightRange && item.teamIndex == teamIndex) {
-			std::vector<SurfaceCell *> &cellList = item.exploredCellList;
-			for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-				SurfaceCell *sc = cellList[idx2];
-				sc->setExplored(teamIndex, true);
-			}
-			cellList = item.visibleCellList;
-			for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-				SurfaceCell *sc = cellList[idx2];
-				sc->setVisible(teamIndex, true);
-			}
-
-			break;
-		}
-	}
-*/
-	ExploredCellsLookupItem item;
-	//item.pos = newPos;
-	//item.sightRange = sightRange;
-	//item.teamIndex = teamIndex;
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
 
 	// Explore, this code is quite expensive when we have lots of units
+	ExploredCellsLookupItem item;
+
     for(int i=-surfSightRange-indirectSightRange-1; i<=surfSightRange+indirectSightRange+1; ++i){
         for(int j=-surfSightRange-indirectSightRange-1; j<=surfSightRange+indirectSightRange+1; ++j){
 			Vec2i currRelPos= Vec2i(i, j);
@@ -868,9 +859,9 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
     	ExploredCellsLookupItemCache[newPos][sightRange][teamIndex] = item;
 
     	ExploredCellsLookupKey lookupKey;
-    	lookupKey.pos = newPos;
-    	lookupKey.sightRange = sightRange;
-    	lookupKey.teamIndex = teamIndex;
+    	lookupKey.pos 			= newPos;
+    	lookupKey.sightRange 	= sightRange;
+    	lookupKey.teamIndex 	= teamIndex;
     	ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
     }
 }

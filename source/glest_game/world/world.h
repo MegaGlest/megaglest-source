@@ -63,10 +63,6 @@ public:
 class ExploredCellsLookupItem {
 public:
 
-	//Vec2i pos;
-	//int sightRange;
-	//int teamIndex;
-
 	int ExploredCellsLookupItemCacheTimerCountIndex;
 	std::vector<SurfaceCell *> exploredCellList;
 	std::vector<SurfaceCell *> visibleCellList;
@@ -78,7 +74,6 @@ class World{
 private:
 	typedef vector<Faction> Factions;
 
-	//std::vector<ExploredCellsLookupItem> ExploredCellsLookupItemCache;
 	std::map<Vec2i, std::map<int, std::map<int, ExploredCellsLookupItem> > > ExploredCellsLookupItemCache;
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int ExploredCellsLookupItemCacheTimerCount;
