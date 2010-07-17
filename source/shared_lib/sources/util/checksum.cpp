@@ -13,6 +13,13 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <fcntl.h> // for open()
+
+#ifdef WIN32
+  #include <io.h> // for open()
+#endif
+
+#include <sys/stat.h> // for open()
 
 #include "util.h"
 #include "leak_dumper.h"
@@ -58,6 +65,9 @@ void Checksum::addFile(const string &path){
 }
 
 void Checksum::addFileToSum(const string &path){
+
+// OLD SLOW FILE I/O
+/*
 	FILE* file= fopen(path.c_str(), "rb");
 	if(file!=NULL){
 
@@ -75,6 +85,29 @@ void Checksum::addFileToSum(const string &path){
 		throw runtime_error("Can not open file: " + path);
 	}
 	fclose(file);
+*/
+
+   const double MAX_CRC_FILESIZE = 100000000;
+   int fd=0;
+   size_t bytes_read, bytes_expected = MAX_CRC_FILESIZE * sizeof(int8);
+   int8 *data=0;
+   const char *infile = path.c_str();
+
+   if ((fd = open(infile,O_RDONLY)) < 0)
+	   throw runtime_error("Can not open file: " + path);
+
+   if ((data = (int8 *)malloc(bytes_expected)) == NULL)
+	   throw runtime_error("malloc failed, Can not open file: " + path);
+
+   bytes_read = read(fd, data, bytes_expected);
+
+   //if (bytes_read != bytes_expected)
+   //   throw runtime_error("read failed, Can not open file: " + path);
+
+   for(int i = 0; i < bytes_read; i++) {
+		addByte(data[i]);
+   }
+   free(data);
 }
 
 int32 Checksum::getSum() {
