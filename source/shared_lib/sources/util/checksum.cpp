@@ -87,6 +87,9 @@ void Checksum::addFileToSum(const string &path){
 	fclose(file);
 */
 
+
+
+/*
    const double MAX_CRC_FILESIZE = 100000000;
    int fd=0;
    size_t bytes_read, bytes_expected = MAX_CRC_FILESIZE * sizeof(int8);
@@ -108,6 +111,35 @@ void Checksum::addFileToSum(const string &path){
 		addByte(data[i]);
    }
    free(data);
+*/
+
+
+	FILE* file= fopen(path.c_str(), "rb");
+	if(file!=NULL){
+
+		addString(lastFile(path));
+
+		char buf[4096]="";  /* Should be large enough. */
+		int bufSize = sizeof buf;
+		while(!feof(file)){
+			//int8 byte= 0;
+
+			//size_t readBytes = fread(&byte, 1, 1, file);
+			memset(buf,0,bufSize);
+			if(fgets(buf, bufSize, file) != NULL) {
+				//addByte(byte);
+			    for(int i = 0; buf[i] != 0 && i < bufSize; i++) {
+			 		addByte(buf[i]);
+			    }
+			}
+		}
+	}
+	else
+	{
+		throw runtime_error("Can not open file: " + path);
+	}
+	fclose(file);
+
 }
 
 int32 Checksum::getSum() {
