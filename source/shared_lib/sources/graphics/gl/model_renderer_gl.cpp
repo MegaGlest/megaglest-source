@@ -215,8 +215,8 @@ void ModelRendererGl::renderMeshNormals(const Mesh *mesh){
 
 	glBegin(GL_LINES);
 	for(int i= 0; i<mesh->getIndexCount(); ++i){
-		Vec3f vertex= mesh->getInterpolationData()->getVertices()[mesh->getIndices()[i]];
-		Vec3f normal= vertex + mesh->getInterpolationData()->getNormals()[mesh->getIndices()[i]];
+		const Vec3f &vertex= mesh->getInterpolationData()->getVertices()[mesh->getIndices()[i]];
+		const Vec3f &normal= vertex + mesh->getInterpolationData()->getNormals()[mesh->getIndices()[i]];
 	
 		glVertex3fv(vertex.ptr());
 		glVertex3fv(normal.ptr());
