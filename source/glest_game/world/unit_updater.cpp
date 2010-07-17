@@ -388,7 +388,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 						unit->setTargetPos(targetPos);
 						command->setPos(targetPos);
 						unit->setLoadCount(0);
-						unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+						unit->setLoadType(r->getType());
 				}
 				else{
 					//if not continue walking
@@ -471,7 +471,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 					if (r->decAmount(1)) {
 						const ResourceType *rt = r->getType();
 						sc->deleteResource();
-						world->getCartographer()->onResourceDepleted(unit->getTargetPos(), rt);
+						world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
 						unit->setCurrSkill(hct->getStopLoadedSkillType());
 					}
 				}
