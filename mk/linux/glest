@@ -70,6 +70,11 @@ fi
 # now deal with the openal library [libopenal.so.0]
 OS_TYPE=`uname -m`
 
+# Suse needs its own openAL
+if [ -f /etc/SuSE-release ]; then
+	rm lib/libopenal*
+fi
+
 OPENAL_LINKEDLIBNAME="libopenal.so.0"
 OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
 OPENAL_LIBLOOKUP2="libopenal.so.1"
