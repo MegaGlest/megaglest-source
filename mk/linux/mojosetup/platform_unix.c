@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <limits.h>
+#include <errno.h>
 
 #if MOJOSETUP_HAVE_SYS_UCRED_H
 #  ifdef MOJOSETUP_HAVE_MNTENT_H
@@ -993,7 +994,6 @@ void MojoPlatform_dlclose(void *lib)
 } // MojoPlatform_dlclose
 
 
-#if !PLATFORM_MACOSX && !PLATFORM_BEOS
 static int runScriptString(const char *str, boolean devnull, const char **_argv)
 {
     int retval = 127;
@@ -1057,7 +1057,7 @@ static int runScriptString(const char *str, boolean devnull, const char **_argv)
 } // runScriptString
 
 
-static int runScript(const char *script, boolean devnull, const char **argv)
+int MojoPlatform_runScript(const char *script, boolean devnull, const char **argv)
 {
     int retval = 127;
     char *str = NULL;
@@ -1084,10 +1084,12 @@ static int runScript(const char *script, boolean devnull, const char **argv)
         retval = runScriptString(str, devnull, argv);
 
     free(str);
+
     return retval;
 } // runScript
 
 
+#if !PLATFORM_MACOSX && !PLATFORM_BEOS
 static char *shellEscape(const char *str)
 {
     size_t len = 0;
@@ -1162,7 +1164,7 @@ static boolean unix_launchXdgUtil(const char *util, const char **argv)
     else  // try our fallback copy of xdg-utils in GBaseArchive?
     {
         char *script = format("meta/xdg-utils/%0", util);
-        rc = runScript(script, true, argv);
+        rc = MojoPlatform_runScript(script, true, argv);
         logDebug("internal script '%0' returned %1", script, numstr(rc));
         free(script);
     } // if
@@ -1253,6 +1255,13 @@ boolean MojoPlatform_uninstallDesktopMenuItem(const char *data)
     return xdgDesktopMenuItem("uninstall", data);
 #endif
 } // MojoPlatform_uninstallDesktopMenuItem
+
+
+int MojoPlatform_exec(const char *cmd)
+{
+    execl(cmd, cmd, NULL);
+    return errno;
+} // MojoPlatform_exec
 
 
 #if SUPPORT_MULTIARCH

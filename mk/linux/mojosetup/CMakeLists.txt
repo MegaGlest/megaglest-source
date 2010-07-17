@@ -115,7 +115,7 @@ IF(UNIX)
 ENDIF(UNIX)
 
 IF(CMAKE_COMPILER_IS_GNUCC)
-    ADD_DEFINITIONS(-pipe -Wall -Werror -fsigned-char)
+    ADD_DEFINITIONS(-pipe -Wall -fsigned-char)
 
     # See if -fvisibility=hidden is available to us.
     CHECK_C_SOURCE_COMPILES("
