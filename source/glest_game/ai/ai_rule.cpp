@@ -540,14 +540,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					
 					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 						char szBuf[1024]="";
-						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
+						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %u\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %u",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						throw runtime_error(szBuf);
 					}
 					if(prIndex >= producers.size()) {
 						char szBuf[1024]="";
-						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
+						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %u \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,producers.size());
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %u",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
 						throw runtime_error(szBuf);
 					}
 
@@ -610,14 +610,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 							if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 								char szBuf[1024]="";
-								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %u\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %u",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
 								throw runtime_error(szBuf);
 							}
 							if(prIndex >= backupProducers.size()) {
 								char szBuf[1024]="";
-								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %d \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %d",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
+								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %u \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %u",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
 								throw runtime_error(szBuf);
 							}
 

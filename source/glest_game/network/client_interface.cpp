@@ -687,7 +687,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
 						char szBuf[1024]="";
-						sprintf(szBuf,"Waiting for network: %llu seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
+						sprintf(szBuf,"Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
 						logger.add(szBuf, true);
 					}
 				}
