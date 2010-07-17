@@ -132,13 +132,14 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		int i=0;
 		for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+			string factionName = *it;
 
 		    char szBuf[1024]="";
-		    sprintf(szBuf,"%s %s %d / %d",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size());
+		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size(),factionName.c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 
-			str=dir+"/factions/" + *it;
+			str=dir+"/factions/" + factionName;
 			factionTypes[i++].load(str, this, checksum);
 
 		    // give CPU time to update other things to avoid apperance of hanging
