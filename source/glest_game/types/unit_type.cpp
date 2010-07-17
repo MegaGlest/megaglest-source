@@ -613,7 +613,7 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %ul",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
+		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %lu",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
 		throw runtime_error(szBuf);
 	}
 	return commandTypes[i];
