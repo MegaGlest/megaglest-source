@@ -61,19 +61,8 @@ static PHYSFS_Allocator allocator = { 0, 0, mallocWrap, reallocWrap, freeWrap };
 #define fvoid void
 #define dvoid void
 
-#if PLATFORM_BIGENDIAN
-static PHYSFS_uint32 PHYSFS_swapULE32(PHYSFS_uint32 D)
-{
-    return((D<<24)|((D<<8)&0x00FF0000)|((D>>8)&0x0000FF00)|(D>>24));
-}
-static PHYSFS_uint16 PHYSFS_swapULE16(PHYSFS_uint16 D)
-{
-    return((D<<8)|(D>>8));
-}
-#else
-static PHYSFS_uint32 PHYSFS_swapULE32(PHYSFS_uint32 D) { return D; }
-static PHYSFS_uint16 PHYSFS_swapULE16(PHYSFS_uint16 D) { return D; }
-#endif
+#define readui16(io, ptr) MojoInput_readui16((MojoInput *) (io), ptr)
+#define readui32(io, ptr) MojoInput_readui32((MojoInput *) (io), ptr)
 
 static PHYSFS_sint64 __PHYSFS_platformRead(void *opaque, void *buffer,
                                     PHYSFS_uint32 size, PHYSFS_uint32 count)
@@ -348,6 +337,7 @@ static int zlib_err(int rc)
 } /* zlib_err */
 
 
+#if !__MOJOSETUP__  /* we have our own readuiXX() functions. */
 /*
  * Read an unsigned 32-bit int and swap to native byte order.
  */
@@ -370,6 +360,7 @@ static int readui16(void *in, PHYSFS_uint16 *val)
     *val = PHYSFS_swapULE16(v);
     return(1);
 } /* readui16 */
+#endif
 
 
 static PHYSFS_sint64 ZIP_read(fvoid *opaque, void *buf,
@@ -605,8 +596,7 @@ static PHYSFS_sint64 zip_find_end_of_central_dir(void *in, PHYSFS_sint64 *len)
             totalread += maxread;
         } /* else */
 
-		PHYSFS_uint32 *pPhysBuf = (PHYSFS_uint32 *) (&buf[0]);
-        extra = *pPhysBuf;
+        extra = *((PHYSFS_uint32 *) (&buf[0]));
 
         for (i = maxread - 4; i > 0; i--)
         {

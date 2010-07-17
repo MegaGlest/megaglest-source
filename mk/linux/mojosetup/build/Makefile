@@ -35,19 +35,22 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
+# The program to use to edit the cache.
+CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/softcoder/Code/mojosetup
+CMAKE_SOURCE_DIR = /home/softcoder/Code/megaglest/branches/release-3.3.5.1/mk/linux/mojosetup
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/softcoder/Code/mojosetup/build
+CMAKE_BINARY_DIR = /home/softcoder/Code/megaglest/branches/release-3.3.5.1/mk/linux/mojosetup/build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
-	/usr/bin/cmake -i .
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -66,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/softcoder/Code/mojosetup/build/CMakeFiles /home/softcoder/Code/mojosetup/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/softcoder/Code/megaglest/branches/release-3.3.5.1/mk/linux/mojosetup/build/CMakeFiles /home/softcoder/Code/megaglest/branches/release-3.3.5.1/mk/linux/mojosetup/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/softcoder/Code/mojosetup/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/softcoder/Code/megaglest/branches/release-3.3.5.1/mk/linux/mojosetup/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -133,19 +136,6 @@ mojosetup: cmake_check_build_system
 mojosetup/fast:
 	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/build
 .PHONY : mojosetup/fast
-
-#=============================================================================
-# Target rules for targets named mojosetupgui_gtkplus2
-
-# Build rule for target.
-mojosetupgui_gtkplus2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 mojosetupgui_gtkplus2
-.PHONY : mojosetupgui_gtkplus2
-
-# fast build rule for target.
-mojosetupgui_gtkplus2/fast:
-	$(MAKE) -f CMakeFiles/mojosetupgui_gtkplus2.dir/build.make CMakeFiles/mojosetupgui_gtkplus2.dir/build
-.PHONY : mojosetupgui_gtkplus2/fast
 
 #=============================================================================
 # Target rules for targets named skeleton
@@ -236,6 +226,111 @@ buildver.s:
 .PHONY : buildver.s
 
 # target to build an object file
+bzip2/blocksort.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/blocksort.o
+.PHONY : bzip2/blocksort.o
+
+# target to preprocess a source file
+bzip2/blocksort.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/blocksort.i
+.PHONY : bzip2/blocksort.i
+
+# target to generate assembly for a file
+bzip2/blocksort.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/blocksort.s
+.PHONY : bzip2/blocksort.s
+
+# target to build an object file
+bzip2/bzlib.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/bzlib.o
+.PHONY : bzip2/bzlib.o
+
+# target to preprocess a source file
+bzip2/bzlib.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/bzlib.i
+.PHONY : bzip2/bzlib.i
+
+# target to generate assembly for a file
+bzip2/bzlib.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/bzlib.s
+.PHONY : bzip2/bzlib.s
+
+# target to build an object file
+bzip2/compress.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/compress.o
+.PHONY : bzip2/compress.o
+
+# target to preprocess a source file
+bzip2/compress.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/compress.i
+.PHONY : bzip2/compress.i
+
+# target to generate assembly for a file
+bzip2/compress.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/compress.s
+.PHONY : bzip2/compress.s
+
+# target to build an object file
+bzip2/crctable.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/crctable.o
+.PHONY : bzip2/crctable.o
+
+# target to preprocess a source file
+bzip2/crctable.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/crctable.i
+.PHONY : bzip2/crctable.i
+
+# target to generate assembly for a file
+bzip2/crctable.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/crctable.s
+.PHONY : bzip2/crctable.s
+
+# target to build an object file
+bzip2/decompress.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/decompress.o
+.PHONY : bzip2/decompress.o
+
+# target to preprocess a source file
+bzip2/decompress.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/decompress.i
+.PHONY : bzip2/decompress.i
+
+# target to generate assembly for a file
+bzip2/decompress.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/decompress.s
+.PHONY : bzip2/decompress.s
+
+# target to build an object file
+bzip2/huffman.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/huffman.o
+.PHONY : bzip2/huffman.o
+
+# target to preprocess a source file
+bzip2/huffman.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/huffman.i
+.PHONY : bzip2/huffman.i
+
+# target to generate assembly for a file
+bzip2/huffman.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/huffman.s
+.PHONY : bzip2/huffman.s
+
+# target to build an object file
+bzip2/randtable.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/randtable.o
+.PHONY : bzip2/randtable.o
+
+# target to preprocess a source file
+bzip2/randtable.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/randtable.i
+.PHONY : bzip2/randtable.i
+
+# target to generate assembly for a file
+bzip2/randtable.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/bzip2/randtable.s
+.PHONY : bzip2/randtable.s
+
+# target to build an object file
 checksum_crc32.o:
 	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/checksum_crc32.o
 .PHONY : checksum_crc32.o
@@ -312,17 +407,17 @@ gui.s:
 
 # target to build an object file
 gui_gtkplus2.o:
-	$(MAKE) -f CMakeFiles/mojosetupgui_gtkplus2.dir/build.make CMakeFiles/mojosetupgui_gtkplus2.dir/gui_gtkplus2.o
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/gui_gtkplus2.o
 .PHONY : gui_gtkplus2.o
 
 # target to preprocess a source file
 gui_gtkplus2.i:
-	$(MAKE) -f CMakeFiles/mojosetupgui_gtkplus2.dir/build.make CMakeFiles/mojosetupgui_gtkplus2.dir/gui_gtkplus2.i
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/gui_gtkplus2.i
 .PHONY : gui_gtkplus2.i
 
 # target to generate assembly for a file
 gui_gtkplus2.s:
-	$(MAKE) -f CMakeFiles/mojosetupgui_gtkplus2.dir/build.make CMakeFiles/mojosetupgui_gtkplus2.dir/gui_gtkplus2.s
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/gui_gtkplus2.s
 .PHONY : gui_gtkplus2.s
 
 # target to build an object file
@@ -1024,6 +1119,171 @@ stb_image.s:
 	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/stb_image.s
 .PHONY : stb_image.s
 
+# target to build an object file
+zlib/adler32.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/adler32.o
+.PHONY : zlib/adler32.o
+
+# target to preprocess a source file
+zlib/adler32.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/adler32.i
+.PHONY : zlib/adler32.i
+
+# target to generate assembly for a file
+zlib/adler32.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/adler32.s
+.PHONY : zlib/adler32.s
+
+# target to build an object file
+zlib/compress.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/compress.o
+.PHONY : zlib/compress.o
+
+# target to preprocess a source file
+zlib/compress.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/compress.i
+.PHONY : zlib/compress.i
+
+# target to generate assembly for a file
+zlib/compress.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/compress.s
+.PHONY : zlib/compress.s
+
+# target to build an object file
+zlib/crc32.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/crc32.o
+.PHONY : zlib/crc32.o
+
+# target to preprocess a source file
+zlib/crc32.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/crc32.i
+.PHONY : zlib/crc32.i
+
+# target to generate assembly for a file
+zlib/crc32.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/crc32.s
+.PHONY : zlib/crc32.s
+
+# target to build an object file
+zlib/deflate.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/deflate.o
+.PHONY : zlib/deflate.o
+
+# target to preprocess a source file
+zlib/deflate.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/deflate.i
+.PHONY : zlib/deflate.i
+
+# target to generate assembly for a file
+zlib/deflate.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/deflate.s
+.PHONY : zlib/deflate.s
+
+# target to build an object file
+zlib/infback.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/infback.o
+.PHONY : zlib/infback.o
+
+# target to preprocess a source file
+zlib/infback.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/infback.i
+.PHONY : zlib/infback.i
+
+# target to generate assembly for a file
+zlib/infback.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/infback.s
+.PHONY : zlib/infback.s
+
+# target to build an object file
+zlib/inffast.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inffast.o
+.PHONY : zlib/inffast.o
+
+# target to preprocess a source file
+zlib/inffast.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inffast.i
+.PHONY : zlib/inffast.i
+
+# target to generate assembly for a file
+zlib/inffast.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inffast.s
+.PHONY : zlib/inffast.s
+
+# target to build an object file
+zlib/inflate.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inflate.o
+.PHONY : zlib/inflate.o
+
+# target to preprocess a source file
+zlib/inflate.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inflate.i
+.PHONY : zlib/inflate.i
+
+# target to generate assembly for a file
+zlib/inflate.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inflate.s
+.PHONY : zlib/inflate.s
+
+# target to build an object file
+zlib/inftrees.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inftrees.o
+.PHONY : zlib/inftrees.o
+
+# target to preprocess a source file
+zlib/inftrees.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inftrees.i
+.PHONY : zlib/inftrees.i
+
+# target to generate assembly for a file
+zlib/inftrees.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/inftrees.s
+.PHONY : zlib/inftrees.s
+
+# target to build an object file
+zlib/trees.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/trees.o
+.PHONY : zlib/trees.o
+
+# target to preprocess a source file
+zlib/trees.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/trees.i
+.PHONY : zlib/trees.i
+
+# target to generate assembly for a file
+zlib/trees.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/trees.s
+.PHONY : zlib/trees.s
+
+# target to build an object file
+zlib/uncompr.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/uncompr.o
+.PHONY : zlib/uncompr.o
+
+# target to preprocess a source file
+zlib/uncompr.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/uncompr.i
+.PHONY : zlib/uncompr.i
+
+# target to generate assembly for a file
+zlib/uncompr.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/uncompr.s
+.PHONY : zlib/uncompr.s
+
+# target to build an object file
+zlib/zutil.o:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/zutil.o
+.PHONY : zlib/zutil.o
+
+# target to preprocess a source file
+zlib/zutil.i:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/zutil.i
+.PHONY : zlib/zutil.i
+
+# target to generate assembly for a file
+zlib/zutil.s:
+	$(MAKE) -f CMakeFiles/mojosetup.dir/build.make CMakeFiles/mojosetup.dir/zlib/zutil.s
+.PHONY : zlib/zutil.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1034,7 +1294,6 @@ help:
 	@echo "... lua"
 	@echo "... mojoluac"
 	@echo "... mojosetup"
-	@echo "... mojosetupgui_gtkplus2"
 	@echo "... rebuild_cache"
 	@echo "... skeleton"
 	@echo "... archive_pck.o"
@@ -1052,6 +1311,27 @@ help:
 	@echo "... buildver.o"
 	@echo "... buildver.i"
 	@echo "... buildver.s"
+	@echo "... bzip2/blocksort.o"
+	@echo "... bzip2/blocksort.i"
+	@echo "... bzip2/blocksort.s"
+	@echo "... bzip2/bzlib.o"
+	@echo "... bzip2/bzlib.i"
+	@echo "... bzip2/bzlib.s"
+	@echo "... bzip2/compress.o"
+	@echo "... bzip2/compress.i"
+	@echo "... bzip2/compress.s"
+	@echo "... bzip2/crctable.o"
+	@echo "... bzip2/crctable.i"
+	@echo "... bzip2/crctable.s"
+	@echo "... bzip2/decompress.o"
+	@echo "... bzip2/decompress.i"
+	@echo "... bzip2/decompress.s"
+	@echo "... bzip2/huffman.o"
+	@echo "... bzip2/huffman.i"
+	@echo "... bzip2/huffman.s"
+	@echo "... bzip2/randtable.o"
+	@echo "... bzip2/randtable.i"
+	@echo "... bzip2/randtable.s"
 	@echo "... checksum_crc32.o"
 	@echo "... checksum_crc32.i"
 	@echo "... checksum_crc32.s"
@@ -1193,6 +1473,39 @@ help:
 	@echo "... stb_image.o"
 	@echo "... stb_image.i"
 	@echo "... stb_image.s"
+	@echo "... zlib/adler32.o"
+	@echo "... zlib/adler32.i"
+	@echo "... zlib/adler32.s"
+	@echo "... zlib/compress.o"
+	@echo "... zlib/compress.i"
+	@echo "... zlib/compress.s"
+	@echo "... zlib/crc32.o"
+	@echo "... zlib/crc32.i"
+	@echo "... zlib/crc32.s"
+	@echo "... zlib/deflate.o"
+	@echo "... zlib/deflate.i"
+	@echo "... zlib/deflate.s"
+	@echo "... zlib/infback.o"
+	@echo "... zlib/infback.i"
+	@echo "... zlib/infback.s"
+	@echo "... zlib/inffast.o"
+	@echo "... zlib/inffast.i"
+	@echo "... zlib/inffast.s"
+	@echo "... zlib/inflate.o"
+	@echo "... zlib/inflate.i"
+	@echo "... zlib/inflate.s"
+	@echo "... zlib/inftrees.o"
+	@echo "... zlib/inftrees.i"
+	@echo "... zlib/inftrees.s"
+	@echo "... zlib/trees.o"
+	@echo "... zlib/trees.i"
+	@echo "... zlib/trees.s"
+	@echo "... zlib/uncompr.o"
+	@echo "... zlib/uncompr.i"
+	@echo "... zlib/uncompr.s"
+	@echo "... zlib/zutil.o"
+	@echo "... zlib/zutil.i"
+	@echo "... zlib/zutil.s"
 .PHONY : help
 
 

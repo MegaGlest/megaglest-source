@@ -20,7 +20,7 @@ Setup.Package
     },
 
     postinstall = function(package)
-        MojoSetup.launchbrowser(MojoSetup.destination .. "http://glest.org/glest_board/index.php?topic=4930.0")
+        MojoSetup.launchbrowser(MojoSetup.destination .. "http://www.glest.org/glest_board/index.php?topic=4930.0")
     end,
 
     Setup.Eula

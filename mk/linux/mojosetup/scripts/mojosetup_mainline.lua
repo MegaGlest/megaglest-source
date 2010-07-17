@@ -155,6 +155,8 @@ local function do_delete(fname)
             retval = true
         elseif not MojoSetup.platform.exists(fname) then
             retval = true
+        else
+            MojoSetup.logerror("Deleting '" .. fname .. "'" .. " failed!")
         end
     end
     return retval
@@ -602,7 +604,7 @@ local function install_archive_entry(archive, ent, file, option)
 end
 
 
-local function install_archive(archive, file, option)
+local function install_archive(archive, file, option, dataprefix)
     if not MojoSetup.archive.enumerate(archive) then
         MojoSetup.fatal(_("Couldn't enumerate archive"))
     end
@@ -635,9 +637,9 @@ local function install_archive(archive, file, option)
     while ent ~= nil do
         -- If inside GBaseArchive (no URL lead in string), then we
         --  want to clip to data/ directory...
-        if isbase then
+        if isbase and (string.len(dataprefix) > 0) then
             local count
-            ent.filename, count = string.gsub(ent.filename, "^data/", "", 1)
+            ent.filename, count = string.gsub(ent.filename, "^" .. dataprefix, "", 1)
             if count == 0 then
                 ent.filename = nil
             end
@@ -671,7 +673,7 @@ local function install_archive(archive, file, option)
 end
 
 
-local function install_basepath(basepath, file, option)
+local function install_basepath(basepath, file, option, dataprefix)
     -- Obviously, we don't want to enumerate the entire physical filesystem,
     --  so we'll dig through each path element with MojoPlatform_exists()
     --  until we find one that doesn't, then we'll back up and try to open
@@ -693,7 +695,7 @@ local function install_basepath(basepath, file, option)
     --  case, but it won't work for archives-in-archives.
     if MojoSetup.platform.exists(basepath) then
         local archive = create_basepath_archive(basepath)
-        install_archive(archive, file, option)
+        install_archive(archive, file, option, dataprefix)
         MojoSetup.archive.close(archive)
     else
         -- Check for archives-in-archives...
@@ -710,14 +712,14 @@ local function install_basepath(basepath, file, option)
                 local arclist = { archive }
                 path = rebuild_path(paths, i)
                 local arc = drill_for_archive(archive, path, arclist)
-                install_archive(arc, file, option)
+                install_archive(arc, file, option, dataprefix)
                 close_archive_list(arclist)
                 return  -- we're done here
             end
         end
 
         -- wait, the whole thing exists now? Did this just move in?
-        install_basepath(basepath, file, option)  -- try again, I guess...
+        install_basepath(basepath, file, option, dataprefix)  -- try again, I guess...
     end
 end
 
@@ -1324,14 +1326,17 @@ local function do_install(install)
     if (install.eulas ~= nil) and (not skipeulas) then
         for k,eula in pairs(install.eulas) do
             local desc = eula.description
-            local fname = "data/" .. eula.source
+            local fname = install.dataprefix .. eula.source
+            local accept_needed = not eula.accept_not_needed
 
             -- (desc) and (fname) become upvalues in this function.
             stages[#stages+1] = function (thisstage, maxstage)
                 local retval = MojoSetup.gui.readme(desc,fname,thisstage,maxstage)
                 if retval == 1 then
-                    if not MojoSetup.promptyn(desc, _("Accept this license?"), false) then
-                        MojoSetup.fatal(_("You must accept the license before you may install"))
+                    if accept_needed then
+                        if not MojoSetup.promptyn(desc, _("Accept this license?"), false) then
+                            MojoSetup.fatal(_("You must accept the license before you may install"))
+                        end
                     end
                 end
                 return retval
@@ -1359,7 +1364,7 @@ local function do_install(install)
         for k,readme in pairs(install.readmes) do
             local desc = readme.description
             -- !!! FIXME: pull from archive?
-            local fname = "data/" .. readme.source
+            local fname = install.dataprefix .. readme.source
             -- (desc) and (fname) become upvalues in this function.
             stages[#stages+1] = function(thisstage, maxstage)
                 return MojoSetup.gui.readme(desc, fname, thisstage, maxstage)
@@ -1460,15 +1465,18 @@ local function do_install(install)
 
             for k,eula in pairs(option_eulas) do
                 local desc = eula.description
-                local fname = "data/" .. eula.source
+                local fname = install.dataprefix .. eula.source
+                local accept_needed = not eula.accept_not_needed
                 local retval = MojoSetup.gui.readme(desc,fname,thisstage,maxstage)
                 if retval == 1 then
-                    if not MojoSetup.promptyn(desc, _("Accept this license?"), false) then
-                        -- can't go back? We have to die here instead.
-                        if thisstage == 1 then
-                            MojoSetup.fatal(_("You must accept the license before you may install"))
-                        else
-                            retval = -1  -- just step back a stage.
+                    if accept_needed then
+                        if not MojoSetup.promptyn(desc, _("Accept this license?"), false) then
+                            -- can't go back? We have to die here instead.
+                            if thisstage == 1 then
+                                MojoSetup.fatal(_("You must accept the license before you may install"))
+                            else
+                                retval = -1  -- just step back a stage.
+                            end
                         end
                     end
                 end
@@ -1720,7 +1728,7 @@ local function do_install(install)
                 local files = MojoSetup.files.media[mediaid]
                 for file,option in pairs(files) do
                     local prot,host,path = MojoSetup.spliturl(file.source)
-                    install_basepath(basepath .. "/" .. path, file, option)
+                    install_basepath(basepath .. "/" .. path, file, option, install.dataprefix)
                 end
             end
             medialist = nil   -- done with this.
@@ -1731,7 +1739,7 @@ local function do_install(install)
             for file,option in pairs(MojoSetup.files.downloads) do
                 local f = MojoSetup.downloaddir .. "/" .. id
                 id = id + 1
-                install_basepath(f, file, option)
+                install_basepath(f, file, option, install.dataprefix)
             end
         end
 
@@ -1739,12 +1747,12 @@ local function do_install(install)
             for file,option in pairs(MojoSetup.files.included) do
                 local arc = MojoSetup.archive.base
                 if file.source == nil then
-                    install_archive(arc, file, option)
+                    install_archive(arc, file, option, install.dataprefix)
                 else
                     local prot,host,path = MojoSetup.spliturl(file.source)
                     local arclist = {}
-                    arc = drill_for_archive(arc, "data/" .. path, arclist)
-                    install_archive(arc, file, option)
+                    arc = drill_for_archive(arc, install.dataprefix .. path, arclist)
+                    install_archive(arc, file, option, install.dataprefix)
                     close_archive_list(arclist)
                 end
             end
@@ -1830,7 +1838,6 @@ local function do_install(install)
     -- Done with these things. Make them eligible for garbage collection.
     stages = nil
     MojoSetup.manifest = nil
-    MojoSetup.destination = nil
     MojoSetup.manifestdir = nil
     MojoSetup.metadatadir = nil
     MojoSetup.controldir = nil
@@ -1871,6 +1878,7 @@ end
 
 
 local function installer()
+    local postexec = nil
     MojoSetup.loginfo("Installer starting")
 
     MojoSetup.revertinstall = real_revertinstall   -- replace the stub.
@@ -1884,6 +1892,11 @@ local function installer()
         if not install.disabled then
             saw_an_installer = true
             do_install(install)
+
+            if (install.postexec ~= nil) then
+                postexec = string.gsub(install.postexec, "$DESTINATION", MojoSetup.destination)
+            end
+
             MojoSetup.collectgarbage()  -- nuke all the tables we threw around...
         end
     end
@@ -1891,6 +1904,12 @@ local function installer()
     if not saw_an_installer then
         MojoSetup.fatal(_("Nothing to do!"))
     end
+
+    if postexec ~= nil then
+        MojoSetup.platform.exec(postexec)
+    end
+
+    MojoSetup.destination = nil
 end
 
 
@@ -2042,7 +2061,7 @@ local function uninstaller()
         end
 
         local filelist = flatten_manifest(package.manifest, prepend_dest_dir)
-        delete_files(filelist, callback, true)
+        delete_files(filelist, callback, package.delete_error_is_fatal)
         run_config_defined_hook(package.postuninstall, package)
         MojoSetup.gui.final(_("Uninstall complete"))
         stop_gui()

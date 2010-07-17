@@ -299,6 +299,7 @@ function Setup.Package(tab)
         { "description", nil, mustExist, mustBeString, cantBeEmpty },
         { "version", nil, mustExist, mustBeString, cantBeEmpty },
         { "destination", nil, mustBeString, cantBeEmpty },
+        { "dataprefix", "data/", mustBeString},
         { "recommended_destinations", nil, mustBeStringOrTableOfStrings },
         { "precheck", nil, mustBeFunction },
         { "preflight", nil, mustBeFunction },
@@ -316,7 +317,9 @@ function Setup.Package(tab)
         { "write_manifest", true, mustBeBool },
         { "support_uninstall", true, mustBeBool },
         { "preuninstall", nil, mustBeFunction },
-        { "postuninstall", nil, mustBeFunction }
+        { "postuninstall", nil, mustBeFunction },
+        { "postexec", nil, mustBeString},
+        { "delete_error_is_fatal", true, mustBeBool}
     })
 
     if MojoSetup.installs == nil then
@@ -378,6 +381,7 @@ function Setup.Eula(tab)
     {
         { "description", nil, mustExist, mustBeString, cantBeEmpty },
         { "source", nil, mustExist, mustBeString, cantBeEmpty },
+        { "accept_not_needed", nil, mustBeBool },
     })
 end
 
