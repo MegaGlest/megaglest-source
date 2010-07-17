@@ -1315,12 +1315,12 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	glEnable(GL_COLOR_MATERIAL);
     glAlphaFunc(GL_GREATER, 0.5f);
 
+    int thisTeamIndex= world->getThisTeamIndex();
 	modelRenderer->begin(true, true, false);
-	int thisTeamIndex= world->getThisTeamIndex();
 
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
-		const Vec2i pos= pqi.getPos();
+		const Vec2i &pos= pqi.getPos();
 
 		if(map->isInside(pos)){
 
@@ -1329,7 +1329,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 			if(sc->isExplored(thisTeamIndex) && o!=NULL){
 
 				const Model *objModel= sc->getObject()->getModel();
-				Vec3f v= o->getPos();
+				const Vec3f &v= o->getConstPos();
 
 				//ambient and diffuse color is taken from cell color
 				float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
