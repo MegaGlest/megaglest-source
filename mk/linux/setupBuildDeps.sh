@@ -12,7 +12,7 @@ fi
 
 if [ -f /etc/SuSE-release ]; then
   echo "=====> Using build deps for SuSE 11.3..."
-  sudo zypper install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel
+  sudo zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel
 elif [ -f /etc/fedora-release ]; then
   echo "=====> Using build deps for fedora 13..."
   sudo yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel
