@@ -168,4 +168,8 @@ int32 Checksum::getFinalFileListSum() {
 	return getSum();
 }
 
+int32 Checksum::getFileCount() {
+	return fileList.size();
+}
+
 }}//end namespace

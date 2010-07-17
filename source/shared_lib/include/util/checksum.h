@@ -44,6 +44,7 @@ public:
 
 	int32 getSum();
 	int32 getFinalFileListSum();
+	int32 getFileCount();
 
 	void addByte(int8 value);
 	void addString(const string &value);
