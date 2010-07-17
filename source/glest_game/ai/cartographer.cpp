@@ -143,6 +143,7 @@ void Cartographer::initResourceMap(ResourceMapKey key, PatchMap<1> *pMap) {
 
 void Cartographer::onResourceDepleted(Vec2i pos, const ResourceType *rt) {
 	PF_TRACE();
+	pos = Map::toUnitCoords(pos);
 	updateMapMetrics(pos, GameConstants::cellScale);
 	resDirtyAreas[rt].push_back(pos);
 }

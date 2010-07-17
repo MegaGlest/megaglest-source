@@ -126,17 +126,17 @@ DebugRenderer::DebugRenderer() {
 	showVisibleQuad = 
 	captureVisibleQuad = 
 	regionHilights = 
-	resourceMapOverlay = 
 	storeMapOverlay =
 	showFrustum = 
 	captureFrustum = 
 	gridTextures = 
 	influenceMap =
-	AAStarTextures = 
 	HAAStarOverlay = 
+	buildSiteMaps =
 					false;
 
-	buildSiteMaps =
+	AAStarTextures = 
+	resourceMapOverlay = 
 					true;
 }
 
