@@ -22,7 +22,7 @@ using namespace std;
 
 namespace MapEditor {
 
-const string MainWindow::versionString = "v1.5.0-beta3";
+const string MainWindow::versionString = "v1.5.0";
 const string MainWindow::winHeader = "Glest Map Editor " + versionString + " - Built: " + __DATE__;
 
 // ===============================================
