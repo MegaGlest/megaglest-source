@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martio Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //				  2009-2010 James McCulloch
 //
 //	You can redistribute this code and/or modify it under
@@ -189,6 +189,10 @@ private:
 	bool attemptMove(Unit *unit) const {
 		UnitPathInterface *path = unit->getPath();
 		UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+		if(advPath == NULL) {
+			throw runtime_error("Invalid or NULL unit path pointer!");
+		}
+		
 		assert(advPath->isEmpty() == false);
 		Vec2i pos = advPath->peek();
 		if (isLegalMove(unit, pos)) {

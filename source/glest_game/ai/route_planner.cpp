@@ -404,6 +404,9 @@ bool RoutePlanner::refinePath(Unit *unit) {
 
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
 
 	UnitPath &path = *advPath;
 	assert(!wpPath.empty());
@@ -443,6 +446,9 @@ void RoutePlanner::smoothPath(Unit *unit) {
 	PF_TRACE();
 	UnitPathInterface *path = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
 
 	if (advPath->size() < 3) {
 		return;
@@ -517,6 +523,9 @@ TravelState RoutePlanner::doRouteCache(Unit *unit) {
 
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
 
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
@@ -554,6 +563,9 @@ TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
 
 	UnitPath &path = *advPath;
 //	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
@@ -584,6 +596,10 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
 	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
+
 	UnitPath &path = *advPath;
 	PosGoal goal(targetPos);
 	MoveCost cost(unit, aMap);
@@ -624,6 +640,10 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	PF_TRACE();
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
+
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
@@ -737,6 +757,10 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
+
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	const Vec2i &start = unit->getPos();
@@ -775,6 +799,10 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	PF_TRACE();
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
+
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
@@ -848,6 +876,10 @@ bool RoutePlanner::repairPath(Unit *unit) {
 	PF_TRACE();
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	if(advPath == NULL) {
+		throw runtime_error("Invalid or NULL unit path pointer!");
+	}
+
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	

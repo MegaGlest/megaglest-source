@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martio Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -68,7 +68,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 		if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 			if(!path->isEmpty()) {
 				//route cache
-				Vec2i pos= path->pop();
+				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
+				Vec2i pos= basicPath->pop();
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
 					return tsOnTheWay;
@@ -81,11 +82,14 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 				//route cache
 				Vec2i pos= advPath->peek();
 				if(map->canMove(unit, unit->getPos(), pos)){
-					path->pop();
+					advPath->pop();
 					unit->setTargetPos(pos);
 					return tsOnTheWay;
 				}
 			}
+		}
+		else {
+			throw runtime_error("unsupported or missing path finder detected!");
 		}
 	}
 		
@@ -101,7 +105,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 	case tsOnTheWay:
 		{
 			if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
-				Vec2i pos= path->pop();
+				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
+				Vec2i pos= basicPath->pop();
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
 				}
@@ -121,6 +126,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 					unit->setCurrSkill(scStop);
 					return tsBlocked;
 				}
+			}
+			else {
+				throw runtime_error("unsupported or missing path finder detected!");
 			}
 		}
 		break;
