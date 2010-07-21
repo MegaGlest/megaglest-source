@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -55,22 +55,37 @@ PathFinder::~PathFinder(){
 	delete [] nodePool;
 }
 
-PathFinder::TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
+TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 	
 	//route cache
-	UnitPath *path= unit->getPath();
-	if(finalPos==unit->getPos()){
+	UnitPathInterface *path= unit->getPath();
+	if(finalPos==unit->getPos()) {
 		//if arrived
 		unit->setCurrSkill(scStop);
 		return tsArrived;
 	}
-	else if(!path->empty()){
-		//route cache
-		Vec2i pos= path->peek();
-		if(map->canMove(unit, unit->getPos(), pos)){
-			path->pop();
-			unit->setTargetPos(pos);
-			return tsOnTheWay;
+	else {
+		if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
+			if(!path->isEmpty()) {
+				//route cache
+				Vec2i pos= path->pop();
+				if(map->canMove(unit, unit->getPos(), pos)) {
+					unit->setTargetPos(pos);
+					return tsOnTheWay;
+				}
+			}
+		}
+		else if(dynamic_cast<UnitPath *>(path) != NULL) {
+			UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+			if(advPath->isEmpty() == false) {
+				//route cache
+				Vec2i pos= advPath->peek();
+				if(map->canMove(unit, unit->getPos(), pos)){
+					path->pop();
+					unit->setTargetPos(pos);
+					return tsOnTheWay;
+				}
+			}
 		}
 	}
 		
@@ -84,14 +99,29 @@ PathFinder::TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 		unit->setCurrSkill(scStop);
 		break;
 	case tsOnTheWay:
-		Vec2i pos= path->peek();
-		if(map->canMove(unit, unit->getPos(), pos)){
-			path->pop();
-			unit->setTargetPos(pos);
-		}
-		else{
-			unit->setCurrSkill(scStop);
-			return tsBlocked;
+		{
+			if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
+				Vec2i pos= path->pop();
+				if(map->canMove(unit, unit->getPos(), pos)) {
+					unit->setTargetPos(pos);
+				}
+				else {
+					unit->setCurrSkill(scStop);
+					return tsBlocked;
+				}
+			}
+			else if(dynamic_cast<UnitPath *>(path) != NULL) {
+				UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+				Vec2i pos= advPath->peek();
+				if(map->canMove(unit, unit->getPos(), pos)) {
+					advPath->pop();
+					unit->setTargetPos(pos);
+				}
+				else {
+					unit->setCurrSkill(scStop);
+					return tsBlocked;
+				}
+			}
 		}
 		break;
 	}
@@ -101,7 +131,7 @@ PathFinder::TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 // ==================== PRIVATE ==================== 
 
 //route a unit using A* algorithm
-PathFinder::TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
+TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	
 	nodePoolCount= 0;
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
@@ -185,7 +215,7 @@ PathFinder::TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 	//check results of path finding
 	TravelState ts;
-	UnitPath *path= unit->getPath();
+	UnitPathInterface *path= unit->getPath();
 	if(pathFound==false || lastNode==firstNode){
 		//blocked
 		ts= tsBlocked;

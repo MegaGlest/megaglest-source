@@ -34,6 +34,50 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+const int UnitPathBasic::maxBlockCount= 10;
+
+UnitPathBasic::UnitPathBasic() {
+	this->blockCount = 0;
+	this->pathQueue.clear();
+}
+
+bool UnitPathBasic::isEmpty() const {
+	return pathQueue.empty();
+}
+
+bool UnitPathBasic::isBlocked() const {
+	return blockCount >= maxBlockCount;
+}
+
+void UnitPathBasic::clear() {
+	pathQueue.clear();
+	blockCount= 0;
+}
+
+void UnitPathBasic::incBlockCount() {
+	pathQueue.clear();
+	blockCount++;
+}
+
+void UnitPathBasic::push(const Vec2i &path){
+	pathQueue.push_back(path);
+}
+
+Vec2i UnitPathBasic::pop() {
+	Vec2i p= pathQueue.front();
+	pathQueue.erase(pathQueue.begin());
+	return p;
+}
+std::string UnitPathBasic::toString() const {
+	std::string result = "";
+
+	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
+	for(int idx = 0; idx < pathQueue.size(); idx++) {
+		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
+	}
+
+	return result;
+}
 // =====================================================
 // 	class UnitPath
 // =====================================================
@@ -111,7 +155,7 @@ set<Unit*> Unit::livingUnitsp;
 
 // ============================ Constructor & destructor =============================
 
-Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
+Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -119,6 +163,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 
     RandomGen random;
 
+    this->unitPath = unitpath;
 	this->pos=pos;
 	this->type=type;
     this->faction=faction;
@@ -135,7 +180,7 @@ Unit::Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map
 
     setModelFacing(placeFacing);
 
-	Config &config= Config::getInstance();
+    Config &config= Config::getInstance();
 	showUnitParticles= config.getBool("UnitParticles");
 
 	lastPos= pos;
@@ -211,6 +256,10 @@ Unit::~Unit(){
 		unitParticleSystems.pop_back();
 	}
 	stopDamageParticles();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete this->unitPath;
+	this->unitPath = NULL;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -643,7 +692,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//empty command queue
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		clearCommands();
-		unitPath.clear();
+		this->unitPath->clear();
 	}
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A\n",__FILE__,__FUNCTION__);
@@ -684,7 +733,7 @@ CommandResult Unit::finishCommand(){
 	//pop front
 	delete commands.front();
 	commands.erase(commands.begin());
-	unitPath.clear();
+	this->unitPath->clear();
 
 	while (!commands.empty()) {
 		if (commands.front()->getUnit() != NULL && livingUnitsp.find(commands.front()->getUnit()) == livingUnitsp.end()) {
@@ -714,7 +763,7 @@ CommandResult Unit::cancelCommand(){
 	commands.pop_back();
 
 	//clear routes
-	unitPath.clear();
+	this->unitPath->clear();
 
 	return crSuccess;
 }
@@ -1589,7 +1638,7 @@ std::string Unit::toString() const {
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     result += " totalUpgrade = " + totalUpgrade.toString();
-    result += " " + unitPath.toString() + "\n";
+    result += " " + this->unitPath->toString() + "\n";
     result += "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

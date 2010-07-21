@@ -51,16 +51,18 @@ private:
 	bool enableServerControlledAI;
 	int networkFramePeriod;
 	bool networkPauseGameForLaggedClients;
+	PathFinderType pathFinderType;
 
 public:
 
 
     GameSettings() {		
     	fogOfWar = true;
-    	enableObserverModeAtEndGame = false;
-    	enableServerControlledAI    = false;
-    	networkFramePeriod			= GameConstants::networkFramePeriod;
+    	enableObserverModeAtEndGame 		= false;
+    	enableServerControlledAI    		= false;
+    	networkFramePeriod					= GameConstants::networkFramePeriod;
     	networkPauseGameForLaggedClients 	= false;
+    	pathFinderType						= pfBasic;
 
     	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
     		factionTypeNames[i] = "";
@@ -108,6 +110,7 @@ public:
 	bool getEnableServerControlledAI() 	  const {return enableServerControlledAI;}
 	int getNetworkFramePeriod()			  const {return networkFramePeriod; }
 	bool getNetworkPauseGameForLaggedClients()	  const {return networkPauseGameForLaggedClients; }
+	PathFinderType getPathFinderType() const { return pathFinderType; }
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -134,6 +137,7 @@ public:
 	void setEnableServerControlledAI(bool value)					{this->enableServerControlledAI = value;}
 	void setNetworkFramePeriod(int value)							{this->networkFramePeriod = value; }
 	void setNetworkPauseGameForLaggedClients(bool value)			{this->networkPauseGameForLaggedClients = value; }
+	void setPathFinderType(PathFinderType value)					{this->pathFinderType = value; }
 
 	string toString() const {
 		string result = "";
@@ -165,6 +169,7 @@ public:
 		result += "enableServerControlledAI = " + intToStr(enableServerControlledAI) + "\n";
 		result += "networkFramePeriod = " + intToStr(networkFramePeriod) + "\n";
 		result += "networkPauseGameForLaggedClients = " + intToStr(networkPauseGameForLaggedClients) + "\n";
+		result += "pathFinderType = " + intToStr(pathFinderType) + "\n";
 
 		return result;
 	}
