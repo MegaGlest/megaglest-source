@@ -152,6 +152,9 @@ public:
 	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
 	virtual void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
 	virtual void push(const Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
+	void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+
 	
 #if 0
 	// old style, to work with original PathFinder

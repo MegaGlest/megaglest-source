@@ -30,7 +30,6 @@ enum TravelState {
 	tsArrived,
 	tsMoving,
 	tsBlocked,
-	tsOnTheWay,
 	tsImpossible
 };
 
