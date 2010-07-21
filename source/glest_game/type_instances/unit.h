@@ -105,7 +105,7 @@ public:
 	virtual void clear() = 0;
 	virtual void incBlockCount() = 0;
 	virtual void push(const Vec2i &path) = 0;
-	virtual Vec2i pop() = 0;
+	//virtual Vec2i pop() = 0;
 
 	virtual std::string toString() const = 0;
 };
@@ -160,7 +160,8 @@ public:
 #else
 	// new style, for the new RoutePlanner
 	Vec2i peek()			{return front();}	 /**< peek at the next position			 */	
-	virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
+	//virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
+	void pop()		{ erase(begin()); }	/**< pop the next position off the path */
 #endif
 	int getBlockCount() const { return blockCount; }
 
