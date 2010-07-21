@@ -530,6 +530,16 @@ int glestMain(int argc, char** argv){
 
 		gameInitialized = true;
 
+		Renderer &renderer= Renderer::getInstance();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
+
+		if(hasCommandArgument(argc, argv,"--opengl-info") == true) {
+			Renderer &renderer= Renderer::getInstance();
+			printf("%s",renderer.getGlInfo().c_str());
+
+			return -1;
+		}
+
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
@@ -546,16 +556,6 @@ int glestMain(int argc, char** argv){
 		//Lang &lang= Lang::getInstance();
 		//string test = lang.get("ExitGameServer?");
 		//printf("[%s]",test.c_str());
-
-		Renderer &renderer= Renderer::getInstance();
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
-
-		if(hasCommandArgument(argc, argv,"--opengl-info") == true) {
-			Renderer &renderer= Renderer::getInstance();
-			printf("%s",renderer.getGlInfo().c_str());
-
-			return -1;
-		}
 
 		//main loop
 		while(Window::handleEvent()){
