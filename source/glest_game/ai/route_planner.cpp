@@ -401,7 +401,11 @@ HAAStarResult RoutePlanner::findWaypointPathUnExplored(Unit *unit, const Vec2i &
 bool RoutePlanner::refinePath(Unit *unit) {
 	PF_TRACE();
 	WaypointPath &wpPath = *unit->getWaypointPath();
-	UnitPath &path = *unit->getPath();
+
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+
+	UnitPath &path = *advPath;
 	assert(!wpPath.empty());
 
 	const Vec2i &startPos = path.empty() ? unit->getPos() : path.back();
@@ -437,7 +441,10 @@ bool RoutePlanner::refinePath(Unit *unit) {
 
 void RoutePlanner::smoothPath(Unit *unit) {
 	PF_TRACE();
-	if (unit->getPath()->size() < 3) {
+	UnitPathInterface *path = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+
+	if (advPath->size() < 3) {
 		return;
 	}
 	AnnotatedMap* const &aMap = world->getCartographer()->getMasterMap();
@@ -446,8 +453,8 @@ void RoutePlanner::smoothPath(Unit *unit) {
 		min_y = 1 << 17,
 		max_y = -1;
 	set<Vec2i> onPath;
-	UnitPath::iterator it = unit->getPath()->begin();
-	for ( ; it  != unit->getPath()->end(); ++it) {
+	UnitPath::iterator it = advPath->begin();
+	for ( ; it  != advPath->end(); ++it) {
 		if (it->x < min_x) min_x = it->x;
 		if (it->x > max_x) max_x = it->x;
 		if (it->y < min_y) min_y = it->y;
@@ -456,11 +463,11 @@ void RoutePlanner::smoothPath(Unit *unit) {
 	}
 	Rect2i bounds(min_x, min_y, max_x + 1, max_y + 1);
 
-	it = unit->getPath()->begin();
+	it = advPath->begin();
 	UnitPath::iterator nit = it;
 	++nit;
 
-	while (nit != unit->getPath()->end()) {
+	while (nit != advPath->end()) {
 		onPath.erase(*it);
 		Vec2i sp = *it;
 		for (int d = 0; d < odCount; ++d) {
@@ -490,10 +497,10 @@ void RoutePlanner::smoothPath(Unit *unit) {
 				while (*eit != intersect) {
 					onPath.erase(*eit++);
 				}
-				nit = unit->getPath()->erase(nit, eit);
+				nit = advPath->erase(nit, eit);
 				sp += OrdinalOffsets[d];
 				while (sp != intersect) {
-					unit->getPath()->insert(nit, sp);
+					advPath->insert(nit, sp);
 					onPath.insert(sp); // do we need this? Can these get us further hits ??
 					sp += OrdinalOffsets[d];
 				}
@@ -507,7 +514,11 @@ void RoutePlanner::smoothPath(Unit *unit) {
 
 TravelState RoutePlanner::doRouteCache(Unit *unit) {
 	PF_TRACE();
-	UnitPath &path = *unit->getPath();
+
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+
+	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	assert(unit->getPos().dist(path.front()) < 1.5f);
 	if (attemptMove(unit)) {
@@ -540,7 +551,11 @@ TravelState RoutePlanner::doRouteCache(Unit *unit) {
 TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 	PF_TRACE();
 	AnnotatedMap *aMap = world->getCartographer()->getAnnotatedMap(unit);
-	UnitPath &path = *unit->getPath();
+
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+
+	UnitPath &path = *advPath;
 //	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
 	aMap->annotateLocal(unit);
 	float cost = quickSearch(unit->getCurrField(), unit->getType()->getSize(), unit->getPos(), target);
@@ -567,7 +582,9 @@ TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
 	PF_TRACE();
 	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
-	UnitPath &path = *unit->getPath();
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	UnitPath &path = *advPath;
 	PosGoal goal(targetPos);
 	MoveCost cost(unit, aMap);
 	DiagonalDistance dd(targetPos);
@@ -605,7 +622,9 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
   */
 TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) {
 	PF_TRACE();
-	UnitPath &path = *unit->getPath();
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
 	// if arrived (where we wanted to go)
@@ -715,7 +734,10 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 
 TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Vec2i &target) {
 	PF_TRACE();
-	UnitPath &path = *unit->getPath();
+
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	const Vec2i &start = unit->getPos();
 	// setup search
@@ -751,7 +773,9 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 
 TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2i &target) {
 	PF_TRACE();
-	UnitPath &path = *unit->getPath();
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 
 	// if at goal
@@ -822,7 +846,9 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
   * @return true if repair succeeded */
 bool RoutePlanner::repairPath(Unit *unit) {
 	PF_TRACE();
-	UnitPath &path = *unit->getPath();
+	UnitPathInterface *unitpath = unit->getPath();
+	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
+	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	
 	Vec2i dest;

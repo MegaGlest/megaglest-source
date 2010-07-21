@@ -72,6 +72,8 @@ private:
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
 
+	GraphicLabel labelPathFinderType;
+	GraphicListBox listBoxPathFinderType;
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;

@@ -43,7 +43,7 @@ private:
 
 private:
 	static const int maxResSearchRadius= 10;
-	//static const int harvestDistance= 5;
+	static const int harvestDistance= 5;
 	static const int ultraResourceFactor= 3;
 	static const int megaResourceFactor= 4;
 
@@ -54,7 +54,7 @@ private:
 	World *world;
 	Console *console;
 	ScriptManager *scriptManager;
-	//PathFinder pathFinder;
+	PathFinder pathFinder;
 	RoutePlanner *routePlanner;
 	Game *game;
 	RandomGen random;

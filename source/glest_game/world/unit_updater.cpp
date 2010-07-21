@@ -51,8 +51,15 @@ void UnitUpdater::init(Game *game){
 	this->map= world->getMap();
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
-	routePlanner = world->getRoutePlanner();
-	//pathFinder.init(map);
+
+	switch(this->game->getGameSettings()->getPathFinderType()) {
+		case pfBasic:
+			pathFinder.init(map);
+			break;
+		case pfRoutePlanner:
+			routePlanner = world->getRoutePlanner();
+			break;
+    }
 }
 
 
@@ -190,12 +197,22 @@ void UnitUpdater::updateMove(Unit *unit){
 
 	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
 
-	switch (routePlanner->findPath(unit, pos)) {
-	case PathFinder::tsOnTheWay:
+	TravelState tsValue = tsImpossible;
+	switch(this->game->getGameSettings()->getPathFinderType()) {
+		case pfBasic:
+			tsValue = pathFinder.findPath(unit, pos);
+			break;
+		case pfRoutePlanner:
+			tsValue = routePlanner->findPath(unit, pos);
+			break;
+    }
+
+	switch (tsValue) {
+	case tsOnTheWay:
 		unit->setCurrSkill(mct->getMoveSkillType());
         break;
 
-	case PathFinder::tsBlocked:
+	case tsBlocked:
 		unit->setCurrSkill(scStop);
 		if(unit->getPath()->isBlocked()){
 			unit->finishCommand();
@@ -239,12 +256,22 @@ void UnitUpdater::updateAttack(Unit *unit){
 			pos= command->getPos();
 		}
 
+		TravelState tsValue = tsImpossible;
+		switch(this->game->getGameSettings()->getPathFinderType()) {
+			case pfBasic:
+				tsValue = pathFinder.findPath(unit, pos);
+				break;
+			case pfRoutePlanner:
+				tsValue = routePlanner->findPath(unit, pos);
+				break;
+	    }
+
 		//if unit arrives destPos order has ended
-        switch (routePlanner->findPath(unit, pos)){
-        case PathFinder::tsOnTheWay:
+        switch (tsValue){
+        case tsOnTheWay:
             unit->setCurrSkill(act->getMoveSkillType());
             break;
-		case PathFinder::tsBlocked:
+		case tsBlocked:
 			if(unit->getPath()->isBlocked()){
 				unit->finishCommand();
 			}
@@ -285,19 +312,51 @@ void UnitUpdater::updateBuild(Unit *unit){
         //if not building
         const UnitType *ut= command->getUnitType();
 
-		switch (routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing())) {
-        case PathFinder::tsOnTheWay:
+		TravelState tsValue = tsImpossible;
+		switch(this->game->getGameSettings()->getPathFinderType()) {
+			case pfBasic:
+				tsValue = pathFinder.findPath(unit, command->getPos()-Vec2i(1));
+				break;
+			case pfRoutePlanner:
+				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
+				break;
+	    }
+
+		switch (tsValue) {
+        case tsOnTheWay:
             unit->setCurrSkill(bct->getMoveSkillType());
             break;
 
-        case PathFinder::tsArrived:
-            //if arrived destination
+        case tsArrived:
+        	{
+        	//if arrived destination
             assert(ut);
-			if (map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing())) {
-			//if(map->isFreeCells(command->getPos(), ut->getSize(), fLand)){
+
+            bool canOccupyCell = false;
+    		switch(this->game->getGameSettings()->getPathFinderType()) {
+    			case pfBasic:
+    				canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
+    				break;
+    			case pfRoutePlanner:
+    				canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
+    				break;
+    	    }
+
+			if (canOccupyCell == true) {
 				const UnitType *builtUnitType= command->getUnitType();
 				CardinalDir facing = command->getFacing();
-				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
+
+				UnitPathInterface *newpath = NULL;
+				switch(this->game->getGameSettings()->getPathFinderType()) {
+					case pfBasic:
+						newpath = new UnitPathBasic();
+						break;
+					case pfRoutePlanner:
+						newpath = new UnitPath();
+						break;
+			    }
+
+				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
 				builtUnit->create();
 
 				if(!builtUnitType->hasSkillClass(scBeBuilt)){
@@ -308,7 +367,15 @@ void UnitUpdater::updateBuild(Unit *unit){
 				unit->setCurrSkill(bct->getBuildSkillType());
 				unit->setTarget(builtUnit);
 				map->prepareTerrain(builtUnit);
-				world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
+
+	    		switch(this->game->getGameSettings()->getPathFinderType()) {
+	    			case pfBasic:
+	    				break;
+	    			case pfRoutePlanner:
+	    				world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
+	    				break;
+	    	    }
+
 				command->setUnit(builtUnit);
 
 				//play start sound
@@ -329,9 +396,10 @@ void UnitUpdater::updateBuild(Unit *unit){
                      console->addStdMessage("BuildingNoPlace");
 				}
             }
+        	}
             break;
 
-        case PathFinder::tsBlocked:
+        case tsBlocked:
 			if(unit->getPath()->isBlocked()){
 				unit->cancelCommand();
 			}
@@ -375,6 +443,9 @@ void UnitUpdater::updateHarvest(Unit *unit){
     const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(command->getCommandType());
 	Vec2i targetPos;
 
+	TravelState tsValue = tsImpossible;
+	UnitPathInterface *path= unit->getPath();
+
 	if(unit->getCurrSkill()->getClass() != scHarvest) {
 		//if not working
 		if(unit->getLoadCount()==0){
@@ -382,23 +453,52 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			Resource *r= map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
 			if(r!=NULL && hct->canHarvest(r->getType())){
 				//if can harvest dest. pos
-				if (map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos)) {
+				bool canHarvestDestPos = false;
+
+	    		switch(this->game->getGameSettings()->getPathFinderType()) {
+	    			case pfBasic:
+						canHarvestDestPos = (unit->getPos().dist(command->getPos())<harvestDistance &&
+											  map->isResourceNear(unit->getPos(), r->getType(), targetPos));
+	    				break;
+	    			case pfRoutePlanner:
+	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
+	    				break;
+	    	    }
+
+				if (canHarvestDestPos == true) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
 						unit->setTargetPos(targetPos);
 						command->setPos(targetPos);
 						unit->setLoadCount(0);
-						unit->setLoadType(r->getType());
+
+			    		switch(this->game->getGameSettings()->getPathFinderType()) {
+			    			case pfBasic:
+			    				unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+			    				break;
+			    			case pfRoutePlanner:
+			    				unit->setLoadType(r->getType());
+			    				break;
+			    	    }
 				}
-				else{
+				else {
+
 					//if not continue walking
-					switch (routePlanner->findPathToResource(unit, command->getPos(), r->getType())) {
-						case tsMoving:
-							unit->setCurrSkill(hct->getMoveSkillType());
-							break;
-						default:
-							break;
-					}
+					TravelState tsValue = tsImpossible;
+		    		switch(this->game->getGameSettings()->getPathFinderType()) {
+		    			case pfBasic:
+							tsValue = pathFinder.findPath(unit, command->getPos());
+							if (tsValue == tsOnTheWay) {
+								unit->setCurrSkill(hct->getMoveSkillType());
+							}
+		    				break;
+		    			case pfRoutePlanner:
+							tsValue = routePlanner->findPathToResource(unit, command->getPos(), r->getType());
+							if (tsValue == tsMoving) {
+								unit->setCurrSkill(hct->getMoveSkillType());
+							}
+		    				break;
+		    	    }
 				}
 			}
 			else{
@@ -412,9 +512,19 @@ void UnitUpdater::updateHarvest(Unit *unit){
 		else{
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
-			if(store!=NULL){
-				switch(routePlanner->findPathToStore(unit, store)){
-				case PathFinder::tsOnTheWay:
+			if(store!=NULL) {
+				TravelState tsValue = tsImpossible;
+	    		switch(this->game->getGameSettings()->getPathFinderType()) {
+	    			case pfBasic:
+	    				tsValue = pathFinder.findPath(unit, store->getCenteredPos());
+	    				break;
+	    			case pfRoutePlanner:
+	    				tsValue = routePlanner->findPathToStore(unit, store);
+	    				break;
+	    	    }
+
+				switch(tsValue) {
+				case tsOnTheWay:
 					unit->setCurrSkill(hct->getMoveLoadedSkillType());
 					break;
 				default:
@@ -471,7 +581,15 @@ void UnitUpdater::updateHarvest(Unit *unit){
 					if (r->decAmount(1)) {
 						const ResourceType *rt = r->getType();
 						sc->deleteResource();
-						world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
+
+			    		switch(this->game->getGameSettings()->getPathFinderType()) {
+			    			case pfBasic:
+			    				break;
+			    			case pfRoutePlanner:
+			    				world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
+			    				break;
+			    	    }
+
 						unit->setCurrSkill(hct->getStopLoadedSkillType());
 					}
 				}
@@ -500,6 +618,8 @@ void UnitUpdater::updateRepair(Unit *unit){
 	Unit *repaired= map->getCell(command->getPos())->getUnit(fLand);
 	bool nextToRepaired= repaired!=NULL && map->isNextTo(unit->getPos(), repaired);
 
+	UnitPathInterface *path= unit->getPath();
+
 	if(unit->getCurrSkill()->getClass()!=scRepair || !nextToRepaired){
         //if not repairing
         if(repaired!=NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged()){
@@ -508,18 +628,27 @@ void UnitUpdater::updateRepair(Unit *unit){
 				unit->setTarget(repaired);
                 unit->setCurrSkill(rct->getRepairSkillType());
 			}
-			else{
+			else {
 				TravelState ts;
-				if (repaired && !repaired->getType()->isMobile()) {
-					ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
-				} else {
-					ts = routePlanner->findPath(unit, command->getPos());
-				}
+	    		switch(this->game->getGameSettings()->getPathFinderType()) {
+	    			case pfBasic:
+	    				ts = pathFinder.findPath(unit, command->getPos());
+	    				break;
+	    			case pfRoutePlanner:
+						if (repaired && !repaired->getType()->isMobile()) {
+							ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
+						}
+						else {
+							ts = routePlanner->findPath(unit, command->getPos());
+						}
+	    				break;
+	    	    }
+
 				switch(ts) {
-				case PathFinder::tsOnTheWay:
+				case tsOnTheWay:
 					unit->setCurrSkill(rct->getMoveSkillType());
 					break;
-				case PathFinder::tsBlocked:
+				case tsBlocked:
 					if(unit->getPath()->isBlocked()){
 						unit->finishCommand();
 					}
@@ -568,7 +697,18 @@ void UnitUpdater::updateProduce(Unit *unit){
         if(unit->getProgress2()>pct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
-			produced= new Unit(world->getNextUnitId(unit->getFaction()), Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
+
+			UnitPathInterface *newpath = NULL;
+			switch(this->game->getGameSettings()->getPathFinderType()) {
+				case pfBasic:
+					newpath = new UnitPathBasic();
+					break;
+				case pfRoutePlanner:
+					newpath = new UnitPath();
+					break;
+		    }
+
+			produced= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,produced->toString().c_str());
 
@@ -638,9 +778,17 @@ void UnitUpdater::updateMorph(Unit *unit){
     else{
 		unit->update2();
         if(unit->getProgress2()>mct->getProduced()->getProductionTime()){
+			int oldSize = 0;
+			bool needMapUpdate = false;
 
-			int oldSize = unit->getType()->getSize();
-			bool needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
+    		switch(this->game->getGameSettings()->getPathFinderType()) {
+    			case pfBasic:
+    				break;
+    			case pfRoutePlanner:
+    				oldSize = unit->getType()->getSize();
+    				needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
+    				break;
+    	    }
 
 			//finish the command
 			if(unit->morph(mct)){
@@ -648,10 +796,17 @@ void UnitUpdater::updateMorph(Unit *unit){
 				if(gui->isSelected(unit)){
 					gui->onSelectionChanged();
 				}
-				if (needMapUpdate) {
-					int size = std::max(oldSize, unit->getType()->getSize());
-					world->getCartographer()->updateMapMetrics(unit->getPos(), size);
-				}
+	    		switch(this->game->getGameSettings()->getPathFinderType()) {
+	    			case pfBasic:
+	    				break;
+	    			case pfRoutePlanner:
+						if (needMapUpdate) {
+							int size = std::max(oldSize, unit->getType()->getSize());
+							world->getCartographer()->updateMapMetrics(unit->getPos(), size);
+						}
+	    				break;
+	    	    }
+
 				scriptManager->onUnitCreated(unit);
 			}
 			else{
@@ -720,9 +875,16 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	if(attacked->decHp(static_cast<int>(damage))){
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex());
 		attacker->incKills();
-		if (!attacked->getType()->isMobile()) {
-			world->getCartographer()->updateMapMetrics(attacked->getPos(), attacked->getType()->getSize());
-		}
+
+		switch(this->game->getGameSettings()->getPathFinderType()) {
+			case pfBasic:
+				break;
+			case pfRoutePlanner:
+				if (!attacked->getType()->isMobile()) {
+					world->getCartographer()->updateMapMetrics(attacked->getPos(), attacked->getType()->getSize());
+				}
+				break;
+	    }
 		scriptManager->onUnitDied(attacked);
 	}
 }

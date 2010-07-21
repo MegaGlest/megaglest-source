@@ -442,7 +442,17 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		const FactionType* ft= faction->getType();
 		const UnitType* ut= ft->getUnitType(unitName);
 
-		Unit* unit= new Unit(getNextUnitId(faction), pos, ut, faction, &map, CardinalDir::NORTH);
+		UnitPathInterface *newpath = NULL;
+		switch(game->getGameSettings()->getPathFinderType()) {
+			case pfBasic:
+				newpath = new UnitPathBasic();
+				break;
+			case pfRoutePlanner:
+				newpath = new UnitPath();
+				break;
+	    }
+
+		Unit* unit= new Unit(getNextUnitId(faction), newpath, pos, ut, faction, &map, CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
@@ -721,7 +731,18 @@ void World::initUnits(){
 			const UnitType *ut= ft->getStartingUnit(j);
 			int initNumber= ft->getStartingUnitAmount(j);
 			for(int l=0; l<initNumber; l++){
-				Unit *unit= new Unit(getNextUnitId(f), Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+
+				UnitPathInterface *newpath = NULL;
+				switch(game->getGameSettings()->getPathFinderType()) {
+					case pfBasic:
+						newpath = new UnitPathBasic();
+						break;
+					case pfRoutePlanner:
+						newpath = new UnitPath();
+						break;
+			    }
+
+				Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 
 				int startLocationIndex= f->getStartLocationIndex();
 

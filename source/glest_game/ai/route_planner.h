@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //				  2009-2010 James McCulloch
 //
 //	You can redistribute this code and/or modify it under
@@ -125,13 +125,6 @@ public:
 	}
 };
 
-enum TravelState{
-	tsArrived,
-	tsMoving,
-	tsBlocked,
-	tsImpossible
-};
-
 enum HAAStarResult {
 	hsrFailed,
 	hsrComplete,
@@ -194,11 +187,13 @@ private:
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 
 	bool attemptMove(Unit *unit) const {
-		assert(!unit->getPath()->empty());
-		Vec2i pos = unit->getPath()->peek(); 
+		UnitPathInterface *path = unit->getPath();
+		UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+		assert(advPath->isEmpty() == false);
+		Vec2i pos = advPath->peek();
 		if (isLegalMove(unit, pos)) {
 			unit->setTargetPos(pos);
-			unit->getPath()->pop();
+			advPath->pop();
 			return true;
 		}
 		return false;

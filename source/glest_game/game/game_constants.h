@@ -21,6 +21,19 @@ namespace Glest{ namespace Game{
 //	class GameConstants
 // =====================================================
 
+enum PathFinderType {
+	pfBasic,
+	pfRoutePlanner
+};
+
+enum TravelState {
+	tsArrived,
+	tsMoving,
+	tsBlocked,
+	tsOnTheWay,
+	tsImpossible
+};
+
 enum ControlType{
     ctClosed,
 	ctCpuEasy,

@@ -95,13 +95,49 @@ public:
 	Faction *getUnitFaction() const	{ return faction; }
 };
 
+class UnitPathInterface {
+
+public:
+
+	virtual bool isBlocked() const = 0;
+	virtual bool isEmpty() const = 0;
+
+	virtual void clear() = 0;
+	virtual void incBlockCount() = 0;
+	virtual void push(const Vec2i &path) = 0;
+	virtual Vec2i pop() = 0;
+
+	virtual std::string toString() const = 0;
+};
+
+class UnitPathBasic : public UnitPathInterface {
+private:
+	static const int maxBlockCount;
+
+private:
+	int blockCount;
+	vector<Vec2i> pathQueue;
+
+public:
+	UnitPathBasic();
+	virtual bool isBlocked() const;
+	virtual bool isEmpty() const;
+
+	virtual void clear();
+	virtual void incBlockCount();
+	virtual void push(const Vec2i &path);
+	Vec2i pop();
+
+	virtual std::string toString() const;
+};
+
 // =====================================================
 // 	class UnitPath
 // =====================================================
 /** Holds the next cells of a Unit movement 
   * @extends std::list<Shared::Math::Vec2i>
   */
-class UnitPath : public list<Vec2i> {
+class UnitPath : public list<Vec2i>, public UnitPathInterface {
 private:
 	static const int maxBlockCount = 10; /**< number of command updates to wait on a blocked path */
 
@@ -110,12 +146,12 @@ private:
 
 public:
 	UnitPath() : blockCount(0) {} /**< Construct path object */
-	bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
-	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
+	virtual bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
+	virtual bool isEmpty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
 	int  size() const		{return list<Vec2i>::size();}	/**< size of path				 */
-	void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
-	void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
-	void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
+	virtual void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
+	virtual void push(const Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
 	
 #if 0
 	// old style, to work with original PathFinder
@@ -124,11 +160,11 @@ public:
 #else
 	// new style, for the new RoutePlanner
 	Vec2i peek()			{return front();}	 /**< peek at the next position			 */	
-	void pop()				{erase(begin());}	/**< pop the next position off the path */
+	virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
 #endif
 	int getBlockCount() const { return blockCount; }
 
-	std::string toString() const;
+	virtual std::string toString() const;
 };
 
 class WaypointPath : public list<Vec2i> {
@@ -205,7 +241,7 @@ private:
 	TotalUpgrade totalUpgrade;
 	Map *map;
 
-	UnitPath unitPath;
+	UnitPathInterface *unitPath;
 	WaypointPath waypointPath;
 
     Commands commands;
@@ -220,7 +256,7 @@ private:
 	bool visible;
 
 public:
-    Unit(int id, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
+    Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
 
     //queries
@@ -256,8 +292,8 @@ public:
 	const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
 	string getFullName() const;
-	const UnitPath *getPath() const				{return &unitPath;}
-	UnitPath *getPath()							{return &unitPath;}
+	const UnitPathInterface *getPath() const	{return unitPath;}
+	UnitPathInterface *getPath()				{return unitPath;}
 	WaypointPath *getWaypointPath()				{return &waypointPath;}
 
     //pos
