@@ -13,7 +13,6 @@
 #define _GLEST_GAME_UNITUPDATER_H_
 
 #include "gui.h"
-#include "path_finder.h"
 #include "particle.h"
 #include "randomgen.h"
 
@@ -25,6 +24,7 @@ namespace Glest{ namespace Game{
 class Unit;
 class Map;
 class ScriptManager;
+class PathFinder;
 class RoutePlanner;
 
 // =====================================================
@@ -54,13 +54,14 @@ private:
 	World *world;
 	Console *console;
 	ScriptManager *scriptManager;
-	PathFinder pathFinder;
+	PathFinder *pathFinder;
 	RoutePlanner *routePlanner;
 	Game *game;
 	RandomGen random;
 
 public:
     void init(Game *game);
+    ~UnitUpdater();
 
 	//update skills
     void updateUnit(Unit *unit);

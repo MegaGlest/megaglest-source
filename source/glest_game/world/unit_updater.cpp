@@ -14,21 +14,22 @@
 #include <algorithm>
 #include <cassert>
 
-#include "sound.h"
-#include "upgrade.h"
-#include "unit.h"
-#include "particle_type.h"
+#include "cartographer.h"
 #include "core_data.h"
 #include "config.h"
-#include "renderer.h"
-#include "sound_renderer.h"
 #include "game.h"
-#include "path_finder.h"
-#include "object.h"
 #include "faction.h"
 #include "network_manager.h"
-#include "cartographer.h"
+#include "object.h"
+#include "particle_type.h"
+#include "path_finder.h"
+#include "renderer.h"
 #include "route_planner.h"
+#include "sound.h"
+#include "sound_renderer.h"
+#include "upgrade.h"
+#include "unit.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -52,10 +53,12 @@ void UnitUpdater::init(Game *game){
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
 	this->routePlanner = NULL;
+	this->pathFinder = NULL;
 
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
-			pathFinder.init(map);
+			pathFinder = new PathFinder();
+			pathFinder->init(map);
 			break;
 		case pfRoutePlanner:
 			routePlanner = world->getRoutePlanner();
@@ -65,6 +68,10 @@ void UnitUpdater::init(Game *game){
     }
 }
 
+UnitUpdater::~UnitUpdater() {
+	delete pathFinder;
+	pathFinder = NULL;
+}
 
 // ==================== progress skills ====================
 
@@ -203,7 +210,7 @@ void UnitUpdater::updateMove(Unit *unit){
 	TravelState tsValue = tsImpossible;
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
-			tsValue = pathFinder.findPath(unit, pos);
+			tsValue = pathFinder->findPath(unit, pos);
 			break;
 		case pfRoutePlanner:
 			tsValue = routePlanner->findPath(unit, pos);
@@ -213,7 +220,7 @@ void UnitUpdater::updateMove(Unit *unit){
     }
 
 	switch (tsValue) {
-	case tsOnTheWay:
+	case tsMoving:
 		unit->setCurrSkill(mct->getMoveSkillType());
         break;
 
@@ -264,7 +271,7 @@ void UnitUpdater::updateAttack(Unit *unit){
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
-				tsValue = pathFinder.findPath(unit, pos);
+				tsValue = pathFinder->findPath(unit, pos);
 				break;
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPath(unit, pos);
@@ -275,7 +282,7 @@ void UnitUpdater::updateAttack(Unit *unit){
 
 		//if unit arrives destPos order has ended
         switch (tsValue){
-        case tsOnTheWay:
+        case tsMoving:
             unit->setCurrSkill(act->getMoveSkillType());
             break;
 		case tsBlocked:
@@ -322,7 +329,7 @@ void UnitUpdater::updateBuild(Unit *unit){
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
-				tsValue = pathFinder.findPath(unit, command->getPos()-Vec2i(1));
+				tsValue = pathFinder->findPath(unit, command->getPos()-Vec2i(1));
 				break;
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
@@ -332,7 +339,7 @@ void UnitUpdater::updateBuild(Unit *unit){
 	    }
 
 		switch (tsValue) {
-        case tsOnTheWay:
+        case tsMoving:
             unit->setCurrSkill(bct->getMoveSkillType());
             break;
 
@@ -506,8 +513,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 					TravelState tsValue = tsImpossible;
 		    		switch(this->game->getGameSettings()->getPathFinderType()) {
 		    			case pfBasic:
-							tsValue = pathFinder.findPath(unit, command->getPos());
-							if (tsValue == tsOnTheWay) {
+							tsValue = pathFinder->findPath(unit, command->getPos());
+							if (tsValue == tsMoving) {
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
 		    				break;
@@ -537,7 +544,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 				TravelState tsValue = tsImpossible;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-	    				tsValue = pathFinder.findPath(unit, store->getCenteredPos());
+	    				tsValue = pathFinder->findPath(unit, store->getCenteredPos());
 	    				break;
 	    			case pfRoutePlanner:
 	    				tsValue = routePlanner->findPathToStore(unit, store);
@@ -547,7 +554,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	    	    }
 
 				switch(tsValue) {
-				case tsOnTheWay:
+				case tsMoving:
 					unit->setCurrSkill(hct->getMoveLoadedSkillType());
 					break;
 				default:
@@ -657,7 +664,7 @@ void UnitUpdater::updateRepair(Unit *unit){
 				TravelState ts;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-	    				ts = pathFinder.findPath(unit, command->getPos());
+	    				ts = pathFinder->findPath(unit, command->getPos());
 	    				break;
 	    			case pfRoutePlanner:
 						if (repaired && !repaired->getType()->isMobile()) {
@@ -672,7 +679,7 @@ void UnitUpdater::updateRepair(Unit *unit){
 	    	    }
 
 				switch(ts) {
-				case tsOnTheWay:
+				case tsMoving:
 					unit->setCurrSkill(rct->getMoveSkillType());
 					break;
 				case tsBlocked:

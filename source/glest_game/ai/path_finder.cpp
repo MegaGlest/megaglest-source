@@ -72,7 +72,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 				Vec2i pos= basicPath->pop();
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
-					return tsOnTheWay;
+					return tsMoving;
 				}
 			}
 			else if(dynamic_cast<UnitPath *>(path) != NULL) {
@@ -82,7 +82,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					advPath->pop();
 					unit->setTargetPos(pos);
-					return tsOnTheWay;
+					return tsMoving;
 				}
 			}
 			else {
@@ -100,7 +100,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 	case tsArrived:
 		unit->setCurrSkill(scStop);
 		break;
-	case tsOnTheWay:
+	case tsMoving:
 		{
 			if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
@@ -229,7 +229,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	}
 	else {
 		//on the way
-		ts= tsOnTheWay;
+		ts= tsMoving;
 
 		//build next pointers
 		Node *currNode= lastNode;
