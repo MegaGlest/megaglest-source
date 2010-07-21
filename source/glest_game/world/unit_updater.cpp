@@ -51,6 +51,7 @@ void UnitUpdater::init(Game *game){
 	this->map= world->getMap();
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
+	this->routePlanner = NULL;
 
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
@@ -59,6 +60,8 @@ void UnitUpdater::init(Game *game){
 		case pfRoutePlanner:
 			routePlanner = world->getRoutePlanner();
 			break;
+		default:
+			throw runtime_error("detected unsupported pathfinder type!");
     }
 }
 
@@ -205,6 +208,8 @@ void UnitUpdater::updateMove(Unit *unit){
 		case pfRoutePlanner:
 			tsValue = routePlanner->findPath(unit, pos);
 			break;
+		default:
+			throw runtime_error("detected unsupported pathfinder type!");
     }
 
 	switch (tsValue) {
@@ -264,6 +269,8 @@ void UnitUpdater::updateAttack(Unit *unit){
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPath(unit, pos);
 				break;
+			default:
+				throw runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		//if unit arrives destPos order has ended
@@ -320,6 +327,8 @@ void UnitUpdater::updateBuild(Unit *unit){
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
 				break;
+			default:
+				throw runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		switch (tsValue) {
@@ -340,6 +349,8 @@ void UnitUpdater::updateBuild(Unit *unit){
     			case pfRoutePlanner:
     				canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
     				break;
+    			default:
+    				throw runtime_error("detected unsupported pathfinder type!");
     	    }
 
 			if (canOccupyCell == true) {
@@ -354,6 +365,8 @@ void UnitUpdater::updateBuild(Unit *unit){
 					case pfRoutePlanner:
 						newpath = new UnitPath();
 						break;
+					default:
+						throw runtime_error("detected unsupported pathfinder type!");
 			    }
 
 				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
@@ -374,6 +387,8 @@ void UnitUpdater::updateBuild(Unit *unit){
 	    			case pfRoutePlanner:
 	    				world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
 	    				break;
+	    			default:
+	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				command->setUnit(builtUnit);
@@ -463,6 +478,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	    			case pfRoutePlanner:
 	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
 	    				break;
+	    			default:
+	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				if (canHarvestDestPos == true) {
@@ -479,6 +496,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			    			case pfRoutePlanner:
 			    				unit->setLoadType(r->getType());
 			    				break;
+			    			default:
+			    				throw runtime_error("detected unsupported pathfinder type!");
 			    	    }
 				}
 				else {
@@ -498,6 +517,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
 		    				break;
+		    			default:
+		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
 				}
 			}
@@ -521,6 +542,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	    			case pfRoutePlanner:
 	    				tsValue = routePlanner->findPathToStore(unit, store);
 	    				break;
+	    			default:
+	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				switch(tsValue) {
@@ -588,6 +611,8 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			    			case pfRoutePlanner:
 			    				world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
 			    				break;
+			    			default:
+			    				throw runtime_error("detected unsupported pathfinder type!");
 			    	    }
 
 						unit->setCurrSkill(hct->getStopLoadedSkillType());
@@ -642,6 +667,8 @@ void UnitUpdater::updateRepair(Unit *unit){
 							ts = routePlanner->findPath(unit, command->getPos());
 						}
 	    				break;
+	    			default:
+	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				switch(ts) {
@@ -706,6 +733,8 @@ void UnitUpdater::updateProduce(Unit *unit){
 				case pfRoutePlanner:
 					newpath = new UnitPath();
 					break;
+				default:
+					throw runtime_error("detected unsupported pathfinder type!");
 		    }
 
 			produced= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
@@ -788,6 +817,8 @@ void UnitUpdater::updateMorph(Unit *unit){
     				oldSize = unit->getType()->getSize();
     				needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
     				break;
+    			default:
+    				throw runtime_error("detected unsupported pathfinder type!");
     	    }
 
 			//finish the command
@@ -805,6 +836,8 @@ void UnitUpdater::updateMorph(Unit *unit){
 							world->getCartographer()->updateMapMetrics(unit->getPos(), size);
 						}
 	    				break;
+	    			default:
+	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				scriptManager->onUnitCreated(unit);
@@ -884,6 +917,8 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 					world->getCartographer()->updateMapMetrics(attacked->getPos(), attacked->getType()->getSize());
 				}
 				break;
+			default:
+				throw runtime_error("detected unsupported pathfinder type!");
 	    }
 		scriptManager->onUnitDied(attacked);
 	}

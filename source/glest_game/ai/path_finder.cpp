@@ -65,8 +65,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 		return tsArrived;
 	}
 	else {
-		if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
-			if(!path->isEmpty()) {
+		if(path->isEmpty() == false) {
+			if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 				//route cache
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 				Vec2i pos= basicPath->pop();
@@ -75,21 +75,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 					return tsOnTheWay;
 				}
 			}
-		}
-		else if(dynamic_cast<UnitPath *>(path) != NULL) {
-			UnitPath *advPath = dynamic_cast<UnitPath *>(path);
-			if(advPath->isEmpty() == false) {
+			else if(dynamic_cast<UnitPath *>(path) != NULL) {
+				UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 				//route cache
 				Vec2i pos= advPath->peek();
-				if(map->canMove(unit, unit->getPos(), pos)){
+				if(map->canMove(unit, unit->getPos(), pos)) {
 					advPath->pop();
 					unit->setTargetPos(pos);
 					return tsOnTheWay;
 				}
 			}
-		}
-		else {
-			throw runtime_error("unsupported or missing path finder detected!");
+			else {
+				throw runtime_error("unsupported or missing path finder detected!");
+			}
 		}
 	}
 		

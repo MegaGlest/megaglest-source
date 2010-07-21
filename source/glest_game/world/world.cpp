@@ -450,6 +450,8 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 			case pfRoutePlanner:
 				newpath = new UnitPath();
 				break;
+			default:
+				throw runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		Unit* unit= new Unit(getNextUnitId(faction), newpath, pos, ut, faction, &map, CardinalDir::NORTH);
@@ -740,6 +742,8 @@ void World::initUnits(){
 					case pfRoutePlanner:
 						newpath = new UnitPath();
 						break;
+					default:
+						throw runtime_error("detected unsupported pathfinder type!");
 			    }
 
 				Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
