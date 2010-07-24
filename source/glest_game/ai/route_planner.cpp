@@ -20,6 +20,15 @@
 #include "unit_type.h"
 
 #include "leak_dumper.h"
+#include <iostream>
+
+#define PF_DEBUG(x) {	\
+	stringstream _ss;	\
+	_ss << x << endl;	\
+	SystemFlags::OutputDebug(SystemFlags::debugPathFinder, _ss.str().c_str());	\
+}
+//#define PF_DEBUG(x) std::cout << x << endl
+
 
 #if _GAE_DEBUG_EDITION_
 #	include "debug_renderer.h"
@@ -169,11 +178,36 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 	return true;
 }
 
+string log_prelude(World *w, Unit *u) {
+	stringstream ss;
+	ss << "Frame: " << w->getFrameCount() << ", Unit: " << u->getId() << ", ";
+	return ss.str();
+}
+
+ostream& operator<<(ostream &stream, const list<Vec2i> &posList) {
+	list<Vec2i>::const_iterator itBegin = posList.begin();
+	list<Vec2i>::const_iterator itEnd = posList.end();
+	list<Vec2i>::const_iterator it = itBegin;
+	stream << " [ ";
+	for ( ; it != itEnd; ++it) {
+		if (it != itBegin) {
+			stream << ", ";
+		}
+		stream << *it;
+	}
+	stream << " ] ";
+	return stream;
+}
+
 TravelState RoutePlanner::findPathToResource(Unit *unit, const Vec2i &targetPos, const ResourceType *rt) {
 	PF_TRACE();
 	assert(rt && (rt->getClass() == rcTech || rt->getClass() == rcTileset));
 	ResourceMapKey mapKey(rt, unit->getCurrField(), unit->getType()->getSize());
 	PMap1Goal goal(world->getCartographer()->getResourceMap(mapKey));
+
+	PF_DEBUG(log_prelude(world, unit) << "findPathToResource() targetPos: " << targetPos 
+		<< ", resource type: " << rt->getName());
+
 	return findPathToGoal(unit, goal, targetPos);
 }
 
@@ -181,6 +215,9 @@ TravelState RoutePlanner::findPathToStore(Unit *unit, const Unit *store) {
 	PF_TRACE();
 	Vec2i target = store->getCenteredPos();
 	PMap1Goal goal(world->getCartographer()->getStoreMap(store, unit));
+
+	PF_DEBUG(log_prelude(world, unit) << "findPathToStore() store: " << store->getId());
+
 	return findPathToGoal(unit, goal, target);
 }
 
@@ -189,6 +226,10 @@ TravelState RoutePlanner::findPathToBuildSite(Unit *unit, const UnitType *bType,
 	PF_TRACE();
 	PatchMap<1> *pMap = world->getCartographer()->getSiteMap(bType, bPos, bFacing, unit);
 	PMap1Goal goal(pMap);
+
+	PF_DEBUG(log_prelude(world, unit) << "findPathToBuildSite() " << "building type: " << bType->getName()
+		<< ", building pos: " << bPos << ", building facing = " << bFacing);
+
 	return findPathToGoal(unit, goal, bPos + Vec2i(bType->getSize() / 2));
 }
 
@@ -328,7 +369,7 @@ public:
 		return false;
 	}
 
-	/** returns the 'potential goal' transition closest to target, or null if no potential goals */
+	/** returns the best 'potential goal' transition found, or null if no potential goals */
 	const Transition* getBestSeen(const Vec2i &currPos, const Vec2i &target) {
 		const Transition *best = 0;
 		float distToBest = Shared::Graphics::infinity;//1e6f//numeric_limits<float>::infinity();
@@ -344,7 +385,7 @@ public:
 	}
 };
 
-/** cost function for searching cluster map with a unexplored target */
+/** cost function for searching cluster map with an unexplored target */
 class UnexploredCost {
 	Field field;
 	int size;
@@ -538,19 +579,40 @@ TravelState RoutePlanner::doRouteCache(Unit *unit) {
 				// refine path to at least 24 steps (or end of path)
 				if (!refinePath(unit)) {
 					CONSOLE_LOG( "refinePath() failed. [route cache]" )
-					wpPath.clear();
+					wpPath.clear(); // path has become invalid
 					break;
 				}
 			}
 			smoothPath(unit);
+			PF_DEBUG(log_prelude(world, unit) << " MOVING [route cahce hit] from " << unit->getPos() 
+				<< " to " << unit->getTargetPos());
+			PF_DEBUG(log_prelude(world, unit) << "[low-level path further refined]");
+			if (!wpPath.empty()) {
+				PF_DEBUG("Waypoint Path: " << wpPath);
+			}
+			if (!path.empty()) {
+				PF_DEBUG("LowLevel Path: " << path);
+			}
 //			IF_DEBUG_EDITION( collectPath(unit); )
+		} else {
+			PF_DEBUG(log_prelude(world, unit) << " MOVING [route cahce hit] from " << unit->getPos() 
+				<< " to " << unit->getTargetPos());
 		}
+
 		return tsMoving;
 	}
 	// path blocked, quickSearch to next waypoint...
 //	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), wpPath.empty() ? path.back() : wpPath.front()); )
 	if (repairPath(unit) && attemptMove(unit)) {
 //		IF_DEBUG_EDITION( collectPath(unit); )
+		PF_DEBUG(log_prelude(world, unit) << " MOVING [cached path repaired] from " << unit->getPos() 
+			<< " to " << unit->getTargetPos());
+		if (!wpPath.empty()) {
+			PF_DEBUG("Waypoint Path: " << wpPath);
+		}
+		if (!path.empty()) {
+			PF_DEBUG("LowLevel Path: " << path);
+		}
 		return tsMoving;
 	}
 	unit->setCurrSkill(scStop);
@@ -583,11 +645,17 @@ TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 			path.pop();
 			if (attemptMove(unit)) {
 //				IF_DEBUG_EDITION( collectPath(unit); )
+				PF_DEBUG(log_prelude(world, unit) << " MOVING [doQuickPathSearch() Ok.] from " << unit->getPos() 
+					<< " to " << unit->getTargetPos());
+				if (!path.empty()) {
+					PF_DEBUG("LowLevel Path: " << path);
+				}
 				return tsMoving;
 			}
 		}
 		path.clear();
 	}
+	PF_DEBUG(log_prelude(world, unit) << "doQuickPathSearch() : Failed.");
 	return tsBlocked;
 }
 
@@ -620,12 +688,18 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
 		if (path.size() > 1) {
 			path.pop();
 			if (attemptMove(unit)) {
+				PF_DEBUG(log_prelude(world, unit) << " MOVING [aerial path search Ok.] from " << unit->getPos() 
+					<< " to " << unit->getTargetPos());
+				if (!path.empty()) {
+					PF_DEBUG("LowLevel Path: " << path);
+				}
 				return tsMoving;
 			}
 		} else {
 			path.clear();
 		}
 	}
+	PF_DEBUG(log_prelude(world, unit) << " BLOCKED [aerial path search failed.]");
 	path.incBlockCount();
 	unit->setCurrSkill(scStop);
 	return tsBlocked;
@@ -650,6 +724,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	// if arrived (where we wanted to go)
 	if(finalPos == unit->getPos()) {
 		unit->setCurrSkill(scStop);
+		PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() : ARRIVED [1]");
 		return tsArrived;
 	}
 	// route cache
@@ -664,6 +739,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	// if arrived (as close as we can get to it)
 	if (target == unit->getPos()) {
 		unit->setCurrSkill(scStop);
+		PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() : ARRIVED [2]");
 		return tsArrived;
 	}
 	path.clear();
@@ -672,6 +748,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	if (unit->getCurrField() == fAir) {
 		return findAerialPath(unit, target);
 	}
+	PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() " << "target pos: " << finalPos);
 
 	// QuickSearch if close to target
 	Vec2i startCluster = ClusterMap::cellToCluster(unit->getPos());
@@ -681,7 +758,6 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 			return tsMoving;
 		}
 	}
-
 	PF_TRACE();
 
 	// Hierarchical Search
@@ -694,28 +770,26 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 		res = findWaypointPathUnExplored(unit, target, wpPath);
 	}
 	if (res == hsrFailed) {
+		PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() IMPOSSIBLE");
 		if (unit->getFaction()->getThisFaction()) {
 			world->getGame()->getConsole()->addLine(Lang::getInstance().get("InvalidPosition"));
-			//g_console.addLine("Can not reach destination.");
 		}
 		return tsImpossible;
 	} else if (res == hsrStartTrap) {
 		if (wpPath.size() < 2) {
-			CONSOLE_LOG( "START_TRAP" );
 			unit->setCurrSkill(scStop);
+			PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() BLOCKED [START_TRAP]");
 			return tsBlocked;
 		}
 	}
-
 	PF_TRACE();
 
 	//	IF_DEBUG_EDITION( collectWaypointPath(unit); )
-	//CONSOLE_LOG( "WaypointPath size : " + intToStr(wpPath.size()) )
 	if (wpPath.size() > 1) {
 		wpPath.pop();
 	}
 	assert(!wpPath.empty());
-	
+
 	//	IF_DEBUG_EDITION( clearOpenClosed(unit->getPos(), target); )
 	// refine path, to at least 20 steps (or end of path)
 	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
@@ -723,15 +797,10 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	wpPath.condense();
 	while (!wpPath.empty() && path.size() < 20) {
 		if (!refinePath(unit)) {
-//			if (res == hsrStartTrap) {
-//				CONSOLE_LOG( "refinePath failed. [START_TRAP]" )
-//			} else {
-//				CONSOLE_LOG( "refinePath failed. [fresh path]" )
-//			}
 			aMap->clearLocalAnnotations(unit);
 			path.incBlockCount();
-			//CONSOLE_LOG( "   blockCount = " + intToStr(path.getBlockCount()) )
 			unit->setCurrSkill(scStop);
+			PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() BLOCKED [refinePath() failed]");
 			return tsBlocked;
 		}
 	}
@@ -739,14 +808,28 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	aMap->clearLocalAnnotations(unit);
 //	IF_DEBUG_EDITION( collectPath(unit); )
 	if (path.empty()) {
-		CONSOLE_LOG( "post hierarchical search failure, path empty." );
+		PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() : BLOCKED ... [post hierarchical search failure, path empty.]" );
 		unit->setCurrSkill(scStop);
 		return tsBlocked;
 	}
 	if (attemptMove(unit)) {
+		PF_DEBUG(log_prelude(world, unit) << " MOVING [Hierarchical Search Ok.] from " << unit->getPos() 
+			<< " to " << unit->getTargetPos());
+		if (!wpPath.empty()) {
+			PF_DEBUG("Waypoint Path: " << wpPath);
+		}
+		if (!path.empty()) {
+			PF_DEBUG("LowLevel Path: " << path);
+		}
 		return tsMoving;
 	}
-	CONSOLE_LOG( "Hierarchical refined path blocked ? valid ?!?" )
+	PF_DEBUG(log_prelude(world, unit) << "findPathToLocation() : BLOCKED ... [possible invalid path?]");
+	if (!wpPath.empty()) {
+		PF_DEBUG("Waypoint Path: " << wpPath);
+	}
+	if (!path.empty()) {
+		PF_DEBUG("LowLevel Path: " << path);
+	}
 	unit->setCurrSkill(scStop);
 	path.incBlockCount();
 	return tsBlocked;
@@ -809,6 +892,7 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	// if at goal
 	if (goal(unit->getPos(), 0.f)) {
 		unit->setCurrSkill(scStop);
+		PF_DEBUG(log_prelude(world, unit) << "ARRIVED.");
 		return tsArrived;
 	}
 	// route chache
@@ -822,8 +906,17 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	// try customGoalSearch if close to target
 	if (unit->getPos().dist(target) < 50.f) {
 		if (customGoalSearch(goal, unit, target) == tsMoving) {
+			PF_DEBUG(log_prelude(world, unit) << " MOVING [customGoalSearch() Ok.] from " << unit->getPos() 
+				<< " to " << unit->getTargetPos());
+			if (!wpPath.empty()) {
+				PF_DEBUG("Waypoint Path: " << wpPath);
+			}
+			if (!path.empty()) {
+				PF_DEBUG("LowLevel Path: " << path);
+			}
 			return tsMoving;
 		} else {
+			PF_DEBUG(log_prelude(world, unit) << "BLOCKED. [customGoalSearch() Failed.]");
 			unit->setCurrSkill(scStop);
 			return tsBlocked;
 		}
@@ -833,8 +926,9 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	// Hierarchical Search
 	tSearchEngine->reset();
 	if (!findWaypointPath(unit, target, wpPath)) {
+		PF_DEBUG(log_prelude(world, unit) << "IMPOSSIBLE.");
 		if (unit->getFaction()->getThisFaction()) {
-			CONSOLE_LOG( "Destination unreachable? [Custom Goal Search]" )
+			//console.add(lang.get("Unreachable"));
 		}
 		return tsImpossible;
 	}
@@ -852,9 +946,9 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	aMap->annotateLocal(unit);
 	while (!wpPath.empty() && path.size() < 20) {
 		if (!refinePath(unit)) {
-			CONSOLE_LOG( "refinePath failed! [Custom Goal Search]" )
 			aMap->clearLocalAnnotations(unit);
 			unit->setCurrSkill(scStop);
+			PF_DEBUG(log_prelude(world, unit) << "BLOCKED [refinePath() failed].");
 			return tsBlocked;
 		}
 	}
@@ -862,9 +956,24 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	aMap->clearLocalAnnotations(unit);
 //	IF_DEBUG_EDITION( collectPath(unit); )
 	if (attemptMove(unit)) {
+		PF_DEBUG(log_prelude(world, unit) << " MOVING [Hierarchical Search Ok.] from " << unit->getPos() 
+			<< " to " << unit->getTargetPos());
+		if (!wpPath.empty()) {
+			PF_DEBUG("Waypoint Path: " << wpPath);
+		}
+		if (!path.empty()) {
+			PF_DEBUG("LowLevel Path: " << path);
+		}
 		return tsMoving;
 	}
+	PF_DEBUG(log_prelude(world, unit) << "BLOCKED [hierarchical search, possible invalid path].");
 	CONSOLE_LOG( "Hierarchical refined path blocked ? valid ?!? [Custom Goal Search]" )
+	if (!wpPath.empty()) {
+		PF_DEBUG("Waypoint Path: " << wpPath);
+	}
+	if (!path.empty()) {
+		PF_DEBUG("LowLevel Path: " << path);
+	}
 	unit->setCurrSkill(scStop);
 	return tsBlocked;
 }

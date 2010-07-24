@@ -151,6 +151,12 @@ public:
 	}
 };
 
+template <typename T>
+std::ostream& operator<<(std::ostream &stream, const Vec2<T> &vec) {
+	return stream << "(" << vec.x << ", " << vec.y << ")";
+}
+
+
 typedef Vec2<int> Vec2i;
 typedef Vec2<bool> Vec2b;
 typedef Vec2<char> Vec2c;

@@ -359,14 +359,22 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
         MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+		if (type != debugPathFinder) {
+	        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+		} else {
+	        (*currentDebugLog.fileStream) << szBuf;
+		}
         (*currentDebugLog.fileStream).flush();
 
         safeMutex.ReleaseLock();
     }
     // output to console
     else {
-        printf("[%s] %s", szBuf2, szBuf);
+		if (type != debugPathFinder) {
+			printf("[%s] %s", szBuf2, szBuf);
+		} else {
+			printf("%s", szBuf);
+		}
     }
 
     va_end(argList);
