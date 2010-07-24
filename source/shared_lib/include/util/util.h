@@ -40,7 +40,8 @@ public:
         debugNetwork,
 		debugPerformance,
 		debugWorldSynch,
-		debugUnitCommands
+		debugUnitCommands,
+		debugPathFinder
     };
 
 	class SystemFlagsType

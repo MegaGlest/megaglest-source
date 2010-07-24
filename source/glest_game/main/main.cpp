@@ -419,6 +419,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  = config.getBool("DebugUnitCommands","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  = config.getBool("DebugPathFinder","false");
 
 		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
@@ -440,20 +441,26 @@ int glestMain(int argc, char** argv){
         if(debugUnitCommandsLogFile == "") {
         	debugUnitCommandsLogFile = debugLogFile;
         }
+		string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
+        if(debugUnitCommandsLogFile == "") {
+        	debugUnitCommandsLogFile = debugLogFile;
+        }
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName  = debugUnitCommandsLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName  = debugPathFinderLogFile;
 
         if(haveSpecialOutputCommandLineOption == false) {
-        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d]\n",
+        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d]\n",
         			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled);
+        			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
         }
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -468,6 +475,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
+		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
 
 		// 256 for English
 		// 30000 for Chinese
