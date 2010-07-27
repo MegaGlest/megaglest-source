@@ -300,6 +300,9 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
             userData += '/';
         }
+        if(isdir(userData.c_str()) == false) {
+        	createDirectoryPaths(userData);
+        }
     }
     if(scenarioDir != "") {
         pathList.push_back(scenarioDir);
