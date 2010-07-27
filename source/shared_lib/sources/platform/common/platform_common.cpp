@@ -597,7 +597,7 @@ void createDirectoryPaths(string Path)
 #ifdef WIN32
     	_mkdir(DirName);
 #elif defined(__GNUC__)
-        mkdir(DirName, S_IRWXO);
+        mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
@@ -609,7 +609,7 @@ void createDirectoryPaths(string Path)
 #ifdef WIN32
  _mkdir(DirName);
 #elif defined(__GNUC__)
- mkdir(DirName, S_IRWXO);
+ mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
