@@ -39,6 +39,8 @@ InterpolationData::InterpolationData(const Mesh *mesh){
 		normals= new Vec3f[mesh->getVertexCount()];
 	}
 
+	enableCache = true;
+
 	cacheVertices.clear();
 	cacheNormals.clear();
 }
@@ -77,21 +79,20 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	uint32 vertexCount= mesh->getVertexCount();
 
 	if(frameCount > 1) {
-
-		std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheVertices.find(t);
-		if(iterFind != cacheVertices.end()) {
-			std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
-			if(iterFind2 != iterFind->second.end()) {
-				//for(uint32 j=0; j< vertexCount; ++j){
-				//	vertices[j] = iterFind2->second[j];
-				//}
-				memcpy(vertices,iterFind2->second,sizeof(Vec3f) * vertexCount);
-				return;
+		if(enableCache == true) {
+			std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheVertices.find(t);
+			if(iterFind != cacheVertices.end()) {
+				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
+				if(iterFind2 != iterFind->second.end()) {
+					//for(uint32 j=0; j< vertexCount; ++j){
+					//	vertices[j] = iterFind2->second[j];
+					//}
+					memcpy(vertices,iterFind2->second,sizeof(Vec3f) * vertexCount);
+					return;
+				}
 			}
+			cacheVertices[t][cycle] = new Vec3f[vertexCount];
 		}
-		cacheVertices[t][cycle] = new Vec3f[vertexCount];
-
-
 
 		const Vec3f *meshVertices= mesh->getVertices();
 
@@ -110,7 +111,9 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 		for(uint32 j=0; j<vertexCount; ++j){
 			vertices[j]= meshVertices[prevFrameBase+j].lerp(localT, meshVertices[nextFrameBase+j]);
 
-			cacheVertices[t][cycle][j] = vertices[j];
+			if(enableCache == true) {
+				cacheVertices[t][cycle][j] = vertices[j];
+			}
 		}
 	}
 }
@@ -122,20 +125,20 @@ void InterpolationData::updateNormals(float t, bool cycle){
 	uint32 vertexCount= mesh->getVertexCount();
 
 	if(frameCount > 1) {
-
-		std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheNormals.find(t);
-		if(iterFind != cacheNormals.end()) {
-			std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
-			if(iterFind2 != iterFind->second.end()) {
-				//for(uint32 j=0; j< vertexCount; ++j){
-				//	normals[j] = iterFind2->second[j];
-				//}
-				memcpy(normals,iterFind2->second,sizeof(Vec3f) * vertexCount);
-				return;
+		if(enableCache == true) {
+			std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheNormals.find(t);
+			if(iterFind != cacheNormals.end()) {
+				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
+				if(iterFind2 != iterFind->second.end()) {
+					//for(uint32 j=0; j< vertexCount; ++j){
+					//	normals[j] = iterFind2->second[j];
+					//}
+					memcpy(normals,iterFind2->second,sizeof(Vec3f) * vertexCount);
+					return;
+				}
 			}
+			cacheNormals[t][cycle] = new Vec3f[vertexCount];
 		}
-		cacheNormals[t][cycle] = new Vec3f[vertexCount];
-
 
 		const Vec3f *meshNormals= mesh->getNormals();
 
@@ -154,7 +157,9 @@ void InterpolationData::updateNormals(float t, bool cycle){
 		for(uint32 j=0; j<vertexCount; ++j){
 			normals[j]= meshNormals[prevFrameBase+j].lerp(localT, meshNormals[nextFrameBase+j]);
 
-			cacheNormals[t][cycle][j] = normals[j];
+			if(enableCache == true) {
+				cacheNormals[t][cycle][j] = normals[j];
+			}
 		}
 	}
 }

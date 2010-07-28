@@ -4,7 +4,7 @@ if ! $(top_builddir)
 }
 top_srcdir = $(TOP) ;
 
-MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -msse2 ;
+MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse ;
 
 JAMCONFIG ?= $(top_builddir)/Jamconfig ;
 include $(JAMCONFIG) ;
@@ -24,8 +24,6 @@ if $(USE_STLPORT_DEBUG)
 # if using streflop then add some special compiler defines
 if $(USE_STREFLOP)
 {
-#   COMPILER_CFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -pipe -fno-strict-aliasing $(MGFLAGS) -mieee-fp -mno-tls-direct-seg-refs ;
-#   COMPILER_CXXFLAGS_optimize += -mfpmath=sse -msse -fsingle-precision-constant -frounding-math -pipe -fno-strict-aliasing $(MGFLAGS) -mieee-fp -mno-tls-direct-seg-refs ;
    CPPFLAGS                 += $(MGFLAGS) ;
    COMPILER_CFLAGS          += $(MGFLAGS) ;
    COMPILER_CFLAGS_optimize += $(MGFLAGS) ;

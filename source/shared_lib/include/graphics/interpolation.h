@@ -34,6 +34,7 @@ private:
 
 	std::map<float, std::map<bool, Vec3f *> > cacheVertices;
 	std::map<float, std::map<bool, Vec3f *> > cacheNormals;
+	bool enableCache;
 
 public:
 	InterpolationData(const Mesh *mesh);
