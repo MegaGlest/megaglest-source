@@ -129,6 +129,8 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	switch(mouseButton) {
 		case mbLeft:
 			program->mouseDownLeft(vx, vy);
@@ -142,6 +144,8 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 		default:
 			break;
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *programState = program->getState();
     if(programState != NULL) {
@@ -158,10 +162,13 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 			default:
 				break;
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
@@ -171,9 +178,15 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
     	throw runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
     }
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     ProgramState *programState = program->getState();
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(programState != NULL) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		switch(mouseButton) {
 			case mbLeft:
 				programState->mouseUpLeft(vx, vy);
@@ -187,10 +200,14 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
 			default:
 				break;
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
+void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     const Metrics &metrics= Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
@@ -199,9 +216,15 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
     	throw runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
     }
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     ProgramState *programState = program->getState();
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(programState != NULL) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		switch(mouseButton){
 			case mbLeft:
 				programState->mouseDoubleClickLeft(vx, vy);
@@ -215,7 +238,10 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
 			default:
 				break;
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){

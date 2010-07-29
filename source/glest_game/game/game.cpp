@@ -715,6 +715,7 @@ void Game::mouseDownLeft(int x, int y){
 						networkManager.getGameNetworkInterface()->quitGame(true);
 					}
 					quitGame();
+					return;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

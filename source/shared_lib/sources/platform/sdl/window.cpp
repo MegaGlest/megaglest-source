@@ -128,7 +128,9 @@ bool Window::handleEvent() {
 					codeLocation = "f";
 
 					if(global_window) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						global_window->handleMouseDown(event);
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					break;
 				case SDL_MOUSEBUTTONUP: {
@@ -484,7 +486,11 @@ void Window::handleMouseDown(SDL_Event event) {
 	static const Uint32 DOUBLECLICKTIME = 500;
 	static const int DOUBLECLICKDELTA = 5;
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	MouseButton button = getMouseButton(event.button.button);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// windows implementation uses 120 for the resolution of a standard mouse
 	// wheel notch.  However, newer mice have finer resolutions.  I dunno if SDL
@@ -500,23 +506,35 @@ void Window::handleMouseDown(SDL_Event event) {
 		return;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Uint32 ticks = SDL_GetTicks();
 	int n = (int) button;
 
 	assert(n >= 0 && n < mbCount);
 	if(n >= 0 && n < mbCount) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
 				&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
 				&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDown(event.button.x, event.button.y, button);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDoubleClick(event.button.x, event.button.y, button);
 		}
 		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDown(event.button.x, event.button.y, button);
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		lastMouseDown[n] = ticks;
 		lastMouseX[n] = event.button.x;
 		lastMouseY[n] = event.button.y;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
 
