@@ -124,6 +124,7 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
 
 	void quitGame();
+	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 private:
 	//render

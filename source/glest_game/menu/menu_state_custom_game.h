@@ -115,6 +115,7 @@ public:
     
 
     virtual void simpleTask();
+    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 private:
 

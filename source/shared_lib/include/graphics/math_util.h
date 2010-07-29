@@ -138,6 +138,22 @@ public:
 			p[3]/scalar);
 	}
 
+	bool operator <(const Quad2<T> &v) const {
+		if(p[0] < v.p[0]) {
+			return true;
+		}
+		if(p[1] < v.p[1]) {
+			return true;
+		}
+		if(p[2] < v.p[2]) {
+			return true;
+		}
+		if(p[3] < v.p[3]) {
+			return true;
+		}
+		return false;
+	}
+
 	Rect2<T> computeBoundingRect() const{
 		return Rect2i(
 			min(p[0].x, p[1].x), 

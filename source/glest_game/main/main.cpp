@@ -23,7 +23,6 @@
 #include "platform_util.h"
 #include "platform_main.h"
 #include "network_interface.h"
-//#include "sound_renderer.h"
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
@@ -290,11 +289,15 @@ void MainWindow::eventKeyDown(char key){
 		}
 	}
 
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(key == configKeys.getCharKey("HotKeyShowDebug")) {
-		Renderer &renderer= Renderer::getInstance();
-		bool showDebugUI = renderer.getShowDebugUI();
-		renderer.setShowDebugUI(!showDebugUI);
+	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+			Renderer &renderer= Renderer::getInstance();
+			bool showDebugUI = renderer.getShowDebugUI();
+			renderer.setShowDebugUI(!showDebugUI);
+		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

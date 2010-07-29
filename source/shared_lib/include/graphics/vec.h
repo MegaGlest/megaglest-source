@@ -261,10 +261,14 @@ public:
 	}
 
 	Vec3<T> operator -=(const Vec3<T> &v){
-		x-=v.x; 
+		x-=v.x;
 		y-=v.y;
 		z-=v.z;
 		return *this;
+	}
+
+	bool operator <(const Vec3<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z);
 	}
 
 	Vec3<T> lerp(T t, const Vec3<T> &v) const{
@@ -454,6 +458,9 @@ public:
 		z-=v.z;
 		w-=w.z;
 		return *this;
+	}
+	bool operator <(const Vec4<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z) || (x == v.x && y == v.y && z == v.z && w < v.w);
 	}
 
 	Vec4<T> lerp(T t, const Vec4<T> &v) const{
