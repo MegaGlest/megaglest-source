@@ -318,20 +318,26 @@ void MainWindow::eventKeyPress(char c){
 
 	program->keyPress(c);
 
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
-		bool showCursorState = false;
-		int state = SDL_ShowCursor(SDL_QUERY);
-		if(state == SDL_DISABLE) {
-			showCursorState = true;
+	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			bool showCursorState = false;
+			int state = SDL_ShowCursor(SDL_QUERY);
+			if(state == SDL_DISABLE) {
+				showCursorState = true;
+			}
+
+			showCursor(showCursorState);
+			Renderer &renderer= Renderer::getInstance();
+			renderer.setNo2DMouseRendering(showCursorState);
+
+			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 		}
-
-		showCursor(showCursorState);
-		Renderer &renderer= Renderer::getInstance();
-		renderer.setNo2DMouseRendering(showCursorState);
-
-		Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 	}
 }
 
