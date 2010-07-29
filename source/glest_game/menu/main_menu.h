@@ -95,6 +95,7 @@ public:
 	virtual void keyPress(char key);
 	
 	void setState(MenuState *state);
+	virtual bool isInSpecialKeyCaptureEvent();
 };
 
 
@@ -121,6 +122,8 @@ public:
 	virtual void keyUp(char key){};
 
 	const Camera *getCamera() const			{return &camera;}
+
+	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 };
 
 }}//end namespace

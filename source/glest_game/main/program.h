@@ -152,7 +152,7 @@ public:
 	void eventMouseMove(int x, int y, const MouseState *ms);
 
 	void renderProgramMsgBox();
-	bool isInSpecialKeyCaptureEvent() { return (programState != NULL ? programState->isInSpecialKeyCaptureEvent() : false); }
+	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
 
 private:
 	

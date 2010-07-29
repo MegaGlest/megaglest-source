@@ -178,6 +178,9 @@ void MainMenu::setState(MenuState *state){
 	menuBackground.setTargetCamera(state->getCamera());
 }
 
+bool MainMenu::isInSpecialKeyCaptureEvent() {
+	return state->isInSpecialKeyCaptureEvent();
+}
 
 // =====================================================
 // 	class MenuState
