@@ -75,6 +75,7 @@ public:
 	virtual void keyPress(char c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
 	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
+	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 };
 
 // ===============================
@@ -151,6 +152,7 @@ public:
 	void eventMouseMove(int x, int y, const MouseState *ms);
 
 	void renderProgramMsgBox();
+	bool isInSpecialKeyCaptureEvent() { return (programState != NULL ? programState->isInSpecialKeyCaptureEvent() : false); }
 
 private:
 	
