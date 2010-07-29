@@ -264,12 +264,12 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 }
 
 // Only call when client has just sent us data
-bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
-	bool clientLagExceeded = false;
+std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
+	std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 
 	static bool alreadyInLagCheck = false;
 	if(alreadyInLagCheck == true) {
-		return clientLagExceeded;
+		return clientLagExceededOrWarned;
 	}
 
 	try {
@@ -306,7 +306,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 				// New lag check
 				if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
 					(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
-					clientLagExceeded = true;
+					clientLagExceededOrWarned.first = true;
 					char szBuf[4096]="";
 
 					const char* msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
@@ -332,6 +332,8 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 						 clientLagCount > (maxFrameCountLagAllowed * warnFrameCountLagPercent)) ||
 						(maxClientLagTimeAllowed > 0 && warnFrameCountLagPercent > 0 &&
 						 clientLagTime > (maxClientLagTimeAllowed * warnFrameCountLagPercent)) ) {
+					clientLagExceededOrWarned.second = true;
+
 					if(connectionSlot->getLagCountWarning() == false) {
 						connectionSlot->setLagCountWarning(true);
 
@@ -363,7 +365,7 @@ bool ServerInterface::clientLagCheck(ConnectionSlot* connectionSlot) {
 	}
 	alreadyInLagCheck = false;
 
-	return clientLagExceeded;
+	return clientLagExceededOrWarned;
 }
 
 bool ServerInterface::signalClientReceiveCommands(ConnectionSlot* connectionSlot,
@@ -439,14 +441,14 @@ void ServerInterface::update() {
 
 				// Step #2 check all connection slot worker threads for completed status
 				std::map<int,bool> slotsCompleted;
+				std::map<int,bool> slotsWarnedAndRetried;
 				for(bool threadsDone = false; threadsDone == false;) {
 					threadsDone = true;
 					// Examine all threads for completion of delegation
 					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 						ConnectionSlot* connectionSlot = slots[i];
-						if(connectionSlot != NULL &&
-							mapSlotSignalledList[i] == true &&
-							slotsCompleted.find(i) == slotsCompleted.end()) {
+						if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
+						   slotsCompleted.find(i) == slotsCompleted.end()) {
 							try {
 								std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 								// Show any collected errors from threads
@@ -474,19 +476,24 @@ void ServerInterface::update() {
 									connectionSlot = slots[i];
 
 									// New lag check
-									bool clientLagExceeded = false;
+									std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 									if( gameHasBeenInitiated == true && connectionSlot != NULL &&
 										connectionSlot->isConnected() == true) {
-										clientLagExceeded = clientLagCheck(connectionSlot);
+										clientLagExceededOrWarned = clientLagCheck(connectionSlot);
 									}
 									// If the client has exceeded lag and the server wants
 									// to pause while they catch up, re-trigger the
 									// client reader thread
-									if(clientLagExceeded == true && gameSettings.getNetworkPauseGameForLaggedClients() == true) {
+									if((clientLagExceededOrWarned.first == true && gameSettings.getNetworkPauseGameForLaggedClients() == true) ||
+										(clientLagExceededOrWarned.second == true && slotsWarnedAndRetried[i] == false)) {
 										bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
 										ConnectionSlotEvent &event = eventList[i];
 										signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
 										sleep(0);
+
+										if(gameSettings.getNetworkPauseGameForLaggedClients() == false) {
+											slotsWarnedAndRetried[i] = true;
+										}
 									}
 									else {
 										slotsCompleted[i] = true;
@@ -510,9 +517,9 @@ void ServerInterface::update() {
 						if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 							if(connectionSlot->getPendingNetworkCommandList().size() > 0) {
 								// New lag check
-								bool clientLagExceeded = clientLagCheck(connectionSlot);
-								if(clientLagExceeded) {
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, clientLagExceeded = %d\n",__FILE__,__FUNCTION__,__LINE__,i,clientLagExceeded);
+								std::pair<bool,bool> clientLagExceededOrWarned = clientLagCheck(connectionSlot);
+								if(clientLagExceededOrWarned.first == true) {
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, clientLagExceeded = %d, warned = %d\n",__FILE__,__FUNCTION__,__LINE__,i,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
 								}
 								else {
 									vector<NetworkCommand> vctPendingNetworkCommandList = connectionSlot->getPendingNetworkCommandList();
@@ -983,12 +990,12 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 				ConnectionSlot* connectionSlot = slots[i];
 
 				// New lag check
-				bool clientLagExceeded = false;
+				std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 				if( gameHasBeenInitiated == true && connectionSlot != NULL &&
 					connectionSlot->isConnected() == true) {
-					clientLagExceeded = clientLagCheck(connectionSlot);
+					clientLagExceededOrWarned = clientLagCheck(connectionSlot);
 				}
-				if(clientLagExceeded == false) {
+				if(clientLagExceededOrWarned.first == false) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessage = %p\n",__FILE__,__FUNCTION__,__LINE__,networkMessage);
 
 					ConnectionSlotEvent &event = eventList[i];
@@ -1057,12 +1064,12 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 
 				if(i != excludeSlot && connectionSlot != NULL) {
 					// New lag check
-					bool clientLagExceeded = false;
+					std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 					if( gameHasBeenInitiated == true && connectionSlot != NULL &&
 						connectionSlot->isConnected() == true) {
-						clientLagExceeded = clientLagCheck(connectionSlot);
+						clientLagExceededOrWarned = clientLagCheck(connectionSlot);
 					}
-					if(clientLagExceeded == false) {
+					if(clientLagExceededOrWarned.first == false) {
 						if(connectionSlot->isConnected()) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] before sendMessage\n",__FILE__,__FUNCTION__,__LINE__);
 							connectionSlot->sendMessage(networkMessage);
