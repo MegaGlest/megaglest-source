@@ -280,6 +280,65 @@ std::vector<std::string> FactionType::validateFactionType() {
 				}
 			}
 		}
+
+		// Now check that at least 1 other unit can produce, build or morph this unit
+		bool foundUnit = false;
+		for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+			UnitType &unitType2 = unitTypes[l];
+
+	    	for(int j = 0; j < unitType2.getCommandTypeCount() && foundUnit == false; ++j) {
+	    		const CommandType *cmdType = unitType2.getCommandType(j);
+	    		if(cmdType != NULL) {
+	    			// Check if this is a produce command
+	    			if(cmdType->getClass() == ccProduce) {
+	    				const ProduceCommandType *produce = dynamic_cast<const ProduceCommandType *>(cmdType);
+						if(produce != NULL) {
+							const UnitType *produceUnit = produce->getProducedUnit();
+
+							if( produceUnit != NULL &&
+								unitType.getId() != unitType2.getId() &&
+								unitType.getName() == produceUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+	    			}
+	    			// Check if this is a build command
+					if(cmdType->getClass() == ccBuild) {
+						const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+						for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
+							const UnitType *buildUnit = build->getBuilding(k);
+
+							if( buildUnit != NULL &&
+								unitType.getId() != unitType2.getId() &&
+								unitType.getName() == buildUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+					}
+
+	    			// Check if this is a morph command
+					if(cmdType->getClass() == ccMorph) {
+						const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+						const UnitType *morphUnit = morph->getMorphUnit();
+
+						if( morphUnit != NULL &&
+							unitType.getId() != unitType2.getId() &&
+							unitType.getName() == morphUnit->getName()) {
+							 foundUnit = true;
+							 break;
+						}
+					}
+	    		}
+	    	}
+		}
+
+		if(foundUnit == false) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+		}
     }
 
     return results;
