@@ -60,6 +60,7 @@ private:
 	RandomGen random;
 
 public:
+	UnitUpdater();
     void init(Game *game);
     ~UnitUpdater();
 
