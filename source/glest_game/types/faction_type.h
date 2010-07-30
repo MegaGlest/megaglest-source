@@ -64,6 +64,8 @@ public:
 	int getStartingResourceAmount(const ResourceType *resourceType) const;
 
 	std::string toString() const;
+	std::vector<std::string> validateFactionType();
+	std::vector<std::string> validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes);
 };
 
 }}//end namespace

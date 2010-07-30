@@ -280,6 +280,22 @@ void Game::load(){
     //tech, load before map because of resources
     world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
 
+	// Validate the faction setup to ensure we don't have any bad associations
+    /*
+	std::vector<std::string> results = world.validateFactionTypes();
+	if(results.size() > 0) {
+		// Display the validation errors
+		string errorText = "Errors were detected:\n";
+		for(int i = 0; i < results.size(); ++i) {
+			if(i > 0) {
+				errorText += "\n";
+			}
+			errorText += results[i];
+		}
+		throw runtime_error(errorText);
+	}
+	*/
+
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
 	SDL_PumpEvents();

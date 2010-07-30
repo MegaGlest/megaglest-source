@@ -138,6 +138,83 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 FactionType::~FactionType(){
 	delete music;
+	music = NULL;
+}
+
+std::vector<std::string> FactionType::validateFactionType() {
+	std::vector<std::string> results;
+
+	// Check every unit's commands to validate that for every upgrade-requirements
+	// upgrade we have a unit that can do the upgrade in the faction.
+    for(int i=0; i<unitTypes.size(); ++i){
+    	UnitType &unitType = unitTypes[i];
+    	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
+    		const CommandType *cmdType = unitType.getCommandType(j);
+    		if(cmdType != NULL) {
+				for(int k = 0; k < cmdType->getUpgradeReqCount(); ++k) {
+					const UpgradeType *upgradeType = cmdType->getUpgradeReq(k);
+
+					if(upgradeType != NULL) {
+						// Now lets find a unit that can produced-upgrade this upgrade
+						bool foundUpgraderUnit = false;
+						for(int l=0; l<unitTypes.size() && foundUpgraderUnit == false; ++l){
+							UnitType &unitType2 = unitTypes[l];
+							for(int m = 0; m < unitType2.getCommandTypeCount() && foundUpgraderUnit == false; ++m) {
+								const CommandType *cmdType2 = unitType2.getCommandType(m);
+								if(cmdType2 != NULL && dynamic_cast<const UpgradeCommandType *>(cmdType2) != NULL) {
+									const UpgradeCommandType *uct = dynamic_cast<const UpgradeCommandType *>(cmdType2);
+									const UpgradeType *upgradeType2 = uct->getProducedUpgrade();
+									if(upgradeType2 != NULL && upgradeType2->getName() == upgradeType->getName()) {
+										 foundUpgraderUnit = true;
+									}
+								}
+							}
+						}
+
+						if(foundUpgraderUnit == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich has upgrade requirement [%s] but there are no units able to perform the upgrade!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),upgradeType->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+    		}
+    	}
+    }
+
+    return results;
+}
+
+std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes) {
+	std::vector<std::string> results;
+
+	// Check every unit's commands to validate that for every upgrade-requirements
+	// upgrade we have a unit that can do the upgrade in the faction.
+    for(int i=0; i<unitTypes.size(); ++i){
+    	UnitType &unitType = unitTypes[i];
+    	for(int j = 0; j < unitType.getCostCount() ; ++j) {
+    		const Resource *r = unitType.getCost(j);
+    		if(r != NULL && r->getType() != NULL) {
+    			bool foundResourceType = false;
+    			// Now lets find a matching faction resource type for the unit
+    			for(int k=0; k<resourceTypes.size(); ++k){
+    				ResourceType &rt = resourceTypes[k];
+
+					if(r->getType()->getName() == rt.getName()) {
+						foundResourceType = true;
+					}
+				}
+
+				if(foundResourceType == false) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the resource req [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
+					results.push_back(szBuf);
+				}
+    		}
+    	}
+    }
+
+    return results;
 }
 
 // ==================== get ==================== 

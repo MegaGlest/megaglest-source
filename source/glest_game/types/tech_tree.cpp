@@ -145,7 +145,6 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
 			SDL_PumpEvents();
-
         }
     }
 	catch(const exception &e){
@@ -160,6 +159,24 @@ TechTree::~TechTree(){
 	Logger::getInstance().add("Tech tree", true);
 }
 
+std::vector<std::string> TechTree::validateFactionTypes() {
+	std::vector<std::string> results;
+	for (int i = 0; i < factionTypes.size(); ++i) {
+		std::vector<std::string> factionResults = factionTypes[i].validateFactionType();
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
+	}
+
+	return results;
+}
+
+std::vector<std::string> TechTree::validateResourceTypes() {
+	std::vector<std::string> results;
+	for (int i = 0; i < factionTypes.size(); ++i) {
+		std::vector<std::string> factionResults = factionTypes[i].validateFactionTypeResourceTypes(resourceTypes);
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
+	}
+    return results;
+}
 
 // ==================== get ====================
 
