@@ -43,6 +43,18 @@ namespace Glest{ namespace Game{
 
 // ===================== PUBLIC ========================
 
+UnitUpdater::UnitUpdater() {
+    this->game= NULL;
+	this->gui= NULL;
+	this->gameCamera= NULL;
+	this->world= NULL;
+	this->map= NULL;
+	this->console= NULL;
+	this->scriptManager= NULL;
+	this->routePlanner = NULL;
+	this->pathFinder = NULL;
+}
+
 void UnitUpdater::init(Game *game){
 
     this->game= game;
