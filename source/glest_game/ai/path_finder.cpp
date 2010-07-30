@@ -42,17 +42,22 @@ PathFinder::PathFinder(){
 }
 
 PathFinder::PathFinder(const Map *map){
-	init(map);
 	nodePool= NULL;
+	init(map);
 }
 
 void PathFinder::init(const Map *map){
+	if(nodePool != NULL) {
+		delete [] nodePool;
+		nodePool = NULL;
+	}
 	nodePool= new Node[pathFindNodesMax];
 	this->map= map;
 }
 
 PathFinder::~PathFinder(){
 	delete [] nodePool;
+	nodePool = NULL;
 }
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
