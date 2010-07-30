@@ -190,6 +190,14 @@ void World::loadTech(const vector<string> pathList, const string &techName, set<
 	//techCache[techName] = techTree;
 }
 
+std::vector<std::string> World::validateFactionTypes() {
+	return techTree->validateFactionTypes();
+}
+
+std::vector<std::string> World::validateResourceTypes() {
+	return techTree->validateResourceTypes();
+}
+
 //load map
 void World::loadMap(const string &path, Checksum *checksum){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

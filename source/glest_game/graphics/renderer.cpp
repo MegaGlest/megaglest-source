@@ -156,6 +156,22 @@ const int MIN_FPS_NORMAL_RENDERING = 20;
 // ==================== constructor and destructor ====================
 
 Renderer::Renderer(){
+	this->allowRenderUnitTitles = false;
+	this->menu = NULL;
+	this->game = NULL;
+	showDebugUI = false;
+	modelRenderer = NULL;
+	textRenderer = NULL;
+	particleRenderer = NULL;
+
+	//resources
+	for(int i=0; i<rsCount; ++i){
+		modelManager[i] = NULL;
+		textureManager[i] = NULL;
+		particleManager[i] = NULL;
+		fontManager[i] = NULL;
+	}
+
 	GraphicsInterface &gi= GraphicsInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
@@ -163,14 +179,8 @@ Renderer::Renderer(){
 	no2DMouseRendering = config.getBool("No2DMouseRendering","false");
 	maxConsoleLines= config.getInt("ConsoleMaxLines");
 
-	showDebugUI = false;
-
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
-
-	this->allowRenderUnitTitles = false;
-	this->menu = NULL;
-	this->game = NULL;
 
 	modelRenderer= graphicsFactory->newModelRenderer();
 	textRenderer= graphicsFactory->newTextRenderer2D();

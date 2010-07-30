@@ -182,6 +182,9 @@ public:
 
 	Game * getGame() { return game; }
 
+	std::vector<std::string> validateFactionTypes();
+	std::vector<std::string> validateResourceTypes();
+
 	void setFogOfWar(bool value);
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;
 
