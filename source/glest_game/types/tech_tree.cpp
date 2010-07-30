@@ -164,6 +164,9 @@ std::vector<std::string> TechTree::validateFactionTypes() {
 	for (int i = 0; i < factionTypes.size(); ++i) {
 		std::vector<std::string> factionResults = factionTypes[i].validateFactionType();
 		results.insert(results.end(), factionResults.begin(), factionResults.end());
+
+		factionResults = factionTypes[i].validateFactionTypeUpgradeTypes();
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
 	}
 
 	return results;
