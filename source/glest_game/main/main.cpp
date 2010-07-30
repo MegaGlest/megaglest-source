@@ -585,6 +585,8 @@ int glestMain(int argc, char** argv){
 		}
 		if(hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
 
+			printf("====== Started Validation ======\n");
+
 			Config &config = Config::getInstance();
 			vector<string> results;
 			findDirs(config.getPathListForType(ptTechs), results);
@@ -653,6 +655,8 @@ int glestMain(int argc, char** argv){
 					}
 		        }
 			}
+
+		    printf("\n====== Finished Validation ======\n");
 
 		    return -1;
 		}

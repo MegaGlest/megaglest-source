@@ -433,6 +433,48 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
     return results;
 }
 
+std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
+	std::vector<std::string> results;
+
+	// For each upgrade type make sure there is at least 1 unit that can produce
+	// the upgrade
+	for(int i = 0; i < upgradeTypes.size(); ++i) {
+		const UpgradeType &upgradeType = upgradeTypes[i];
+
+		// First find a unit with a command type to upgrade to this Upgrade type
+		bool foundUnit = false;
+	    for(int j=0; j<unitTypes.size() && foundUnit == false; ++j){
+	    	UnitType &unitType = unitTypes[j];
+	    	for(int k = 0; k < unitType.getCommandTypeCount() && foundUnit == false; ++k) {
+				const CommandType *cmdType = unitType.getCommandType(k);
+				if(cmdType != NULL) {
+					// Ensure for each build type command that the build units
+					// exist in this faction
+					if(cmdType->getClass() == ccUpgrade) {
+						const UpgradeCommandType *upgrade = dynamic_cast<const UpgradeCommandType *>(cmdType);
+						if(upgrade != NULL) {
+							const UpgradeType *upgradeType2 = upgrade->getProducedUpgrade();
+
+							if(upgradeType2 != NULL && upgradeType.getName() == upgradeType2->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+					}
+				}
+	    	}
+	    }
+
+		if(foundUnit == false) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Upgrade Type [%s] in Faction [%s] has no Unit able to produce this upgrade in this faction!",upgradeType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+		}
+	}
+
+    return results;
+}
+
 // ==================== get ==================== 
 
 const UnitType *FactionType::getUnitType(const string &name) const{     
