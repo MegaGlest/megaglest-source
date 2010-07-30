@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -269,6 +269,10 @@ public:
 	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;};
 	const RepairSkillType *getRepairSkillType() const		{return repairSkillType;};
     bool isRepairableUnitType(const UnitType *unitType) const;
+
+	int getRepairCount() const					{return repairableUnits.size();}
+	const UnitType * getRepair(int i) const		{return repairableUnits[i];}
+
 };
 
 
