@@ -937,16 +937,19 @@ void Game::keyDown(char key){
 				showFullConsole= true;
 			}
 			else if(key == configKeys.getCharKey("Screenshot")) {
-				for(int i=0; i<100; ++i){
-					string path= "screens/screen" + intToStr(i) + ".tga";
-
-					FILE *f= fopen(path.c_str(), "rb");
-					if(f==NULL){
-						Renderer::getInstance().saveScreen(path);
-						break;
-					}
-					else{
-						fclose(f);
+				string path = GameConstants::folder_path_screenshots;
+				if(isdir(path.c_str()) == true) {
+					for(int i=0; i<100; ++i){
+						path = GameConstants::folder_path_screenshots;
+						path += "screen" + intToStr(i) + ".tga";
+						FILE *f= fopen(path.c_str(), "rb");
+						if(f==NULL) {
+							Renderer::getInstance().saveScreen(path);
+							break;
+						}
+						else {
+							fclose(f);
+						}
 					}
 				}
 			}

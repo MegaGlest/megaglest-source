@@ -38,6 +38,8 @@ const char *GameConstants::folder_path_tutorials    = "tutorials";
 
 const char *GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME = "???";
 
+const char *GameConstants::folder_path_screenshots	= "screens/";
+
 // =====================================================
 // 	class Config
 // =====================================================

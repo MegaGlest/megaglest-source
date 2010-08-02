@@ -663,6 +663,11 @@ int glestMain(int argc, char** argv){
 
 		gameInitialized = true;
 
+		string screenShotsPath = GameConstants::folder_path_screenshots;
+        if(isdir(screenShotsPath.c_str()) == false) {
+        	createDirectoryPaths(screenShotsPath);
+        }
+
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
