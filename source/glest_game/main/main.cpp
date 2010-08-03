@@ -581,6 +581,8 @@ int glestMain(int argc, char** argv){
 			Renderer &renderer= Renderer::getInstance();
 			printf("%s",renderer.getGlInfo().c_str());
 
+			delete mainWindow;
+
 			return -1;
 		}
 		if(hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
@@ -591,6 +593,8 @@ int glestMain(int argc, char** argv){
 			vector<string> results;
 			findDirs(config.getPathListForType(ptTechs), results);
 			vector<string> techTreeFiles = results;
+
+			{
 			World world;
 
 		    vector<string> techPaths = config.getPathListForType(ptTechs);
@@ -657,7 +661,9 @@ int glestMain(int argc, char** argv){
 			}
 
 		    printf("\n====== Finished Validation ======\n");
+			}
 
+		    delete mainWindow;
 		    return -1;
 		}
 
