@@ -78,6 +78,17 @@ World::~World() {
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	for(int i= 0; i<factions.size(); ++i){
+		factions[i].end();
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	factions.clear();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	delete techTree;
 	techTree = NULL;
 
@@ -103,6 +114,7 @@ void World::end(){
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i].end();
 	}
+	factions.clear();
 	fogOfWarOverride = false;
 	//stats will be deleted by BattleEnd
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
