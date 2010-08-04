@@ -76,6 +76,9 @@ private:
 	bool thisFaction;
 
 public:
+	Faction();
+	~Faction();
+
     void init(
 		const FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 		int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources);

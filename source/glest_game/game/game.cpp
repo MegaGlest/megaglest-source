@@ -110,7 +110,7 @@ Game::~Game(){
 
 	world.end();	//must die before selection because of referencers
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== init and load ====================
@@ -555,6 +555,7 @@ void Game::update(){
 		   errorMessageBox.getEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			quitGame();
+			return;
 		}
 
 		//update auto test
