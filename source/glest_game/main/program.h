@@ -76,6 +76,8 @@ public:
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
 	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
+	virtual bool quitTriggered() { return false; }
+	virtual void quitAndToggleState() {};
 };
 
 // ===============================

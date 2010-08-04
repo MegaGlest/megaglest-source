@@ -86,6 +86,8 @@ private:
 	DisplayMessageFunction originalDisplayMsgCallback;
 	bool isFirstRender;
 
+	bool quitTriggeredIndicator;
+
 public:
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();
@@ -123,8 +125,11 @@ public:
     virtual void eventMouseWheel(int x, int y, int zDelta);
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
 
-	void quitGame();
 	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
+
+	virtual bool quitTriggered();
+	virtual void quitAndToggleState();
+	void quitGame();
 
 private:
 	//render

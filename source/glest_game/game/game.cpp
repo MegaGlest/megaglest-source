@@ -45,6 +45,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
 
@@ -111,6 +112,14 @@ Game::~Game(){
 	world.end();	//must die before selection because of referencers
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool Game::quitTriggered() {
+	return quitTriggeredIndicator;
+}
+
+void Game::quitAndToggleState() {
+	quitGame();
 }
 
 // ==================== init and load ====================
@@ -554,7 +563,8 @@ void Game::update(){
 		   mainMessageBox.getEnabled() == false &&
 		   errorMessageBox.getEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			quitGame();
+			//quitGame();
+			quitTriggeredIndicator = true;
 			return;
 		}
 
@@ -726,7 +736,8 @@ void Game::mouseDownLeft(int x, int y){
 					if(networkManager.getGameNetworkInterface() != NULL) {
 						networkManager.getGameNetworkInterface()->quitGame(true);
 					}
-					quitGame();
+					//quitGame();
+					quitTriggeredIndicator = true;
 					return;
 				}
 				else {
