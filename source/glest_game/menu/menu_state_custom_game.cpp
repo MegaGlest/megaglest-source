@@ -613,10 +613,24 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(listBoxNetworkFramePeriod.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
 	else if(listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
 	else {
