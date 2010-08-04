@@ -196,6 +196,9 @@ private:
 		int8 enableObserverModeAtEndGame;
 		int8 enableServerControlledAI;
 		uint8 networkFramePeriod; // allowed values 0 - 255
+		int8 networkPauseGameForLaggedClients;
+		int8 pathFinderType;
+
 	};
 
 private:

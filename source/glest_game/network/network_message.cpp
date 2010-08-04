@@ -213,6 +213,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.enableObserverModeAtEndGame = gameSettings->getEnableObserverModeAtEndGame();
 	data.enableServerControlledAI = gameSettings->getEnableServerControlledAI();
 	data.networkFramePeriod = gameSettings->getNetworkFramePeriod();
+	data.networkPauseGameForLaggedClients = gameSettings->getNetworkPauseGameForLaggedClients();
+	data.pathFinderType = gameSettings->getPathFinderType();
 
 	for(int i= 0; i<data.factionCount; ++i){
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
@@ -239,6 +241,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setEnableObserverModeAtEndGame(data.enableObserverModeAtEndGame);
 	gameSettings->setEnableServerControlledAI(data.enableServerControlledAI);
 	gameSettings->setNetworkFramePeriod(data.networkFramePeriod);
+	gameSettings->setNetworkPauseGameForLaggedClients(data.networkPauseGameForLaggedClients);
+	gameSettings->setPathFinderType(static_cast<PathFinderType>(data.pathFinderType));
 
 	for(int i= 0; i<data.factionCount; ++i){
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());

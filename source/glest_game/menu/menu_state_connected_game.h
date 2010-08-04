@@ -44,6 +44,19 @@ private:
 	GraphicLabel labelStatus;
 	GraphicLabel labelInfo;
 
+
+	GraphicLabel labelEnableObserverMode;
+	GraphicListBox listBoxEnableObserverMode;
+	GraphicLabel labelEnableServerControlledAI;
+	GraphicListBox listBoxEnableServerControlledAI;
+	GraphicLabel labelNetworkPauseGameForLaggedClients;
+	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+	GraphicLabel labelPathFinderType;
+	GraphicListBox listBoxPathFinderType;
+	GraphicListBox listBoxNetworkFramePeriod;
+	GraphicLabel labelNetworkFramePeriod;
+
+
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;

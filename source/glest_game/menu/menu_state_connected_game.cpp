@@ -75,40 +75,101 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	
 	
 	//create
-	buttonDisconnect.init(350, 180, 125);
-	buttonPlayNow.init(525, 180, 125);
+	buttonDisconnect.init(350, 150, 125);
+	buttonPlayNow.init(525, 150, 125);
 
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	listBoxMap.init(100, 260, 200);
 	listBoxMap.setEditable(false);
+
+
+	int setupPos=610;
+	int mapHeadPos=290;
+	int mapPos=mapHeadPos-30;
+	int aHeadPos=230;
+	int aPos=aHeadPos-30;
+	int networkHeadPos=670;
+	int networkPos=networkHeadPos-30;
 	
     //listBoxMap.setItems(results);
-	labelMap.init(100, 290);
-	labelMapInfo.init(100, 230, 200, 40);
-	
+	labelMap.init(100, mapHeadPos);
+	listBoxMap.init(100, mapPos, 200);
 
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(350, 290, 100);
-	listBoxFogOfWar.init(350, 260, 100);
+	labelFogOfWar.init(300, aHeadPos, 80);
+	listBoxFogOfWar.init(300, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 	listBoxFogOfWar.setEditable(false);
 
+	// Enable Observer Mode
+	labelEnableObserverMode.init(400, aHeadPos, 80);
+	listBoxEnableObserverMode.init(400, aPos, 110);
+	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
+	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
+	listBoxEnableObserverMode.setSelectedItemIndex(0);
+	listBoxEnableObserverMode.setEditable(false);
+	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+
+	labelPathFinderType.init(540, aHeadPos, 80);
+	labelPathFinderType.setText(lang.get("PathFinderType"));
+	listBoxPathFinderType.init(540, aPos, 140);
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	listBoxPathFinderType.setSelectedItemIndex(0);
+	listBoxPathFinderType.setEditable(false);
+
+	// Network Frame Period
+	labelNetworkFramePeriod.init(370, networkHeadPos, 80);
+	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+	listBoxNetworkFramePeriod.init(380, networkPos, 80);
+	listBoxNetworkFramePeriod.pushBackItem("10");
+	listBoxNetworkFramePeriod.pushBackItem("20");
+	listBoxNetworkFramePeriod.pushBackItem("30");
+	listBoxNetworkFramePeriod.pushBackItem("40");
+	listBoxNetworkFramePeriod.setSelectedItem("20");
+	listBoxNetworkFramePeriod.setEditable(false);
+
+	// Network Frame Period
+	labelNetworkPauseGameForLaggedClients.init(530, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+	listBoxNetworkPauseGameForLaggedClients.init(540, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
+	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
+	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("No"));
+	listBoxNetworkPauseGameForLaggedClients.setEditable(false);
+
+
+	// Enable Server Controlled AI
+	labelEnableServerControlledAI.init(670, networkHeadPos, 80);
+	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
+	listBoxEnableServerControlledAI.init(680, networkPos, 80);
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
+	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
+	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
+	listBoxEnableServerControlledAI.setEditable(false);
+
+
     //tileset listBox
-	listBoxTileset.init(500, 260, 150);
+	//listBoxTileset.init(500, 260, 150);
+	listBoxTileset.init(400, mapPos, 150);
 	listBoxTileset.setEditable(false);
     //listBoxTileset.setItems(results);
-	labelTileset.init(500, 290);
+	//labelTileset.init(500, 290);
+	labelTileset.init(400, mapHeadPos);
 
     //tech Tree listBox
-	listBoxTechTree.init(700, 260, 150);
+	//listBoxTechTree.init(700, 260, 150);
 	listBoxTechTree.setEditable(false);
     //listBoxTechTree.setItems(results);
-	labelTechTree.init(700, 290);
+	//labelTechTree.init(700, 290);
+	listBoxTechTree.init(600, mapPos, 150);
+	labelTechTree.init(600, mapHeadPos);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -288,6 +349,8 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxFogOfWar.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
+
+
 }
 
 void MenuStateConnectedGame::render(){
@@ -345,6 +408,19 @@ void MenuStateConnectedGame::render(){
 		renderer.renderListBox(&listBoxFogOfWar);
 		renderer.renderListBox(&listBoxTileset);
 		renderer.renderListBox(&listBoxTechTree);
+
+		renderer.renderLabel(&labelEnableObserverMode);
+		renderer.renderLabel(&labelPathFinderType);
+
+		renderer.renderListBox(&listBoxEnableObserverMode);
+		renderer.renderListBox(&listBoxPathFinderType);
+
+		renderer.renderListBox(&listBoxEnableServerControlledAI);
+		renderer.renderLabel(&labelEnableServerControlledAI);
+		renderer.renderLabel(&labelNetworkFramePeriod);
+		renderer.renderListBox(&listBoxNetworkFramePeriod);
+		renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
+		renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 
 		if(program != NULL) program->renderProgramMsgBox();
 
@@ -422,13 +498,15 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
-            std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
+            //std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
 			//float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
-			char szBuf[1024]="";
+			//char szBuf[1024]="";
 			//sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
-			sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
+			//sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
 
-            labelStatus.setText(szBuf);
+
+            //labelStatus.setText(szBuf);
+            labelStatus.setText(label);
 		}
 		else
 		{
@@ -465,13 +543,14 @@ void MenuStateConnectedGame::update()
                 label += " - data synch is ok";
             }
 
-            std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
+            //std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
 			//float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
-			char szBuf[1024]="";
+			//char szBuf[1024]="";
 			//sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
-			sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
+			//sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
 
-            labelStatus.setText(szBuf);
+            //labelStatus.setText(szBuf);
+            labelStatus.setText(label);
 		}
 	}
 	else {
@@ -533,6 +612,33 @@ void MenuStateConnectedGame::update()
 				listBoxFogOfWar.setSelectedItemIndex(1);
 			}
 			
+			if(gameSettings->getEnableObserverModeAtEndGame()) {
+				listBoxEnableObserverMode.setSelectedItemIndex(0);
+			}
+			else {
+				listBoxEnableObserverMode.setSelectedItemIndex(1);
+			}
+			if(gameSettings->getEnableServerControlledAI()) {
+					listBoxEnableServerControlledAI.setSelectedItemIndex(0);
+			}
+			else {
+				listBoxEnableServerControlledAI.setSelectedItemIndex(1);
+			}
+			if(gameSettings->getNetworkPauseGameForLaggedClients()) {
+				listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(1);
+			}
+			else {
+				listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(0);
+			}
+			if(gameSettings->getPathFinderType() == pfBasic) {
+				listBoxPathFinderType.setSelectedItemIndex(0);
+			}
+			else {
+				listBoxPathFinderType.setSelectedItemIndex(1);
+			}
+
+			listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings->getNetworkFramePeriod()),false);
+
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// Control
