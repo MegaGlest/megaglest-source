@@ -70,18 +70,20 @@ OS_TYPE=`uname -m`
 # OpenSuSE (11.3) needs its own openAL
 #if [ -f /etc/SuSE-release -a -f lib/libopenal* ]; then
 if [ -f /etc/SuSE-release ]; then
+  echo 'Detected Open Suse...' >&2
+
   #rm -f lib/libopenal*
   # libcurl*, libgnu*, libicu*, liblua*, libxerces*
   #mv `ls -1 | grep -v '\.abc$' | grep -v '\.xyz$' | xargs`
 
-  if [ ! -d lib/orig ]; then
-	  mkdir lib/orig
-	  mv lib/* lib/orig
-	  cp lib/orig/libcurl* lib/
-	  cp lib/orig/libgnu* lib/
-	  cp lib/orig/libicu* lib/
-	  cp lib/orig/liblua* lib/
-	  cp lib/orig/libxerces* lib/
+  if [ ! -d lib_bkp ]; then
+	  mkdir lib_bkp
+	  mv lib/* lib_bkp/
+	  cp lib_bkp/libcurl* lib/
+	  cp lib_bkp/libgnu* lib/
+	  cp lib_bkp/libicu* lib/
+	  cp lib_bkp/liblua* lib/
+	  cp lib_bkp/libxerces* lib/
   fi
 fi
 
