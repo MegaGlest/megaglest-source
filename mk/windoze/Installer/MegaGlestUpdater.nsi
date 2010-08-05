@@ -3,7 +3,7 @@
 
 !define APNAME Mega-Glest
 !define APVER 3.3.5
-!define APVER_UPDATE 3.3.5.1-alpha2
+!define APVER_UPDATE 3.3.5.1-beta1
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -72,14 +72,19 @@ Function MUIGUIInit
    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "UninstallString"
    StrCmp $R0 "" 0 foundInst
    
+   IfFileExists $INSTDIR\glest_game.exe 0 +2
+   StrCpy $R0 "$INSTDIR"
    IfFileExists $INSTDIR\glest_game.exe foundInst
-   
+
+   IfFileExists $EXEDIR\glest_game.exe 0 +2
+   StrCpy $R0 "$EXEDIR"
    IfFileExists $EXEDIR\glest_game.exe foundInst notFoundInst
 
 foundInst:
-
+   StrCpy $INSTDIR "$R0"
+   
 MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-  "${APNAME} v${APVER} installation found. $\n$\nClick `OK` to update \
+  "${APNAME} v${APVER} installation found in [$R0]. $\n$\nClick `OK` to update \
   the previous installation or `Cancel` to exit." \
   IDOK uninstInit
 
@@ -136,12 +141,18 @@ Section "${APNAME} (required)"
   
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
+
+  ; remove old Norsemen training_field upgrade
+  RMDir /r "$INSTDIR\techs\megapack\factions\norsemen\upgrades\training_field"
+
   ; Put file there
   File "..\..\..\data\glest_game\glest_game.exe"
   File "..\..\..\data\glest_game\glest_editor.exe"
   File "..\..\..\data\glest_game\glest_configurator.exe"
   File "..\..\..\data\glest_game\g3d_viewer.exe"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\*.lng"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\*.xml"
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 
