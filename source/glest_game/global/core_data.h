@@ -44,6 +44,7 @@ private:
 	SoundContainer waterSounds;
 	
 	Texture2D *logoTexture;
+	std::vector<Texture2D *> logoTextureList;
     Texture2D *backgroundTexture;
     Texture2D *fireTexture;
     Texture2D *snowTexture;
@@ -73,6 +74,9 @@ public:
 	Texture2D *getCustomTexture() const			{return customTexture;}
 	Texture2D *getButtonSmallTexture() const	{return buttonSmallTexture;}
 	Texture2D *getButtonBigTexture() const		{return buttonBigTexture;}
+
+	int getLogoTextureExtraCount() const {return logoTextureList.size();}
+	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}
 
 	StrSound *getIntroMusic() 				{return &introMusic;}
 	StrSound *getMenuMusic() 				{return &menuMusic;}

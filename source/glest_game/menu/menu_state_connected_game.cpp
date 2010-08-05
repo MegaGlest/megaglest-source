@@ -77,8 +77,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	
 	
 	//create
-	buttonDisconnect.init(350, 150, 125);
-	buttonPlayNow.init(525, 150, 125);
+	buttonDisconnect.init(350, 180, 125);
+	buttonPlayNow.init(525, 180, 125);
 
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
@@ -88,9 +88,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	int setupPos=610;
-	int mapHeadPos=290;
+	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
-	int aHeadPos=230;
+	int aHeadPos=260;
 	int aPos=aHeadPos-30;
 	int networkHeadPos=670;
 	int networkPos=networkHeadPos-30;
@@ -175,22 +175,26 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(100, 550-i*30);
+		labelPlayers[i].init(100, setupPos-30-i*30);
 		labelPlayers[i].setEditable(false);
-        listBoxControls[i].init(200, 550-i*30);
+        listBoxControls[i].init(200, setupPos-30-i*30);
         listBoxControls[i].setEditable(false);
-        listBoxFactions[i].init(400, 550-i*30);
+        listBoxFactions[i].init(400, setupPos-30-i*30);
         listBoxFactions[i].setEditable(false);
-		listBoxTeams[i].init(600, 550-i*30, 60);
+		listBoxTeams[i].init(600, setupPos-30-i*30, 60);
 		listBoxTeams[i].setEditable(false);
-		labelNetStatus[i].init(700, 550-i*30, 60);
-		grabSlotButton[i].init(700, 550-i*30, 30);
+		labelNetStatus[i].init(700, setupPos-30-i*30, 60);
+		grabSlotButton[i].init(700, setupPos-30-i*30, 30);
 		grabSlotButton[i].setText(">");
     }
 
-	labelControl.init(200, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(400, 600, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(600, 600, 60, GraphicListBox::defH, true);
+	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(400, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(600, setupPos, 60, GraphicListBox::defH, true);
+
+    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
 
 	//texts
 	buttonDisconnect.setText(lang.get("Return"));
