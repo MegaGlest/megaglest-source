@@ -86,6 +86,7 @@ private:
 	bool settingsReceivedFromServer;
 	time_t lastNetworkSendPing;
 	int pingCount;
+	bool initialSettingsReceivedFromServer;
 	
 	
 public:

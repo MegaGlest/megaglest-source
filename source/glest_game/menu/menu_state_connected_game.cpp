@@ -50,11 +50,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 {
 	lastNetworkSendPing = 0;
 	pingCount = 0;
-
-	returnMenuInfo=joinMenuInfo;
-	Lang &lang= Lang::getInstance();
-	NetworkManager &networkManager= NetworkManager::getInstance();
-    Config &config = Config::getInstance();
 	needToSetChangedGameSettings = false;
 	lastSetChangedGameSettings   = time(NULL);
 	showFullConsole=false;
@@ -62,7 +57,14 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	currentFactionName="";
 	currentMap="";
 	settingsReceivedFromServer=false;
+	initialSettingsReceivedFromServer=false;
 
+	returnMenuInfo=joinMenuInfo;
+	Lang &lang= Lang::getInstance();
+	NetworkManager &networkManager= NetworkManager::getInstance();
+    Config &config = Config::getInstance();
+
+    labelMapInfo.setText("?");
 
 	vector<string> teamItems, controlItems, results;
 	//state
@@ -225,7 +227,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     labelFaction.setText(lang.get("Faction"));
     labelTeam.setText(lang.get("Team"));
 
-SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	labelMapInfo.setText(mapInfo.desc);
 
 	//init controllers
@@ -240,8 +242,6 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
-	//if (!settingsReceivedFromServer) return;
-	
 	if(buttonDisconnect.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -261,9 +261,13 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		currentFactionName="";
 		currentMap="";
 		returnToJoinMenu();
+		return;
     }
+
+	if (!initialSettingsReceivedFromServer) return;
+
 	// Only allow changes after we get game settings from the server
-	else if(	clientInterface->isConnected() == true &&
+	if(	clientInterface->isConnected() == true &&
 		clientInterface->getGameSettingsReceived() == true) {
 		if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -358,7 +362,7 @@ void MenuStateConnectedGame::render(){
 	try {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if (!settingsReceivedFromServer) return;
+		if (!initialSettingsReceivedFromServer) return;
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -672,6 +676,7 @@ void MenuStateConnectedGame::update()
 					}
 					
 					settingsReceivedFromServer=true;
+					initialSettingsReceivedFromServer=true;
 				}
 			}
 		}
