@@ -267,8 +267,9 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if (!initialSettingsReceivedFromServer) return;
 
 	// Only allow changes after we get game settings from the server
-	if(	clientInterface->isConnected() == true &&
-		clientInterface->getGameSettingsReceived() == true) {
+	//if(	clientInterface->isConnected() == true &&
+	//	clientInterface->getGameSettingsReceived() == true) {
+	if(	clientInterface->isConnected() == true) {
 		if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			soundRenderer.playFx(coreData.getClickSoundC());
