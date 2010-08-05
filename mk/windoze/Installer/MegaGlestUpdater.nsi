@@ -18,7 +18,8 @@ ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
 
 ; Request application privileges for Windows Vista
-RequestExecutionLevel none
+;RequestExecutionLevel none
+RequestExecutionLevel admin
 
 PageEx license
        LicenseText "Megaglest License"
@@ -69,7 +70,7 @@ Function MUIGUIInit
 #  GetDlgItem $0 $0 1006
 #  SetCtlColors $0 0xDF9437 0xDF9437
 
-   ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "UninstallString"
+   ReadRegStr $R0 HKLM Software\${APNAME}_${APVER} "Install_Dir"
    StrCmp $R0 "" 0 foundInst
    
    IfFileExists $INSTDIR\glest_game.exe 0 +2
