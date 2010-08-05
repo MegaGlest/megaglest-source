@@ -68,7 +68,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	vector<string> teamItems, controlItems, results;
 	//state
-	labelStatus.init(330, 700);
+	labelStatus.init(230, 700);
 	labelStatus.setText("");
 
 	labelInfo.init(30, 700);
@@ -475,6 +475,8 @@ void MenuStateConnectedGame::update()
             {
                 label = label + " " + clientInterface->getServerName();
             }
+
+            label = label + ", " + clientInterface->getVersionString();
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false)

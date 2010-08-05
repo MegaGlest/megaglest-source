@@ -318,8 +318,9 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							{
 								gotIntro = true;
 								name= networkMessageIntro.getName();
+								versionString = networkMessageIntro.getVersionString();
 
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s]\n",__FILE__,__FUNCTION__,name.c_str());
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s]\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str());
 
 								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL)
 								{
