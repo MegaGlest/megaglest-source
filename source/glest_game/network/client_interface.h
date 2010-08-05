@@ -52,6 +52,8 @@ private:
 	int currentFrameCount;
 	time_t lastNetworkCommandListSendTime;
 
+	string versionString;
+
 public:
 	ClientInterface();
 	virtual ~ClientInterface();
@@ -95,6 +97,8 @@ public:
 	int getCurrentFrameCount() const { return currentFrameCount; }
 
 	virtual void sendPingMessage(int32 pingFrequency, int64 pingTime);
+
+	const string &getVersionString() const	{return versionString;}
 
 protected:
 

@@ -169,8 +169,9 @@ void ClientInterface::updateLobby()
 
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
+            	versionString = networkMessageIntro.getVersionString();
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str());
 
                 //check consistency
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {

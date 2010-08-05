@@ -256,15 +256,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(100, setupPos-30-i*30);
         listBoxControls[i].init(200, setupPos-30-i*30);
-        listBoxFactions[i].init(400, setupPos-30-i*30, 150);
-		listBoxTeams[i].init(600, setupPos-30-i*30, 60);
-		labelNetStatus[i].init(700, setupPos-30-i*30, 60);
+        listBoxFactions[i].init(350, setupPos-30-i*30, 150);
+		listBoxTeams[i].init(520, setupPos-30-i*30, 60);
+		labelNetStatus[i].init(600, setupPos-30-i*30, 60);
     }
 
 
 	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(400, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(600, setupPos, 50, GraphicListBox::defH, true);
+    labelFaction.init(350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(520, setupPos, 50, GraphicListBox::defH, true);
     
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
@@ -936,13 +936,13 @@ void MenuStateCustomGame::update() {
 						currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
-					string label = connectionSlot->getName();
+					string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
 					if(connectionSlot->getAllowDownloadDataSynch() == true &&
 					   connectionSlot->getAllowGameDataSynchCheck() == true)
 					{
 						if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
 						{
-							label = connectionSlot->getName() + " - waiting to synch:";
+							label += " - waiting to synch:";
 							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
 							{
 								label = label + " map";
@@ -958,12 +958,12 @@ void MenuStateCustomGame::update() {
 						}
 						else
 						{
-							label = connectionSlot->getName() + " - data synch is ok";
+							label += " - data synch is ok";
 						}
 					}
 					else
 					{
-						label = connectionSlot->getName();
+						//label = connectionSlot->getName();
 
 						if(connectionSlot->getAllowGameDataSynchCheck() == true &&
 						   connectionSlot->getNetworkGameDataSynchCheckOk() == false)
