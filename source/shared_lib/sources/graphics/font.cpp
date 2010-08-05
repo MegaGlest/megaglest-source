@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2007 Martiño Figueroa
+//	Copyright (C) 2001-2007 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -10,10 +10,17 @@
 // ==============================================================
 
 #include "font.h"
-
+#include <stdexcept>
+#include "conversion.h"
 #include "leak_dumper.h"
 
+using namespace std;
+using namespace Shared::Util;
+
 namespace Shared{ namespace Graphics{
+
+int Font::charCount= 256;
+std::string Font::fontTypeName = "Times New Roman";
 
 // =====================================================
 //	class FontMetrics
@@ -30,11 +37,16 @@ FontMetrics::FontMetrics(){
 
 FontMetrics::~FontMetrics(){
 	delete [] widths;
+	widths = NULL;
 }
 
 float FontMetrics::getTextWidth(const string &str) const{
 	float width= 0.f;
-	for(unsigned int i=0; i<str.size(); ++i){
+	for(unsigned int i=0; i< str.size() && i < Font::charCount; ++i){
+		if(str[i] >= Font::charCount) {
+			string sError = "str[i] >= Font::charCount, [" + str + "] i = " + intToStr(i);
+			throw runtime_error(sError);
+		}
 		width+= widths[str[i]];
 	}
 	return width;
@@ -47,9 +59,6 @@ float FontMetrics::getHeight() const{
 // ===============================================
 //	class Font
 // ===============================================
-
-int Font::charCount= 256;
-std::string Font::fontTypeName = "Times New Roman";
 
 Font::Font(){
 	inited= false;
