@@ -406,7 +406,7 @@ void MenuStateConnectedGame::render(){
 		renderer.renderLabel(&labelControl);
 		renderer.renderLabel(&labelFaction);
 		renderer.renderLabel(&labelTeam);
-		renderer.renderLabel(&labelMapInfo);
+		//renderer.renderLabel(&labelMapInfo);
 
 		renderer.renderListBox(&listBoxMap);
 		renderer.renderListBox(&listBoxFogOfWar);
