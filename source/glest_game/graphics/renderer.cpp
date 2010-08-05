@@ -932,14 +932,22 @@ void Renderer::renderSelectionQuad(){
 }
 
 Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y){
-	Vec2i textPos;
-
+	if(font == NULL) {
+		throw runtime_error("font == NULL");
+	}
 	const Metrics &metrics= Metrics::getInstance();
 	const FontMetrics *fontMetrics= font->getMetrics();
 
-	textPos= Vec2i(
-		x-metrics.toVirtualX(static_cast<int>(fontMetrics->getTextWidth(text)/2.f)),
-		y-metrics.toVirtualY(static_cast<int>(fontMetrics->getHeight()/2.f)));
+	if(fontMetrics == NULL) {
+		throw runtime_error("fontMetrics == NULL");
+	}
+
+	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
+	int virtualY = (fontMetrics->getHeight() > 0 ? static_cast<int>(fontMetrics->getHeight()/2.f) : 5);
+
+	Vec2i textPos(
+		x-metrics.toVirtualX(virtualX),
+		y-metrics.toVirtualY(virtualY));
 
 	return textPos;
 }
