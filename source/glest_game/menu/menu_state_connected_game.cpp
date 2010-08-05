@@ -240,7 +240,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
-	if (!settingsReceivedFromServer) return;
+	//if (!settingsReceivedFromServer) return;
 	
 	if(buttonDisconnect.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
