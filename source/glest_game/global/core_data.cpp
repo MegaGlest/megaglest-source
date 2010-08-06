@@ -77,7 +77,7 @@ void CoreData::load(){
     	string logo = logoFilenames[i];
     	if(strcmp("logo.tga",logo.c_str()) != 0) {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
-    		logoTextureExtra->setMipmap(false);
+    		logoTextureExtra->setMipmap(true);
     		logoTextureExtra->getPixmap()->load(dir+"/menu/textures/" + logo);
     		logoTextureList.push_back(logoTextureExtra);
     	}
