@@ -114,7 +114,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="0"
 				RuntimeTypeInfo="true"
 				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
