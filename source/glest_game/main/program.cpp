@@ -232,7 +232,9 @@ void Program::loopWorker() {
     assert(programState != NULL);
 
     if(this->programState->quitTriggered() == true) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	this->programState->quitAndToggleState();
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	return;
     }
     ProgramState *prevState = this->programState;

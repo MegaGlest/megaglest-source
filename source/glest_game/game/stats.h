@@ -23,8 +23,20 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
-struct PlayerStats{
-	PlayerStats();
+class PlayerStats {
+public:
+	PlayerStats() {
+		control = ctClosed;
+		factionTypeName = "";
+		teamIndex = 0;
+		victory = false;
+		kills = 0;
+		deaths = 0;
+		unitsProduced = 0;
+		resourcesHarvested = 0;
+		playerName = "";
+		playerColor = Vec3f(0,0,0);
+	}
 
 	ControlType control;
 	string factionTypeName;
@@ -44,7 +56,7 @@ struct PlayerStats{
 ///	Player statistics that are shown after the game ends
 // =====================================================
 
-class Stats{
+class Stats {
 private:
 	PlayerStats playerStats[GameConstants::maxPlayers];
 	
@@ -53,6 +65,12 @@ private:
 	int thisFactionIndex;
 
 public:
+
+	Stats() {
+		description = "";
+		factionCount = 0;
+		thisFactionIndex = 0;
+	}
 	void init(int factionCount, int thisFactionIndex, const string &description);
 
 	string getDescription() const	{return description;}
