@@ -1126,9 +1126,12 @@ void Game::keyPress(char c){
 void Game::quitGame(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Stats stats = *(world.getStats());
+	//Stats stats = *(world.getStats());
+	Stats *endStats = new Stats();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	*endStats = *(world.getStats());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1137,7 +1140,16 @@ void Game::quitGame(){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	program->setState(new BattleEnd(program, &stats));
+	ProgramState *newState = new BattleEnd(program, endStats);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete endStats;
+	endStats = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	program->setState(newState);
 }
 
 // ==================== PRIVATE ====================

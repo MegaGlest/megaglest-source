@@ -15,16 +15,6 @@
 
 namespace Glest{ namespace Game{
 
-PlayerStats::PlayerStats(){
-	victory= false;
-
-	kills= 0;
-	deaths= 0;
-	unitsProduced= 0;
-	resourcesHarvested= 0;
-	playerName = "";
-}
-
 // =====================================================
 // class Stats
 // =====================================================
