@@ -19,6 +19,7 @@
 #include "components.h"
 #include "window.h"
 #include "simple_threads.h"
+#include "stats.h"
 
 using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;
@@ -77,7 +78,8 @@ public:
 	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual bool quitTriggered() { return false; }
-	virtual void quitAndToggleState() {};
+	virtual Stats quitAndToggleState() { return Stats(); };
+	virtual Program * getProgram() { return program; }
 };
 
 // ===============================
