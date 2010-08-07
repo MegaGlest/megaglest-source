@@ -76,6 +76,7 @@ protected:
 //	when the client connects and vice versa
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageIntro: public NetworkMessage{
 private:
 	static const int maxVersionStringSize= 128;
@@ -105,6 +106,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessagePing
@@ -112,6 +114,7 @@ public:
 //	Message sent at any time
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessagePing: public NetworkMessage{
 private:
 	struct Data{
@@ -135,6 +138,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageReady
@@ -142,6 +146,7 @@ public:
 //	Message sent at the beginning of the game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageReady: public NetworkMessage{
 private:
 	struct Data{
@@ -161,6 +166,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageLaunch
@@ -169,6 +175,7 @@ public:
 //	to launch the game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageLaunch: public NetworkMessage{
 private:
 	static const int maxStringSize= 256;
@@ -213,6 +220,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class CommandList
@@ -268,6 +276,7 @@ public:
 //	Chat text message
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageText: public NetworkMessage{
 private:
 	static const int maxTextStringSize= 340;
@@ -295,6 +304,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageQuit
@@ -302,6 +312,7 @@ public:
 //	Message sent at the beggining of the game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageQuit: public NetworkMessage{
 private:
 	struct Data{
@@ -317,6 +328,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageSynchNetworkGameData
@@ -324,6 +336,7 @@ public:
 //	Message sent at the beggining of a network game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageSynchNetworkGameData: public NetworkMessage{
 
 private:
@@ -361,6 +374,7 @@ public:
 	int32 getTilesetCRC() const	{return data.tilesetCRC;}
 	int32 getTechCRC() const	{return data.techCRC;}
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataStatus
@@ -368,6 +382,7 @@ public:
 //	Message sent at the beggining of a network game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageSynchNetworkGameDataStatus: public NetworkMessage{
 
 private:
@@ -398,6 +413,7 @@ public:
 	int32 getTilesetCRC() const	{return data.tilesetCRC;}
 	int32 getTechCRC() const	{return data.techCRC;}
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileCRCCheck
@@ -405,6 +421,7 @@ public:
 //	Message sent at the beggining of a network game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageSynchNetworkGameDataFileCRCCheck: public NetworkMessage{
 
 private:
@@ -436,6 +453,7 @@ public:
 	int32 getFileCRC() const	    {return data.fileCRC;}
 	string getFileName() const		{return data.fileName.getString();}
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileGet
@@ -443,6 +461,7 @@ public:
 //	Message sent at the beggining of a network game
 // =====================================================
 
+#pragma pack(push, 1)
 class NetworkMessageSynchNetworkGameDataFileGet: public NetworkMessage{
 
 private:
@@ -468,7 +487,7 @@ public:
 
 	string getFileName() const		{return data.fileName.getString();}
 };
-
+#pragma pack(pop)
 
 // =====================================================
 //	class SwitchSetupRequest
@@ -477,6 +496,7 @@ public:
 //	to switch its settings
 // =====================================================
 
+#pragma pack(push, 1)
 class SwitchSetupRequest: public NetworkMessage{
 private:
 	static const int maxStringSize= 256;
@@ -505,6 +525,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class PlayerIndexMessage
@@ -513,6 +534,7 @@ public:
 //	to tell them about a slot change ( caused by another client )
 // =====================================================
 
+#pragma pack(push, 1)
 class PlayerIndexMessage: public NetworkMessage{
 
 private:
@@ -532,6 +554,7 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
+#pragma pack(pop)
 
 }}//end namespace
 

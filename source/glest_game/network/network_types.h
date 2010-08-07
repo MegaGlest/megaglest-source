@@ -43,7 +43,7 @@ public:
 	void operator=(const string& str) {
 		// ensure we don't have a buffer overflow
 		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
-		strncpy(buffer, str.c_str(), std::min(S-1,maxBufferSize));
+		strncpy(buffer, str.c_str(), std::min(S-1,maxBufferSize-1));
 	}
 	string getString() const		  {return buffer;}
 };
