@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2009 Martiño Figueroa
+//	Copyright (C) 2001-2009 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -73,7 +73,9 @@ void AutoTest::updateGame(Game *game){
 
 	// quit if we've espend enough time in the game
 	if(time(NULL)-gameStartTime>gameTime){
-		game->quitGame();
+		Program *program = game->getProgram();
+		Stats endStats = game->quitGame();
+		Game::exitGameState(program, endStats);
 	}
 }
 

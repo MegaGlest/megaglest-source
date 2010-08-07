@@ -118,8 +118,11 @@ bool Game::quitTriggered() {
 	return quitTriggeredIndicator;
 }
 
-void Game::quitAndToggleState() {
-	quitGame();
+Stats Game::quitAndToggleState() {
+	//quitGame();
+	//Program *program = game->getProgram();
+	return quitGame();
+	//Game::exitGameState(program, endStats);
 }
 
 // ==================== init and load ====================
@@ -1123,15 +1126,15 @@ void Game::keyPress(char c){
 	chatManager.keyPress(c);
 }
 
-void Game::quitGame(){
+Stats Game::quitGame() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//Stats stats = *(world.getStats());
-	Stats *endStats = new Stats();
+	Stats endStats;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	*endStats = *(world.getStats());
+	endStats = *(world.getStats());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1140,16 +1143,25 @@ void Game::quitGame(){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	ProgramState *newState = new BattleEnd(program, endStats);
+	//ProgramState *newState = new BattleEnd(program, endStats);
 
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//program->setState(newState);
+
+	return endStats;
+}
+
+void Game::exitGameState(Program *program, Stats &endStats) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	delete endStats;
-	endStats = NULL;
+	ProgramState *newState = new BattleEnd(program, &endStats);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	program->setState(newState);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================

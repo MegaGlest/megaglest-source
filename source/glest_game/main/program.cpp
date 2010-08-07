@@ -233,8 +233,15 @@ void Program::loopWorker() {
 
     if(this->programState->quitTriggered() == true) {
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    	this->programState->quitAndToggleState();
+
+    	Stats endStats = this->programState->quitAndToggleState();
+
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    	Game::exitGameState(this, endStats);
+
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     	return;
     }
     ProgramState *prevState = this->programState;

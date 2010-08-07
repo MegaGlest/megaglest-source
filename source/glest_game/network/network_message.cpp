@@ -101,7 +101,9 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
 
 	if(socket != NULL) {
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
 		int sendResult = socket->send(data, dataSize);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
 		if(sendResult != dataSize) {
 			if(socket != NULL && socket->getSocketId() > 0) {
 				char szBuf[1024]="";
@@ -340,7 +342,7 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 }
 
 void NetworkMessageCommandList::send(Socket* socket) const{
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
 
 	assert(data.header.messageType==nmtCommandList);
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);

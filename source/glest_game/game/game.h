@@ -128,8 +128,9 @@ public:
 	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 	virtual bool quitTriggered();
-	virtual void quitAndToggleState();
-	void quitGame();
+	virtual Stats quitAndToggleState();
+	Stats quitGame();
+	static void exitGameState(Program *program, Stats &endStats);
 
 private:
 	//render
