@@ -249,11 +249,15 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			if(socket->isConnected()) {
 				this->clearChatInfo();
 
-				if(socket->hasDataToRead() == true) {
-					NetworkMessageType networkMessageType= getNextMessageType();
+				bool gotTextMsg = true;
+				for(;socket->hasDataToRead() == true && gotTextMsg == true;) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
+
+					NetworkMessageType networkMessageType= getNextMessageType(true);
 
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
+					gotTextMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -281,6 +285,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							if(receiveMessage(&networkMessageText)) {
 								ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
 								this->addChatInfo(msg);
+								gotTextMsg = true;
 
 								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}

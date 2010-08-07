@@ -39,9 +39,13 @@ private:
 	char buffer[S];
 
 public:
-	NetworkString()						{memset(buffer, 0, S);}
-	void operator=(const string& str)	{strncpy(buffer, str.c_str(), S-1);}
-	string getString() const			{return buffer;}
+	NetworkString()					  {memset(buffer, 0, S);}
+	void operator=(const string& str) {
+		// ensure we don't have a buffer overflow
+		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
+		strncpy(buffer, str.c_str(), std::min(S-1,maxBufferSize));
+	}
+	string getString() const		  {return buffer;}
 };
 
 // =====================================================

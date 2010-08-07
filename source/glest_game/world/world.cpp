@@ -156,8 +156,10 @@ void World::init(Game *game, bool createUnits){
 	initSplattedTextures();
 
 	// must be done after initMap()
-	routePlanner = new RoutePlanner(this);
-	cartographer = new Cartographer(this);
+	if(gs->getPathFinderType() != pfBasic) {
+		routePlanner = new RoutePlanner(this);
+		cartographer = new Cartographer(this);
+	}
 
 	unitUpdater.init(game);
 
@@ -338,7 +340,9 @@ void World::tick(){
 			}
 		}
 	}
-	cartographer->tick();
+	if(cartographer != NULL) {
+		cartographer->tick();
+	}
 }
 
 Unit* World::findUnitById(int id){
@@ -785,7 +789,9 @@ void World::initUnits(){
 				}
 				if (unit->getType()->hasSkillClass(scBeBuilt)) {
 					map.flatternTerrain(unit);
-					cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+					if(cartographer != NULL) {
+						cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+					}
 				}
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
             }

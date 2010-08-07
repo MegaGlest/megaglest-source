@@ -270,13 +270,14 @@ public:
 
 class NetworkMessageText: public NetworkMessage{
 private:
-	static const int maxStringSize= 256;
+	static const int maxTextStringSize= 340;
+	static const int maxSenderStringSize= 60;
 
 private:
 	struct Data{
 		int8 messageType;
-		NetworkString<maxStringSize> text;
-		NetworkString<maxStringSize> sender;
+		NetworkString<maxTextStringSize> text;
+		NetworkString<maxSenderStringSize> sender;
 		int8 teamIndex;
 	};
 

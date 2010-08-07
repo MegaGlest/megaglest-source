@@ -98,6 +98,8 @@ protected:
 	time_t lastThreadedPing;
 	Mutex pingThreadAccessor;
 
+	Mutex dataSynchAccessor;
+
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();

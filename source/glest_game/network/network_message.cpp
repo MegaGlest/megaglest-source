@@ -97,8 +97,9 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize)
 	return false;
 }
 
-void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const
-{
+void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
+
 	if(socket != NULL) {
 		int sendResult = socket->send(data, dataSize);
 		if(sendResult != dataSize) {
@@ -137,6 +138,7 @@ bool NetworkMessageIntro::receive(Socket* socket){
 }
 
 void NetworkMessageIntro::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtIntro\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtIntro);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -163,6 +165,7 @@ bool NetworkMessagePing::receive(Socket* socket){
 }
 
 void NetworkMessagePing::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtPing\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtPing);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -185,6 +188,7 @@ bool NetworkMessageReady::receive(Socket* socket){
 }
 
 void NetworkMessageReady::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtReady);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -258,6 +262,7 @@ bool NetworkMessageLaunch::receive(Socket* socket){
 }
 
 void NetworkMessageLaunch::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
@@ -335,6 +340,8 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 }
 
 void NetworkMessageCommandList::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount);
+
 	assert(data.header.messageType==nmtCommandList);
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 	NetworkMessage::send(socket, &data, totalMsgSize);
@@ -359,6 +366,16 @@ void NetworkMessageCommandList::send(Socket* socket) const{
 // =====================================================
 
 NetworkMessageText::NetworkMessageText(const string &text, const string &sender, int teamIndex){
+
+	if(text.length() >= maxTextStringSize) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
+		//throw runtime_error("NetworkMessageText - text.length() >= maxStringSize");
+	}
+	if(sender.length() >= maxSenderStringSize) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - sender [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,sender.c_str(),sender.length(),maxSenderStringSize);
+		//throw runtime_error("NetworkMessageText - sender.length() >= maxSenderStringSize");
+	}
+
 	data.messageType= nmtText;
 	data.text= text;
 	data.sender= sender;
@@ -370,6 +387,8 @@ bool NetworkMessageText::receive(Socket* socket){
 }
 
 void NetworkMessageText::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtText\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtText);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -387,6 +406,8 @@ bool NetworkMessageQuit::receive(Socket* socket){
 }
 
 void NetworkMessageQuit::send(Socket* socket) const{
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtQuit\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtQuit);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -442,8 +463,9 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket)
 	return NetworkMessage::receive(socket, &data, sizeof(data));
 }
 
-void NetworkMessageSynchNetworkGameData::send(Socket* socket) const
-{
+void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtSynchNetworkGameData);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -467,8 +489,9 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket)
 	return NetworkMessage::receive(socket, &data, sizeof(data));
 }
 
-void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const
-{
+void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtSynchNetworkGameDataStatus);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -492,8 +515,9 @@ bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket)
 	return NetworkMessage::receive(socket, &data, sizeof(data));
 }
 
-void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) const
-{
+void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileCRCCheck\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtSynchNetworkGameDataFileCRCCheck);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -514,8 +538,9 @@ bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket)
 	return NetworkMessage::receive(socket, &data, sizeof(data));
 }
 
-void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const
-{
+void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__,__LINE__);
+
 	assert(data.messageType==nmtSynchNetworkGameDataFileGet);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }

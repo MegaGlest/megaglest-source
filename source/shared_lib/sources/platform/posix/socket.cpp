@@ -827,7 +827,12 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             tv.tv_sec = 0;
             tv.tv_usec = 0;
 
-            int retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
+
+            int retval = 0;
+            {
+            	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
+            	retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
+            }
             if(retval < 0)
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,retval,getLastSocketErrorFormattedText().c_str());
@@ -884,7 +889,11 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
         tv.tv_sec = 0;
         tv.tv_usec = 0;
 
-        int retval = select(socket + 1, &rfds, NULL, NULL, &tv);
+        int retval = 0;
+        {
+        	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        	retval = select(socket + 1, &rfds, NULL, NULL, &tv);
+        }
         if(retval)
         {
             if (FD_ISSET(socket, &rfds))
@@ -933,6 +942,10 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 			}
 			else if(err == 0)
 			{
+				if(isConnected() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+					break;
+				}
 				//if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
 			}
 
@@ -962,6 +975,8 @@ int Socket::send(const void *data, int dataSize) {
 	ssize_t bytesSent= 0;
 	if(isSocketValid() == true)	{
 		errno = 0;
+
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
         bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 	}
 
@@ -985,6 +1000,7 @@ int Socket::send(const void *data, int dataSize) {
 	        if(Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
@@ -1012,6 +1028,7 @@ int Socket::receive(void *data, int dataSize)
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1024,6 +1041,7 @@ int Socket::receive(void *data, int dataSize)
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
@@ -1044,6 +1062,7 @@ int Socket::receive(void *data, int dataSize)
 int Socket::peek(void *data, int dataSize){
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1058,6 +1077,7 @@ int Socket::peek(void *data, int dataSize){
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
@@ -1106,7 +1126,11 @@ bool Socket::isReadable() {
 	FD_ZERO(&set);
 	FD_SET(sock, &set);
 
-	int i= select(sock+1, &set, NULL, NULL, &tv);
+	int i = 0;
+	{
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		i= select(sock+1, &set, NULL, NULL, &tv);
+	}
 	if(i < 0) {
         if(difftime(time(NULL),lastDebugEvent) >= 1) {
             lastDebugEvent = time(NULL);
@@ -1137,7 +1161,11 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     bool result = false;
     do
     {
-        int i = select(sock+1, NULL, &set, NULL, &tv);
+    	int i = 0;
+    	{
+    		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        	i = select(sock+1, NULL, &set, NULL, &tv);
+    	}
         if(i < 0 ) {
             if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
@@ -1302,7 +1330,10 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_ZERO(&myset);
                FD_SET(sock, &myset);
 
-               err = select(sock+1, NULL, &myset, NULL, &tv);
+               {
+            	   MutexSafeWrapper safeMutex(&dataSynchAccessor);
+            	   err = select(sock+1, NULL, &myset, NULL, &tv);
+               }
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED)
                {
