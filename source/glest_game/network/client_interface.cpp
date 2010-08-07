@@ -840,6 +840,10 @@ void ClientInterface::waitForMessage()
             close();
             return;
 		}
+		// Sleep ever second we wait to let other threads work
+		else if(chrono.getMillis() % 1000 == 0) {
+			sleep(0);
+		}
 
 		//sleep(waitSleepTime);
 		waitLoopCount++;
