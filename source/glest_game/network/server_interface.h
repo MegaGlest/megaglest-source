@@ -80,7 +80,7 @@ public:
 	virtual void slotUpdateTask(ConnectionSlotEvent *event);
 	bool hasClientConnection();
 	int getCurrentFrameCount() const { return currentFrameCount; }
-	std::pair<bool,bool> clientLagCheck(ConnectionSlot* connectionSlot);
+	std::pair<bool,bool> clientLagCheck(ConnectionSlot* connectionSlot,bool skipNetworkBroadCast=false);
 
 	bool signalClientReceiveCommands(ConnectionSlot* connectionSlot,
 									 int slotIndex,

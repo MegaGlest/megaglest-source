@@ -52,6 +52,7 @@ private:
 	int currentFrameCount;
 	time_t lastNetworkCommandListSendTime;
 
+	time_t clientSimulationLagStartTime;
 	string versionString;
 
 public:

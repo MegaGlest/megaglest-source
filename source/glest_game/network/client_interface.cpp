@@ -48,6 +48,7 @@ ClientInterface::ClientInterface(){
 	gotIntro = false;
 	lastNetworkCommandListSendTime = 0;
 	currentFrameCount = 0;
+	clientSimulationLagStartTime = 0;
 
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
@@ -508,6 +509,17 @@ void ClientInterface::updateKeyframe(int frameCount)
 		//wait for the next message
 		waitForMessage();
 
+		// START: Test simulating lag for the client
+		if(Config::getInstance().getInt("SimulateClientLag","0") > 0) {
+			if(clientSimulationLagStartTime == 0) {
+				clientSimulationLagStartTime = time(NULL);
+			}
+			if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+				sleep(Config::getInstance().getInt("SimulateClientLag","0"));
+			}
+		}
+		// END: Test simulating lag for the client
+
 		//check we have an expected message
 		NetworkMessageType networkMessageType= getNextMessageType(true);
 
@@ -533,7 +545,10 @@ void ClientInterface::updateKeyframe(int frameCount)
 				chrono.start();
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
-				    string sErr = "Network synchronization error, frame counts do not match, server frameCount = " + intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " + intToStr(frameCount);
+				    string sErr = "Player: " + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) +
+				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
+				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
+				    		      intToStr(frameCount);
 					//throw runtime_error("Network synchronization error, frame counts do not match");
                     sendTextMessage(sErr,-1, true);
                     DisplayErrorMessage(sErr);
