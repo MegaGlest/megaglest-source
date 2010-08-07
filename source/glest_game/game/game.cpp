@@ -1390,7 +1390,7 @@ void Game::render2d(){
 			renderer.renderText(
 				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 				coreData.getMenuFontNormal(),
-				Vec3f(1.0f), 20, 500, false);
+				Vec3f(1.0f), 10, 140, false);
 		}
 	}
 
