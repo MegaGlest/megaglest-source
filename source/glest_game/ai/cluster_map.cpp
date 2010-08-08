@@ -630,9 +630,6 @@ bool TransitionNodeStore::setOpen(const Transition* pos, const Transition* prev,
 	assert(open.find(pos) == open.end());
 	assert(closed.find(pos) == closed.end());
 	
-	//REMOVE
-	//assert(assertOpen());
-	
 	TransitionAStarNode *node = getNode();
 	if (!node) return false;
 	node->pos = pos;
@@ -643,18 +640,12 @@ bool TransitionNodeStore::setOpen(const Transition* pos, const Transition* prev,
 	insertIntoOpen(node);
 	listed[pos] = node;
 	
-	//REMOVE
-	//assert(assertOpen());
-
 	return true;
 }
 
 void TransitionNodeStore::updateOpen(const Transition* pos, const Transition* &prev, const float cost) {
 	assert(open.find(pos) != open.end());
 	assert(closed.find(prev) != closed.end());
-
-	//REMOVE
-	//assert(assertOpen());
 
 	TransitionAStarNode *prevNode = listed[prev];
 	TransitionAStarNode *posNode = listed[pos];
@@ -664,9 +655,6 @@ void TransitionNodeStore::updateOpen(const Transition* pos, const Transition* &p
 		posNode->distToHere = prevNode->distToHere + cost;
 		insertIntoOpen(posNode);
 	}
-
-	//REMOVE
-	//assert(assertOpen());
 }
 
 const Transition* TransitionNodeStore::getBestCandidate() {

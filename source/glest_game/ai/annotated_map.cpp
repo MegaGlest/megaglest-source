@@ -16,11 +16,9 @@
 #include "annotated_map.h"
 #include "world.h"
 #include "pos_iterator.h"
-/*
-#include "path_finder.h"
 #include "cartographer.h"
 #include "cluster_map.h"
-*/
+
 #include "profiler.h"
 
 namespace Glest { namespace Game {
@@ -29,7 +27,8 @@ namespace Glest { namespace Game {
   * @param master true if this is the master map, false for a foggy map (default true)
   */
 AnnotatedMap::AnnotatedMap(World *world) 
-		: cellMap(NULL) {
+		: world(world)
+		, cellMap(NULL) {
 	//_PROFILE_FUNCTION();
 	assert(world && world->getMap());
 	cellMap = world->getMap();
@@ -72,10 +71,9 @@ void AnnotatedMap::initMapMetrics() {
 //#define LOG_CLUSTER_DIRTYING(x) {cout << x;}
 
 struct MudFlinger {
-	//ClusterMap *cm;
+	ClusterMap *cm;
 
 	inline void setDirty(const Vec2i &pos) {
-		/*
 		Vec2i cluster = ClusterMap::cellToCluster(pos);
 		cm->setClusterDirty(cluster);
 		LOG_CLUSTER_DIRTYING( "MapMetrics changed @ pos = " << pos << endl )
@@ -96,7 +94,6 @@ struct MudFlinger {
 			cm->setWestBorderDirty(Vec2i(cluster.x + 1, cluster.y));
 			LOG_CLUSTER_DIRTYING( "\tEast border dirty\n" )
 		}
-		*/
 	}
 } mudFlinger;
 
@@ -109,7 +106,7 @@ void AnnotatedMap::updateMapMetrics(const Vec2i &pos, const int size) {
 	//_PROFILE_FUNCTION();
 
 	// need to throw mud on the ClusterMap
-//	mudFlinger.cm = World::getInstance().getCartographer()->getClusterMap();	
+	mudFlinger.cm = world->getCartographer()->getClusterMap();	
 
 	// 1. re-evaluate the cells occupied (or formerly occupied)
 	for (int i = size - 1; i >= 0 ; --i) {

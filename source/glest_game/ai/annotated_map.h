@@ -136,6 +136,7 @@ class AnnotatedMap {
 
 private:
 	int width, height;
+	World *world;
 	Map *cellMap;
 	
 public:

@@ -131,12 +131,12 @@ DebugRenderer::DebugRenderer() {
 	captureFrustum = 
 	gridTextures = 
 	influenceMap =
-	HAAStarOverlay = 
 	buildSiteMaps =
+	resourceMapOverlay = 
 					false;
 
 	AAStarTextures = 
-	resourceMapOverlay = 
+	HAAStarOverlay = 
 					true;
 }
 
