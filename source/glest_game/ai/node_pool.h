@@ -41,13 +41,13 @@ struct PosOff {				/**< A bit packed position (Vec2i) and offset (direction) pai
 		assert(pos.x <= 8191 && pos.y <= 8191);
 		x = pos.x; y = pos.y; return *this;
 	}
-	bool operator==(PosOff &p) 
-						{ return x == p.x && y == p.y; }	 /**< compare position components only */
-	Vec2i getPos()		{ return Vec2i(x, y); }				/**< this packed pos as Vec2i		  */
-	Vec2i getPrev()		{ return Vec2i(x + ox, y + oy); }  /**< return pos + offset				 */
-	Vec2i getOffset()	{ return Vec2i(ox, oy); }		  /**< return offset					*/
-	bool hasOffset()	{ return ox || oy; }			 /**< has an offset					   */
-	bool valid() { return x >= 0 && y >= 0; }			/**< is this position valid			  */
+	bool operator==(PosOff &p) const
+							{ return x == p.x && y == p.y; }	 /**< compare position components only */
+	Vec2i getPos() const	{ return Vec2i(x, y); }				/**< this packed pos as Vec2i		  */
+	Vec2i getPrev()	const	{ return Vec2i(x + ox, y + oy); }  /**< return pos + offset				 */
+	Vec2i getOffset() const	{ return Vec2i(ox, oy); }		  /**< return offset					*/
+	bool hasOffset() const	{ return ox || oy; }			 /**< has an offset					   */
+	bool valid() const		{ return x >= 0 && y >= 0; }	/**< is this position valid			  */
 
 	int32  x : 14; /**< x coordinate  */
 	int32  y : 14; /**< y coordinate */
@@ -65,24 +65,25 @@ struct AStarNode {			/**< A node structure for A* with NodePool					 */
 	float heuristic;	  /**< estimate of distance to goal							   */
 	float distToHere;	 /**< cost from origin to this node							  */
 
-	float est()	const { return distToHere + heuristic;}	   /**< estimate, costToHere + heuristic   */
-	Vec2i pos()		  { return posOff.getPos();		  }	  /**< position of this node			  */
-	Vec2i prev()	  { return posOff.getPrev();	  }  /**< best path to this node is from	 */
-	bool hasPrev()	  { return posOff.hasOffset();	  } /**< has valid previous 'pointer'		*/
+	float est()	const	{ return distToHere + heuristic;}	 /**< estimate, costToHere + heuristic */
+	Vec2i pos()	const	{ return posOff.getPos();		}	/**< position of this node			  */
+	Vec2i prev() const	{ return posOff.getPrev();		}  /**< best path to this node is from	 */
+	bool hasPrev() const{ return posOff.hasOffset();	} /**< has valid previous 'pointer'		*/
 
 	int32 heap_ndx;
 	void setHeapIndex(int ndx) { heap_ndx = ndx;  }
 	int  getHeapIndex() const  { return heap_ndx; }
 
 	bool operator<(const AStarNode &that) const {
-		const float diff = (distToHere + heuristic) - (that.distToHere + that.heuristic);
-		if (diff < 0) return true;
-		else if (diff > 0) return false;
+		const float diff = est() - that.est();
+		if (diff < 0.f) return true;
+		if (diff > 0.f) return false;
 		// tie, prefer closer to goal...
-		if (heuristic < that.heuristic) return true;
-		if (heuristic > that.heuristic) return false;
+		const float h_diff = heuristic - that.heuristic;
+		if (h_diff < 0.f) return true;
+		if (h_diff > 0.f) return false;
 		// still tied... just distinguish them somehow...
-		return this < &that;
+		return pos() < that.pos();
 	}
 }; // == 128 bits (16 bytes)
 #pragma pack(pop)

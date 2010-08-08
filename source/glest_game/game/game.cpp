@@ -478,6 +478,8 @@ void Game::init()
 	logger.add("Launching game");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
+	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
+	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

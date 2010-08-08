@@ -212,6 +212,39 @@ public:
 }; // class RoutePlanner
 
 
+/** Diaginal Distance Heuristic */
+class DiagonalDistance {
+public:
+	DiagonalDistance(const Vec2i &target) : target(target) {}
+	/** search target */
+	Vec2i target;	
+	/** The heuristic function. @param pos the position to calculate the heuristic for
+	  * @return an estimate of the cost to target */
+	float operator()(const Vec2i &pos) const {
+		float dx = (float)abs(pos.x - target.x), 
+			  dy = (float)abs(pos.y - target.y);
+		float diag = dx < dy ? dx : dy;
+		float straight = dx + dy - 2 * diag;
+		return 1.4 * diag + straight;
+	}
+};
+
+/** Goal function for 'normal' search */
+class PosGoal {
+private:
+	Vec2i target; /**< search target */
+
+public:
+	PosGoal(const Vec2i &target) : target(target) {}
+	
+	/** The goal function  @param pos position to test
+	  * @param costSoFar the cost of the shortest path to pos
+	  * @return true if pos is target, else false	*/
+	bool operator()(const Vec2i &pos, const float costSoFar) const { 
+		return pos == target; 
+	}
+};
+
 //TODO: put these somewhere sensible
 class TransitionHeuristic {
 	DiagonalDistance dd;

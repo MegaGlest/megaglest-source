@@ -847,16 +847,16 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 	UnitPath &path = *advPath;
 	WaypointPath &wpPath = *unit->getWaypointPath();
 	const Vec2i &start = unit->getPos();
+
 	// setup search
-	MoveCost moveCost(unit->getCurrField(), unit->getType()->getSize(), world->getCartographer()->getMasterMap());
+	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
+	MoveCost moveCost(unit->getCurrField(), unit->getType()->getSize(), aMap);
 	DiagonalDistance heuristic(target);
 	nsgSearchEngine->setNodeLimit(512);
 	nsgSearchEngine->setStart(start, heuristic(start));
 
-	AStarResult r;
-	AnnotatedMap *aMap = world->getCartographer()->getMasterMap();
 	aMap->annotateLocal(unit);
-	r = nsgSearchEngine->aStar(goal, moveCost, heuristic);
+	AStarResult r = nsgSearchEngine->aStar(goal, moveCost, heuristic);
 	aMap->clearLocalAnnotations(unit);
 
 	PF_TRACE();

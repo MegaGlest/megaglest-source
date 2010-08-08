@@ -15,7 +15,6 @@
 #include "game_constants.h"
 #include "influence_map.h"
 #include "annotated_map.h"
-#include "node_map.h"
 #include "cluster_map.h"
 
 #include "world.h"
@@ -106,10 +105,6 @@ private:
 	StoreMaps storeMaps;		/**< goal maps for resource stores */
 	SiteMaps siteMaps;			/**< goal maps for building sites */
 
-	// A* stuff
-	NodeMap *nodeMap;
-	SearchEngine<NodeMap,GridNeighbours> *nmSearchEngine;
-
 	World *world;
 	Map *cellMap;
 	RoutePlanner *routePlanner;
@@ -135,7 +130,6 @@ public:
 	Cartographer(World *world);
 	virtual ~Cartographer();
 
-	SearchEngine<NodeMap,GridNeighbours>* getSearchEngine() { return nmSearchEngine; }
 	RoutePlanner* getRoutePlanner() { return routePlanner; }
 
 	/** Update the annotated maps when an obstacle has been added or removed from the map.
