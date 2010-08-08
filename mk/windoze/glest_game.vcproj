@@ -396,14 +396,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\ai\node_map.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\node_map.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\source\glest_game\ai\node_pool.cpp"
 				>
 			</File>
