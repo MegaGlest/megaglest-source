@@ -94,9 +94,10 @@ void NodePool::addOpenNode(AStarNode *node) {
   * is better than the existing known best path to pos, updates if so.
   * @param pos the open postion to test
   * @param prev the new path from
-  * @param d the distance to here through prev		*/
+  * @param cost the cost to here from prev	*/
 void NodePool::updateOpen(const Vec2i &pos, const Vec2i &prev, const float cost) {
-	//assert(isClosed(prev));
+	assert(isClosed(prev));
+	assert(isOpen(pos));
 	AStarNode *posNode, *prevNode;
 	posNode = markerArray.get(pos);
 	prevNode = markerArray.get(prev);

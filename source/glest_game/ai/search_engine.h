@@ -24,8 +24,6 @@ using Shared::Graphics::Vec2i;
 
 static const float SQRT2 = Shared::Graphics::sqrt2;
 
-#include "search_functions.inl"
-
 enum OrdinalDir {
 	odNorth, odNorthEast, odEast, odSouthEast, odSouth, odSouthWest, odWest, odNorthWest, odCount
 };

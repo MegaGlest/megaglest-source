@@ -12,7 +12,6 @@
 #include "cartographer.h"
 #include "game_constants.h"
 #include "route_planner.h"
-#include "node_map.h"
 
 #include "pos_iterator.h"
 
@@ -45,14 +44,6 @@ Cartographer::Cartographer(World *world)
 	int w = cellMap->getW(), h = cellMap->getH();
 
 	routePlanner = world->getRoutePlanner();
-
-	nodeMap = new NodeMap(cellMap);
-	GridNeighbours gNeighbours(w, h);
-	nmSearchEngine = new SearchEngine<NodeMap, GridNeighbours>(gNeighbours, nodeMap, true);
-	nmSearchEngine->setStorage(nodeMap);
-	nmSearchEngine->setInvalidKey(Vec2i(-1));
-	nmSearchEngine->getNeighbourFunc().setSearchSpace(ssCellMap);
-
 	masterMap = new AnnotatedMap(world);	
 	clusterMap = new ClusterMap(masterMap, this);
 
@@ -104,10 +95,8 @@ Cartographer::Cartographer(World *world)
 
 /** Destruct */
 Cartographer::~Cartographer() {
-	delete nodeMap;
 	delete masterMap;
 	delete clusterMap;
-	delete nmSearchEngine;
 
 	// Goal Maps
 	deleteMapValues(resourceMaps.begin(), resourceMaps.end());
