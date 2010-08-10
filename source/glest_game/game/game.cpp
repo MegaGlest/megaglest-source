@@ -1377,8 +1377,14 @@ void Game::render2d(){
 	}
 
 	if(renderer.getShowDebugUI() == true) {
+		const Metrics &metrics= Metrics::getInstance();
+		int mx= metrics.getMinimapX();
+		int my= metrics.getMinimapY();
+		int mw= metrics.getMinimapW();
+		int mh= metrics.getMinimapH();
+
 		renderer.renderText(str, coreData.getMenuFontNormal(),
-							Vec3f(1.0f), 10, 500, false);
+							Vec3f(1.0f), 10, metrics.getVirtualH() - mh - 60, false);
 
 		if(renderer.getAllowRenderUnitTitles() == false) {
 			renderer.setAllowRenderUnitTitles(true);
@@ -1392,10 +1398,16 @@ void Game::render2d(){
 	//network status
 	if(renderNetworkStatus == true) {
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
+			const Metrics &metrics= Metrics::getInstance();
+			int mx= metrics.getMinimapX();
+			int my= metrics.getMinimapY();
+			int mw= metrics.getMinimapW();
+			int mh= metrics.getMinimapH();
+
 			renderer.renderText(
 				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 				coreData.getMenuFontNormal(),
-				Vec3f(1.0f), 10, 140, false);
+				Vec3f(1.0f), mx + mw + 5 , metrics.getVirtualH()-30-20, false);
 		}
 	}
 
