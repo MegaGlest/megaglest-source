@@ -1382,9 +1382,10 @@ void Game::render2d(){
 		int my= metrics.getMinimapY();
 		int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
+		const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
-		renderer.renderText(str, coreData.getMenuFontNormal(),
-							Vec3f(1.0f), 10, metrics.getVirtualH() - mh - 60, false);
+		renderer.renderTextShadow(str, coreData.getMenuFontNormal(),
+				fontColor, 10, metrics.getVirtualH() - mh - 60, false);
 
 		if(renderer.getAllowRenderUnitTitles() == false) {
 			renderer.setAllowRenderUnitTitles(true);
@@ -1403,11 +1404,12 @@ void Game::render2d(){
 			int my= metrics.getMinimapY();
 			int mw= metrics.getMinimapW();
 			int mh= metrics.getMinimapH();
+			const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
-			renderer.renderText(
+			renderer.renderTextShadow(
 				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 				coreData.getMenuFontNormal(),
-				Vec3f(1.0f), mx + mw + 5 , metrics.getVirtualH()-30-20, false);
+				fontColor, mx + mw + 5 , metrics.getVirtualH()-30-20, false);
 		}
 	}
 
