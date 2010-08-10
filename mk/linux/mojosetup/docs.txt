@@ -243,6 +243,13 @@ Here are the elements, and the attributes they can possess.
     the installer will prompt the user, possibly recommmending locations
     to him.
 
+   dataprefix (default: "data/", mustBeString)
+
+    This attribute can be used to force the installer to pull data files
+    from a location other than data/.  The use of the default data/
+    is strongly recommended; use this option only with great care.
+
+
 
    recommended_destinations (no default, mustBeStringOrTableOfStrings)
 
@@ -314,6 +321,20 @@ Here are the elements, and the attributes they can possess.
     the function runs) and any globals you reference may or may not exist when
     the function runs. Try to do the bare minimum here if you must use this
     hook.
+
+
+   postexec (no default, mustBeString)
+
+    This attribute can be used to chain the installer to another process
+    on a successful installation.  The string can contain $DESTINATION which
+    will be replaced with the installation destination.
+
+
+   delete_error_is_fatal (default true, mustBeBool)
+
+    If we cannot exactly delete every file during uninstallation, we will
+    terminate at the very first failure if this is true.  Otherwise, we
+    will delete every file we can.
 
 
    updateurl (no default, mustBeUrl)
@@ -431,6 +452,11 @@ Here are the elements, and the attributes they can possess.
 
     This is a filename in the Base Archive's "data" directory that contains
     the license text. Currently this must be a text file in UTF-8 encoding.
+
+
+   accept_not_needed (false, mustBeBool)
+
+    If true, then the user does not have to explicitly accept the EULA.
 
 
  Setup.Readme:
@@ -1038,9 +1064,9 @@ Your config file is a Lua script, and as such, has access to all of Lua's
   MojoSetup.format(fmt, ...)
 
    Format a string, sort of (but not exactly!) like sprintf().
-    The only formatters accepted are %0 through %9 (and %%), which do not
-    have to appear in order in the string, but match the varargs in the
-    order they are passed to the function.
+   The only formatters accepted are %0 through %9 (and %%), which do not
+   have to appear in order in the string, but match the varargs in the
+   order they are passed to the function.
 
    format('%1 %0 %1 %%', 'X', 'Y', 'Z') will return the string: 'Y X Y %'
 
@@ -1064,6 +1090,16 @@ Your config file is a Lua script, and as such, has access to all of Lua's
    if there's a runtime error in the chunk, as it will call MojoSetup.fatal()
    instead. You should use this instead of the "require" function in the Lua
    runtime, as require() won't respect the Base Archive.
+
+
+  MojoSetup.runScript(script, devnull, args...)
+
+   Run the given script in a shell. If devnull is true, all stdout
+   and stderr will be suppressed (literally sent to /dev/null on Unix
+   systems). Please note that lots of things can be done through Lua,
+   directly in your config file, so you don't have to worry about the
+   unique quirks of various shells on end user systems. Still, there are
+   times when this is useful.
 
 
   MojoSetup.translate(str)

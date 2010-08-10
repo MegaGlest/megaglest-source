@@ -137,6 +137,25 @@ void MenuStateRoot::render(){
 	renderer.renderTextureQuad(
 		(metrics.getVirtualW()-w)/2, 475-h/2, w, h, 
 		coreData.getLogoTexture(), GraphicComponent::getFade());
+
+	int maxLogoWidth=0;
+	for(int idx = 0; idx < coreData.getLogoTextureExtraCount(); ++idx) {
+		Texture2D *extraLogo = coreData.getLogoTextureExtra(idx);
+		maxLogoWidth += extraLogo->getPixmap()->getW();
+	}
+
+	int currentX = (metrics.getVirtualW()-maxLogoWidth)/2;
+	int currentY = 50;
+	for(int idx = 0; idx < coreData.getLogoTextureExtraCount(); ++idx) {
+		Texture2D *extraLogo = coreData.getLogoTextureExtra(idx);
+
+		renderer.renderTextureQuad(
+				currentX, currentY,
+				extraLogo->getPixmap()->getW(), extraLogo->getPixmap()->getH(),
+				extraLogo, GraphicComponent::getFade());
+
+		currentX += extraLogo->getPixmap()->getW();
+	}
 	renderer.renderButton(&buttonNewGame);
 	renderer.renderButton(&buttonJoinGame);
 	renderer.renderButton(&buttonMasterserverGame);
@@ -149,7 +168,7 @@ void MenuStateRoot::render(){
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
-
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateRoot::update(){

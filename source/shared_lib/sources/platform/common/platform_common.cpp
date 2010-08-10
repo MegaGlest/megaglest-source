@@ -328,6 +328,9 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 		*recursiveChecksum = checksum;
 	}
 
+	printf("In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
+
 	crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
 	return crcTreeCache[cacheKey];
 }
@@ -418,6 +421,9 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	}
 
 	if(topLevelCaller == true) {
+		printf("In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
+
 		crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
 
@@ -591,7 +597,7 @@ void createDirectoryPaths(string Path)
 #ifdef WIN32
     	_mkdir(DirName);
 #elif defined(__GNUC__)
-        mkdir(DirName, S_IRWXO);
+        mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
@@ -603,7 +609,7 @@ void createDirectoryPaths(string Path)
 #ifdef WIN32
  _mkdir(DirName);
 #elif defined(__GNUC__)
- mkdir(DirName, S_IRWXO);
+ mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
@@ -782,8 +788,14 @@ void showCursor(bool b) {
 	if(b) {
 		//SDL_GetMouseState( &x, &y );
 	}
+	int state = SDL_ShowCursor(SDL_QUERY);
+	if( (state == SDL_DISABLE && b == false) ||
+		(state == SDL_ENABLE && b == true)) {
+		return;
+	}
+
 	SDL_ShowCursor(b ? SDL_ENABLE : SDL_DISABLE);
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
+	//SDL_WM_GrabInput(SDL_GRAB_OFF);
 	if(b) {
 		//SDL_WM_GrabInput(SDL_GRAB_OFF);
 		//SDL_WarpMouse(x,y);
@@ -794,8 +806,12 @@ bool isKeyDown(int virtualKey) {
 	char key = static_cast<char> (virtualKey);
 	const Uint8* keystate = SDL_GetKeyState(0);
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+
 	// kinda hack and wrong...
 	if(key >= 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
+
 		return keystate[key];
 	}
 	switch(key) {
@@ -827,6 +843,7 @@ bool isKeyDown(int virtualKey) {
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
 	return false;
 }
 

@@ -5,8 +5,9 @@
 #  (make sure you don't build in features you don't need, etc).
 
 # below is the branch to build and installer from
-megaglest_release_folder="trunk"
-#megaglest_release_folder="release-3.3.4.1"
+
+#megaglest_release_folder="trunk"
+megaglest_release_folder="release-3.3.5.1"
 
 # below describe various folder paths relative to the installer root folder
 megaglest_project_root=../../../../../

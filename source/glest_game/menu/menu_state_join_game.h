@@ -73,6 +73,8 @@ public:
     virtual void keyDown(char key);
     virtual void keyPress(char c);
 
+    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
+
 private:
 	void connectToServer();
 	virtual void DiscoveredServers(std::vector<string> serverList);

@@ -170,11 +170,6 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
 	networkGameDataSynchCheckOkTech     = false;
-	//networkGameDataSynchCheckOkFogOfWar = false;
-
-    //chatText.clear();
-    //chatSender.clear();
-    //chatTeamIndex= -1;
 	this->clearChatInfo();
 }
 
@@ -229,9 +224,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 					connectedTime = time(NULL);
 
-					//chatText.clear();
-					//chatSender.clear();
-					//chatTeamIndex= -1;
 					this->clearChatInfo();
 
 					if(hasOpenSlots == false) {
@@ -255,16 +247,17 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(socket->isConnected()) {
-				//chatText.clear();
-				//chatSender.clear();
-				//chatTeamIndex= -1;
 				this->clearChatInfo();
 
-				if(socket->hasDataToRead() == true) {
-					NetworkMessageType networkMessageType= getNextMessageType();
+				bool gotTextMsg = true;
+				for(;socket->hasDataToRead() == true && gotTextMsg == true;) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
+
+					NetworkMessageType networkMessageType= getNextMessageType(true);
 
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
+					gotTextMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -272,18 +265,27 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtInvalid\n",__FILE__,__FUNCTION__,__LINE__);
 							break;
 
+						case nmtPing:
+						{
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+							NetworkMessagePing networkMessagePing;
+							if(receiveMessage(&networkMessagePing)) {
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								lastPingInfo = networkMessagePing;
+							}
+						}
+						break;
+
 						case nmtText:
 						{
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
 							NetworkMessageText networkMessageText;
 							if(receiveMessage(&networkMessageText)) {
-								//chatText      = networkMessageText.getText();
-								//chatSender    = networkMessageText.getSender();
-								//chatTeamIndex = networkMessageText.getTeamIndex();
-
 								ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
 								this->addChatInfo(msg);
+								gotTextMsg = true;
 
 								//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,chatText.c_str(),chatSender.c_str(),chatTeamIndex);
 							}
@@ -321,8 +323,9 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							{
 								gotIntro = true;
 								name= networkMessageIntro.getName();
+								versionString = networkMessageIntro.getVersionString();
 
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s]\n",__FILE__,__FUNCTION__,name.c_str());
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s]\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str());
 
 								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL)
 								{
@@ -509,7 +512,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 				}
 
 				if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %d\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
 					close();
 				}
 			}
@@ -567,13 +570,13 @@ void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
 bool ConnectionSlot::updateCompleted() {
 	assert(slotThreadWorker != NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 	bool waitingForThread = (slotThreadWorker->isSignalCompleted() 	== false &&
 							 slotThreadWorker->getQuitStatus() 		== false &&
 							 slotThreadWorker->getRunningStatus() 	== true);
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
 
 	return (waitingForThread == false);
 }

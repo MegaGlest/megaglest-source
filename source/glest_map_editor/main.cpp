@@ -22,7 +22,7 @@ using namespace std;
 
 namespace MapEditor {
 
-const string MainWindow::versionString = "v1.5.0-beta3";
+const string MainWindow::versionString = "v1.5.0";
 const string MainWindow::winHeader = "Glest Map Editor " + versionString + " - Built: " + __DATE__;
 
 // ===============================================
@@ -54,7 +54,9 @@ MainWindow::MainWindow()
 		, enabledGroup(ctHeight)
 		, fileModified(false)
 		, menuBar(NULL)
-		, panel(NULL) {
+		, panel(NULL)
+        , glCanvas(NULL)
+        , program(NULL) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -332,11 +334,16 @@ void MainWindow::onClose(wxCloseEvent &event) {
 }
 
 MainWindow::~MainWindow() {
-	delete glCanvas;
 	delete program;
+	program = NULL;
+
+	delete glCanvas;
+	glCanvas = NULL;
 }
 
 void MainWindow::setDirty(bool val) {
+	wxPaintEvent ev;
+	onPaint(ev);
 	if (fileModified && val) {
 		return;
 	}
@@ -380,16 +387,20 @@ void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
+	bool repaint = false;
 	int dif;
 	if (event.LeftIsDown()) {
 		change(x, y);
+		repaint = true;
 	} else if (event.MiddleIsDown()) {
 		dif = (y - lastY);
 		if (dif != 0) {
 			program->incCellSize(dif / abs(dif));
+			repaint = true;
 		}
 	} else if (event.RightIsDown()) {
 		program->setOfset(x - lastX, y - lastY);
+		repaint = true;
 	} else {
 		int currResource = program->getResource(x, y);
 		if (currResource > 0) {
@@ -406,8 +417,10 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	lastX = x;
 	lastY = y;
 
-	wxPaintEvent ev;
-	onPaint(ev);
+	if (repaint) {
+		wxPaintEvent ev;
+		onPaint(ev);
+	}
 	event.Skip();
 }
 
@@ -423,6 +436,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 	program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 	glCanvas->SwapBuffers();
+	event.Skip();
 }
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event) {

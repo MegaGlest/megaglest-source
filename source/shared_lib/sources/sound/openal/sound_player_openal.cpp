@@ -292,6 +292,7 @@ SoundPlayerOpenAL::SoundPlayerOpenAL() {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	device = 0;
+	initOk = false;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -300,6 +301,7 @@ SoundPlayerOpenAL::~SoundPlayerOpenAL() {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	end();
+	initOk = false;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -312,18 +314,24 @@ void SoundPlayerOpenAL::printOpenALInfo()
 	          << "OpenAl Extensions: " << alGetString(AL_RENDERER) << "\n";
 }
 
-void SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
-
+bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    initOk = false;
+
+    if(params == NULL) {
+    	throw std::runtime_error("params == NULL");
+    }
 
 	this->params = *params;
 
-	device = alcOpenDevice(0);
-	if(device == 0) {
-		printOpenALInfo();
-		throw std::runtime_error("Couldn't open audio device.");
-	}
 	try {
+		device = alcOpenDevice(0);
+		if(device == 0) {
+			printOpenALInfo();
+			throw std::runtime_error("Couldn't open audio device.");
+		}
+
 		int attributes[] = { 0 };
 		context = alcCreateContext(device, attributes);
 		checkAlcError("Couldn't create audio context: ");
@@ -331,13 +339,16 @@ void SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 		checkAlcError("Couldn't select audio context: ");
 
 		checkAlError("Audio error after init: ");
-	} catch(...) {
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+		initOk = true;
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	} catch(const exception &ex) {
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		printOpenALInfo();
-		throw;
+		//throw std::runtime_error(ex.what());
 	}
+
+	return initOk;
 }
 
 void SoundPlayerOpenAL::end() {
@@ -389,6 +400,7 @@ void SoundPlayerOpenAL::end() {
 	if(device != 0) {
 		alcCloseDevice(device);
 		device = 0;
+		initOk = false;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -396,6 +408,8 @@ void SoundPlayerOpenAL::end() {
 
 void SoundPlayerOpenAL::play(StaticSound* staticSound) {
 	assert(staticSound != 0);
+
+	if(initOk == false) return;
 
 	try {
 		StaticSoundSource* source = findStaticSoundSource();
@@ -410,6 +424,8 @@ void SoundPlayerOpenAL::play(StaticSound* staticSound) {
 void SoundPlayerOpenAL::play(StrSound* strSound, int64 fadeOn) {
 	assert(strSound != 0);
 
+	if(initOk == false) return;
+
 	try {
 		StreamSoundSource* source = findStreamSoundSource();
 		source->play(strSound, fadeOn);
@@ -421,6 +437,8 @@ void SoundPlayerOpenAL::play(StrSound* strSound, int64 fadeOn) {
 void SoundPlayerOpenAL::stop(StrSound* strSound, int64 fadeOff) {
 	assert(strSound != 0);
 
+	if(initOk == false) return;
+
 	for(StreamSoundSources::iterator i = streamSources.begin();
 			i != streamSources.end(); ++i) {
 		StreamSoundSource* source = *i;
@@ -431,6 +449,8 @@ void SoundPlayerOpenAL::stop(StrSound* strSound, int64 fadeOff) {
 }
 
 void SoundPlayerOpenAL::stopAllSounds() {
+	if(initOk == false) return;
+
 	for(StaticSoundSources::iterator i = staticSources.begin();
 			i != staticSources.end(); ++i) {
 		StaticSoundSource* source = *i;
@@ -444,6 +464,8 @@ void SoundPlayerOpenAL::stopAllSounds() {
 }
 
 void SoundPlayerOpenAL::updateStreams() {
+	if(initOk == false) return;
+
 	assert(context != 0);
 	try {
 		for(StreamSoundSources::iterator i = streamSources.begin();
@@ -465,6 +487,8 @@ void SoundPlayerOpenAL::updateStreams() {
 }
 
 StaticSoundSource* SoundPlayerOpenAL::findStaticSoundSource() {
+	if(initOk == false) return NULL;
+
 	// try to find a stopped source
 	for(StaticSoundSources::iterator i = staticSources.begin();
 			i != staticSources.end(); ++i) {
@@ -490,6 +514,8 @@ StaticSoundSource* SoundPlayerOpenAL::findStaticSoundSource() {
 }
 
 StreamSoundSource* SoundPlayerOpenAL::findStreamSoundSource() {
+	if(initOk == false) return NULL;
+
 	// try to find a stopped source
 	for(StreamSoundSources::iterator i = streamSources.begin();
 			i != streamSources.end(); ++i) {
@@ -514,8 +540,7 @@ StreamSoundSource* SoundPlayerOpenAL::findStreamSoundSource() {
 	return source;
 }
 
-void SoundPlayerOpenAL::checkAlcError(const char* message)
-{
+void SoundPlayerOpenAL::checkAlcError(const char* message) {
 	int err = alcGetError(device);
 	if(err != ALC_NO_ERROR) {
 		std::stringstream msg;
@@ -524,8 +549,7 @@ void SoundPlayerOpenAL::checkAlcError(const char* message)
 	}
 }
 
-void SoundPlayerOpenAL::checkAlError(const char* message)
-{
+void SoundPlayerOpenAL::checkAlError(const char* message) {
 	int err = alGetError();
 	if(err != AL_NO_ERROR) {
 		std::stringstream msg;

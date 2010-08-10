@@ -132,8 +132,6 @@ private:
 
 	CardinalDir selectedBuildingFacing;
 
-    bool showDebugUI;
-
 public:
 	Gui();
 	void init(Game *game);
@@ -177,8 +175,6 @@ public:
 	//misc
 	void switchToNextDisplayColor();
 	void onSelectionChanged();
-
-	bool getShowDebugUI() const { return showDebugUI; }
 
 private:
 

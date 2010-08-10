@@ -21,6 +21,18 @@ namespace Glest{ namespace Game{
 //	class GameConstants
 // =====================================================
 
+enum PathFinderType {
+	pfBasic,
+	pfRoutePlanner
+};
+
+enum TravelState {
+	tsArrived,
+	tsMoving,
+	tsBlocked,
+	tsImpossible
+};
+
 enum ControlType{
     ctClosed,
 	ctCpuEasy,
@@ -38,8 +50,12 @@ public:
 	static const int updateFps= 40;
 	static const int cameraFps= 100;
 	static int networkFramePeriod;
+	static const int networkPingInterval = 5;
 	//static const int networkExtraLatency= 200;
 	static const int maxClientConnectHandshakeSecs= 10;
+
+	static const int cellScale = 2;
+	static const int clusterSize = 16;
 
 	static const char *folder_path_maps;
 	static const char *folder_path_scenarios;
@@ -48,6 +64,8 @@ public:
 	static const char *folder_path_tutorials;
 
 	static const char *NETWORK_SLOT_UNCONNECTED_SLOTNAME;
+
+	static const char *folder_path_screenshots;
 };
 
 enum PathType {
@@ -60,7 +78,7 @@ enum PathType {
 
 struct CardinalDir {
 public:
-	enum Enum { NORTH, EAST, SOUTH, WEST };
+	enum Enum { NORTH, EAST, SOUTH, WEST, COUNT };
 
 	CardinalDir() : value(NORTH) {}
 	CardinalDir(Enum v) : value(v) {}

@@ -91,7 +91,8 @@ std::string Command::toString() const {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	if(unitType != NULL) {
-		result += ", unitTypeId = " + intToStr(unitType->getId()) + ", unitTypeDesc = " + unitType->getReqDesc();
+		result += ", unitTypeId = " + intToStr(unitType->getId());
+		result += ", unitTypeDesc = " + unitType->getReqDesc();
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);

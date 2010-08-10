@@ -48,6 +48,7 @@ ClientInterface::ClientInterface(){
 	gotIntro = false;
 	lastNetworkCommandListSendTime = 0;
 	currentFrameCount = 0;
+	clientSimulationLagStartTime = 0;
 
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
@@ -158,7 +159,6 @@ void ClientInterface::updateLobby()
 	clearChatInfo();
 
     NetworkMessageType networkMessageType = getNextMessageType(true);
-
     switch(networkMessageType)
     {
         case nmtInvalid:
@@ -170,34 +170,41 @@ void ClientInterface::updateLobby()
 
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
+            	versionString = networkMessageIntro.getVersionString();
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d\n",__FILE__,__FUNCTION__,networkMessageIntro.getGameState());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str());
 
                 //check consistency
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
+                	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
                 	bool versionMatched = false;
                 	string platformFreeVersion = getNetworkPlatformFreeVersionString();
                 	string sErr = "";
 
                 	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
-    					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +
-    					networkMessageIntro.getVersionString() +
-    					"\nClient: " + getNetworkVersionString();
+						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+    					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " + networkMessageIntro.getVersionString() +
+    							"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
                         printf("%s\n",sErr.c_str());
 
                         sendTextMessage("Server and client binary mismatch!!",-1, true);
                         sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
                         sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
                 	}
                 	else {
                 		versionMatched = true;
-						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +
-										networkMessageIntro.getVersionString() + "\nClient: " + getNetworkVersionString();
+
+						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() + 
+								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
 
-						sendTextMessage("Server and client platform mismatch.",-1, true);
-						sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
-						sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						//sendTextMessage("Server and client have different platform mismatch.",-1, true);
+						//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
+						//sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+						//sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
                 	}
 
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
@@ -209,7 +216,11 @@ void ClientInterface::updateLobby()
             		}
                 }
 
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
                 if(networkMessageIntro.getGameState() == nmgstOk) {
+                	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 					//send intro message
 					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1, nmgstOk);
 
@@ -217,14 +228,32 @@ void ClientInterface::updateLobby()
 					serverName= networkMessageIntro.getName();
 					sendMessage(&sendNetworkMessageIntro);
 
-					assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
-					introDone= true;
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					if(clientSocket == NULL || clientSocket->isConnected() == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	                	string sErr = "Disconnected from server during intro handshake.";
+						DisplayErrorMessage(sErr);
+	                    quit= true;
+	                    close();
+
+	                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	                	return;
+					}
+					else {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+						introDone= true;
+					}
                 }
                 else if(networkMessageIntro.getGameState() == nmgstNoSlots) {
                 	string sErr = "Cannot join the server because there are no open slots for new players.";
 					DisplayErrorMessage(sErr);
                     quit= true;
                     close();
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 	return;
                 }
                 else {
@@ -232,11 +261,24 @@ void ClientInterface::updateLobby()
 					DisplayErrorMessage(sErr);
                     quit= true;
                     close();
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 	return;
                 }
             }
         }
         break;
+
+		case nmtPing:
+		{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+			NetworkMessagePing networkMessagePing;
+			if(receiveMessage(&networkMessagePing)) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				lastPingInfo = networkMessagePing;
+			}
+		}
+		break;
 
         case nmtSynchNetworkGameData:
         {
@@ -366,10 +408,6 @@ void ClientInterface::updateLobby()
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
-                //chatText      = networkMessageText.getText();
-                //chatSender    = networkMessageText.getSender();
-                //chatTeamIndex = networkMessageText.getTeamIndex();
-
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
         		this->addChatInfo(msg);
             }
@@ -454,8 +492,9 @@ void ClientInterface::updateLobby()
             }
     }
 
-	if(gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %d\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+	if( clientSocket != NULL && clientSocket->isConnected() == true &&
+		gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
 		close();
 	}
 }
@@ -469,6 +508,17 @@ void ClientInterface::updateKeyframe(int frameCount)
 	while(done == false) {
 		//wait for the next message
 		waitForMessage();
+
+		// START: Test simulating lag for the client
+		if(Config::getInstance().getInt("SimulateClientLag","0") > 0) {
+			if(clientSimulationLagStartTime == 0) {
+				clientSimulationLagStartTime = time(NULL);
+			}
+			if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+				sleep(Config::getInstance().getInt("SimulateClientLag","0"));
+			}
+		}
+		// END: Test simulating lag for the client
 
 		//check we have an expected message
 		NetworkMessageType networkMessageType= getNextMessageType(true);
@@ -490,12 +540,15 @@ void ClientInterface::updateKeyframe(int frameCount)
 					waitCount++;
 				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %d msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
 
 				chrono.start();
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
-				    string sErr = "Network synchronization error, frame counts do not match, server frameCount = " + intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " + intToStr(frameCount);
+				    string sErr = "Player: " + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) +
+				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
+				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
+				    		      intToStr(frameCount);
 					//throw runtime_error("Network synchronization error, frame counts do not match");
                     sendTextMessage(sErr,-1, true);
                     DisplayErrorMessage(sErr);
@@ -509,9 +562,21 @@ void ClientInterface::updateKeyframe(int frameCount)
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %d msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				done= true;
+			}
+			break;
+
+			case nmtPing:
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+				NetworkMessagePing networkMessagePing;
+				if(receiveMessage(&networkMessagePing)) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					lastPingInfo = networkMessagePing;
+				}
 			}
 			break;
 
@@ -604,61 +669,65 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
             return;
 		}
 		NetworkMessageType networkMessageType = getNextMessageType(true);
-		if(networkMessageType == nmtReady) {
-			if(receiveMessage(&networkMessageReady)) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
+
+		// consume old messages from the lobby
+		bool discarded = shouldDiscardNetworkMessage(networkMessageType);
+		if(discarded == false) {
+			if(networkMessageType == nmtReady) {
+				if(receiveMessage(&networkMessageReady)) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
 			}
-		}
-		else if(networkMessageType == nmtInvalid) {
-			if(chrono.getMillis() > readyWaitTimeout) {
+			else if(networkMessageType == nmtInvalid) {
+				if(chrono.getMillis() > readyWaitTimeout) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					//throw runtime_error("Timeout waiting for server");
+					string sErr = "Timeout waiting for server";
+					sendTextMessage(sErr,-1, true);
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					DisplayErrorMessage(sErr);
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					quit= true;
+					close();
+
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					return;
+				}
+				else {
+					if(chrono.getMillis() / 1000 > lastMillisCheck) {
+						lastMillisCheck = (chrono.getMillis() / 1000);
+
+						char szBuf[1024]="";
+						sprintf(szBuf,"Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
+						logger.add(szBuf, true);
+					}
+				}
+			}
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-				//throw runtime_error("Timeout waiting for server");
-				string sErr = "Timeout waiting for server";
-                sendTextMessage(sErr,-1, true);
+				//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
+				sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-                DisplayErrorMessage(sErr);
+				DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 				quit= true;
 				close();
 
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-                return;
+				return;
 			}
-			else {
-                if(chrono.getMillis() / 1000 > lastMillisCheck) {
-                    lastMillisCheck = (chrono.getMillis() / 1000);
-
-                    char szBuf[1024]="";
-                    sprintf(szBuf,"Waiting for network: %llu seconds elapsed (maximum wait time: %d seconds)",lastMillisCheck,int(readyWaitTimeout / 1000));
-                    logger.add(szBuf, true);
-                }
-			}
+			// sleep a bit
+			sleep(waitSleepTime);
 		}
-		else {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-			//throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType) );
-            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-            quit= true;
-            close();
-
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-            return;
-		}
-
-		// sleep a bit
-		sleep(waitSleepTime);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -669,6 +738,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 		string sErr = "Checksum error, you don't have the same data as the server";
         sendTextMessage(sErr,-1, true);
+
+		string playerNameStr = "Player with error is [" + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + "]";
+		sendTextMessage(playerNameStr,-1, true);
 
 		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
         sendTextMessage(sErr1,-1, true);
@@ -712,6 +784,11 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 		this->addChatInfo(msg);
 	}
 
+}
+
+void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
+	NetworkMessagePing networkMessagePing(pingFrequency,pingTime);
+	sendMessage(&networkMessagePing);
 }
 
 string ClientInterface::getNetworkStatus() {
@@ -763,12 +840,16 @@ void ClientInterface::waitForMessage()
             close();
             return;
 		}
+		// Sleep ever second we wait to let other threads work
+		else if(chrono.getMillis() % 1000 == 0) {
+			sleep(0);
+		}
 
 		//sleep(waitSleepTime);
 		waitLoopCount++;
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %d msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
 }
 
 void ClientInterface::quitGame(bool userManuallyQuit)
@@ -788,13 +869,15 @@ void ClientInterface::quitGame(bool userManuallyQuit)
 
 void ClientInterface::close()
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] START, clientSocket = %p\n",__FILE__,__FUNCTION__,__LINE__,clientSocket);
 
 	delete clientSocket;
 	clientSocket= NULL;
 
 	connectedTime = 0;
 	gotIntro = false;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ClientInterface::discoverServers(DiscoveredServersInterface *cb) {
@@ -821,10 +904,96 @@ void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 cu
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-/*
-bool ClientInterface::getFogOfWar()
-{
-    return Config::getInstance().getBool("FogOfWar");
+bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMessageType) {
+	bool discard = false;
+
+	switch(networkMessageType) {
+		case nmtIntro:
+			{
+			discard = true;
+			NetworkMessageIntro msg = NetworkMessageIntro();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtPing:
+			{
+			discard = true;
+			NetworkMessagePing msg = NetworkMessagePing();
+			this->receiveMessage(&msg);
+			lastPingInfo = msg;
+			}
+			break;
+		case nmtLaunch:
+			{
+			discard = true;
+			NetworkMessageLaunch msg = NetworkMessageLaunch();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtText:
+			{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtText\n",__FILE__,__FUNCTION__,__LINE__);
+			discard = true;
+			NetworkMessageText netMsg = NetworkMessageText();
+			this->receiveMessage(&netMsg);
+
+    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex());
+    		this->addChatInfo(msg);
+			}
+			break;
+		case nmtSynchNetworkGameData:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameData msg = NetworkMessageSynchNetworkGameData();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataStatus:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataStatus msg = NetworkMessageSynchNetworkGameDataStatus();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataFileCRCCheck:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataFileCRCCheck msg = NetworkMessageSynchNetworkGameDataFileCRCCheck();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSynchNetworkGameDataFileGet:
+			{
+			discard = true;
+			NetworkMessageSynchNetworkGameDataFileGet msg = NetworkMessageSynchNetworkGameDataFileGet();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtSwitchSetupRequest:
+			{
+			discard = true;
+			SwitchSetupRequest msg = SwitchSetupRequest();
+			this->receiveMessage(&msg);
+			}
+			break;
+		case nmtBroadCastSetup:
+			{
+			discard = true;
+			NetworkMessageLaunch msg = NetworkMessageLaunch();
+			this->receiveMessage(&msg);
+			}
+			break;
+
+		case nmtPlayerIndexMessage:
+			{
+			discard = true;
+			PlayerIndexMessage msg = PlayerIndexMessage(0);
+			this->receiveMessage(&msg);
+			}
+			break;
+	}
+
+	return discard;
 }
-*/
+
 }}//end namespace

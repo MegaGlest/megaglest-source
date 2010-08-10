@@ -24,10 +24,18 @@
 namespace Glest{ namespace Game{
 
 //misc consts
-struct MapInfo{
+class MapInfo {
+public:
+
 	Vec2i size;
 	int players;
 	string desc;
+
+	MapInfo() {
+		size = Vec2i(0,0);
+		players = 0;
+		desc = "";
+	}
 };
 
 struct ScenarioInfo
@@ -95,6 +103,7 @@ public:
 	virtual void keyPress(char key);
 	
 	void setState(MenuState *state);
+	virtual bool isInSpecialKeyCaptureEvent();
 };
 
 
@@ -121,6 +130,8 @@ public:
 	virtual void keyUp(char key){};
 
 	const Camera *getCamera() const			{return &camera;}
+
+	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 };
 
 }}//end namespace

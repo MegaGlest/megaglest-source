@@ -86,7 +86,11 @@ private:
 	int hpRegeneration;
     int maxEp;
 	int epRegeneration;
-    bool fields[fieldCount];			//fields: land, sea or air
+    
+	///@todo remove fields, multiple fields are not supported by the engine
+	bool fields[fieldCount];			//fields: land, sea or air
+	Field field;
+
     bool properties[pCount];			//properties
 	int armor;							//armor
 	const ArmorType *armorType;
@@ -134,6 +138,7 @@ public:
 	int getMaxEp() const								{return maxEp;}
 	int getEpRegeneration() const						{return epRegeneration;}
 	bool getField(Field field) const					{return fields[field];}
+	Field getField() const								{return field;}
 	bool getProperty(Property property) const			{return properties[property];}
 	int getArmor() const								{return armor;}
 	const ArmorType *getArmorType() const				{return armorType;}
@@ -154,6 +159,7 @@ public:
 	const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	bool getMeetingPoint() const						{return meetingPoint;}
+	bool isMobile() const								{return firstSkillTypeOfClass[scMove];}
 	Texture2D *getMeetingPointImage() const				{return meetingPointImage;}
 	StaticSound *getSelectionSound() const				{return selectionSounds.getRandSound();}
 	StaticSound *getCommandSound() const				{return commandSounds.getRandSound();}

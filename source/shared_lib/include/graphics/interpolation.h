@@ -29,8 +29,12 @@ private:
 	Vec3f *vertices;
 	Vec3f *normals;
 
-	std::map<std::string, Vec3f *> cacheVertices;
-	std::map<std::string, Vec3f *> cacheNormals;
+	//std::map<std::string, Vec3f *> cacheVertices;
+	//std::map<std::string, Vec3f *> cacheNormals;
+
+	std::map<float, std::map<bool, Vec3f *> > cacheVertices;
+	std::map<float, std::map<bool, Vec3f *> > cacheNormals;
+	bool enableCache;
 
 public:
 	InterpolationData(const Mesh *mesh);

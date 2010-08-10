@@ -1,36 +1,129 @@
 #!/bin/sh
 
+findMissingSO () {
+
+	LDCONFIG="$1"
+	SO_LINKEDLIBNAME="$2"
+    SO_LIBLOOKUP1="$3"
+	SO_LIBLOOKUP2="$4"
+
+	hasSO=`$LDCONFIG -p | grep -m 1 "$SO_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
+	if [ -n "$hasSO" ]; then
+	  echo default library [$SO_LINKEDLIBNAME] was found in [$hasSO]
+	else
+	  echo default library [$SO_LINKEDLIBNAME] is missing, attempting to find and link to a newer version if available...
+
+	  hasSO=`$LDCONFIG -p | grep -m 1 "$SO_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
+	  if [ -n "$hasSO" ]; then
+		echo new library link [$hasSO] pointed to from [$SO_LINKEDLIBNAME]
+		ln -f -s $hasSO $SO_LINKEDLIBNAME
+	  fi
+	fi
+
+   return 0
+}
+
 # Library directory
 LIBDIR="lib"
 
-# If we are launching from a symlink, such as /usr/local/bin/runglest.sh, we need to get where
-# the symlink points to
-pth="`readlink $0`"
+# As a first step to determine the absolute path of the directory the game 
+# resides in, dereference symlinks to this script and convert relative to 
+# absolute paths along the way.
+MYLOCATION="`readlink -f $0`"
 
-# $pth will be empty if our start path wasnt a symlink
-if [ $pth ]; then
-	GAMEDIR="`dirname $pth`"
-else
-	GAMEDIR="`dirname $0`"
-fi
+# The game directory is the directory the script resides in
+GAMEDIR="`dirname $MYLOCATION`"
+
+# Change to the game dir, and go!
+cd $GAMEDIR
+echo gamedir [$GAMEDIR]
 
 # export game library directory
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
-# now deal with the openal library [libopenal.so.0]
-hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.0" | cut "-d>" -f2 | cut "-d " -f2`
-#echo "openal search = [$hasopenal]"
-if [ -n "$hasopenal" ]; then
-  echo "default openal library was found in [$hasopenal]"
-else
-  echo "default openal library is missing, attempting to find and link to a newer version if available..."
+# ensure ldconfig is found (was an issue on OpenSuSE 11.2)
+echo Looking for LDCONFIG [$LDCONFIG]... >&2
 
-  hasopenal=`ldconfig -p | grep -m 1 "libopenal.so.1" | cut "-d>" -f2 | cut "-d " -f2`
-  if [ -n "$hasopenal" ]; then
-    ln -f -s $hasopenal $GAMEDIR/lib/libopenal.so.0
+if [ "$LDCONFIG"'x' = 'x' ]  # 'LDCONFIG' environment variable, if set, overrides the following detection 
+then
+  echo 'Looking for LDCONFIG environment var not found...' >&2
+  if [ `which ldconfig 2>/dev/null` ]
+  then 
+    LDCONFIG=`which ldconfig 2>/dev/null`
+
+    echo Found LDCONFIG using which [$LDCONFIG]... >&2
+  else
+    if [ -x /sbin/ldconfig ]
+    then
+      LDCONFIG=/sbin/ldconfig
+      echo Found LDCONFIG in sbin [$LDCONFIG]... >&2
+    # optionally add more custom locations using 'elseif' here
+    else
+      echo 'ERROR: Could not find the "ldconfig" command.' >&2
+      echo 'Try running "LDCONFIG=`which ldconfig` '"$0"' instead.' >&2
+      exit 1
+    fi
   fi
 fi
 
-$GAMEDIR/bin/glest_editor "$1"
+
+# now deal with the openal library [libopenal.so.0]
+OS_TYPE=`uname -m`
+
+# Suse needs its own openAL
+if [ -f /etc/SuSE-release ]; then
+	rm lib/libopenal*
+fi
+
+OPENAL_LINKEDLIBNAME="libopenal.so.0"
+OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
+OPENAL_LIBLOOKUP2="libopenal.so.1"
+
+DIRECTFB_LINKEDLIBNAME="libdirectfb-1.0.so.0"
+DIRECTFB_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+DIRECTFB_LIBLOOKUP2="libdirectfb-"
+
+FUSION_LINKEDLIBNAME="libfusion-1.0.so.0"
+FUSION_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+FUSION_LIBLOOKUP2="libfusion-"
+
+DIRECT_LINKEDLIBNAME="libdirect-1.0.so.0"
+DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
+DIRECT_LIBLOOKUP2="libdirect-"
+
+if [ "$OS_TYPE" = "x86_64" ]; then
+	DIRECTFB_LINKEDLIBNAME="libdirectfb-1.2.so.0"
+	DIRECTFB_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+	DIRECTFB_LIBLOOKUP2="libdirectfb-"
+
+	FUSION_LINKEDLIBNAME="libfusion-1.2.so.0"
+	FUSION_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
+	FUSION_LIBLOOKUP2="libfusion-"
+
+	DIRECT_LINKEDLIBNAME="libdirect-1.2.so.0"
+	DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
+	DIRECT_LIBLOOKUP2="libdirect-"
+fi
+
+#if [ "$OS_TYPE" = "x86_64" ]; then
+#  OPENAL_LIBLOOKUP1="${OPENAL_LIBLOOKUP1} (libc6)"
+#  OPENAL_LIBLOOKUP2="${OPENAL_LIBLOOKUP2} (libc6)"
+
+#  DIRECTFB_LIBLOOKUP1="${DIRECTFB_LIBLOOKUP1} (libc6)"
+#  DIRECTFB_LIBLOOKUP2="${DIRECTFB_LIBLOOKUP2} (libc6)"
+
+#  FUSION_LIBLOOKUP1="${FUSION_LIBLOOKUP1} (libc6)"
+#  FUSION_LIBLOOKUP2="${FUSION_LIBLOOKUP2} (libc6)"
+
+#  DIRECT_LIBLOOKUP1="${DIRECT_LIBLOOKUP1} (libc6)"
+#  DIRECT_LIBLOOKUP2="${DIRECT_LIBLOOKUP2} (libc6)"
+#fi
+
+findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${OPENAL_LINKEDLIBNAME}" "$OPENAL_LIBLOOKUP1" "$OPENAL_LIBLOOKUP2"
+findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECTFB_LINKEDLIBNAME}" "$DIRECTFB_LIBLOOKUP1" "$DIRECTFB_LIBLOOKUP2"
+findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FUSION_LINKEDLIBNAME}" "$FUSION_LIBLOOKUP1" "$FUSION_LIBLOOKUP2"
+findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECT_LINKEDLIBNAME}" "$DIRECT_LIBLOOKUP1" "$DIRECT_LIBLOOKUP2"
+
+./bin/glest_editor "$1"
 
 

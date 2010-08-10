@@ -21,7 +21,6 @@
   #include <sys/filio.h>
 #endif
 
-
 #include "conversion.h"
 #include "util.h"
 #include "platform_util.h"
@@ -33,6 +32,8 @@
   #include <winsock.h>
   #include <iphlpapi.h>
   #include <strstream>
+
+#define MSG_NOSIGNAL 0
 
 #else
 
@@ -618,7 +619,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		   //printf("%s\n",myhostaddr);
 		   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
-		   if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
+		   if(strlen(myhostaddr) > 0 &&
+			  strncmp(myhostaddr,"127.",4) != 0 &&
+			  strncmp(myhostaddr,"0.",2) != 0) {
 			   ipList.push_back(myhostaddr);
 		   }
 		   ipIdx++;
@@ -629,32 +632,52 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 	// Now check all linux network devices
 	std::vector<string> intfTypes;
+	intfTypes.push_back("lo");
 	intfTypes.push_back("eth");
 	intfTypes.push_back("wlan");
+	intfTypes.push_back("vlan");
 	intfTypes.push_back("vboxnet");
+	intfTypes.push_back("br-lan");
+	intfTypes.push_back("br-gest");
 
 	for(int intfIdx = 0; intfIdx < intfTypes.size(); intfIdx++) {
 		string intfName = intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
+			//PLATFORM_SOCKET fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 			/* I want to get an IPv4 IP address */
 			struct ifreq ifr;
+			struct ifreq ifrA;
 			ifr.ifr_addr.sa_family = AF_INET;
+			ifrA.ifr_addr.sa_family = AF_INET;
 
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			sprintf(szBuf,"%s%d",intfName.c_str(),idx);
-			strncpy(ifr.ifr_name, szBuf, IFNAMSIZ-1);
+			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
+
+			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
+			ifr.ifr_name[maxIfNameLength] = '\0';
+			strncpy(ifrA.ifr_name, szBuf, maxIfNameLength);
+			ifrA.ifr_name[maxIfNameLength] = '\0';
+
 			ioctl(fd, SIOCGIFADDR, &ifr);
+			ioctl(fd, SIOCGIFFLAGS, &ifrA);
 			close(fd);
 
 			sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
-			if(strlen(myhostaddr) > 0 && strncmp(myhostaddr,"127.",4) != 0) {
-				if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
-					ipList.push_back(myhostaddr);
+			// Now only include interfaces that are both UP and running
+			if( (ifrA.ifr_flags & IFF_UP) 		== IFF_UP &&
+				(ifrA.ifr_flags & IFF_RUNNING) 	== IFF_RUNNING) {
+				if( strlen(myhostaddr) > 0 &&
+					strncmp(myhostaddr,"127.",4) != 0  &&
+					strncmp(myhostaddr,"0.",2) != 0) {
+					if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
+						ipList.push_back(myhostaddr);
+					}
 				}
 			}
 		}
@@ -696,8 +719,7 @@ Socket::Socket()
 {
 	this->pingThread = NULL;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(isSocketValid() == false)
-	{
+	if(isSocketValid() == false) {
 		throwException("Error creating socket");
 	}
 }
@@ -807,7 +829,12 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             tv.tv_sec = 0;
             tv.tv_usec = 0;
 
-            int retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
+
+            int retval = 0;
+            {
+            	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
+            	retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
+            }
             if(retval < 0)
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,retval,getLastSocketErrorFormattedText().c_str());
@@ -864,7 +891,11 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
         tv.tv_sec = 0;
         tv.tv_usec = 0;
 
-        int retval = select(socket + 1, &rfds, NULL, NULL, &tv);
+        int retval = 0;
+        {
+        	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        	retval = select(socket + 1, &rfds, NULL, NULL, &tv);
+        }
         if(retval)
         {
             if (FD_ISSET(socket, &rfds))
@@ -877,7 +908,7 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
     return bResult;
 }
 
-int Socket::getDataToRead(){
+int Socket::getDataToRead(bool wantImmediateReply) {
 	unsigned long size = 0;
 
     //fd_set rfds;
@@ -913,6 +944,10 @@ int Socket::getDataToRead(){
 			}
 			else if(err == 0)
 			{
+				if(isConnected() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+					break;
+				}
 				//if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
 			}
 
@@ -920,10 +955,14 @@ int Socket::getDataToRead(){
 				break;
 			}
 			else if(hasDataToRead() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %u, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %u, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				break;
+			}
+
+			if(wantImmediateReply == true) {
 				break;
 			}
 
@@ -935,10 +974,26 @@ int Socket::getDataToRead(){
 }
 
 int Socket::send(const void *data, int dataSize) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ssize_t bytesSent= 0;
 	if(isSocketValid() == true)	{
-        bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		errno = 0;
+
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+        //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+
+	// TEST errors
+	//bytesSent = -1;
+	// END TEST
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
@@ -946,16 +1001,29 @@ int Socket::send(const void *data, int dataSize) {
 	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
+		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
 	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	    	attemptCount++;
+	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
+
 	        if(Socket::isWritable(true) == true) {
-                bytesSent = ::send(sock, reinterpret_cast<const char*>(data), dataSize, 0);
+	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+                bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        }
+	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 	    }
 	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(bytesSent <= 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
+
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
@@ -973,6 +1041,7 @@ int Socket::receive(void *data, int dataSize)
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -985,6 +1054,7 @@ int Socket::receive(void *data, int dataSize)
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
@@ -1005,6 +1075,7 @@ int Socket::receive(void *data, int dataSize)
 int Socket::peek(void *data, int dataSize){
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1019,6 +1090,7 @@ int Socket::peek(void *data, int dataSize){
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
@@ -1067,7 +1139,11 @@ bool Socket::isReadable() {
 	FD_ZERO(&set);
 	FD_SET(sock, &set);
 
-	int i= select(sock+1, &set, NULL, NULL, &tv);
+	int i = 0;
+	{
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		i= select(sock+1, &set, NULL, NULL, &tv);
+	}
 	if(i < 0) {
         if(difftime(time(NULL),lastDebugEvent) >= 1) {
             lastDebugEvent = time(NULL);
@@ -1076,8 +1152,8 @@ bool Socket::isReadable() {
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
         }
 	}
-	//return (i == 1 && FD_ISSET(sock, &set));
-	return (i == 1);
+	bool result = (i == 1);
+	return result;
 }
 
 bool Socket::isWritable(bool waitOnDelayedResponse) {
@@ -1098,7 +1174,11 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     bool result = false;
     do
     {
-        int i = select(sock+1, NULL, &set, NULL, &tv);
+    	int i = 0;
+    	{
+    		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        	i = select(sock+1, NULL, &set, NULL, &tv);
+    	}
         if(i < 0 ) {
             if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
@@ -1137,8 +1217,10 @@ bool Socket::isConnected() {
 	//if the socket is readable it is connected if we can read a byte from it
 	if(isReadable()) {
 		char tmp;
-		int err = peek(&tmp, sizeof(tmp));
-		return (err > 0);
+		int err = peek(&tmp, 1);
+		if(err <= 0) {
+			return false;
+		}
 	}
 
 	//otherwise the socket is connected
@@ -1261,7 +1343,10 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_ZERO(&myset);
                FD_SET(sock, &myset);
 
-               err = select(sock+1, NULL, &myset, NULL, &tv);
+               {
+            	   MutexSafeWrapper safeMutex(&dataSynchAccessor);
+            	   err = select(sock+1, NULL, &myset, NULL, &tv);
+               }
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED)
                {
@@ -1320,7 +1405,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 	}
 	else
 	{
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,err);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,sock,err);
 	}
 }
 

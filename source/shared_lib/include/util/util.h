@@ -17,6 +17,7 @@
 #include <map>
 #include "thread.h"
 #include <curl/curl.h>
+#include <cstdio>
 
 using std::string;
 using namespace Shared::Platform;
@@ -39,7 +40,8 @@ public:
         debugNetwork,
 		debugPerformance,
 		debugWorldSynch,
-		debugUnitCommands
+		debugUnitCommands,
+		debugPathFinder
     };
 
 	class SystemFlagsType
@@ -106,17 +108,20 @@ protected:
 
 	static std::map<DebugType,SystemFlagsType> debugLogFileList;
 
+	static bool haveSpecialOutputCommandLineOption;
+
 public:
 
 	static CURL *curl_handle;
+	static int DEFAULT_HTTP_TIMEOUT;
 
 	SystemFlags();
 	~SystemFlags();
 
-	static void init();
+	static void init(bool haveSpecialOutputCommandLineOption);
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
-	static std::string getHTTP(std::string URL,CURL *handle=NULL);
+	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1);
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);
 
 	static CURL *initHTTP();
@@ -130,6 +135,9 @@ public:
 
 #ifndef WIN32
 #define OutputDebug(type, fmt, ...) SystemFlags::handleDebug (type, fmt, ##__VA_ARGS__)
+// Uncomment the line below to get the compiler to warn us of badly formatted printf like statements which could trash memory
+//#define OutputDebug(type, fmt, ...) type; printf(fmt, ##__VA_ARGS__)
+
 #else
 #define OutputDebug(type, fmt, ...) handleDebug (type, fmt, ##__VA_ARGS__)
 #endif

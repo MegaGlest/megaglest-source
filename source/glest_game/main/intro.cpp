@@ -133,6 +133,9 @@ void Intro::render(){
 			}
 		}
 	}
+
+	if(program != NULL) program->renderProgramMsgBox();
+
 	renderer.swapBuffers();
 }
 

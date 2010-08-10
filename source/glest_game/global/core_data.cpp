@@ -16,6 +16,7 @@
 #include "graphics_interface.h"
 #include "config.h"
 #include "util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -67,6 +68,20 @@ void CoreData::load(){
 	logoTexture= renderer.newTexture2D(rsGlobal);
 	logoTexture->setMipmap(false);
 	logoTexture->getPixmap()->load(dir+"/menu/textures/logo.tga");
+
+	logoTextureList.clear();
+	string logosPath= dir+"/menu/textures/logo*.*";
+	vector<string> logoFilenames;
+    findAll(logosPath, logoFilenames);
+    for(int i = 0; i < logoFilenames.size(); ++i) {
+    	string logo = logoFilenames[i];
+    	if(strcmp("logo.tga",logo.c_str()) != 0) {
+    		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
+    		logoTextureExtra->setMipmap(true);
+    		logoTextureExtra->getPixmap()->load(dir+"/menu/textures/" + logo);
+    		logoTextureList.push_back(logoTextureExtra);
+    	}
+    }
 
 	waterSplashTexture= renderer.newTexture2D(rsGlobal);
 	waterSplashTexture->setFormat(Texture::fAlpha);

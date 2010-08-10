@@ -22,7 +22,10 @@
 #include "sound_renderer.h"
 #include "game_settings.h"
 #include "cache_manager.h"
+#include "route_planner.h"
+
 #include <iostream>
+
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -35,6 +38,9 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 const float World::airHeight= 5.f;
+// This limit is to keep RAM use under control while offering better performance.
+int MaxExploredCellsLookupItemCache = 5000;
+time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
 
@@ -42,11 +48,20 @@ World::World(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
+	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
+	ExploredCellsLookupItemCacheTimerCount = 0;
+
 	techTree = NULL;
 	fogOfWarOverride = false;
 
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
+
+	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
+
+	routePlanner = 0;
+	cartographer = 0;
 
 	frameCount= 0;
 	//nextUnitId= 0;
@@ -59,8 +74,33 @@ World::World(){
 
 World::~World() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	for(int i= 0; i<factions.size(); ++i){
+		factions[i].end();
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	factions.clear();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	delete techTree;
 	techTree = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete routePlanner;
+	routePlanner = 0;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete cartographer;
+	cartographer = 0;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -68,9 +108,13 @@ void World::end(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add("World", true);
 
+    ExploredCellsLookupItemCache.clear();
+    ExploredCellsLookupItemCacheTimer.clear();
+
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i].end();
 	}
+	factions.clear();
 	fogOfWarOverride = false;
 	//stats will be deleted by BattleEnd
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -95,10 +139,11 @@ void World::init(Game *game, bool createUnits){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    this->game = game;
-	scriptManager= game->getScriptManager();
+	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
 
-	unitUpdater.init(game);
+	this->game = game;
+	scriptManager= game->getScriptManager();
 
 	GameSettings *gs = game->getGameSettings();
 	if(fogOfWarOverride == false) {
@@ -109,6 +154,14 @@ void World::init(Game *game, bool createUnits){
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
 	initSplattedTextures();
+
+	// must be done after initMap()
+	if(gs->getPathFinderType() != pfBasic) {
+		routePlanner = new RoutePlanner(this);
+		cartographer = new Cartographer(this);
+	}
+
+	unitUpdater.init(game);
 
 	//minimap must be init after sum computation
 	initMinimap();
@@ -157,6 +210,14 @@ void World::loadTech(const vector<string> pathList, const string &techName, set<
 	//techCache[techName] = techTree;
 }
 
+std::vector<std::string> World::validateFactionTypes() {
+	return techTree->validateFactionTypes();
+}
+
+std::vector<std::string> World::validateResourceTypes() {
+	return techTree->validateResourceTypes();
+}
+
 //load map
 void World::loadMap(const string &path, Checksum *checksum){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -184,11 +245,11 @@ void World::update(){
 
 	//time
 	timeFlow.update();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//water effects
 	waterEffects.update();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//units
 	for(int i=0; i<getFactionCount(); ++i){
@@ -196,7 +257,7 @@ void World::update(){
 			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
 		}
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//undertake the dead
 	for(int i=0; i<getFactionCount(); ++i){
@@ -210,7 +271,7 @@ void World::update(){
 			}
 		}
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//food costs
 	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
@@ -221,21 +282,24 @@ void World::update(){
 			}
 		}
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//fow smoothing
 	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0){
 		float fogFactor= static_cast<float>(frameCount%GameConstants::updateFps)/GameConstants::updateFps;
 		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
 	if(frameCount%GameConstants::updateFps==0){
 		computeFow();
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		tick();
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void World::tick(){
@@ -276,12 +340,19 @@ void World::tick(){
 			}
 		}
 	}
+	if(cartographer != NULL) {
+		cartographer->tick();
+	}
 }
 
 Unit* World::findUnitById(int id){
 	for(int i= 0; i<getFactionCount(); ++i){
 		Faction* faction= getFaction(i);
-
+		Unit* unit = faction->findUnit(id);
+		if(unit != NULL) {
+			return unit;
+		}
+/*
 		for(int j= 0; j<faction->getUnitCount(); ++j){
 			Unit* unit= faction->getUnit(j);
 
@@ -289,6 +360,7 @@ Unit* World::findUnitById(int id){
 				return unit;
 			}
 		}
+*/
 	}
 	return NULL;
 }
@@ -400,7 +472,19 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		const FactionType* ft= faction->getType();
 		const UnitType* ut= ft->getUnitType(unitName);
 
-		Unit* unit= new Unit(getNextUnitId(faction), pos, ut, faction, &map, CardinalDir::NORTH);
+		UnitPathInterface *newpath = NULL;
+		switch(game->getGameSettings()->getPathFinderType()) {
+			case pfBasic:
+				newpath = new UnitPathBasic();
+				break;
+			case pfRoutePlanner:
+				newpath = new UnitPath();
+				break;
+			default:
+				throw runtime_error("detected unsupported pathfinder type!");
+	    }
+
+		Unit* unit= new Unit(getNextUnitId(faction), newpath, pos, ut, faction, &map, CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
@@ -679,7 +763,20 @@ void World::initUnits(){
 			const UnitType *ut= ft->getStartingUnit(j);
 			int initNumber= ft->getStartingUnitAmount(j);
 			for(int l=0; l<initNumber; l++){
-				Unit *unit= new Unit(getNextUnitId(f), Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+
+				UnitPathInterface *newpath = NULL;
+				switch(game->getGameSettings()->getPathFinderType()) {
+					case pfBasic:
+						newpath = new UnitPathBasic();
+						break;
+					case pfRoutePlanner:
+						newpath = new UnitPath();
+						break;
+					default:
+						throw runtime_error("detected unsupported pathfinder type!");
+			    }
+
+				Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 
 				int startLocationIndex= f->getStartLocationIndex();
 
@@ -690,10 +787,12 @@ void World::initUnits(){
 				else{
 					throw runtime_error("Unit cant be placed, this error is caused because there is no enough place to put the units near its start location, make a better map: "+unit->getType()->getName() + " Faction: "+intToStr(i));
 				}
-				if(unit->getType()->hasSkillClass(scBeBuilt)){
-                    map.flatternTerrain(unit);
+				if (unit->getType()->hasSkillClass(scBeBuilt)) {
+					map.flatternTerrain(unit);
+					if(cartographer != NULL) {
+						cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+					}
 				}
-
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
             }
 		}
@@ -712,11 +811,81 @@ void World::initMap(){
 // ==================== exploration ====================
 
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
+	// Experimental cache lookup of previously calculated cells + sight range
+	if(MaxExploredCellsLookupItemCache > 0) {
+		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
+			ExploredCellsLookupItem::lastDebug = time(NULL);
+			//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+		}
+
+		// Ok we limit the cache size doe to possible RAM constraints when
+		// the threshold is met
+		bool MaxExploredCellsLookupItemCacheTriggered = false;
+		if(ExploredCellsLookupItemCache.size() >= MaxExploredCellsLookupItemCache) {
+			MaxExploredCellsLookupItemCacheTriggered = true;
+			// Snag the oldest entry in the list
+			std::map<int,ExploredCellsLookupKey>::reverse_iterator purgeItem = ExploredCellsLookupItemCacheTimer.rbegin();
+
+			ExploredCellsLookupItemCache[purgeItem->second.pos][purgeItem->second.sightRange].erase(purgeItem->second.teamIndex);
+
+			if(ExploredCellsLookupItemCache[purgeItem->second.pos][purgeItem->second.sightRange].size() == 0) {
+				ExploredCellsLookupItemCache[purgeItem->second.pos].erase(purgeItem->second.sightRange);
+			}
+			if(ExploredCellsLookupItemCache[purgeItem->second.pos].size() == 0) {
+				ExploredCellsLookupItemCache.erase(purgeItem->second.pos);
+			}
+
+			ExploredCellsLookupItemCacheTimer.erase(purgeItem->first);
+		}
+
+		// Check the cache for the pos, sightrange and teamindex and use from
+		// cache if already found
+		std::map<Vec2i, std::map<int, std::map<int, ExploredCellsLookupItem> > >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
+		if(iterFind != ExploredCellsLookupItemCache.end()) {
+			std::map<int, std::map<int, ExploredCellsLookupItem> >::iterator iterFind2 = iterFind->second.find(sightRange);
+			if(iterFind2 != iterFind->second.end()) {
+				std::map<int, ExploredCellsLookupItem>::iterator iterFind3 = iterFind2->second.find(teamIndex);
+				if(iterFind3 != iterFind2->second.end()) {
+					std::vector<SurfaceCell *> &cellList = iterFind3->second.exploredCellList;
+					for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+						SurfaceCell *sc = cellList[idx2];
+						sc->setExplored(teamIndex, true);
+					}
+					cellList = iterFind3->second.visibleCellList;
+					for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+						SurfaceCell *sc = cellList[idx2];
+						sc->setVisible(teamIndex, true);
+					}
+
+					// Only start worrying about updating the cache timer if we
+					// have hit the threshold
+					if(MaxExploredCellsLookupItemCacheTriggered == true) {
+						// Remove the old timer entry since the search key id is stale
+						ExploredCellsLookupItemCacheTimer.erase(iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex);
+						iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+
+						ExploredCellsLookupKey lookupKey;
+						lookupKey.pos = newPos;
+						lookupKey.sightRange = sightRange;
+						lookupKey.teamIndex = teamIndex;
+
+						// Add a new search key since we just used this item
+						ExploredCellsLookupItemCacheTimer[iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+					}
+
+					return;
+				}
+			}
+		}
+	}
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
 
-	//explore
+	// Explore, this code is quite expensive when we have lots of units
+	ExploredCellsLookupItem item;
+
     for(int i=-surfSightRange-indirectSightRange-1; i<=surfSightRange+indirectSightRange+1; ++i){
         for(int j=-surfSightRange-indirectSightRange-1; j<=surfSightRange+indirectSightRange+1; ++j){
 			Vec2i currRelPos= Vec2i(i, j);
@@ -728,22 +897,44 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 				//explore
 				if(Vec2i(0).dist(currRelPos) < surfSightRange+indirectSightRange+1){
                     sc->setExplored(teamIndex, true);
+
+                    item.exploredCellList.push_back(sc);
 				}
 
 				//visible
 				if(Vec2i(0).dist(currRelPos) < surfSightRange){
 					sc->setVisible(teamIndex, true);
+					item.visibleCellList.push_back(sc);
 				}
             }
         }
+    }
+
+    // Ok update our caches with the latest info for this position, sight and team
+    if(MaxExploredCellsLookupItemCache > 0) {
+		if(item.exploredCellList.size() > 0 || item.visibleCellList.size() > 0) {
+			//ExploredCellsLookupItemCache.push_back(item);
+			item.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+			ExploredCellsLookupItemCache[newPos][sightRange][teamIndex] = item;
+
+			ExploredCellsLookupKey lookupKey;
+			lookupKey.pos 			= newPos;
+			lookupKey.sightRange 	= sightRange;
+			lookupKey.teamIndex 	= teamIndex;
+			ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+		}
     }
 }
 
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(){
+	Chrono chrono;
+	chrono.start();
 
 	//reset texture
 	minimap.resetFowTex();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//reset cells
 	for(int i=0; i<map.getSurfaceW(); ++i){
@@ -755,6 +946,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute cells
 	for(int i=0; i<getFactionCount(); ++i){
@@ -768,6 +961,8 @@ void World::computeFow(){
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	//fire
 	for(int i=0; i<getFactionCount(); ++i){
 		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
@@ -780,6 +975,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute texture
 	for(int i=0; i<getFactionCount(); ++i){
@@ -824,6 +1021,8 @@ void World::computeFow(){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // WARNING! This id is critical! MAke sure it fits inside the network packet

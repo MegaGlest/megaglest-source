@@ -592,6 +592,9 @@ static GtkWidget *create_gtkwindow(const char *title,
 
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_show(window);
+
+    gtk_widget_grab_focus(next);
+
     return window;
 } // create_gtkwindow
 

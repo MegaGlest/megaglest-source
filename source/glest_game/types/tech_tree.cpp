@@ -132,19 +132,19 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		int i=0;
 		for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+			string factionName = *it;
 
 		    char szBuf[1024]="";
-		    sprintf(szBuf,"%s %s %d / %d",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size());
+		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size(),factionName.c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 
-			str=dir+"/factions/" + *it;
+			str=dir+"/factions/" + factionName;
 			factionTypes[i++].load(str, this, checksum);
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
 			SDL_PumpEvents();
-
         }
     }
 	catch(const exception &e){
@@ -159,6 +159,27 @@ TechTree::~TechTree(){
 	Logger::getInstance().add("Tech tree", true);
 }
 
+std::vector<std::string> TechTree::validateFactionTypes() {
+	std::vector<std::string> results;
+	for (int i = 0; i < factionTypes.size(); ++i) {
+		std::vector<std::string> factionResults = factionTypes[i].validateFactionType();
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
+
+		factionResults = factionTypes[i].validateFactionTypeUpgradeTypes();
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
+	}
+
+	return results;
+}
+
+std::vector<std::string> TechTree::validateResourceTypes() {
+	std::vector<std::string> results;
+	for (int i = 0; i < factionTypes.size(); ++i) {
+		std::vector<std::string> factionResults = factionTypes[i].validateFactionTypeResourceTypes(resourceTypes);
+		results.insert(results.end(), factionResults.begin(), factionResults.end());
+	}
+    return results;
+}
 
 // ==================== get ====================
 

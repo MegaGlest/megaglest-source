@@ -35,11 +35,11 @@ namespace Shared{ namespace Platform{
 //	class PlatformContextGl
 // ======================================
 
-void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
+void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing) {
 	
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Window::setupGraphicsScreen(depthBits, stencilBits);
+	Window::setupGraphicsScreen(depthBits, stencilBits, hardware_acceleration, fullscreen_anti_aliasing);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -51,6 +51,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 	else {
 		Window::setIsFullScreen(false);
 	}
+
+	//flags |= SDL_HWSURFACE
 
 	int resW = PlatformCommon::Private::ScreenWidth;
 	int resH = PlatformCommon::Private::ScreenHeight;
@@ -70,7 +72,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits) {
 //	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
 //#endif
 
-		printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
+		//printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
 		if(icon == NULL) {
 			printf("Error: %s\n", SDL_GetError());
 		}

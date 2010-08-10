@@ -105,6 +105,7 @@ MojoInput *MojoInput_newFromArchivePath(MojoArchive *ar, const char *fname);
 //  new MojoInput now owns it.
 MojoInput *MojoInput_newCompressedStream(MojoInput *origio);
 
+// !!! FIXME: fill in missing documentation here.
 extern MojoArchive *GBaseArchive;
 extern const char *GBaseArchivePath;
 MojoArchive *MojoArchive_initBaseArchive(void);
@@ -117,6 +118,22 @@ boolean MojoInput_toPhysicalFile(MojoInput *in, const char *fname, uint16 perms,
                                  MojoInput_FileCopyCallback cb, void *data);
 
 MojoInput *MojoInput_newFromURL(const char *url);
+
+// Read a littleendian, unsigned 16-bit integer from (io), swapping it to
+//  the correct byteorder for the platform, and moving the file pointer
+//  ahead 2 bytes. Returns true on successful read and fills the swapped
+//  value into (*ui16), false on i/o error or EOF.
+boolean MojoInput_readui16(MojoInput *io, uint16 *ui16);
+
+// Read a littleendian, unsigned 32-bit integer from (io), swapping it to
+//  the correct byteorder for the platform, and moving the file pointer
+//  ahead 4 bytes. Returns true on successful read and fills the swapped
+//  value into (*ui32), false on i/o error or EOF.
+boolean MojoInput_readui32(MojoInput *io, uint32 *ui32);
+
+// (Please note that there are not bigendian versions of MojoInput_readuiXX()
+//  at the moment, as we don't need them for our current feature set. However,
+//  they could be added easily enough.)
 
 #ifdef __cplusplus
 }

@@ -37,7 +37,7 @@ class Config;
 /// A basic camera that holds information about the game view
 // =====================================================
 
-class GameCamera{
+class GameCamera {
 public:
 	static const float startingVAng;
 	static const float startingHAng;
@@ -83,8 +83,11 @@ private:
 	float maxVAng;
 	float fov;
 
+	int MaxVisibleQuadItemCache;
+
 public:
     GameCamera();
+    ~GameCamera();
 
 	void init(int limitX, int limitY);
 

@@ -197,6 +197,7 @@ public:
 	bool isInsideSurface(int sx, int sy) const;
 	bool isInsideSurface(const Vec2i &sPos) const;
 	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos) const;
+	bool isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const;
 
 	//free cells
 	bool isFreeCell(const Vec2i &pos, Field field) const;
@@ -205,6 +206,8 @@ public:
 	bool isFreeCells(const Vec2i &pos, int size, Field field) const;
 	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
+
+	bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);
 
 	//unit placement
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;

@@ -36,17 +36,6 @@ typedef struct
     MojoArchiveEntry *archiveEntries;
 } PCKinfo;
 
-
-static boolean readui32(MojoInput *io, uint32 *ui32)
-{
-    uint8 buf[sizeof (uint32)];
-    if (io->read(io, buf, sizeof (buf)) != sizeof (buf))
-        return false;
-
-    *ui32 = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
-    return true;
-} // readui32
-
 static boolean MojoInput_pck_ready(MojoInput *io)
 {
     return true;  // !!! FIXME?
@@ -129,7 +118,7 @@ static boolean MojoArchive_pck_enumerate(MojoArchive *ar)
         br = io->read(io, fileEntry.filename, sizeof (fileEntry.filename));
         if (br != sizeof (fileEntry.filename))
             return false;
-        else if (!readui32(io, &fileEntry.filesize))
+        else if (!MojoInput_readui32(io, &fileEntry.filesize))
             return false;
 
         dotdot = (strcmp(fileEntry.filename, "..") == 0);
@@ -254,9 +243,9 @@ MojoArchive *MojoArchive_createPCK(MojoInput *io)
     PCKinfo *pckInfo = NULL;
     PCKheader pckHeader;
 
-    if (!readui32(io, &pckHeader.Magic))
+    if (!MojoInput_readui32(io, &pckHeader.Magic))
         return NULL;
-    else if (!readui32(io, &pckHeader.StartOfBinaryData))
+    else if (!MojoInput_readui32(io, &pckHeader.StartOfBinaryData))
         return NULL;
 
     // Check if this is a *.pck file.

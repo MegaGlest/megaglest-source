@@ -109,6 +109,7 @@ private:
 	int currentLagCount;
 	time_t lastReceiveCommandListTime;
 	bool gotLagCountWarning;
+	string versionString;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -153,6 +154,8 @@ public:
 
 	bool getLagCountWarning() const { return gotLagCountWarning; }
 	void setLagCountWarning(bool value) { gotLagCountWarning = value; }
+
+	const string &getVersionString() const	{return versionString;}
 
 protected:
 

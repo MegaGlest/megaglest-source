@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28d.lib wxbase28d_net.lib wxbase28d_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28d_adv.lib wxmsw28d_aui.lib wxmsw28d_core.lib wxmsw28d_gl.lib wxmsw28d_html.lib wxmsw28d_media.lib wxmsw28d_qa.lib wxmsw28d_richtext.lib wxmsw28d_xrc.lib wxpngd.lib wxregexd.lib wxtiffd.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib Dbghelp.lib sdl.lib sdlmain.lib dxguid.lib libstreflop.lib libcurl.lib ws2_32.lib xerces-c_3d.lib"
+				AdditionalDependencies="wxbase28d.lib wxbase28d_net.lib wxbase28d_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28d_adv.lib wxmsw28d_aui.lib wxmsw28d_core.lib wxmsw28d_gl.lib wxmsw28d_html.lib wxmsw28d_media.lib wxmsw28d_qa.lib wxmsw28d_richtext.lib wxmsw28d_xrc.lib wxregexd.lib wxtiffd.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib Dbghelp.lib sdl.lib sdlmain.lib dxguid.lib libstreflop.lib libcurl.lib ws2_32.lib xerces-c_3d.lib libpng.lib"
 				OutputFile="$(OutDir)\G3D_Viewer.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
@@ -122,6 +122,86 @@
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
+				EnableEnhancedInstructionSet="1"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="c:\temp\release\$(TargetName).pch"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib Dbghelp.lib sdl.lib sdlmain.lib dxguid.lib libstreflop.lib libcurl.lib ws2_32.lib xerces-c_3.lib libpng.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_NO_STREFLOP|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/arch:SSE2"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;;..\..\source\glest_game\graphics;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\glest_game\global;..\..\source\glest_game\sound;..\..\source\shared_lib\include\sound;..\..\source\glest_game\game"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB"
+				StringPooling="true"
+				ExceptionHandling="2"
+				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
@@ -141,7 +221,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxpng.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib Dbghelp.lib sdl.lib sdlmain.lib dxguid.lib libstreflop.lib libcurl.lib ws2_32.lib xerces-c_3.lib"
+				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib Dbghelp.lib sdl.lib sdlmain.lib dxguid.lib libstreflop.lib libcurl.lib ws2_32.lib xerces-c_3.lib libpng.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"

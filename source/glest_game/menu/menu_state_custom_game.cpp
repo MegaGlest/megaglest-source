@@ -95,6 +95,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	masterServererErrorToShow = "---";
 	lastSetChangedGameSettings  = 0;
 	lastMasterserverPublishing 	= 0;
+	lastNetworkPing				= 0;
 	soundConnectionCount=0;
 
 	vector<string> teamItems, controlItems, results;
@@ -130,6 +131,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	mapFiles = results;
 	std::for_each(results.begin(), results.end(), FormatString());
 
+	labelLocalIP.init(410, networkHeadPos+30);
+
+	string ipText = "none";
+	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+	if(ipList.size() > 0) {
+		ipText = "";
+		for(int idx = 0; idx < ipList.size(); idx++) {
+			string ip = ipList[idx];
+			if(ipText != "") {
+				ipText += ", ";
+			}
+			ipText += ip;
+		}
+	}
+	labelLocalIP.setText(lang.get("LanIP") + ipText);
+
 	labelMap.init(100, mapHeadPos);
 	listBoxMap.init(100, mapPos, 200);
     listBoxMap.setItems(results);
@@ -137,18 +154,25 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(400, aHeadPos, 80);
-	listBoxFogOfWar.init(400, aPos, 80);
+	labelFogOfWar.init(300, aHeadPos, 80);
+	listBoxFogOfWar.init(300, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
 	// Enable Observer Mode
-	labelEnableObserverMode.init(600, aHeadPos, 80);
-	listBoxEnableObserverMode.init(600, aPos, 80);
+	labelEnableObserverMode.init(400, aHeadPos, 80);
+	listBoxEnableObserverMode.init(400, aPos, 110);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
+
+	labelPathFinderType.init(540, aHeadPos, 80);
+	labelPathFinderType.setText(lang.get("PathFinderType"));
+	listBoxPathFinderType.init(540, aPos, 140);
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	listBoxPathFinderType.setSelectedItemIndex(0);
 
     //tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
@@ -173,9 +197,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTechTree.init(600, mapHeadPos);
 
 
-	labelPublishServer.init(120, networkHeadPos, 100);
+	labelPublishServer.init(50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(130, networkPos, 100);
+	listBoxPublishServer.init(60, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
@@ -184,10 +208,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		listBoxPublishServer.setSelectedItemIndex(1);
 
 
-	labelPublishServerExternalPort.init(290, networkHeadPos, 150);
+	labelPublishServerExternalPort.init(220, networkHeadPos, 150);
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
-	listBoxPublishServerExternalPort.init(300, networkPos, 100);
+	listBoxPublishServerExternalPort.init(230, networkPos, 100);
 	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> externalPortList;
 	Tokenize(supportExternalPortList,externalPortList,",");
@@ -200,20 +224,28 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxPublishServer.setSelectedItemIndex(0);
 
 	// Network Frame Period
-	labelNetworkFramePeriod.init(440, networkHeadPos, 80);
+	labelNetworkFramePeriod.init(370, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-	listBoxNetworkFramePeriod.init(450, networkPos, 80);
+	listBoxNetworkFramePeriod.init(380, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
 	listBoxNetworkFramePeriod.pushBackItem("30");
 	listBoxNetworkFramePeriod.pushBackItem("40");
 	listBoxNetworkFramePeriod.setSelectedItem("20");
 
+	// Network Frame Period
+	labelNetworkPauseGameForLaggedClients.init(530, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+	listBoxNetworkPauseGameForLaggedClients.init(540, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
+	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
+	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("No"));
+
 
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(690, networkHeadPos, 80);
+	labelEnableServerControlledAI.init(670, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-	listBoxEnableServerControlledAI.init(700, networkPos, 80);
+	listBoxEnableServerControlledAI.init(680, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
@@ -224,15 +256,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(100, setupPos-30-i*30);
         listBoxControls[i].init(200, setupPos-30-i*30);
-        listBoxFactions[i].init(400, setupPos-30-i*30, 150);
-		listBoxTeams[i].init(600, setupPos-30-i*30, 60);
-		labelNetStatus[i].init(700, setupPos-30-i*30, 60);
+        listBoxFactions[i].init(350, setupPos-30-i*30, 150);
+		listBoxTeams[i].init(520, setupPos-30-i*30, 60);
+		labelNetStatus[i].init(600, setupPos-30-i*30, 60);
     }
 
 
 	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(400, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(600, setupPos, 50, GraphicListBox::defH, true);
+    labelFaction.init(350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelTeam.init(520, setupPos, 50, GraphicListBox::defH, true);
     
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
@@ -527,6 +559,16 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
+	else if (listBoxPathFinderType.mouseClick(x, y)) {
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+	}
 	else if (listBoxEnableServerControlledAI.mouseClick(x, y)&&listBoxEnableServerControlledAI.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -571,6 +613,24 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(listBoxNetworkFramePeriod.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+
+		soundRenderer.playFx(coreData.getClickSoundC());
+	}
+	else if(listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		needToRepublishToMasterserver = true;
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
 	else {
@@ -661,6 +721,12 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxEnableServerControlledAI.mouseMove(x, y);
 	labelNetworkFramePeriod.mouseMove(x, y);
 	listBoxNetworkFramePeriod.mouseMove(x, y);
+
+	labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
+	listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
+
+	labelPathFinderType.mouseMove(x, y);
+	listBoxPathFinderType.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -686,6 +752,7 @@ void MenuStateCustomGame::render(){
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
 			}
+			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
 			renderer.renderLabel(&labelFogOfWar);
 			renderer.renderLabel(&labelTileset);
@@ -695,13 +762,14 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelEnableObserverMode);
+			renderer.renderLabel(&labelPathFinderType);
 			
-	
 			renderer.renderListBox(&listBoxMap);
 			renderer.renderListBox(&listBoxFogOfWar);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxEnableObserverMode);
+			renderer.renderListBox(&listBoxPathFinderType);
 	
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console,showFullConsole,true);
@@ -715,8 +783,12 @@ void MenuStateCustomGame::render(){
 				renderer.renderLabel(&labelEnableServerControlledAI);
 				renderer.renderLabel(&labelNetworkFramePeriod);
 				renderer.renderListBox(&listBoxNetworkFramePeriod);
+				renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
+				renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 			}
 		}
+
+		if(program != NULL) program->renderProgramMsgBox();
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -729,7 +801,7 @@ void MenuStateCustomGame::update() {
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(serverInitError == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -749,7 +821,7 @@ void MenuStateCustomGame::update() {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		bool haveAtLeastOneNetworkClientConnected = false;
 		bool hasOneNetworkSlotOpen = false;
@@ -758,7 +830,7 @@ void MenuStateCustomGame::update() {
 		
 		bool masterServerErr = showMasterserverError;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(masterServerErr)
 		{
@@ -782,7 +854,7 @@ void MenuStateCustomGame::update() {
 			showMessageBox( generalErrorToShow, "Error", false);
 		}
 		
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		// handle setting changes from clients
 		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
@@ -836,20 +908,20 @@ void MenuStateCustomGame::update() {
 			}
 		}
 		
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
 
 		for(int i= 0; i<mapInfo.players; ++i)
 		{
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 			{
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 				assert(connectionSlot!=NULL);
 				
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				hasOneNetworkSlotOpen=true;
 
@@ -864,13 +936,13 @@ void MenuStateCustomGame::update() {
 						currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
-					string label = connectionSlot->getName();
+					string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
 					if(connectionSlot->getAllowDownloadDataSynch() == true &&
 					   connectionSlot->getAllowGameDataSynchCheck() == true)
 					{
 						if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
 						{
-							label = connectionSlot->getName() + " - waiting to synch:";
+							label += " - waiting to synch:";
 							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
 							{
 								label = label + " map";
@@ -886,12 +958,12 @@ void MenuStateCustomGame::update() {
 						}
 						else
 						{
-							label = connectionSlot->getName() + " - data synch is ok";
+							label += " - data synch is ok";
 						}
 					}
 					else
 					{
-						label = connectionSlot->getName();
+						//label = connectionSlot->getName();
 
 						if(connectionSlot->getAllowGameDataSynchCheck() == true &&
 						   connectionSlot->getNetworkGameDataSynchCheckOk() == false)
@@ -941,7 +1013,7 @@ void MenuStateCustomGame::update() {
 			}
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					//haveAtLeastOneNetworkClientConnected == true &&
@@ -957,7 +1029,7 @@ void MenuStateCustomGame::update() {
 			needToSetChangedGameSettings    = false;
 		}
 		
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(hasOneNetworkSlotOpen) {
 			//listBoxPublishServer.setSelectedItemIndex(0);
@@ -1015,7 +1087,7 @@ void MenuStateCustomGame::update() {
 		}
 		soundConnectionCount = currentConnectionCount;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -1025,7 +1097,7 @@ void MenuStateCustomGame::update() {
 		showGeneralError=true;
 		generalErrorToShow = szBuf;
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::publishToMasterserver()
@@ -1096,8 +1168,11 @@ void MenuStateCustomGame::simpleTask() {
 	needToRepublishToMasterserver = false;
 	std::map<string,string> newPublishToServerInfo = publishToServerInfo;
 	publishToServerInfo.clear();
+
 	bool broadCastSettings = needToBroadcastServerSettings;
 	needToBroadcastServerSettings=false;
+
+	bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
 	safeMutex.ReleaseLock();
 
 	if(republish == true) {
@@ -1154,6 +1229,15 @@ void MenuStateCustomGame::simpleTask() {
 		}
 	}
 
+	if(needPing == true) {
+		lastNetworkPing = time(NULL);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
+		serverInterface->broadcastPing(&msg);
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1174,6 +1258,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setDefaultVictoryConditions(true);
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0);
 	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
+	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
@@ -1231,6 +1316,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
 	gameSettings->setNetworkFramePeriod((listBoxNetworkFramePeriod.getSelectedItemIndex()+1)*10);
+	gameSettings->setNetworkPauseGameForLaggedClients((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex()));
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getMap() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getMap().c_str());
@@ -1266,8 +1352,10 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "DefaultVictoryConditions=" << gameSettings.getDefaultVictoryConditions() << std::endl;
 	saveGameFile << "FogOfWar=" << gameSettings.getFogOfWar() << std::endl;
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
+	saveGameFile << "PathFinderType=" << gameSettings.getPathFinderType() << std::endl;
 	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
 	saveGameFile << "NetworkFramePeriod=" << gameSettings.getNetworkFramePeriod() << std::endl;
+	saveGameFile << "NetworkPauseGameForLaggedClients=" << gameSettings.getNetworkPauseGameForLaggedClients() << std::endl;
 	saveGameFile << "ExternalPortNumber=" << listBoxPublishServerExternalPort.getSelectedItem() << std::endl;
 
 	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
@@ -1317,8 +1405,10 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		gameSettings.setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
 		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
+		gameSettings.setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
 		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","false"));
 		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str())/10*10);
+		gameSettings.setNetworkPauseGameForLaggedClients(properties.getBool("NetworkPauseGameForLaggedClients","false"));
 
 		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
 		gameSettings.setFactionCount(properties.getInt("FactionCount"));
@@ -1360,6 +1450,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		Lang &lang= Lang::getInstance();
 		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
+
 		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
 		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
@@ -1367,6 +1459,10 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxPublishServerExternalPort.setSelectedItem(intToStr(properties.getInt("ExternalPortNumber",listBoxPublishServerExternalPort.getSelectedItem().c_str())));
 
 		listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+		listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(gameSettings.getNetworkPauseGameForLaggedClients());
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 

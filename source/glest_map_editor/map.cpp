@@ -41,10 +41,13 @@ Map::Map() {
 
 Map::~Map() {
 	delete [] startLocations;
+	startLocations = NULL;
+
 	for (int i = 0; i < h; i++) {
-		delete cells[i];
+		delete [] cells[i];
 	}
-	delete cells;
+	delete [] cells;
+	cells = NULL;
 }
 
 
@@ -284,9 +287,9 @@ void Map::flipX() {
 	}
 
 	for (int i = 0; i < w; i++) {
-		delete oldCells[i];
+		delete [] oldCells[i];
 	}
-	delete oldCells;
+	delete [] oldCells;
 }
 
 void Map::flipY() {
@@ -308,9 +311,9 @@ void Map::flipY() {
 	}
 
 	for (int i = 0; i < w; i++) {
-		delete oldCells[i];
+		delete [] oldCells[i];
 	}
-	delete oldCells;
+	delete [] oldCells;
 }
 
 void Map::changeSurface(int x, int y, int surface, int radius) {
@@ -411,9 +414,9 @@ void Map::reset(int w, int h, float alt, int surf) {
 
 	if (cells != NULL) {
 		for (int i = 0; i < this->w; i++) {
-			delete cells[i];
+			delete [] cells[i];
 		}
-		delete cells;
+		delete [] cells;
 	}
 
 	this->w = w;
@@ -493,8 +496,8 @@ void Map::resize(int w, int h, float alt, int surf) {
 	//delete old cells
 	if (oldCells != NULL) {
 		for (int i = 0; i < oldW; i++)
-			delete oldCells[i];
-		delete oldCells;
+			delete [] oldCells[i];
+		delete [] oldCells;
 	}
 }
 
@@ -503,8 +506,10 @@ void Map::resetFactions(int maxPlayers) {
 		throw runtime_error("Max Players must be in the range 1-8");
 	}
 
-	if (startLocations != NULL)
-		delete startLocations;
+	if (startLocations != NULL) {
+		delete [] startLocations;
+		startLocations = NULL;
+	}
 
 	maxFactions = maxPlayers;
 
