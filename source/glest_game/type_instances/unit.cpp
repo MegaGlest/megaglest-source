@@ -255,6 +255,7 @@ Unit::~Unit(){
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	stopDamageParticles();
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1441,8 +1442,10 @@ CommandResult Unit::undoCommand(Command *command){
 void Unit::stopDamageParticles(){
 	// stop fire
 	if(fire!=NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		fire->fade();
 		fire= NULL;
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	// stop additional particles
 	while(!damageParticleSystems.empty()) {
