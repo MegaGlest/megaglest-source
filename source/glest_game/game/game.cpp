@@ -109,6 +109,9 @@ Game::~Game(){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
+	// unit particles and fade them out etc and this end method deletes the original
+	// object pointers.
 	renderer.endGame();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
