@@ -196,6 +196,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			}
 		}
 
+		if (fields[fLand]) {
+			field = fLand;
+		} else if (fields[fAir]) {
+			field = fAir;
+		} else {
+			throw runtime_error("Unit has no field: " + path);
+		}
+
 		//properties
 		const XmlNode *propertiesNode= parametersNode->getChild("properties");
 		for(int i=0; i<propertiesNode->getChildCount(); ++i){
@@ -605,7 +613,7 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %d",__FILE__,__FUNCTION__,__LINE__,i,commandTypes.size());
+		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %lu",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
 		throw runtime_error(szBuf);
 	}
 	return commandTypes[i];

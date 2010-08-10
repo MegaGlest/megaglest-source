@@ -31,29 +31,14 @@
 #include "model.h"
 #include "graphics_interface.h"
 
-namespace Glest{ namespace Game{
+#ifdef DEBUG_RENDERING_ENABLED
+#	define IF_DEBUG_EDITION(x) x
+#	include "debug_renderer.h"
+#else
+#	define IF_DEBUG_EDITION(x)
+#endif
 
-using Shared::Graphics::Texture;
-using Shared::Graphics::Texture2D;
-using Shared::Graphics::Texture3D;
-using Shared::Graphics::ModelRenderer;
-using Shared::Graphics::TextRenderer2D;
-using Shared::Graphics::ParticleRenderer;
-using Shared::Graphics::ParticleManager;
-using Shared::Graphics::ModelManager;
-using Shared::Graphics::TextureManager;
-using Shared::Graphics::FontManager;
-using Shared::Graphics::Font2D;
-using Shared::Graphics::Matrix4f;
-using Shared::Graphics::Vec2i;
-using Shared::Graphics::Quad2i;
-using Shared::Graphics::Vec3f;
-using Shared::Graphics::Model;
-using Shared::Graphics::ParticleSystem;
-using Shared::Graphics::Pixmap2D;
-using Shared::Graphics::Camera;
-using Shared::Graphics::MeshCallback;
-using Shared::Graphics::Mesh;
+namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;
 
@@ -79,7 +64,6 @@ class MainMenu;
 class Console;
 class MenuBackground;
 class ChatManager;
-class Texture;
 class Object;
 
 // ===========================================================
@@ -257,6 +241,7 @@ private:
 	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 
 	bool no2DMouseRendering;
+	bool showDebugUI;
 
 private:
 	Renderer();
@@ -387,6 +372,9 @@ public:
 
 	bool getNo2DMouseRendering() const { return no2DMouseRendering; }
 	void setNo2DMouseRendering(bool value) { no2DMouseRendering = value; }
+
+	bool getShowDebugUI() const { return showDebugUI; }
+	void setShowDebugUI(bool value) { showDebugUI = value; }
 
 private:
 	//private misc

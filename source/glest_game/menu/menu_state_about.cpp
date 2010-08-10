@@ -91,6 +91,9 @@ void MenuStateAbout::render(){
 		renderer.renderLabel(&labelTeammateName[i]);
 		renderer.renderLabel(&labelTeammateRole[i]);
 	}
+
+	if(program != NULL) program->renderProgramMsgBox();
+
 }
 
 }}//end namespace

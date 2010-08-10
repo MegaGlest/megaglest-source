@@ -125,6 +125,11 @@ public:
 		return Vec2<T>(v-*this).length();
 	}
 
+	// strict week ordering, so Vec2<T> can be used as key for set<> or map<>
+	bool operator<(const Vec2<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y);
+	}
+
 	float length() const{
 #ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(static_cast<float>(x*x + y*y)));
@@ -145,6 +150,12 @@ public:
 		return streamOut.str();
 	}
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream &stream, const Vec2<T> &vec) {
+	return stream << "(" << vec.x << ", " << vec.y << ")";
+}
+
 
 typedef Vec2<int> Vec2i;
 typedef Vec2<bool> Vec2b;
@@ -250,10 +261,14 @@ public:
 	}
 
 	Vec3<T> operator -=(const Vec3<T> &v){
-		x-=v.x; 
+		x-=v.x;
 		y-=v.y;
 		z-=v.z;
 		return *this;
+	}
+
+	bool operator <(const Vec3<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z);
 	}
 
 	Vec3<T> lerp(T t, const Vec3<T> &v) const{
@@ -443,6 +458,9 @@ public:
 		z-=v.z;
 		w-=w.z;
 		return *this;
+	}
+	bool operator <(const Vec4<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z) || (x == v.x && y == v.y && z == v.z && w < v.w);
 	}
 
 	Vec4<T> lerp(T t, const Vec4<T> &v) const{

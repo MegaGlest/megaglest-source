@@ -109,7 +109,8 @@ void MainMenu::render(){
 	state->render();
     renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
-    if(config.getBool("DebugMode")){
+    //if(config.getBool("DebugMode")){
+	if(renderer.getShowDebugUI() == true) {
 		renderer.renderText(
 			"FPS: " + intToStr(lastFps), 
 			coreData.getMenuFontNormal(), Vec3f(1.f), 10, 10, false);
@@ -177,6 +178,9 @@ void MainMenu::setState(MenuState *state){
 	menuBackground.setTargetCamera(state->getCamera());
 }
 
+bool MainMenu::isInSpecialKeyCaptureEvent() {
+	return state->isInSpecialKeyCaptureEvent();
+}
 
 // =====================================================
 // 	class MenuState

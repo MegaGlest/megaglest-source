@@ -19,6 +19,7 @@
 #include "components.h"
 #include "window.h"
 #include "simple_threads.h"
+#include "stats.h"
 
 using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;
@@ -75,6 +76,10 @@ public:
 	virtual void keyPress(char c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
 	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
+	virtual bool isInSpecialKeyCaptureEvent() { return false; }
+	virtual bool quitTriggered() { return false; }
+	virtual Stats quitAndToggleState() { return Stats(); };
+	virtual Program * getProgram() { return program; }
 };
 
 // ===============================
@@ -116,6 +121,8 @@ private:
     WindowGl *window;
     static Program *singleton;
 
+    GraphicMessageBox msgBox;
+
 public:
     Program();
     ~Program();
@@ -144,6 +151,12 @@ public:
 	void exit();
 
 	virtual void simpleTask();
+
+	void mouseDownLeft(int x, int y);
+	void eventMouseMove(int x, int y, const MouseState *ms);
+
+	void renderProgramMsgBox();
+	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
 
 private:
 	

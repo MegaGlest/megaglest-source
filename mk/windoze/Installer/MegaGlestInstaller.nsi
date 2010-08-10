@@ -71,14 +71,16 @@ Function MUIGUIInit
    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "UninstallString"
    StrCmp $R0 "" doneInit
 
-MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-  "${APNAME} v${APVER} is already installed. $\n$\nClick `OK` to remove the \
-  previous installation or `Cancel` to install to a different location." \
-  IDOK uninstInit
+MessageBox MB_YESNO|MB_ICONEXCLAMATION \
+  "${APNAME} v${APVER} is already installed. $\n$\nClick `Yes` to remove the \
+  previous installation or `No` to over-write or install to a different location." \
+  IDYES uninstInit
 
-  # change install folder to a version specific name to aovid over-writing
+  # change install folder to a version specific name to avoid over-writing
   # old one
   StrCpy $INSTDIR "$PROGRAMFILES\${APNAME}_${APVER}"
+  ClearErrors
+  
   goto doneInit
 
 ;Run the uninstaller
@@ -101,10 +103,13 @@ FunctionEnd
 
 Function .onInstSuccess
 
-    MessageBox MB_OK "${APNAME} v${APVER} installed successfully, click OK to launch game."
+    MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
+    click Yes to launch the game$\nor 'No' to exit." IDNO noLaunch
 
     SetOutPath $INSTDIR
     Exec 'glest_game.exe'
+
+noLaunch:
 
 FunctionEnd
 

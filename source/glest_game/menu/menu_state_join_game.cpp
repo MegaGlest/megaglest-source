@@ -305,6 +305,8 @@ void MenuStateJoinGame::render(){
 
 	renderer.renderChatManager(&chatManager);
 	renderer.renderConsole(&console);
+
+	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateJoinGame::update()
@@ -402,35 +404,37 @@ void MenuStateJoinGame::update()
 		//update lobby
 		clientInterface->updateLobby();
 
-        //call the chat manager
-        chatManager.updateNetwork();
+		clientInterface= NetworkManager::getInstance().getClientInterface();
+		if(clientInterface != NULL && clientInterface->isConnected()) {
+			//call the chat manager
+			chatManager.updateNetwork();
 
-        //console
-        console.update();
+			//console
+			console.update();
 
-		//intro
-		if(clientInterface->getIntroDone())
-		{
-			labelInfo.setText(lang.get("WaitingHost"));
-			servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+			//intro
+			if(clientInterface->getIntroDone())
+			{
+				labelInfo.setText(lang.get("WaitingHost"));
+				servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+			}
+
+			//launch
+			if(clientInterface->getLaunchGame())
+			{
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - A\n",__FILE__,__FUNCTION__);
+
+				servers.save(serversSavedFile);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - B\n",__FILE__,__FUNCTION__);
+
+				abortAutoFind = true;
+				clientInterface->stopServerDiscovery();
+				program->setState(new Game(program, clientInterface->getGameSettings()));
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
+			}
 		}
-
-		//launch
-		if(clientInterface->getLaunchGame())
-		{
-		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - A\n",__FILE__,__FUNCTION__);
-
-			servers.save(serversSavedFile);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - B\n",__FILE__,__FUNCTION__);
-
-			abortAutoFind = true;
-			clientInterface->stopServerDiscovery();
-			program->setState(new Game(program, clientInterface->getGameSettings()));
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
-		}
-
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else if(autoConnectToServer == true) {
@@ -438,7 +442,7 @@ void MenuStateJoinGame::update()
 		connectToServer();
 	}
 
-    if(clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
+    if(clientInterface != NULL && clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
 void MenuStateJoinGame::keyDown(char key){

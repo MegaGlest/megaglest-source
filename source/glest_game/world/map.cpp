@@ -23,7 +23,7 @@
 #include "util.h"
 #include "game_settings.h"
 #include "platform_util.h"
-
+#include "pos_iterator.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -265,6 +265,23 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	return false;
 }
 
+//returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
+bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const {
+	Vec2i p1 = pos + Vec2i(-1);
+	Vec2i p2 = pos + Vec2i(size);
+	Util::PerimeterIterator iter(p1, p2);
+	while (iter.more()) {
+		Vec2i cur = iter.next();
+		if (isInside(cur)) {
+			Resource *r = getSurfaceCell(toSurfCoords(cur))->getResource();
+			if (r && r->getType() == rt) {
+				resourcePos = cur;
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 // ==================== free cells ====================
 
@@ -340,6 +357,22 @@ bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamInde
     return true;
 }
 
+bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
+	if (ut->hasCellMap()) {
+		for (int y=0; y < ut->getSize(); ++y) {
+			for (int x=0; x < ut->getSize(); ++x) {
+				if (ut->getCellMapCell(x, y, facing)) {
+					if (!isFreeCell(pos + Vec2i(x, y), field)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	} else {
+		return isFreeCells(pos, ut->getSize(), field);
+	}
+}
 
 // ==================== unit placement ====================
 

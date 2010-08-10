@@ -4,7 +4,7 @@
 #----------------------------------------------------------------------------
 AC_PREREQ([2.54])
 
-AC_INIT([megaglest], [3.3.5], [matze@braunis.de])
+AC_INIT([megaglest], [3.3.5.1], [matze@braunis.de])
 AC_CONFIG_SRCDIR([mk/jam/build.jam])
 AC_CONFIG_AUX_DIR([mk/autoconf])
 

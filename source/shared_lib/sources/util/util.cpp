@@ -42,7 +42,9 @@ std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> SystemFlags::debug
 int SystemFlags::lockFile				= -1;
 int SystemFlags::lockFileCountIndex		= -1;
 string SystemFlags::lockfilename		= "";
+bool SystemFlags::haveSpecialOutputCommandLineOption = false;
 CURL *SystemFlags::curl_handle			= NULL;
+int SystemFlags::DEFAULT_HTTP_TIMEOUT	= 10;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -83,7 +85,7 @@ std::string SystemFlags::escapeURL(std::string URL, CURL *handle) {
 	return result;
 }
 
-std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
+std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 	if(handle == NULL) {
 		handle = SystemFlags::curl_handle;
 	}
@@ -117,8 +119,11 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle) {
 	char errbuf[CURL_ERROR_SIZE]="";
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
 
-	// max 5 seconds to connect to the URL
-	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 5);
+	// max X seconds to connect to the URL
+	if(timeOut < 0) {
+		timeOut = SystemFlags::DEFAULT_HTTP_TIMEOUT;
+	}
+	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeOut);
 
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
@@ -143,7 +148,8 @@ CURL *SystemFlags::initHTTP() {
 	return handle;
 }
 
-void SystemFlags::init() {
+void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
+	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	if(SystemFlags::debugLogFileList.size() == 0) {
 		SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
 		SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
@@ -202,7 +208,10 @@ SystemFlags::~SystemFlags() {
 
 void SystemFlags::Close() {
 	if(SystemFlags::debugLogFileList.size() > 0) {
-		printf("START Closing logfiles\n");
+		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+			printf("START Closing logfiles\n");
+		}
+
 		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
 			iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
 			SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
@@ -225,13 +234,15 @@ void SystemFlags::Close() {
 	}
 
 	if(SystemFlags::debugLogFileList.size() > 0) {
-		printf("END Closing logfiles\n");
+		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+			printf("END Closing logfiles\n");
+		}
 	}
 }
 
 void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 	if(SystemFlags::debugLogFileList.size() == 0) {
-		SystemFlags::init();
+		SystemFlags::init(false);
 	}
 	SystemFlags::SystemFlagsType &currentDebugLog = SystemFlags::debugLogFileList[type];
     if(currentDebugLog.enabled == false) {
@@ -308,13 +319,17 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
             		SystemFlags::lockfilename = newlockfile;
             		debugLog += intToStr(idx);
 
-            		printf("Opening additional logfile [%s]\n",debugLog.c_str());
+            		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+            			printf("Opening additional logfile [%s]\n",debugLog.c_str());
+            		}
 				}
 			}
 			else if(SystemFlags::lockFileCountIndex > 0) {
         		debugLog += intToStr(SystemFlags::lockFileCountIndex);
 
-        		printf("Opening additional logfile [%s]\n",debugLog.c_str());
+        		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+        			printf("Opening additional logfile [%s]\n",debugLog.c_str());
+        		}
 			}
 
             if(currentDebugLog.fileStream == NULL) {
@@ -324,7 +339,9 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 				currentDebugLog.mutex			= new Mutex();
             }
 
-            printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
+            if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+            	printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
+            }
 
             MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
@@ -342,14 +359,22 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
         MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+		if (type != debugPathFinder) {
+	        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+		} else {
+	        (*currentDebugLog.fileStream) << szBuf;
+		}
         (*currentDebugLog.fileStream).flush();
 
         safeMutex.ReleaseLock();
     }
     // output to console
     else {
-        printf("[%s] %s", szBuf2, szBuf);
+		if (type != debugPathFinder) {
+			printf("[%s] %s", szBuf2, szBuf);
+		} else {
+			printf("%s", szBuf);
+		}
     }
 
     va_end(argList);

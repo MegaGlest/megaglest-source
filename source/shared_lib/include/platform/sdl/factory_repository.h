@@ -27,6 +27,7 @@
 #endif
 
 #include "sound_factory_openal.h"
+#include "sound_factory_none.h"
 
 using std::string;
 
@@ -42,6 +43,7 @@ using Shared::Sound::Ds8::SoundFactoryDs8;
 #endif
 
 using Shared::Sound::OpenAL::SoundFactoryOpenAL;
+using Shared::Sound::SoundFactoryNone;
 
 namespace Shared{ namespace Platform{
 
@@ -66,6 +68,7 @@ private:
 #endif
 
 	SoundFactoryOpenAL soundFactoryOpenAL;
+	SoundFactoryNone soundFactoryNone;
 
 public:
 	static FactoryRepository &getInstance();

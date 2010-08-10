@@ -138,6 +138,341 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 FactionType::~FactionType(){
 	delete music;
+	music = NULL;
+}
+
+std::vector<std::string> FactionType::validateFactionType() {
+	std::vector<std::string> results;
+
+    for(int i=0; i<unitTypes.size(); ++i){
+    	UnitType &unitType = unitTypes[i];
+
+    	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
+    		const CommandType *cmdType = unitType.getCommandType(j);
+    		if(cmdType != NULL) {
+    	    	// Check every unit's commands to validate that for every upgrade-requirements
+    	    	// upgrade we have a unit that can do the upgrade in the faction.
+				for(int k = 0; k < cmdType->getUpgradeReqCount(); ++k) {
+					const UpgradeType *upgradeType = cmdType->getUpgradeReq(k);
+
+					if(upgradeType != NULL) {
+						// Now lets find a unit that can produced-upgrade this upgrade
+						bool foundUpgraderUnit = false;
+						for(int l=0; l<unitTypes.size() && foundUpgraderUnit == false; ++l){
+							UnitType &unitType2 = unitTypes[l];
+							for(int m = 0; m < unitType2.getCommandTypeCount() && foundUpgraderUnit == false; ++m) {
+								const CommandType *cmdType2 = unitType2.getCommandType(m);
+								if(cmdType2 != NULL && dynamic_cast<const UpgradeCommandType *>(cmdType2) != NULL) {
+									const UpgradeCommandType *uct = dynamic_cast<const UpgradeCommandType *>(cmdType2);
+									const UpgradeType *upgradeType2 = uct->getProducedUpgrade();
+									if(upgradeType2 != NULL && upgradeType2->getName() == upgradeType->getName()) {
+										 foundUpgraderUnit = true;
+										 break;
+									}
+								}
+							}
+						}
+
+						if(foundUpgraderUnit == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich has upgrade requirement [%s] but there are no units able to perform the upgrade!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),upgradeType->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+
+				// Ensure for each build type command that the build units
+				// exist in this faction
+				if(cmdType->getClass() == ccBuild) {
+					const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+					for(int k = 0; k < build->getBuildingCount(); ++k) {
+						const UnitType *buildUnit = build->getBuilding(k);
+
+						// Now lets find the unit that we should be able to build
+						bool foundUnit = false;
+						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+							UnitType &unitType2 = unitTypes[l];
+							if(unitType2.getName() == buildUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+
+						if(foundUnit == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+				// Ensure for each repair type command that the repair units
+				// exist in this faction
+				if(cmdType->getClass() == ccRepair) {
+					const RepairCommandType *repair = dynamic_cast<const RepairCommandType *>(cmdType);
+					for(int k = 0; k < repair->getRepairCount(); ++k) {
+						const UnitType *repairUnit = repair->getRepair(k);
+
+						// Now lets find the unit that we should be able to repair
+						bool foundUnit = false;
+						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+							UnitType &unitType2 = unitTypes[l];
+							if(unitType2.getName() == repairUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+
+						if(foundUnit == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can repair the Unit [%s] but the Unit to be repaired does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),repairUnit->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+				// Ensure for each morph type command that the morph units
+				// exist in this faction
+				if(cmdType->getClass() == ccMorph) {
+					const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+					if(morph != NULL) {
+						const UnitType *morphUnit = morph->getMorphUnit();
+
+						// Now lets find the unit that we should be able to morph
+						// to
+						bool foundUnit = false;
+						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+							UnitType &unitType2 = unitTypes[l];
+							if(unitType2.getName() == morphUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+
+						if(foundUnit == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can morph into the Unit [%s] but the Unit to be morphed to does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),morphUnit->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+    		}
+    	}
+
+		// Check every unit's unit requirements to validate that for every unit-requirements
+		// we have the units required in the faction.
+		for(int j = 0; j < unitType.getUnitReqCount(); ++j) {
+			const UnitType *unitType2 = unitType.getUnitReq(j);
+			if(unitType2 != NULL) {
+				// Now lets find the required unit
+				bool foundUnit = false;
+				for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+					UnitType &unitType3 = unitTypes[l];
+
+					if(unitType2->getName() == unitType3.getName()) {
+						foundUnit = true;
+						break;
+					}
+				}
+
+				if(foundUnit == false) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the required Unit [%s]\nbut the required unit does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),unitType2->getName().c_str());
+					results.push_back(szBuf);
+				}
+			}
+		}
+
+		// Now check that at least 1 other unit can produce, build or morph this unit
+		bool foundUnit = false;
+		for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+			UnitType &unitType2 = unitTypes[l];
+
+	    	for(int j = 0; j < unitType2.getCommandTypeCount() && foundUnit == false; ++j) {
+	    		const CommandType *cmdType = unitType2.getCommandType(j);
+	    		if(cmdType != NULL) {
+	    			// Check if this is a produce command
+	    			if(cmdType->getClass() == ccProduce) {
+	    				const ProduceCommandType *produce = dynamic_cast<const ProduceCommandType *>(cmdType);
+						if(produce != NULL) {
+							const UnitType *produceUnit = produce->getProducedUnit();
+
+							if( produceUnit != NULL &&
+								unitType.getId() != unitType2.getId() &&
+								unitType.getName() == produceUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+	    			}
+	    			// Check if this is a build command
+					if(cmdType->getClass() == ccBuild) {
+						const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+						for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
+							const UnitType *buildUnit = build->getBuilding(k);
+
+							if( buildUnit != NULL &&
+								unitType.getId() != unitType2.getId() &&
+								unitType.getName() == buildUnit->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+					}
+
+	    			// Check if this is a morph command
+					if(cmdType->getClass() == ccMorph) {
+						const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+						const UnitType *morphUnit = morph->getMorphUnit();
+
+						if( morphUnit != NULL &&
+							unitType.getId() != unitType2.getId() &&
+							unitType.getName() == morphUnit->getName()) {
+							 foundUnit = true;
+							 break;
+						}
+					}
+	    		}
+	    	}
+		}
+
+		if(foundUnit == false) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+		}
+    }
+
+    return results;
+}
+
+std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes) {
+	std::vector<std::string> results;
+
+    for(int i=0; i<unitTypes.size(); ++i){
+    	UnitType &unitType = unitTypes[i];
+
+		// Check every unit's required resources to validate that for every resource-requirements
+		// we have a resource in the faction.
+    	for(int j = 0; j < unitType.getCostCount() ; ++j) {
+    		const Resource *r = unitType.getCost(j);
+    		if(r != NULL && r->getType() != NULL) {
+    			bool foundResourceType = false;
+    			// Now lets find a matching faction resource type for the unit
+    			for(int k=0; k<resourceTypes.size(); ++k){
+    				ResourceType &rt = resourceTypes[k];
+
+					if(r->getType()->getName() == rt.getName()) {
+						foundResourceType = true;
+						break;
+					}
+				}
+
+				if(foundResourceType == false) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the resource req [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
+					results.push_back(szBuf);
+				}
+    		}
+    	}
+
+		// Check every unit's stored resources to validate that for every resources-stored
+		// we have a resource in the faction.
+		for(int j = 0; j < unitType.getStoredResourceCount() ; ++j) {
+			const Resource *r = unitType.getStoredResource(j);
+			if(r != NULL && r->getType() != NULL) {
+				bool foundResourceType = false;
+				// Now lets find a matching faction resource type for the unit
+				for(int k=0; k<resourceTypes.size(); ++k){
+					ResourceType &rt = resourceTypes[k];
+
+					if(r->getType()->getName() == rt.getName()) {
+						foundResourceType = true;
+						break;
+					}
+				}
+
+				if(foundResourceType == false) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the stored resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
+					results.push_back(szBuf);
+				}
+			}
+		}
+
+    	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
+    		const CommandType *cmdType = unitType.getCommandType(j);
+    		if(cmdType != NULL) {
+				// Ensure for each harvest type command that the resource
+				// exist in this faction
+				if(cmdType->getClass() == ccHarvest) {
+					const HarvestCommandType *harvest = dynamic_cast<const HarvestCommandType *>(cmdType);
+					for(int k = 0; k < harvest->getHarvestedResourceCount(); ++k) {
+						const ResourceType *harvestResource = harvest->getHarvestedResource(k);
+
+						bool foundResourceType = false;
+						// Now lets find a matching faction resource type for the unit
+						for(int k=0; k<resourceTypes.size(); ++k){
+							ResourceType &rt = resourceTypes[k];
+
+							if(harvestResource->getName() == rt.getName()) {
+								foundResourceType = true;
+								break;
+							}
+						}
+
+						if(foundResourceType == false) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s] which can harvest the resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),harvestResource->getName().c_str());
+							results.push_back(szBuf);
+						}
+					}
+				}
+    		}
+    	}
+    }
+
+    return results;
+}
+
+std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
+	std::vector<std::string> results;
+
+	// For each upgrade type make sure there is at least 1 unit that can produce
+	// the upgrade
+	for(int i = 0; i < upgradeTypes.size(); ++i) {
+		const UpgradeType &upgradeType = upgradeTypes[i];
+
+		// First find a unit with a command type to upgrade to this Upgrade type
+		bool foundUnit = false;
+	    for(int j=0; j<unitTypes.size() && foundUnit == false; ++j){
+	    	UnitType &unitType = unitTypes[j];
+	    	for(int k = 0; k < unitType.getCommandTypeCount() && foundUnit == false; ++k) {
+				const CommandType *cmdType = unitType.getCommandType(k);
+				if(cmdType != NULL) {
+					// Ensure for each build type command that the build units
+					// exist in this faction
+					if(cmdType->getClass() == ccUpgrade) {
+						const UpgradeCommandType *upgrade = dynamic_cast<const UpgradeCommandType *>(cmdType);
+						if(upgrade != NULL) {
+							const UpgradeType *upgradeType2 = upgrade->getProducedUpgrade();
+
+							if(upgradeType2 != NULL && upgradeType.getName() == upgradeType2->getName()) {
+								 foundUnit = true;
+								 break;
+							}
+						}
+					}
+				}
+	    	}
+	    }
+
+		if(foundUnit == false) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Upgrade Type [%s] in Faction [%s] has no Unit able to produce this upgrade in this faction!",upgradeType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+		}
+	}
+
+    return results;
 }
 
 // ==================== get ==================== 

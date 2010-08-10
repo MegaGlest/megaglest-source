@@ -94,6 +94,7 @@ const char vkRight = -9;
 const char vkDown = -10;
 const char vkReturn = -11;
 const char vkBack = -12;
+const char vkTab = -13;
 
 enum WindowStyle{
 	wsFullscreen,
@@ -134,12 +135,13 @@ protected:
 	static bool isActive;
 	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
+	static int lastShowMouseState;
 
 public:
 	static bool handleEvent();
 	static void revertMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
-	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1);
+	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	static SDL_keysym getKeystate() { return keystate; }

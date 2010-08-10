@@ -36,6 +36,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelEnableObserverMode;
 	GraphicLabel labelEnableServerControlledAI;
+	GraphicLabel labelLocalIP;
 	
 
 	GraphicListBox listBoxMap;
@@ -68,10 +69,17 @@ private:
 	GraphicListBox listBoxNetworkFramePeriod;
 	GraphicLabel labelNetworkFramePeriod;
 	
+	GraphicLabel labelNetworkPauseGameForLaggedClients;
+	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+
+	GraphicLabel labelPathFinderType;
+	GraphicListBox listBoxPathFinderType;
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
+	time_t lastNetworkPing;
+
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
@@ -107,6 +115,7 @@ public:
     
 
     virtual void simpleTask();
+    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 private:
 

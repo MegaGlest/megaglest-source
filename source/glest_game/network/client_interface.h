@@ -52,6 +52,9 @@ private:
 	int currentFrameCount;
 	time_t lastNetworkCommandListSendTime;
 
+	time_t clientSimulationLagStartTime;
+	string versionString;
+
 public:
 	ClientInterface();
 	virtual ~ClientInterface();
@@ -94,13 +97,15 @@ public:
 
 	int getCurrentFrameCount() const { return currentFrameCount; }
 
+	virtual void sendPingMessage(int32 pingFrequency, int64 pingTime);
+
+	const string &getVersionString() const	{return versionString;}
+
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }
-
-private:
-
 	void waitForMessage();
+	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 };
 
 }}//end namespace

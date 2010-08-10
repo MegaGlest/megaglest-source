@@ -50,17 +50,6 @@ typedef struct UZ2info
     boolean enumerated;
 } UZ2info;
 
-
-static boolean readui32(MojoInput *io, uint32 *ui32)
-{
-    uint8 buf[sizeof (uint32)];
-    if (io->read(io, buf, sizeof (buf)) != sizeof (buf))
-        return false;
-
-    *ui32 = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
-    return true;
-} // readui32
-
 static boolean unpack(UZ2input *inp)
 {
     MojoInput *io = inp->io;
@@ -104,9 +93,9 @@ static int64 MojoInput_uz2_read(MojoInput *io, void *_buf, uint32 bufsize)
         {
             if (input->position == input->fsize)
                 return 0;
-            else if (!readui32(input->io, &input->compsize))
+            else if (!MojoInput_readui32(input->io, &input->compsize))
                 return (retval == 0) ? -1 : retval;
-            else if (!readui32(input->io, &input->uncompsize))
+            else if (!MojoInput_readui32(input->io, &input->uncompsize))
                 return (retval == 0) ? -1 : retval;
             else if (!unpack(input))
                 return (retval == 0) ? -1 : retval;
@@ -136,9 +125,9 @@ static boolean MojoInput_uz2_seek(MojoInput *io, uint64 pos)
     {
         if (!input->io->seek(input->io, seekpos))
             return false;
-        else if (!readui32(io, &input->compsize))
+        else if (!MojoInput_readui32(io, &input->compsize))
             return false;
-        else if (!readui32(io, &input->uncompsize))
+        else if (!MojoInput_readui32(io, &input->uncompsize))
             return false;
 
         // we checked these formally elsewhere.
@@ -286,9 +275,9 @@ static int64 calculate_uz2_outsize(MojoInput *io)
     if (!io->seek(io, 0))
         return -1;
 
-    while (readui32(io, &compsize))
+    while (MojoInput_readui32(io, &compsize))
     {
-        if (!readui32(io, &uncompsize))
+        if (!MojoInput_readui32(io, &uncompsize))
             return -1;
         else if ((compsize > MAXCOMPSIZE) || (uncompsize > MAXUNCOMPSIZE))
             return -1;

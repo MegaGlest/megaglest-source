@@ -98,6 +98,8 @@ protected:
 	time_t lastThreadedPing;
 	Mutex pingThreadAccessor;
 
+	Mutex dataSynchAccessor;
+
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
@@ -117,7 +119,7 @@ public:
 
     PLATFORM_SOCKET getSocketId() const { return sock; }
 
-	int getDataToRead();
+	int getDataToRead(bool wantImmediateReply=false);
 	int send(const void *data, int dataSize);
 	int receive(void *data, int dataSize);
 	int peek(void *data, int dataSize);

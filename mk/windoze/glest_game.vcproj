@@ -57,10 +57,11 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="c:\temp\glest\$(TargetName).pch"
+				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
 				BrowseInformation="1"
 				WarningLevel="2"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4018;4244"
+				DisableSpecificWarnings="4018;4244;4250"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -138,6 +139,99 @@
 				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;../../source/shared_lib/include/sound/openal;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.20.1/include&quot;;$(NOINHERIT)"
 				AdditionalUsingDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;XML_LIBRARY;USE_PCH=1;_CRT_SECURE_NO_WARNINGS;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;CURL_STATICLIB"
+				StringPooling="true"
+				ExceptionHandling="2"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
+				FloatingPointModel="0"
+				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
+				WarningLevel="2"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4018;4244;4250"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib openal32.lib iphlpapi.lib libstreflop.lib libcurl.lib ws2_32.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="0"
+				EnableCOMDATFolding="0"
+				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_NO_STREFLOP|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="0"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/arch:SSE2"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;../../source/shared_lib/include/platform/sdl;../../source/shared_lib/include/sound/openal;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.20.1/include&quot;;$(NOINHERIT)"
+				AdditionalUsingDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;XML_LIBRARY;USE_PCH=1;_CRT_SECURE_NO_WARNINGS;STREFLOP_SSE;LIBM_COMPILING_FLT32;CURL_STATICLIB"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
@@ -236,7 +330,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.cpp"
+				RelativePath="..\..\source\glest_game\facilities\pos_iterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\facilities\pos_iterator.h"
 				>
 			</File>
 		</Filter>
@@ -270,7 +368,39 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.h"
+				RelativePath="..\..\source\glest_game\ai\annotated_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\annotated_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cartographer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cartographer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cluster_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\cluster_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\influence_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_pool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\node_pool.h"
 				>
 			</File>
 			<File
@@ -279,6 +409,18 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\ai\path_finder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\route_planner.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\route_planner.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\search_engine.h"
 				>
 			</File>
 		</Filter>
@@ -394,6 +536,14 @@
 			Name="graphics"
 			>
 			<File
+				RelativePath="..\..\source\glest_game\graphics\debug_renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\graphics\debug_renderer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\graphics\particle_type.cpp"
 				>
 			</File>
@@ -499,6 +649,14 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_about.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_connected_game.h"
 				>
 			</File>
 			<File

@@ -80,7 +80,7 @@ public:
 	virtual void slotUpdateTask(ConnectionSlotEvent *event);
 	bool hasClientConnection();
 	int getCurrentFrameCount() const { return currentFrameCount; }
-	bool clientLagCheck(ConnectionSlot* connectionSlot);
+	std::pair<bool,bool> clientLagCheck(ConnectionSlot* connectionSlot,bool skipNetworkBroadCast=false);
 
 	bool signalClientReceiveCommands(ConnectionSlot* connectionSlot,
 									 int slotIndex,
@@ -90,6 +90,10 @@ public:
 
 	bool isPortBound() const { return serverSocket.isPortBound(); }
 	int getBindPort() const { return serverSocket.getBindPort(); }
+
+	void broadcastPing(const NetworkMessagePing* networkMessage, int excludeSlot= -1) {
+		this->broadcastMessage(networkMessage,excludeSlot);
+	}
 
 public:
 

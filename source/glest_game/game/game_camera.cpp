@@ -16,12 +16,13 @@
 #include "config.h"
 #include "game_constants.h"
 #include "xml_parser.h"
-
+#include "conversion.h"
 #include "leak_dumper.h"
 
 
 using namespace Shared::Graphics;
 using Shared::Xml::XmlNode;
+using namespace Shared::Util;
 
 namespace Glest { namespace Game {
 
@@ -29,9 +30,9 @@ namespace Glest { namespace Game {
 // 	class GameCamera
 // =====================================================
 
-// ================== PUBLIC =====================
+static std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
 
-static std::map<std::string,  Quad2i> cacheVisibleQuad;
+// ================== PUBLIC =====================
 
 const float GameCamera::startingVAng= -60.f;
 const float GameCamera::startingHAng= 0.f;
@@ -42,31 +43,13 @@ const float GameCamera::centerOffsetZ= 8.0f;
 
 // ================= Constructor =================
 
-class quadCacheLookup {
-	public:
-	quadCacheLookup(float fov,float hAng,Vec3f pos) {
-			this->fov	= fov;
-			this->hAng	= hAng;
-			this->pos	= pos;
-	}
-	std::string getString() const {
-		std::ostringstream streamOut;
-		streamOut << fov << "_" << hAng << "_" << pos.getString();
-		return streamOut.str();
-	}
-
-	float fov;
-	float hAng;
-	Vec3f pos;
-
-};
-
 GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 		destPos(0.f, defaultHeight, 0.f), destAng(startingVAng, startingHAng) {
 	Config &config = Config::getInstance();
     state= sGame;
 
     cacheVisibleQuad.clear();
+    MaxVisibleQuadItemCache = config.getInt("MaxVisibleQuadItemCache",intToStr(-1).c_str());
 
 	//config
 	speed= 15.f / GameConstants::cameraFps;
@@ -87,6 +70,10 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 	minVAng = -Config::getInstance().getFloat("CameraMaxYaw","77.5");
 	maxVAng = -Config::getInstance().getFloat("CameraMinYaw","20");
 	fov = Config::getInstance().getFloat("CameraFov","45");
+}
+
+GameCamera::~GameCamera() {
+	cacheVisibleQuad.clear();
 }
 
 void GameCamera::init(int limitX, int limitY){
@@ -165,14 +152,19 @@ void GameCamera::update(){
 }
 
 Quad2i GameCamera::computeVisibleQuad() const {
-	//
-	quadCacheLookup lookup(fov, hAng, pos);
-	string lookupKey = lookup.getString();
-	std::map<std::string,  Quad2i>::const_iterator iterFind = cacheVisibleQuad.find(lookupKey);
-	if(iterFind != cacheVisibleQuad.end()) {
-		return iterFind->second;
+
+	if(MaxVisibleQuadItemCache != 0) {
+		std::map<float, std::map<float, std::map<Vec3f, Quad2i> > >::const_iterator iterFind = cacheVisibleQuad.find(fov);
+		if(iterFind != cacheVisibleQuad.end()) {
+			std::map<float, std::map<Vec3f, Quad2i> >::const_iterator iterFind2 = iterFind->second.find(hAng);
+			if(iterFind2 != iterFind->second.end()) {
+				std::map<Vec3f, Quad2i>::const_iterator iterFind3 = iterFind2->second.find(pos);
+				if(iterFind3 != iterFind2->second.end()) {
+					return iterFind3->second;
+				}
+			}
+		}
 	}
-	//
 
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
@@ -199,19 +191,32 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	Vec2i p4(static_cast<int>(p.x + v2.x * farDist), static_cast<int>(p.y + v2.y * farDist));
 
 	if (hAng >= 135 && hAng <= 225) {
+		if(MaxVisibleQuadItemCache != 0 &&
+		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p1, p2, p3, p4);
+		}
 		return Quad2i(p1, p2, p3, p4);
 	}
 	if (hAng >= 45 && hAng <= 135) {
+		if(MaxVisibleQuadItemCache != 0 &&
+		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p3, p1, p4, p2);
+		}
 		return Quad2i(p3, p1, p4, p2);
 	}
 	if (hAng >= 225 && hAng <= 315) {
+		if(MaxVisibleQuadItemCache != 0 &&
+		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p2, p4, p1, p3);
+		}
 		return Quad2i(p2, p4, p1, p3);
 	}
 
-	//cacheVisibleQuad[lookupKey] = Quad2i(p4, p3, p2, p1);
-	cacheVisibleQuad.insert(std::make_pair(lookupKey,Quad2i(p4, p3, p2, p1)));
-	return cacheVisibleQuad[lookupKey];
-//	return Quad2i(p4, p3, p2, p1);
+	if(MaxVisibleQuadItemCache != 0 &&
+	   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+		cacheVisibleQuad[fov][hAng][pos] = Quad2i(p4, p3, p2, p1);
+	}
+	return Quad2i(p4, p3, p2, p1);
 }
 
 void GameCamera::switchState(){

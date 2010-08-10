@@ -44,6 +44,19 @@ private:
 	GraphicLabel labelStatus;
 	GraphicLabel labelInfo;
 
+
+	GraphicLabel labelEnableObserverMode;
+	GraphicListBox listBoxEnableObserverMode;
+	GraphicLabel labelEnableServerControlledAI;
+	GraphicListBox listBoxEnableServerControlledAI;
+	GraphicLabel labelNetworkPauseGameForLaggedClients;
+	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+	GraphicLabel labelPathFinderType;
+	GraphicListBox listBoxPathFinderType;
+	GraphicListBox listBoxNetworkFramePeriod;
+	GraphicLabel labelNetworkFramePeriod;
+
+
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
@@ -71,6 +84,9 @@ private:
 	string currentMap;
 	JoinMenu returnMenuInfo;
 	bool settingsReceivedFromServer;
+	time_t lastNetworkSendPing;
+	int pingCount;
+	bool initialSettingsReceivedFromServer;
 	
 	
 public:
@@ -84,6 +100,8 @@ public:
     virtual void keyDown(char key);
     virtual void keyPress(char c);
     virtual void keyUp(char key);
+
+    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 private:
 

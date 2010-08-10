@@ -45,6 +45,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
 
@@ -76,6 +77,13 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 Game::~Game(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	thisGamePtr = NULL;
+	if(originalDisplayMsgCallback != NULL) {
+		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
 	
@@ -93,11 +101,6 @@ Game::~Game(){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	NetworkManager::getInstance().end();
-	sleep(15);
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -109,13 +112,17 @@ Game::~Game(){
 	world.end();	//must die before selection because of referencers
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
 
-	thisGamePtr = NULL;
-	if(originalDisplayMsgCallback != NULL) {
-		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
-	}
+bool Game::quitTriggered() {
+	return quitTriggeredIndicator;
+}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+Stats Game::quitAndToggleState() {
+	//quitGame();
+	//Program *program = game->getProgram();
+	return quitGame();
+	//Game::exitGameState(program, endStats);
 }
 
 // ==================== init and load ====================
@@ -279,6 +286,22 @@ void Game::load(){
 
     //tech, load before map because of resources
     world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
+
+	// Validate the faction setup to ensure we don't have any bad associations
+    /*
+	std::vector<std::string> results = world.validateFactionTypes();
+	if(results.size() > 0) {
+		// Display the validation errors
+		string errorText = "Errors were detected:\n";
+		for(int i = 0; i < results.size(); ++i) {
+			if(i > 0) {
+				errorText += "\n";
+			}
+			errorText += results[i];
+		}
+		throw runtime_error(errorText);
+	}
+	*/
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -455,6 +478,8 @@ void Game::init()
 	logger.add("Launching game");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
+	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
+	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -485,7 +510,7 @@ void Game::update(){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		//update
@@ -503,22 +528,22 @@ void Game::update(){
 					}
 				}
 			}
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//World
 			world.update();
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			// Commander
 			commander.updateNetwork();
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//Gui
 			gui.update();
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//Particle systems
@@ -528,7 +553,7 @@ void Game::update(){
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			renderer.updateParticleManager(rsGame);
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 		}
@@ -543,7 +568,9 @@ void Game::update(){
 		   mainMessageBox.getEnabled() == false &&
 		   errorMessageBox.getEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			quitGame();
+			//quitGame();
+			quitTriggeredIndicator = true;
+			return;
 		}
 
 		//update auto test
@@ -714,7 +741,9 @@ void Game::mouseDownLeft(int x, int y){
 					if(networkManager.getGameNetworkInterface() != NULL) {
 						networkManager.getGameNetworkInterface()->quitGame(true);
 					}
-					quitGame();
+					//quitGame();
+					quitTriggeredIndicator = true;
+					return;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -920,16 +949,19 @@ void Game::keyDown(char key){
 				showFullConsole= true;
 			}
 			else if(key == configKeys.getCharKey("Screenshot")) {
-				for(int i=0; i<100; ++i){
-					string path= "screens/screen" + intToStr(i) + ".tga";
-
-					FILE *f= fopen(path.c_str(), "rb");
-					if(f==NULL){
-						Renderer::getInstance().saveScreen(path);
-						break;
-					}
-					else{
-						fclose(f);
+				string path = GameConstants::folder_path_screenshots;
+				if(isdir(path.c_str()) == true) {
+					for(int i=0; i<100; ++i){
+						path = GameConstants::folder_path_screenshots;
+						path += "screen" + intToStr(i) + ".tga";
+						FILE *f= fopen(path.c_str(), "rb");
+						if(f==NULL) {
+							Renderer::getInstance().saveScreen(path);
+							break;
+						}
+						else {
+							fclose(f);
+						}
 					}
 				}
 			}
@@ -1096,14 +1128,42 @@ void Game::keyPress(char c){
 	chatManager.keyPress(c);
 }
 
-void Game::quitGame(){
+Stats Game::quitGame() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Stats stats = *(world.getStats());
+	//Stats stats = *(world.getStats());
+	Stats endStats;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	program->setState(new BattleEnd(program, &stats));
+	endStats = *(world.getStats());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	NetworkManager::getInstance().end();
+	//sleep(0);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//ProgramState *newState = new BattleEnd(program, endStats);
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//program->setState(newState);
+
+	return endStats;
+}
+
+void Game::exitGameState(Program *program, Stats &endStats) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ProgramState *newState = new BattleEnd(program, &endStats);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	program->setState(newState);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
@@ -1120,77 +1180,77 @@ void Game::render3d(){
 	//init
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.reset3d();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.computeVisibleQuad();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.loadGameCameraMatrix();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.setupLighting();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//shadow map
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderShadowsToTexture(lastRenderFps);
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//clear buffers
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.clearBuffers();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//surface
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderSurface();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//selection circles
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderSelectionEffects();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//units
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderUnits(lastRenderFps,world.getFrameCount());
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//objects
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderObjects(lastRenderFps,world.getFrameCount());
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//water
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderWater();
 	renderer.renderWaterEffects();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//particles
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderParticleManager(rsGame);
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//mouse 3d
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
 	renderer.renderMouse3d();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %d\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 }
 
 void Game::render2d(){
@@ -1235,13 +1295,21 @@ void Game::render2d(){
 			Vec3f(1.0f), 200, 680, false);
 	}
 
+	if(program != NULL) program->renderProgramMsgBox();
 
 	renderer.renderChatManager(&chatManager);
 
     //debug info
-	
+
+	bool perfLogging = false;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true ||
+	   SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		perfLogging = true;
+	}
+
     string str;
-	if(gui.getShowDebugUI() == true || difftime(time(NULL),lastRenderLog2d) >= 1) {
+	if( renderer.getShowDebugUI() == true || 
+		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
 		str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 		str+= "PosObjWord: " + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
 		str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
@@ -1305,7 +1373,7 @@ void Game::render2d(){
 		}
 	}
 
-	if(gui.getShowDebugUI() == true) {
+	if(renderer.getShowDebugUI() == true) {
 		renderer.renderText(str, coreData.getMenuFontNormal(),
 							Vec3f(1.0f), 10, 500, false);
 
@@ -1314,19 +1382,17 @@ void Game::render2d(){
 		}
 		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
-	else {
-		if(renderer.getAllowRenderUnitTitles() == true) {
-			renderer.setAllowRenderUnitTitles(false);
-		}
+	else if(renderer.getAllowRenderUnitTitles() == true) {
+		renderer.setAllowRenderUnitTitles(false);
 	}
 
 	//network status
-	if(renderNetworkStatus) {
+	if(renderNetworkStatus == true) {
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
 			renderer.renderText(
 				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
 				coreData.getMenuFontNormal(),
-				Vec3f(1.0f), 20, 500, false);
+				Vec3f(1.0f), 10, 140, false);
 		}
 	}
 
@@ -1339,10 +1405,10 @@ void Game::render2d(){
     //2d mouse
 	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
 
-	if(difftime(time(NULL),lastRenderLog2d) >= 1) {
+	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
+		
 		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
-
 		SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
 	}
 }
@@ -1376,9 +1442,14 @@ void Game::checkWinnerStandard(){
 		if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 			// Let the poor user watch everything unfold
 			world.setFogOfWar(false);
-			//gameCamera.setClampBounds(false);
-			Renderer::getInstance().setPhotoMode(true);
-			gameCamera.setMaxHeight(500);
+
+			// This caused too much LAG for network games
+			if(this->gameSettings.isNetworkGame() == false) {
+				Renderer::getInstance().setPhotoMode(true);
+				gameCamera.setMaxHeight(500);
+			}
+			// END
+
 			// but don't let him cheat via teamchat
 			chatManager.setDisableTeamMode(true);
 		}
@@ -1407,9 +1478,13 @@ void Game::checkWinnerStandard(){
 			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the happy winner view everything left in the world
 				world.setFogOfWar(false);
-				//gameCamera.setClampBounds(false);
-				Renderer::getInstance().setPhotoMode(true);
-				gameCamera.setMaxHeight(500);
+
+				// This caused too much LAG for network games
+				if(this->gameSettings.isNetworkGame() == false) {
+					Renderer::getInstance().setPhotoMode(true);
+					gameCamera.setMaxHeight(500);
+				}
+				// END
 			}
 
 			showWinMessageBox();

@@ -23,7 +23,6 @@
 #include "platform_util.h"
 #include "platform_main.h"
 #include "network_interface.h"
-#include "sound_renderer.h"
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
@@ -31,6 +30,7 @@
 #include "font.h"
 #include <curl/curl.h>
 #include "menu_state_masterserver.h"
+#include "checksum.h"
 
 #include "leak_dumper.h"
 
@@ -86,7 +86,7 @@ public:
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         Program *program = Program::getInstance();
         if(program && gameInitialized == true) {
@@ -118,75 +118,131 @@ MainWindow::MainWindow(Program *program){
 
 MainWindow::~MainWindow(){
 	delete program;
+	program = NULL;
 }
 
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
-
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
-    ProgramState *programState = program->getState();
-
-    switch(mouseButton) {
-    case mbLeft:
-        programState->mouseDownLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseDownRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseDownCenter(vx, vy);
-        break;
-    default:
-        break;
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	switch(mouseButton) {
+		case mbLeft:
+			program->mouseDownLeft(vx, vy);
+			break;
+		case mbRight:
+			//program->mouseDownRight(vx, vy);
+			break;
+		case mbCenter:
+			//program->mouseDownCenter(vx, vy);
+			break;
+		default:
+			break;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    ProgramState *programState = program->getState();
+    if(programState != NULL) {
+		switch(mouseButton) {
+			case mbLeft:
+				programState->mouseDownLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseDownRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseDownCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     ProgramState *programState = program->getState();
 
-    switch(mouseButton) {
-    case mbLeft:
-        programState->mouseUpLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseUpRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseUpCenter(vx, vy);
-        break;
-    default:
-        break;
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(programState != NULL) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		switch(mouseButton) {
+			case mbLeft:
+				programState->mouseUpLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseUpRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseUpCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton){
+void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const Metrics &metrics= Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     ProgramState *programState = program->getState();
 
-    switch(mouseButton){
-    case mbLeft:
-        programState->mouseDoubleClickLeft(vx, vy);
-        break;
-    case mbRight:
-        programState->mouseDoubleClickRight(vx, vy);
-        break;
-    case mbCenter:
-        programState->mouseDoubleClickCenter(vx, vy);
-        break;
-    default:
-        break;
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(programState != NULL) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		switch(mouseButton){
+			case mbLeft:
+				programState->mouseDoubleClickLeft(vx, vy);
+				break;
+			case mbRight:
+				programState->mouseDoubleClickRight(vx, vy);
+				break;
+			case mbCenter:
+				programState->mouseDoubleClickCenter(vx, vy);
+				break;
+			default:
+				break;
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
@@ -195,8 +251,16 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
     int vx = metrics.toVirtualX(x);
     int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    }
+
+    program->eventMouseMove(vx, vy, ms);
+
     ProgramState *programState = program->getState();
-    programState->mouseMove(vx, vy, ms);
+    if(programState != NULL) {
+    	programState->mouseMove(vx, vy, ms);
+    }
 }
 
 void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
@@ -207,21 +271,36 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	int vx = metrics.toVirtualX(x);
 	int vy = metrics.toVirtualY(getH() - y);
 
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    }
+
     ProgramState *programState = program->getState();
-	programState->eventMouseWheel(vx, vy, zDelta);
+
+    if(programState != NULL) {
+    	programState->eventMouseWheel(vx, vy, zDelta);
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyDown(char key){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
+
+	SDL_keysym keystate = Window::getKeystate();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    }
+
 	program->keyDown(key);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(key == vkReturn) {
-		SDL_keysym keystate = Window::getKeystate();
-		if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+		if(key == vkReturn) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// This stupidity only required in win32.
@@ -237,29 +316,56 @@ void MainWindow::eventKeyDown(char key){
 		}
 	}
 
+	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+			Renderer &renderer= Renderer::getInstance();
+			bool showDebugUI = renderer.getShowDebugUI();
+			renderer.setShowDebugUI(!showDebugUI);
+		}
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyUp(char key){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
+    }
+
 	program->keyUp(key);
 }
 
 void MainWindow::eventKeyPress(char c){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
+    }
+
 	program->keyPress(c);
 
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
-		bool showCursorState = false;
-		int state = SDL_ShowCursor(SDL_QUERY);
-		if(state == SDL_DISABLE) {
-			showCursorState = true;
+	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			bool showCursorState = false;
+			int state = SDL_ShowCursor(SDL_QUERY);
+			if(state == SDL_DISABLE) {
+				showCursorState = true;
+			}
+
+			showCursor(showCursorState);
+			Renderer &renderer= Renderer::getInstance();
+			renderer.setNo2DMouseRendering(showCursorState);
+
+			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 		}
-
-		showCursor(showCursorState);
-		Renderer &renderer= Renderer::getInstance();
-		renderer.setNo2DMouseRendering(showCursorState);
 	}
-
 }
 
 void MainWindow::eventActivate(bool active){
@@ -269,6 +375,10 @@ void MainWindow::eventActivate(bool active){
 }
 
 void MainWindow::eventResize(SizeState sizeState){
+    if(program == NULL) {
+    	throw runtime_error("In [MainWindow::eventResize] ERROR, program == NULL!");
+    }
+
 	program->resize(sizeState);
 }
 
@@ -304,19 +414,30 @@ int glestMain(int argc, char** argv){
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
-#ifdef USE_STREFLOP
+	bool haveSpecialOutputCommandLineOption = false;
+	if( hasCommandArgument(argc, argv,"--opengl-info") 	== true ||
+		hasCommandArgument(argc, argv,"--version") 		== true ||
+		hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
+		haveSpecialOutputCommandLineOption = true;
+	}
 
+	if( haveSpecialOutputCommandLineOption == false ||
+		hasCommandArgument(argc, argv,"--version") == true) {
+#ifdef USE_STREFLOP
 	streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
 #else
 	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
 #endif
+	}
 
-	if(hasCommandArgument(argc, argv,"--version") == true) {
+	if( hasCommandArgument(argc, argv,"--version") 		== true &&
+		hasCommandArgument(argc, argv,"--opengl-info") 	== false &&
+		hasCommandArgument(argc, argv,"validate-factions") 	== false) {
 		return -1;
 	}
 
-	SystemFlags::init();
+	SystemFlags::init(haveSpecialOutputCommandLineOption);
 	SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
 	SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;
 
@@ -336,6 +457,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
 		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  = config.getBool("DebugUnitCommands","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  = config.getBool("DebugPathFinder","false");
 
 		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
@@ -357,26 +479,41 @@ int glestMain(int argc, char** argv){
         if(debugUnitCommandsLogFile == "") {
         	debugUnitCommandsLogFile = debugLogFile;
         }
+		string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
+        if(debugUnitCommandsLogFile == "") {
+        	debugUnitCommandsLogFile = debugLogFile;
+        }
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName  = debugUnitCommandsLogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName  = debugPathFinderLogFile;
 
-		printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d]\n",
-			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
-			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled);
+        if(haveSpecialOutputCommandLineOption == false) {
+        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d]\n",
+        			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
+        }
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
-		
+
+#ifdef USE_STREFLOP
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
+#else
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
+#endif
+
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
+		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
 
 		// 256 for English
 		// 30000 for Chinese
@@ -397,6 +534,10 @@ int glestMain(int argc, char** argv){
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
 		}
+		if(config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str()) >= 0) {
+			SystemFlags::DEFAULT_HTTP_TIMEOUT = config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str());
+		}
+
 		bool allowAltEnterFullscreenToggle = config.getBool("AllowAltEnterFullscreenToggle",boolToStr(Window::getAllowAltEnterFullscreenToggle()).c_str());
 		Window::setAllowAltEnterFullscreenToggle(allowAltEnterFullscreenToggle);
 
@@ -405,7 +546,7 @@ int glestMain(int argc, char** argv){
 		}
 
 		// Over-ride default network command framecount
-		GameConstants::networkFramePeriod = config.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str());
+		//GameConstants::networkFramePeriod = config.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str());
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
@@ -433,7 +574,105 @@ int glestMain(int argc, char** argv){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		Renderer &renderer= Renderer::getInstance();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
+
+		if(hasCommandArgument(argc, argv,"--opengl-info") == true) {
+			Renderer &renderer= Renderer::getInstance();
+			printf("%s",renderer.getGlInfo().c_str());
+
+			delete mainWindow;
+
+			return -1;
+		}
+		if(hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
+
+			printf("====== Started Validation ======\n");
+
+			Config &config = Config::getInstance();
+			vector<string> results;
+			findDirs(config.getPathListForType(ptTechs), results);
+			vector<string> techTreeFiles = results;
+
+			{
+			World world;
+
+		    vector<string> techPaths = config.getPathListForType(ptTechs);
+		    for(int idx = 0; idx < techPaths.size(); idx++) {
+		        string &techPath = techPaths[idx];
+		        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
+					string &techName = techTreeFiles[idx2];
+
+					vector<string> factionsList;
+					findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
+
+					if(factionsList.size() > 0) {
+						Checksum checksum;
+						set<string> factions;
+						for(int j = 0; j < factionsList.size(); ++j) {
+							factions.insert(factionsList[j]);
+						}
+
+						printf("\nChecking techPath [%s] techName [%s] factionsList.size() = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
+						for(int j = 0; j < factionsList.size(); ++j) {
+							printf("Found faction [%s]\n",factionsList[j].c_str());
+						}
+
+						world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
+						// Validate the faction setup to ensure we don't have any bad associations
+						std::vector<std::string> resultErrors = world.validateFactionTypes();
+						if(resultErrors.size() > 0) {
+							// Display the validation errors
+							string errorText = "\nErrors were detected:\n=====================\n";
+							for(int i = 0; i < resultErrors.size(); ++i) {
+								if(i > 0) {
+									errorText += "\n";
+								}
+								errorText += resultErrors[i];
+							}
+							errorText += "\n=====================\n";
+							//throw runtime_error(errorText);
+							printf("%s",errorText.c_str());
+						}
+
+						// Validate the faction resource setup to ensure we don't have any bad associations
+						printf("\nChecking resources, count = %d\n",world.getTechTree()->getResourceTypeCount());
+
+						for(int i = 0; i < world.getTechTree()->getResourceTypeCount(); ++i) {
+							printf("Found techtree resource [%s]\n",world.getTechTree()->getResourceType(i)->getName().c_str());
+						}
+
+						resultErrors = world.validateResourceTypes();
+						if(resultErrors.size() > 0) {
+							// Display the validation errors
+							string errorText = "\nErrors were detected:\n=====================\n";
+							for(int i = 0; i < resultErrors.size(); ++i) {
+								if(i > 0) {
+									errorText += "\n";
+								}
+								errorText += resultErrors[i];
+							}
+							errorText += "\n=====================\n";
+							//throw runtime_error(errorText);
+							printf("%s",errorText.c_str());
+						}
+					}
+		        }
+			}
+
+		    printf("\n====== Finished Validation ======\n");
+			}
+
+		    delete mainWindow;
+		    return -1;
+		}
+
 		gameInitialized = true;
+
+		string screenShotsPath = GameConstants::folder_path_screenshots;
+        if(isdir(screenShotsPath.c_str()) == false) {
+        	createDirectoryPaths(screenShotsPath);
+        }
 
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);

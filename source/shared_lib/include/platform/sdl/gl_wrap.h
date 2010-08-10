@@ -48,7 +48,7 @@ class PlatformContextGl {
 public:
 	virtual ~PlatformContextGl() {}
 
-	virtual void init(int colorBits, int depthBits, int stencilBits);
+	virtual void init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing);
 	virtual void end();
 
 	virtual void makeCurrent();

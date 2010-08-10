@@ -31,6 +31,26 @@ namespace Glest{ namespace Game{
 // 	class Faction
 // =====================================================
 
+Faction::Faction() {
+	texture = NULL;
+}
+
+Faction::~Faction() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Renderer &renderer= Renderer::getInstance();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//renderer.endTexture(rsGame,texture);
+	//texture->end();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//delete texture;
+	texture = NULL;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 void Faction::init(
 	const FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)

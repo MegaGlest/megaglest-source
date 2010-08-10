@@ -55,6 +55,7 @@ bool Window::allowAltEnterFullscreenToggle = false;
 #else
 bool Window::allowAltEnterFullscreenToggle = true;
 #endif
+int Window::lastShowMouseState = 0;
 
 // ========== PUBLIC ==========
 
@@ -127,7 +128,9 @@ bool Window::handleEvent() {
 					codeLocation = "f";
 
 					if(global_window) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						global_window->handleMouseDown(event);
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					break;
 				case SDL_MOUSEBUTTONUP: {
@@ -165,6 +168,9 @@ bool Window::handleEvent() {
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
 					keystate = event.key.keysym;
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
+
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
@@ -172,8 +178,6 @@ bool Window::handleEvent() {
 						toggleFullscreen();
 					}
 					if(global_window) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 						global_window->eventKeyDown(getKey(event.key.keysym,true));
 						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 
@@ -207,7 +211,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPACTIVE) {
@@ -219,7 +225,9 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					// Check if the program has lost window focus
 					else if (event.active.state == SDL_APPMOUSEFOCUS) {
@@ -231,7 +239,8 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
 					else {
 						if (event.active.gain == 0) {
@@ -242,25 +251,30 @@ bool Window::handleEvent() {
 						}
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
-						showCursor(!Window::isActive || Window::getUseDefaultCursorOnly());
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
 					}
-
 				} 
 				break;
 			}
 		} 
-		catch(std::runtime_error& e) {
-			std::cerr << "(a) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
+		catch(const char *e){
+			std::cerr << "(a1) Couldn't process event: " << e << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a1) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e,codeLocation.c_str());
+			throw runtime_error(e);
+		}
+		catch(const std::runtime_error& e) {
+			std::cerr << "(a2) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (a2) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 			throw runtime_error(e.what());
 		}
-		catch(std::exception& e) {
+		catch(const std::exception& e) {
 			std::cerr << "(b) Couldn't process event: " << e.what() << " codelocation = " << codeLocation << "\n";
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e.what(),codeLocation.c_str());
 		}
 		catch(...) {
 			std::cerr << "(c) Couldn't process event: [UNKNOWN ERROR] " << " codelocation = " << codeLocation << "\n";
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (b) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] (c) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -333,7 +347,7 @@ void Window::destroy() {
 	SDL_PushEvent(&event);
 }
 
-void Window::setupGraphicsScreen(int depthBits, int stencilBits) {
+void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_acceleration, bool fullscreen_anti_aliasing) {
 	static int newDepthBits   = depthBits;
 	static int newStencilBits = stencilBits;
 	if(depthBits >= 0)
@@ -341,6 +355,13 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits) {
 	if(stencilBits >= 0)
 		newStencilBits = stencilBits;
 
+	if(fullscreen_anti_aliasing == true) {
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+	}
+	if(hardware_acceleration == true) {
+		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	}
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
@@ -448,7 +469,13 @@ void Window::toggleFullscreen() {
 	
 #else
 	if(Window::allowAltEnterFullscreenToggle == true) {
-		SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(cur_surface != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SDL_WM_ToggleFullScreen(cur_surface);
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 #endif
 
@@ -459,7 +486,11 @@ void Window::handleMouseDown(SDL_Event event) {
 	static const Uint32 DOUBLECLICKTIME = 500;
 	static const int DOUBLECLICKDELTA = 5;
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	MouseButton button = getMouseButton(event.button.button);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// windows implementation uses 120 for the resolution of a standard mouse
 	// wheel notch.  However, newer mice have finer resolutions.  I dunno if SDL
@@ -475,23 +506,35 @@ void Window::handleMouseDown(SDL_Event event) {
 		return;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Uint32 ticks = SDL_GetTicks();
 	int n = (int) button;
 
 	assert(n >= 0 && n < mbCount);
 	if(n >= 0 && n < mbCount) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
 				&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
 				&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDown(event.button.x, event.button.y, button);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDoubleClick(event.button.x, event.button.y, button);
 		}
 		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			eventMouseDown(event.button.x, event.button.y, button);
 		}
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		lastMouseDown[n] = ticks;
 		lastMouseX[n] = event.button.x;
 		lastMouseY[n] = event.button.y;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
 
@@ -528,6 +571,15 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			case SDLK_RSHIFT:
 				return vkShift;
 		}
+		if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+			return vkAlt;
+		}
+		else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+			return vkControl;
+		}
+		else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+			return vkShift;
+		}
 	}
 	switch(keysym.sym) {
 		case SDLK_PLUS:
@@ -549,6 +601,8 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		case SDLK_RETURN:
 		case SDLK_KP_ENTER:
 			return vkReturn;
+		case SDLK_TAB:
+			return vkTab;
 		case SDLK_BACKSPACE:
 			return vkBack;
 		case SDLK_0:
@@ -626,10 +680,45 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		case SDLK_z:
 			return 'Z';
 		default:
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			Uint16 c = keysym.unicode;
 			if((c & 0xFF80) == 0) {
-				return toupper(c);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				c = keysym.unicode & 0x7F;
+				c = toupper(c);
 			}
+			if(c == 0) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(skipSpecialKeys == true) {
+					switch(keysym.sym) {
+						case SDLK_LALT:
+						case SDLK_RALT:
+							return vkAlt;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							return vkControl;
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							return vkShift;
+					}
+
+					if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+						return vkAlt;
+					}
+					else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+						return vkControl;
+					}
+					else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+						return vkShift;
+					}
+				}
+
+				c = keysym.sym;
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+			return (c & 0xFF);
 			break;
 	}
 

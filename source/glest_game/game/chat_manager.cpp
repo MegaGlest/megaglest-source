@@ -52,6 +52,8 @@ void ChatManager::keyUp(char key){
 	
 	try {
 		if(editEnabled){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 			if(key==vkEscape)
 			{
 				text.clear();
@@ -76,13 +78,15 @@ void ChatManager::setDisableTeamMode(bool value) {
 }
 
 void ChatManager::keyDown(char key){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 	try {
 		Lang &lang= Lang::getInstance();
 
 		//toggle team mode
 		if(editEnabled == false && disableTeamMode == false && key=='H') {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 			if(teamMode){
 				teamMode= false;
 				console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
@@ -94,13 +98,20 @@ void ChatManager::keyDown(char key){
 		}
 
 		if(key==vkReturn){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 			SDL_keysym keystate = Window::getKeystate();
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)){
 				// alt+enter is ignored
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 			}
 			else
 			{
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 				if(editEnabled){
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 					if(!text.empty()) {
 						console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
@@ -114,14 +125,18 @@ void ChatManager::keyDown(char key){
 					}	
 					text.clear();
 				}
-				else{
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
 					editEnabled= true;
 					text.clear();
 				}
 			}
 		}
-		else if(key==vkBack){
-			if(!text.empty()){
+		else if(key==vkBack) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+
+			if(!text.empty()) {
 				text.erase(text.end() -1);
 			}
 		}
@@ -137,7 +152,10 @@ void ChatManager::keyDown(char key){
 }
 
 void ChatManager::keyPress(char c){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,c);
+
 	if(editEnabled && text.size()<maxTextLenght){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,c);
 		//space is the first meaningful code
 		if(c>=' '){
 			text+= c;
@@ -154,7 +172,7 @@ void ChatManager::updateNetwork() {
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
-		if(gameNetworkInterface->getChatTextList().empty() == false) {
+		if(gameNetworkInterface != NULL && gameNetworkInterface->getChatTextList().empty() == false) {
 			for(int idx = 0; idx < gameNetworkInterface->getChatTextList().size(); idx++) {
 				const ChatMsgInfo &msg = gameNetworkInterface->getChatTextList()[idx];
 				int teamIndex= msg.chatTeamIndex;

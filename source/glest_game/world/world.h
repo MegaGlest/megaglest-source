@@ -43,6 +43,8 @@ class Config;
 class Game;
 class GameSettings;
 class ScriptManager;
+class Cartographer;
+class RoutePlanner;
 
 // =====================================================
 // 	class World
@@ -50,9 +52,31 @@ class ScriptManager;
 ///	The game world: Map + Tileset + TechTree
 // =====================================================
 
+class ExploredCellsLookupKey {
+public:
+
+	Vec2i pos;
+	int sightRange;
+	int teamIndex;
+};
+
+class ExploredCellsLookupItem {
+public:
+
+	int ExploredCellsLookupItemCacheTimerCountIndex;
+	std::vector<SurfaceCell *> exploredCellList;
+	std::vector<SurfaceCell *> visibleCellList;
+
+	static time_t lastDebug;
+};
+
 class World{
 private:
 	typedef vector<Faction> Factions;
+
+	std::map<Vec2i, std::map<int, std::map<int, ExploredCellsLookupItem> > > ExploredCellsLookupItemCache;
+	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
+	int ExploredCellsLookupItemCacheTimerCount;
 
 public:
 	static const int generationArea= 100;
@@ -78,6 +102,8 @@ private:
 	RandomGen random;
 
 	ScriptManager* scriptManager;
+	Cartographer *cartographer;
+	RoutePlanner *routePlanner;
 
 	int thisFactionIndex;
 	int thisTeamIndex;
@@ -91,6 +117,8 @@ private:
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
 	Game *game;
+	Chrono chronoPerfTimer;
+	bool perfTimerEnabled;
 
 public:
 	World();
@@ -110,6 +138,8 @@ public:
 	const TimeFlow *getTimeFlow() const				{return &timeFlow;}
 	Tileset *getTileset() 							{return &tileset;}
 	Map *getMap() 									{return &map;}
+	Cartographer* getCartographer()					{return cartographer;}
+	RoutePlanner* getRoutePlanner()					{return routePlanner;}
 	const Faction *getFaction(int i) const			{return &factions[i];}
 	Faction *getFaction(int i) 						{return &factions[i];}
 	const Minimap *getMinimap() const				{return &minimap;}
@@ -151,6 +181,9 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 	Game * getGame() { return game; }
+
+	std::vector<std::string> validateFactionTypes();
+	std::vector<std::string> validateResourceTypes();
 
 	void setFogOfWar(bool value);
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;

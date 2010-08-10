@@ -21,7 +21,7 @@ const int MainWindow::margin= 10;
 const int MainWindow::panelMargin= 20;
 const int MainWindow::gridMarginHorizontal= 30;
 
-const string MainWindow::versionString= "v1.3.5-beta1";
+const string MainWindow::versionString= "v1.3.5";
 const string MainWindow::winHeader= "Mega-Glest config " + versionString + " - Built: " + __DATE__;
 
 MainWindow::MainWindow() :
