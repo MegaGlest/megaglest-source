@@ -152,14 +152,14 @@ if [ $REPACKONLY -eq 0 ]; then
 	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
 	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find data/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find docs/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find maps/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find scenarios/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find screens/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find techs/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tilesets/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tutorials/ \( -name "*.*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find data/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find docs/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find maps/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find scenarios/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find screens/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find techs/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find tilesets/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find tutorials/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 
 	popd
 
