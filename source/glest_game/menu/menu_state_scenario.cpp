@@ -239,7 +239,8 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setFogOfWar(scenarioInfo->fogOfWar);
-	gameSettings->setPathFinderType(pfRoutePlanner);
+
+	gameSettings->setPathFinderType(static_cast<PathFinderType>(Config::getInstance().getInt("ScenarioPathFinderType",intToStr(pfBasic).c_str())));
 }
 
 ControlType MenuStateScenario::strToControllerType(const string &str){
