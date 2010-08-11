@@ -1059,15 +1059,14 @@ void Renderer::renderButton(const GraphicButton *button){
 
 	//button
 	Vec4f fontColor;
-
-	if(game!=NULL){
-		fontColor=game->getGui()->getDisplay()->getColor();
-		fontColor.w = GraphicComponent::getFade();
-	}
-	else {
+	//if(game!=NULL){
+	//	fontColor=game->getGui()->getDisplay()->getColor();
+	//	fontColor.w = GraphicComponent::getFade();
+	//}
+	//else {
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
-	}
+	//}
 
 	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
 	Vec4f color= fontColor;
@@ -1212,14 +1211,13 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 	}
 
 	Vec4f fontColor;
-
-	if(game!=NULL){
-		fontColor=game->getGui()->getDisplay()->getColor();
-	}
-	else {
+	//if(game!=NULL){
+	//	fontColor=game->getGui()->getDisplay()->getColor();
+	//}
+	//else {
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
-	}
+	//}
 
 	//text
 	renderTextShadow(

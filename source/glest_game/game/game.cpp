@@ -1297,7 +1297,7 @@ void Game::render2d(){
 
 		renderer.renderText(
 			scriptManager.getDisplayText(), coreData.getMenuFontNormal(),
-			fontColor, 200, 680, false);
+			Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
