@@ -1293,9 +1293,11 @@ void Game::render2d(){
 
 	//script display text
 	if(!scriptManager.getDisplayText().empty() && !scriptManager.getMessageBoxEnabled()){
+		Vec4f fontColor = getGui()->getDisplay()->getColor();
+
 		renderer.renderText(
 			scriptManager.getDisplayText(), coreData.getMenuFontNormal(),
-			Vec3f(1.0f), 200, 680, false);
+			fontColor, 200, 680, false);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();

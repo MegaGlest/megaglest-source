@@ -979,6 +979,20 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &c
 	glPopAttrib();
 }
 
+void Renderer::renderText(const string &text, const Font2D *font, const Vec4f &color, int x, int y, bool centered){
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glEnable(GL_BLEND);
+	glColor4fv(color.ptr());
+
+	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+
+	textRenderer->begin(font);
+	textRenderer->render(text, pos.x, pos.y);
+	textRenderer->end();
+
+	glPopAttrib();
+}
+
 void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered){
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
@@ -1044,7 +1058,19 @@ void Renderer::renderButton(const GraphicButton *button){
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
 
 	//button
-	Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	Vec4f fontColor;
+
+	if(game!=NULL){
+		fontColor=game->getGui()->getDisplay()->getColor();
+		fontColor.w = GraphicComponent::getFade();
+	}
+	else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	}
+
+	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	Vec4f color= fontColor;
 	glColor4fv(color.ptr());
 
 	glBegin(GL_TRIANGLE_STRIP);
@@ -1070,8 +1096,8 @@ void Renderer::renderButton(const GraphicButton *button){
 
 	if(button->getLighted() && button->getEditable()){
 		const int lightSize= 0;
-		const Vec4f color1= Vec4f(1.f, 1.f, 1.f, 0.1f+anim*0.5f);
-		const Vec4f color2= Vec4f(1.f, 1.f, 1.f, 0.3f+anim);
+		const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
+		const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
 
 		glBegin(GL_TRIANGLE_FAN);
 
@@ -1102,8 +1128,9 @@ void Renderer::renderButton(const GraphicButton *button){
 	Vec2i textPos= Vec2i(x+w/2, y+h/2);
 
 	if(button->getEditable()){
+
 		renderText(
-			button->getText(), button->getFont(), GraphicButton::getFade(),
+			button->getText(), button->getFont(), color,
 			x+w/2, y+h/2, true);
 	}
 	else {
@@ -1184,14 +1211,24 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 		renderButton(messageBox->getButton2());
 	}
 
+	Vec4f fontColor;
+
+	if(game!=NULL){
+		fontColor=game->getGui()->getDisplay()->getColor();
+	}
+	else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
+	}
+
 	//text
-	renderText(
-		messageBox->getText(), messageBox->getFont(), Vec3f(1.0f, 1.0f, 1.0f),
+	renderTextShadow(
+		messageBox->getText(), messageBox->getFont(), fontColor,
 		messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
 		false );
 
-	renderText(
-		messageBox->getHeader(), messageBox->getFont(),Vec3f(1.0f, 1.0f, 1.0f),
+	renderTextShadow(
+		messageBox->getHeader(), messageBox->getFont(),fontColor,
 		messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
 		false );
 }
