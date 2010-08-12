@@ -55,7 +55,10 @@ bool gameInitialized = false;
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle(){
-		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.";
+		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString;
+#ifdef WIN32
+		msg += ", attaching the generated "+getCrashDumpFileName()+" file.";
+#endif
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
         Program *program = Program::getInstance();
@@ -77,7 +80,10 @@ public:
             program->showMessage(msg);
         }
         else {
-            message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString+", attaching the generated "+getCrashDumpFileName()+" file.");
+            message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString);
+#ifdef WIN32
+            message += ", attaching the generated "+getCrashDumpFileName()+" file.";
+#endif
         }
         showCursor(true);
         restoreVideoMode(true);
