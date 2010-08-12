@@ -80,10 +80,11 @@ public:
             program->showMessage(msg);
         }
         else {
-            message("#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString);
+            string err = "#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString;
 #ifdef WIN32
-            message += ", attaching the generated "+getCrashDumpFileName()+" file.";
+            err += string(", attaching the generated ") + getCrashDumpFileName() + string(" file.");
 #endif
+			message(err);
         }
         showCursor(true);
         restoreVideoMode(true);
