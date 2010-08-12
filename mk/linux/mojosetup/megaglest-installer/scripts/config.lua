@@ -1,4 +1,5 @@
 local GAME_INSTALL_SIZE = 510000000;
+local GAME_VERSION = "3.3.6";
 
 local _ = MojoSetup.translate
 
@@ -6,8 +7,8 @@ Setup.Package
 {
     vendor = "glest.org",
     id = "megaglest",
-    description = _("Mega Glest"),
-    version = "3.3.6",
+    description = _("Mega Glest v" .. GAME_VERSION),
+    version = GAME_VERSION,
     splash = "glestforumsheader.bmp",
     superuser = false,
     write_manifest = true,
@@ -41,7 +42,7 @@ Setup.Package
         required = true,
         disabled = false,
         bytes = GAME_INSTALL_SIZE,
-        description = _("Mega Glest v" .. version),
+        description = _("Mega Glest v" .. GAME_VERSION),
 
         Setup.File
         {
