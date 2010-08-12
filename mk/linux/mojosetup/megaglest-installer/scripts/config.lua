@@ -6,8 +6,8 @@ Setup.Package
 {
     vendor = "glest.org",
     id = "megaglest",
-    description = _("Mega Glest"),
-    version = "3.3.5",
+    description = _("Mega Glest v3.3.6"),
+    version = "3.3.6",
     splash = "glestforumsheader.bmp",
     superuser = false,
     write_manifest = true,
@@ -20,7 +20,7 @@ Setup.Package
     },
 
     postinstall = function(package)
-        MojoSetup.launchbrowser(MojoSetup.destination .. "http://www.glest.org/glest_board/index.php?topic=4930.0")
+        MojoSetup.launchbrowser("http://www.glest.org/glest_board/index.php?topic=4930.0")
     end,
 
     Setup.Eula
