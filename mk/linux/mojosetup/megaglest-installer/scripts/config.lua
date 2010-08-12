@@ -6,7 +6,7 @@ Setup.Package
 {
     vendor = "glest.org",
     id = "megaglest",
-    description = _("Mega Glest v3.3.6"),
+    description = _("Mega Glest"),
     version = "3.3.6",
     splash = "glestforumsheader.bmp",
     superuser = false,
@@ -41,7 +41,7 @@ Setup.Package
         required = true,
         disabled = false,
         bytes = GAME_INSTALL_SIZE,
-        description = _("Mega Glest"),
+        description = _("Mega Glest v" .. version),
 
         Setup.File
         {
