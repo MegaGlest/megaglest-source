@@ -1,8 +1,10 @@
 ;--------------------------------
 ; General Attributes
 
-!define APNAME Mega-Glest
-!define APVER 3.3.5
+!define APNAME MegaGlest
+!define APNAME_OLD Mega-Glest
+!define APVER_OLD 3.3.5
+!define APVER 3.3.6
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -12,7 +14,7 @@ Icon "..\megaglest.ico"
 UninstallIcon "..\megaglest.ico"
 !define MUI_ICON "..\megaglest.ico"
 !define MUI_UNICON "..\megaglest.ico"
-InstallDir "$PROGRAMFILES\${APNAME}_${APVER}"
+InstallDir "$PROGRAMFILES\${APNAME}"
 ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
 
@@ -46,7 +48,7 @@ PageExEnd
 
 ; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
-InstallDirRegKey HKLM "Software\${APNAME}_${APVER}" "Install_Dir"
+InstallDirRegKey HKLM "Software\${APNAME}" "Install_Dir"
 
 ; Pages
 
@@ -60,7 +62,7 @@ Function MUIGUIInit
 
   SetOutPath '$PLUGINSDIR'
   File megaglestinstallscreen.jpg
-  
+
   FindWindow $0 '_Nb'
   EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
 
@@ -68,28 +70,53 @@ Function MUIGUIInit
 #  GetDlgItem $0 $0 1006
 #  SetCtlColors $0 0xDF9437 0xDF9437
 
-   ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "UninstallString"
-   StrCmp $R0 "" doneInit
+# look for known older versions
+
+   StrCpy $R2 ${APVER}
+   
+   ReadRegStr $R0 HKLM Software\${APNAME} "Install_Dir"
+   StrCmp $R0 "" +2 0
+   ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "UninstallString"
+   ReadRegStr $R2 HKLM Software\${APNAME} "Version"
+   StrCmp $R0 "" 0 foundInst
+
+   ReadRegStr $R0 HKLM Software\${APNAME_OLD}_${APVER_OLD} "Install_Dir"
+   StrCmp $R0 "" +2 0
+   ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME_OLD}_${APVER_OLD}" "UninstallString"
+   StrCpy $R2 ${APVER_OLD}
+   StrCmp $R0 "" 0 foundInst
+
+   IfFileExists $INSTDIR\glest_game.exe 0 +2
+   StrCpy $R0 "$INSTDIR"
+   StrCpy $R2 "?"
+   IfFileExists $INSTDIR\glest_game.exe foundInst
+
+   IfFileExists $EXEDIR\glest_game.exe 0 +2
+   StrCpy $R0 "$EXEDIR"
+   StrCpy $R2 "?"
+   IfFileExists $EXEDIR\glest_game.exe foundInst doneInit
+
+foundInst:
 
 MessageBox MB_YESNO|MB_ICONEXCLAMATION \
-  "${APNAME} v${APVER} is already installed. $\n$\nClick `Yes` to remove the \
-  previous installation or `No` to over-write or install to a different location." \
+  "${APNAME} v$R2 is already installed in [$R0]. $\n$\nClick `Yes` to remove the \
+  previous installation (including all your MODS) or `No` to over-write or install to a different location." \
   IDYES uninstInit
 
   # change install folder to a version specific name to avoid over-writing
   # old one
-  StrCpy $INSTDIR "$PROGRAMFILES\${APNAME}_${APVER}"
+  StrCpy $INSTDIR "$R0"
   ClearErrors
-  
+
   goto doneInit
 
 ;Run the uninstaller
 uninstInit:
   ClearErrors
-  ExecWait '$R0 _?=$INSTDIR' ;Do not copy the uninstaller to a temp file
+  ExecWait '$R1 _?=$R0' ;Do not copy the uninstaller to a temp file
 
-  Exec $INSTDIR\uninst.exe ; instead of the ExecWait line
-    
+  Exec $R0\uninst.exe ; instead of the ExecWait line
+
 doneInit:
 
 FunctionEnd
@@ -104,7 +131,7 @@ FunctionEnd
 Function .onInstSuccess
 
     MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
-    click Yes to launch the game$\nor 'No' to exit." IDNO noLaunch
+    click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
 
     SetOutPath $INSTDIR
     Exec 'glest_game.exe'
@@ -119,7 +146,7 @@ Section "${APNAME} (required)"
   SectionIn RO
 
   #MUI_PAGE_INSTFILES
-  
+
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   ; Put file there
@@ -145,15 +172,16 @@ Section "${APNAME} (required)"
 #  File /r /x .svn "..\..\..\data\glest_game\screens"
 
   ; Write the installation path into the registry
-  WriteRegStr HKLM Software\${APNAME}_${APVER} "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM Software\${APNAME} "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM Software\${APNAME} "Version" "${APVER}"
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "DisplayName" "${APNAME} v${APVER}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "DisplayName" "${APNAME} v${APVER}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
-  
+
   CreateDirectory $INSTDIR\data
   CreateDirectory $INSTDIR\docs
   CreateDirectory $INSTDIR\maps
@@ -162,7 +190,7 @@ Section "${APNAME} (required)"
   CreateDirectory $INSTDIR\tilesets
   CreateDirectory $INSTDIR\tutorials
   CreateDirectory $INSTDIR\screens
-  
+
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 
 SectionEnd
@@ -170,13 +198,13 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\${APNAME} ${APVER}"
-  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} - ${APVER}.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0 "" "" "${APNAME} - ${APVER}"
-  
+  CreateDirectory "$SMPROGRAMS\${APNAME}"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0 "" "" "${APNAME}"
+
 ;  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Configurator.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0 "" "" "${APNAME} Config Editor"
-  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Map Editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0 "" "" "${APNAME} Map Editor"
-  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} G3D Viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0 "" "" "${APNAME} G3D Viewer"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0 "" "" "${APNAME} Map Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0 "" "" "${APNAME} G3D Viewer"
 
 SectionEnd
 
@@ -187,8 +215,8 @@ SectionEnd
 Section "Uninstall"
 
   ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}_${APVER}"
-  DeleteRegKey HKLM SOFTWARE\${APNAME}_${APVER}
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}"
+  DeleteRegKey HKLM SOFTWARE\${APNAME}
 
   ; Remove files and uninstaller
   Delete $INSTDIR\uninstall.exe
@@ -226,10 +254,10 @@ Section "Uninstall"
   RMDir /r $INSTDIR\tutorials
 
   ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\${APNAME}_${APVER}\*.*"
+  Delete "$SMPROGRAMS\${APNAME}\*.*"
 
   ; Remove directories used
-  RMDir "$SMPROGRAMS\${APNAME}_${APVER}"
+  RMDir "$SMPROGRAMS\${APNAME}"
   RMDir "$INSTDIR"
 
 SectionEnd
