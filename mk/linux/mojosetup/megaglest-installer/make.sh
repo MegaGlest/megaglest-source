@@ -6,8 +6,8 @@
 
 # below is the branch to build and installer from
 
-#megaglest_release_folder="trunk"
-megaglest_release_folder="release-3.3.5.1"
+megaglest_release_folder="trunk"
+#megaglest_release_folder="release-3.3.5.1"
 
 # below describe various folder paths relative to the installer root folder
 megaglest_project_root=../../../../../
@@ -152,14 +152,14 @@ if [ $REPACKONLY -eq 0 ]; then
 	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
 	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find data/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find docs/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find maps/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find scenarios/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find screens/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find techs/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tilesets/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tutorials/ \( -name "*" \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find scenarios/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find screens/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 
 	popd
 
@@ -168,6 +168,7 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	find data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
 	find data/ -name "*~" -exec rm -rf {} \;
+    find data/ -name "*.bak" -exec rm -rf {} \;
 
 	# Copy shared lib dependencies for glest.bin
 	cd data
