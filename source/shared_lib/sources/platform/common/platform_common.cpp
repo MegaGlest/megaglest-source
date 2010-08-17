@@ -272,9 +272,28 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 
 bool isdir(const char *path)
 {
-  struct stat stats;
+  string friendly_path = path;
 
-  bool ret = stat (path, &stats) == 0 && S_ISDIR(stats.st_mode);
+#ifdef WIN32
+  replaceAll(friendly_path, "/", "\\");
+  if(EndsWith(friendly_path, "\\") == true) {
+	  friendly_path.erase(friendly_path.begin() + friendly_path.length() -1);
+  }
+#endif
+
+  struct stat stats;
+  int result = stat(friendly_path.c_str(), &stats);
+  bool ret = (result == 0);
+  if(ret == true) {
+	  ret = S_ISDIR(stats.st_mode); // #define S_ISDIR(mode) ((mode) & _S_IFDIR)
+	
+	  if(ret == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret);
+	  }
+  }
+  else { 
+	  SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d, result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret,result,errno);
+  }
   //if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
 
   return ret;
@@ -595,12 +614,13 @@ void createDirectoryPaths(string Path)
      //if (':' != *(path-1))
      {
 #ifdef WIN32
-    	_mkdir(DirName);
+    	int result = _mkdir(DirName);
 #elif defined(__GNUC__)
-        mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
+        int result = mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
+		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
      }
    }
    *dirName++ = *path++;
