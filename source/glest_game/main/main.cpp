@@ -677,8 +677,10 @@ int glestMain(int argc, char** argv){
 		gameInitialized = true;
 
 		string screenShotsPath = GameConstants::folder_path_screenshots;
+		//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         if(isdir(screenShotsPath.c_str()) == false) {
         	createDirectoryPaths(screenShotsPath);
+			//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         }
 
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
