@@ -1229,9 +1229,9 @@ bool Socket::isConnected() {
 
 string Socket::getHostName()  {
 	const int strSize= 256;
-	char hostname[strSize];
+	char hostname[strSize]="";
 	gethostname(hostname, strSize);
-	return hostname;
+	return (hostname[0] != '\0' ? hostname : "");
 }
 
 string Socket::getIp() {
