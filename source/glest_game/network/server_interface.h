@@ -105,6 +105,7 @@ private:
 	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
 	void updateSlot(ConnectionSlotEvent *event);
+	void validateConnectedClients();
 };
 
 }}//end namespace

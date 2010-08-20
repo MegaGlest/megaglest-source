@@ -157,6 +157,8 @@ public:
 
 	const string &getVersionString() const	{return versionString;}
 
+	void validateConnection();
+
 protected:
 
 	Mutex * getServerSynchAccessor();

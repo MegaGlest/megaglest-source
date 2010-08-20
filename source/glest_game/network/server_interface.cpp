@@ -415,11 +415,27 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 	}
 }
 
+void ServerInterface::validateConnectedClients() {
+	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+		ConnectionSlot* connectionSlot = slots[i];
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot # %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+
+		if(connectionSlot != NULL) {
+			connectionSlot->validateConnection();
+		}
+	}
+}
+
 void ServerInterface::update() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	std::vector<string> errorMsgList;
 	try {
+		// The first thing we will do is check all clients to ensure they have
+		// properly identified themselves within the alloted time period
+		validateConnectedClients();
+
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
 		updateSocketTriggeredList(socketTriggeredList);
