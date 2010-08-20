@@ -1228,10 +1228,17 @@ bool Socket::isConnected() {
 }
 
 string Socket::getHostName()  {
-	const int strSize= 256;
+	const int strSize= 257;
 	char hostname[strSize]="";
-	gethostname(hostname, strSize);
-	return (hostname[0] != '\0' ? hostname : "");
+	int result = gethostname(hostname, strSize);
+	string host = "";
+	if(result == 0) {
+		host = (hostname[0] != '\0' ? hostname : "");
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,result,getLastSocketErrorText());
+	}
+	return host;
 }
 
 string Socket::getIp() {
