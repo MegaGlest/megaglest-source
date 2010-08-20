@@ -1172,8 +1172,14 @@ void MenuStateCustomGame::simpleTask() {
 	bool broadCastSettings = needToBroadcastServerSettings;
 	needToBroadcastServerSettings=false;
 
+	bool hasClientConnection = false;
+	if(broadCastSettings) {
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		hasClientConnection = serverInterface->hasClientConnection();
+	}
+
 	bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
-	safeMutex.ReleaseLock();
+	safeMutex.ReleaseLock(true);
 
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1216,7 +1222,7 @@ void MenuStateCustomGame::simpleTask() {
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(serverInterface->hasClientConnection() == true) {
+		if(hasClientConnection == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			GameSettings gameSettings;
@@ -1224,8 +1230,10 @@ void MenuStateCustomGame::simpleTask() {
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			safeMutex.Lock();
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);
+			safeMutex.ReleaseLock(true);
 		}
 	}
 
@@ -1235,7 +1243,10 @@ void MenuStateCustomGame::simpleTask() {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
+
+		safeMutex.Lock();
 		serverInterface->broadcastPing(&msg);
+		safeMutex.ReleaseLock(true);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
