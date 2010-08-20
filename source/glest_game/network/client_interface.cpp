@@ -532,9 +532,11 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 				int waitCount = 0;
 				//make sure we read the message
+				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageCommandList networkMessageCommandList;
 				while(receiveMessage(&networkMessageCommandList) == false &&
-					  isConnected() == true) {
+					  isConnected() == true &&
+					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
 					//sleep(waitSleepTime);
 					sleep(0);
 					waitCount++;
@@ -582,10 +584,12 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 			case nmtQuit:
 			{
+				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageQuit networkMessageQuit;
 				//if(receiveMessage(&networkMessageQuit)) {
 				while(receiveMessage(&networkMessageQuit) == false &&
-					  isConnected() == true) {
+					  isConnected() == true &&
+					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
 					sleep(0);
 				}
 				quit= true;
@@ -595,15 +599,14 @@ void ClientInterface::updateKeyframe(int frameCount)
 
 			case nmtText:
 			{
+				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageText networkMessageText;
 				while(receiveMessage(&networkMessageText) == false &&
-					  isConnected() == true) {
+					  isConnected() == true &&
+					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
 					sleep(0);
 				}
 
-				//chatText      = networkMessageText.getText();
-				//chatSender    = networkMessageText.getSender();
-				//chatTeamIndex = networkMessageText.getTeamIndex();
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
         		this->addChatInfo(msg);
 			}
