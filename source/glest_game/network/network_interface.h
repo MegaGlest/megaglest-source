@@ -107,8 +107,8 @@ public:
     static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
     static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }
 
-	string getIp() const		{return getSocket()->getIp();}
-	string getHostName() const	{return getSocket()->getHostName();}
+	string getIp() const		{return Socket::getIp();}
+	string getHostName() const	{return Socket::getHostName();}
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
 	NetworkMessageType getNextMessageType(bool checkHasDataFirst = false);

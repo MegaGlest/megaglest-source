@@ -1702,7 +1702,10 @@ Socket *ServerSocket::accept() {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	char client_host[100]="";
+	MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
+	safeMutex.ReleaseLock();
+
 	if(isSocketValid(&newSock) == false)
 	{
 	    char szBuf[1024]="";
