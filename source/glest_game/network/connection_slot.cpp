@@ -252,7 +252,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstOk);
+							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstOk);
 							sendMessage(&networkMessageIntro);
 						}
 					}
