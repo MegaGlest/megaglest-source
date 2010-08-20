@@ -241,16 +241,20 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					if(hasOpenSlots == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
 
-						NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstNoSlots);
-						sendMessage(&networkMessageIntro);
+						if(socket != NULL) {
+							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstNoSlots);
+							sendMessage(&networkMessageIntro);
+						}
 
 						close();
 					}
 					else {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__);
 
-						NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstOk);
-						sendMessage(&networkMessageIntro);
+						if(socket != NULL) {
+							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstOk);
+							sendMessage(&networkMessageIntro);
+						}
 					}
 				}
 			}
@@ -258,7 +262,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(socket->isConnected()) {
+			if(socket != NULL && socket->isConnected()) {
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
