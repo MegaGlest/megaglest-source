@@ -1179,7 +1179,7 @@ void MenuStateCustomGame::simpleTask() {
 	}
 
 	bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
-	safeMutex.ReleaseLock(true);
+	safeMutex.ReleaseLock();
 
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1226,14 +1226,15 @@ void MenuStateCustomGame::simpleTask() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			GameSettings gameSettings;
+
+			MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
 			loadGameSettings(&gameSettings);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			safeMutex.Lock();
 			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);
-			safeMutex.ReleaseLock(true);
+			safeMutex2.ReleaseLock();
 		}
 	}
 
@@ -1244,9 +1245,9 @@ void MenuStateCustomGame::simpleTask() {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
 
-		safeMutex.Lock();
+		MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
 		serverInterface->broadcastPing(&msg);
-		safeMutex.ReleaseLock(true);
+		safeMutex2.ReleaseLock();
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
