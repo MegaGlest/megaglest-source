@@ -262,7 +262,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
-				for(;socket->hasDataToRead() == true && gotTextMsg == true;) {
+				for(;socket != NULL && socket->hasDataToRead() == true && gotTextMsg == true;) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
 					NetworkMessageType networkMessageType= getNextMessageType(true);
