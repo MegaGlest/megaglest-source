@@ -46,6 +46,11 @@ public:
 		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
 		strncpy(buffer, str.c_str(), min(S-1,maxBufferSize-1));
 	}
+	void nullTerminate() {
+		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
+		buffer[maxBufferSize-1] = '\0';
+	}
+
 	string getString() const		  {return buffer;}
 };
 

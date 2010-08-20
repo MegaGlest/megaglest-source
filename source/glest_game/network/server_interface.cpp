@@ -1178,6 +1178,7 @@ void ServerInterface::updateListen() {
 		return;
 	}
 
+	MutexSafeWrapper safeMutex(&serverSynchAccessor);
 	int openSlotCount= 0;
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
 		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
@@ -1187,7 +1188,7 @@ void ServerInterface::updateListen() {
 		}
 	}
 
-	MutexSafeWrapper safeMutex(&serverSynchAccessor);
+	//MutexSafeWrapper safeMutex(&serverSynchAccessor);
 	serverSocket.listen(openSlotCount);
 	safeMutex.ReleaseLock();
 }

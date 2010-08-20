@@ -136,7 +136,10 @@ NetworkMessageIntro::NetworkMessageIntro(const string &versionString, const stri
 }
 
 bool NetworkMessageIntro::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	data.name.nullTerminate();
+	data.versionString.nullTerminate();
+	return result;
 }
 
 void NetworkMessageIntro::send(Socket* socket) const{
@@ -260,7 +263,17 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 }
 
 bool NetworkMessageLaunch::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	data.description.nullTerminate();
+	data.map.nullTerminate();
+	data.tileset.nullTerminate();
+	data.tech.nullTerminate();
+	for(int i= 0; i<GameConstants::maxPlayers; ++i){
+		data.factionTypeNames[i].nullTerminate();
+		data.networkPlayerNames[i].nullTerminate();
+	}
+
+	return result;
 }
 
 void NetworkMessageLaunch::send(Socket* socket) const{
@@ -385,7 +398,12 @@ NetworkMessageText::NetworkMessageText(const string &text, const string &sender,
 }
 
 bool NetworkMessageText::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+
+	data.text.nullTerminate();
+	data.sender.nullTerminate();
+
+	return result;
 }
 
 void NetworkMessageText::send(Socket* socket) const{
@@ -460,9 +478,14 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.mapCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.mapCRC,gameSettings->getMap().c_str());
 }
 
-bool NetworkMessageSynchNetworkGameData::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+
+	data.map.nullTerminate();
+	data.tileset.nullTerminate();
+	data.tech.nullTerminate();
+
+	return result;
 }
 
 void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
@@ -512,9 +535,12 @@ NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDa
     data.fileName       = fileName;
 }
 
-bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+
+	data.fileName.nullTerminate();
+
+	return result;
 }
 
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) const {
@@ -535,9 +561,12 @@ NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFil
     data.fileName       = fileName;
 }
 
-bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+
+	data.fileName.nullTerminate();
+
+	return result;
 }
 
 void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const {
@@ -572,9 +601,12 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
     data.toTeam = toTeam;
 }
 
-bool SwitchSetupRequest::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool SwitchSetupRequest::receive(Socket* socket) {
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+
+	data.selectedFactionName.nullTerminate();
+
+	return result;
 }
 
 void SwitchSetupRequest::send(Socket* socket) const

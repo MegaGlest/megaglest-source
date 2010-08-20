@@ -25,7 +25,6 @@
 
 using namespace std;
 using namespace Shared::Util;
-//using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
@@ -209,7 +208,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			if(checkForNewClients == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
-				if(serverInterface->getServerSocket()->hasDataToRead() == true) {
+				if(serverInterface->getServerSocket() != NULL &&
+					serverInterface->getServerSocket()->hasDataToRead() == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					socket = serverInterface->getServerSocket()->accept();
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
