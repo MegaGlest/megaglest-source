@@ -64,9 +64,8 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 		this->event = event;
 		safeMutex.ReleaseLock();
 	}
-	semTaskSignalled.signal();
-
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	semTaskSignalled.signal();
 }
 
 void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
