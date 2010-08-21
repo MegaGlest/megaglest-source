@@ -436,11 +436,16 @@ int glestMain(int argc, char** argv){
 		printf("\n--help\t\t\t\tdisplays this help text.");
 		printf("\n--version\t\t\tdisplays the version string of this program.");
 		printf("\n--opengl-info\t\t\tdisplays your video driver's OpenGL information.");
-		printf("\n--validate-techtrees\t\tdisplays a report detailing any known problems related");
-		printf("\n                     \t\tto your game techtree data.");
+		printf("\n--validate-techtrees=x\t\tdisplays a report detailing any known problems related");
+		printf("\n                     \t\tto your selected techtrees game data.");
+		printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
+		printf("\n                     \t\texample: %s --validate-techtrees=megapack,vbros_pack_5",argv[0]);
 		printf("\n--validate-factions=x\t\tdisplays a report detailing any known problems related");
 		printf("\n                     \t\tto your selected factions game data.");
 		printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
+		printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
+		printf("\n                     \t\t--validate-techtrees");
+		printf("\n                     \t\texample: %s --validate-factions=tech,egypt",argv[0]);
 		printf("\n\n");
 		return -1;
 	}
@@ -650,6 +655,28 @@ int glestMain(int argc, char** argv){
 			vector<string> results;
 			findDirs(config.getPathListForType(ptTechs), results);
 			vector<string> techTreeFiles = results;
+			// Did the user pass a specific list of techtrees to validate?
+			std::vector<string> filteredTechTreeList;
+			if(hasCommandArgument(argc, argv,"--validate-techtrees=") == true) {
+				int foundParamIndIndex = -1;
+				hasCommandArgument(argc, argv,"--validate-techtrees=",&foundParamIndIndex);
+				string filterList = argv[foundParamIndIndex];
+				vector<string> paramPartTokens;
+				Tokenize(filterList,paramPartTokens,"=");
+				if(paramPartTokens.size() >= 2) {
+					string techtreeList = paramPartTokens[1];
+					Tokenize(techtreeList,filteredTechTreeList,",");
+
+					if(filteredTechTreeList.size() > 0) {
+						printf("Filtering techtrees and only looking for the following:\n");
+						for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
+							filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
+							printf("%s\n",filteredTechTreeList[idx].c_str());
+						}
+					}
+				}
+			}
+
 
 			{
 			World world;
@@ -660,64 +687,68 @@ int glestMain(int argc, char** argv){
 		        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
 					string &techName = techTreeFiles[idx2];
 
-					vector<string> factionsList;
-					findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
+					if(	filteredTechTreeList.size() == 0 ||
+						std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
-					if(factionsList.size() > 0) {
-						Checksum checksum;
-						set<string> factions;
-						for(int j = 0; j < factionsList.size(); ++j) {
-							if(	filteredFactionList.size() == 0 ||
-								std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
-								factions.insert(factionsList[j]);
-							}
-						}
+						vector<string> factionsList;
+						findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
 
-						printf("\nChecking techPath [%s] techName [%s] factionsList.size() = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
-						for(int j = 0; j < factionsList.size(); ++j) {
-							if(	filteredFactionList.size() == 0 ||
-								std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
-								printf("Found faction [%s]\n",factionsList[j].c_str());
-							}
-						}
-
-						world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
-						// Validate the faction setup to ensure we don't have any bad associations
-						std::vector<std::string> resultErrors = world.validateFactionTypes();
-						if(resultErrors.size() > 0) {
-							// Display the validation errors
-							string errorText = "\nErrors were detected:\n=====================\n";
-							for(int i = 0; i < resultErrors.size(); ++i) {
-								if(i > 0) {
-									errorText += "\n";
+						if(factionsList.size() > 0) {
+							Checksum checksum;
+							set<string> factions;
+							for(int j = 0; j < factionsList.size(); ++j) {
+								if(	filteredFactionList.size() == 0 ||
+									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+									factions.insert(factionsList[j]);
 								}
-								errorText += resultErrors[i];
 							}
-							errorText += "\n=====================\n";
-							//throw runtime_error(errorText);
-							printf("%s",errorText.c_str());
-						}
 
-						// Validate the faction resource setup to ensure we don't have any bad associations
-						printf("\nChecking resources, count = %d\n",world.getTechTree()->getResourceTypeCount());
-
-						for(int i = 0; i < world.getTechTree()->getResourceTypeCount(); ++i) {
-							printf("Found techtree resource [%s]\n",world.getTechTree()->getResourceType(i)->getName().c_str());
-						}
-
-						resultErrors = world.validateResourceTypes();
-						if(resultErrors.size() > 0) {
-							// Display the validation errors
-							string errorText = "\nErrors were detected:\n=====================\n";
-							for(int i = 0; i < resultErrors.size(); ++i) {
-								if(i > 0) {
-									errorText += "\n";
+							printf("\nChecking techPath [%s] techName [%s] factionsList.size() = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
+							for(int j = 0; j < factionsList.size(); ++j) {
+								if(	filteredFactionList.size() == 0 ||
+									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+									printf("Found faction [%s]\n",factionsList[j].c_str());
 								}
-								errorText += resultErrors[i];
 							}
-							errorText += "\n=====================\n";
-							//throw runtime_error(errorText);
-							printf("%s",errorText.c_str());
+
+							world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
+							// Validate the faction setup to ensure we don't have any bad associations
+							std::vector<std::string> resultErrors = world.validateFactionTypes();
+							if(resultErrors.size() > 0) {
+								// Display the validation errors
+								string errorText = "\nErrors were detected:\n=====================\n";
+								for(int i = 0; i < resultErrors.size(); ++i) {
+									if(i > 0) {
+										errorText += "\n";
+									}
+									errorText += resultErrors[i];
+								}
+								errorText += "\n=====================\n";
+								//throw runtime_error(errorText);
+								printf("%s",errorText.c_str());
+							}
+
+							// Validate the faction resource setup to ensure we don't have any bad associations
+							printf("\nChecking resources, count = %d\n",world.getTechTree()->getResourceTypeCount());
+
+							for(int i = 0; i < world.getTechTree()->getResourceTypeCount(); ++i) {
+								printf("Found techtree resource [%s]\n",world.getTechTree()->getResourceType(i)->getName().c_str());
+							}
+
+							resultErrors = world.validateResourceTypes();
+							if(resultErrors.size() > 0) {
+								// Display the validation errors
+								string errorText = "\nErrors were detected:\n=====================\n";
+								for(int i = 0; i < resultErrors.size(); ++i) {
+									if(i > 0) {
+										errorText += "\n";
+									}
+									errorText += resultErrors[i];
+								}
+								errorText += "\n=====================\n";
+								//throw runtime_error(errorText);
+								printf("%s",errorText.c_str());
+							}
 						}
 					}
 		        }
