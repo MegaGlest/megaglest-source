@@ -48,6 +48,23 @@ namespace Glest{ namespace Game{
 
 bool gameInitialized = false;
 
+const char  *GAME_ARGS[] = {
+	"--help",
+	"--version",
+	"--opengl-info",
+	"--validate-techtrees",
+	"--validate-factions"
+};
+
+enum GAME_ARG_TYPE {
+	GAME_ARG_HELP = 0,
+	GAME_ARG_VERSION,
+	GAME_ARG_OPENGL_INFO,
+	GAME_ARG_VALIDATE_TECHTREES,
+	GAME_ARG_VALIDATE_FACTIONS
+};
+
+
 // =====================================================
 // 	class ExceptionHandler
 // =====================================================
@@ -429,38 +446,38 @@ int glestMain(int argc, char** argv){
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
-	if( hasCommandArgument(argc, argv,"--help") == true) {
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_HELP]) == true) {
 		printf("\n%s, usage\n\n",argv[0]);
 		printf("Commandline Parameter:\t\tDescription:");
 		printf("\n----------------------\t\t------------");
-		printf("\n--help\t\t\t\tdisplays this help text.");
-		printf("\n--version\t\t\tdisplays the version string of this program.");
-		printf("\n--opengl-info\t\t\tdisplays your video driver's OpenGL information.");
-		printf("\n--validate-techtrees=x\t\tdisplays a report detailing any known problems related");
+		printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+		printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
+		printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
+		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 		printf("\n                     \t\tto your selected techtrees game data.");
 		printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
-		printf("\n                     \t\texample: %s --validate-techtrees=megapack,vbros_pack_5",argv[0]);
-		printf("\n--validate-factions=x\t\tdisplays a report detailing any known problems related");
+		printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv[0],GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 		printf("\n                     \t\tto your selected factions game data.");
 		printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
 		printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
-		printf("\n                     \t\t--validate-techtrees");
-		printf("\n                     \t\texample: %s --validate-factions=tech,egypt",argv[0]);
+		printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+		printf("\n                     \t\texample: %s %s=tech,egypt",argv[0],GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 		printf("\n\n");
 		return -1;
 	}
 
 	bool haveSpecialOutputCommandLineOption = false;
 
-	if( hasCommandArgument(argc, argv,"--opengl-info") 			== true ||
-		hasCommandArgument(argc, argv,"--version") 				== true ||
-		hasCommandArgument(argc, argv,"--validate-techtrees") 	== true ||
-		hasCommandArgument(argc, argv,"--validate-factions") 	== true) {
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
 		haveSpecialOutputCommandLineOption = true;
 	}
 
 	if( haveSpecialOutputCommandLineOption == false ||
-		hasCommandArgument(argc, argv,"--version") == true) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) == true) {
 #ifdef USE_STREFLOP
 	streflop_init<streflop::Simple>();
 	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
@@ -469,10 +486,10 @@ int glestMain(int argc, char** argv){
 #endif
 	}
 
-	if( hasCommandArgument(argc, argv,"--version") 			  == true &&
-		hasCommandArgument(argc, argv,"--opengl-info") 		  == false &&
-		hasCommandArgument(argc, argv,"--validate-techtrees") == false &&
-		hasCommandArgument(argc, argv,"--validate-factions")  == false) {
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 			  == true &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 		  == false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) == false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS])  == false) {
 		return -1;
 	}
 
@@ -616,7 +633,7 @@ int glestMain(int argc, char** argv){
 		Renderer &renderer= Renderer::getInstance();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
 
-		if(hasCommandArgument(argc, argv,"--opengl-info") == true) {
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
 			Renderer &renderer= Renderer::getInstance();
 			printf("%s",renderer.getGlInfo().c_str());
 
@@ -624,16 +641,16 @@ int glestMain(int argc, char** argv){
 
 			return -1;
 		}
-		if(	hasCommandArgument(argc, argv,"--validate-techtrees") 	== true ||
-			hasCommandArgument(argc, argv,"--validate-factions") 	== true) {
+		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
+			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
 
 			printf("====== Started Validation ======\n");
 
 			// Did the user pass a specific list of factions to validate?
 			std::vector<string> filteredFactionList;
-			if(hasCommandArgument(argc, argv,"--validate-factions=") == true) {
+			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("=")) == true) {
 				int foundParamIndIndex = -1;
-				hasCommandArgument(argc, argv,"--validate-factions=",&foundParamIndIndex);
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("="),&foundParamIndIndex);
 				string filterList = argv[foundParamIndIndex];
 				vector<string> paramPartTokens;
 				Tokenize(filterList,paramPartTokens,"=");
@@ -657,9 +674,9 @@ int glestMain(int argc, char** argv){
 			vector<string> techTreeFiles = results;
 			// Did the user pass a specific list of techtrees to validate?
 			std::vector<string> filteredTechTreeList;
-			if(hasCommandArgument(argc, argv,"--validate-techtrees=") == true) {
+			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("=")) == true) {
 				int foundParamIndIndex = -1;
-				hasCommandArgument(argc, argv,"--validate-techtrees=",&foundParamIndIndex);
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("="),&foundParamIndIndex);
 				string filterList = argv[foundParamIndIndex];
 				vector<string> paramPartTokens;
 				Tokenize(filterList,paramPartTokens,"=");
