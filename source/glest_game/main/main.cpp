@@ -50,6 +50,8 @@ bool gameInitialized = false;
 
 const char  *GAME_ARGS[] = {
 	"--help",
+	"--client",
+	"--server",
 	"--version",
 	"--opengl-info",
 	"--validate-techtrees",
@@ -58,6 +60,8 @@ const char  *GAME_ARGS[] = {
 
 enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
+	GAME_ARG_CLIENT,
+	GAME_ARG_SERVER,
 	GAME_ARG_VERSION,
 	GAME_ARG_OPENGL_INFO,
 	GAME_ARG_VALIDATE_TECHTREES,
@@ -451,6 +455,8 @@ int glestMain(int argc, char** argv){
 		printf("Commandline Parameter:\t\tDescription:");
 		printf("\n----------------------\t\t------------");
 		printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+		printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
+		printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
 		printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 		printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
@@ -618,11 +624,19 @@ int glestMain(int argc, char** argv){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//parse command line
-		if(argc==2 && string(argv[1])=="-server"){
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
 			program->initServer(mainWindow);
 		}
-		else if(argc==3 && string(argv[1])=="-client"){
-			program->initClient(mainWindow, Ip(argv[2]));
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]) + string("=")) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]) + string("="),&foundParamIndIndex);
+			string serverToConnectTo = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(serverToConnectTo,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2) {
+				string autoConnectServer = paramPartTokens[1];
+				program->initClient(mainWindow, autoConnectServer);
+			}
 		}
 		else{
 			program->initNormal(mainWindow);
@@ -634,7 +648,7 @@ int glestMain(int argc, char** argv){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
-			Renderer &renderer= Renderer::getInstance();
+			//Renderer &renderer= Renderer::getInstance();
 			printf("%s",renderer.getGlInfo().c_str());
 
 			delete mainWindow;

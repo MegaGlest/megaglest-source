@@ -124,7 +124,8 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	if(connect)
 	{
 		labelServerIp.setText(serverIp.getString() + "_");
-		connectToServer();
+
+		autoConnectToServer = true;
 	}
 	else
 	{
@@ -133,6 +134,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 
 	chatManager.init(&console, -1);
 }
+
 MenuStateJoinGame::~MenuStateJoinGame() {
 	abortAutoFind = true;
 }
