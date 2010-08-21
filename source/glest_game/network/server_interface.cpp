@@ -101,6 +101,7 @@ void ServerInterface::addSlot(int playerIndex){
 
 	assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
 
+	MutexSafeWrapper safeMutex(&serverSynchAccessor);
 	if(serverSocket.isPortBound() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		serverSocket.bind(serverSocket.getBindPort());
@@ -111,6 +112,8 @@ void ServerInterface::addSlot(int playerIndex){
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
+
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	updateListen();
@@ -127,17 +130,23 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
 	if(fromPlayerIndex==toPlayerIndex) return false;// doubleclicked or whatever
 
 	//printf(" checking if slot %d is free?\n",toPlayerIndex);
-	if( !slots[toPlayerIndex]->isConnected()) {
+	MutexSafeWrapper safeMutex(&serverSynchAccessor);
+	if( slots[toPlayerIndex]->isConnected() == false) {
 		//printf(" yes, its free :)\n");
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
 		slots[toPlayerIndex]->setPlayerIndex(fromPlayerIndex);
 		ConnectionSlot *tmp=slots[toPlayerIndex];
 		slots[toPlayerIndex]= slots[fromPlayerIndex];
 		slots[fromPlayerIndex]=tmp;
+		safeMutex.ReleaseLock();
+
 		PlayerIndexMessage playerIndexMessage(toPlayerIndex);
         slots[toPlayerIndex]->sendMessage(&playerIndexMessage);
 		result=true;
 		updateListen();
+	}
+	else {
+		safeMutex.ReleaseLock();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return result;
@@ -146,6 +155,7 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
 void ServerInterface::removeSlot(int playerIndex) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
+    MutexSafeWrapper safeMutex(&serverSynchAccessor);
     // Mention to everyone that this player is disconnected
     ConnectionSlot *slot = slots[playerIndex];
 
@@ -170,6 +180,8 @@ void ServerInterface::removeSlot(int playerIndex) {
 
 	delete slots[playerIndex];
 	slots[playerIndex]= NULL;
+
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
