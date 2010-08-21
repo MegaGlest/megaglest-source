@@ -50,8 +50,8 @@ bool gameInitialized = false;
 
 const char  *GAME_ARGS[] = {
 	"--help",
-	"--client",
-	"--server",
+	"--connecthost",
+	"--starthost",
 	"--version",
 	"--opengl-info",
 	"--validate-techtrees",
