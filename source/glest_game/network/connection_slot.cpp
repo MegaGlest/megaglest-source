@@ -214,6 +214,20 @@ void ConnectionSlot::update(bool checkForNewClients) {
 					socket = serverInterface->getServerSocket()->accept();
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					if(socket != NULL) {
+						this->connectedTime = time(NULL);
+						this->clearChatInfo();
+						this->name = "";
+						this->ready = false;
+						this->vctFileList.clear();
+						this->receivedNetworkGameStatus = false;
+						this->gotIntro = false;
+						this->vctPendingNetworkCommandList.clear();
+						this->currentFrameCount = 0;
+						this->currentLagCount = 0;
+						this->lastReceiveCommandListTime = 0;
+						this->gotLagCountWarning = false;
+						this->versionString = "";
+
 						serverInterface->updateListen();
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					}
@@ -222,20 +236,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 				//send intro message when connected
 				if(socket != NULL) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
-					this->connectedTime = time(NULL);
-					this->clearChatInfo();
-					this->name = "";
-					this->ready = false;
-					this->vctFileList.clear();
-					this->receivedNetworkGameStatus = false;
-					this->gotIntro = false;
-					this->vctPendingNetworkCommandList.clear();
-					this->currentFrameCount = 0;
-					this->currentLagCount = 0;
-					this->lastReceiveCommandListTime = 0;
-					this->gotLagCountWarning = false;
-					this->versionString = "";
-
 
 					if(hasOpenSlots == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
@@ -342,13 +342,56 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtIntro\n",__FILE__,__FUNCTION__);
 
 							NetworkMessageIntro networkMessageIntro;
-							if(receiveMessage(&networkMessageIntro))
-							{
-								gotIntro = true;
+							if(receiveMessage(&networkMessageIntro)) {
 								name= networkMessageIntro.getName();
 								versionString = networkMessageIntro.getVersionString();
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s]\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str());
+
+								//check consistency
+								if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+									bool versionMatched = false;
+									string platformFreeVersion = getNetworkPlatformFreeVersionString();
+									string sErr = "";
+
+									if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
+										string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+										sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionString() +
+												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
+										printf("%s\n",sErr.c_str());
+
+										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true);
+										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true);
+										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true);
+										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
+									}
+									else {
+										versionMatched = true;
+
+										string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionString() +
+												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
+										printf("%s\n",sErr.c_str());
+
+										//sendTextMessage("Server and client have different platform mismatch.",-1, true);
+										//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
+										//sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
+										//sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
+									}
+
+									if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
+									   versionMatched == false) { // error message and disconnect only if checked
+										//DisplayErrorMessage(sErr);
+										//quit= true;
+										close();
+										return;
+									}
+								}
+
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								gotIntro = true;
 
 								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL)
 								{
