@@ -411,7 +411,7 @@ bool hasCommandArgument(int argc, char** argv,string argName, int *foundIndex=NU
 	}
 	int compareLen = strlen(argName.c_str());
 	for(int idx = 1; idx < argc; idx++) {
-		if(strncasecmp(argName.c_str(),argv[idx],compareLen) == 0) {
+		if(strnicmp(argName.c_str(),argv[idx],compareLen) == 0) {
 			result = true;
 			if(foundIndex != NULL) {
 				*foundIndex = idx;
