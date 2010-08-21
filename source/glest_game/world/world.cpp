@@ -237,6 +237,42 @@ void World::loadScenario(const string &path, Checksum *checksum){
 
 // ==================== misc ====================
 
+void World::updateAllFactionUnits() {
+	//units
+	for(int i=0; i<getFactionCount(); ++i){
+		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
+			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
+		}
+	}
+}
+
+void World::underTakeDeadFactionUnits() {
+	//undertake the dead
+	for(int i=0; i<getFactionCount(); ++i){
+		int unitCount = getFaction(i)->getUnitCount();
+		for(int j= unitCount - 1; j >= 0; j--){
+			Unit *unit= getFaction(i)->getUnit(j);
+			if(unit->getToBeUndertaken()) {
+				unit->undertake();
+				delete unit;
+				//j--;
+			}
+		}
+	}
+}
+
+void World::updateAllFactionConsumableCosts() {
+	//food costs
+	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+		const ResourceType *rt= techTree->getResourceType(i);
+		if(rt->getClass()==rcConsumable && frameCount % (rt->getInterval()*GameConstants::updateFps)==0){
+			for(int i=0; i<getFactionCount(); ++i){
+				getFaction(i)->applyCostsOnInterval();
+			}
+		}
+	}
+}
+
 void World::update(){
 	Chrono chrono;
 	chrono.start();
@@ -252,47 +288,26 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//units
-	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
-		}
-	}
+	updateAllFactionUnits();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//undertake the dead
-	for(int i=0; i<getFactionCount(); ++i){
-		int unitCount = getFaction(i)->getUnitCount();
-		for(int j= unitCount - 1; j >= 0; j--){
-			Unit *unit= getFaction(i)->getUnit(j);
-			if(unit->getToBeUndertaken()) {
-				unit->undertake();
-				delete unit;
-				//j--;
-			}
-		}
-	}
+	underTakeDeadFactionUnits();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//food costs
-	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-		const ResourceType *rt= techTree->getResourceType(i);
-		if(rt->getClass()==rcConsumable && frameCount % (rt->getInterval()*GameConstants::updateFps)==0){
-			for(int i=0; i<getFactionCount(); ++i){
-				getFaction(i)->applyCostsOnInterval();
-			}
-		}
-	}
+	updateAllFactionConsumableCosts();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//fow smoothing
-	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0){
-		float fogFactor= static_cast<float>(frameCount%GameConstants::updateFps)/GameConstants::updateFps;
+	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
+		float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
 		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
-	if(frameCount%GameConstants::updateFps==0){
+	if(frameCount % GameConstants::updateFps == 0){
 		computeFow();
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());

@@ -198,15 +198,22 @@ Renderer::Renderer(){
 
 Renderer::~Renderer(){
 	delete modelRenderer;
+	modelRenderer = NULL;
 	delete textRenderer;
+	textRenderer = NULL;
 	delete particleRenderer;
+	particleRenderer = NULL;
 
 	//resources
 	for(int i=0; i<rsCount; ++i){
 		delete modelManager[i];
+		modelManager[i] = NULL;
 		delete textureManager[i];
+		textureManager[i] = NULL;
 		delete particleManager[i];
+		particleManager[i] = NULL;
 		delete fontManager[i];
+		fontManager[i] = NULL;
 	}
 
 	this->menu = NULL;
@@ -481,7 +488,7 @@ void Renderer::renderParticleManager(ResourceScope rs){
 void Renderer::swapBuffers(){
 
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
-	glFlush();
+	//glFlush();
 
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
@@ -657,7 +664,7 @@ void Renderer::renderMouse3d() {
 		glEnable(GL_COLOR_MATERIAL);
 		glDepthMask(GL_FALSE);
 
-		Vec2i pos= gui->getPosObjWorld();
+		const Vec2i &pos= gui->getPosObjWorld();
 
 		if(map == NULL) {
 			char szBuf[1024]="";
@@ -1233,7 +1240,7 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
 
 // ==================== complex rendering ====================
 
-void Renderer::renderSurface(){
+void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
 			getDebugRenderer().renderSurface(visibleQuad / Map::cellScale);
@@ -1266,15 +1273,17 @@ void Renderer::renderSurface(){
 		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
 		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
 
-	//shadow texture
-	if(shadows==sProjected || shadows==sShadowMapping){
-		glActiveTexture(shadowTexUnit);
-		glEnable(GL_TEXTURE_2D);
+	if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
+		//shadow texture
+		if(shadows==sProjected || shadows==sShadowMapping){
+			glActiveTexture(shadowTexUnit);
+			glEnable(GL_TEXTURE_2D);
 
-		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-		enableProjectiveTexturing();
+			static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+			enableProjectiveTexturing();
+		}
 	}
 
 	glActiveTexture(baseTexUnit);
@@ -1301,13 +1310,13 @@ void Renderer::renderSurface(){
 				glBindTexture(GL_TEXTURE_2D, lastTex);
 			}
 
-			Vec2f surfCoord= tc00->getSurfTexCoord();
+			const Vec2f &surfCoord= tc00->getSurfTexCoord();
 
 			glBegin(GL_TRIANGLE_STRIP);
 
 			//draw quad using immediate mode
 			glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y+coordStep);
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
 			glNormal3fv(tc01->getNormal().ptr());
 			glVertex3fv(tc01->getVertex().ptr());
 
@@ -1322,14 +1331,14 @@ void Renderer::renderSurface(){
 			glVertex3fv(tc11->getVertex().ptr());
 
 			glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y);
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
 			glNormal3fv(tc10->getNormal().ptr());
 			glVertex3fv(tc10->getVertex().ptr());
 
 			glEnd();
 		}
 	}
-	glEnd();
+	//glEnd();
 
 	//Restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(false);
@@ -1356,7 +1365,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
 	if(renderFps >= MIN_FPS_NORMAL_RENDERING &&
-		shadows == sShadowMapping){
+		shadows == sShadowMapping) {
 		glActiveTexture(shadowTexUnit);
 		glEnable(GL_TEXTURE_2D);
 
@@ -1372,23 +1381,25 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
     glAlphaFunc(GL_GREATER, 0.5f);
 
     int thisTeamIndex= world->getThisTeamIndex();
-	modelRenderer->begin(true, true, false);
+    bool modelRenderStarted = false;
 
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
 		const Vec2i &pos= pqi.getPos();
-
 		if(map->isInside(pos)){
-
 			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 			Object *o= sc->getObject();
 			if(sc->isExplored(thisTeamIndex) && o!=NULL){
-
 				const Model *objModel= sc->getObject()->getModel();
 				const Vec3f &v= o->getConstPos();
 
+				if(modelRenderStarted == false) {
+					modelRenderStarted = true;
+					modelRenderer->begin(true, true, false);
+				}
 				//ambient and diffuse color is taken from cell color
-				float fowFactor= fowTex->getPixmap()->getPixelf(pos.x/Map::cellScale, pos.y/Map::cellScale);
+
+				float fowFactor= fowTex->getPixmap()->getPixelf(pos.x / Map::cellScale, pos.y / Map::cellScale);
 				Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
 				glColor4fv(color.ptr());
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
@@ -1406,12 +1417,13 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 				pointCount+= objModel->getVertexCount();
 
 				glPopMatrix();
-
 			}
 		}
 	}
 
-	modelRenderer->end();
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+	}
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -1554,24 +1566,31 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 	glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 	glEnable(GL_COLOR_MATERIAL);
 
-	if(shadows==sShadowMapping){
-		glActiveTexture(shadowTexUnit);
-		glEnable(GL_TEXTURE_2D);
+	if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
+		if(shadows==sShadowMapping){
+			glActiveTexture(shadowTexUnit);
+			glEnable(GL_TEXTURE_2D);
 
-		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-		enableProjectiveTexturing();
+			static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+			enableProjectiveTexturing();
+		}
 	}
 	glActiveTexture(baseTexUnit);
 
-	modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+	bool modelRenderStarted = false;
 
 	for(int i=0; i<world->getFactionCount(); ++i){
 		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+
+				if(modelRenderStarted == false) {
+					modelRenderStarted = true;
+					modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+				}
 
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
@@ -1618,7 +1637,9 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 			}
 		}
 	}
-	modelRenderer->end();
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+	}
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
@@ -2319,12 +2340,13 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 	glPopMatrix();
 
 	//select units
+	const World *world= game->getWorld();
 	int selCount= glRenderMode(GL_RENDER);
 	for(int i=1; i<=selCount; ++i){
 		int factionIndex= selectBuffer[i*5-2];
 		int unitIndex= selectBuffer[i*5-1];
-		const World *world= game->getWorld();
-		if(factionIndex<world->getFactionCount() && unitIndex<world->getFaction(factionIndex)->getUnitCount()){
+
+		if(factionIndex < world->getFactionCount() && unitIndex < world->getFaction(factionIndex)->getUnitCount()) {
 			Unit *unit= world->getFaction(factionIndex)->getUnit(unitIndex);
 			if(unit->isAlive()){
 				units.push_back(unit);
@@ -2394,7 +2416,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 				glRotatef(ang, 1, 0, 0);
 				glRotatef(90, 0, 1, 0);
-				Vec3f pos= game->getGameCamera()->getPos();
+				const Vec3f &pos= game->getGameCamera()->getPos();
 
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
 
@@ -2692,14 +2714,27 @@ void Renderer::renderUnitsFast(){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
-	modelRenderer->begin(false, false, false);
-	glInitNames();
+	bool modelRenderStarted = false;
+	bool modelRenderFactionStarted = false;
+	//modelRenderer->begin(false, false, false);
+	//glInitNames();
 	for(int i=0; i<world->getFactionCount(); ++i){
-		glPushName(i);
+		//glPushName(i);
+		modelRenderFactionStarted = false;
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-			glPushName(j);
 			Unit *unit= world->getFaction(i)->getUnit(j);
 			if(world->toRenderUnit(unit, visibleQuad)) {
+				if(modelRenderStarted == false) {
+					modelRenderStarted = true;
+					modelRenderer->begin(false, false, false);
+					glInitNames();
+				}
+				if(modelRenderFactionStarted == false) {
+					modelRenderFactionStarted = true;
+					glPushName(i);
+				}
+				glPushName(j);
+
 				glMatrixMode(GL_MODELVIEW);
 
 				//debuxar modelo
@@ -2718,13 +2753,16 @@ void Renderer::renderUnitsFast(){
 				modelRenderer->render(model);
 
 				glPopMatrix();
-
+				glPopName();
 			}
+		}
+		if(modelRenderFactionStarted == true) {
 			glPopName();
 		}
-		glPopName();
 	}
-	modelRenderer->end();
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+	}
 	glPopAttrib();
 }
 
@@ -2762,9 +2800,10 @@ void Renderer::renderObjectsFast() {
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 
-	modelRenderer->begin(false, true, false);
 	int thisTeamIndex= world->getThisTeamIndex();
+	bool modelRenderStarted = false;
 
+	//modelRenderer->begin(false, true, false);
 //	std::vector<RenderEntity> vctEntity;
 
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
@@ -2782,6 +2821,10 @@ void Renderer::renderObjectsFast() {
 				const Model *objModel= sc->getObject()->getModel();
 				const Vec3f &v= o->getConstPos();
 
+				if(modelRenderStarted == false) {
+					modelRenderStarted = true;
+					modelRenderer->begin(false, true, false);
+				}
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 				glTranslatef(v.x, v.y, v.z);
@@ -2798,7 +2841,9 @@ void Renderer::renderObjectsFast() {
 
 //	modelRenderer->begin(false, true, false);
 //	renderObjectFastList(vctEntity);
-	modelRenderer->end();
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+	}
 
 	glPopAttrib();
 
