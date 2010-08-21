@@ -31,7 +31,7 @@
 #include <curl/curl.h>
 #include "menu_state_masterserver.h"
 #include "checksum.h"
-
+#include <algorithm>
 #include "leak_dumper.h"
 
 #ifndef WIN32 
@@ -403,12 +403,20 @@ void MainWindow::setProgram(Program *program) {
 // =====================================================
 SystemFlags debugger;
 
-bool hasCommandArgument(int argc, char** argv,string argName) {
+bool hasCommandArgument(int argc, char** argv,string argName, int *foundIndex=NULL) {
 	bool result = false;
 
+	if(foundIndex != NULL) {
+		*foundIndex = -1;
+	}
+	int compareLen = strlen(argName.c_str());
 	for(int idx = 1; idx < argc; idx++) {
-		if(stricmp(argName.c_str(),argv[idx]) == 0) {
+		if(strncasecmp(argName.c_str(),argv[idx],compareLen) == 0) {
 			result = true;
+			if(foundIndex != NULL) {
+				*foundIndex = idx;
+			}
+
 			break;
 		}
 	}
@@ -421,10 +429,28 @@ int glestMain(int argc, char** argv){
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
+	if( hasCommandArgument(argc, argv,"--help") == true) {
+		printf("\n%s, usage\n\n",argv[0]);
+		printf("Commandline Parameter:\t\tDescription:");
+		printf("\n----------------------\t\t------------");
+		printf("\n--help\t\t\t\tdisplays this help text.");
+		printf("\n--version\t\t\tdisplays the version string of this program.");
+		printf("\n--opengl-info\t\t\tdisplays your video driver's OpenGL information.");
+		printf("\n--validate-techtrees\t\tdisplays a report detailing any known problems related");
+		printf("\n                     \t\tto your game techtree data.");
+		printf("\n--validate-factions=x\t\tdisplays a report detailing any known problems related");
+		printf("\n                     \t\tto your selected factions game data.");
+		printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
+		printf("\n\n");
+		return -1;
+	}
+
 	bool haveSpecialOutputCommandLineOption = false;
-	if( hasCommandArgument(argc, argv,"--opengl-info") 	== true ||
-		hasCommandArgument(argc, argv,"--version") 		== true ||
-		hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
+
+	if( hasCommandArgument(argc, argv,"--opengl-info") 			== true ||
+		hasCommandArgument(argc, argv,"--version") 				== true ||
+		hasCommandArgument(argc, argv,"--validate-techtrees") 	== true ||
+		hasCommandArgument(argc, argv,"--validate-factions") 	== true) {
 		haveSpecialOutputCommandLineOption = true;
 	}
 
@@ -438,9 +464,10 @@ int glestMain(int argc, char** argv){
 #endif
 	}
 
-	if( hasCommandArgument(argc, argv,"--version") 		== true &&
-		hasCommandArgument(argc, argv,"--opengl-info") 	== false &&
-		hasCommandArgument(argc, argv,"validate-factions") 	== false) {
+	if( hasCommandArgument(argc, argv,"--version") 			  == true &&
+		hasCommandArgument(argc, argv,"--opengl-info") 		  == false &&
+		hasCommandArgument(argc, argv,"--validate-techtrees") == false &&
+		hasCommandArgument(argc, argv,"--validate-factions")  == false) {
 		return -1;
 	}
 
@@ -592,9 +619,32 @@ int glestMain(int argc, char** argv){
 
 			return -1;
 		}
-		if(hasCommandArgument(argc, argv,"--validate-techtrees") == true) {
+		if(	hasCommandArgument(argc, argv,"--validate-techtrees") 	== true ||
+			hasCommandArgument(argc, argv,"--validate-factions") 	== true) {
 
 			printf("====== Started Validation ======\n");
+
+			// Did the user pass a specific list of factions to validate?
+			std::vector<string> filteredFactionList;
+			if(hasCommandArgument(argc, argv,"--validate-factions=") == true) {
+				int foundParamIndIndex = -1;
+				hasCommandArgument(argc, argv,"--validate-factions=",&foundParamIndIndex);
+				string filterList = argv[foundParamIndIndex];
+				vector<string> paramPartTokens;
+				Tokenize(filterList,paramPartTokens,"=");
+				if(paramPartTokens.size() >= 2) {
+					string factionList = paramPartTokens[1];
+					Tokenize(factionList,filteredFactionList,",");
+
+					if(filteredFactionList.size() > 0) {
+						printf("Filtering factions and only looking for the following:\n");
+						for(int idx = 0; idx < filteredFactionList.size(); ++idx) {
+							filteredFactionList[idx] = trim(filteredFactionList[idx]);
+							printf("%s\n",filteredFactionList[idx].c_str());
+						}
+					}
+				}
+			}
 
 			Config &config = Config::getInstance();
 			vector<string> results;
@@ -617,12 +667,18 @@ int glestMain(int argc, char** argv){
 						Checksum checksum;
 						set<string> factions;
 						for(int j = 0; j < factionsList.size(); ++j) {
-							factions.insert(factionsList[j]);
+							if(	filteredFactionList.size() == 0 ||
+								std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+								factions.insert(factionsList[j]);
+							}
 						}
 
 						printf("\nChecking techPath [%s] techName [%s] factionsList.size() = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
 						for(int j = 0; j < factionsList.size(); ++j) {
-							printf("Found faction [%s]\n",factionsList[j].c_str());
+							if(	filteredFactionList.size() == 0 ||
+								std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+								printf("Found faction [%s]\n",factionsList[j].c_str());
+							}
 						}
 
 						world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);

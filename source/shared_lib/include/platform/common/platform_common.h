@@ -133,6 +133,27 @@ void showCursor(bool b);
 bool isKeyDown(int virtualKey);
 string getCommandLine();
 
+#define SPACES " "
+
+inline string trim_right (const string & s, const string & t = SPACES)  {
+  string d (s);
+  string::size_type i (d.find_last_not_of (t));
+  if (i == string::npos)
+    return "";
+  else
+   return d.erase (d.find_last_not_of (t) + 1) ;
+}  // end of trim_right
+
+inline string trim_left (const string & s, const string & t = SPACES) {
+  string d (s);
+  return d.erase (0, s.find_first_not_of (t)) ;
+}  // end of trim_left
+
+inline string trim (const string & s, const string & t = SPACES) {
+  string d (s);
+  return trim_left (trim_right (d, t), t) ;
+}  // end of trim
+
 }}//end namespace
 
 #endif
