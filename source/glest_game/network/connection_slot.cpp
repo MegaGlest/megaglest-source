@@ -608,7 +608,8 @@ bool ConnectionSlot::updateCompleted() {
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
-	bool waitingForThread = (slotThreadWorker->isSignalCompleted() 	== false &&
+	bool waitingForThread = (slotThreadWorker != NULL &&
+							 slotThreadWorker->isSignalCompleted() 	== false &&
 							 slotThreadWorker->getQuitStatus() 		== false &&
 							 slotThreadWorker->getRunningStatus() 	== true);
 
