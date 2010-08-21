@@ -723,7 +723,7 @@ void ServerInterface::updateKeyframe(int frameCount){
 			char szBuf[1024]="";
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
-			string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
+			string sMsg = "may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
 			sendTextMessage(sMsg,-1, true);
 		}
 
@@ -928,7 +928,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal);
 
-	NetworkMessageText networkMessageText(text, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), teamIndex);
+	NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex);
 	broadcastMessage(&networkMessageText);
 
 	if(echoLocal == true) {
@@ -1225,6 +1225,8 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 
     MutexSafeWrapper safeMutex(&serverSynchAccessor);
 
+    gameSettings = *serverGameSettings;
+
     if(getAllowGameDataSynchCheck() == true)
     {
         if(waitForClientAck == true && gameSettingsUpdateCount > 0)
@@ -1260,8 +1262,6 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
                 connectionSlot->setReceivedNetworkGameStatus(false);
             }
         }
-
-        gameSettings = *serverGameSettings;
 
         NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(getGameSettings());
         broadcastMessageToConnectedClients(&networkMessageSynchNetworkGameData);
@@ -1302,6 +1302,27 @@ void ServerInterface::close()
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	//serverSocket = ServerSocket();
+}
+
+string ServerInterface::getHumanPlayerName(int index) {
+	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+
+	//printf("\nIn [%s::%s Line: %d] index = %d, gameSettings.getThisFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,index,gameSettings.getThisFactionIndex());
+	//fflush(stdout);
+
+	if(index >= 0 || gameSettings.getThisFactionIndex() >= 0) {
+		if(index < 0) {
+			index = gameSettings.getThisFactionIndex();
+		}
+
+		//printf("\nIn [%s::%s Line: %d] gameSettings.getNetworkPlayerName(index) = %s\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getNetworkPlayerName(index).c_str());
+		//fflush(stdout);
+
+		if(gameSettings.getNetworkPlayerName(index) != "") {
+			result = gameSettings.getNetworkPlayerName(index);
+		}
+	}
+	return result;
 }
 
 }}//end namespace

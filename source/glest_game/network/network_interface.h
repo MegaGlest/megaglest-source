@@ -103,6 +103,7 @@ public:
 	virtual Socket* getSocket()= 0;
 	virtual const Socket* getSocket() const= 0;
 	virtual void close()= 0;
+	virtual string getHumanPlayerName(int index=-1) = 0;
 
     static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
     static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }
@@ -145,7 +146,6 @@ public:
 
 	std::string getIpAddress();
 	float getThreadedPingMS(std::string host);
-
 };
 
 // =====================================================

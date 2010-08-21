@@ -508,6 +508,7 @@ private:
 		int8 currentFactionIndex;
 		int8 toFactionIndex;
 		int8 toTeam;
+		NetworkString<maxStringSize> networkPlayerName;
 	};
 
 private:
@@ -515,12 +516,13 @@ private:
 
 public:
 	SwitchSetupRequest();
-	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam);
+	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam,string networkPlayerName);
 
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
-	int getCurrentFactionIndex() const	{return data.currentFactionIndex;}
-	int getToFactionIndex() const		{return data.toFactionIndex;}
+	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
+	int getToFactionIndex() const			{return data.toFactionIndex;}
 	int getToTeam() const					{return data.toTeam;}
+	string getNetworkPlayerName() const		{return data.networkPlayerName.getString(); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

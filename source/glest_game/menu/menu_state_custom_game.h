@@ -136,7 +136,7 @@ private:
 	void saveGameSettingsToFile(std::string fileName);
 	GameSettings loadGameSettingsFromFile(std::string fileName);
 	void setActiveInputLabel(GraphicLabel *newLable);
-	string getHumanPlayerName();
+	string getHumanPlayerName(int index=-1);
 };
 
 }}//end namespace

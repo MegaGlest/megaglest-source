@@ -114,9 +114,10 @@ void ChatManager::keyDown(char key){
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 					if(!text.empty()) {
-						console->addLine(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": " + text);
-						gameNetworkInterface->sendTextMessage(Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + ": "+
-							text, teamMode? thisTeamIndex: -1);
+						string playerName = gameNetworkInterface->getHumanPlayerName();
+
+						console->addLine(playerName + ": " + text);
+						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
 						if(!inMenu) editEnabled= false;
 					}
 					else
@@ -180,7 +181,8 @@ void ChatManager::updateNetwork() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
 
 				if(teamIndex==-1 || teamIndex==thisTeamIndex){
-					console->addLine(msg.chatText, true);
+					//console->addLine(msg.chatText, true);
+					console->addLine(msg.chatSender + ": " + msg.chatText, true);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 				}

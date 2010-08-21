@@ -66,11 +66,15 @@ private:
 	vector<string> tilesetFiles;
 	vector<string> factionFiles;
 	GraphicLabel labelPlayers[GameConstants::maxPlayers];
+	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	GraphicListBox listBoxControls[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	GraphicButton grabSlotButton[GameConstants::maxPlayers];
+
+	GraphicLabel *activeInputLabel;
+
 	MapInfo mapInfo;
 
 	bool needToSetChangedGameSettings;
@@ -109,6 +113,8 @@ private:
 	void reloadFactions();
 	bool loadFactions(const GameSettings *gameSettings,bool errorOnNoFactions);
 	void returnToJoinMenu();
+	string getHumanPlayerName();
+	void setActiveInputLabel(GraphicLabel *newLable);
 };
 
 }}//end namespace
