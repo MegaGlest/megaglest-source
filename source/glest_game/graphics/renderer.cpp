@@ -1359,26 +1359,9 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	const Map *map= world->getMap();
 
     assertGl();
-	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
-	Vec3f baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
 
-	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-
-	if(renderFps >= MIN_FPS_NORMAL_RENDERING &&
-		shadows == sShadowMapping) {
-		glActiveTexture(shadowTexUnit);
-		glEnable(GL_TEXTURE_2D);
-
-		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
-
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-		enableProjectiveTexturing();
-	}
-
-	glActiveTexture(baseTexUnit);
-
-	glEnable(GL_COLOR_MATERIAL);
-    glAlphaFunc(GL_GREATER, 0.5f);
+	const Texture2D *fowTex= NULL;
+	Vec3f baseFogColor;
 
     int thisTeamIndex= world->getThisTeamIndex();
     bool modelRenderStarted = false;
@@ -1395,6 +1378,28 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 
 				if(modelRenderStarted == false) {
 					modelRenderStarted = true;
+
+					fowTex= world->getMinimap()->getFowTexture();
+					baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+
+					glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+
+					if(renderFps >= MIN_FPS_NORMAL_RENDERING &&
+						shadows == sShadowMapping) {
+						glActiveTexture(shadowTexUnit);
+						glEnable(GL_TEXTURE_2D);
+
+						glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+
+						static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+						enableProjectiveTexturing();
+					}
+
+					glActiveTexture(baseTexUnit);
+
+					glEnable(GL_COLOR_MATERIAL);
+				    glAlphaFunc(GL_GREATER, 0.5f);
+
 					modelRenderer->begin(true, true, false);
 				}
 				//ambient and diffuse color is taken from cell color
@@ -1556,28 +1561,12 @@ void Renderer::renderWater(){
 }
 
 void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
-	Unit *unit;
+	Unit *unit=NULL;
 	const World *world= game->getWorld();
 	MeshCallbackTeamColor meshCallbackTeamColor;
 
 	//assert
 	assertGl();
-
-	glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-	glEnable(GL_COLOR_MATERIAL);
-
-	if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
-		if(shadows==sShadowMapping){
-			glActiveTexture(shadowTexUnit);
-			glEnable(GL_TEXTURE_2D);
-
-			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
-
-			static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-			enableProjectiveTexturing();
-		}
-	}
-	glActiveTexture(baseTexUnit);
 
 	bool modelRenderStarted = false;
 
@@ -1589,6 +1578,23 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 
 				if(modelRenderStarted == false) {
 					modelRenderStarted = true;
+
+					glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+					glEnable(GL_COLOR_MATERIAL);
+
+					if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
+						if(shadows==sShadowMapping){
+							glActiveTexture(shadowTexUnit);
+							glEnable(GL_TEXTURE_2D);
+
+							glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+
+							static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+							enableProjectiveTexturing();
+						}
+					}
+					glActiveTexture(baseTexUnit);
+
 					modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
 				}
 
@@ -2713,10 +2719,6 @@ void Renderer::renderUnitsFast(){
 
 	assertGl();
 
-	glPushAttrib(GL_ENABLE_BIT);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-
 	bool modelRenderStarted = false;
 	bool modelRenderFactionStarted = false;
 	//modelRenderer->begin(false, false, false);
@@ -2729,6 +2731,10 @@ void Renderer::renderUnitsFast(){
 			if(world->toRenderUnit(unit, visibleQuad)) {
 				if(modelRenderStarted == false) {
 					modelRenderStarted = true;
+					glPushAttrib(GL_ENABLE_BIT);
+					glDisable(GL_TEXTURE_2D);
+					glDisable(GL_LIGHTING);
+
 					modelRenderer->begin(false, false, false);
 					glInitNames();
 				}
@@ -2786,23 +2792,6 @@ void Renderer::renderObjectsFast() {
 
     assertGl();
 
-	glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-	glDisable(GL_LIGHTING);
-
-    glAlphaFunc(GL_GREATER, 0.5f);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-
-	//set color to the texture alpha
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-	//set alpha to the texture alpha
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-
 	int thisTeamIndex= world->getThisTeamIndex();
 	bool modelRenderStarted = false;
 
@@ -2826,6 +2815,23 @@ void Renderer::renderObjectsFast() {
 
 				if(modelRenderStarted == false) {
 					modelRenderStarted = true;
+					glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+					glDisable(GL_LIGHTING);
+
+				    glAlphaFunc(GL_GREATER, 0.5f);
+
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+					//set color to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+
+					//set alpha to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+
 					modelRenderer->begin(false, true, false);
 				}
 				glMatrixMode(GL_MODELVIEW);
