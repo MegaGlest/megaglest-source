@@ -241,7 +241,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), socket->getHostName(), playerIndex, nmgstNoSlots);
+							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots);
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -357,7 +357,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 									string sErr = "";
 
 									if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
-										string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+										string playerNameStr = name;
 										sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
@@ -370,7 +370,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 									else {
 										versionMatched = true;
 
-										string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+										string playerNameStr = name;
 										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
@@ -665,6 +665,10 @@ void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
 	MutexSafeWrapper safeMutex(&socketSynchAccessor);
 	NetworkInterface::sendMessage(networkMessage);
 	safeMutex.ReleaseLock();
+}
+
+string ConnectionSlot::getHumanPlayerName(int index) {
+	return serverInterface->getHumanPlayerName(index);
 }
 
 }}//end namespace

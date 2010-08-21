@@ -882,44 +882,48 @@ void MenuStateCustomGame::update() {
 
 		// handle setting changes from clients
 		SwitchSetupRequest** switchSetupRequests=serverInterface->getSwitchSetupRequests();
-		for(int i= 0; i<mapInfo.players; ++i)
-		{
-			if(switchSetupRequests[i]!=NULL)
-			{
+		for(int i= 0; i<mapInfo.players; ++i) {
+			if(switchSetupRequests[i] != NULL) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
-				{
+				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
 					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
 					
-					if(switchSetupRequests[i]->getToFactionIndex()!=-1)
-					{
+					if(switchSetupRequests[i]->getToFactionIndex()!=-1) {
+						int k=switchSetupRequests[i]->getToFactionIndex();
+						labelPlayerNames[k].setText(switchSetupRequests[i]->getNetworkPlayerName());
+
 						//printf("switchSlot request from %d to %d\n",switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex());
 						if(serverInterface->switchSlot(switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex())){
-							int k=switchSetupRequests[i]->getToFactionIndex();
 							try {
 								if(switchSetupRequests[i]->getSelectedFactionName()!=""){
 									listBoxFactions[k].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 								}
-								if(switchSetupRequests[i]->getToTeam()!=-1)
-									listBoxTeams[k].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+								if(switchSetupRequests[i]->getToTeam()!=-1) {
+									listBoxTeams[k].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+								}
+
+								labelPlayerNames[k].setText(switchSetupRequests[i]->getNetworkPlayerName());
 							}
 							catch(const runtime_error &e) {
 								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 							}
-							
 						}
 					}
 					else
 					{
 						try {
+
+							labelPlayerNames[i].setText(switchSetupRequests[i]->getNetworkPlayerName());
+
 							if(switchSetupRequests[i]->getSelectedFactionName()!=""){
 								listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 							}
-							if(switchSetupRequests[i]->getToTeam()!=-1)
-								listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());					
+							if(switchSetupRequests[i]->getToTeam()!=-1) {
+								listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+							}
 						}
 						catch(const runtime_error &e) {
 							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
@@ -951,8 +955,9 @@ void MenuStateCustomGame::update() {
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
-				if(connectionSlot->isConnected())
-				{
+				if(connectionSlot->isConnected()) {
+					connectionSlot->setName(labelPlayerNames[i].getText());
+
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
 					haveAtLeastOneNetworkClientConnected = true;
@@ -1166,7 +1171,7 @@ void MenuStateCustomGame::publishToMasterserver()
     publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 
 	//game info:
-	publishToServerInfo["serverTitle"] = Config::getInstance().getString("NetPlayerName") + "'s game";
+	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
 	//ip is automatically set
 
 	//game setup info:
@@ -1246,19 +1251,23 @@ void MenuStateCustomGame::simpleTask() {
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
+		GameSettings gameSettings;
+		loadGameSettings(&gameSettings);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		serverInterface->setGameSettings(&gameSettings);
+		safeMutex2.ReleaseLock();
+
 		if(hasClientConnection == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			GameSettings gameSettings;
-
-			MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
-			loadGameSettings(&gameSettings);
+			MutexSafeWrapper safeMutex3(&masterServerThreadAccessor);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			serverInterface->setGameSettings(&gameSettings);
 			serverInterface->broadcastGameSetup(&gameSettings);
-			safeMutex2.ReleaseLock();
+			safeMutex3.ReleaseLock();
 		}
 	}
 
@@ -1304,10 +1313,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 		if(ct != ctClosed) {
 			int slotIndex = factionCount;
 
+			gameSettings->setFactionControl(slotIndex, ct);
 			if(ct == ctHuman) {
 				gameSettings->setThisFactionIndex(slotIndex);
+				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(slotIndex));
 			}
-			gameSettings->setFactionControl(slotIndex, ct);
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
@@ -1316,17 +1326,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
 				if(connectionSlot != NULL && connectionSlot->isConnected()) {
 					gameSettings->setNetworkPlayerName(slotIndex, connectionSlot->getName());
+					labelPlayerNames[slotIndex].setText(connectionSlot->getName());
 				}
 				else {
 					gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
+					labelPlayerNames[slotIndex].setText("");
 				}
 			}
-			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman) {
-				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName());
-			}
-			else {
+			else if (listBoxControls[i].getSelectedItemIndex() != ctHuman) {
 				AIPlayerCount++;
 				gameSettings->setNetworkPlayerName(slotIndex, string("AI") + intToStr(AIPlayerCount));
+				labelPlayerNames[slotIndex].setText(string("AI") + intToStr(AIPlayerCount));
 			}
 
 			factionCount++;
@@ -1788,7 +1798,7 @@ void MenuStateCustomGame::keyPress(char c) {
 }
 
 void MenuStateCustomGame::keyUp(char key) {
-	if(activeInputLabel!=NULL) {
+	if(activeInputLabel==NULL) {
 		chatManager.keyUp(key);
 		if(chatManager.getEditEnabled()){
 			//send key to the chat manager
@@ -1840,14 +1850,27 @@ void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable)
 	activeInputLabel=newLable;
 }
 
-string MenuStateCustomGame::getHumanPlayerName() {
+string MenuStateCustomGame::getHumanPlayerName(int index) {
 	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
-	for(int j=0; j<GameConstants::maxPlayers; ++j) {
-		ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
-		if(ct == ctHuman && labelPlayerNames[j].getText() != "") {
-			result = labelPlayerNames[j].getText();
-			break;
+
+	//printf("\nIn [%s::%s Line: %d] index = %d\n",__FILE__,__FUNCTION__,__LINE__,index);
+	//fflush(stdout);
+
+	if(index < 0) {
+		for(int j=0; j<GameConstants::maxPlayers; ++j) {
+			ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+			if(ct == ctHuman) {
+				index = j;
+				break;
+			}
 		}
+	}
+
+	//printf("\nIn [%s::%s Line: %d] index = %d, labelPlayerNames[index].getText() = [%s]\n",__FILE__,__FUNCTION__,__LINE__,index,(index >= 0 ? labelPlayerNames[index].getText().c_str() : "?"));
+	//fflush(stdout);
+
+	if(index >= 0 && labelPlayerNames[index].getText() != "") {
+		result = labelPlayerNames[index].getText();
 	}
 
 	return result;

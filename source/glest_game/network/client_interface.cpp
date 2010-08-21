@@ -63,7 +63,7 @@ ClientInterface::~ClientInterface()
     {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
+        string sQuitText = "has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
     }
 
@@ -100,7 +100,7 @@ void ClientInterface::reset()
 {
     if(getSocket() != NULL)
     {
-        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
+        string sQuitText = "has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }
@@ -135,14 +135,11 @@ void ClientInterface::update()
 		char szBuf[1024]="";
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
-        string sMsg = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
+        string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
         sendTextMessage(sMsg,-1, true);
 	}
 
 	//clear chat variables
-	//chatText.clear();
-	//chatSender.clear();
-	//chatTeamIndex= -1;
 	clearChatInfo();
 }
 
@@ -153,9 +150,6 @@ std::string ClientInterface::getServerIpAddress() {
 void ClientInterface::updateLobby()
 {
 	//clear chat variables
-	//chatText.clear();
-	//chatSender.clear();
-	//chatTeamIndex= -1;
 	clearChatInfo();
 
     NetworkMessageType networkMessageType = getNextMessageType(true);
@@ -171,6 +165,8 @@ void ClientInterface::updateLobby()
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
             	versionString = networkMessageIntro.getVersionString();
+				playerIndex= networkMessageIntro.getPlayerIndex();
+				serverName= networkMessageIntro.getName();
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str());
 
@@ -183,7 +179,7 @@ void ClientInterface::updateLobby()
                 	string sErr = "";
 
                 	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
-						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+						string playerNameStr = getHumanPlayerName();
     					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " + networkMessageIntro.getVersionString() +
     							"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
                         printf("%s\n",sErr.c_str());
@@ -196,7 +192,7 @@ void ClientInterface::updateLobby()
                 	else {
                 		versionMatched = true;
 
-						string playerNameStr = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+						string playerNameStr = getHumanPlayerName();
 						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() + 
 								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
@@ -222,10 +218,7 @@ void ClientInterface::updateLobby()
                 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					//send intro message
-					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()), -1, nmgstOk);
-
-					playerIndex= networkMessageIntro.getPlayerIndex();
-					serverName= networkMessageIntro.getName();
+					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk);
 					sendMessage(&sendNetworkMessageIntro);
 
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -547,7 +540,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				chrono.start();
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
-				    string sErr = "Player: " + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) +
+				    string sErr = "Player: " + getHumanPlayerName() +
 				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
 				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
 				    		      intToStr(frameCount);
@@ -742,7 +735,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 		string sErr = "Checksum error, you don't have the same data as the server";
         sendTextMessage(sErr,-1, true);
 
-		string playerNameStr = "Player with error is [" + Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + "]";
+		string playerNameStr = "Player with error is [" + getHumanPlayerName() + "]";
 		sendTextMessage(playerNameStr,-1, true);
 
 		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
@@ -779,7 +772,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 }
 
 void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal){
-	NetworkMessageText networkMessageText(text, getHostName(), teamIndex);
+	NetworkMessageText networkMessageText(text, getHumanPlayerName(), teamIndex);
 	sendMessage(&networkMessageText);
 
 	if(echoLocal == true) {
@@ -862,7 +855,7 @@ void ClientInterface::quitGame(bool userManuallyQuit)
     if(clientSocket != NULL && userManuallyQuit == true)
     {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
+        string sQuitText = "has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }
@@ -898,11 +891,11 @@ void ClientInterface::stopServerDiscovery() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam)
+void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam, string networkPlayerName)
 {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//printf("string-cuf-tof-team= %s-%d-%d-%d\n",selectedFactionName.c_str(),currentFactionIndex,toFactionIndex,toTeam);
-	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName, currentFactionIndex, toFactionIndex,toTeam);
+	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName, currentFactionIndex, toFactionIndex,toTeam,networkPlayerName);
 	sendMessage(&message);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -997,6 +990,21 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 	}
 
 	return discard;
+}
+
+string ClientInterface::getHumanPlayerName(int index) {
+	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+
+	if(index >= 0 || playerIndex >= 0) {
+		if(index < 0) {
+			index = playerIndex;
+		}
+		if(gameSettings.getNetworkPlayerName(index) != "") {
+			result = gameSettings.getNetworkPlayerName(index);
+		}
+	}
+
+	return result;
 }
 
 }}//end namespace

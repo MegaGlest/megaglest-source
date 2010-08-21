@@ -122,6 +122,7 @@ public:
 
 	void setReady()					{ready= true;}
 	const string &getName() const	{return name;}
+	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
 	virtual Socket* getSocket()				{return socket;}
@@ -158,6 +159,7 @@ public:
 	const string &getVersionString() const	{return versionString;}
 
 	void validateConnection();
+	virtual string getHumanPlayerName(int index=-1);
 
 protected:
 

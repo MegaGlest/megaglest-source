@@ -56,8 +56,9 @@ private:
 public:
 
 
-    GameSettings() {		
-    	fogOfWar = true;
+    GameSettings() {
+    	thisFactionIndex					= 0;
+    	fogOfWar 							= true;
     	enableObserverModeAtEndGame 		= false;
     	enableServerControlledAI    		= false;
     	networkFramePeriod					= GameConstants::networkFramePeriod;

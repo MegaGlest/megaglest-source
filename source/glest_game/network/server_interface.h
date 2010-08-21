@@ -95,6 +95,8 @@ public:
 		this->broadcastMessage(networkMessage,excludeSlot);
 	}
 
+	virtual string getHumanPlayerName(int index=-1);
+
 public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }

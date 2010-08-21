@@ -589,22 +589,25 @@ SwitchSetupRequest::SwitchSetupRequest()
 	data.currentFactionIndex=-1;
 	data.toFactionIndex=-1;
     data.toTeam = -1;
+    data.networkPlayerName="";
 }
 
 
-SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam)
+SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam,string networkPlayerName)
 {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
 	data.currentFactionIndex=currentFactionIndex;
 	data.toFactionIndex=toFactionIndex;
     data.toTeam = toTeam;
+    data.networkPlayerName=networkPlayerName;
 }
 
 bool SwitchSetupRequest::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 
 	data.selectedFactionName.nullTerminate();
+	data.networkPlayerName.nullTerminate();
 
 	return result;
 }
