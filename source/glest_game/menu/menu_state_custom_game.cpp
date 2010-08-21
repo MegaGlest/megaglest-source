@@ -50,6 +50,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	activeInputLabel=NULL;
 	showGeneralError = false;
 	generalErrorToShow = "---";
 
@@ -254,7 +255,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	//list boxes
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(100, setupPos-30-i*30);
+		labelPlayers[i].init(50, setupPos-30-i*30);
+		labelPlayerNames[i].init(100,setupPos-30-i*30);
+
         listBoxControls[i].init(200, setupPos-30-i*30);
         listBoxFactions[i].init(350, setupPos-30-i*30, 150);
 		listBoxTeams[i].init(520, setupPos-30-i*30, 60);
@@ -309,6 +312,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+		labelPlayerNames[i].setText("*");
+
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
 		listBoxControls[i].setItems(controlItems);
@@ -335,6 +340,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	//init controllers
 	if(serverInitError == false) {
 		listBoxControls[0].setSelectedItemIndex(ctHuman);
+		labelPlayerNames[0].setText("");
+		labelPlayerNames[0].setText(getHumanPlayerName());
+
 		if(openNetworkSlots){
 			for(int i= 1; i<mapInfo.players; ++i){
 				listBoxControls[i].setSelectedItemIndex(ctNetwork);
@@ -691,6 +699,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     lastSetChangedGameSettings   = time(NULL);;
                 }
 			}
+			else if(labelPlayerNames[i].mouseClick(x, y) && ( activeInputLabel != &labelPlayerNames[i] )){
+				ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+				if(ct == ctHuman) {
+					setActiveInputLabel(&labelPlayerNames[i]);
+				}
+			}
 		}
 	}
 
@@ -705,11 +719,19 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonPlayNow.mouseMove(x, y);
 	buttonRestoreLastSettings.mouseMove(x, y);
 
+	bool editingPlayerName = false;
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
         listBoxControls[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
+
+		if(labelPlayerNames[i].mouseMove(x, y) == true) {
+			editingPlayerName = true;
+		}
     }
+	if(editingPlayerName == false) {
+		setActiveInputLabel(NULL);
+	}
 	listBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
@@ -745,6 +767,8 @@ void MenuStateCustomGame::render(){
 	
 			for(i=0; i<GameConstants::maxPlayers; ++i){
 				renderer.renderLabel(&labelPlayers[i]);
+				renderer.renderLabel(&labelPlayerNames[i]);
+
 				renderer.renderListBox(&listBoxControls[i]);
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
 					renderer.renderListBox(&listBoxFactions[i]);
@@ -1298,7 +1322,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				}
 			}
 			else if (listBoxControls[i].getSelectedItemIndex() == ctHuman) {
-				gameSettings->setNetworkPlayerName(slotIndex, Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName());
 			}
 			else {
 				AIPlayerCount++;
@@ -1707,31 +1731,72 @@ void MenuStateCustomGame::updateNetworkSlots()
 	}
 }
 
-void MenuStateCustomGame::keyDown(char key)
-{
-	//send key to the chat manager
-	chatManager.keyDown(key);
-	if(!chatManager.getEditEnabled()){
-		if(key=='M'){
-			showFullConsole= true;
+void MenuStateCustomGame::keyDown(char key) {
+	if(activeInputLabel!=NULL) {
+		if(key==vkBack){
+			string text= activeInputLabel->getText();
+			if(text.size()>1){
+				text.erase(text.end()-2);
+			}
+			activeInputLabel->setText(text);
+
+			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	        if(hasNetworkGameSettings() == true)
+	        {
+	            needToSetChangedGameSettings = true;
+	            lastSetChangedGameSettings   = time(NULL);
+	        }
+		}
+	}
+	else {
+		//send key to the chat manager
+		chatManager.keyDown(key);
+		if(!chatManager.getEditEnabled()){
+			if(key=='M'){
+				showFullConsole= true;
+			}
 		}
 	}
 }
 
-void MenuStateCustomGame::keyPress(char c)
-{
-	chatManager.keyPress(c);
+void MenuStateCustomGame::keyPress(char c) {
+	if(activeInputLabel!=NULL) {
+		int maxTextSize= 16;
+	    for(int i=0; i<GameConstants::maxPlayers; ++i){
+			if(&labelPlayerNames[i] == activeInputLabel){
+				if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
+					(c=='-')||(c=='(')||(c==')')){
+					if(activeInputLabel->getText().size()<maxTextSize){
+						string text= activeInputLabel->getText();
+						text.insert(text.end()-1, c);
+						activeInputLabel->setText(text);
+
+						MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+				        if(hasNetworkGameSettings() == true)
+				        {
+				            needToSetChangedGameSettings = true;
+				            lastSetChangedGameSettings   = time(NULL);
+				        }
+					}
+				}
+			}
+	    }
+	}
+	else {
+		chatManager.keyPress(c);
+	}
 }
 
-void MenuStateCustomGame::keyUp(char key)
-{
-	chatManager.keyUp(key);
-	if(chatManager.getEditEnabled()){
-		//send key to the chat manager
+void MenuStateCustomGame::keyUp(char key) {
+	if(activeInputLabel!=NULL) {
 		chatManager.keyUp(key);
-	}
-	else if(key== 'M'){
-		showFullConsole= false;
+		if(chatManager.getEditEnabled()){
+			//send key to the chat manager
+			chatManager.keyUp(key);
+		}
+		else if(key== 'M'){
+			showFullConsole= false;
+		}
 	}
 }
 
@@ -1748,6 +1813,44 @@ void MenuStateCustomGame::showMessageBox(const string &text, const string &heade
 	else{
 		mainMessageBox.setEnabled(false);
 	}
+}
+
+void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable)
+{
+	if(newLable!=NULL){
+		string text= newLable->getText();
+		size_t found;
+		found=text.find_last_of("_");
+		if (found==string::npos)
+		{
+			text=text+"_";
+		}
+		newLable->setText(text);
+	}
+	if(activeInputLabel!=NULL && !activeInputLabel->getText().empty()){
+		string text= activeInputLabel->getText();
+		size_t found;
+		found=text.find_last_of("_");
+		if (found!=string::npos)
+		{
+			text=text.substr(0,found);
+		}
+		activeInputLabel->setText(text);
+	}
+	activeInputLabel=newLable;
+}
+
+string MenuStateCustomGame::getHumanPlayerName() {
+	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+	for(int j=0; j<GameConstants::maxPlayers; ++j) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+		if(ct == ctHuman && labelPlayerNames[j].getText() != "") {
+			result = labelPlayerNames[j].getText();
+			break;
+		}
+	}
+
+	return result;
 }
 
 }}//end namespace

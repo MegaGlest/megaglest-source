@@ -51,6 +51,7 @@ private:
 	vector<string> tilesetFiles;
 	vector<string> factionFiles;
 	GraphicLabel labelPlayers[GameConstants::maxPlayers];
+	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	GraphicListBox listBoxControls[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
@@ -74,6 +75,8 @@ private:
 
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;
+
+	GraphicLabel *activeInputLabel;
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
@@ -132,6 +135,8 @@ private:
 
 	void saveGameSettingsToFile(std::string fileName);
 	GameSettings loadGameSettingsFromFile(std::string fileName);
+	void setActiveInputLabel(GraphicLabel *newLable);
+	string getHumanPlayerName();
 };
 
 }}//end namespace
