@@ -202,6 +202,10 @@ private:
 	void tick();
 	void computeFow();
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+
+	void updateAllFactionUnits();
+	void underTakeDeadFactionUnits();
+	void updateAllFactionConsumableCosts();
 };
 
 }}//end namespace

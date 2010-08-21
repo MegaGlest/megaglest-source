@@ -431,7 +431,7 @@ void ServerInterface::validateConnectedClients() {
 	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
 		ConnectionSlot* connectionSlot = slots[i];
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot # %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot # %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 
 		if(connectionSlot != NULL) {
 			connectionSlot->validateConnection();

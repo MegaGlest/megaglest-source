@@ -317,7 +317,7 @@ public:
 	void renderMessageBox(const GraphicMessageBox *listBox);
 
     //complex rendering
-    void renderSurface();
+    void renderSurface(const int renderFps, const int worldFrameCount);
 	void renderObjects(const int renderFps, const int worldFrameCount);
 	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
 	void renderObject(Object *o,const Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount);
