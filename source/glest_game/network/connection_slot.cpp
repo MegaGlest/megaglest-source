@@ -169,6 +169,9 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	networkGameDataSynchCheckOkMap      = false;
 	networkGameDataSynchCheckOkTile     = false;
 	networkGameDataSynchCheckOkTech     = false;
+	this->setNetworkGameDataSynchCheckTechMismatchReport("");
+	this->setReceivedDataSynchCheck(false);
+
 	this->clearChatInfo();
 }
 
@@ -202,6 +205,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
 			if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
 			if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
+			this->setReceivedDataSynchCheck(false);
 
 			// Is the listener socket ready to be read?
 			//if(serverInterface->getServerSocket()->isReadable() == true)
@@ -235,10 +239,10 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 				//send intro message when connected
 				if(socket != NULL) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 
 					if(hasOpenSlots == false) {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] no open slots, disconnecting client\n",__FILE__,__FUNCTION__);
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
 							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots);
@@ -248,7 +252,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						close();
 					}
 					else {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__);
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
 							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstOk);
@@ -393,9 +397,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								gotIntro = true;
 
-								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL)
-								{
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
+								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
 									NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(serverInterface->getGameSettings());
 									sendMessage(&networkMessageSynchNetworkGameData);
@@ -407,13 +410,15 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						//process datasynch messages
 						case nmtSynchNetworkGameDataStatus:
 						{
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtSynchNetworkGameDataStatus, gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
 							if(gotIntro == true) {
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 								NetworkMessageSynchNetworkGameDataStatus networkMessageSynchNetworkGameDataStatus;
-								if(receiveMessage(&networkMessageSynchNetworkGameDataStatus))
-								{
-									receivedNetworkGameStatus = true;
+								if(receiveMessage(&networkMessageSynchNetworkGameDataStatus)) {
+									this->setNetworkGameDataSynchCheckTechMismatchReport("");
+									this->setReceivedDataSynchCheck(false);
 
 									Config &config = Config::getInstance();
 									string scenarioDir = "";
@@ -487,6 +492,9 @@ void ConnectionSlot::update(bool checkForNewClients) {
 													//vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
 													vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
 												}
+
+												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(vctFileList);
+												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 											}
 											if(networkGameDataSynchCheckOkMap == false) {
 												vctFileList.push_back(std::pair<string,int32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir),mapCRC));
@@ -498,7 +506,26 @@ void ConnectionSlot::update(bool checkForNewClients) {
 											sendMessage(&networkMessageSynchNetworkGameDataFileCRCCheck);
 											//}
 										}
+										else {
+											if(networkGameDataSynchCheckOkTech == false) {
+												//if(techCRC == 0) {
+													//vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
+													//vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", "", &vctFileList);
+												//}
+												//else {
+													//vctFileList = getFolderTreeContentsCheckSumListRecursively(string(GameConstants::folder_path_techs) + "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
+												vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
+												//}
+
+												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(vctFileList);
+												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
+											}
+										}
 									}
+
+									this->setReceivedDataSynchCheck(true);
+									receivedNetworkGameStatus = true;
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								}
 							}
 						}

@@ -179,16 +179,17 @@ public:
 class NetworkMessageLaunch: public NetworkMessage{
 private:
 	static const int maxStringSize= 256;
+	static const int maxSmallStringSize= 60;
 
 private:
 	struct Data{
 		int8 messageType;
 		NetworkString<maxStringSize> description;
-		NetworkString<maxStringSize> map;
-		NetworkString<maxStringSize> tileset;
-		NetworkString<maxStringSize> tech;
-		NetworkString<maxStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
-		NetworkString<maxStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
+		NetworkString<maxSmallStringSize> map;
+		NetworkString<maxSmallStringSize> tileset;
+		NetworkString<maxSmallStringSize> tech;
+		NetworkString<maxSmallStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
+		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
 
 		int8 factionControls[GameConstants::maxPlayers];
 
@@ -205,7 +206,6 @@ private:
 		uint8 networkFramePeriod; // allowed values 0 - 255
 		int8 networkPauseGameForLaggedClients;
 		int8 pathFinderType;
-
 	};
 
 private:
@@ -216,6 +216,7 @@ public:
 	NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType);
 
 	void buildGameSettings(GameSettings *gameSettings) const;
+	int getMessageType() const { return data.messageType; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -341,10 +342,12 @@ class NetworkMessageSynchNetworkGameData: public NetworkMessage{
 
 private:
 
-static const int maxStringSize= 256;
+static const int maxStringSize= 100;
+static const int maxFileCRCCount= 500;
 
 private:
-	struct Data{
+
+	struct DataHeader {
 		int8 messageType;
 
 		NetworkString<maxStringSize> map;
@@ -354,6 +357,23 @@ private:
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
+
+		int32 techCRCFileCount;
+	};
+
+	static const int32 HeaderSize = sizeof(DataHeader);
+
+	struct DataDetail {
+		NetworkString<maxStringSize> techCRCFileList[maxFileCRCCount];
+		int32 techCRCFileCRCList[maxFileCRCCount];
+	};
+
+	static const int32 DetailSize1 = sizeof(NetworkString<maxStringSize>);
+	static const int32 DetailSize2 = sizeof(int32);
+
+	struct Data {
+		DataHeader header;
+		DataDetail detail;
 	};
 
 private:
@@ -366,13 +386,19 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 
-	string getMap() const		{return data.map.getString();}
-	string getTileset() const   {return data.tileset.getString();}
-	string getTech() const		{return data.tech.getString();}
+	string getMap() const		{return data.header.map.getString();}
+	string getTileset() const   {return data.header.tileset.getString();}
+	string getTech() const		{return data.header.tech.getString();}
 
-	int32 getMapCRC() const		{return data.mapCRC;}
-	int32 getTilesetCRC() const	{return data.tilesetCRC;}
-	int32 getTechCRC() const	{return data.techCRC;}
+	int32 getMapCRC() const		{return data.header.mapCRC;}
+	int32 getTilesetCRC() const	{return data.header.tilesetCRC;}
+	int32 getTechCRC() const	{return data.header.techCRC;}
+
+	int32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
+	const NetworkString<maxStringSize> * getTechCRCFileList() const {return &data.detail.techCRCFileList[0];}
+	const int32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
+
+	string getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList);
 };
 #pragma pack(pop)
 
@@ -387,16 +413,33 @@ class NetworkMessageSynchNetworkGameDataStatus: public NetworkMessage{
 
 private:
 
-static const int maxStringSize= 256;
+static const int maxStringSize= 100;
+static const int maxFileCRCCount= 500;
 
 private:
-	struct Data{
+
+	struct DataHeader {
 		int8 messageType;
 
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
 
+		int32 techCRCFileCount;
+	};
+	static const int32 HeaderSize = sizeof(DataHeader);
+
+	struct DataDetail {
+		NetworkString<maxStringSize> techCRCFileList[maxFileCRCCount];
+		int32 techCRCFileCRCList[maxFileCRCCount];
+	};
+
+	static const int32 DetailSize1 = sizeof(NetworkString<maxStringSize>);
+	static const int32 DetailSize2 = sizeof(int32);
+
+	struct Data {
+		DataHeader header;
+		DataDetail detail;
 	};
 
 private:
@@ -404,14 +447,21 @@ private:
 
 public:
     NetworkMessageSynchNetworkGameDataStatus() {};
-	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC);
+	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, vector<std::pair<string,int32> > &vctFileList);
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 
-	int32 getMapCRC() const		{return data.mapCRC;}
-	int32 getTilesetCRC() const	{return data.tilesetCRC;}
-	int32 getTechCRC() const	{return data.techCRC;}
+	int32 getMapCRC() const		{return data.header.mapCRC;}
+	int32 getTilesetCRC() const	{return data.header.tilesetCRC;}
+	int32 getTechCRC() const	{return data.header.techCRC;}
+
+	int32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
+	const NetworkString<maxStringSize> * getTechCRCFileList() const {return &data.detail.techCRCFileList[0];}
+	const int32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
+
+	string getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList);
+
 };
 #pragma pack(pop)
 

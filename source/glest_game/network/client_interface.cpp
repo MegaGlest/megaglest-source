@@ -53,6 +53,8 @@ ClientInterface::ClientInterface(){
 	networkGameDataSynchCheckOkMap  = false;
 	networkGameDataSynchCheckOkTile = false;
 	networkGameDataSynchCheckOkTech = false;
+	this->setNetworkGameDataSynchCheckTechMismatchReport("");
+	this->setReceivedDataSynchCheck(false);
 }
 
 ClientInterface::~ClientInterface()
@@ -147,8 +149,7 @@ std::string ClientInterface::getServerIpAddress() {
 	return this->ip.getString();
 }
 
-void ClientInterface::updateLobby()
-{
+void ClientInterface::updateLobby() {
 	//clear chat variables
 	clearChatInfo();
 
@@ -161,7 +162,6 @@ void ClientInterface::updateLobby()
         case nmtIntro:
         {
             NetworkMessageIntro networkMessageIntro;
-
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
             	versionString = networkMessageIntro.getVersionString();
@@ -277,13 +277,19 @@ void ClientInterface::updateLobby()
         {
             NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData;
 
-            if(receiveMessage(&networkMessageSynchNetworkGameData))
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__);
+            if(receiveMessage(&networkMessageSynchNetworkGameData)) {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageSynchNetworkGameData, getTechCRCFileCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageSynchNetworkGameData.getTechCRCFileCount());
+
+            	networkGameDataSynchCheckOkMap      = false;
+            	networkGameDataSynchCheckOkTile     = false;
+            	networkGameDataSynchCheckOkTech     = false;
+                this->setNetworkGameDataSynchCheckTechMismatchReport("");
+                this->setReceivedDataSynchCheck(false);
 
 				int32 tilesetCRC = 0;
 				int32 techCRC	 = 0;
 				int32 mapCRC	 = 0;
+				vector<std::pair<string,int32> > vctFileList;
 
 				try {
 					Config &config = Config::getInstance();
@@ -305,7 +311,7 @@ void ClientInterface::updateLobby()
 					this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
 					//if(this->getNetworkGameDataSynchCheckOkTile() == false)
 					//{
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] tilesetCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",__FILE__,__FUNCTION__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
 					//}
 
 
@@ -315,6 +321,17 @@ void ClientInterface::updateLobby()
 
 					this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
 
+					if(this->getNetworkGameDataSynchCheckOkTech() == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),string("/") + networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						string report = networkMessageSynchNetworkGameData.getTechCRCFileMismatchReport(vctFileList);
+						this->setNetworkGameDataSynchCheckTechMismatchReport(report);
+
+					}
 					//if(this->getNetworkGameDataSynchCheckOkTech() == false)
 					//{
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTech() = [%s]\n",__FILE__,__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC(),networkMessageSynchNetworkGameData.getTech().c_str());
@@ -330,20 +347,21 @@ void ClientInterface::updateLobby()
 					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),mapCRC);
 
 					this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
+					this->setReceivedDataSynchCheck(true);
 
 					//if(this->getNetworkGameDataSynchCheckOkMap() == false)
 					//{
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] mapCRC info, local = %d, remote = %d, file = [%s]\n",__FILE__,__FUNCTION__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapCRC info, local = %d, remote = %d, file = [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
 					//}
 				}
 				catch(const runtime_error &ex) {
 					string sErr = ex.what();
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] error during processing, sErr = [%s]\n",__FILE__,__FUNCTION__,sErr.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error during processing, sErr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
 					DisplayErrorMessage(sErr);
 				}
 
-				NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC);
+				NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC,vctFileList);
 				sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
             }
         }
@@ -411,28 +429,32 @@ void ClientInterface::updateLobby()
         {
             NetworkMessageLaunch networkMessageLaunch;
 
-            if(receiveMessage(&networkMessageLaunch))
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
+            if(receiveMessage(&networkMessageLaunch)) {
+            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+            		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+            	}
+            	else {
+            		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+            	}
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
 
                 //replace server player by network
-                for(int i= 0; i<gameSettings.getFactionCount(); ++i)
-                {
+                for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
                     //replace by network
-                    if(gameSettings.getFactionControl(i)==ctHuman)
-                    {
+                    if(gameSettings.getFactionControl(i)==ctHuman) {
                         gameSettings.setFactionControl(i, ctNetwork);
                     }
 
                     //set the faction index
-                    if(gameSettings.getStartLocationIndex(i)==playerIndex)
-                    {
+                    if(gameSettings.getStartLocationIndex(i)==playerIndex) {
                         gameSettings.setThisFactionIndex(i);
                     }
                 }
-                launchGame= true;
+
+                if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+                	launchGame= true;
+                }
             }
         }
         break;

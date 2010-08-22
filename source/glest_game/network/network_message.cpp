@@ -24,10 +24,12 @@
 #include "map.h"
 #include "platform_util.h"
 #include "config.h"
+#include <algorithm>
 
 using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace std;
+using std::min;
 
 namespace Glest{ namespace Game{
 
@@ -277,7 +279,12 @@ bool NetworkMessageLaunch::receive(Socket* socket){
 }
 
 void NetworkMessageLaunch::send(Socket* socket) const{
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+	if(data.messageType == nmtLaunch) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.messageType);
+	}
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
@@ -438,11 +445,14 @@ void NetworkMessageQuit::send(Socket* socket) const{
 
 NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings)
 {
-	data.messageType= nmtSynchNetworkGameData;
+	data.header.messageType= nmtSynchNetworkGameData;
 
-	data.map     = gameSettings->getMap();
-	data.tileset = gameSettings->getTileset();
-	data.tech    = gameSettings->getTech();
+	if(gameSettings == NULL) {
+		throw std::runtime_error("gameSettings == NULL");
+	}
+	data.header.map     = gameSettings->getMap();
+	data.header.tileset = gameSettings->getTileset();
+	data.header.tech    = gameSettings->getTech();
 
     Config &config = Config::getInstance();
     string scenarioDir = "";
@@ -457,68 +467,303 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    //Checksum checksum;
-    //data.tilesetCRC = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_tilesets) + "/" + gameSettings->getTileset() + "/*", "xml", NULL);
-	data.tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.tilesetCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.tilesetCRC,gameSettings->getTileset().c_str());
+    data.header.tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.tilesetCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.tilesetCRC,gameSettings->getTileset().c_str());
 
     //tech, load before map because of resources
-    //data.techCRC  = getFolderTreeContentsCheckSumRecursively(string(GameConstants::folder_path_techs) + "/" + gameSettings->getTech() + "/*", "xml", NULL);
-	data.techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+	data.header.techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.techCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.techCRC,gameSettings->getTech().c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.techCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.techCRC,gameSettings->getTech().c_str());
+
+	vector<std::pair<string,int32> > vctFileList;
+	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),string("/") + gameSettings->getTech() + string("/*"), ".xml",&vctFileList);
+	data.header.techCRCFileCount = min((int)vctFileList.size(),(int)maxFileCRCCount);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] vctFileList.size() = %d, maxFileCRCCount = %d\n",__FILE__,__FUNCTION__,__LINE__, vctFileList.size(),maxFileCRCCount);
+
+	for(int idx =0; idx < data.header.techCRCFileCount; ++idx) {
+		const std::pair<string,int32> &fileInfo = vctFileList[idx];
+		data.detail.techCRCFileList[idx] = fileInfo.first;
+		data.detail.techCRCFileCRCList[idx] = fileInfo.second;
+	}
 
     //map
     Checksum checksum;
     string file = Map::getMapPath(gameSettings->getMap(),scenarioDir);
 	checksum.addFile(file);
-	data.mapCRC = checksum.getSum();
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] file = [%s] checksum = %d\n",__FILE__,__FUNCTION__,file.c_str(),data.mapCRC);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.mapCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.mapCRC,gameSettings->getMap().c_str());
+	data.header.mapCRC = checksum.getSum();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] data.mapCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.mapCRC,gameSettings->getMap().c_str());
 }
 
-bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList) {
+	string result = "Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
+	for(int idx = 0; idx < vctFileList.size(); ++idx) {
+		std::pair<string,int32> &fileInfo = vctFileList[idx];
+		bool fileFound = false;
+		int32 remoteCRC = -1;
+		for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+			string networkFile = data.detail.techCRCFileList[j].getString();
+			int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
+			if(fileInfo.first == networkFile) {
+				fileFound = true;
+				remoteCRC = networkFileCRC;
+				break;
+			}
+		}
 
-	data.map.nullTerminate();
-	data.tileset.nullTerminate();
-	data.tech.nullTerminate();
+		if(fileFound == false) {
+			result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
+		}
+		else if(fileInfo.second != remoteCRC) {
+			result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
+		}
+	}
+
+	for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+		string networkFile = data.detail.techCRCFileList[i].getString();
+		int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
+		bool fileFound = false;
+		int32 localCRC = -1;
+		for(int idx = 0; idx < vctFileList.size(); ++idx) {
+			std::pair<string,int32> &fileInfo = vctFileList[idx];
+			if(networkFile == fileInfo.first) {
+				fileFound = true;
+				localCRC = fileInfo.second;
+				break;
+			}
+		}
+
+		if(fileFound == false) {
+			result = result + "remote file [" + networkFile + "] missing locally.\n";
+		}
+		else if(networkFileCRC != localCRC) {
+			result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+		}
+	}
 
 	return result;
 }
 
-void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
+bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtSynchNetworkGameData);
-	NetworkMessage::send(socket, &data, sizeof(data));
+	data.header.techCRCFileCount = 0;
+
+	for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+
+		if (NetworkMessage::peek(socket, &data, HeaderSize) == true) {
+			break;
+		}
+		else {
+			sleep(1); // sleep 1 ms to wait for socket data
+		}
+	}
+
+	if (NetworkMessage::peek(socket, &data, HeaderSize) == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR / WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
+		return false;
+	}
+
+	data.header.map.nullTerminate();
+	data.header.tileset.nullTerminate();
+	data.header.tech.nullTerminate();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
+
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
+	if(result == true && data.header.techCRCFileCount > 0) {
+		for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+
+			if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount)) == true) {
+				break;
+			}
+			else {
+				sleep(1); // sleep 1 ms to wait for socket data
+			}
+		}
+
+		result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
+		if(result == true) {
+			for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+				data.detail.techCRCFileList[i].nullTerminate();
+				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
+			}
+
+			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+				if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount)) == true) {
+					break;
+				}
+				else {
+					sleep(1); // sleep 1 ms to wait for socket data
+				}
+			}
+
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+		}
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+	return result;
 }
 
+void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
+
+	assert(data.messageType==nmtSynchNetworkGameData);
+	NetworkMessage::send(socket, &data, HeaderSize);
+	if(data.header.techCRCFileCount > 0) {
+		NetworkMessage::send(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
+		NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+	}
+}
 
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataStatus
 // =====================================================
 
-NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC)
+NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, vector<std::pair<string,int32> > &vctFileList)
 {
-	data.messageType= nmtSynchNetworkGameDataStatus;
+	data.header.messageType= nmtSynchNetworkGameDataStatus;
 
-    data.tilesetCRC     = tilesetCRC;
-    data.techCRC        = techCRC;
-	data.mapCRC         = mapCRC;
+    data.header.tilesetCRC     = tilesetCRC;
+    data.header.techCRC        = techCRC;
+	data.header.mapCRC         = mapCRC;
+
+	data.header.techCRCFileCount = min((int)vctFileList.size(),(int)maxFileCRCCount);
+	for(int idx =0; idx < data.header.techCRCFileCount; ++idx) {
+		const std::pair<string,int32> &fileInfo = vctFileList[idx];
+		data.detail.techCRCFileList[idx] = fileInfo.first;
+		data.detail.techCRCFileCRCList[idx] = fileInfo.second;
+	}
 }
 
-bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList) {
+	string result = "Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
+	for(int idx = 0; idx < vctFileList.size(); ++idx) {
+		std::pair<string,int32> &fileInfo = vctFileList[idx];
+		bool fileFound = false;
+		int32 remoteCRC = -1;
+		for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+			string networkFile = data.detail.techCRCFileList[j].getString();
+			int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
+			if(fileInfo.first == networkFile) {
+				fileFound = true;
+				remoteCRC = networkFileCRC;
+				break;
+			}
+		}
+
+		if(fileFound == false) {
+			result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
+		}
+		else if(fileInfo.second != remoteCRC) {
+			result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
+		}
+	}
+
+	for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+		string networkFile = data.detail.techCRCFileList[i].getString();
+		int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
+		bool fileFound = false;
+		int32 localCRC = -1;
+		for(int idx = 0; idx < vctFileList.size(); ++idx) {
+			std::pair<string,int32> &fileInfo = vctFileList[idx];
+
+			if(networkFile == fileInfo.first) {
+				fileFound = true;
+				localCRC = fileInfo.second;
+				break;
+			}
+		}
+
+		if(fileFound == false) {
+			result = result + "remote file [" + networkFile + "] missing locally.\n";
+		}
+		else if(networkFileCRC != localCRC) {
+			result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+		}
+	}
+
+	return result;
+}
+
+bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
+	data.header.techCRCFileCount = 0;
+
+	for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+		if (NetworkMessage::peek(socket, &data, HeaderSize) == true) {
+			break;
+		}
+		else {
+			sleep(1); // sleep 1 ms to wait for socket data
+		}
+	}
+
+	if (NetworkMessage::peek(socket, &data, HeaderSize) == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR / WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
+		return false;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
+
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
+	if(result == true && data.header.techCRCFileCount > 0) {
+		for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+
+			if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount)) == true) {
+				break;
+			}
+			else {
+				sleep(1); // sleep 1 ms to wait for socket data
+			}
+		}
+
+		result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
+		if(result == true) {
+			for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+				data.detail.techCRCFileList[i].nullTerminate();
+				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
+			}
+
+			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+
+				if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount)) == true) {
+					break;
+				}
+				else {
+					sleep(1); // sleep 1 ms to wait for socket data
+				}
+			}
+
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+		}
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+	return result;
 }
 
 void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.techCRCFileCount);
 
 	assert(data.messageType==nmtSynchNetworkGameDataStatus);
-	NetworkMessage::send(socket, &data, sizeof(data));
+	//int totalMsgSize = HeaderSize + (sizeof(DataDetail) * data.header.techCRCFileCount);
+	NetworkMessage::send(socket, &data, HeaderSize);
+	if(data.header.techCRCFileCount > 0) {
+		NetworkMessage::send(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
+		NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+	}
 }
 
 // =====================================================
