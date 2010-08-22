@@ -133,7 +133,7 @@ void Faction::finishUpgrade(const UpgradeType *ut){
 
 // ==================== reqs ====================
 
-//checks if all required units and upgrades are present
+//checks if all required units and upgrades are present and maxUnitCount is within limit
 bool Faction::reqsOk(const RequirableType *rt) const{
 	assert(rt != NULL);
 	//required units
@@ -158,9 +158,37 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 			return false;
 		}
     }
+    
+    if(dynamic_cast<const CommandType *>(rt) != NULL ){
+    	const CommandType *ct=(CommandType *) rt;
+	    if(ct->getProduced() != NULL &&  dynamic_cast<const UnitType *>(ct->getProduced()) != NULL ){
+	    	
+			const UnitType *producedUnitType= (UnitType *) ct->getProduced();   			
+	   		if(producedUnitType->getMaxUnitCount()>0){
+				if(producedUnitType->getMaxUnitCount()<=getCountForMaxUnitCount(producedUnitType)){
+			        return false;
+				}
+	   		}
+	    }
+    }
 	return true;
-
 }
+
+int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
+	int count=0;
+	//calculate current unit count
+   	for(int j=0; j<getUnitCount(); ++j){
+		Unit *unit= getUnit(j);
+        const UnitType *currentUt= unit->getType();
+        if(unitType==currentUt && unit->isOperative()){
+            count++;
+        }
+        //check if there is any command active which already produces this unit
+        count=count+unit->getCountOfProducedUnits(unitType);
+    }
+	return count;
+}
+
 
 bool Faction::reqsOk(const CommandType *ct) const{
 	assert(ct != NULL);

@@ -648,6 +648,22 @@ unsigned int Unit::getCommandSize() const{
 	return commands.size();
 }
 
+//return current command, assert that there is always one command
+int Unit::getCountOfProducedUnits(const UnitType *ut) const{
+	int count=0;
+	for(Commands::const_iterator it= commands.begin(); it!=commands.end(); ++it){
+			const CommandType* ct=(*it)->getCommandType();
+        	if(ct->getClass()==ccProduce || ct->getClass()==ccMorph || ct->getClass()==ccBuild ){
+        		const UnitType *producedUnitType= static_cast<const UnitType*>(ct->getProduced());
+        		if(producedUnitType==ut)
+        		{
+        			count++;
+        		}
+        	}
+	}
+	return count;
+}
+
 #define deleteSingleCommand(command) {\
 	undoCommand(command);\
 	delete command;\
@@ -1097,7 +1113,14 @@ string Unit::getDesc() const{
     //str+="Pos: "+v2iToStr(pos)+"\n";
 
 	//hp
-	string str= "\n" + lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
+	string str= "\n";
+	
+	//maxUnitCount
+	if(type->getMaxUnitCount()>0){
+		str += lang.get("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
+	}
+	
+	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
 	if(type->getHpRegeneration()!=0){
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration()) + ")";
 	}
@@ -1336,7 +1359,7 @@ CommandResult Unit::checkCommand(Command *command) const{
 		}
 		if(!faction->checkCosts(builtUnit)){
 			return crFailRes;
-		}
+		}		
     }
 
     //upgrade command specific, check that upgrade is not upgraded

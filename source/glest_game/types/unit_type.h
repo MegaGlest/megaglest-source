@@ -86,6 +86,8 @@ private:
 	int hpRegeneration;
     int maxEp;
 	int epRegeneration;
+	int maxUnitCount;
+	
     
 	///@todo remove fields, multiple fields are not supported by the engine
 	bool fields[fieldCount];			//fields: land, sea or air
@@ -137,6 +139,7 @@ public:
 	int getHpRegeneration() const						{return hpRegeneration;}
 	int getMaxEp() const								{return maxEp;}
 	int getEpRegeneration() const						{return epRegeneration;}
+	int getMaxUnitCount() const							{return maxUnitCount;}
 	bool getField(Field field) const					{return fields[field];}
 	Field getField() const								{return field;}
 	bool getProperty(Property property) const			{return properties[property];}
@@ -195,6 +198,9 @@ public:
     float getRotatedBuildPos() { return rotatedBuildPos; }
     void setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
+	//other
+    virtual string getReqDesc() const;
+	
     std::string toString() const;
 
 private:
