@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -18,11 +18,13 @@
 #include "map.h"
 #include "unit.h"
 #include "unit_type.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Graphics;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
 
@@ -143,6 +145,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 
 //route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
+	Chrono chrono;
+	chrono.start();
 	
 	nodePoolCount= 0;
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
@@ -168,6 +172,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	bool pathFound= true;
 	bool nodeLimitReached= false;
 	Node *node= NULL;
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	while(!nodeLimitReached){
 		
@@ -213,6 +219,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		}
 	}//while
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodes.empty() = %d, pathFound = %d, nodeLimitReached = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodes.empty(),pathFound,nodeLimitReached);
+
 	Node *lastNode= node;
 
 	//if consumed all nodes find best node (to avoid strage behaviour)
@@ -223,6 +231,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check results of path finding
 	TravelState ts;
@@ -250,6 +260,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 			path->push(currNode->next->pos);
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//clean nodes
 	openNodes.clear();
