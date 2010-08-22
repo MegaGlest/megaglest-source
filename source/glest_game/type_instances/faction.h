@@ -122,6 +122,8 @@ public:
 	//reqs
 	bool reqsOk(const RequirableType *rt) const;
 	bool reqsOk(const CommandType *ct) const;
+    int getCountForMaxUnitCount(const UnitType *unitType) const;
+
 
 	//diplomacy
 	bool isAlly(const Faction *faction);

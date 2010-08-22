@@ -1758,6 +1758,9 @@ void Renderer::renderSelectionEffects(){
 		if(world->getThisFactionIndex()==unit->getFactionIndex()){
 			glColor4f(0, unit->getHpRatio(), 0, 0.3f);
 		}
+		else if ( world->getThisTeamIndex()==unit->getTeam()){
+			glColor4f(unit->getHpRatio(), unit->getHpRatio(), 0, 0.3f);
+		}
 		else{
 			glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
 		}

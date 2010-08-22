@@ -77,6 +77,7 @@ UnitType::UnitType(){
 	cellMap= NULL;
 	hpRegeneration= 0;
 	epRegeneration= 0;
+	maxUnitCount= 0;
 }
 
 UnitType::~UnitType(){
@@ -137,6 +138,11 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
 
+		//maxUnitCount
+		if(parametersNode->hasChild("max-unit-count")){
+			maxUnitCount= parametersNode->getChild("max-unit-count")->getAttribute("value")->getIntValue();
+		}
+		
 		//armor
 		armor= parametersNode->getChild("armor")->getAttribute("value")->getIntValue();
 
@@ -629,6 +635,19 @@ string UnitType::getCommandTypeListDesc() const {
 
 }
 
+string UnitType::getReqDesc() const{
+	Lang &lang= Lang::getInstance();
+	string desc = "Limits: ";
+	string resultTxt="";
+	if(getMaxUnitCount()>0){
+		resultTxt+="\n"+lang.get("MaxUnitCount")+" "+intToStr(getMaxUnitCount());
+	}
+	if(resultTxt=="")
+		return RequirableType::getReqDesc();
+	else
+		return RequirableType::getReqDesc()+"\nLimits: "+resultTxt;
+}  
+
 std::string UnitType::toString() const {
 	std::string result = "";
 
@@ -637,6 +656,8 @@ std::string UnitType::toString() const {
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
 	result += " epRegeneration = " + intToStr(epRegeneration);
+	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
+	
 
 	for(int i = 0; i < fieldCount; i++) {
 		result += " fields index = " + intToStr(i) + " value = " + intToStr(fields[i]);

@@ -601,7 +601,7 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
 
     str+= "\n" + getProducedUnit()->getReqDesc();
-
+    
     return str;
 }
 

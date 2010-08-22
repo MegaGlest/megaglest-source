@@ -49,6 +49,7 @@ enum CommandResult{
 	crSuccess,
 	crFailRes,
 	crFailReqs,
+	crFailUnitCount,
 	crFailUndefined,
 	crSomeFailed
 };
@@ -342,6 +343,7 @@ public:
     //command related
 	bool anyCommand() const;
 	Command *getCurrCommand() const;
+	int getCountOfProducedUnits(const UnitType *ut) const;
 	unsigned int getCommandSize() const;
 	CommandResult giveCommand(Command *command, bool tryQueue = false);		//give a command
 	CommandResult finishCommand();						//command finished
