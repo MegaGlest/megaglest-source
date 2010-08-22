@@ -455,12 +455,15 @@ int glestMain(int argc, const char** argv){
 	for(int idx = 1; idx < argc; ++idx) {
 		if( hasCommandArgument(knownArgCount, GAME_ARGS,argv[idx],NULL,0) == false) {
 			foundInvalidArgs = true;
-			printf("\nInvalid argument: %s\n",argv[idx]);
+			printf("\nInvalid argument: %s",argv[idx]);
 		}
 	}
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_HELP]) == true ||
 		foundInvalidArgs == true) {
+		if(foundInvalidArgs == true) {
+			printf("\n");
+		}
 		printf("\n%s, usage\n\n",argv[0]);
 		printf("Commandline Parameter:\t\tDescription:");
 		printf("\n----------------------\t\t------------");
