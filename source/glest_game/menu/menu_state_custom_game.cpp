@@ -955,7 +955,7 @@ void MenuStateCustomGame::update() {
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
-				if(connectionSlot->isConnected()) {
+				if(connectionSlot != NULL && connectionSlot->isConnected()) {
 					connectionSlot->setName(labelPlayerNames[i].getText());
 
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
@@ -966,12 +966,13 @@ void MenuStateCustomGame::update() {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
 					string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
-					if(connectionSlot->getAllowDownloadDataSynch() == true &&
+					if(connectionSlot != NULL &&
+					   connectionSlot->getAllowDownloadDataSynch() == true &&
 					   connectionSlot->getAllowGameDataSynchCheck() == true)
 					{
 						if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
 						{
-							label += " - waiting to synch:";
+							label += " -waiting to synch:";
 							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
 							{
 								label = label + " map";
@@ -994,21 +995,76 @@ void MenuStateCustomGame::update() {
 					{
 						//label = connectionSlot->getName();
 
-						if(connectionSlot->getAllowGameDataSynchCheck() == true &&
+						connectionSlot= serverInterface->getSlot(i);
+						if(connectionSlot != NULL &&
+						   connectionSlot->getAllowGameDataSynchCheck() == true &&
 						   connectionSlot->getNetworkGameDataSynchCheckOk() == false)
 						{
-							label += " - warning synch mismatch for:";
-							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
-							{
+							label += " -synch mismatch:";
+							connectionSlot= serverInterface->getSlot(i);
+							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkMap() == false) {
 								label = label + " map";
+
+								string lastMapDataSynchError;
+								string lastMapTileDataSynchError;
+								string lastTechtreeDataSynchError;
+
+								if(connectionSlot->getReceivedDataSynchCheck() == true &&
+									lastMapDataSynchError != "map CRC mismatch") {
+									lastMapDataSynchError = "map CRC mismatch";
+									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+									serverInterface->sendTextMessage(lastMapDataSynchError,-1, true);
+								}
 							}
-							if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
-							{
+							else {
+								lastMapDataSynchError = "";
+							}
+
+							connectionSlot= serverInterface->getSlot(i);
+							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkTile() == false) {
 								label = label + " tile";
+
+								if(connectionSlot->getReceivedDataSynchCheck() == true &&
+									lastTileDataSynchError != "tileset CRC mismatch") {
+									lastTileDataSynchError = "tileset CRC mismatch";
+									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+									serverInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+								}
 							}
-							if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
+							else {
+								lastTileDataSynchError = "";
+							}
+
+							connectionSlot= serverInterface->getSlot(i);
+							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
 							{
 								label = label + " techtree";
+
+								if(connectionSlot->getReceivedDataSynchCheck() == true) {
+									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+									string report = connectionSlot->getNetworkGameDataSynchCheckTechMismatchReport();
+
+									if(lastTechtreeDataSynchError != "techtree CRC mismatch" + report) {
+										lastTechtreeDataSynchError = "techtree CRC mismatch" + report;
+
+										SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
+
+										serverInterface->sendTextMessage("techtree CRC mismatch",-1,true);
+										vector<string> reportLineTokens;
+										Tokenize(report,reportLineTokens,"\n");
+										for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
+											serverInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+										}
+									}
+								}
+							}
+							else {
+								lastTechtreeDataSynchError = "";
+							}
+
+							connectionSlot= serverInterface->getSlot(i);
+							if(connectionSlot != NULL) {
+								connectionSlot->setReceivedDataSynchCheck(false);
 							}
 						}
 					}

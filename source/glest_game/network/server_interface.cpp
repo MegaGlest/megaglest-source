@@ -997,7 +997,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings){
 
     bool bOkToStart = true;
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int i= 0; i<GameConstants::maxPlayers; ++i)
     {

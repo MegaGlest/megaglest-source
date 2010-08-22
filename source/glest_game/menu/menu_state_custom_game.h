@@ -103,6 +103,10 @@ private:
 	ChatManager chatManager;
 	bool showFullConsole;
 
+	string lastMapDataSynchError;
+	string lastTileDataSynchError;
+	string lastTechtreeDataSynchError;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
 	~MenuStateCustomGame();

@@ -48,6 +48,7 @@ struct FormatString {
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
 {
+	updateDataSynchDetailText = false;
 	activeInputLabel = NULL;
 	lastNetworkSendPing = 0;
 	pingCount = 0;
@@ -260,7 +261,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		{
 		    if(clientInterface->isConnected() == true)
 		    {
-                string sQuitText = "has chosen to leave the game!";
+                string sQuitText = "chose to leave the game!";
                 clientInterface->sendTextMessage(sQuitText,-1);
                 sleep(1);
 		    }
@@ -502,32 +503,73 @@ void MenuStateConnectedGame::update()
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		buttonDisconnect.setText(lang.get("Disconnect"));
 
-		if(clientInterface->getAllowDownloadDataSynch() == false)
-		{
+		if(clientInterface->getAllowDownloadDataSynch() == false) {
 		    string label = lang.get("ConnectedToServer");
 
-            if(!clientInterface->getServerName().empty())
-            {
+            if(!clientInterface->getServerName().empty()) {
                 label = label + " " + clientInterface->getServerName();
             }
 
             label = label + ", " + clientInterface->getVersionString();
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
-               clientInterface->getNetworkGameDataSynchCheckOk() == false)
-            {
-                label = label + " - warning synch mismatch for:";
-                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false)
-                {
+               clientInterface->getNetworkGameDataSynchCheckOk() == false) {
+                label = label + " -synch mismatch for:";
+
+                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false) {
                     label = label + " map";
+
+                    if(updateDataSynchDetailText == true &&
+                    	clientInterface->getReceivedDataSynchCheck() &&
+                    	lastMapDataSynchError != "map CRC mismatch") {
+                    	lastMapDataSynchError = "map CRC mismatch";
+                    	clientInterface->sendTextMessage(lastMapDataSynchError,-1,true);
+                    }
                 }
-                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false)
-                {
+                else {
+                	lastMapDataSynchError = "";
+                }
+
+                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false) {
                     label = label + " tile";
+                    if(updateDataSynchDetailText == true &&
+                    	clientInterface->getReceivedDataSynchCheck() &&
+                    	lastTileDataSynchError != "tile CRC mismatch") {
+                    	lastTileDataSynchError = "tile CRC mismatch";
+                    	clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+                    }
                 }
-                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false)
-                {
+                else {
+                	lastTileDataSynchError = "";
+                }
+
+                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
                     label = label + " techtree";
+
+                    if(updateDataSynchDetailText == true &&
+                    	clientInterface->getReceivedDataSynchCheck()) {
+
+                    	string report = clientInterface->getNetworkGameDataSynchCheckTechMismatchReport();
+						if(lastTechtreeDataSynchError != "techtree CRC mismatch" + report) {
+							lastTechtreeDataSynchError = "techtree CRC mismatch" + report;
+
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
+
+							clientInterface->sendTextMessage("techtree CRC mismatch",-1,true);
+							vector<string> reportLineTokens;
+							Tokenize(report,reportLineTokens,"\n");
+							for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
+								clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+							}
+						}
+                    }
+                }
+                else {
+                	lastTechtreeDataSynchError = "";
+                }
+
+                if(clientInterface->getReceivedDataSynchCheck() == true) {
+                	updateDataSynchDetailText = false;
                 }
                 //if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
                 //{
@@ -561,7 +603,7 @@ void MenuStateConnectedGame::update()
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false)
             {
-                label = label + " - waiting to synch:";
+                label = label + " -waiting to synch:";
                 if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false)
                 {
                     label = label + " map";
@@ -610,6 +652,7 @@ void MenuStateConnectedGame::update()
 	if(clientInterface->isConnected()) {
 		bool mustSwitchPlayerName = false;
 		if(clientInterface->getGameSettingsReceived()){
+			updateDataSynchDetailText = true;
 			bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			vector<string> maps,tilesets,techtree;

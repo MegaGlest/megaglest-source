@@ -79,6 +79,7 @@ private:
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
+	bool updateDataSynchDetailText;
 
 	Console console;
 	ChatManager chatManager;
@@ -92,6 +93,9 @@ private:
 	int pingCount;
 	bool initialSettingsReceivedFromServer;
 	
+	string lastMapDataSynchError;
+	string lastTileDataSynchError;
+	string lastTechtreeDataSynchError;
 	
 public:
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);

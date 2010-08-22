@@ -471,14 +471,23 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders, NO CACHE found result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
+	}
+
+	bool topLevelCaller = (recursiveMap == NULL);
 
 	vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
 	for(size_t idx = 0; idx < count; ++idx) {
 		string path = paths[idx] + pathSearchString;
-		getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
+		checksumFiles = getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+
+	if(topLevelCaller == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+	}
 
 	crcTreeCache[cacheKey] = checksumFiles;
 	return crcTreeCache[cacheKey];
@@ -498,6 +507,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 		return crcTreeCache[cacheKey];
 	}
 
+	bool topLevelCaller = (recursiveMap == NULL);
     vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
@@ -562,7 +572,11 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 	crcTreeCache[cacheKey] = checksumFiles;
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] cacheKey [%s] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str(),checksumFiles.size());
+
+	if(topLevelCaller == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+	}
 
     return crcTreeCache[cacheKey];
 }

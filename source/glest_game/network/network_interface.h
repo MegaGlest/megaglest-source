@@ -84,6 +84,8 @@ protected:
 	bool networkGameDataSynchCheckOkMap;
 	bool networkGameDataSynchCheckOkTile;
 	bool networkGameDataSynchCheckOkTech;
+	string networkGameDataSynchCheckTechMismatchReport;
+	bool receivedDataSynchCheck;
 
 	std::vector<ChatMsgInfo> chatTextList;
 	NetworkMessagePing lastPingInfo;
@@ -146,6 +148,12 @@ public:
 
 	std::string getIpAddress();
 	float getThreadedPingMS(std::string host);
+
+	string getNetworkGameDataSynchCheckTechMismatchReport() const {return networkGameDataSynchCheckTechMismatchReport;}
+	void setNetworkGameDataSynchCheckTechMismatchReport(string value) {networkGameDataSynchCheckTechMismatchReport = value;}
+
+	bool getReceivedDataSynchCheck() const {return receivedDataSynchCheck;}
+	void setReceivedDataSynchCheck(bool value) { receivedDataSynchCheck = value; }
 };
 
 // =====================================================
