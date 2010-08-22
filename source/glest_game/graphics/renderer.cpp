@@ -1428,11 +1428,13 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 
 	if(modelRenderStarted == true) {
 		modelRenderer->end();
+		glPopAttrib();
 	}
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-	glPopAttrib();
+
+	assertGl();
 }
 
 void Renderer::renderWater(){
@@ -1645,11 +1647,11 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 	}
 	if(modelRenderStarted == true) {
 		modelRenderer->end();
+		glPopAttrib();
 	}
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-	glPopAttrib();
 
 	//assert
 	assertGl();
@@ -2771,8 +2773,9 @@ void Renderer::renderUnitsFast(){
 	}
 	if(modelRenderStarted == true) {
 		modelRenderer->end();
+		glPopAttrib();
 	}
-	glPopAttrib();
+	assertGl();
 }
 
 void Renderer::prepareUnitFastForRender(RenderEntity &entity) {
@@ -2852,9 +2855,8 @@ void Renderer::renderObjectsFast() {
 //	renderObjectFastList(vctEntity);
 	if(modelRenderStarted == true) {
 		modelRenderer->end();
+		glPopAttrib();
 	}
-
-	glPopAttrib();
 
 	assertGl();
 }
