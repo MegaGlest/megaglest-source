@@ -248,9 +248,9 @@ bool Map::isInsideSurface(const Vec2i &sPos) const{
 }
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
-bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos) const{
-	for(int i=-1; i<=1; ++i){
-		for(int j=-1; j<=1; ++j){
+bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size) const{
+	for(int i=-1; i<=size; ++i){
+		for(int j=-1; j<=size; ++j){
 			if(isInside(pos.x+i, pos.y+j)){
 				Resource *r= getSurfaceCell(toSurfCoords(Vec2i(pos.x+i, pos.y+j)))->getResource();
 				if(r!=NULL){
