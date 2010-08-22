@@ -492,7 +492,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
 						canHarvestDestPos = (unit->getPos().dist(command->getPos())<harvestDistance &&
-											  map->isResourceNear(unit->getPos(), r->getType(), targetPos));
+											  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize()));
 	    				break;
 	    			case pfRoutePlanner:
 	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
