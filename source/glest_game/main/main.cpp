@@ -424,14 +424,18 @@ void MainWindow::setProgram(Program *program) {
 // =====================================================
 SystemFlags debugger;
 
-bool hasCommandArgument(int argc, const char** argv,const string argName, int *foundIndex=NULL, int startLookupIndex=1) {
+bool hasCommandArgument(int argc, const char** argv,const string argName, int *foundIndex=NULL, int startLookupIndex=1,bool useArgParamLen=false) {
 	bool result = false;
 
 	if(foundIndex != NULL) {
 		*foundIndex = -1;
 	}
 	int compareLen = strlen(argName.c_str());
+
 	for(int idx = startLookupIndex; idx < argc; idx++) {
+		if(useArgParamLen == true) {
+			compareLen = strlen(argv[idx]);
+		}
 		if(strnicmp(argName.c_str(),argv[idx],compareLen) == 0) {
 			result = true;
 			if(foundIndex != NULL) {
@@ -453,7 +457,7 @@ int glestMain(int argc, const char** argv){
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {
-		if( hasCommandArgument(knownArgCount, GAME_ARGS,argv[idx],NULL,0) == false) {
+		if( hasCommandArgument(knownArgCount, GAME_ARGS,argv[idx],NULL,0,true) == false) {
 			foundInvalidArgs = true;
 			printf("\nInvalid argument: %s",argv[idx]);
 		}
