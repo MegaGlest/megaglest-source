@@ -424,7 +424,7 @@ void MainWindow::setProgram(Program *program) {
 // =====================================================
 SystemFlags debugger;
 
-bool hasCommandArgument(int argc, const char** argv,const string argName, int *foundIndex=NULL, int startLookupIndex=1,bool useArgParamLen=false) {
+bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIndex=NULL, int startLookupIndex=1,bool useArgParamLen=false) {
 	bool result = false;
 
 	if(foundIndex != NULL) {
@@ -448,7 +448,7 @@ bool hasCommandArgument(int argc, const char** argv,const string argName, int *f
 	return result;
 }
 
-int glestMain(int argc, const char** argv){
+int glestMain(int argc, char** argv){
 
 #ifdef SL_LEAK_DUMP
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
@@ -457,7 +457,7 @@ int glestMain(int argc, const char** argv){
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {
-		if( hasCommandArgument(knownArgCount, GAME_ARGS,argv[idx],NULL,0,true) == false) {
+		if( hasCommandArgument(knownArgCount, (char **)&GAME_ARGS[0], argv[idx], NULL, 0, true) == false) {
 			foundInvalidArgs = true;
 			printf("\nInvalid argument: %s",argv[idx]);
 		}

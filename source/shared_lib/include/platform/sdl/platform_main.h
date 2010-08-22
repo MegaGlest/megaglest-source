@@ -14,8 +14,8 @@
 #include <SDL.h>
 #include <iostream>
 
-#define MAIN_FUNCTION(X) int main(int argc, const char **argv)                     \
-{                                \
+#define MAIN_FUNCTION(X) int main(int argc, char **argv)                    \
+{																			\
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                 \
         std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
         return 1;                                                            \
