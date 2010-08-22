@@ -615,7 +615,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtSynchNetworkGameData);
+	assert(data.header.messageType==nmtSynchNetworkGameData);
 	NetworkMessage::send(socket, &data, HeaderSize);
 	if(data.header.techCRCFileCount > 0) {
 		NetworkMessage::send(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
@@ -757,7 +757,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.techCRCFileCount);
 
-	assert(data.messageType==nmtSynchNetworkGameDataStatus);
+	assert(data.header.messageType==nmtSynchNetworkGameDataStatus);
 	//int totalMsgSize = HeaderSize + (sizeof(DataDetail) * data.header.techCRCFileCount);
 	NetworkMessage::send(socket, &data, HeaderSize);
 	if(data.header.techCRCFileCount > 0) {
