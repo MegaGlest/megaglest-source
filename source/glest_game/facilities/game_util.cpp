@@ -27,6 +27,7 @@ namespace Glest{ namespace Game{
 
 const string mailString= "contact_game@glest.org";
 const string glestVersionString= "v3.3.7-dev";
+const string SVN_Rev = "$Rev$";
 
 string getCrashDumpFileName(){
 	return "glest" + glestVersionString + ".dmp";
@@ -83,13 +84,13 @@ version += " [DEBUG]";
 }
 
 string getNetworkVersionString() {
-	string version = glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__);
+	string version = glestVersionString + " built: " + string(__DATE__) + " " + string(__TIME__) + " " + SVN_Rev;
 	version += " Compiler " + getCompilerNameString();
 	return version;
 }
 
 string getCompileDateTime() {
-	return string(__DATE__) + " " + string(__TIME__);
+	return string(__DATE__) + " " + SVN_Rev + " " + string(__TIME__);
 }
 
 string getNetworkPlatformFreeVersionString() {
@@ -99,7 +100,7 @@ string getNetworkPlatformFreeVersionString() {
 string getAboutString1(int i){
 	switch(i){
 	case 0: return "Glest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
-	case 1: return "Built: " + string(__DATE__);
+	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
 	}
 	return "";
