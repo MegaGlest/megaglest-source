@@ -48,6 +48,7 @@ World::World(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
+	staggeredFactionUpdates = false;
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
@@ -307,10 +308,13 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
-	if(frameCount % GameConstants::updateFps == 0) {
+	bool needToTick = (frameCount % GameConstants::updateFps == 0);
+	if(staggeredFactionUpdates == true) {
+		needToTick = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
+	}
+	if(needToTick == true) {
 	//if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
 		tick();
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -345,11 +349,12 @@ int World::tickFactionIndex() {
 
 void World::tick() {
 	int factionIdxToTick = -1;
-	//int factionIdxToTick = tickFactionIndex();
-	//if(factionIdxToTick < 0) {
-	//	return;
-	//}
-
+	if(staggeredFactionUpdates == true) {
+		int factionIdxToTick = tickFactionIndex();
+		if(factionIdxToTick < 0) {
+			return;
+		}
+	}
 	computeFow(factionIdxToTick);
 
 	if(factionIdxToTick == -1 || factionIdxToTick == 0) {

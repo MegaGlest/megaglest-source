@@ -120,6 +120,8 @@ private:
 	Chrono chronoPerfTimer;
 	bool perfTimerEnabled;
 
+	bool staggeredFactionUpdates;
+
 public:
 	World();
 	~World();
