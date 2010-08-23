@@ -307,9 +307,8 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
-	if(frameCount % GameConstants::updateFps == 0){
-		computeFow();
-
+	//if(frameCount % GameConstants::updateFps == 0) {
+	if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		tick();
@@ -317,44 +316,76 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-void World::tick(){
-	if(!fogOfWarSmoothing){
+bool World::canTickFaction(int factionIdx) {
+	int expectedFactionIdx = (frameCount / (GameConstants::updateFps / GameConstants::maxPlayers));
+	if(expectedFactionIdx >= GameConstants::maxPlayers) {
+		expectedFactionIdx = expectedFactionIdx % GameConstants::maxPlayers;
+	}
+	bool result = (expectedFactionIdx == factionIdx);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdx = %d, frameCount = %d, GameConstants::updateFps = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,frameCount,GameConstants::updateFps,result);
+
+	return result;
+}
+
+void World::tick() {
+	int factionIdxToTick = -1;
+	for(int i=0; i<getFactionCount(); ++i) {
+		if(canTickFaction(i) == true) {
+			factionIdxToTick = i;
+			break;
+		}
+	}
+	if(factionIdxToTick < 0) {
+		return;
+	}
+
+	computeFow();
+
+	if(fogOfWarSmoothing == false) {
 		minimap.updateFowTex(1.f);
 	}
 
 	//increase hp
-	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-			getFaction(i)->getUnit(j)->tick();
-		}
-	}
+	int i = factionIdxToTick;
+	//for(int i=0; i<getFactionCount(); ++i) {
+	//	if(canTickFaction(i) == true) {
+			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
+				getFaction(i)->getUnit(j)->tick();
+			}
+	//	}
+	//}
 
 	//compute resources balance
-	for(int k=0; k<getFactionCount(); ++k){
-		Faction *faction= getFaction(k);
+	int k = factionIdxToTick;
+	//for(int k=0; k<getFactionCount(); ++k) {
+		//if(canTickFaction(k) == true) {
+			Faction *faction= getFaction(k);
 
-		//for each resource
-		for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-			const ResourceType *rt= techTree->getResourceType(i);
+			//for each resource
+			for(int i=0; i<techTree->getResourceTypeCount(); ++i) {
+				const ResourceType *rt= techTree->getResourceType(i);
 
-			//if consumable
-			if(rt->getClass()==rcConsumable){
-				int balance= 0;
-				for(int j=0; j<faction->getUnitCount(); ++j){
+				//if consumable
+				if(rt->getClass()==rcConsumable) {
+					int balance= 0;
+					for(int j=0; j<faction->getUnitCount(); ++j) {
 
-					//if unit operative and has this cost
-					const Unit *u=  faction->getUnit(j);
-					if(u->isOperative()){
-						const Resource *r= u->getType()->getCost(rt);
-						if(r!=NULL){
-							balance-= u->getType()->getCost(rt)->getAmount();
+						//if unit operative and has this cost
+						const Unit *u=  faction->getUnit(j);
+						if(u->isOperative()) {
+							const Resource *r= u->getType()->getCost(rt);
+							if(r!=NULL) {
+								balance-= u->getType()->getCost(rt)->getAmount();
+							}
 						}
 					}
+					faction->setResourceBalance(rt, balance);
 				}
-				faction->setResourceBalance(rt, balance);
 			}
-		}
-	}
+		//}
+	//}
+
 	if(cartographer != NULL) {
 		cartographer->tick();
 	}

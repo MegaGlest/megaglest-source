@@ -200,6 +200,7 @@ private:
 
 	//misc
 	void tick();
+	bool canTickFaction(int factionIdx);
 	void computeFow();
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
 
