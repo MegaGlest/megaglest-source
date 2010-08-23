@@ -202,11 +202,29 @@ bool Window::handleEvent() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT.\n",__FILE__,__FUNCTION__,__LINE__);
 
 					// Check if the program has lost keyboard focus
+					/*
 					if (event.active.state == SDL_APPINPUTFOCUS) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
-						else if (event.active.gain == 1) {
+						//else if (event.active.gain == 1) {
+						else {
+							Window::isActive = true;
+						}
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+
+						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+						showCursor(willShowCursor);
+					}
+					*/
+					// Check if the program has lost window focus
+					if (event.active.state == SDL_APPACTIVE) {
+						if (event.active.gain == 0) {
+							Window::isActive = false;
+						}
+						//else if (event.active.gain == 1) {
+						else {
 							Window::isActive = true;
 						}
 
@@ -216,25 +234,13 @@ bool Window::handleEvent() {
 						showCursor(willShowCursor);
 					}
 					// Check if the program has lost window focus
-					else if (event.active.state == SDL_APPACTIVE) {
+					/*
+					if (event.active.state == SDL_APPMOUSEFOCUS) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
-						else if (event.active.gain == 1) {
-							Window::isActive = true;
-						}
-
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-
-						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
-						showCursor(willShowCursor);
-					}
-					// Check if the program has lost window focus
-					else if (event.active.state == SDL_APPMOUSEFOCUS) {
-						if (event.active.gain == 0) {
-							Window::isActive = false;
-						}
-						else if (event.active.gain == 1) {
+						//else if (event.active.gain == 1) {
+						else {
 							Window::isActive = true;
 						}
 
@@ -242,11 +248,15 @@ bool Window::handleEvent() {
 						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 						showCursor(willShowCursor);
 					}
-					else {
+					*/
+					if (event.active.state != SDL_APPMOUSEFOCUS &&
+						event.active.state != SDL_APPINPUTFOCUS &&
+						event.active.state != SDL_APPACTIVE) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
-						else if (event.active.gain == 1) {
+						//else if (event.active.gain == 1) {
+						else {
 							Window::isActive = true;
 						}
 
