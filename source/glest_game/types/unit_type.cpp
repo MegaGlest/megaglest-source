@@ -643,9 +643,9 @@ string UnitType::getReqDesc() const{
 		resultTxt+="\n"+lang.get("MaxUnitCount")+" "+intToStr(getMaxUnitCount());
 	}
 	if(resultTxt=="")
-		return RequirableType::getReqDesc();
+		return ProducibleType::getReqDesc();
 	else
-		return RequirableType::getReqDesc()+"\nLimits: "+resultTxt;
+		return ProducibleType::getReqDesc()+"\nLimits: "+resultTxt;
 }  
 
 std::string UnitType::toString() const {
