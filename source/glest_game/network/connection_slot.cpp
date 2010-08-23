@@ -302,7 +302,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 						case nmtText:
 						{
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtText gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
 							if(gotIntro == true) {
 								NetworkMessageText networkMessageText;
@@ -320,7 +320,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						//command list
 						case nmtCommandList: {
 
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtCommandList\n",__FILE__,__FUNCTION__);
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtCommandList gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
 							//throw runtime_error("test");
 
@@ -571,16 +571,21 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 						case nmtSwitchSetupRequest:
 						{
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtSwitchSetupRequest gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
+
 							if(gotIntro == true) {
 								SwitchSetupRequest switchSetupRequest;
 								if(receiveMessage(&switchSetupRequest)) {
 									Mutex *mutex = getServerSynchAccessor();
 									if(mutex != NULL) mutex->p();
 
-									if(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]==NULL) {
-										serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()]= new SwitchSetupRequest();
+									int factionIdx = switchSetupRequest.getCurrentFactionIndex();
+									if(serverInterface->getSwitchSetupRequests()[factionIdx] == NULL) {
+										serverInterface->getSwitchSetupRequests()[factionIdx]= new SwitchSetupRequest();
 									}
-									*(serverInterface->getSwitchSetupRequests()[switchSetupRequest.getCurrentFactionIndex()])=switchSetupRequest;
+									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
+
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() = %s\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str());
 
 									if(mutex != NULL) mutex->v();
 								}
@@ -594,7 +599,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						}
 						default:
 							{
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
 								if(gotIntro == true) {
 									//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));

@@ -107,6 +107,9 @@ private:
 	string lastTileDataSynchError;
 	string lastTechtreeDataSynchError;
 
+	string defaultPlayerName;
+	int8 switchSetupRequestFlagType;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
 	~MenuStateCustomGame();

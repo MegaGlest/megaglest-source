@@ -97,6 +97,9 @@ private:
 	string lastTileDataSynchError;
 	string lastTechtreeDataSynchError;
 	
+	int8 switchSetupRequestFlagType;
+	string defaultPlayerName;
+
 public:
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
 
