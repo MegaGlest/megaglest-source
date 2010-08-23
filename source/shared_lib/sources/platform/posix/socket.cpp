@@ -1228,15 +1228,17 @@ bool Socket::isConnected() {
 }
 
 string Socket::getHostName()  {
-	const int strSize= 257;
-	char hostname[strSize]="";
-	int result = gethostname(hostname, strSize);
-	string host = "";
-	if(result == 0) {
-		host = (hostname[0] != '\0' ? hostname : "");
-	}
-	else {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,result,getLastSocketErrorText());
+	static string host = "";
+	if(host == "") {
+		const int strSize= 257;
+		char hostname[strSize]="";
+		int result = gethostname(hostname, strSize);
+		if(result == 0) {
+			host = (hostname[0] != '\0' ? hostname : "");
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,result,getLastSocketErrorText());
+		}
 	}
 	return host;
 }
