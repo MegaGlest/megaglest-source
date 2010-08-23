@@ -91,7 +91,9 @@ public:
 	void discoverServers(DiscoveredServersInterface *cb);
 	void stopServerDiscovery();
 	
-	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex, int8 toTeam,string networkPlayerName);
+	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
+								int8 toFactionIndex, int8 toTeam,string networkPlayerName,
+								int8 flags);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::string getServerIpAddress();
 

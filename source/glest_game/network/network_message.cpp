@@ -824,28 +824,29 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const {
 
 
 // =====================================================
-//	class NetworkMessageSynchNetworkGameDataFileGet
+//	class SwitchSetupRequest
 // =====================================================
 
-SwitchSetupRequest::SwitchSetupRequest()
-{
+SwitchSetupRequest::SwitchSetupRequest() {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName="";
 	data.currentFactionIndex=-1;
 	data.toFactionIndex=-1;
     data.toTeam = -1;
     data.networkPlayerName="";
+    data.switchFlags = ssrft_None;
 }
 
-
-SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam,string networkPlayerName)
-{
+SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
+										int8 toFactionIndex,int8 toTeam,string networkPlayerName,
+										int8 flags) {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
 	data.currentFactionIndex=currentFactionIndex;
 	data.toFactionIndex=toFactionIndex;
     data.toTeam = toTeam;
     data.networkPlayerName=networkPlayerName;
+    data.switchFlags = flags;
 }
 
 bool SwitchSetupRequest::receive(Socket* socket) {
@@ -857,12 +858,10 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 	return result;
 }
 
-void SwitchSetupRequest::send(Socket* socket) const
-{
+void SwitchSetupRequest::send(Socket* socket) const {
 	assert(data.messageType==nmtSwitchSetupRequest);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
-
 
 // =====================================================
 //	class PlayerIndexMessage

@@ -546,10 +546,21 @@ public:
 //	to switch its settings
 // =====================================================
 
+// Each bit represents which item in the packet has a changed value
+enum SwitchSetupRequestFlagType {
+	ssrft_None					= 0x00,
+	ssrft_SelectedFactionName	= 0x01,
+	ssrft_CurrentFactionIndex	= 0x02,
+	ssrft_ToFactionIndex		= 0x04,
+	ssrft_ToTeam				= 0x08,
+	ssrft_NetworkPlayerName		= 0x10
+};
+
 #pragma pack(push, 1)
 class SwitchSetupRequest: public NetworkMessage{
 private:
 	static const int maxStringSize= 256;
+	static const int maxPlayernameStringSize= 80;
 
 private:
 	struct Data{
@@ -558,7 +569,8 @@ private:
 		int8 currentFactionIndex;
 		int8 toFactionIndex;
 		int8 toTeam;
-		NetworkString<maxStringSize> networkPlayerName;
+		NetworkString<maxPlayernameStringSize> networkPlayerName;
+		int8 switchFlags;
 	};
 
 private:
@@ -566,13 +578,17 @@ private:
 
 public:
 	SwitchSetupRequest();
-	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex, int8 toFactionIndex,int8 toTeam,string networkPlayerName);
+	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex,
+						int8 toFactionIndex,int8 toTeam,string networkPlayerName, int8 flags);
 
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
 	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
 	int getToFactionIndex() const			{return data.toFactionIndex;}
 	int getToTeam() const					{return data.toTeam;}
 	string getNetworkPlayerName() const		{return data.networkPlayerName.getString(); }
+	int getSwitchFlags() const				{return data.switchFlags;}
+	int addSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags |= flag;}
+	int clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
