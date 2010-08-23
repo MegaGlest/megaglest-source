@@ -1046,42 +1046,44 @@ void World::computeFow(int factionIdxToTick) {
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute texture
-	for(int i=0; i<getFactionCount(); ++i) {
-		//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-			Faction *faction= getFaction(i);
-			if(faction->getTeam() == thisTeamIndex){
-				for(int j=0; j<faction->getUnitCount(); ++j){
-					const Unit *unit= faction->getUnit(j);
-					if(unit->isOperative()){
-						int sightRange= unit->getType()->getSight();
+	if(fogOfWar) {
+		for(int i=0; i<getFactionCount(); ++i) {
+			//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+				Faction *faction= getFaction(i);
+				if(faction->getTeam() == thisTeamIndex){
+					for(int j=0; j<faction->getUnitCount(); ++j){
+						const Unit *unit= faction->getUnit(j);
+						if(unit->isOperative()){
+							int sightRange= unit->getType()->getSight();
 
-						//iterate through all cells
-						PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
-						while(pci.next()){
-							const Vec2i pos= pci.getPos();
-							Vec2i surfPos= Map::toSurfCoords(pos);
+							//iterate through all cells
+							PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
+							while(pci.next()){
+								const Vec2i pos= pci.getPos();
+								Vec2i surfPos= Map::toSurfCoords(pos);
 
-							//compute max alpha
-							float maxAlpha= 0.0f;
-							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
-								maxAlpha= 1.f;
-							}
-							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
-								maxAlpha= 0.3f;
-							}
+								//compute max alpha
+								float maxAlpha= 0.0f;
+								if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+									maxAlpha= 1.f;
+								}
+								else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+									maxAlpha= 0.3f;
+								}
 
-							//compute alpha
-							float alpha=maxAlpha;
-							float dist= unit->getPos().dist(pos);
-							if(dist>sightRange){
-								alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
+								//compute alpha
+								float alpha=maxAlpha;
+								float dist= unit->getPos().dist(pos);
+								if(dist>sightRange){
+									alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
+								}
+								minimap.incFowTextureAlphaSurface(surfPos, alpha);
 							}
-							minimap.incFowTextureAlphaSurface(surfPos, alpha);
 						}
 					}
 				}
-			}
-		//}
+			//}
+		}
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
