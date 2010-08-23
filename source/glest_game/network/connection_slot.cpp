@@ -150,6 +150,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->sessionKey 		= 0;
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
 	this->currentFrameCount = 0;
@@ -239,13 +240,15 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 				//send intro message when connected
 				if(socket != NULL) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
+					RandomGen random;
+					sessionKey = random.randRange(-100000, 100000);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d, sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount(),sessionKey);
 
 					if(hasOpenSlots == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots);
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -255,7 +258,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(getNetworkVersionString(), getHostName(), playerIndex, nmgstOk);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk);
 							sendMessage(&networkMessageIntro);
 						}
 					}
@@ -347,10 +350,21 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 							NetworkMessageIntro networkMessageIntro;
 							if(receiveMessage(&networkMessageIntro)) {
+								int msgSessionId = networkMessageIntro.getSessionId();
 								name= networkMessageIntro.getName();
 								versionString = networkMessageIntro.getVersionString();
 
-								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s]\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str());
+								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s], msgSessionId = %d\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str(),msgSessionId);
+
+								if(msgSessionId != sessionKey) {
+									string playerNameStr = name;
+									string sErr = "Client gave invalid sessionid for player [" + playerNameStr + "]";
+									printf("%s\n",sErr.c_str());
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+
+									close();
+									return;
+								}
 
 								//check consistency
 								if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
@@ -378,6 +392,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
+										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
 										//sendTextMessage("Server and client have different platform mismatch.",-1, true);
 										//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);

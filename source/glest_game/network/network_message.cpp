@@ -125,12 +125,16 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const 
 
 NetworkMessageIntro::NetworkMessageIntro(){
 	data.messageType= -1;
+	data.sessionId=	  -1;
 	data.playerIndex= -1;
 	data.gameState	= nmgstInvalid;
 }
 
-NetworkMessageIntro::NetworkMessageIntro(const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState) {
+NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionString,
+										const string &name, int playerIndex,
+										NetworkGameStateType gameState) {
 	data.messageType	= nmtIntro;
+	data.sessionId		= sessionId;
 	data.versionString	= versionString;
 	data.name			= name;
 	data.playerIndex	= static_cast<int16>(playerIndex);
@@ -141,11 +145,12 @@ bool NetworkMessageIntro::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
 }
 
 void NetworkMessageIntro::send(Socket* socket) const{
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtIntro\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	assert(data.messageType==nmtIntro);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
