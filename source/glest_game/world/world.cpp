@@ -317,18 +317,19 @@ void World::update(){
 }
 
 bool World::canTickFaction(int factionIdx) {
-	int expectedFactionIdx = (frameCount / (GameConstants::updateFps / GameConstants::maxPlayers));
+	int factionUpdateInterval = (GameConstants::updateFps / GameConstants::maxPlayers);
+	int expectedFactionIdx = (frameCount / factionUpdateInterval) -1;
 	if(expectedFactionIdx >= GameConstants::maxPlayers) {
 		expectedFactionIdx = expectedFactionIdx % GameConstants::maxPlayers;
 	}
 	bool result = (expectedFactionIdx == factionIdx);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdx = %d, frameCount = %d, GameConstants::updateFps = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,frameCount,GameConstants::updateFps,result);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdx = %d, frameCount = %d, GameConstants::updateFps = %d, expectedFactionIdx = %d, factionUpdateInterval = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,frameCount,GameConstants::updateFps,expectedFactionIdx,factionUpdateInterval,result);
 
 	return result;
 }
 
-void World::tick() {
+int World::tickFactionIndex() {
 	int factionIdxToTick = -1;
 	for(int i=0; i<getFactionCount(); ++i) {
 		if(canTickFaction(i) == true) {
@@ -336,14 +337,24 @@ void World::tick() {
 			break;
 		}
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
+
+	return factionIdxToTick;
+}
+
+void World::tick() {
+	int factionIdxToTick = tickFactionIndex();
 	if(factionIdxToTick < 0) {
 		return;
 	}
 
-	computeFow();
+	computeFow(factionIdxToTick);
 
-	if(fogOfWarSmoothing == false) {
-		minimap.updateFowTex(1.f);
+	if(factionIdxToTick == 0) {
+		if(fogOfWarSmoothing == false) {
+			minimap.updateFowTex(1.f);
+		}
 	}
 
 	//increase hp
@@ -973,21 +984,27 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 }
 
 //computes the fog of war texture, contained in the minimap
-void World::computeFow(){
+void World::computeFow(int factionIdxToTick) {
 	Chrono chrono;
 	chrono.start();
 
 	//reset texture
-	minimap.resetFowTex();
+	//if(factionIdxToTick == -1 || factionIdxToTick == 0) {
+	//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+	//if(frameCount % (GameConstants::updateFps) == 0) {
+		minimap.resetFowTex();
+	//}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//reset cells
-	for(int i=0; i<map.getSurfaceW(); ++i){
-		for(int j=0; j<map.getSurfaceH(); ++j){
-			for(int k=0; k<GameConstants::maxPlayers; ++k){
-				if(fogOfWar || k!=thisTeamIndex){
-					map.getSurfaceCell(i, j)->setVisible(k, false);
+	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+		for(int i=0; i<map.getSurfaceW(); ++i) {
+			for(int j=0; j<map.getSurfaceH(); ++j) {
+				for(int k=0; k<GameConstants::maxPlayers; ++k) {
+					if(fogOfWar || k != thisTeamIndex){
+						map.getSurfaceCell(i, j)->setVisible(k, false);
+					}
 				}
 			}
 		}
@@ -996,13 +1013,15 @@ void World::computeFow(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute cells
-	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-			Unit *unit= getFaction(i)->getUnit(j);
+	for(int i=0; i<getFactionCount(); ++i) {
+		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
+				Unit *unit= getFaction(i)->getUnit(j);
 
-			//exploration
-			if(unit->isOperative()){
-				exploreCells(unit->getCenteredPos(), unit->getType()->getSight(), unit->getTeam());
+				//exploration
+				if(unit->isOperative()) {
+					exploreCells(unit->getCenteredPos(), unit->getType()->getSight(), unit->getTeam());
+				}
 			}
 		}
 	}
@@ -1010,14 +1029,16 @@ void World::computeFow(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//fire
-	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-			Unit *unit= getFaction(i)->getUnit(j);
+	for(int i=0; i<getFactionCount(); ++i) {
+		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+			for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
+				Unit *unit= getFaction(i)->getUnit(j);
 
-			//fire
-			ParticleSystem *fire= unit->getFire();
-			if(fire!=NULL){
-				fire->setActive(map.getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(thisTeamIndex));
+				//fire
+				ParticleSystem *fire= unit->getFire();
+				if(fire!=NULL){
+					fire->setActive(map.getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(thisTeamIndex));
+				}
 			}
 		}
 	}
@@ -1025,53 +1046,48 @@ void World::computeFow(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//compute texture
-	for(int i=0; i<getFactionCount(); ++i){
-		Faction *faction= getFaction(i);
-		if(faction->getTeam()==thisTeamIndex){
-			for(int j=0; j<faction->getUnitCount(); ++j){
-				const Unit *unit= faction->getUnit(j);
-				if(unit->isOperative()){
-					int sightRange= unit->getType()->getSight();
+	for(int i=0; i<getFactionCount(); ++i) {
+		//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+			Faction *faction= getFaction(i);
+			if(faction->getTeam() == thisTeamIndex){
+				for(int j=0; j<faction->getUnitCount(); ++j){
+					const Unit *unit= faction->getUnit(j);
+					if(unit->isOperative()){
+						int sightRange= unit->getType()->getSight();
 
-					//iterate through all cells
-					PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
-					while(pci.next()){
-						Vec2i pos= pci.getPos();
-						Vec2i surfPos= Map::toSurfCoords(pos);
+						//iterate through all cells
+						PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
+						while(pci.next()){
+							const Vec2i pos= pci.getPos();
+							Vec2i surfPos= Map::toSurfCoords(pos);
 
+							//compute max alpha
+							float maxAlpha= 0.0f;
+							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+								maxAlpha= 1.f;
+							}
+							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+								maxAlpha= 0.3f;
+							}
 
-						//compute max alpha
-						float maxAlpha;
-						if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
-							maxAlpha= 1.f;
+							//compute alpha
+							float alpha=maxAlpha;
+							float dist= unit->getPos().dist(pos);
+							if(dist>sightRange){
+								alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
+							}
+							minimap.incFowTextureAlphaSurface(surfPos, alpha);
 						}
-						else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
-							maxAlpha= 0.3f;
-						}
-						else{
-							maxAlpha= 0.0f;
-						}
-
-						//compute alpha
-						float alpha;
-						float dist= unit->getPos().dist(pos);
-						if(dist>sightRange){
-							alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
-						}
-						else{
-							alpha= maxAlpha;
-						}
-						minimap.incFowTextureAlphaSurface(surfPos, alpha);
 					}
 				}
 			}
-		}
+		//}
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-// WARNING! This id is critical! MAke sure it fits inside the network packet
+// WARNING! This id is critical! Make sure it fits inside the network packet
 // (currently cannot be larger than 2,147,483,647)
 // Make sure each faction has their own unique section of id #'s for proper
 // multi-platform play
