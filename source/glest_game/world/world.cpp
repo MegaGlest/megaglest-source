@@ -307,8 +307,8 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
-	//if(frameCount % GameConstants::updateFps == 0) {
-	if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
+	if(frameCount % GameConstants::updateFps == 0) {
+	//if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		tick();
@@ -344,33 +344,34 @@ int World::tickFactionIndex() {
 }
 
 void World::tick() {
-	int factionIdxToTick = tickFactionIndex();
-	if(factionIdxToTick < 0) {
-		return;
-	}
+	int factionIdxToTick = -1;
+	//int factionIdxToTick = tickFactionIndex();
+	//if(factionIdxToTick < 0) {
+	//	return;
+	//}
 
 	computeFow(factionIdxToTick);
 
-	if(factionIdxToTick == 0) {
+	if(factionIdxToTick == -1 || factionIdxToTick == 0) {
 		if(fogOfWarSmoothing == false) {
 			minimap.updateFowTex(1.f);
 		}
 	}
 
 	//increase hp
-	int i = factionIdxToTick;
-	//for(int i=0; i<getFactionCount(); ++i) {
-	//	if(canTickFaction(i) == true) {
+	//int i = factionIdxToTick;
+	for(int i=0; i<getFactionCount(); ++i) {
+		if(factionIdxToTick == -1 || i == factionIdxToTick) {
 			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
 				getFaction(i)->getUnit(j)->tick();
 			}
-	//	}
-	//}
+		}
+	}
 
 	//compute resources balance
-	int k = factionIdxToTick;
-	//for(int k=0; k<getFactionCount(); ++k) {
-		//if(canTickFaction(k) == true) {
+	//int k = factionIdxToTick;
+	for(int k=0; k<getFactionCount(); ++k) {
+		if(factionIdxToTick == -1 || k == factionIdxToTick) {
 			Faction *faction= getFaction(k);
 
 			//for each resource
@@ -394,8 +395,8 @@ void World::tick() {
 					faction->setResourceBalance(rt, balance);
 				}
 			}
-		//}
-	//}
+		}
+	}
 
 	if(cartographer != NULL) {
 		cartographer->tick();
