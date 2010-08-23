@@ -54,6 +54,7 @@ private:
 
 	time_t clientSimulationLagStartTime;
 	string versionString;
+	int sessionKey;
 
 public:
 	ClientInterface();

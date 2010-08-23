@@ -41,6 +41,7 @@ const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 
 ClientInterface::ClientInterface(){
 	clientSocket= NULL;
+	sessionKey = 0;
 	launchGame= false;
 	introDone= false;
 	playerIndex= -1;
@@ -164,11 +165,12 @@ void ClientInterface::updateLobby() {
             NetworkMessageIntro networkMessageIntro;
             if(receiveMessage(&networkMessageIntro)) {
             	gotIntro = true;
+            	sessionKey = networkMessageIntro.getSessionId();
             	versionString = networkMessageIntro.getVersionString();
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str());
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey);
 
                 //check consistency
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
@@ -218,7 +220,7 @@ void ClientInterface::updateLobby() {
                 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					//send intro message
-					NetworkMessageIntro sendNetworkMessageIntro(getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk);
+					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk);
 					sendMessage(&sendNetworkMessageIntro);
 
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

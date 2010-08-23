@@ -110,6 +110,7 @@ private:
 	time_t lastReceiveCommandListTime;
 	bool gotLagCountWarning;
 	string versionString;
+	int sessionKey;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);

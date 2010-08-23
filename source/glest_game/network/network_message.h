@@ -85,6 +85,7 @@ private:
 private:
 	struct Data{
 		int8 messageType;
+		int32 sessionId;
 		NetworkString<maxVersionStringSize> versionString;
 		NetworkString<maxNameSize> name;
 		int16 playerIndex;
@@ -96,8 +97,9 @@ private:
 
 public:
 	NetworkMessageIntro();
-	NetworkMessageIntro(const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState);
+	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState);
 
+	int32 getSessionId() const 					{ return data.sessionId;}
 	string getVersionString() const				{ return data.versionString.getString(); }
 	string getName() const						{ return data.name.getString(); }
 	int getPlayerIndex() const					{ return data.playerIndex; }
