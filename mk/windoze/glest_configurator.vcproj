@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
 				PreprocessorDefinitions="MWIN;__WXMSW__;__WXDEBUG__;CURL_STATICLIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/arch:SSE2"
-				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -196,7 +196,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/arch:SSE2"
-				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.14/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;&quot;../../source/win32_deps/curl-7.20.1/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB"
 				StringPooling="true"
 				ExceptionHandling="2"
