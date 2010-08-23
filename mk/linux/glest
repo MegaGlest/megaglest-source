@@ -67,10 +67,17 @@ fi
 # now deal with the openal library [libopenal.so.0]
 OS_TYPE=`uname -m`
 
-# OpenSuSE (11.3) needs its own openAL
+# OpenSuSE (11.3) and Fedora needs its own openAL
 #if [ -f /etc/SuSE-release -a -f lib/libopenal* ]; then
-if [ -f /etc/SuSE-release ]; then
-  echo 'Detected Open Suse...' >&2
+if [ -f /etc/SuSE-release ] || [ -f /etc/fedora-release ] ; then
+  
+  if [ -f /etc/SuSE-release ] ; then
+    echo 'Detected Open Suse...' >&2
+  fi
+
+  if [ -f /etc/fedora-release ] ; then
+    echo 'Detected Fedora...' >&2
+  fi
 
   #rm -f lib/libopenal*
   # libcurl*, libgnu*, libicu*, liblua*, libxerces*
