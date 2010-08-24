@@ -904,8 +904,9 @@ bool Unit::update(){
 	assert(progress<=1.f);
 
 	//highlight
-	if(highlight>0.f){
-		highlight-= 1.f/(highlightTime*GameConstants::updateFps);
+	if(highlight>0.f) {
+		const Game *game = Renderer::getInstance().getGame();
+		highlight-= 1.f / (highlightTime * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	}
 
 	if(currSkill == NULL) {
@@ -936,8 +937,9 @@ bool Unit::update(){
 
 	//update progresses
 	lastAnimProgress= animProgress;
-	progress+= (speed*diagonalFactor*heightFactor)/(speedDivider*GameConstants::updateFps);
-	animProgress+= (currSkill->getAnimSpeed()*heightFactor)/(speedDivider*GameConstants::updateFps);
+	const Game *game = Renderer::getInstance().getGame();
+	progress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+	animProgress += (currSkill->getAnimSpeed() * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 
 	//update target
 	updateTarget();
@@ -1495,7 +1497,8 @@ void Unit::startDamageParticles(){
 	if(type->getProperty(UnitType::pBurnable) && fire==NULL){
 		FireParticleSystem *fps;
 		fps= new FireParticleSystem(200);
-		fps->setSpeed(2.5f/GameConstants::updateFps);
+		const Game *game = Renderer::getInstance().getGame();
+		fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		fps->setPos(getCurrVector());
 		fps->setRadius(type->getSize()/3.f);
 		fps->setTexture(CoreData::getInstance().getFireTexture());
@@ -1513,7 +1516,8 @@ void Unit::startDamageParticles(){
 			ups->setDirection(Vec3f(0,1,-0.2f));
 			ups->setRadius(type->getSize()/3.f);
 			ups->setTexture(CoreData::getInstance().getFireTexture());
-			ups->setSpeed(2.0f/GameConstants::updateFps);
+			const Game *game = Renderer::getInstance().getGame();
+			ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
 			ups->setGravity(0.0004f);
 			ups->setEmissionRate(1);
 			ups->setMaxParticleEnergy(150);

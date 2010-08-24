@@ -48,7 +48,7 @@ World::World(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
-	staggeredFactionUpdates = false;
+	staggeredFactionUpdates = true;
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
@@ -239,24 +239,51 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::updateAllFactionUnits() {
+	int factionIdxToTick = -1;
+	//if(staggeredFactionUpdates == true) {
+	//	factionIdxToTick = tickFactionIndex();
+	//	if(factionIdxToTick < 0) {
+	//		return;
+	//	}
+	//}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
+
 	//units
-	for(int i=0; i<getFactionCount(); ++i){
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
+	for(int i=0; i<getFactionCount(); ++i) {
+		if(factionIdxToTick == -1 || factionIdxToTick == i) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i);
+			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
+				unitUpdater.updateUnit(getFaction(i)->getUnit(j));
+			}
 		}
 	}
 }
 
 void World::underTakeDeadFactionUnits() {
+	int factionIdxToTick = -1;
+	if(staggeredFactionUpdates == true) {
+		factionIdxToTick = tickFactionIndex();
+		if(factionIdxToTick < 0) {
+			return;
+		}
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
+
 	//undertake the dead
 	for(int i=0; i<getFactionCount(); ++i){
-		int unitCount = getFaction(i)->getUnitCount();
-		for(int j= unitCount - 1; j >= 0; j--){
-			Unit *unit= getFaction(i)->getUnit(j);
-			if(unit->getToBeUndertaken()) {
-				unit->undertake();
-				delete unit;
-				//j--;
+		if(factionIdxToTick == -1 || factionIdxToTick == i) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i);
+
+			int unitCount = getFaction(i)->getUnitCount();
+			for(int j= unitCount - 1; j >= 0; j--){
+				Unit *unit= getFaction(i)->getUnit(j);
+				if(unit->getToBeUndertaken()) {
+					unit->undertake();
+					delete unit;
+					//j--;
+				}
 			}
 		}
 	}
@@ -266,7 +293,7 @@ void World::updateAllFactionConsumableCosts() {
 	//food costs
 	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
 		const ResourceType *rt= techTree->getResourceType(i);
-		if(rt->getClass()==rcConsumable && frameCount % (rt->getInterval()*GameConstants::updateFps)==0){
+		if(rt->getClass() == rcConsumable && frameCount % (rt->getInterval() * GameConstants::updateFps)==0){
 			for(int i=0; i<getFactionCount(); ++i){
 				getFaction(i)->applyCostsOnInterval();
 			}
@@ -288,13 +315,24 @@ void World::update(){
 	waterEffects.update();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	//units
-	updateAllFactionUnits();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//bool needToUpdateUnits = true;
+	//if(staggeredFactionUpdates == true) {
+	//	needToUpdateUnits = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
+	//}
 
-	//undertake the dead
-	underTakeDeadFactionUnits();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	//if(needToUpdateUnits == true) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] needToUpdateUnits = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,needToUpdateUnits,frameCount);
+
+		//units
+		updateAllFactionUnits();
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+		//undertake the dead
+		underTakeDeadFactionUnits();
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//}
 
 	//food costs
 	updateAllFactionConsumableCosts();
@@ -318,6 +356,14 @@ void World::update(){
 		tick();
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
+int World::getUpdateFps(int factionIndex) const {
+	int result = GameConstants::updateFps;
+	//if(factionIndex != -1 && staggeredFactionUpdates == true) {
+	//	result = (GameConstants::updateFps / GameConstants::maxPlayers);
+	//}
+	return result;
 }
 
 bool World::canTickFaction(int factionIdx) {
@@ -350,7 +396,7 @@ int World::tickFactionIndex() {
 void World::tick() {
 	int factionIdxToTick = -1;
 	if(staggeredFactionUpdates == true) {
-		int factionIdxToTick = tickFactionIndex();
+		factionIdxToTick = tickFactionIndex();
 		if(factionIdxToTick < 0) {
 			return;
 		}

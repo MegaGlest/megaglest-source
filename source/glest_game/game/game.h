@@ -67,8 +67,8 @@ private:
     string loadingText;
     int mouse2d;
     int mouseX, mouseY; //coords win32Api
-	int updateFps, lastUpdateFps;
-	int renderFps, lastRenderFps;
+	int updateFps, lastUpdateFps, avgUpdateFps;
+	int renderFps, lastRenderFps, avgRenderFps;
 	bool paused;
 	bool gameOver;
 	bool renderNetworkStatus;

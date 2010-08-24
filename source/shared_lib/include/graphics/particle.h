@@ -40,7 +40,7 @@ class Model;
 //	class Particle
 // =====================================================
 
-class Particle{
+class Particle {
 public:	
 	//attributes
 	Vec3f pos;
@@ -52,6 +52,10 @@ public:
 	int energy;
 
 public:
+	Particle() {
+		size = 0;
+		energy = 0;
+	}
 	//get
 	Vec3f getPos() const		{return pos;}
 	Vec3f getLastPos() const	{return lastPos;}
@@ -94,7 +98,7 @@ protected:
 
 protected:
 	
-	Particle *particles;
+	std::vector<Particle> particles;
 	RandomGen random;
 
 	BlendMode blendMode;
@@ -102,7 +106,7 @@ protected:
 	bool active;
 	bool visible;
 	int aliveParticleCount;
-	int particleCount;
+	//int particleCount;
 	
 
 	Texture *texture;

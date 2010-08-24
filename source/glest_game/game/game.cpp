@@ -65,6 +65,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	renderFps=0;
 	lastUpdateFps=0;
 	lastRenderFps=-1;
+	avgUpdateFps=-1;
+	avgRenderFps=-1;
 	paused= false;
 	gameOver= false;
 	renderNetworkStatus= false;
@@ -556,7 +558,7 @@ void Game::update(){
 
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//renderer.updateParticleManager(rsGame,lastRenderFps);
 			renderer.updateParticleManager(rsGame);
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -665,6 +667,19 @@ void Game::renderWorker() {
 // ==================== tick ====================
 
 void Game::tick(){
+	if(avgUpdateFps == -1) {
+		avgUpdateFps = updateFps;
+	}
+	else {
+		avgUpdateFps = (avgUpdateFps + updateFps) / 2;
+	}
+	if(avgRenderFps == -1) {
+		avgRenderFps = renderFps;
+	}
+	else {
+		avgRenderFps = (avgRenderFps + renderFps) / 2;
+	}
+
 	lastUpdateFps= updateFps;
 	lastRenderFps= renderFps;
 	updateFps= 0;
@@ -1317,15 +1332,15 @@ void Game::render2d(){
     string str;
 	if( renderer.getShowDebugUI() == true || 
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
-		str+= "MouseXY: " + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
-		str+= "PosObjWord: " + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
-		str+= "Render FPS: "+intToStr(lastRenderFps)+"\n";
-		str+= "Update FPS: "+intToStr(lastUpdateFps)+"\n";
-		str+= "GameCamera pos: "+floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
-		str+= "Time: "+floatToStr(world.getTimeFlow()->getTime(),8)+"\n";
-		str+= "Triangle count: "+intToStr(renderer.getTriangleCount())+"\n";
-		str+= "Vertex count: "+intToStr(renderer.getPointCount())+"\n";
-		str+= "Frame count:"+intToStr(world.getFrameCount())+"\n";
+		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
+		str+= "PosObjWord: "     + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
+		str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
+		str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
+		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
+		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),8)+"\n";
+		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
+		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
+		str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
 
 		//visible quad
 		Quad2i visibleQuad= renderer.getVisibleQuad();

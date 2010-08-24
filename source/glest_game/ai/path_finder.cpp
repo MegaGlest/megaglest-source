@@ -173,7 +173,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	bool nodeLimitReached= false;
 	Node *node= NULL;
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	while(!nodeLimitReached){
 		
@@ -219,7 +219,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		}
 	}//while
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodes.empty() = %d, pathFound = %d, nodeLimitReached = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodes.empty(),pathFound,nodeLimitReached);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodes.empty() = %d, pathFound = %d, nodeLimitReached = %d, unit = %s\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodes.empty(),pathFound,nodeLimitReached,unit->getFullName().c_str());
 
 	Node *lastNode= node;
 
@@ -232,7 +232,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check results of path finding
 	TravelState ts;
@@ -261,7 +261,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//clean nodes
 	openNodes.clear();

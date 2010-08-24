@@ -474,8 +474,10 @@ void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScop
 	particleManager[rs]->manage(particleSystem);
 }
 
-void Renderer::updateParticleManager(ResourceScope rs){
-	particleManager[rs]->update();
+void Renderer::updateParticleManager(ResourceScope rs, int renderFps) {
+	if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING) {
+		particleManager[rs]->update();
+	}
 }
 
 void Renderer::renderParticleManager(ResourceScope rs){
