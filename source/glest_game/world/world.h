@@ -191,6 +191,7 @@ public:
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;
 
 	int getUpdateFps(int factionIndex) const;
+	bool canTickWorld() const;
 
 private:
 
