@@ -558,9 +558,11 @@ void Game::update(){
 
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-			//renderer.updateParticleManager(rsGame,lastRenderFps);
-			renderer.updateParticleManager(rsGame);
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			//if(avgRenderFps >= 10 || world.getFrameCount() % 2 == 0) {
+				//renderer.updateParticleManager(rsGame,lastRenderFps);
+				renderer.updateParticleManager(rsGame,avgRenderFps);
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			//}
 
 			//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 		}
@@ -1220,7 +1222,7 @@ void Game::render3d(){
 	//shadow map
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderShadowsToTexture(lastRenderFps);
+	renderer.renderShadowsToTexture(avgRenderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//clear buffers
@@ -1232,7 +1234,7 @@ void Game::render3d(){
 	//surface
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderSurface(lastRenderFps,world.getFrameCount());
+	renderer.renderSurface(avgRenderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//selection circles
@@ -1244,13 +1246,13 @@ void Game::render3d(){
 	//units
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderUnits(lastRenderFps,world.getFrameCount());
+	renderer.renderUnits(avgRenderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//objects
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	chrono.start();
-	renderer.renderObjects(lastRenderFps,world.getFrameCount());
+	renderer.renderObjects(avgRenderFps,world.getFrameCount());
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	//water

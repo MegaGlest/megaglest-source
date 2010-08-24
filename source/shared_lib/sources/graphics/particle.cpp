@@ -914,20 +914,24 @@ void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
 	}
 }
 
-void ParticleManager::update() {
+void ParticleManager::update(int renderFps) {
 	Chrono chrono;
 	chrono.start();
 
+	//const int MIN_FPS_NORMAL_RENDERING = 10;
 	int particleSystemCount = particleSystems.size();
 	int particleCount = 0;
 	list<ParticleSystem*>::iterator it;
 	for (it=particleSystems.begin(); it!=particleSystems.end(); it++) {
 		particleCount += (*it)->getAliveParticleCount();
-		(*it)->update();
-		if((*it)->isEmpty()) {
-			delete *it;
-			*it= NULL;
-		}
+		//if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING ||
+		//	dynamic_cast<UnitParticleSystem *>((*it)) == NULL) {
+			(*it)->update();
+			if((*it)->isEmpty()) {
+				delete *it;
+				*it= NULL;
+			}
+		//}
 	}
 	particleSystems.remove(NULL);
 

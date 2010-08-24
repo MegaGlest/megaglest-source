@@ -48,7 +48,7 @@ World::World(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
-	staggeredFactionUpdates = true;
+	staggeredFactionUpdates = false;
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
@@ -346,16 +346,23 @@ void World::update(){
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//tick
-	bool needToTick = (frameCount % GameConstants::updateFps == 0);
-	if(staggeredFactionUpdates == true) {
-		needToTick = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
-	}
+	bool needToTick = canTickWorld();
 	if(needToTick == true) {
 	//if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		tick();
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
+bool World::canTickWorld() const {
+	//tick
+	bool needToTick = (frameCount % GameConstants::updateFps == 0);
+	if(staggeredFactionUpdates == true) {
+		needToTick = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
+	}
+
+	return needToTick;
 }
 
 int World::getUpdateFps(int factionIndex) const {

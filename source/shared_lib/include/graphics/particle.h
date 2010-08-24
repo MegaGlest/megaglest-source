@@ -430,7 +430,7 @@ private:
 
 public:
 	~ParticleManager();
-	void update();
+	void update(int renderFps=-1);
 	void render(ParticleRenderer *pr, ModelRenderer *mr) const;	
 	void manage(ParticleSystem *ps);
 	void end();
