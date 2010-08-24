@@ -926,17 +926,18 @@ void ParticleManager::update(int renderFps) {
 		particleCount += (*it)->getAliveParticleCount();
 		//if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING ||
 		//	dynamic_cast<UnitParticleSystem *>((*it)) == NULL) {
-			bool showParticle = true;
-			if(dynamic_cast<UnitParticleSystem *>((*it)) != NULL) {
-				showParticle = (*it)->getVisible();
+		bool showParticle = true;
+		if( dynamic_cast<UnitParticleSystem *>((*it)) != NULL ||
+			dynamic_cast<FireParticleSystem *>((*it)) != NULL	) {
+			showParticle = (*it)->getVisible();
+		}
+		if(showParticle == true) {
+			(*it)->update();
+			if((*it)->isEmpty()) {
+				delete *it;
+				*it= NULL;
 			}
-			if(showParticle == true) {
-				(*it)->update();
-				if((*it)->isEmpty()) {
-					delete *it;
-					*it= NULL;
-				}
-			}
+		}
 		//}
 	}
 	particleSystems.remove(NULL);
