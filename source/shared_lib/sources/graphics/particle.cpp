@@ -926,10 +926,16 @@ void ParticleManager::update(int renderFps) {
 		particleCount += (*it)->getAliveParticleCount();
 		//if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING ||
 		//	dynamic_cast<UnitParticleSystem *>((*it)) == NULL) {
-			(*it)->update();
-			if((*it)->isEmpty()) {
-				delete *it;
-				*it= NULL;
+			bool showParticle = true;
+			if(dynamic_cast<UnitParticleSystem *>((*it)) != NULL) {
+				showParticle = (*it)->getVisible();
+			}
+			if(showParticle == true) {
+				(*it)->update();
+				if((*it)->isEmpty()) {
+					delete *it;
+					*it= NULL;
+				}
 			}
 		//}
 	}
