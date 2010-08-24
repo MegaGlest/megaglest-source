@@ -12,15 +12,19 @@
 #include "math_wrapper.h"
 #include "particle.h"
 
+#include <stdexcept>
 #include <cassert>
 #include <algorithm>
 
 #include "util.h"
 #include "particle_renderer.h"
 #include "math_util.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
+using namespace std;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Graphics{
 
@@ -28,11 +32,14 @@ namespace Shared{ namespace Graphics{
 //	class ParticleSystem
 // =====================================================
 
-ParticleSystem::ParticleSystem(int particleCount){
-
+ParticleSystem::ParticleSystem(int particleCount) {
 	//init particle vector
 	blendMode = bmOne;
-	particles= new Particle[particleCount];
+	//particles= new Particle[particleCount];
+	particles.clear();
+	particles.reserve(300);
+	particles.resize(1);
+
 	state= sPlay;
 	aliveParticleCount=0;
 	active= true;
@@ -43,7 +50,8 @@ ParticleSystem::ParticleSystem(int particleCount){
 	particleObserver= NULL;
 	
 	//params
-	this->particleCount= particleCount;
+	//this->particleCount= particleCount;
+	//this->particleCount= particles.size();
 	maxParticleEnergy= 250;
 	varParticleEnergy= 50;
 	pos= Vec3f(0.0f);
@@ -56,35 +64,38 @@ ParticleSystem::ParticleSystem(int particleCount){
 }
 
 ParticleSystem::~ParticleSystem(){
-	delete [] particles;
+	//delete [] particles;
+	particles.clear();
 }
 
 
 // =============== VIRTUAL ======================
 
 //updates all living particles and creates new ones
-void ParticleSystem::update(){
+void ParticleSystem::update() {
+	if(aliveParticleCount > particles.size()) {
+		throw runtime_error("aliveParticleCount >= particles.size()");
+	}
 
-	if(state!=sPause){
-		for(int i=0; i<aliveParticleCount; ++i){
+	if(state != sPause){
+		for(int i = 0; i< aliveParticleCount; ++i) {
 			updateParticle(&particles[i]);
 
-			if(deathTest(&particles[i])){
+			if(deathTest(&particles[i])) {
 				
 				//kill the particle
 				killParticle(&particles[i]);
 
-				//mantain alive particles at front of the array
-				if(aliveParticleCount>0){
-					particles[i]= particles[aliveParticleCount];
+				//maintain alive particles at front of the array
+				if(aliveParticleCount > 0) {
+					particles[i] = particles[aliveParticleCount-1];
 				}
-
 			}
 		}
 
-		if(state!=sFade){
-			for(int i=0; i<emissionRate; ++i){
-				Particle *p= createParticle();
+		if(state != sFade){
+			for(int i = 0; i < emissionRate; ++i){
+				Particle *p = createParticle();
 				initParticle(p, i);
 			}
 		}
@@ -185,23 +196,38 @@ int ParticleSystem::isEmpty() const{
 Particle * ParticleSystem::createParticle(){
 
 	//if any dead particles
-	if(aliveParticleCount<particleCount){
+	if(aliveParticleCount < particles.size()) {
 		++aliveParticleCount;
 		return &particles[aliveParticleCount-1];
 	}
 
 	//if not
-	int minEnergy= particles[0].energy;
-	int minEnergyParticle= 0;
+	particles.push_back(Particle());
+	int particleCount = particles.size();
+	int minEnergy = particles[particleCount-1].energy;
+	int minEnergyParticle = particleCount-1;
+	return &particles[minEnergyParticle];
 
-	for(int i=0; i<particleCount; ++i){
-		if(particles[i].energy<minEnergy){
-			minEnergy= particles[i].energy;
-			minEnergyParticle= i;
+/*
+	//if any dead particles
+	if(aliveParticleCount < particleCount) {
+		++aliveParticleCount;
+		return &particles[aliveParticleCount-1];
+	}
+
+	//if not
+	int minEnergy = particles[0].energy;
+	int minEnergyParticle = 0;
+
+	for(int i = 0; i < particleCount; ++i){
+		if(particles[i].energy < minEnergy){
+			minEnergy = particles[i].energy;
+			minEnergyParticle = i;
 		}
 	}
 
 	return &particles[minEnergyParticle];
+*/
 }
 
 void ParticleSystem::initParticle(Particle *p, int particleIndex){
@@ -888,17 +914,24 @@ void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
 	}
 }
 
-void ParticleManager::update(){
-	list<ParticleSystem*>::iterator it;
+void ParticleManager::update() {
+	Chrono chrono;
+	chrono.start();
 
-	for (it=particleSystems.begin(); it!=particleSystems.end(); it++){
+	int particleSystemCount = particleSystems.size();
+	int particleCount = 0;
+	list<ParticleSystem*>::iterator it;
+	for (it=particleSystems.begin(); it!=particleSystems.end(); it++) {
+		particleCount += (*it)->getAliveParticleCount();
 		(*it)->update();
-		if((*it)->isEmpty()){
+		if((*it)->isEmpty()) {
 			delete *it;
 			*it= NULL;
 		}
 	}
 	particleSystems.remove(NULL);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, particleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,particleCount);
 }
 
 void ParticleManager::manage(ParticleSystem *ps){

@@ -190,6 +190,8 @@ public:
 	void setFogOfWar(bool value);
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;
 
+	int getUpdateFps(int factionIndex) const;
+
 private:
 
 	void initCells(bool fogOfWar);
