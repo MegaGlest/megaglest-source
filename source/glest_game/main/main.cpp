@@ -679,12 +679,14 @@ int glestMain(int argc, char** argv){
 
 			// Did the user pass a specific list of factions to validate?
 			std::vector<string> filteredFactionList;
-			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("=")) == true) {
+			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("=")) == true) {
 				int foundParamIndIndex = -1;
 				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("="),&foundParamIndIndex);
+
 				string filterList = argv[foundParamIndIndex];
 				vector<string> paramPartTokens;
 				Tokenize(filterList,paramPartTokens,"=");
+
 				if(paramPartTokens.size() >= 2) {
 					string factionList = paramPartTokens[1];
 					Tokenize(factionList,filteredFactionList,",");
