@@ -310,10 +310,12 @@ void World::update(){
 	//time
 	timeFlow.update();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//water effects
 	waterEffects.update();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//bool needToUpdateUnits = true;
 	//if(staggeredFactionUpdates == true) {
@@ -325,18 +327,21 @@ void World::update(){
 	//if(needToUpdateUnits == true) {
 	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] needToUpdateUnits = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,needToUpdateUnits,frameCount);
 
-		//units
-		updateAllFactionUnits();
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//units
+	updateAllFactionUnits();
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [updateAllFactionUnits()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
-		//undertake the dead
-		underTakeDeadFactionUnits();
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//undertake the dead
+	underTakeDeadFactionUnits();
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 	//}
 
 	//food costs
 	updateAllFactionConsumableCosts();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//fow smoothing
 	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
@@ -344,6 +349,7 @@ void World::update(){
 		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//tick
 	bool needToTick = canTickWorld();
@@ -927,6 +933,9 @@ void World::initMap(){
 // ==================== exploration ====================
 
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
+	Chrono chrono;
+	chrono.start();
+
 	// Experimental cache lookup of previously calculated cells + sight range
 	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
@@ -935,7 +944,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 		}
 
-		// Ok we limit the cache size doe to possible RAM constraints when
+		// Ok we limit the cache size due to possible RAM constraints when
 		// the threshold is met
 		bool MaxExploredCellsLookupItemCacheTriggered = false;
 		if(ExploredCellsLookupItemCache.size() >= MaxExploredCellsLookupItemCache) {
@@ -943,11 +952,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			// Snag the oldest entry in the list
 			std::map<int,ExploredCellsLookupKey>::reverse_iterator purgeItem = ExploredCellsLookupItemCacheTimer.rbegin();
 
-			ExploredCellsLookupItemCache[purgeItem->second.pos][purgeItem->second.sightRange].erase(purgeItem->second.teamIndex);
+			ExploredCellsLookupItemCache[purgeItem->second.pos].erase(purgeItem->second.sightRange);
 
-			if(ExploredCellsLookupItemCache[purgeItem->second.pos][purgeItem->second.sightRange].size() == 0) {
-				ExploredCellsLookupItemCache[purgeItem->second.pos].erase(purgeItem->second.sightRange);
-			}
 			if(ExploredCellsLookupItemCache[purgeItem->second.pos].size() == 0) {
 				ExploredCellsLookupItemCache.erase(purgeItem->second.pos);
 			}
@@ -955,46 +961,50 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			ExploredCellsLookupItemCacheTimer.erase(purgeItem->first);
 		}
 
-		// Check the cache for the pos, sightrange and teamindex and use from
+		// Check the cache for the pos, sightrange and use from
 		// cache if already found
-		std::map<Vec2i, std::map<int, std::map<int, ExploredCellsLookupItem> > >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
+		std::map<Vec2i, std::map<int, ExploredCellsLookupItem> >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
 		if(iterFind != ExploredCellsLookupItemCache.end()) {
-			std::map<int, std::map<int, ExploredCellsLookupItem> >::iterator iterFind2 = iterFind->second.find(sightRange);
+			std::map<int, ExploredCellsLookupItem>::iterator iterFind2 = iterFind->second.find(sightRange);
 			if(iterFind2 != iterFind->second.end()) {
-				std::map<int, ExploredCellsLookupItem>::iterator iterFind3 = iterFind2->second.find(teamIndex);
-				if(iterFind3 != iterFind2->second.end()) {
-					std::vector<SurfaceCell *> &cellList = iterFind3->second.exploredCellList;
-					for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-						SurfaceCell *sc = cellList[idx2];
-						sc->setExplored(teamIndex, true);
-					}
-					cellList = iterFind3->second.visibleCellList;
-					for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-						SurfaceCell *sc = cellList[idx2];
-						sc->setVisible(teamIndex, true);
-					}
 
-					// Only start worrying about updating the cache timer if we
-					// have hit the threshold
-					if(MaxExploredCellsLookupItemCacheTriggered == true) {
-						// Remove the old timer entry since the search key id is stale
-						ExploredCellsLookupItemCacheTimer.erase(iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex);
-						iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
-
-						ExploredCellsLookupKey lookupKey;
-						lookupKey.pos = newPos;
-						lookupKey.sightRange = sightRange;
-						lookupKey.teamIndex = teamIndex;
-
-						// Add a new search key since we just used this item
-						ExploredCellsLookupItemCacheTimer[iterFind3->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
-					}
-
-					return;
+				std::vector<SurfaceCell *> &cellList = iterFind2->second.exploredCellList;
+				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+					SurfaceCell *sc = cellList[idx2];
+					sc->setExplored(teamIndex, true);
 				}
+				cellList = iterFind2->second.visibleCellList;
+				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+					SurfaceCell *sc = cellList[idx2];
+					sc->setVisible(teamIndex, true);
+				}
+
+				// Only start worrying about updating the cache timer if we
+				// have hit the threshold
+				if(MaxExploredCellsLookupItemCacheTriggered == true) {
+					// Remove the old timer entry since the search key id is stale
+					ExploredCellsLookupItemCacheTimer.erase(iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex);
+					iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+
+					ExploredCellsLookupKey lookupKey;
+					lookupKey.pos = newPos;
+					lookupKey.sightRange = sightRange;
+					lookupKey.teamIndex = teamIndex;
+
+					// Add a new search key since we just used this item
+					ExploredCellsLookupItemCacheTimer[iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [CACHE lookup found]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) chrono.start();
+
+				return;
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [CACHE lookup not found]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
@@ -1002,23 +1012,21 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	// Explore, this code is quite expensive when we have lots of units
 	ExploredCellsLookupItem item;
 
-    for(int i=-surfSightRange-indirectSightRange-1; i<=surfSightRange+indirectSightRange+1; ++i){
-        for(int j=-surfSightRange-indirectSightRange-1; j<=surfSightRange+indirectSightRange+1; ++j){
+    for(int i = -surfSightRange - indirectSightRange -1; i <= surfSightRange + indirectSightRange +1; ++i) {
+        for(int j = -surfSightRange - indirectSightRange -1; j <= surfSightRange + indirectSightRange +1; ++j) {
 			Vec2i currRelPos= Vec2i(i, j);
             Vec2i currPos= newSurfPos + currRelPos;
             if(map.isInsideSurface(currPos)){
-
 				SurfaceCell *sc= map.getSurfaceCell(currPos);
 
 				//explore
-				if(Vec2i(0).dist(currRelPos) < surfSightRange+indirectSightRange+1){
+				if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
                     sc->setExplored(teamIndex, true);
-
                     item.exploredCellList.push_back(sc);
 				}
 
 				//visible
-				if(Vec2i(0).dist(currRelPos) < surfSightRange){
+				if(Vec2i(0).dist(currRelPos) < surfSightRange) {
 					sc->setVisible(teamIndex, true);
 					item.visibleCellList.push_back(sc);
 				}
@@ -1026,12 +1034,15 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
         }
     }
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [RAW explore cells logic]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
+
     // Ok update our caches with the latest info for this position, sight and team
     if(MaxExploredCellsLookupItemCache > 0) {
 		if(item.exploredCellList.size() > 0 || item.visibleCellList.size() > 0) {
 			//ExploredCellsLookupItemCache.push_back(item);
 			item.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
-			ExploredCellsLookupItemCache[newPos][sightRange][teamIndex] = item;
+			ExploredCellsLookupItemCache[newPos][sightRange] = item;
 
 			ExploredCellsLookupKey lookupKey;
 			lookupKey.pos 			= newPos;
@@ -1040,6 +1051,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 		}
     }
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [add explorecells result to CACHE]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 }
 
 //computes the fog of war texture, contained in the minimap
@@ -1051,10 +1064,11 @@ void World::computeFow(int factionIdxToTick) {
 	//if(factionIdxToTick == -1 || factionIdxToTick == 0) {
 	//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
 	//if(frameCount % (GameConstants::updateFps) == 0) {
-		minimap.resetFowTex();
+	minimap.resetFowTex();
 	//}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -1070,6 +1084,7 @@ void World::computeFow(int factionIdxToTick) {
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//compute cells
 	for(int i=0; i<getFactionCount(); ++i) {
@@ -1085,7 +1100,8 @@ void World::computeFow(int factionIdxToTick) {
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [exploreCells]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//fire
 	for(int i=0; i<getFactionCount(); ++i) {
@@ -1102,7 +1118,8 @@ void World::computeFow(int factionIdxToTick) {
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [activate Fire Particles]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//compute texture
 	if(fogOfWar) {
@@ -1145,7 +1162,7 @@ void World::computeFow(int factionIdxToTick) {
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [increment Fog of War Texture]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // WARNING! This id is critical! Make sure it fits inside the network packet

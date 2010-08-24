@@ -74,7 +74,7 @@ class World{
 private:
 	typedef vector<Faction> Factions;
 
-	std::map<Vec2i, std::map<int, std::map<int, ExploredCellsLookupItem> > > ExploredCellsLookupItemCache;
+	std::map<Vec2i, std::map<int, ExploredCellsLookupItem > > ExploredCellsLookupItemCache;
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int ExploredCellsLookupItemCacheTimerCount;
 

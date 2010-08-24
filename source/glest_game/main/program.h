@@ -122,6 +122,7 @@ private:
     static Program *singleton;
 
     GraphicMessageBox msgBox;
+    int skipRenderFrameCount;
 
 public:
     Program();
