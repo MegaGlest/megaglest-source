@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const float World::airHeight= 5.f;
 // This limit is to keep RAM use under control while offering better performance.
-int MaxExploredCellsLookupItemCache = 5000;
+int MaxExploredCellsLookupItemCache = 7500;
 time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
@@ -936,6 +936,9 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	Chrono chrono;
 	chrono.start();
 
+	bool cacheLookupPosResult 	= false;
+	bool cacheLookupSightResult = false;
+
 	// Experimental cache lookup of previously calculated cells + sight range
 	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
@@ -965,8 +968,11 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 		// cache if already found
 		std::map<Vec2i, std::map<int, ExploredCellsLookupItem> >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
 		if(iterFind != ExploredCellsLookupItemCache.end()) {
+			cacheLookupPosResult = true;
+
 			std::map<int, ExploredCellsLookupItem>::iterator iterFind2 = iterFind->second.find(sightRange);
 			if(iterFind2 != iterFind->second.end()) {
+				cacheLookupSightResult = true;
 
 				std::vector<SurfaceCell *> &cellList = iterFind2->second.exploredCellList;
 				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
@@ -1003,7 +1009,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [CACHE lookup not found]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [CACHE lookup not found] cacheLookupPosResult = %d, cacheLookupSightResult = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult);
 	if(chrono.getMillis() > 0) chrono.start();
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
@@ -1034,7 +1040,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
         }
     }
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [RAW explore cells logic]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [RAW explore cells logic] cacheLookupPosResult = %d, cacheLookupSightResult = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult);
 	if(chrono.getMillis() > 0) chrono.start();
 
     // Ok update our caches with the latest info for this position, sight and team
