@@ -533,8 +533,12 @@ void World::moveUnitCells(Unit *unit){
 
 	//newPos must be free or the same pos as current
 	assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
-	map.clearUnitCells(unit, unit->getPos());
-	map.putUnitCells(unit, newPos);
+	// Only change cell plaement in map if the new position is different
+	// from the old one
+	if(newPos != unit->getPos()) {
+		map.clearUnitCells(unit, unit->getPos());
+		map.putUnitCells(unit, newPos);
+	}
 
 	//water splash
 	if(tileset.getWaterEffects() && unit->getCurrField()==fLand){
