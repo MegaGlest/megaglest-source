@@ -52,6 +52,7 @@ World::World(){
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
+	FowAlphaCellsLookupItemCache.clear();
 
 	techTree = NULL;
 	fogOfWarOverride = false;
@@ -78,6 +79,7 @@ World::~World() {
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
+	FowAlphaCellsLookupItemCache.clear();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -111,6 +113,7 @@ void World::end(){
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
+    FowAlphaCellsLookupItemCache.clear();
 
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i].end();
@@ -142,6 +145,7 @@ void World::init(Game *game, bool createUnits){
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
+	FowAlphaCellsLookupItemCache.clear();
 
 	this->game = game;
 	scriptManager= game->getScriptManager();
@@ -1133,13 +1137,32 @@ void World::computeFow(int factionIdxToTick) {
 	//compute texture
 	if(fogOfWar) {
 		for(int i=0; i<getFactionCount(); ++i) {
-			//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-				Faction *faction= getFaction(i);
-				if(faction->getTeam() == thisTeamIndex){
-					for(int j=0; j<faction->getUnitCount(); ++j){
-						const Unit *unit= faction->getUnit(j);
-						if(unit->isOperative()){
-							int sightRange= unit->getType()->getSight();
+			Faction *faction= getFaction(i);
+			if(faction->getTeam() == thisTeamIndex){
+				for(int j=0; j<faction->getUnitCount(); ++j){
+					const Unit *unit= faction->getUnit(j);
+					if(unit->isOperative()){
+						int sightRange= unit->getType()->getSight();
+
+						bool foundInCache = false;
+						std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap = FowAlphaCellsLookupItemCache.find(unit->getPos());
+						if(iterMap != FowAlphaCellsLookupItemCache.end()) {
+							std::map<int, FowAlphaCellsLookupItem>::iterator iterMap2 = iterMap->second.find(sightRange);
+							if(iterMap2 != iterMap->second.end()) {
+								foundInCache = true;
+
+								FowAlphaCellsLookupItem &cellList = iterMap2->second;
+								for(int k = 0; k < cellList.surfPosList.size(); ++k) {
+									Vec2i &surfPos = cellList.surfPosList[k];
+									float &alpha = cellList.alphaList[k];
+
+									minimap.incFowTextureAlphaSurface(surfPos, alpha);
+								}
+							}
+						}
+
+						if(foundInCache == false) {
+							FowAlphaCellsLookupItem itemCache;
 
 							//iterate through all cells
 							PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
@@ -1163,11 +1186,18 @@ void World::computeFow(int factionIdxToTick) {
 									alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
 								}
 								minimap.incFowTextureAlphaSurface(surfPos, alpha);
+
+								itemCache.surfPosList.push_back(surfPos);
+								itemCache.alphaList.push_back(alpha);
+							}
+
+							if(itemCache.surfPosList.size() > 0) {
+								FowAlphaCellsLookupItemCache[unit->getPos()][sightRange] = itemCache;
 							}
 						}
 					}
 				}
-			//}
+			}
 		}
 	}
 
