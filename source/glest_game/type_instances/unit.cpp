@@ -34,7 +34,7 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-const int UnitPathBasic::maxBlockCount= 10;
+const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
 
 UnitPathBasic::UnitPathBasic() {
 	this->blockCount = 0;

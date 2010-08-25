@@ -36,8 +36,18 @@ class RoutePlanner;
 // =====================================================
 
 class ParticleDamager;
+class Cell;
 
-class UnitUpdater{
+class UnitRangeCellsLookupItem {
+public:
+
+	int UnitRangeCellsLookupItemCacheTimerCountIndex;
+	std::vector<Cell *> rangeCellList;
+
+	static time_t lastDebug;
+};
+
+class UnitUpdater {
 private:
 	friend class ParticleDamager;
 
@@ -58,6 +68,17 @@ private:
 	RoutePlanner *routePlanner;
 	Game *game;
 	RandomGen random;
+
+	std::map<Vec2i, std::map<Vec2f, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > > UnitRangeCellsLookupItemCache;
+	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
+	int UnitRangeCellsLookupItemCacheTimerCount;
+
+	bool findCachedCellsEnemies(Vec2i center, Vec2f floatCenter, int range,
+								int size, vector<Unit*> &enemies,
+								const AttackSkillType *ast, const Unit *unit,
+								const Unit *commandTarget);
+	void findEnemiesForCell(const AttackSkillType *ast, Cell *cell, const Unit *unit,
+							const Unit *commandTarget,vector<Unit*> &enemies);
 
 public:
 	UnitUpdater();

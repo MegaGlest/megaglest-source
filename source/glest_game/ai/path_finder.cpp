@@ -223,7 +223,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 	Node *lastNode= node;
 
-	//if consumed all nodes find best node (to avoid strage behaviour)
+	//if consumed all nodes find best node (to avoid strange behaviour)
 	if(nodeLimitReached){
 		for(Nodes::iterator it= closedNodes.begin(); it!=closedNodes.end(); ++it){
 			if((*it)->heuristic < lastNode->heuristic){

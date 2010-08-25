@@ -355,10 +355,9 @@ void World::update(){
 	bool needToTick = canTickWorld();
 	if(needToTick == true) {
 	//if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		tick();
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world tick]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 bool World::canTickWorld() const {
