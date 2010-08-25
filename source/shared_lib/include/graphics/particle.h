@@ -40,6 +40,12 @@ class Model;
 //	class Particle
 // =====================================================
 
+enum State{
+	sPause,	// No updates
+	sPlay,
+	sFade	// No new particles
+};
+
 class Particle {
 public:	
 	//attributes
@@ -90,11 +96,6 @@ public:
 	};
 
 protected:
-	enum State{
-		sPause,	// No updates
-		sPlay,	
-		sFade	// No new particles
-	};
 
 protected:
 	

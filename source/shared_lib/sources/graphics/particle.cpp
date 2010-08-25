@@ -918,18 +918,16 @@ void ParticleManager::update(int renderFps) {
 	Chrono chrono;
 	chrono.start();
 
-	//const int MIN_FPS_NORMAL_RENDERING = 10;
 	int particleSystemCount = particleSystems.size();
 	int particleCount = 0;
 	list<ParticleSystem*>::iterator it;
 	for (it=particleSystems.begin(); it!=particleSystems.end(); it++) {
 		particleCount += (*it)->getAliveParticleCount();
-		//if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING ||
-		//	dynamic_cast<UnitParticleSystem *>((*it)) == NULL) {
+
 		bool showParticle = true;
 		if( dynamic_cast<UnitParticleSystem *>((*it)) != NULL ||
 			dynamic_cast<FireParticleSystem *>((*it)) != NULL	) {
-			showParticle = (*it)->getVisible();
+			showParticle = (*it)->getVisible() || ((*it)->getState() == sFade);
 		}
 		if(showParticle == true) {
 			(*it)->update();
@@ -938,7 +936,6 @@ void ParticleManager::update(int renderFps) {
 				*it= NULL;
 			}
 		}
-		//}
 	}
 	particleSystems.remove(NULL);
 
