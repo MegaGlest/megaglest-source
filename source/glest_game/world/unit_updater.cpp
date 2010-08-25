@@ -1131,28 +1131,25 @@ bool UnitUpdater::attackableOnRange(const Unit *unit, Unit **rangedPtr, const At
 	return unitOnRange(unit, range, rangedPtr, ast);
 }
 
-bool UnitUpdater::findCachedCellsEnemies(Vec2i center, Vec2f floatCenter,
-										 int range, int size, vector<Unit*> &enemies,
+bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vector<Unit*> &enemies,
 										 const AttackSkillType *ast, const Unit *unit,
 										 const Unit *commandTarget) {
 	bool result = false;
+	//return result;
 
-	std::map<Vec2i, std::map<Vec2f, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
+	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
 	if(iterFind != UnitRangeCellsLookupItemCache.end()) {
-		std::map<Vec2f, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind2 = iterFind->second.find(floatCenter);
-		if(iterFind2 != iterFind->second.end()) {
-			std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind2->second.find(range);
-			if(iterFind3 != iterFind2->second.end()) {
-				std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(size);
-				if(iterFind4 != iterFind3->second.end()) {
-					result = true;
+		std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
+		if(iterFind3 != iterFind->second.end()) {
+			std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(range);
+			if(iterFind4 != iterFind3->second.end()) {
+				result = true;
 
-					std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
-					for(int idx = 0; idx < cellList.size(); ++idx) {
-						Cell *cell = cellList[idx];
+				std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
+				for(int idx = 0; idx < cellList.size(); ++idx) {
+					Cell *cell = cellList[idx];
 
-						findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
-					}
+					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
 				}
 			}
 		}
@@ -1205,7 +1202,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	bool foundInCache = true;
-	if(findCachedCellsEnemies(center,floatCenter,range,size,enemies,ast,
+	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
 		foundInCache = false;
 
@@ -1231,7 +1228,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.size() > 0) {
 			cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
-			UnitRangeCellsLookupItemCache[center][floatCenter][range][size] = cacheItem;
+			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
 	}
 

@@ -69,11 +69,11 @@ private:
 	Game *game;
 	RandomGen random;
 
-	std::map<Vec2i, std::map<Vec2f, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > > UnitRangeCellsLookupItemCache;
+	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int UnitRangeCellsLookupItemCacheTimerCount;
 
-	bool findCachedCellsEnemies(Vec2i center, Vec2f floatCenter, int range,
+	bool findCachedCellsEnemies(Vec2i center, int range,
 								int size, vector<Unit*> &enemies,
 								const AttackSkillType *ast, const Unit *unit,
 								const Unit *commandTarget);
