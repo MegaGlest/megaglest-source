@@ -252,12 +252,12 @@ void Program::loopWorker() {
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(skipRenderFrameCount <= 0) {
-    	programState->render();
-    }
-    else {
-    	skipRenderFrameCount--;
-    }
+    //if(skipRenderFrameCount <= 0) {
+    programState->render();
+    //}
+    //else {
+    //	skipRenderFrameCount--;
+    //}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

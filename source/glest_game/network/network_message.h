@@ -344,8 +344,8 @@ class NetworkMessageSynchNetworkGameData: public NetworkMessage{
 
 private:
 
-static const int maxStringSize= 100;
-static const int maxFileCRCCount= 500;
+static const int maxStringSize= 200;
+static const int maxFileCRCCount= 400;
 
 private:
 

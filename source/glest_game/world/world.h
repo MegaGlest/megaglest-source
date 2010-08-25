@@ -70,6 +70,15 @@ public:
 	static time_t lastDebug;
 };
 
+class FowAlphaCellsLookupItem {
+public:
+
+	std::vector<Vec2i> surfPosList;
+	std::vector<float> alphaList;
+
+	static time_t lastDebug;
+};
+
 class World{
 private:
 	typedef vector<Faction> Factions;
@@ -77,6 +86,8 @@ private:
 	std::map<Vec2i, std::map<int, ExploredCellsLookupItem > > ExploredCellsLookupItemCache;
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int ExploredCellsLookupItemCacheTimerCount;
+
+	std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
 
 public:
 	static const int generationArea= 100;
