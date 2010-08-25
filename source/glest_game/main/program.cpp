@@ -389,6 +389,10 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		msgBox.init(lang.get("Ok"));
 		msgBox.setEnabled(msgBoxEnabled);
 
+		fpsTimer.init(1, maxTimes);
+		updateTimer.init(GameConstants::updateFps, maxTimes);
+		updateCameraTimer.init(GameConstants::cameraFps, maxTimes);
+
 		this->programState= programState;
 		programState->load();
 
