@@ -28,8 +28,8 @@ const char *folderDelimiter = "\\";
 const char *folderDelimiter = "/";
 #endif
 
-int GameConstants::updateFps= 20;
-int GameConstants::cameraFps= 50;
+int GameConstants::updateFps= 40;
+int GameConstants::cameraFps= 100;
 
 namespace Shared{ namespace G3dViewer{
 
