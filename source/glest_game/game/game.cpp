@@ -47,8 +47,10 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 
 	original_updateFps = GameConstants::updateFps;
 	original_cameraFps = GameConstants::cameraFps;
-	GameConstants::updateFps= 20;
-	GameConstants::cameraFps= 50;
+//	GameConstants::updateFps= 20;
+//	GameConstants::cameraFps= 50;
+	GameConstants::updateFps= 40;
+	GameConstants::cameraFps= 100;
 
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
