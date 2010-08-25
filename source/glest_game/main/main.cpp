@@ -68,7 +68,6 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_FACTIONS
 };
 
-
 // =====================================================
 // 	class ExceptionHandler
 // =====================================================

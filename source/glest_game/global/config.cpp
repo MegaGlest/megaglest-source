@@ -28,7 +28,9 @@ using namespace std;
 
 namespace Glest{ namespace Game{
 
-int GameConstants::networkFramePeriod= 20;
+int GameConstants::networkFramePeriod	= 20;
+int GameConstants::updateFps			= 40;
+int GameConstants::cameraFps			= 100;
 
 const char *GameConstants::folder_path_maps         = "maps";
 const char *GameConstants::folder_path_scenarios    = "scenarios";

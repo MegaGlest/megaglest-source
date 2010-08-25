@@ -10,6 +10,7 @@
 #include "xml_parser.h"
 #include <iostream>
 #include <wx/event.h>
+#include "game_constants.h"
 
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
@@ -19,12 +20,16 @@ using namespace Shared::Util;
 using namespace Shared::Xml;
 
 using namespace std;
+using namespace Glest::Game;
 
 #ifdef _WIN32
 const char *folderDelimiter = "\\";
 #else
 const char *folderDelimiter = "/";
 #endif
+
+int GameConstants::updateFps= 20;
+int GameConstants::cameraFps= 50;
 
 namespace Shared{ namespace G3dViewer{
 

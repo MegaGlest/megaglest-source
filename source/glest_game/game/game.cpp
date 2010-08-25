@@ -45,6 +45,11 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	original_updateFps = GameConstants::updateFps;
+	original_cameraFps = GameConstants::cameraFps;
+	GameConstants::updateFps= 20;
+	GameConstants::cameraFps= 50;
+
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
@@ -115,6 +120,9 @@ Game::~Game(){
 	// unit particles and fade them out etc and this end method deletes the original
 	// object pointers.
 	renderer.endGame();
+
+	GameConstants::updateFps = original_updateFps;
+	GameConstants::cameraFps = original_cameraFps;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

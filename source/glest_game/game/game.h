@@ -88,6 +88,9 @@ private:
 
 	bool quitTriggeredIndicator;
 
+	int original_updateFps;
+	int original_cameraFps;
+
 public:
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();
