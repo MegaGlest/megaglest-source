@@ -83,6 +83,8 @@ void UnitUpdater::init(Game *game){
 }
 
 UnitUpdater::~UnitUpdater() {
+	UnitRangeCellsLookupItemCache.clear();
+
 	delete pathFinder;
 	pathFinder = NULL;
 }
