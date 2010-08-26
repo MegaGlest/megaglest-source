@@ -243,23 +243,10 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::updateAllFactionUnits() {
-	int factionIdxToTick = -1;
-	//if(staggeredFactionUpdates == true) {
-	//	factionIdxToTick = tickFactionIndex();
-	//	if(factionIdxToTick < 0) {
-	//		return;
-	//	}
-	//}
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
-
 	//units
 	for(int i=0; i<getFactionCount(); ++i) {
-		if(factionIdxToTick == -1 || factionIdxToTick == i) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i);
-			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
-				unitUpdater.updateUnit(getFaction(i)->getUnit(j));
-			}
+		for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
+			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
 		}
 	}
 }
@@ -358,7 +345,6 @@ void World::update(){
 	//tick
 	bool needToTick = canTickWorld();
 	if(needToTick == true) {
-	//if(frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0) {
 		tick();
 	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world tick]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());

@@ -37,8 +37,8 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	blendMode = bmOne;
 	//particles= new Particle[particleCount];
 	particles.clear();
-	particles.reserve(300);
-	particles.resize(1);
+	//particles.reserve(particleCount);
+	particles.resize(particleCount);
 
 	state= sPlay;
 	aliveParticleCount=0;
