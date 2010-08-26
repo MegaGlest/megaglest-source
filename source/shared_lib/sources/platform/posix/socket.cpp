@@ -1019,6 +1019,38 @@ int Socket::send(const void *data, int dataSize) {
 	    }
 	}
 
+	if(bytesSent > 0 && bytesSent < dataSize) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] need to send more data, trying again getLastSocketError() = %d, bytesSent = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,getLastSocketError(),bytesSent,dataSize);
+
+		int totalBytesSent = bytesSent;
+		int attemptCount = 0;
+	    time_t tStartTimer = time(NULL);
+	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
+	    		(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)) &&
+	    		(difftime(time(NULL),tStartTimer) <= 5)) {
+	    	attemptCount++;
+	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
+
+	        if(bytesSent > 0 || Socket::isWritable(true) == true) {
+	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	        	const char *sendBuf = (const char *)data;
+                bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
+
+                if(bytesSent > 0) {
+                	totalBytesSent += bytesSent;
+                }
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
+	        }
+	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
+	    }
+
+	    if(bytesSent > 0) {
+	    	bytesSent = totalBytesSent;
+	    }
+	}
+
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(bytesSent <= 0) {
