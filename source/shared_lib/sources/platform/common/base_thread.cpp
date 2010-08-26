@@ -26,6 +26,7 @@ BaseThread::BaseThread() : Thread() {
 
 	setQuitStatus(false);
 	setRunningStatus(false);
+	setHasBeginExecution(false);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -67,6 +68,27 @@ bool BaseThread::getQuitStatus() {
 	return retval;
 }
 
+bool BaseThread::getHasBeginExecution() {
+	bool retval = false;
+	MutexSafeWrapper safeMutex(&mutexBeginExecution);
+	retval = hasBeginExecution;
+	safeMutex.ReleaseLock();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return retval;
+}
+
+void BaseThread::setHasBeginExecution(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+
+	MutexSafeWrapper safeMutex(&mutexBeginExecution);
+	hasBeginExecution = value;
+	safeMutex.ReleaseLock();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+}
+
 bool BaseThread::getRunningStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
@@ -74,6 +96,10 @@ bool BaseThread::getRunningStatus() {
 	MutexSafeWrapper safeMutex(&mutexRunning);
 	retval = running;
 	safeMutex.ReleaseLock();
+
+	if(retval == false) {
+		retval = !getHasBeginExecution();
+	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] running = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),retval);
 
@@ -85,6 +111,7 @@ void BaseThread::setRunningStatus(bool value) {
 
 	MutexSafeWrapper safeMutex(&mutexRunning);
 	running = value;
+	setHasBeginExecution(true);
 	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());

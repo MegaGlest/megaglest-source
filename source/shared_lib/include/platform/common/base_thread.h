@@ -29,10 +29,12 @@ class BaseThread : public Thread
 protected:
 	Mutex mutexRunning;
 	Mutex mutexQuit;
+	Mutex mutexBeginExecution;
 
 	bool quit;
 	bool running;
 	string uniqueID;
+	bool hasBeginExecution;
 
 	virtual void setRunningStatus(bool value);
 	virtual void setQuitStatus(bool value);
@@ -45,6 +47,9 @@ public:
 	virtual void signalQuit();
 	virtual bool getQuitStatus();
 	virtual bool getRunningStatus();
+	virtual bool getHasBeginExecution();
+	virtual void setHasBeginExecution(bool value);
+
     static void shutdownAndWait(BaseThread *ppThread);
     virtual void shutdownAndWait();
 
