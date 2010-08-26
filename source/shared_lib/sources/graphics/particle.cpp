@@ -93,7 +93,7 @@ void ParticleSystem::update() {
 			}
 		}
 
-		if(state != sFade){
+		if(state != ParticleSystem::sFade){
 			for(int i = 0; i < emissionRate; ++i){
 				Particle *p = createParticle();
 				initParticle(p, i);
@@ -920,20 +920,23 @@ void ParticleManager::update(int renderFps) {
 
 	int particleSystemCount = particleSystems.size();
 	int particleCount = 0;
-	list<ParticleSystem*>::iterator it;
-	for (it=particleSystems.begin(); it!=particleSystems.end(); it++) {
-		particleCount += (*it)->getAliveParticleCount();
+	list<ParticleSystem *>::iterator it;
+	for (it = particleSystems.begin(); it != particleSystems.end(); it++) {
+		ParticleSystem *ps = *it;
+		if(ps != NULL) {
+			particleCount += ps->getAliveParticleCount();
 
-		bool showParticle = true;
-		if( dynamic_cast<UnitParticleSystem *>((*it)) != NULL ||
-			dynamic_cast<FireParticleSystem *>((*it)) != NULL	) {
-			showParticle = (*it)->getVisible() || ((*it)->getState() == sFade);
-		}
-		if(showParticle == true) {
-			(*it)->update();
-			if((*it)->isEmpty()) {
-				delete *it;
-				*it= NULL;
+			bool showParticle = true;
+			if( dynamic_cast<UnitParticleSystem *>(ps) != NULL ||
+				dynamic_cast<FireParticleSystem *>(ps) != NULL	) {
+				showParticle = ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
+			}
+			if(showParticle == true) {
+				ps->update();
+				if(ps->isEmpty()) {
+					delete ps;
+					*it= NULL;
+				}
 			}
 		}
 	}

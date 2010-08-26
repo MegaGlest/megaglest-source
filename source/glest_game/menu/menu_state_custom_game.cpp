@@ -1141,7 +1141,7 @@ void MenuStateCustomGame::update() {
 		{
 			GameSettings gameSettings;
 			loadGameSettings(&gameSettings);
-			serverInterface->setGameSettings(&gameSettings);
+			serverInterface->setGameSettings(&gameSettings,false);
 			needToSetChangedGameSettings    = false;
 		}
 		
@@ -1343,7 +1343,7 @@ void MenuStateCustomGame::simpleTask() {
 		loadGameSettings(&gameSettings);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		serverInterface->setGameSettings(&gameSettings);
+		serverInterface->setGameSettings(&gameSettings,false);
 		safeMutex2.ReleaseLock();
 
 		if(hasClientConnection == true) {

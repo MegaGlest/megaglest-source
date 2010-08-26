@@ -1219,8 +1219,7 @@ int ServerInterface::getOpenSlotCount() {
 	return openSlotCount;
 }
 
-void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck)
-{
+void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 
     MutexSafeWrapper safeMutex(&serverSynchAccessor);

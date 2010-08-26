@@ -72,7 +72,7 @@ public:
 	int getOpenSlotCount();
 
 	bool launchGame(const GameSettings* gameSettings);
-	virtual void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck = false);
+	void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
 	void broadcastGameSetup(const GameSettings* gameSettings);
 	void updateListen();
 	virtual bool getConnectHasHandshaked() const { return false; }
