@@ -584,9 +584,9 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -595,8 +595,8 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
-			int packetFileCount = min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount;
+			int packetFileCount = min(NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
 
 			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
@@ -643,9 +643,9 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
 	if(data.header.techCRCFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -654,8 +654,8 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
-			int packetFileCount = min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount;
+			int packetFileCount = min(NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
 
 			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
 			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
@@ -758,9 +758,9 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 	if(result == true && data.header.techCRCFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -769,8 +769,8 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
-			int packetFileCount = min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
+			int packetFileCount = min(NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
@@ -821,9 +821,9 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
 	if(data.header.techCRCFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -832,8 +832,8 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
-			int packetFileCount = min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
+			int packetFileCount = min(NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
