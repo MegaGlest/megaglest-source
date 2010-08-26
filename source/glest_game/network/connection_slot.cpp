@@ -508,7 +508,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 													vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", &vctFileList);
 												}
 
-												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(vctFileList);
+												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(serverInterface->getGameSettings()->getTech(),vctFileList);
 												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 											}
 											if(networkGameDataSynchCheckOkMap == false) {
@@ -532,7 +532,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 												vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),"/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
 												//}
 
-												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(vctFileList);
+												string report = networkMessageSynchNetworkGameDataStatus.getTechCRCFileMismatchReport(serverInterface->getGameSettings()->getTech(),vctFileList);
 												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 											}
 										}
