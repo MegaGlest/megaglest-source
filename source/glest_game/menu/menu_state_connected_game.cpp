@@ -493,13 +493,17 @@ void MenuStateConnectedGame::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pingCount = %d, clientInterface->getLastPingLag() = %f, GameConstants::networkPingInterval = %d\n",__FILE__,__FUNCTION__,__LINE__,pingCount, clientInterface->getLastPingLag(),GameConstants::networkPingInterval);
 
 			// Starting checking timeout after sending at least 3 pings to server
-			if(pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
+			if(clientInterface != NULL && clientInterface->isConnected() &&
+				pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				string playerNameStr = getHumanPlayerName();
 				clientInterface->sendTextMessage("connection timed out communicating with server.",-1);
 				clientInterface->close();
 			}
 
 			pingCount++;
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
 
@@ -575,6 +579,7 @@ void MenuStateConnectedGame::update() {
                 if(clientInterface->getReceivedDataSynchCheck() == true) {
                 	updateDataSynchDetailText = false;
                 }
+
                 //if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
                 //{
                 //    label = label + " FogOfWar == false";
@@ -650,7 +655,10 @@ void MenuStateConnectedGame::update() {
 	}
 
 	//process network messages
-	if(clientInterface->isConnected()) {
+	if(clientInterface != NULL && clientInterface->isConnected()) {
+		
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		bool mustSwitchPlayerName = false;
 		if(clientInterface->getGameSettingsReceived()) {
 			updateDataSynchDetailText = true;
@@ -658,7 +666,10 @@ void MenuStateConnectedGame::update() {
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			vector<string> maps,tilesets,techtree;
 			const GameSettings *gameSettings=clientInterface->getGameSettings();
-			
+		
+			if(gameSettings == NULL) {
+				throw runtime_error("gameSettings == NULL");
+			}
 			// tileset
 			tilesets.push_back(formatString(gameSettings->getTileset()));
 			listBoxTileset.setItems(tilesets);
@@ -780,13 +791,16 @@ void MenuStateConnectedGame::update() {
 		}
 
 		//update lobby
-		clientInterface->updateLobby();
+		clientInterface= NetworkManager::getInstance().getClientInterface();
+		if(clientInterface != NULL && clientInterface->isConnected()) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
+			clientInterface->updateLobby();
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		clientInterface= NetworkManager::getInstance().getClientInterface();
 		if(clientInterface != NULL && clientInterface->isConnected()) {
-			//if(mustSwitchPlayerName == true ||
-			//	(needToSetChangedGameSettings == true &&
-			//	difftime(time(NULL),lastSetChangedGameSettings) >= 2)) {
 			if(clientInterface->getIntroDone() == true &&
 				(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

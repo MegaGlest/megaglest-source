@@ -39,7 +39,9 @@ const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
 const int ClientInterface::waitSleepTime= 10;
 const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 
-ClientInterface::ClientInterface(){
+ClientInterface::ClientInterface() {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+
 	clientSocket= NULL;
 	sessionKey = 0;
 	launchGame= false;
@@ -60,7 +62,7 @@ ClientInterface::ClientInterface(){
 
 ClientInterface::~ClientInterface()
 {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] destructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
     if(clientSocket != NULL && clientSocket->isConnected() == true)
     {
@@ -151,10 +153,13 @@ std::string ClientInterface::getServerIpAddress() {
 }
 
 void ClientInterface::updateLobby() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//clear chat variables
 	clearChatInfo();
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     NetworkMessageType networkMessageType = getNextMessageType(true);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     switch(networkMessageType)
     {
         case nmtInvalid:

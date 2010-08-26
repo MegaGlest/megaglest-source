@@ -54,6 +54,7 @@ const char  *GAME_ARGS[] = {
 	"--starthost",
 	"--version",
 	"--opengl-info",
+	"--sdl-info",
 	"--validate-techtrees",
 	"--validate-factions"
 };
@@ -64,6 +65,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SERVER,
 	GAME_ARG_VERSION,
 	GAME_ARG_OPENGL_INFO,
+	GAME_ARG_SDL_INFO,
 	GAME_ARG_VALIDATE_TECHTREES,
 	GAME_ARG_VALIDATE_FACTIONS
 };
@@ -447,6 +449,10 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 	return result;
 }
 
+void print_SDL_version(char* preamble, SDL_version* v) {
+	printf("%s %u.%u.%u\n", preamble, v->major, v->minor, v->patch);
+}
+
 int glestMain(int argc, char** argv){
 
 #ifdef SL_LEAK_DUMP
@@ -475,6 +481,7 @@ int glestMain(int argc, char** argv){
 		printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
 		printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 		printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
+		printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 		printf("\n                     \t\tto your selected techtrees game data.");
 		printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
@@ -492,6 +499,7 @@ int glestMain(int argc, char** argv){
 	bool haveSpecialOutputCommandLineOption = false;
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
@@ -508,7 +516,20 @@ int glestMain(int argc, char** argv){
 #endif
 	}
 
-	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 			  == true &&
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) == true) {
+		SDL_version ver;
+    
+        // Prints the compile time version
+        SDL_VERSION(&ver);
+		print_SDL_version("SDL compile-time version", &ver);
+   
+        // Prints the run-time version
+        ver = *SDL_Linked_Version();
+        print_SDL_version("SDL runtime version", &ver);
+	}
+
+	if( (hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 		  == true ||
+		 hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 		  == true) &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 		  == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS])  == false) {
