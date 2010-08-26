@@ -728,6 +728,7 @@ int glestMain(int argc, char** argv){
 
 
 			{
+			printf("\n---------------- Loading factions inside world ----------------");
 			World world;
 
 		    vector<string> techPaths = config.getPathListForType(ptTechs);
@@ -752,18 +753,20 @@ int glestMain(int argc, char** argv){
 								}
 							}
 
-							printf("\nChecking techPath [%s] techName [%s] factionsList.size() = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
+							printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
 							for(int j = 0; j < factionsList.size(); ++j) {
 								if(	filteredFactionList.size() == 0 ||
 									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
-									printf("Found faction [%s]\n",factionsList[j].c_str());
+									printf("Using faction [%s]\n",factionsList[j].c_str());
 								}
 							}
 
+							bool techtree_errors = false;
 							world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
 							// Validate the faction setup to ensure we don't have any bad associations
 							std::vector<std::string> resultErrors = world.validateFactionTypes();
 							if(resultErrors.size() > 0) {
+								techtree_errors = true;
 								// Display the validation errors
 								string errorText = "\nErrors were detected:\n=====================\n";
 								for(int i = 0; i < resultErrors.size(); ++i) {
@@ -786,6 +789,7 @@ int glestMain(int argc, char** argv){
 
 							resultErrors = world.validateResourceTypes();
 							if(resultErrors.size() > 0) {
+								techtree_errors = true;
 								// Display the validation errors
 								string errorText = "\nErrors were detected:\n=====================\n";
 								for(int i = 0; i < resultErrors.size(); ++i) {
@@ -797,6 +801,13 @@ int glestMain(int argc, char** argv){
 								errorText += "\n=====================\n";
 								//throw runtime_error(errorText);
 								printf("%s",errorText.c_str());
+							}
+
+							if(techtree_errors == false) {
+								printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),factions.size());
+								for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+									printf("Faction [%s]\n",(*it).c_str());
+								}
 							}
 						}
 					}
