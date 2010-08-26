@@ -593,16 +593,20 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
 
-		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+		for(int iPacketLoop = 0; result == true && iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
 			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount;
 			int maxFileCountPerPacket = maxFileCRCPacketCount;
 			int packetFileCount = min(maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+			int packetDetail1DataSize = (DetailSize1 * packetFileCount);
+			int packetDetail2DataSize = (DetailSize2 * packetFileCount);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, maxFileCountPerPacket = %d, packetFileCount = %d, packetDetail1DataSize = %d, packetDetail2DataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,maxFileCountPerPacket,packetFileCount,packetDetail1DataSize,packetDetail2DataSize);
 
 			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
-				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount)) == true) {
+				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize) == true) {
 					break;
 				}
 				else {
@@ -610,7 +614,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 				}
 			}
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize);
 			if(result == true) {
 				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
@@ -619,7 +623,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 				for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount)) == true) {
+					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize) == true) {
 						break;
 					}
 					else {
@@ -627,7 +631,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 					}
 				}
 
-				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize);
 			}
 		}
 	}
