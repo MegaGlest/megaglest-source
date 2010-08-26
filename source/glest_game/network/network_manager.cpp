@@ -80,13 +80,13 @@ GameNetworkInterface* NetworkManager::getGameNetworkInterface(){
 ServerInterface* NetworkManager::getServerInterface(){
 	assert(gameNetworkInterface!=NULL);
 	assert(networkRole==nrServer);
-	return static_cast<ServerInterface*>(gameNetworkInterface);
+	return dynamic_cast<ServerInterface*>(gameNetworkInterface);
 }
 
 ClientInterface* NetworkManager::getClientInterface(){
 	assert(gameNetworkInterface!=NULL);
 	assert(networkRole==nrClient);
-	return static_cast<ClientInterface*>(gameNetworkInterface);
+	return dynamic_cast<ClientInterface*>(gameNetworkInterface);
 }
 
 }}//end namespace

@@ -1338,7 +1338,7 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 			glEnd();
 		}
 	}
-	glEnd();
+	//glEnd();
 
 	//Restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(false);

@@ -40,12 +40,6 @@ class Model;
 //	class Particle
 // =====================================================
 
-enum State{
-	sPause,	// No updates
-	sPlay,
-	sFade	// No new particles
-};
-
 class Particle {
 public:	
 	//attributes
@@ -72,8 +66,6 @@ public:
 	int getEnergy()	const		{return energy;}
 };
 
-class ParticleSystem;
-
 // =====================================================
 //	class ParticleObserver
 // =====================================================
@@ -88,14 +80,20 @@ public:
 //	class ParticleSystem
 // =====================================================
 
-class ParticleSystem{
-public:
-	enum BlendMode{
-		bmOne,
-		bmOneMinusAlpha
-	};
+class ParticleSystem {
 
-protected:
+public:
+
+enum State{
+	sPause,	// No updates
+	sPlay,
+	sFade	// No new particles
+};
+
+enum BlendMode{
+	bmOne,
+	bmOneMinusAlpha
+};
 
 protected:
 	
