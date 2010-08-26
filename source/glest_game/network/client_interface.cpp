@@ -918,7 +918,7 @@ void ClientInterface::stopServerDiscovery() {
 void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 											int8 toFactionIndex,int8 toTeam, string networkPlayerName,
 											int8 flags) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkPlayerName [%s] flags = %d\n",__FILE__,__FUNCTION__,__LINE__,networkPlayerName.c_str(),flags);
 	//printf("string-cuf-tof-team= %s-%d-%d-%d\n",selectedFactionName.c_str(),currentFactionIndex,toFactionIndex,toTeam);
 	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName, currentFactionIndex, toFactionIndex,toTeam,networkPlayerName, flags);
 	sendMessage(&message);

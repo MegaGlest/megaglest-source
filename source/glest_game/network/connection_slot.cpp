@@ -600,7 +600,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 									}
 									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
 
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() = %s\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str());
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getSwitchFlags());
 
 									if(mutex != NULL) mutex->v();
 								}
