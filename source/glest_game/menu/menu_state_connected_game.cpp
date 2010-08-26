@@ -529,26 +529,20 @@ void MenuStateConnectedGame::update() {
 
                     if(updateDataSynchDetailText == true &&
                     	clientInterface->getReceivedDataSynchCheck() &&
-                    	lastMapDataSynchError != "map CRC mismatch") {
-                    	lastMapDataSynchError = "map CRC mismatch";
+                    	lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
+                    	lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
                     	clientInterface->sendTextMessage(lastMapDataSynchError,-1,true);
                     }
-                }
-                else {
-                	lastMapDataSynchError = "";
                 }
 
                 if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false) {
                     label = label + " tile";
                     if(updateDataSynchDetailText == true &&
                     	clientInterface->getReceivedDataSynchCheck() &&
-                    	lastTileDataSynchError != "tile CRC mismatch") {
-                    	lastTileDataSynchError = "tile CRC mismatch";
+                    	lastTileDataSynchError != "tile CRC mismatch, " + listBoxTileset.getSelectedItem()) {
+                    	lastTileDataSynchError = "tile CRC mismatch, " + listBoxTileset.getSelectedItem();
                     	clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
                     }
-                }
-                else {
-                	lastTileDataSynchError = "";
                 }
 
                 if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
@@ -571,9 +565,6 @@ void MenuStateConnectedGame::update() {
 							}
 						}
                     }
-                }
-                else {
-                	lastTechtreeDataSynchError = "";
                 }
 
                 if(clientInterface->getReceivedDataSynchCheck() == true) {
