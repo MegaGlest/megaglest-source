@@ -1036,10 +1036,6 @@ void MenuStateCustomGame::update() {
 							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkMap() == false) {
 								label = label + " map";
 
-								string lastMapDataSynchError;
-								string lastMapTileDataSynchError;
-								string lastTechtreeDataSynchError;
-
 								if(connectionSlot->getReceivedDataSynchCheck() == true &&
 									lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
 									lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
