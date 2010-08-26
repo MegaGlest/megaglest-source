@@ -475,9 +475,7 @@ void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScop
 }
 
 void Renderer::updateParticleManager(ResourceScope rs, int renderFps) {
-	//if(renderFps < 0 || renderFps >= MIN_FPS_NORMAL_RENDERING) {
-		particleManager[rs]->update(renderFps);
-	//}
+	particleManager[rs]->update(renderFps);
 }
 
 void Renderer::renderParticleManager(ResourceScope rs){
@@ -490,7 +488,7 @@ void Renderer::renderParticleManager(ResourceScope rs){
 void Renderer::swapBuffers(){
 
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
-	//glFlush();
+	glFlush();
 
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
@@ -1340,7 +1338,7 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 			glEnd();
 		}
 	}
-	//glEnd();
+	glEnd();
 
 	//Restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(false);
