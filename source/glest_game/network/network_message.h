@@ -346,7 +346,7 @@ private:
 
 static const int maxStringSize= 255;
 static const int maxFileCRCCount= 1500;
-static const int maxFileCRCPacketCount= 100;
+static const int maxFileCRCPacketCount= 25;
 
 private:
 
@@ -418,7 +418,7 @@ private:
 
 static const int maxStringSize= 255;
 static const int maxFileCRCCount= 1500;
-static const int maxFileCRCPacketCount= 100;
+static const int maxFileCRCPacketCount= 25;
 
 private:
 
