@@ -49,7 +49,7 @@
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="2"
-				RuntimeTypeInfo="false"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="c:\temp\glest\$(TargetName).pch"
