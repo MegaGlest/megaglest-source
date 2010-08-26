@@ -193,8 +193,17 @@ std::vector<std::string> FactionType::validateFactionType() {
 						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
 							UnitType &unitType2 = unitTypes[l];
 							if(unitType2.getName() == buildUnit->getName()) {
-								 foundUnit = true;
-								 break;
+								foundUnit = true;
+
+								// Now also validate the the unit to be built
+								// has a be_built_skill
+						    	if(buildUnit->hasSkillClass(scBeBuilt) == false) {
+									char szBuf[4096]="";
+									sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built\ndoes not have the skill class [be_built_skill] in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
+									results.push_back(szBuf);
+						    	}
+
+						    	break;
 							}
 						}
 
