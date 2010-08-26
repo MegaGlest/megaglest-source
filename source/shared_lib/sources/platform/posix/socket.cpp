@@ -1001,20 +1001,21 @@ int Socket::send(const void *data, int dataSize) {
 	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
-	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
+	    		(difftime(time(NULL),tStartTimer) <= 5)) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
-	        if(Socket::isWritable(true) == true) {
+	        //if(Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
-	        }
+	        //}
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 	    }
 	}
@@ -1022,6 +1023,7 @@ int Socket::send(const void *data, int dataSize) {
 	if(bytesSent > 0 && bytesSent < dataSize) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] need to send more data, trying again getLastSocketError() = %d, bytesSent = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,getLastSocketError(),bytesSent,dataSize);
 
+		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 		int totalBytesSent = bytesSent;
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
@@ -1031,10 +1033,9 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
-	        if(bytesSent > 0 || Socket::isWritable(true) == true) {
+	        //if(bytesSent > 0 || Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	        	const char *sendBuf = (const char *)data;
                 bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
 
@@ -1042,9 +1043,11 @@ int Socket::send(const void *data, int dataSize) {
                 	totalBytesSent += bytesSent;
                 }
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
-	        }
+	        //}
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 	    }
+
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] bytesSent = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,totalBytesSent);
 
 	    if(bytesSent > 0) {
 	    	bytesSent = totalBytesSent;
@@ -1173,7 +1176,7 @@ bool Socket::isReadable() {
 
 	int i = 0;
 	{
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
 		i= select(sock+1, &set, NULL, NULL, &tv);
 	}
 	if(i < 0) {
@@ -1208,7 +1211,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     {
     	int i = 0;
     	{
-    		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+    		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
         	i = select(sock+1, NULL, &set, NULL, &tv);
     	}
         if(i < 0 ) {

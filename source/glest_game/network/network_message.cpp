@@ -504,7 +504,7 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 }
 
 string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList) {
-	string result = "Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
+	string result = "Techtree: [" + data.header.tech.getString() + "] Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
 	for(int idx = 0; idx < vctFileList.size(); ++idx) {
 		std::pair<string,int32> &fileInfo = vctFileList[idx];
 		bool fileFound = false;
@@ -683,8 +683,8 @@ NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStat
 	}
 }
 
-string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList) {
-	string result = "Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
+string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(string techtree, vector<std::pair<string,int32> > &vctFileList) {
+	string result = "Techtree: [" + techtree + "] Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
 	for(int idx = 0; idx < vctFileList.size(); ++idx) {
 		std::pair<string,int32> &fileInfo = vctFileList[idx];
 		bool fileFound = false;

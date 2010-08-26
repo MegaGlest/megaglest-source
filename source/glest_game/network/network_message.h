@@ -464,7 +464,7 @@ public:
 	const NetworkString<maxStringSize> * getTechCRCFileList() const {return &data.detail.techCRCFileList[0];}
 	const int32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
 
-	string getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList);
+	string getTechCRCFileMismatchReport(string techtree, vector<std::pair<string,int32> > &vctFileList);
 
 };
 #pragma pack(pop)
