@@ -331,7 +331,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						clientInterface->setGameSettingsReceived(false);
 						settingsReceivedFromServer=false;
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
-						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),myCurrentIndex,i,listBoxTeams[myCurrentIndex].getSelectedItemIndex(),getHumanPlayerName(),switchSetupRequestFlagType);
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),myCurrentIndex,i,listBoxTeams[myCurrentIndex].getSelectedItemIndex(),labelPlayerNames[myCurrentIndex].getText(),switchSetupRequestFlagType);
 						switchSetupRequestFlagType=ssrft_None;
 						break;
 					}
@@ -748,7 +748,8 @@ void MenuStateConnectedGame::update() {
 					if(gameSettings->getFactionControl(i) == ctNetwork ){
 						labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
 						if(gameSettings->getThisFactionIndex() != i &&
-								gameSettings->getNetworkPlayerName(i) != "") {
+								gameSettings->getNetworkPlayerName(i) != "" &&
+								gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
 							labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 						}
 					}
@@ -761,7 +762,8 @@ void MenuStateConnectedGame::update() {
 						listBoxTeams[slot].setEditable(true);
 
 						if(labelPlayerNames[slot].getText() == "" &&
-							gameSettings->getNetworkPlayerName(i) != "") {
+							gameSettings->getNetworkPlayerName(i) != "" &&
+							gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
 							labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 						}
 					}
