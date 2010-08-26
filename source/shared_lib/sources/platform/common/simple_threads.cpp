@@ -67,10 +67,8 @@ void FileCRCPreCacheThread::execute() {
 		setRunningStatus(false);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
 	setRunningStatus(false);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is exiting\n");
-
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 
