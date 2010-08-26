@@ -1613,6 +1613,11 @@ void ServerSocket::stopBroadCastThread() {
 
 	if(broadCastThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		broadCastThread->shutdownAndWait();
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		delete broadCastThread;
 		broadCastThread = NULL;
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1838,9 +1843,9 @@ void BroadCastSocketThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	time_t elapsed = 0;
-	for( pn = 1; ; pn++ )
+	for( pn = 1; getQuitStatus() == false; pn++ )
 	{
-		for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+		for(unsigned int idx = 0; getQuitStatus() == false && idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
 			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
@@ -1849,7 +1854,7 @@ void BroadCastSocketThread::execute() {
 						sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
 					}
 
-					if(difftime(time(NULL),elapsed) >= 1) {
+					if(difftime(time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
 						elapsed = time(NULL);
 						// Broadcast the packet to the subnet
 						//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
@@ -1876,10 +1881,12 @@ void BroadCastSocketThread::execute() {
 				}
 				catch(const exception &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+					this->setQuitStatus(true);
 					//setRunningStatus(false);
 				}
 				catch(...) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+					this->setQuitStatus(true);
 					//setRunningStatus(false);
 				}
 			}
@@ -1907,10 +1914,8 @@ void BroadCastSocketThread::execute() {
 		}
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Broadcast thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
 	setRunningStatus(false);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is exiting\n");
-
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 float Socket::getAveragePingMS(std::string host, int pingCount) {
