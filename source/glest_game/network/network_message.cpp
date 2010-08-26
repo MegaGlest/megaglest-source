@@ -505,50 +505,54 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 
 string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList) {
 	string result = "Techtree: [" + data.header.tech.getString() + "] Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
-	for(int idx = 0; idx < vctFileList.size(); ++idx) {
-		std::pair<string,int32> &fileInfo = vctFileList[idx];
-		bool fileFound = false;
-		int32 remoteCRC = -1;
-		for(int j = 0; j < data.header.techCRCFileCount; ++j) {
-			string networkFile = data.detail.techCRCFileList[j].getString();
-			int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
-			if(fileInfo.first == networkFile) {
-				fileFound = true;
-				remoteCRC = networkFileCRC;
-				break;
-			}
-		}
-
-		if(fileFound == false) {
-			result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
-		}
-		else if(fileInfo.second != remoteCRC) {
-			result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
-		}
+	if(vctFileList.size() <= 0) {
+		result = result + "Local player has no files.\n";
 	}
-
-	for(int i = 0; i < data.header.techCRCFileCount; ++i) {
-		string networkFile = data.detail.techCRCFileList[i].getString();
-		int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
-		bool fileFound = false;
-		int32 localCRC = -1;
+	else {
 		for(int idx = 0; idx < vctFileList.size(); ++idx) {
 			std::pair<string,int32> &fileInfo = vctFileList[idx];
-			if(networkFile == fileInfo.first) {
-				fileFound = true;
-				localCRC = fileInfo.second;
-				break;
+			bool fileFound = false;
+			int32 remoteCRC = -1;
+			for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+				string networkFile = data.detail.techCRCFileList[j].getString();
+				int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
+				if(fileInfo.first == networkFile) {
+					fileFound = true;
+					remoteCRC = networkFileCRC;
+					break;
+				}
+			}
+
+			if(fileFound == false) {
+				result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
+			}
+			else if(fileInfo.second != remoteCRC) {
+				result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
 			}
 		}
 
-		if(fileFound == false) {
-			result = result + "remote file [" + networkFile + "] missing locally.\n";
-		}
-		else if(networkFileCRC != localCRC) {
-			result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+		for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+			string networkFile = data.detail.techCRCFileList[i].getString();
+			int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
+			bool fileFound = false;
+			int32 localCRC = -1;
+			for(int idx = 0; idx < vctFileList.size(); ++idx) {
+				std::pair<string,int32> &fileInfo = vctFileList[idx];
+				if(networkFile == fileInfo.first) {
+					fileFound = true;
+					localCRC = fileInfo.second;
+					break;
+				}
+			}
+
+			if(fileFound == false) {
+				result = result + "remote file [" + networkFile + "] missing locally.\n";
+			}
+			else if(networkFileCRC != localCRC) {
+				result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+			}
 		}
 	}
-
 	return result;
 }
 
@@ -691,51 +695,55 @@ NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStat
 
 string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(string techtree, vector<std::pair<string,int32> > &vctFileList) {
 	string result = "Techtree: [" + techtree + "] Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
-	for(int idx = 0; idx < vctFileList.size(); ++idx) {
-		std::pair<string,int32> &fileInfo = vctFileList[idx];
-		bool fileFound = false;
-		int32 remoteCRC = -1;
-		for(int j = 0; j < data.header.techCRCFileCount; ++j) {
-			string networkFile = data.detail.techCRCFileList[j].getString();
-			int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
-			if(fileInfo.first == networkFile) {
-				fileFound = true;
-				remoteCRC = networkFileCRC;
-				break;
-			}
-		}
-
-		if(fileFound == false) {
-			result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
-		}
-		else if(fileInfo.second != remoteCRC) {
-			result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
-		}
+	if(vctFileList.size() <= 0) {
+		result = result + "Local player has no files.\n";
 	}
-
-	for(int i = 0; i < data.header.techCRCFileCount; ++i) {
-		string networkFile = data.detail.techCRCFileList[i].getString();
-		int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
-		bool fileFound = false;
-		int32 localCRC = -1;
+	else {
 		for(int idx = 0; idx < vctFileList.size(); ++idx) {
 			std::pair<string,int32> &fileInfo = vctFileList[idx];
+			bool fileFound = false;
+			int32 remoteCRC = -1;
+			for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+				string networkFile = data.detail.techCRCFileList[j].getString();
+				int32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
+				if(fileInfo.first == networkFile) {
+					fileFound = true;
+					remoteCRC = networkFileCRC;
+					break;
+				}
+			}
 
-			if(networkFile == fileInfo.first) {
-				fileFound = true;
-				localCRC = fileInfo.second;
-				break;
+			if(fileFound == false) {
+				result = result + "local file [" + fileInfo.first + "] missing remotely.\n";
+			}
+			else if(fileInfo.second != remoteCRC) {
+				result = result + "local file [" + fileInfo.first + "] CRC mismatch.\n";
 			}
 		}
 
-		if(fileFound == false) {
-			result = result + "remote file [" + networkFile + "] missing locally.\n";
-		}
-		else if(networkFileCRC != localCRC) {
-			result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+		for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+			string networkFile = data.detail.techCRCFileList[i].getString();
+			int32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
+			bool fileFound = false;
+			int32 localCRC = -1;
+			for(int idx = 0; idx < vctFileList.size(); ++idx) {
+				std::pair<string,int32> &fileInfo = vctFileList[idx];
+
+				if(networkFile == fileInfo.first) {
+					fileFound = true;
+					localCRC = fileInfo.second;
+					break;
+				}
+			}
+
+			if(fileFound == false) {
+				result = result + "remote file [" + networkFile + "] missing locally.\n";
+			}
+			else if(networkFileCRC != localCRC) {
+				result = result + "remote file [" + networkFile + "] CRC mismatch.\n";
+			}
 		}
 	}
-
 	return result;
 }
 
