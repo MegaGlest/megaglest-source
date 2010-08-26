@@ -1041,14 +1041,11 @@ void MenuStateCustomGame::update() {
 								string lastTechtreeDataSynchError;
 
 								if(connectionSlot->getReceivedDataSynchCheck() == true &&
-									lastMapDataSynchError != "map CRC mismatch") {
-									lastMapDataSynchError = "map CRC mismatch";
+									lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
+									lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 									serverInterface->sendTextMessage(lastMapDataSynchError,-1, true);
 								}
-							}
-							else {
-								lastMapDataSynchError = "";
 							}
 
 							connectionSlot= serverInterface->getSlot(i);
@@ -1056,14 +1053,11 @@ void MenuStateCustomGame::update() {
 								label = label + " tile";
 
 								if(connectionSlot->getReceivedDataSynchCheck() == true &&
-									lastTileDataSynchError != "tileset CRC mismatch") {
-									lastTileDataSynchError = "tileset CRC mismatch";
+									lastTileDataSynchError != "tile CRC mismatch, " + listBoxTileset.getSelectedItem()) {
+									lastTileDataSynchError = "tile CRC mismatch, " + listBoxTileset.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 									serverInterface->sendTextMessage(lastTileDataSynchError,-1,true);
 								}
-							}
-							else {
-								lastTileDataSynchError = "";
 							}
 
 							connectionSlot= serverInterface->getSlot(i);
@@ -1088,9 +1082,6 @@ void MenuStateCustomGame::update() {
 										}
 									}
 								}
-							}
-							else {
-								lastTechtreeDataSynchError = "";
 							}
 
 							connectionSlot= serverInterface->getSlot(i);

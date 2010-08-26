@@ -508,6 +508,9 @@ string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<s
 	if(vctFileList.size() <= 0) {
 		result = result + "Local player has no files.\n";
 	}
+	else if(data.header.techCRCFileCount <= 0) {
+		result = result + "Remote player has no files.\n";
+	}
 	else {
 		for(int idx = 0; idx < vctFileList.size(); ++idx) {
 			std::pair<string,int32> &fileInfo = vctFileList[idx];
@@ -697,6 +700,9 @@ string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(st
 	string result = "Techtree: [" + techtree + "] Filecount local: " + intToStr(vctFileList.size()) + " remote: " + intToStr(data.header.techCRCFileCount) + "\n";
 	if(vctFileList.size() <= 0) {
 		result = result + "Local player has no files.\n";
+	}
+	else if(data.header.techCRCFileCount <= 0) {
+		result = result + "Remote player has no files.\n";
 	}
 	else {
 		for(int idx = 0; idx < vctFileList.size(); ++idx) {
