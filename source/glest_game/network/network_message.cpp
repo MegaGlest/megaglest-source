@@ -581,27 +581,27 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
 	if(result == true && data.header.techCRCFileCount > 0) {
-		for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
-			if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount)) == true) {
-				break;
-			}
-			else {
-				sleep(1); // sleep 1 ms to wait for socket data
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
 			}
 		}
 
-		result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
-		if(result == true) {
-			for(int i = 0; i < data.header.techCRCFileCount; ++i) {
-				data.detail.techCRCFileList[i].nullTerminate();
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
-			}
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
+			int packetFileCount = std::min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
 
 			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-				if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount)) == true) {
+
+				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount)) == true) {
 					break;
 				}
 				else {
@@ -609,7 +609,25 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 				}
 			}
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			if(result == true) {
+				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+					data.detail.techCRCFileList[i].nullTerminate();
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
+				}
+
+				for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount)) == true) {
+						break;
+					}
+					else {
+						sleep(1); // sleep 1 ms to wait for socket data
+					}
+				}
+
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+			}
 		}
 	}
 
@@ -623,8 +641,25 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
 	assert(data.header.messageType==nmtSynchNetworkGameData);
 	NetworkMessage::send(socket, &data, HeaderSize);
 	if(data.header.techCRCFileCount > 0) {
-		NetworkMessage::send(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
-		NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
+			}
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
+			int packetFileCount = std::min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+
+			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+		}
 	}
 }
 
@@ -721,28 +756,28 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
 	if(result == true && data.header.techCRCFileCount > 0) {
-		for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-
-			if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount)) == true) {
-				break;
-			}
-			else {
-				sleep(1); // sleep 1 ms to wait for socket data
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
 			}
 		}
 
-		result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
-		if(result == true) {
-			for(int i = 0; i < data.header.techCRCFileCount; ++i) {
-				data.detail.techCRCFileList[i].nullTerminate();
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
-			}
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
+			int packetFileCount = std::min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
 			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
-				if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount)) == true) {
+				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount)) == true) {
 					break;
 				}
 				else {
@@ -750,7 +785,25 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 				}
 			}
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			if(result == true) {
+				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+					data.detail.techCRCFileList[i].nullTerminate();
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
+				}
+
+				for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount)) == true) {
+						break;
+					}
+					else {
+						sleep(1); // sleep 1 ms to wait for socket data
+					}
+				}
+
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+			}
 		}
 	}
 
@@ -766,8 +819,27 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
 	//int totalMsgSize = HeaderSize + (sizeof(DataDetail) * data.header.techCRCFileCount);
 	NetworkMessage::send(socket, &data, HeaderSize);
 	if(data.header.techCRCFileCount > 0) {
-		NetworkMessage::send(socket, &data.detail.techCRCFileList[0], (DetailSize1 * data.header.techCRCFileCount));
-		NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[0], (DetailSize2 * data.header.techCRCFileCount));
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
+			}
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * maxFileCRCPacketCount;
+			int packetFileCount = std::min(maxFileCRCPacketCount,data.header.techCRCFileCount - packetIndex);
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
+
+			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+		}
 	}
 }
 
