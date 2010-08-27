@@ -29,11 +29,17 @@ Thread::Thread() {
 Thread::~Thread() {
 	if(thread != NULL) {
 		SDL_WaitThread(thread, NULL);
+		thread = NULL;
 	}
 }
 
 void Thread::start() {
 	thread = SDL_CreateThread(beginExecution, this);
+	if(thread == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 }
 
 void Thread::setPriority(Thread::Priority threadPriority) {
@@ -44,7 +50,9 @@ int Thread::beginExecution(void* data) {
 	Thread* thread = static_cast<Thread*> (data);
 	assert(thread != NULL);
 	if(thread == NULL) {
-		throw runtime_error("thread == NULL");
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
 	}
 	thread->execute();
 	return 0;
