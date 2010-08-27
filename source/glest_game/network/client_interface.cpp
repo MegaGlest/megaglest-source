@@ -433,15 +433,22 @@ void ClientInterface::updateLobby() {
         break;
 
         case nmtLaunch:
+        case nmtBroadCastSetup:
         {
             NetworkMessageLaunch networkMessageLaunch;
-
             if(receiveMessage(&networkMessageLaunch)) {
             	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
             		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
             	}
+            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+            		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+            	}
             	else {
             		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+
+					char szBuf[1024]="";
+					snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+					throw runtime_error(szBuf);
             	}
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
@@ -462,35 +469,9 @@ void ClientInterface::updateLobby() {
                 if(networkMessageLaunch.getMessageType() == nmtLaunch) {
                 	launchGame= true;
                 }
-            }
-        }
-        break;
-        case nmtBroadCastSetup:
-        {
-            NetworkMessageLaunch networkMessageLaunch;
-
-            if(receiveMessage(&networkMessageLaunch))
-            {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got NetworkMessageLaunch\n",__FILE__,__FUNCTION__);
-
-                networkMessageLaunch.buildGameSettings(&gameSettings);
-
-                //replace server player by network
-                for(int i= 0; i<gameSettings.getFactionCount(); ++i)
-                {
-                    //replace by network
-                    if(gameSettings.getFactionControl(i)==ctHuman)
-                    {
-                        gameSettings.setFactionControl(i, ctNetwork);
-                    }
-
-                    //set the faction index
-                    if(gameSettings.getStartLocationIndex(i)==playerIndex)
-                    {
-                        gameSettings.setThisFactionIndex(i);
-                    }
+                else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+                	gameSettingsReceived=true;
                 }
-                gameSettingsReceived=true;
             }
         }
         break;
