@@ -51,10 +51,19 @@ private:
 	GraphicListBox listBoxEnableServerControlledAI;
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
-	GraphicLabel labelPathFinderType;
-	GraphicListBox listBoxPathFinderType;
+
 	GraphicListBox listBoxNetworkFramePeriod;
 	GraphicLabel labelNetworkFramePeriod;
+
+	GraphicLabel labelPathFinderType;
+	GraphicListBox listBoxPathFinderType;
+	
+	GraphicLabel labelMapPlayerCount;
+	GraphicListBox listBoxMapPlayerCount;
+	
+	GraphicLabel labelAdvanced;
+	GraphicListBox listBoxAdvanced;
+	
 
 
 	GraphicListBox listBoxMap;

@@ -71,68 +71,61 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     labelMapInfo.setText("?");
 
 	vector<string> teamItems, controlItems, results;
-	//state
-	labelStatus.init(230, 700);
-	labelStatus.setText("");
-
-	labelInfo.init(30, 700);
-	labelInfo.setText("");
-	
-	
-	
-	//create
-	buttonDisconnect.init(350, 180, 125);
-	buttonPlayNow.init(525, 180, 125);
-
-    //map listBox
-	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
-	// will also ensure they are alphabetically listed (rather than how the OS provides them)
-	listBoxMap.init(100, 260, 200);
-	listBoxMap.setEditable(false);
-
-
-	int setupPos=610;
+	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
 	int aHeadPos=260;
 	int aPos=aHeadPos-30;
-	int networkHeadPos=670;
+	int networkHeadPos=700;
 	int networkPos=networkHeadPos-30;
+	int xoffset=0;
 	
-    //listBoxMap.setItems(results);
-	labelMap.init(100, mapHeadPos);
-	listBoxMap.init(100, mapPos, 200);
+	//state
+	labelStatus.init(410, networkHeadPos+30);
+	labelStatus.setText("");
 
+	labelInfo.init(30, networkHeadPos+30);
+	labelInfo.setText("");
+	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
+	
+	//create
+	buttonDisconnect.init(450, 180, 125);
+	buttonPlayNow.init(525, 180, 125);
+
+
+	xoffset=170;
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(300, aHeadPos, 80);
-	listBoxFogOfWar.init(300, aPos, 80);
+	labelFogOfWar.init(xoffset+100, aHeadPos, 80);
+	labelFogOfWar.setText(lang.get("FogOfWar"));
+	listBoxFogOfWar.init(xoffset+100, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 	listBoxFogOfWar.setEditable(false);
 
 	// Enable Observer Mode
-	labelEnableObserverMode.init(400, aHeadPos, 80);
-	listBoxEnableObserverMode.init(400, aPos, 110);
+	labelEnableObserverMode.init(xoffset+250, aHeadPos, 80);
+	listBoxEnableObserverMode.init(xoffset+250, aPos, 110);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
 	listBoxEnableObserverMode.setEditable(false);
 	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
-	labelPathFinderType.init(540, aHeadPos, 80);
+	labelPathFinderType.init(xoffset+450, aHeadPos, 80);
 	labelPathFinderType.setText(lang.get("PathFinderType"));
-	listBoxPathFinderType.init(540, aPos, 140);
+	listBoxPathFinderType.init(xoffset+450, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
 	listBoxPathFinderType.setSelectedItemIndex(0);
 	listBoxPathFinderType.setEditable(false);
 
 	// Network Frame Period
-	labelNetworkFramePeriod.init(370, networkHeadPos, 80);
+	xoffset=0;
+	labelNetworkFramePeriod.init(xoffset+170, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-	listBoxNetworkFramePeriod.init(380, networkPos, 80);
+	listBoxNetworkFramePeriod.init(xoffset+170, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
 	listBoxNetworkFramePeriod.pushBackItem("30");
@@ -141,9 +134,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxNetworkFramePeriod.setEditable(false);
 
 	// Network Frame Period
-	labelNetworkPauseGameForLaggedClients.init(530, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(xoffset+440, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
-	listBoxNetworkPauseGameForLaggedClients.init(540, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.init(xoffset+440, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("No"));
@@ -151,52 +144,71 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(670, networkHeadPos, 80);
+	labelEnableServerControlledAI.init(xoffset+680, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-	listBoxEnableServerControlledAI.init(680, networkPos, 80);
+	listBoxEnableServerControlledAI.init(xoffset+680, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 	listBoxEnableServerControlledAI.setEditable(false);
 
+	xoffset=70;
+    //map listBox
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	listBoxMap.init(xoffset+100, mapPos, 200);
+	listBoxMap.setEditable(false);
+	labelMap.init(xoffset+100, mapHeadPos);
+	labelMap.setText(lang.get("Map"));
 
     //tileset listBox
 	//listBoxTileset.init(500, 260, 150);
-	listBoxTileset.init(400, mapPos, 150);
+	listBoxTileset.init(xoffset+350, mapPos, 150);
 	listBoxTileset.setEditable(false);
     //listBoxTileset.setItems(results);
 	//labelTileset.init(500, 290);
-	labelTileset.init(400, mapHeadPos);
+	labelTileset.init(xoffset+350, mapHeadPos);
+	labelTileset.setText(lang.get("Tileset"));
+	
 
     //tech Tree listBox
 	//listBoxTechTree.init(700, 260, 150);
 	listBoxTechTree.setEditable(false);
     //listBoxTechTree.setItems(results);
 	//labelTechTree.init(700, 290);
-	listBoxTechTree.init(600, mapPos, 150);
-	labelTechTree.init(600, mapHeadPos);
+	listBoxTechTree.init(xoffset+550, mapPos, 150);
+	labelTechTree.init(xoffset+550, mapHeadPos);
+	labelTechTree.setText(lang.get("TechTree"));
+	
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
+	xoffset=120;
+	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(50, setupPos-30-i*30);
+		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
 		labelPlayers[i].setEditable(false);
-		labelPlayerNames[i].init(100,setupPos-30-i*30);
+		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
 
-        listBoxControls[i].init(200, setupPos-30-i*30);
+        listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
         listBoxControls[i].setEditable(false);
-        listBoxFactions[i].init(400, setupPos-30-i*30);
+        listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight);
         listBoxFactions[i].setEditable(false);
-		listBoxTeams[i].init(600, setupPos-30-i*30, 60);
+		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
-		labelNetStatus[i].init(700, setupPos-30-i*30, 60);
-		grabSlotButton[i].init(700, setupPos-30-i*30, 30);
+		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
+		grabSlotButton[i].init(xoffset+600, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
-	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(400, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(600, setupPos, 60, GraphicListBox::defH, true);
+	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.setText(lang.get("Control"));
+	
+    labelFaction.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.setText(lang.get("Faction"));
+    
+    labelTeam.init(xoffset+520, setupPos, 60, GraphicListBox::defH, true);
+	labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
@@ -231,13 +243,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelNetStatus[i].setText("V");
     }
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	labelMap.setText(lang.get("Map"));
-	labelFogOfWar.setText(lang.get("FogOfWar"));
-	labelTileset.setText(lang.get("Tileset"));
-	labelTechTree.setText(lang.get("TechTree"));
-	labelControl.setText(lang.get("Control"));
-    labelFaction.setText(lang.get("Faction"));
-    labelTeam.setText(lang.get("Team"));
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	labelMapInfo.setText(mapInfo.desc);
