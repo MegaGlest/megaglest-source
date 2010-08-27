@@ -88,7 +88,7 @@ void ParticleSystem::update() {
 
 				//maintain alive particles at front of the array
 				if(aliveParticleCount > 0) {
-					particles[i] = particles[aliveParticleCount-1];
+					particles[i] = particles[aliveParticleCount];
 				}
 			}
 		}
