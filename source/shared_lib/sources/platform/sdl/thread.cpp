@@ -17,6 +17,12 @@
 
 using namespace std;
 
+#ifdef WIN32
+
+#define snprintf _snprintf
+
+#endif
+
 namespace Shared{ namespace Platform{ 
 
 // =====================================
