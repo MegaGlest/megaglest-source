@@ -82,16 +82,18 @@ void ChatManager::keyDown(char key){
 
 	try {
 		Lang &lang= Lang::getInstance();
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 		//toggle team mode
-		if(editEnabled == false && disableTeamMode == false && key=='H') {
+		if(editEnabled == false && disableTeamMode == false &&
+			key == configKeys.getCharKey("ChatTeamMode")) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-			if(teamMode){
+			if(teamMode == true) {
 				teamMode= false;
 				console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
 			}
-			else{
+			else {
 				teamMode= true;
 				console->addLine(lang.get("ChatMode") + ": " + lang.get("Team"));
 			}
