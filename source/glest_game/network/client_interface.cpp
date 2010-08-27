@@ -29,6 +29,12 @@ using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
 
+#ifdef WIN32
+
+#define snprintf _snprintf
+
+#endif
+
 namespace Glest{ namespace Game{
 
 // =====================================================
