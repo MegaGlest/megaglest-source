@@ -107,13 +107,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonRestoreLastSettings.init(250+130, 180, 200);
 	buttonPlayNow.init(250+130+205, 180, 125);
 
-	int setupPos=610;
+	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
 	int aHeadPos=260;
 	int aPos=aHeadPos-30;
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-30;
+	int xoffset=10;
 	
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
@@ -149,43 +150,41 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	labelLocalIP.setText(lang.get("LanIP") + ipText);
 
-	labelMap.init(100, mapHeadPos);
-	listBoxMap.init(100, mapPos, 200);
+	// Map
+	xoffset=70;
+	labelMap.init(xoffset+100, mapHeadPos);
+	labelMap.setText(lang.get("Map")+":");
+	listBoxMap.init(xoffset+100, mapPos, 200);
     listBoxMap.setItems(results);
-	labelMapInfo.init(100, mapPos-30, 200, 40);
-		
-	// fog - o - war
-	// @350 ? 300 ?
-	labelFogOfWar.init(300, aHeadPos, 80);
-	listBoxFogOfWar.init(300, aPos, 80);
-	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
-	listBoxFogOfWar.pushBackItem(lang.get("No"));
-	listBoxFogOfWar.setSelectedItemIndex(0);
-
-	// Enable Observer Mode
-	labelEnableObserverMode.init(400, aHeadPos, 80);
-	listBoxEnableObserverMode.init(400, aPos, 110);
-	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
-	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
-	listBoxEnableObserverMode.setSelectedItemIndex(0);
-
-	labelPathFinderType.init(540, aHeadPos, 80);
-	labelPathFinderType.setText(lang.get("PathFinderType"));
-	listBoxPathFinderType.init(540, aPos, 140);
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
-	listBoxPathFinderType.setSelectedItemIndex(0);
-
-    //tileset listBox
+	labelMapInfo.init(xoffset+100, mapPos-30, 200, 40);
+	
+	// MapFilter
+	labelMapFilter.init(xoffset+310, mapHeadPos);
+	labelMapFilter.setText(lang.get("MapFilter")+":");
+	listBoxMapFilter.init(xoffset+310, mapPos, 80);
+	listBoxMapFilter.pushBackItem(lang.get("all"));
+	listBoxMapFilter.pushBackItem("1");
+	listBoxMapFilter.pushBackItem("2");
+	listBoxMapFilter.pushBackItem("3");
+	listBoxMapFilter.pushBackItem("4");
+	listBoxMapFilter.pushBackItem("5");
+	listBoxMapFilter.pushBackItem("6");
+	listBoxMapFilter.pushBackItem("7");
+	listBoxMapFilter.pushBackItem("8");
+	listBoxMapFilter.setSelectedItemIndex(4);
+	
+	//tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
 	if (results.empty()) {
         throw runtime_error("No tile-sets were found!");
 	}
     tilesetFiles= results;
 	std::for_each(results.begin(), results.end(), FormatString());
-	listBoxTileset.init(400, mapPos, 150);
+	listBoxTileset.init(xoffset+460, mapPos, 150);
     listBoxTileset.setItems(results);
-	labelTileset.init(400, mapHeadPos);
+	labelTileset.init(xoffset+460, mapHeadPos);
+	labelTileset.setText(lang.get("Tileset"));
+	
 
     //tech Tree listBox
     findDirs(config.getPathListForType(ptTechs), results);
@@ -194,14 +193,52 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
     techTreeFiles= results;
 	std::for_each(results.begin(), results.end(), FormatString());
-	listBoxTechTree.init(600, mapPos, 150);
+	listBoxTechTree.init(xoffset+650, mapPos, 150);
     listBoxTechTree.setItems(results);
-	labelTechTree.init(600, mapHeadPos);
+	labelTechTree.init(xoffset+650, mapHeadPos);
+	labelTechTree.setText(lang.get("TechTree"));
+	
+		
+	// fog - o - war
+	// @350 ? 300 ?
+	
+	labelFogOfWar.init(xoffset+310, aHeadPos, 80);
+	labelFogOfWar.setText(lang.get("FogOfWar"));
+	listBoxFogOfWar.init(xoffset+310, aPos, 80);
+	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
+	listBoxFogOfWar.pushBackItem(lang.get("No"));
+	listBoxFogOfWar.setSelectedItemIndex(0);
+
+	// Enable Observer Mode
+	labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
+	listBoxEnableObserverMode.init(xoffset+460, aPos, 150);
+	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
+	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
+	listBoxEnableObserverMode.setSelectedItemIndex(0);
+
+	// Witch Pathfinder
+	labelPathFinderType.init(xoffset+650, aHeadPos, 80);
+	labelPathFinderType.setText(lang.get("PathFinderType"));
+	listBoxPathFinderType.init(xoffset+650, aPos, 150);
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
+	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	listBoxPathFinderType.setSelectedItemIndex(0);
 
 
-	labelPublishServer.init(50, networkHeadPos, 100);
+	// Advanced Options
+	labelAdvanced.init(790, 80, 80);
+	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
+	listBoxAdvanced.init(810, 80-30, 80);
+	listBoxAdvanced.pushBackItem(lang.get("Yes"));
+	listBoxAdvanced.pushBackItem(lang.get("No"));
+	listBoxAdvanced.setSelectedItemIndex(0);
+
+	// network things
+	// PublishServer
+	xoffset=50;
+	labelPublishServer.init(xoffset+50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(60, networkPos, 100);
+	listBoxPublishServer.init(xoffset+60, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
@@ -209,11 +246,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	else
 		listBoxPublishServer.setSelectedItemIndex(1);
 
-
-	labelPublishServerExternalPort.init(220, networkHeadPos, 150);
+	// Port
+	labelPublishServerExternalPort.init(xoffset+220, networkHeadPos, 150);
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
-	listBoxPublishServerExternalPort.init(230, networkPos, 100);
+	listBoxPublishServerExternalPort.init(xoffset+230, networkPos, 100);
 	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> externalPortList;
 	Tokenize(supportExternalPortList,externalPortList,",");
@@ -223,12 +260,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 			listBoxPublishServerExternalPort.pushBackItem(externalPortList[idx]);
 		}
 	}
-	listBoxPublishServer.setSelectedItemIndex(0);
+	
+	//listBoxPublishServer.setSelectedItemIndex(0);
 
 	// Network Frame Period
-	labelNetworkFramePeriod.init(370, networkHeadPos, 80);
+	labelNetworkFramePeriod.init(xoffset+370, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-	listBoxNetworkFramePeriod.init(380, networkPos, 80);
+	listBoxNetworkFramePeriod.init(xoffset+380, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
 	listBoxNetworkFramePeriod.pushBackItem("30");
@@ -236,39 +274,42 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxNetworkFramePeriod.setSelectedItem("20");
 
 	// Network Frame Period
-	labelNetworkPauseGameForLaggedClients.init(530, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(xoffset+530, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
-	listBoxNetworkPauseGameForLaggedClients.init(540, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.init(xoffset+540, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
-	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("No"));
+	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
 
 
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(670, networkHeadPos, 80);
+	labelEnableServerControlledAI.init(xoffset+670, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-	listBoxEnableServerControlledAI.init(680, networkPos, 80);
+	listBoxEnableServerControlledAI.init(xoffset+680, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
-	
-
 	//list boxes
+	xoffset=120;
+	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayers[i].init(50, setupPos-30-i*30);
-		labelPlayerNames[i].init(100,setupPos-30-i*30);
+		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
 
-        listBoxControls[i].init(200, setupPos-30-i*30);
-        listBoxFactions[i].init(350, setupPos-30-i*30, 150);
-		listBoxTeams[i].init(520, setupPos-30-i*30, 60);
-		labelNetStatus[i].init(600, setupPos-30-i*30, 60);
+        listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
+        listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight, 150);
+		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
     }
 
-
-	labelControl.init(200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.init(350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelTeam.init(520, setupPos, 50, GraphicListBox::defH, true);
+	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.setText(lang.get("Control"));
+	
+    labelFaction.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.setText(lang.get("Faction"));
+    labelTeam.init(xoffset+520, setupPos, 50, GraphicListBox::defH, true);
+    labelTeam.setText(lang.get("Team"));
     
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
@@ -321,13 +362,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		labelNetStatus[i].setText("");
     }
 
-	labelMap.setText(lang.get("Map")+":");
-	labelFogOfWar.setText(lang.get("FogOfWar"));
-	labelTileset.setText(lang.get("Tileset"));
-	labelTechTree.setText(lang.get("TechTree"));
-	labelControl.setText(lang.get("Control"));
-    labelFaction.setText(lang.get("Faction"));
-    labelTeam.setText(lang.get("Team"));
 
     labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
     
@@ -578,6 +612,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
+	else if (listBoxAdvanced.mouseClick(x, y)) {
+		//TODO
+	}
 	else if (listBoxEnableServerControlledAI.mouseClick(x, y)&&listBoxEnableServerControlledAI.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -589,6 +626,17 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         }
 	}
 	else if(listBoxTileset.mouseClick(x, y)){
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		// TODO: set a map that fits the condition
+		
+		needToRepublishToMasterserver = true;
+        if(hasNetworkGameSettings() == true)
+        {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+	}
+	else if(listBoxMapFilter.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -751,6 +799,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
+	listBoxMapFilter.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPublishServer.mouseMove(x, y);
 	listBoxPublishServerExternalPort.mouseMove(x, y);
@@ -765,6 +814,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 
 	labelPathFinderType.mouseMove(x, y);
 	listBoxPathFinderType.mouseMove(x, y);
+	listBoxAdvanced.mouseMove(x, y);
 }
 
 void MenuStateCustomGame::render(){
@@ -796,6 +846,7 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelMap);
 			renderer.renderLabel(&labelFogOfWar);
 			renderer.renderLabel(&labelTileset);
+			renderer.renderLabel(&labelMapFilter);
 			renderer.renderLabel(&labelTechTree);
 			renderer.renderLabel(&labelControl);
 			renderer.renderLabel(&labelFaction);
@@ -803,14 +854,17 @@ void MenuStateCustomGame::render(){
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelEnableObserverMode);
 			renderer.renderLabel(&labelPathFinderType);
+			renderer.renderLabel(&labelAdvanced);
 			
 			renderer.renderListBox(&listBoxMap);
 			renderer.renderListBox(&listBoxFogOfWar);
 			renderer.renderListBox(&listBoxTileset);
+			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxEnableObserverMode);
 			renderer.renderListBox(&listBoxPathFinderType);
-	
+			renderer.renderListBox(&listBoxAdvanced);
+			
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console,showFullConsole,true);
 			if(listBoxPublishServer.getEditable())

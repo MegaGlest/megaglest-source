@@ -75,6 +75,12 @@ private:
 
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;
+	
+	GraphicLabel labelMapFilter;
+	GraphicListBox listBoxMapFilter;
+	
+	GraphicLabel labelAdvanced;
+	GraphicListBox listBoxAdvanced;
 
 	GraphicLabel *activeInputLabel;
 
