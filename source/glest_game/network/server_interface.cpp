@@ -43,6 +43,10 @@ double maxFrameCountLagAllowed = 30;
 // The maximum amount of seconds a client is allowed to not communicate with the server
 double maxClientLagTimeAllowed = 20;
 
+// The maximum amount of network update iterations a client is allowed to fall behind before we
+// for a disconnect regardless of other settings
+double maxFrameCountLagAllowedEver = 75;
+
 // 65% of max we warn all users about the lagged client
 double warnFrameCountLagPercent = 0.65;
 // Should we wait for lagged clients instead of disconnect them?
@@ -63,11 +67,11 @@ ServerInterface::ServerInterface(){
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
+    maxFrameCountLagAllowedEver = Config::getInstance().getInt("MaxFrameCountLagAllowedEver",intToStr(maxFrameCountLagAllowedEver).c_str());
     maxClientLagTimeAllowed = Config::getInstance().getInt("MaxClientLagTimeAllowed",intToStr(maxClientLagTimeAllowed).c_str());
     warnFrameCountLagPercent = Config::getInstance().getFloat("WarnFrameCountLagPercent",doubleToStr(warnFrameCountLagPercent).c_str());
-    //pauseGameForLaggedClients = Config::getInstance().getFloat("PauseGameForLaggedClients",boolToStr(pauseGameForLaggedClients).c_str());
-    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %f, pauseGameForLaggedClients = %d\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed,pauseGameForLaggedClients);
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxClientLagTimeAllowed = %f\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxClientLagTimeAllowed);
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] enabledThreadedClientCommandBroadcast = %d, maxFrameCountLagAllowed = %f, maxFrameCountLagAllowedEver = %f, maxClientLagTimeAllowed = %f\n",__FILE__,__FUNCTION__,__LINE__,enabledThreadedClientCommandBroadcast,maxFrameCountLagAllowed,maxFrameCountLagAllowedEver,maxClientLagTimeAllowed);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
 		slots[i]= NULL;
@@ -321,12 +325,14 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 
 				// New lag check
 				if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
-					(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
+					(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed) ||
+					(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
 					clientLagExceededOrWarned.first = true;
 					char szBuf[4096]="";
 
 					const char* msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
-					if(gameSettings.getNetworkPauseGameForLaggedClients() == true) {
+					if(gameSettings.getNetworkPauseGameForLaggedClients() == true &&
+						(maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver)) {
 						msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
 					}
 		#ifdef WIN32
@@ -341,7 +347,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 						sendTextMessage(sMsg,-1, true);
 					}
 
-					if(gameSettings.getNetworkPauseGameForLaggedClients() == false) {
+					if(gameSettings.getNetworkPauseGameForLaggedClients() == false ||
+						(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
 						connectionSlot->close();
 					}
 				}
