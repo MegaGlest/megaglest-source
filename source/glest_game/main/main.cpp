@@ -449,10 +449,34 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 	return result;
 }
 
-void print_SDL_version(char* preamble, SDL_version* v) {
+void print_SDL_version(const char *preamble, SDL_version *v) {
 	printf("%s %u.%u.%u\n", preamble, v->major, v->minor, v->patch);
 }
-
+void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
+	if(foundInvalidArgs == true) {
+			printf("\n");
+	}
+	printf("\n%s, usage\n\n",argv0);
+	printf("Commandline Parameter:\t\tDescription:");
+	printf("\n----------------------\t\t------------");
+	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
+	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
+	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
+	printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
+	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
+	printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n                     \t\tto your selected techtrees game data.");
+	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
+	printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv0,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n                     \t\tto your selected factions game data.");
+	printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
+	printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
+	printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n\n");
+}
 int glestMain(int argc, char** argv){
 
 #ifdef SL_LEAK_DUMP
@@ -470,29 +494,8 @@ int glestMain(int argc, char** argv){
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_HELP]) == true ||
 		foundInvalidArgs == true) {
-		if(foundInvalidArgs == true) {
-			printf("\n");
-		}
-		printf("\n%s, usage\n\n",argv[0]);
-		printf("Commandline Parameter:\t\tDescription:");
-		printf("\n----------------------\t\t------------");
-		printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
-		printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
-		printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
-		printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
-		printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
-		printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
-		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-		printf("\n                     \t\tto your selected techtrees game data.");
-		printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
-		printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv[0],GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-		printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
-		printf("\n                     \t\tto your selected factions game data.");
-		printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
-		printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
-		printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-		printf("\n                     \t\texample: %s %s=tech,egypt",argv[0],GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
-		printf("\n\n");
+
+		printParameterHelp(argv[0],foundInvalidArgs);
 		return -1;
 	}
 
@@ -664,15 +667,25 @@ int glestMain(int argc, char** argv){
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
 			program->initServer(mainWindow);
 		}
-		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]) + string("=")) == true) {
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]),&foundParamIndIndex);
+			}
 			string serverToConnectTo = argv[foundParamIndIndex];
 			vector<string> paramPartTokens;
 			Tokenize(serverToConnectTo,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2) {
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
 				program->initClient(mainWindow, autoConnectServer);
+			}
+			else {
+
+				printf("\nInvalid host specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return -1;
 			}
 		}
 		else{
@@ -689,7 +702,6 @@ int glestMain(int argc, char** argv){
 			printf("%s",renderer.getGlInfo().c_str());
 
 			delete mainWindow;
-
 			return -1;
 		}
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
