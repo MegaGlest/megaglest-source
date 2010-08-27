@@ -783,6 +783,18 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 
 	    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex());
 	    		this->addChatInfo(msg);
+
+				string newChatText     = msg.chatText.c_str();
+				string newChatSender   = msg.chatSender.c_str();
+				int newChatTeamIndex   = msg.chatTeamIndex;
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+
+				NetworkMessageText networkMessageText(newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+				broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+
 				}
 				break;
 			case nmtSynchNetworkGameData:
