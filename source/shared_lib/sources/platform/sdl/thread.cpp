@@ -11,8 +11,11 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <assert.h>
 
 #include "noimpl.h"
+
+using namespace std;
 
 namespace Shared{ namespace Platform{ 
 
@@ -39,6 +42,10 @@ void Thread::setPriority(Thread::Priority threadPriority) {
 
 int Thread::beginExecution(void* data) {
 	Thread* thread = static_cast<Thread*> (data);
+	assert(thread != NULL);
+	if(thread == NULL) {
+		throw runtime_error("thread == NULL");
+	}
 	thread->execute();
 	return 0;
 }
