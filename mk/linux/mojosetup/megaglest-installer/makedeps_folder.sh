@@ -20,7 +20,20 @@ sync_support_libs(){
 	local pFILE="$2"        # bin file to scan for dependencies from
 	local files=""
 	local _cp="/bin/cp"
-	local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
+	#local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
+	local skip_deps=""
+	local keep_deps="libcurl libgnu libicu liblua libxerces"
+	
+	local scan_via_skiplist=1 
+
+	if [ -n "$skip_deps" ]; then
+		scan_via_skiplist=1
+		echo 'scanning for deps TO SKIP...'
+	elif [ -n "$keep_deps" ]; then  
+		scan_via_skiplist=0
+		echo 'scanning for deps TO KEEP...'
+	fi
+
  
 	# get rid of blanks and (0x00007fff0117f000)
 	files="$(ldd $pFILE |  awk '{ print $3 }' | sed -e '/^$/d' -e '/(*)$/d')"
@@ -34,14 +47,27 @@ sync_support_libs(){
 #		echo ${_cp} -f $i ${d}
 
 		skipfile=0
+
+		if [ $scan_via_skiplist -eq 1 ]; then 
 		for j in $(echo $skip_deps)
 		do
 			if [ `awk "BEGIN {print index(\"$i\", \"$j\")}"` -ne 0 ]; then
 #			    echo Skipping file = [$i]
 				skipfile=1
-break
+					break
 			fi
 		done
+		elif [ $scan_via_skiplist -eq 0 ]; then 
+			skipfile=1
+			for j in $(echo $keep_deps)
+			do
+				if [ `awk "BEGIN {print index(\"$i\", \"$j\")}"` -ne 0 ]; then
+#			    	echo Skipping file = [$i]
+					skipfile=0
+					break
+				fi
+			done
+		fi
 
 		if [ $skipfile -eq 0 ]; then
 			echo Including file = [$i]
