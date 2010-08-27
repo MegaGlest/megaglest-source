@@ -35,6 +35,7 @@ Thread::~Thread() {
 
 void Thread::start() {
 	thread = SDL_CreateThread(beginExecution, this);
+	assert(thread != NULL);
 	if(thread == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",__FILE__,__FUNCTION__,__LINE__);
@@ -72,19 +73,39 @@ void Thread::resume() {
 
 Mutex::Mutex() {
 	mutex = SDL_CreateMutex();
-	if(mutex == 0)
-		throw std::runtime_error("Couldn't initialize mutex");
+	assert(mutex != NULL);
+	if(mutex == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 }
 
 Mutex::~Mutex() {
+	if(mutex == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	SDL_DestroyMutex(mutex);
+	mutex=NULL;
 }
 
 void Mutex::p() {
+	if(mutex == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	SDL_mutexP(mutex);
 }
 
 void Mutex::v() {
+	if(mutex == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	SDL_mutexV(mutex);
 }
 
@@ -94,18 +115,38 @@ void Mutex::v() {
 
 Semaphore::Semaphore(Uint32 initialValue) {
 	semaphore = SDL_CreateSemaphore(initialValue);
+	if(semaphore == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 }
 
 Semaphore::~Semaphore() {
+	if(semaphore == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	SDL_DestroySemaphore(semaphore);
 	semaphore = NULL;
 }
 
 void Semaphore::signal() {
+	if(semaphore == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	SDL_SemPost(semaphore);
 }
 
 int Semaphore::waitTillSignalled() {
+	if(semaphore == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 	int semValue = SDL_SemWait(semaphore);
 	return semValue;
 }
