@@ -994,9 +994,11 @@ void MenuStateConnectedGame::keyDown(char key) {
 		//send key to the chat manager
 		chatManager.keyDown(key);
 		if(!chatManager.getEditEnabled()){
-			if(key=='M'){
-					showFullConsole= true;
-				}
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+			if(key == configKeys.getCharKey("ShowFullConsole")) {
+				showFullConsole= true;
+			}
 		}
 	}
 }
@@ -1029,11 +1031,14 @@ void MenuStateConnectedGame::keyPress(char c) {
 void MenuStateConnectedGame::keyUp(char key) {
 	if(activeInputLabel==NULL) {
 		chatManager.keyUp(key);
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
 		if(chatManager.getEditEnabled()){
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
-		else if(key== 'M'){
+		else if(key== configKeys.getCharKey("ShowFullConsole")) {
 			showFullConsole= false;
 		}
 	}
