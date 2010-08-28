@@ -214,6 +214,7 @@ public:
 	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
     void putUnitCells(Unit *unit, const Vec2i &pos);
 	void clearUnitCells(Unit *unit, const Vec2i &pos);
+	bool isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos);
 
 	//misc
 	bool isNextTo(const Vec2i &pos, const Unit *unit) const;

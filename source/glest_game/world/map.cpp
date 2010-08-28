@@ -440,6 +440,28 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 }
 
 //put a units into the cells
+bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) {
+
+	assert(ut!=NULL);
+
+	Cell *testCell = getCell(testPos);
+	for(int i=0; i < ut->getSize(); ++i){
+		for(int j = 0; j < ut->getSize(); ++j) {
+			Vec2i currPos = pos + Vec2i(i, j);
+			if(isInside(currPos) == true) {
+				//if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, facing)) {
+				Cell *unitCell = getCell(currPos);
+
+				if(unitCell == testCell) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+//put a units into the cells
 void Map::putUnitCells(Unit *unit, const Vec2i &pos){
 
 	assert(unit!=NULL);
