@@ -655,6 +655,22 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 	}
 }
 
+
+void World::giveAttackCommand(int unitId, int unitToAttackId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL){
+		Unit* targetUnit = findUnitById(unitToAttackId);
+		if(targetUnit != NULL) {
+			const CommandType *ct= unit->getType()->getFirstAttackCommand(targetUnit->getCurrField());
+			if(ct != NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit [%s] is attacking [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(),targetUnit->getFullName().c_str());
+				unit->giveCommand(new Command(ct,targetUnit));
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+		}
+	}
+}
+
 void World::giveProductionCommand(int unitId, const string &producedName){
 	Unit *unit= findUnitById(unitId);
 	if(unit!=NULL){

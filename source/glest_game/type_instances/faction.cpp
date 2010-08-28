@@ -364,7 +364,8 @@ void Faction::applyCostsOnInterval(){
 	
 	//decrement consumables
 	if((getCpuControl() == false) ||
-		(getCpuControl() == true && scriptManager->getPlayerModifiers(this->thisFaction)->getAiEnabled() == false))
+		(getCpuControl() == true &&
+		 scriptManager->getPlayerModifiers(this->index)->getAiEnabled() == true))
 	{
 		for(int j=0; j<getUnitCount(); ++j){
 			Unit *unit= getUnit(j);
@@ -375,8 +376,11 @@ void Faction::applyCostsOnInterval(){
 					if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
 						incResourceAmount(resource->getType(), -resource->getAmount());
 	
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hunger setting for faction index = %d, hunger = %d, getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getHungerEnabled(),getResource(resource->getType())->getAmount());
+
 						//decrease unit hp
-						if(getResource(resource->getType())->getAmount()<0){
+						if(scriptManager->getPlayerModifiers(this->index)->getHungerEnabled() == true &&
+							getResource(resource->getType())->getAmount() < 0) {
 							resetResourceAmount(resource->getType());
 							bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
 							if(decHpResult){

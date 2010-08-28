@@ -47,8 +47,9 @@ public:
 // =====================================================
 
 PlayerModifiers::PlayerModifiers(){
-	winner= false;
-	aiEnabled= true;
+	winner			= false;
+	aiEnabled		= true;
+	hungerEnabled 	= true;
 }
 
 // =====================================================
@@ -76,8 +77,12 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(giveResource, "giveResource");
 	luaScript.registerFunction(givePositionCommand, "givePositionCommand");
 	luaScript.registerFunction(giveProductionCommand, "giveProductionCommand");
+	luaScript.registerFunction(giveAttackCommand, "giveAttackCommand");
 	luaScript.registerFunction(giveUpgradeCommand, "giveUpgradeCommand");
 	luaScript.registerFunction(disableAi, "disableAi");
+	luaScript.registerFunction(enableAi, "enableAi");
+	luaScript.registerFunction(disableHunger, "disableHunger");
+	luaScript.registerFunction(enableHunger, "enableHunger");
 	luaScript.registerFunction(setPlayerAsWinner, "setPlayerAsWinner");
 	luaScript.registerFunction(endGame, "endGame");
 
@@ -211,6 +216,11 @@ void ScriptManager::givePositionCommand(int unitId, const string &commandName, c
 	world->givePositionCommand(unitId, commandName, pos);
 }
 
+void ScriptManager::giveAttackCommand(int unitId, int unitToAttackId) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->giveAttackCommand(unitId, unitToAttackId);
+}
+
 void ScriptManager::giveProductionCommand(int unitId, const string &producedName){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveProductionCommand(unitId, producedName);
@@ -225,6 +235,27 @@ void ScriptManager::disableAi(int factionIndex){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableAi();
+	}
+}
+
+void ScriptManager::enableAi(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(factionIndex<GameConstants::maxPlayers){
+		playerModifiers[factionIndex].enableAi();
+	}
+}
+
+void ScriptManager::disableHunger(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(factionIndex<GameConstants::maxPlayers){
+		playerModifiers[factionIndex].disableHunger();
+	}
+}
+
+void ScriptManager::enableHunger(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(factionIndex<GameConstants::maxPlayers){
+		playerModifiers[factionIndex].enableHunger();
 	}
 }
 
@@ -344,6 +375,13 @@ int ScriptManager::givePositionCommand(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::giveAttackCommand(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->giveAttackCommand(
+		luaArguments.getInt(-2),
+		luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
 
 int ScriptManager::giveProductionCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
@@ -364,6 +402,24 @@ int ScriptManager::giveUpgradeCommand(LuaHandle* luaHandle){
 int ScriptManager::disableAi(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->disableAi(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::enableAi(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->enableAi(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::disableHunger(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->disableHunger(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::enableHunger(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->enableHunger(luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 
