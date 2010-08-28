@@ -958,6 +958,24 @@ void Game::keyDown(char key){
 			else if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
 			}
+			//Toggle music
+			else if(key == configKeys.getCharKey("ToggleMusic")) {
+				Config &config = Config::getInstance();
+				StrSound *gameMusic = world.getThisFaction()->getType()->getMusic();
+				if(gameMusic != NULL) {
+					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+					float currentVolume = gameMusic->getVolume();
+					if(currentVolume > 0) {
+						gameMusic->setVolume(0);
+						console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+					}
+					else {
+						//If the config says zero, use the default music volume
+						gameMusic->setVolume(configVolume ? configVolume : 0.9);
+						console.addLine(lang.get("GameMusic"));
+					}
+				}
+			}
 			else if(key == configKeys.getCharKey("Screenshot")) {
 				string path = GameConstants::folder_path_screenshots;
 				if(isdir(path.c_str()) == true) {
