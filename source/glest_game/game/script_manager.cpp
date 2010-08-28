@@ -14,6 +14,7 @@
 #include "world.h"
 #include "lang.h"
 #include "game_camera.h"
+#include "game.h"
 
 #include "leak_dumper.h"
 
@@ -32,12 +33,12 @@ class ScriptManager_STREFLOP_Wrapper {
 public:
 	ScriptManager_STREFLOP_Wrapper() {
 #ifdef USE_STREFLOP
-	streflop_init<streflop::Simple>();
+	//streflop_init<streflop::Simple>();
 #endif
 	}
 	~ScriptManager_STREFLOP_Wrapper() {
 #ifdef USE_STREFLOP
-	streflop_init<streflop::Double>();
+	//streflop_init<streflop::Double>();
 #endif
 	}
 };
@@ -71,6 +72,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	//register functions
 	luaScript.registerFunction(showMessage, "showMessage");
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
+	luaScript.registerFunction(DisplayFormattedText, "DisplayFormattedText");
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
 	luaScript.registerFunction(createUnit, "createUnit");
@@ -81,10 +83,16 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(giveUpgradeCommand, "giveUpgradeCommand");
 	luaScript.registerFunction(disableAi, "disableAi");
 	luaScript.registerFunction(enableAi, "enableAi");
+	luaScript.registerFunction(getAiEnabled, "getAiEnabled");
 	luaScript.registerFunction(disableHunger, "disableHunger");
 	luaScript.registerFunction(enableHunger, "enableHunger");
+	luaScript.registerFunction(getHungerEnabled, "getHungerEnabled");
 	luaScript.registerFunction(setPlayerAsWinner, "setPlayerAsWinner");
 	luaScript.registerFunction(endGame, "endGame");
+
+	luaScript.registerFunction(startPerformanceTimer, "startPerformanceTimer");
+	luaScript.registerFunction(endPerformanceTimer, "endPerformanceTimer");
+	luaScript.registerFunction(getPerformanceTimerResults, "getPerformanceTimerResults");
 
 	luaScript.registerFunction(getStartLocation, "startLocation");
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
@@ -195,6 +203,22 @@ void ScriptManager::setDisplayText(const string &text){
 	displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
 }
 
+void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+    va_list argList;
+    va_start(argList, fmt);
+
+    const int max_debug_buffer_size = 8096;
+    char szBuf[max_debug_buffer_size]="";
+    vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
+
+	//displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
+    displayText=szBuf;
+
+	va_end(argList);
+}
+
 void ScriptManager::setCameraPosition(const Vec2i &pos){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameCamera->centerXZ(pos.x, pos.y);
@@ -245,6 +269,13 @@ void ScriptManager::enableAi(int factionIndex){
 	}
 }
 
+bool ScriptManager::getAiEnabled(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(factionIndex<GameConstants::maxPlayers){
+		return playerModifiers[factionIndex].getAiEnabled();
+	}
+}
+
 void ScriptManager::disableHunger(int factionIndex){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
@@ -259,6 +290,13 @@ void ScriptManager::enableHunger(int factionIndex){
 	}
 }
 
+bool ScriptManager::getHungerEnabled(int factionIndex){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(factionIndex<GameConstants::maxPlayers){
+		return playerModifiers[factionIndex].getHungerEnabled();
+	}
+}
+
 void ScriptManager::setPlayerAsWinner(int factionIndex){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
@@ -269,6 +307,32 @@ void ScriptManager::setPlayerAsWinner(int factionIndex){
 void ScriptManager::endGame(){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameOver= true;
+}
+
+void ScriptManager::startPerformanceTimer() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(world->getGame() == NULL) {
+		throw runtime_error("world->getGame() == NULL");
+	}
+	world->getGame()->startPerformanceTimer();
+
+}
+
+void ScriptManager::endPerformanceTimer() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(world->getGame() == NULL) {
+		throw runtime_error("world->getGame() == NULL");
+	}
+	world->getGame()->endPerformanceTimer();
+
+}
+
+Vec2i ScriptManager::getPerformanceTimerResults() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	if(world->getGame() == NULL) {
+		throw runtime_error("world->getGame() == NULL");
+	}
+	return world->getGame()->getPerformanceTimerResults();
 }
 
 Vec2i ScriptManager::getStartLocation(int factionIndex){
@@ -411,6 +475,13 @@ int ScriptManager::enableAi(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::getAiEnabled(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	bool result = thisScriptManager->getAiEnabled(luaArguments.getInt(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
 int ScriptManager::disableHunger(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->disableHunger(luaArguments.getInt(-1));
@@ -423,6 +494,13 @@ int ScriptManager::enableHunger(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::getHungerEnabled(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	bool result = thisScriptManager->getHungerEnabled(luaArguments.getInt(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
 int ScriptManager::setPlayerAsWinner(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->setPlayerAsWinner(luaArguments.getInt(-1));
@@ -432,6 +510,25 @@ int ScriptManager::setPlayerAsWinner(LuaHandle* luaHandle){
 int ScriptManager::endGame(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->endGame();
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::startPerformanceTimer(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->startPerformanceTimer();
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::endPerformanceTimer(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->endPerformanceTimer();
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getPerformanceTimerResults(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	Vec2i results= thisScriptManager->getPerformanceTimerResults();
+	luaArguments.returnVec2i(results);
 	return luaArguments.getReturnCount();
 }
 
@@ -496,6 +593,114 @@ int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
 	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
+
+	  //const char *ret;
+	  //lua_lock(luaHandle);
+	  //luaC_checkGC(luaHandle);
+
+	  const int max_args_allowed = 8;
+	  int args = lua_gettop(luaHandle);
+	  if(lua_checkstack(luaHandle, args+1)) {
+		LuaArguments luaArguments(luaHandle);
+		string fmt = luaArguments.getString(-args);
+	    //va_list argList;
+	    //va_start(argList, fmt.c_str() );
+
+		printf("\nDisplayFormattedText args = %d!\n",args);
+
+		if(args == 1) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str());
+		}
+		else if(args == 2) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1));
+		}
+		else if(args == 3) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2));
+		}
+		else if(args == 4) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3));
+		}
+		else if(args == 5) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4));
+		}
+		else if(args == 6) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5));
+		}
+		else if(args == 7) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5),
+					luaArguments.getGenericData(-args+6));
+		}
+		else if(args == max_args_allowed) {
+			thisScriptManager->DisplayFormattedText(fmt.c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5),
+					luaArguments.getGenericData(-args+6),
+					luaArguments.getGenericData(-args+7));
+		}
+		else {
+			char szBuf[1024]="";
+			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+			throw runtime_error(szBuf);
+		}
+
+	    //va_end(argList);
+  	  }
+	  //lua_unlock(luaHandle);
+	  return 1;
+
+/*
+	int args=lua_gettop(luaHandle);
+	if(lua_checkstack(luaHandle, args+1))
+	{
+	  va_list argList;
+	  int i;
+	  //lua_getfield(luaHandle, LUA_GLOBALSINDEX, "print");
+	  for(i = 1;i <= args; i++) {
+	    lua_pushvalue(luaHandle, i);
+	  }
+	  lua_call(luaHandle, args, 0);
+	}
+	else
+	{
+	  return luaL_error(luaHandle, "cannot grow stack");
+	}
+*/
+
+/*
+		luax_getfunction(L, mod, fn);
+		for (int i = 0; i < n; i++) {
+			lua_pushvalue(L, idxs[i]); // The arguments.
+		}
+		lua_call(L, n, 1); // Call the function, n args, one return value.
+		lua_replace(L, idxs[0]); // Replace the initial argument with the new object.
+		return 0;
+*/
 }
 
 }}//end namespace
