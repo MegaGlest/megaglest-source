@@ -670,6 +670,21 @@ void Game::tick(){
 		avgRenderFps = (avgRenderFps + renderFps) / 2;
 	}
 
+	if(captureAvgTestStatus == true) {
+		if(updateFpsAvgTest == -1) {
+			updateFpsAvgTest = updateFps;
+		}
+		else {
+			updateFpsAvgTest = (updateFpsAvgTest + updateFps) / 2;
+		}
+		if(renderFpsAvgTest == -1) {
+			renderFpsAvgTest = renderFps;
+		}
+		else {
+			renderFpsAvgTest = (renderFpsAvgTest + renderFps) / 2;
+		}
+	}
+
 	lastUpdateFps= updateFps;
 	lastRenderFps= renderFps;
 	updateFps= 0;
@@ -1650,6 +1665,21 @@ void Game::showErrorMessageBox(const string &text, const string &header, bool to
 	else {
 		errorMessageBox.setEnabled(false);
 	}
+}
+
+void Game::startPerformanceTimer() {
+	captureAvgTestStatus = true;
+	updateFpsAvgTest = -1;
+	renderFpsAvgTest = -1;
+}
+
+void Game::endPerformanceTimer() {
+	captureAvgTestStatus = false;
+}
+
+Vec2i Game::getPerformanceTimerResults() {
+	Vec2i results(this->updateFpsAvgTest,this->renderFpsAvgTest);
+	return results;
 }
 
 }}//end namespace

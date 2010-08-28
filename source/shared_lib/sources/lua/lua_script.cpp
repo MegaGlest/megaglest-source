@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 #include "conversion.h"
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -83,6 +83,8 @@ void LuaScript::loadCode(const string &code, const string &name){
 void LuaScript::beginCall(const string& functionName){
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
+	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
+
 	lua_getglobal(luaState, functionName.c_str());
 	argumentCount= 0;
 }
@@ -93,7 +95,7 @@ void LuaScript::endCall(){
 	lua_pcall(luaState, argumentCount, 0, 0);
 }
 
-void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName){
+void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	lua_pushcfunction(luaState, luaFunction);
@@ -156,6 +158,30 @@ string LuaArguments::getString(int argumentIndex) const{
 	return luaL_checkstring(luaState, argumentIndex);
 }
 
+void * LuaArguments::getGenericData(int argumentIndex) const{
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	if(lua_isstring(luaState, argumentIndex)) {
+		const char *result = luaL_checkstring(luaState, argumentIndex);
+		printf("\nGENERIC param %d is a string, %s!\n",argumentIndex,result);
+		return (void *)result;
+	}
+	//else if(lua_isnumber(luaState, argumentIndex)) {
+	//	double result = luaL_checknumber(luaState, argumentIndex);
+	//	printf("\nGENERIC param %d is a double, %f!\n",argumentIndex,result);
+	//	return (void *)result;
+	//}
+	else if(lua_isnumber(luaState, argumentIndex)) {
+		int result = luaL_checkinteger(luaState, argumentIndex);
+		printf("\nGENERIC param %d is an int, %d!\n",argumentIndex,result);
+		return (void *)result;
+	}
+	else {
+		printf("\nGENERIC param %d is a NULL!\n",argumentIndex);
+		return NULL;
+	}
+}
+
 Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
@@ -195,7 +221,7 @@ void LuaArguments::returnString(const string &value){
 }
 
 void LuaArguments::returnVec2i(const Vec2i &value){
-	Lua_STREFLOP_Wrapper streflopWrapper;
+	//Lua_STREFLOP_Wrapper streflopWrapper;
 
 	++returnCount;
 

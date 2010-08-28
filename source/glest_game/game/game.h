@@ -91,6 +91,10 @@ private:
 	int original_updateFps;
 	int original_cameraFps;
 
+	bool captureAvgTestStatus;
+	int updateFpsAvgTest;
+	int renderFpsAvgTest;
+
 public:
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();
@@ -134,6 +138,10 @@ public:
 	virtual Stats quitAndToggleState();
 	Stats quitGame();
 	static void exitGameState(Program *program, Stats &endStats);
+
+	void startPerformanceTimer();
+	void endPerformanceTimer();
+	Vec2i getPerformanceTimerResults();
 
 private:
 	//render

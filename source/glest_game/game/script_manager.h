@@ -135,6 +135,7 @@ private:
 	void showMessage(const string &text, const string &header);
 	void clearDisplayText();
 	void setDisplayText(const string &text);
+	void DisplayFormattedText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
 	void giveResource(const string &resourceName, int factionIndex, int amount);
@@ -146,8 +147,16 @@ private:
 	void enableAi(int factionIndex);
 	void disableHunger(int factionIndex);
 	void enableHunger(int factionIndex);
+
+	bool getAiEnabled(int factionIndex);
+	bool getHungerEnabled(int factionIndex);
+
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
+
+	void startPerformanceTimer();
+	void endPerformanceTimer();
+	Vec2i getPerformanceTimerResults();
 
 	//wrappers, queries
 	Vec2i getStartLocation(int factionIndex);
@@ -164,6 +173,7 @@ private:
 	//callbacks, commands
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
+	static int DisplayFormattedText(LuaHandle* luaHandle);
 	static int clearDisplayText(LuaHandle* luaHandle);
 	static int setCameraPosition(LuaHandle* luaHandle);
 	static int createUnit(LuaHandle* luaHandle);
@@ -176,8 +186,16 @@ private:
 	static int enableAi(LuaHandle* luaHandle);
 	static int disableHunger(LuaHandle* luaHandle);
 	static int enableHunger(LuaHandle* luaHandle);
+
+	static int getAiEnabled(LuaHandle* luaHandle);
+	static int getHungerEnabled(LuaHandle* luaHandle);
+
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
+
+	static int startPerformanceTimer(LuaHandle* luaHandle);
+	static int endPerformanceTimer(LuaHandle* luaHandle);
+	static int getPerformanceTimerResults(LuaHandle* luaHandle);
 
 	//callbacks, queries
 	static int getStartLocation(LuaHandle* luaHandle);
