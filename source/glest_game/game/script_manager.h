@@ -103,6 +103,7 @@ private:
 
 	// end game state
 	bool gameOver;
+	bool gameWon;
 	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
 
 private:
@@ -120,6 +121,7 @@ public:
 	GraphicMessageBox* getMessageBox()									{return &messageBox;}
 	string getDisplayText() const										{return displayText;}
 	bool getGameOver() const											{return gameOver;}
+	bool getGameWon() const												{return gameWon;}
 	const PlayerModifiers *getPlayerModifiers(int factionIndex) const	{return &playerModifiers[factionIndex];}
 
 	//events
@@ -127,6 +129,7 @@ public:
 	void onResourceHarvested();
 	void onUnitCreated(const Unit* unit);
 	void onUnitDied(const Unit* unit);
+	void onGameOver(bool won);
 
 private:
 	string wrapString(const string &str, int wrapCount);
@@ -170,6 +173,8 @@ private:
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
+	bool getGameWon();
+
 	//callbacks, commands
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
@@ -208,6 +213,8 @@ private:
 	static int getLastDeadUnitId(LuaHandle* luaHandle);
 	static int getUnitCount(LuaHandle* luaHandle);
 	static int getUnitCountOfType(LuaHandle* luaHandle);
+
+	static int getGameWon(LuaHandle* luaHandle);
 };
 
 }}//end namespace
