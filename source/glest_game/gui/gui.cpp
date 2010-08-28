@@ -435,16 +435,19 @@ void Gui::giveTwoClickOrders(int x, int y){
     //give orders to the units of this faction
 	if(!selectingBuilding){
 		if(selection.isUniform()){
-			result= commander->tryGiveCommand(&selection, activeCommandType, targetPos, targetUnit,queueKeyDown);
+			result= commander->tryGiveCommand(&selection, activeCommandType,
+											targetPos, targetUnit,queueKeyDown);
 		}
 		else{
-			result= commander->tryGiveCommand(&selection, activeCommandClass, targetPos, targetUnit,queueKeyDown);
+			result= commander->tryGiveCommand(&selection, activeCommandClass,
+											targetPos, targetUnit,queueKeyDown);
         	}
 	}
 	else{
 		//selecting building
-		result= commander->tryGiveCommand(selection.getFrontUnit(), 
-			activeCommandType, posObjWorld, choosenBuildingType, selectedBuildingFacing,queueKeyDown);
+		result= commander->tryGiveCommand(&selection,
+						activeCommandType, posObjWorld, choosenBuildingType,
+						selectedBuildingFacing,queueKeyDown);
     }
 
 	//graphical result

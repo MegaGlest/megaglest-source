@@ -217,6 +217,7 @@ public:
 
 	//misc
 	bool isNextTo(const Vec2i &pos, const Unit *unit) const;
+	bool isNextTo(const Vec2i &pos, const Vec2i &nextToPos) const;
 	void clampPos(Vec2i &pos) const;
 
 	void prepareTerrain(const Unit *unit);
