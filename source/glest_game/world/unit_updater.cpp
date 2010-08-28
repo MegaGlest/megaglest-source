@@ -385,6 +385,30 @@ void UnitUpdater::updateAttackStopped(Unit *unit){
 
 // ==================== updateBuild ====================
 
+Vec2i UnitUpdater::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos, const UnitType *ut) {
+	Vec2i pos = originalBuildPos;
+
+	float bestRange = -1;
+
+	Vec2i start = pos - Vec2i(1);
+	Vec2i end 	= pos + Vec2i(ut->getSize());
+
+	for(int i = start.x; i <= end.x; ++i) {
+		for(int j = start.y; j <= end.y; ++j){
+			Vec2i testPos(i,j);
+			if(map->isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
+				float distance = unitBuilderPos.dist(testPos);
+				if(bestRange < 0 || bestRange > distance) {
+					bestRange = distance;
+					pos = testPos;
+				}
+			}
+		}
+	}
+
+	return pos;
+}
+
 void UnitUpdater::updateBuild(Unit *unit){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -403,7 +427,12 @@ void UnitUpdater::updateBuild(Unit *unit){
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
-				tsValue = pathFinder->findPath(unit, command->getPos()-Vec2i(1));
+				{
+				//Vec2i buildPos = (command->getPos()-Vec2i(1));
+				Vec2i buildPos = findBestBuildApproach(unit->getPos(), command->getPos(), ut);
+				//Vec2i buildPos = (command->getPos() + Vec2i(ut->getSize() / 2));
+				tsValue = pathFinder->findPath(unit, buildPos);
+				}
 				break;
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
