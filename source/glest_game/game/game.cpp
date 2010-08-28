@@ -1317,7 +1317,6 @@ void Game::render2d(){
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
-
 	if(errorMessageBox.getEnabled()){
 		renderer.renderMessageBox(&errorMessageBox);
 	}
@@ -1325,7 +1324,7 @@ void Game::render2d(){
 	//script message box
 	if( mainMessageBox.getEnabled() == false &&
 		errorMessageBox.getEnabled() == false &&
-		scriptManager.getMessageBoxEnabled()){
+		scriptManager.getMessageBoxEnabled()) {
 		renderer.renderMessageBox(scriptManager.getMessageBox());
 	}
 
@@ -1510,6 +1509,9 @@ void Game::checkWinnerStandard(){
 			// but don't let him cheat via teamchat
 			chatManager.setDisableTeamMode(true);
 		}
+
+		scriptManager.onGameOver(!lose);
+
 		showLoseMessageBox();
 	}
 
@@ -1544,6 +1546,8 @@ void Game::checkWinnerStandard(){
 				// END
 			}
 
+			scriptManager.onGameOver(win);
+
 			showWinMessageBox();
 		}
 	}
@@ -1557,6 +1561,9 @@ void Game::checkWinnerScripted(){
 				world.getStats()->setVictorious(i);
 			}
 		}
+
+		scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
+
 		if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
 			showWinMessageBox();
 		}

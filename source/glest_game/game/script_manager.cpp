@@ -105,6 +105,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getUnitCount, "unitCount");
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
 
+	luaScript.registerFunction(getLastCreatedUnitName, "gameWon");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -119,6 +121,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	lastCreatedUnitId= -1;
 	lastDeadUnitId= -1;
 	gameOver= false;
+	gameWon = false;
 
 	//call startup function
 	luaScript.beginCall("startup");
@@ -157,6 +160,12 @@ void ScriptManager::onUnitDied(const Unit* unit){
 	lastDeadUnitName= unit->getType()->getName();
 	lastDeadUnitId= unit->getId();
 	luaScript.beginCall("unitDied");
+	luaScript.endCall();
+}
+
+void ScriptManager::onGameOver(bool won){
+	gameWon = won;
+	luaScript.beginCall("gameOver");
 	luaScript.endCall();
 }
 
@@ -359,6 +368,11 @@ int ScriptManager::getResourceAmount(const string &resourceName, int factionInde
 const string &ScriptManager::getLastCreatedUnitName(){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastCreatedUnitName;
+}
+
+bool ScriptManager::getGameWon() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return gameWon;
 }
 
 int ScriptManager::getLastCreatedUnitId(){
@@ -702,5 +716,12 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		return 0;
 */
 }
+
+int ScriptManager::getGameWon(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getGameWon());
+	return luaArguments.getReturnCount();
+}
+
 
 }}//end namespace
