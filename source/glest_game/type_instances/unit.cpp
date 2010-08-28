@@ -174,6 +174,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->targetPos   = Vec2i(0);
 	this->lastRenderFrame = 0;
 	this->visible = true;
+	this->retryCurrCommandCount=0;
 
 	level= NULL;
 	loadType= NULL;
@@ -643,6 +644,12 @@ Command *Unit::getCurrCommand() const{
 	assert(!commands.empty());
 	return commands.front();
 }
+
+void Unit::replaceCurrCommand(Command *cmd) {
+	assert(!commands.empty());
+	commands.front() = cmd;
+}
+
 //returns the size of the commands
 unsigned int Unit::getCommandSize() const{
 	return commands.size();
@@ -742,6 +749,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 //pop front (used when order is done)
 CommandResult Unit::finishCommand(){
 
+	retryCurrCommandCount=0;
 	//is empty?
 	if(commands.empty()){
 		return crFailUndefined;
@@ -767,6 +775,7 @@ CommandResult Unit::finishCommand(){
 //to cancel a command
 CommandResult Unit::cancelCommand(){
 
+	retryCurrCommandCount=0;
 	//is empty?
 	if(commands.empty()){
 		return crFailUndefined;
@@ -1461,6 +1470,8 @@ CommandResult Unit::undoCommand(Command *command){
         faction->cancelUpgrade(uct->getProducedUpgrade());
 	}
 
+	retryCurrCommandCount=0;
+
 	return crSuccess;
 }
 
@@ -1691,6 +1702,8 @@ std::string Unit::toString() const {
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
+
+    result += "retryCurrCommandCount = " + intToStr(retryCurrCommandCount) + "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

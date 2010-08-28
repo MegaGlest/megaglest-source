@@ -104,6 +104,7 @@ public:
 	virtual bool isEmpty() const = 0;
 
 	virtual void clear() = 0;
+	virtual void clearBlockCount() = 0;
 	virtual void incBlockCount() = 0;
 	virtual void push(const Vec2i &path) = 0;
 	//virtual Vec2i pop() = 0;
@@ -125,6 +126,7 @@ public:
 	virtual bool isEmpty() const;
 
 	virtual void clear();
+	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount();
 	virtual void push(const Vec2i &path);
 	Vec2i pop();
@@ -151,6 +153,7 @@ public:
 	virtual bool isEmpty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
 	int  size() const		{return list<Vec2i>::size();}	/**< size of path				 */
 	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
+	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
 	virtual void push(const Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
 	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
@@ -188,7 +191,7 @@ public:
 ///	A game unit or building
 // ===============================
 
-class Unit{
+class Unit {
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;
@@ -259,6 +262,8 @@ private:
 	std::string lastSynchDataString;
 	int lastRenderFrame;
 	bool visible;
+
+	int retryCurrCommandCount;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -343,6 +348,7 @@ public:
     //command related
 	bool anyCommand() const;
 	Command *getCurrCommand() const;
+	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnits(const UnitType *ut) const;
 	unsigned int getCommandSize() const;
 	CommandResult giveCommand(Command *command, bool tryQueue = false);		//give a command
@@ -384,6 +390,9 @@ public:
 
 	int getLastRenderFrame() const { return lastRenderFrame; }
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }
+
+	int getRetryCurrCommandCount() const { return retryCurrCommandCount; }
+	void setRetryCurrCommandCount(int value) { retryCurrCommandCount = value; }
 
 	std::string toString() const;
 

@@ -478,13 +478,28 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
 
 // ==================== misc ====================
 
-//returnis if unit is next to pos
+//return if unit is next to pos
 bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const{
 
 	for(int i=-1; i<=1; ++i){
 		for(int j=-1; j<=1; ++j){
 			if(isInside(pos.x+i, pos.y+j)) {
 				if(getCell(pos.x+i, pos.y+j)->getUnit(fLand)==unit){
+					return true;
+				}
+			}
+		}
+	}
+    return false;
+}
+
+//return if unit is next to pos
+bool Map::isNextTo(const Vec2i &pos, const Vec2i &nextToPos) const {
+
+	for(int i=-1; i<=1; ++i) {
+		for(int j=-1; j<=1; ++j) {
+			if(isInside(pos.x+i, pos.y+j)) {
+				if(getCell(pos.x+i, pos.y+j) == getCell(nextToPos.x,nextToPos.y)) {
 					return true;
 				}
 			}

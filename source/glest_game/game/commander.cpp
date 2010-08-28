@@ -41,7 +41,57 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
+CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType,
+									const Vec2i &pos, const UnitType* unitType,
+									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(!selection->isEmpty() && commandType != NULL) {
+		Vec2i refPos;
+		CommandResultContainer results;
+
+		refPos= computeRefPos(selection);
+
+		bool unitSignalledToBuild = false;
+		//give orders to all selected units
+		for(int i=0; i<selection->getCount(); ++i) {
+			const Unit *unit = selection->getUnit(i);
+			int unitId= unit->getId();
+			Vec2i currPos= computeDestPos(refPos, unit->getPos(), pos);
+
+			Vec2i usePos = currPos;
+			const CommandType *useCommandtype = commandType;
+			if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
+				usePos = pos;
+				if(unitSignalledToBuild == false) {
+					unitSignalledToBuild = true;
+				}
+				else {
+					useCommandtype = unit->getType()->getFirstRepairCommand(unitType);
+					tryQueue = true;
+				}
+			}
+
+			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
+					useCommandtype->getId(), usePos, unitType->getId(),
+					(targetUnit != NULL ? targetUnit->getId() : -1),
+					facing, tryQueue);
+
+			//every unit is ordered to a different position
+			CommandResult result= pushNetworkCommand(&networkCommand);
+			results.push_back(result);
+		}
+
+		return computeResult(results);
+	}
+	else{
+		return crFailUndefined;
+	}
+}
+
+CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType,
+									const Vec2i &pos, const UnitType* unitType,
+									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(this->world != NULL);
@@ -51,7 +101,10 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), commandType->getId(), pos, unitType->getId(), (targetUnit != NULL ? targetUnit->getId() : -1), facing, tryQueue);
+	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
+								commandType->getId(), pos, unitType->getId(),
+								(targetUnit != NULL ? targetUnit->getId() : -1),
+								facing, tryQueue);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -91,7 +144,9 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 	}
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
+CommandResult Commander::tryGiveCommand(const Selection *selection,
+						const CommandType *commandType, const Vec2i &pos,
+						const Unit *targetUnit, bool tryQueue) const{
 	if(!selection->isEmpty() && commandType!=NULL){
 		Vec2i refPos;
 		CommandResultContainer results;

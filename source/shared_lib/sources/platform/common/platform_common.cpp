@@ -288,11 +288,11 @@ bool isdir(const char *path)
 	  ret = S_ISDIR(stats.st_mode); // #define S_ISDIR(mode) ((mode) & _S_IFDIR)
 	
 	  if(ret == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret);
 	  }
   }
   else { 
-	  SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d, result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret,result,errno);
+	  //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d, result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret,result,errno);
   }
   //if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
 

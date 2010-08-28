@@ -115,6 +115,9 @@ private:
     bool attackableOnRange(const Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
 	bool unitOnRange(const Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast);
 	void enemiesAtDistance(const Unit *unit, const Unit *priorityUnit, int distance, vector<Unit*> &enemies);
+
+	Unit * findPeerUnitBuilder(Unit *unit);
+	void SwapActiveCommand(Unit *unitSrc, Unit *unitDest);
 };
 
 // =====================================================

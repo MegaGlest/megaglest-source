@@ -386,6 +386,8 @@ void UnitUpdater::updateAttackStopped(Unit *unit){
 // ==================== updateBuild ====================
 
 void UnitUpdater::updateBuild(Unit *unit){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Chrono chrono;
 	chrono.start();
 
@@ -393,6 +395,8 @@ void UnitUpdater::updateBuild(Unit *unit){
     const BuildCommandType *bct= static_cast<const BuildCommandType*>(command->getCommandType());
 
 	if(unit->getCurrSkill()->getClass() != scBuild) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         //if not building
         const UnitType *ut= command->getUnitType();
 
@@ -408,13 +412,19 @@ void UnitUpdater::updateBuild(Unit *unit){
 				throw runtime_error("detected unsupported pathfinder type!");
 	    }
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		switch (tsValue) {
         case tsMoving:
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
+
             unit->setCurrSkill(bct->getMoveSkillType());
             break;
 
         case tsArrived:
         	{
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
+
         	//if arrived destination
             assert(ut);
 
@@ -498,7 +508,9 @@ void UnitUpdater::updateBuild(Unit *unit){
             break;
         }
     }
-    else{
+    else {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
+
         //if building
         Unit *builtUnit= map->getCell(unit->getTargetPos())->getUnit(fLand);
 
@@ -717,41 +729,154 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	if(chrono.getMillis() > 0) chrono.start();
 }
 
+void UnitUpdater::SwapActiveCommand(Unit *unitSrc, Unit *unitDest) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(unitSrc->getCommandSize() > 0 && unitDest->getCommandSize() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Command *cmd1 = unitSrc->getCurrCommand();
+		Command *cmd2 = unitDest->getCurrCommand();
+		unitSrc->replaceCurrCommand(cmd2);
+		unitDest->replaceCurrCommand(cmd1);
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Unit *foundUnitBuilder = NULL;
+    if(unit->getCommandSize() > 0 ) {
+		Command *command= unit->getCurrCommand();
+		if(command != NULL) {
+			const RepairCommandType *rct= dynamic_cast<const RepairCommandType*>(command->getCommandType());
+			if(rct) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
+					Unit *peerUnit = unit->getFaction()->getUnit(i);
+					if(peerUnit != NULL) {
+						if(peerUnit->getCommandSize() > 0 ) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							Command *peerCommand = peerUnit->getCurrCommand();
+							const BuildCommandType *bct = dynamic_cast<const BuildCommandType*>(peerCommand->getCommandType());
+							if(bct != NULL) {
+								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+								if(command->getPos() == peerCommand->getPos()) {
+									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+									foundUnitBuilder = peerUnit;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+    }
+
+    return foundUnitBuilder;
+}
 
 // ==================== updateRepair ====================
 
-void UnitUpdater::updateRepair(Unit *unit){
+void UnitUpdater::updateRepair(Unit *unit) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = %p\n",__FILE__,__FUNCTION__,__LINE__,unit);
+
 	Chrono chrono;
 	chrono.start();
 
     Command *command= unit->getCurrCommand();
     const RepairCommandType *rct= static_cast<const RepairCommandType*>(command->getCommandType());
 
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
+
 	Unit *repaired= map->getCell(command->getPos())->getUnit(fLand);
 	bool nextToRepaired= repaired!=NULL && map->isNextTo(unit->getPos(), repaired);
 
+	Unit *peerUnitBuilder = NULL;
+	if(repaired == NULL) {
+		peerUnitBuilder = findPeerUnitBuilder(unit);
+
+		if(peerUnitBuilder != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
+
+			// command->getPos()-Vec2i(1)
+			//nextToRepaired= map->isNextTo(unit->getPos(), command->getPos()-Vec2i(1));
+			nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder,nextToRepaired);
+
+			if(nextToRepaired == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				SwapActiveCommand(unit,peerUnitBuilder);
+				// Give the swapped unit a fresh chance to help build in case they
+				// were or are about to be blocked
+				peerUnitBuilder->getPath()->clear();
+				peerUnitBuilder->setRetryCurrCommandCount(1);
+				updateUnitCommand(unit);
+				//updateUnitCommand(peerUnitBuilder);
+				return;
+			}
+		}
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit to repair[%s]\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str());
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] repaired = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,repaired,nextToRepaired);
+
 	UnitPathInterface *path= unit->getPath();
 
-	if(unit->getCurrSkill()->getClass()!=scRepair || !nextToRepaired){
-        //if not repairing
-        if(repaired!=NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged()){
+	if(unit->getCurrSkill()->getClass() != scRepair ||
+		(nextToRepaired == false && peerUnitBuilder == NULL)) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(nextToRepaired){
+		Vec2i repairPos = command->getPos();
+
+		bool startRepairing = (repaired != NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged());
+		if(startRepairing == false && peerUnitBuilder != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			startRepairing = true;
+			// Since the unit to be built is not yet existing we need to tell the
+			// other units to move to the build position or else they get in the way
+			repairPos = command->getPos()-Vec2i(1);
+		}
+
+        //if not repairing
+        if(startRepairing == true) {
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(nextToRepaired == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				unit->setTarget(repaired);
                 unit->setCurrSkill(rct->getRepairSkillType());
 			}
 			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				TravelState ts;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-	    				ts = pathFinder->findPath(unit, command->getPos());
+	    				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	    				ts = pathFinder->findPath(unit, repairPos);
 	    				break;
 	    			case pfRoutePlanner:
+	    				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 						if (repaired && !repaired->getType()->isMobile()) {
 							ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
 						}
 						else {
-							ts = routePlanner->findPath(unit, command->getPos());
+							ts = routePlanner->findPath(unit, repairPos);
 						}
 	    				break;
 	    			default:
@@ -760,11 +885,25 @@ void UnitUpdater::updateRepair(Unit *unit){
 
 				switch(ts) {
 				case tsMoving:
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->setCurrSkill(rct->getMoveSkillType());
 					break;
 				case tsBlocked:
-					if(unit->getPath()->isBlocked()){
-						unit->finishCommand();
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
+
+					if(unit->getPath()->isBlocked()) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						if(unit->getRetryCurrCommandCount() > 0) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] will retry command, unit->getRetryCurrCommandCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getRetryCurrCommandCount());
+
+							unit->setRetryCurrCommandCount(0);
+							unit->getPath()->clear();
+							updateUnitCommand(unit);
+						}
+						else {
+							unit->finishCommand();
+						}
 					}
 					break;
 				default:
@@ -772,20 +911,34 @@ void UnitUpdater::updateRepair(Unit *unit){
 				}
 			}
         }
-        else{
+        else {
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
+
             unit->setCurrSkill(scStop);
             unit->finishCommand();
         }
     }
-    else{
+    else {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         //if repairing
-		if(repaired!=NULL){
+		if(repaired != NULL) {
 			unit->setTarget(repaired);
 		}
-		if(repaired==NULL || repaired->repair()){
+		else if(peerUnitBuilder != NULL) {
+			unit->setTargetPos(command->getPos());
+		}
+
+		if((repaired == NULL || repaired->repair()) &&
+			peerUnitBuilder == NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
+
             unit->setCurrSkill(scStop);
             unit->finishCommand();
-			if(repaired!=NULL && !repaired->isBuilt()){
+
+			if(repaired != NULL && repaired->isBuilt() == false) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				repaired->born();
 				scriptManager->onUnitCreated(repaired);
 			}
