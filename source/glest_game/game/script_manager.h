@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -52,14 +52,22 @@ public:
 	PlayerModifiers();
 
 	void disableAi()			{aiEnabled= false;}
+	void enableAi()				{aiEnabled= true;}
+
 	void setAsWinner()			{winner= true;}
 
-	bool getWinner() const		{return winner;}
-	bool getAiEnabled() const	{return aiEnabled;}
+	void disableHunger()		{hungerEnabled= false;}
+	void enableHunger()			{hungerEnabled= true;}
+
+	bool getWinner() const			{return winner;}
+
+	bool getAiEnabled() const		{return aiEnabled;}
+	bool getHungerEnabled() const	{return hungerEnabled;}
 
 private:
 	bool winner;
 	bool aiEnabled;
+	bool hungerEnabled;
 };
 
 // =====================================================
@@ -132,8 +140,12 @@ private:
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	void givePositionCommand(int unitId, const string &producedName, const Vec2i &pos);
 	void giveProductionCommand(int unitId, const string &producedName);
+	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
 	void disableAi(int factionIndex);
+	void enableAi(int factionIndex);
+	void disableHunger(int factionIndex);
+	void enableHunger(int factionIndex);
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
 
@@ -158,8 +170,12 @@ private:
 	static int giveResource(LuaHandle* luaHandle);
 	static int givePositionCommand(LuaHandle* luaHandle);
 	static int giveProductionCommand(LuaHandle* luaHandle);
+	static int giveAttackCommand(LuaHandle* luaHandle);
 	static int giveUpgradeCommand(LuaHandle* luaHandle);
 	static int disableAi(LuaHandle* luaHandle);
+	static int enableAi(LuaHandle* luaHandle);
+	static int disableHunger(LuaHandle* luaHandle);
+	static int enableHunger(LuaHandle* luaHandle);
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
 

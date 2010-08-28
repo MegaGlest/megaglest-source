@@ -183,6 +183,7 @@ public:
 	//scripting interface
 	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos);
 	void givePositionCommand(int unitId, const string &commandName, const Vec2i &pos);
+	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
 	void giveResource(const string &resourceName, int factionIndex, int amount);
