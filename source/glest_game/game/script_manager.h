@@ -136,6 +136,8 @@ private:
 	int currentEventId;
 	std::map<int,CellTriggerEvent> CellTriggerEventList;
 	std::map<int,TimerTriggerEvent> TimerTriggerEventList;
+	bool inCellTriggerEvent;
+	std::vector<int> unRegisterCellTriggerEventList;
 
 private:
 	static ScriptManager* thisScriptManager;
@@ -191,6 +193,7 @@ private:
 	int getCellTriggerEventCount(int eventId);
 	void unregisterCellTriggerEvent(int eventId);
 	int startTimerEvent();
+	int resetTimerEvent(int eventId);
 	int stopTimerEvent(int eventId);
 	int getTimerEventSecondsElapsed(int eventId);
 	int getCellTriggeredEventId();
@@ -249,6 +252,7 @@ private:
 	static int getCellTriggerEventCount(LuaHandle* luaHandle);
 	static int unregisterCellTriggerEvent(LuaHandle* luaHandle);
 	static int startTimerEvent(LuaHandle* luaHandle);
+	static int resetTimerEvent(LuaHandle* luaHandle);
 	static int stopTimerEvent(LuaHandle* luaHandle);
 	static int getTimerEventSecondsElapsed(LuaHandle* luaHandle);
 
