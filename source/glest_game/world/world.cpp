@@ -243,6 +243,7 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::updateAllFactionUnits() {
+	scriptManager->onTimerTriggerEvent();
 	//units
 	for(int i=0; i<getFactionCount(); ++i) {
 		for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
@@ -539,6 +540,8 @@ void World::moveUnitCells(Unit *unit){
 			}
 		}
 	}
+
+	scriptManager->onCellTriggerEvent(unit);
 }
 
 //returns the nearest unit that can store a type of resource given a position and a faction

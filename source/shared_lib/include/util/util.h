@@ -41,7 +41,8 @@ public:
 		debugPerformance,
 		debugWorldSynch,
 		debugUnitCommands,
-		debugPathFinder
+		debugPathFinder,
+		debugLUA,
     };
 
 	class SystemFlagsType

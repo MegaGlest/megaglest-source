@@ -19,6 +19,7 @@
 
 #include "components.h"
 #include "game_constants.h"
+#include <map>
 
 using std::string;
 using std::queue;
@@ -74,6 +75,30 @@ private:
 //	class ScriptManager
 // =====================================================
 
+enum CellTriggerEventType {
+	ctet_Unit,
+	ctet_UnitPos,
+	ctet_Faction,
+	ctet_FactionPos
+};
+
+class CellTriggerEvent {
+public:
+	CellTriggerEventType type;
+	int sourceId;
+	int destId;
+	Vec2i destPos;
+
+	int triggerCount;
+};
+
+class TimerTriggerEvent {
+public:
+	bool running;
+	time_t startTime;
+	time_t endTime;
+};
+
 class ScriptManager{
 private:
 	typedef queue<ScriptManagerMessage> MessageQueue;
@@ -106,6 +131,12 @@ private:
 	bool gameWon;
 	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
 
+	int currentTimerTriggeredEventId;
+	int currentCellTriggeredEventId;
+	int currentEventId;
+	std::map<int,CellTriggerEvent> CellTriggerEventList;
+	std::map<int,TimerTriggerEvent> TimerTriggerEventList;
+
 private:
 	static ScriptManager* thisScriptManager;
 
@@ -130,6 +161,8 @@ public:
 	void onUnitCreated(const Unit* unit);
 	void onUnitDied(const Unit* unit);
 	void onGameOver(bool won);
+	void onCellTriggerEvent(Unit *movingUnit);
+	void onTimerTriggerEvent();
 
 private:
 	string wrapString(const string &str, int wrapCount);
@@ -150,6 +183,18 @@ private:
 	void enableAi(int factionIndex);
 	void disableHunger(int factionIndex);
 	void enableHunger(int factionIndex);
+
+	int registerCellTriggerEventForUnitToUnit(int sourceUnitId, int destUnitId);
+	int registerCellTriggerEventForUnitToLocation(int sourceUnitId, const Vec2i &pos);
+	int registerCellTriggerEventForFactionToUnit(int sourceFactionId, int destUnitId);
+	int registerCellTriggerEventForFactionToLocation(int sourceFactionId, const Vec2i &pos);
+	int getCellTriggerEventCount(int eventId);
+	void unregisterCellTriggerEvent(int eventId);
+	int startTimerEvent();
+	int stopTimerEvent(int eventId);
+	int getTimerEventSecondsElapsed(int eventId);
+	int getCellTriggeredEventId();
+	int getTimerTriggeredEventId();
 
 	bool getAiEnabled(int factionIndex);
 	bool getHungerEnabled(int factionIndex);
@@ -187,13 +232,28 @@ private:
 	static int giveProductionCommand(LuaHandle* luaHandle);
 	static int giveAttackCommand(LuaHandle* luaHandle);
 	static int giveUpgradeCommand(LuaHandle* luaHandle);
+
 	static int disableAi(LuaHandle* luaHandle);
 	static int enableAi(LuaHandle* luaHandle);
+
 	static int disableHunger(LuaHandle* luaHandle);
 	static int enableHunger(LuaHandle* luaHandle);
 
 	static int getAiEnabled(LuaHandle* luaHandle);
 	static int getHungerEnabled(LuaHandle* luaHandle);
+
+	static int registerCellTriggerEventForUnitToUnit(LuaHandle* luaHandle);
+	static int registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandle);
+	static int registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle);
+	static int registerCellTriggerEventForFactionToLocation(LuaHandle* luaHandle);
+	static int getCellTriggerEventCount(LuaHandle* luaHandle);
+	static int unregisterCellTriggerEvent(LuaHandle* luaHandle);
+	static int startTimerEvent(LuaHandle* luaHandle);
+	static int stopTimerEvent(LuaHandle* luaHandle);
+	static int getTimerEventSecondsElapsed(LuaHandle* luaHandle);
+
+	static int getCellTriggeredEventId(LuaHandle* luaHandle);
+	static int getTimerTriggeredEventId(LuaHandle* luaHandle);
 
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);

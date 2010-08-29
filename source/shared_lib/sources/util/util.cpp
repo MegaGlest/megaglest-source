@@ -156,6 +156,7 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] = SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
 		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
 		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  = SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
+		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  = SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -361,7 +362,8 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 		if (type != debugPathFinder) {
 	        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
-		} else {
+		}
+		else {
 	        (*currentDebugLog.fileStream) << szBuf;
 		}
         (*currentDebugLog.fileStream).flush();
@@ -372,7 +374,8 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     else {
 		if (type != debugPathFinder) {
 			printf("[%s] %s", szBuf2, szBuf);
-		} else {
+		}
+		else {
 			printf("%s", szBuf);
 		}
     }
