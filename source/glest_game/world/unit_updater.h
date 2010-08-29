@@ -118,7 +118,7 @@ private:
 
 	Unit * findPeerUnitBuilder(Unit *unit);
 	void SwapActiveCommand(Unit *unitSrc, Unit *unitDest);
-	Vec2i findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos, const UnitType *ut);
+
 };
 
 // =====================================================

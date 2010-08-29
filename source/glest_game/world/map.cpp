@@ -439,9 +439,56 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 	}
 }
 
-// is testPos in the cells of unitType where unitType's position is pos
-bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) {
+Vec2i Map::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
+								 const UnitType *ut) {
+	Vec2i pos = originalBuildPos;
 
+	float bestRange = -1;
+
+	Vec2i start = pos - Vec2i(1);
+	Vec2i end 	= pos + Vec2i(ut->getSize());
+
+	for(int i = start.x; i <= end.x; ++i) {
+		for(int j = start.y; j <= end.y; ++j){
+			Vec2i testPos(i,j);
+			if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
+				float distance = unitBuilderPos.dist(testPos);
+				if(bestRange < 0 || bestRange > distance) {
+					bestRange = distance;
+					pos = testPos;
+				}
+			}
+		}
+	}
+
+	return pos;
+}
+
+bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
+								const Vec2i &testPos) {
+	bool isInsideDestUnitCells = isInUnitTypeCells(ut, pos,testPos);
+	if(isInsideDestUnitCells == false) {
+		Cell *testCell = getCell(testPos);
+		for(int i=-1; i <= ut->getSize(); ++i){
+			for(int j = -1; j <= ut->getSize(); ++j) {
+				Vec2i currPos = pos + Vec2i(i, j);
+				if(isInside(currPos) == true) {
+					//Cell *unitCell = getCell(currPos);
+					//if(unitCell == testCell) {
+					if(isNextTo(testPos,currPos) == true) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+// is testPos in the cells of unitType where unitType's position is pos
+bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
+							const Vec2i &testPos) {
 	assert(ut!=NULL);
 
 	Cell *testCell = getCell(testPos);
@@ -449,9 +496,7 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &te
 		for(int j = 0; j < ut->getSize(); ++j) {
 			Vec2i currPos = pos + Vec2i(i, j);
 			if(isInside(currPos) == true) {
-				//if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, facing)) {
 				Cell *unitCell = getCell(currPos);
-
 				if(unitCell == testCell) {
 					return true;
 				}

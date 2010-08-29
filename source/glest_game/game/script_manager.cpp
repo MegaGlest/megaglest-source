@@ -105,6 +105,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getCellTriggerEventCount, "getCellTriggerEventCount");
 	luaScript.registerFunction(unregisterCellTriggerEvent, "unregisterCellTriggerEvent");
 	luaScript.registerFunction(startTimerEvent, "startTimerEvent");
+	luaScript.registerFunction(resetTimerEvent, "resetTimerEvent");
 	luaScript.registerFunction(stopTimerEvent, "stopTimerEvent");
 	luaScript.registerFunction(getTimerEventSecondsElapsed, "timerEventSecondsElapsed");
 	luaScript.registerFunction(getCellTriggeredEventId, "triggeredCellEventId");
@@ -203,6 +204,7 @@ void ScriptManager::onTimerTriggerEvent() {
 			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			currentTimerTriggeredEventId = iterMap->first;
+
 			luaScript.beginCall("timerTriggerEvent");
 			luaScript.endCall();
 		}
@@ -214,16 +216,21 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 	if(CellTriggerEventList.size() <= 0) {
 		return;
 	}
+	else {
+		// remove any delayed removals
+		unregisterCellTriggerEvent(-1);
+	}
 
+	inCellTriggerEvent = true;
 	if(movingUnit != NULL) {
 		for(std::map<int,CellTriggerEvent>::iterator iterMap = CellTriggerEventList.begin();
 			iterMap != CellTriggerEventList.end(); iterMap++) {
-
-			bool triggerEvent = false;
 			CellTriggerEvent &event = iterMap->second;
 
 			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s\n",
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(), event.sourceId,event.destId,event.destPos.getString().c_str());
+
+			bool triggerEvent = false;
 
 			switch(event.type) {
 			case ctet_Unit:
@@ -233,13 +240,17 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 					if(movingUnit->getId() == event.sourceId) {
 						bool srcInDst = world->getMap()->isInUnitTypeCells(destUnit->getType(), destUnit->getPos(),movingUnit->getPos());
 						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, destUnit->getPos() = %s, srcInDst = %d\n",
-															__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,event.destPos.getString().c_str(),destUnit->getPos().getString().c_str(),srcInDst);
+													__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(), event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId, event.destPos.getString().c_str(), destUnit->getPos().getString().c_str(),srcInDst);
 
 						if(srcInDst == true) {
 							SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-							triggerEvent = true;
 						}
+						else {
+							srcInDst = world->getMap()->isNextToUnitTypeCells(destUnit->getType(), destUnit->getPos(),movingUnit->getPos());
+							SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, destUnit->getPos() = %s, srcInDst = %d\n",
+														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(), event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId, event.destPos.getString().c_str(), destUnit->getPos().getString().c_str(),srcInDst);
+						}
+						triggerEvent = srcInDst;
 				   }
 				}
 			}
@@ -253,9 +264,8 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 					if(srcInDst == true) {
 						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-						triggerEvent = true;
 					}
+					triggerEvent = srcInDst;
 				}
 			}
 			break;
@@ -271,20 +281,25 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 					if(srcInDst == true) {
 						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-						triggerEvent = true;
 					}
+					else {
+						srcInDst = world->getMap()->isNextToUnitTypeCells(destUnit->getType(), destUnit->getPos(),movingUnit->getPos());
+						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, destUnit->getPos() = %s, srcInDst = %d\n",
+														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,event.destPos.getString().c_str(),destUnit->getPos().getString().c_str(),srcInDst);
+					}
+					triggerEvent = srcInDst;
 				}
 			}
 			break;
 
 			case ctet_FactionPos:
 			{
-				if(movingUnit->getFactionIndex() == event.sourceId &&
-				   world->getMap()->isInUnitTypeCells(0, event.destPos,movingUnit->getPos())) {
-					SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-					triggerEvent = true;
+				if(movingUnit->getFactionIndex() == event.sourceId) {
+					bool srcInDst = world->getMap()->isInUnitTypeCells(0, event.destPos,movingUnit->getPos());
+					if(srcInDst == true) {
+					   SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					}
+					triggerEvent = srcInDst;
 				}
 			}
 			break;
@@ -296,11 +311,14 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 				currentCellTriggeredEventId = iterMap->first;
 				event.triggerCount++;
+
 				luaScript.beginCall("cellTriggerEvent");
 				luaScript.endCall();
 			}
 		}
 	}
+
+	inCellTriggerEvent = false;
 }
 
 // ========================== lua wrappers ===============================================
@@ -507,7 +525,24 @@ int ScriptManager::getCellTriggerEventCount(int eventId) {
 
 void ScriptManager::unregisterCellTriggerEvent(int eventId) {
 	if(CellTriggerEventList.find(eventId) != CellTriggerEventList.end()) {
-		CellTriggerEventList.erase(eventId);
+		if(inCellTriggerEvent == false) {
+			CellTriggerEventList.erase(eventId);
+		}
+		else {
+			unRegisterCellTriggerEventList.push_back(eventId);
+		}
+	}
+
+	if(inCellTriggerEvent == false) {
+		if(unRegisterCellTriggerEventList.size() > 0) {
+			for(int i = 0; i < unRegisterCellTriggerEventList.size(); ++i) {
+				int delayedEventId = unRegisterCellTriggerEventList[i];
+				if(CellTriggerEventList.find(delayedEventId) != CellTriggerEventList.end()) {
+					CellTriggerEventList.erase(delayedEventId);
+				}
+			}
+			unRegisterCellTriggerEventList.clear();
+		}
 	}
 }
 
@@ -523,6 +558,21 @@ int ScriptManager::startTimerEvent() {
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startTime,(long long int)trigger.endTime);
 
 	return eventId;
+}
+
+int ScriptManager::resetTimerEvent(int eventId) {
+	int result = 0;
+	if(TimerTriggerEventList.find(eventId) != TimerTriggerEventList.end()) {
+		TimerTriggerEvent &trigger = TimerTriggerEventList[eventId];
+		result = getTimerEventSecondsElapsed(eventId);
+
+		trigger.startTime = time(NULL);
+		trigger.endTime = 0;
+		trigger.running = true;
+
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startTime,(long long int)trigger.endTime,result);
+	}
+	return result;
 }
 
 int ScriptManager::stopTimerEvent(int eventId) {
@@ -824,6 +874,13 @@ int ScriptManager::startTimerEvent(LuaHandle* luaHandle) {
 int ScriptManager::stopTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	int result = thisScriptManager->stopTimerEvent(luaArguments.getInt(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::resetTimerEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int result = thisScriptManager->resetTimerEvent(luaArguments.getInt(-1));
 	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
