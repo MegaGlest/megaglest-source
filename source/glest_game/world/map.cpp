@@ -439,7 +439,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 	}
 }
 
-//put a units into the cells
+// is testPos in the cells of unitType where unitType's position is pos
 bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) {
 
 	assert(ut!=NULL);
