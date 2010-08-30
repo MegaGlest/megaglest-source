@@ -132,7 +132,17 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
-	std::for_each(results.begin(), results.end(), FormatString());
+	
+	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
+	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
+	
+	for ( int i = 0 ; i<mapFiles.size(); i++ )
+	{// fetch info and put map in right list
+		loadMapInfo(Map::getMapPath(mapFiles.at(i)), &mapInfo);
+		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+	}
 
 	labelLocalIP.init(410, networkHeadPos+30);
 
@@ -155,7 +165,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMap.init(xoffset+100, mapHeadPos);
 	labelMap.setText(lang.get("Map")+":");
 	listBoxMap.init(xoffset+100, mapPos, 200);
-    listBoxMap.setItems(results);
+    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 	labelMapInfo.init(xoffset+100, mapPos-30, 200, 40);
 	
 	// MapFilter
@@ -163,15 +173,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMapFilter.setText(lang.get("MapFilter")+":");
 	listBoxMapFilter.init(xoffset+310, mapPos, 80);
 	listBoxMapFilter.pushBackItem(lang.get("all"));
-	listBoxMapFilter.pushBackItem("1");
-	listBoxMapFilter.pushBackItem("2");
-	listBoxMapFilter.pushBackItem("3");
-	listBoxMapFilter.pushBackItem("4");
-	listBoxMapFilter.pushBackItem("5");
-	listBoxMapFilter.pushBackItem("6");
-	listBoxMapFilter.pushBackItem("7");
-	listBoxMapFilter.pushBackItem("8");
-	listBoxMapFilter.setSelectedItemIndex(4);
+	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
+		listBoxMapFilter.pushBackItem(intToStr(i));
+	}
+	listBoxMapFilter.setSelectedItemIndex(0);
 	
 	//tileset listBox
     findDirs(config.getPathListForType(ptTilesets), results);
@@ -366,7 +371,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
     
 
-	loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
+	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
 
 	labelMapInfo.setText(mapInfo.desc);
 
@@ -451,6 +456,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
 
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
@@ -566,11 +572,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         }
 	}
 	else if(listBoxMap.mouseClick(x, y)){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", mapFiles[listBoxMap.getSelectedItemIndex()].c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
-		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
@@ -638,6 +644,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(listBoxMapFilter.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
 		needToRepublishToMasterserver = true;
 
         if(hasNetworkGameSettings() == true)
@@ -1422,8 +1429,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	gameSettings->setDescription(formatString(mapFiles[listBoxMap.getSelectedItemIndex()]));
-	gameSettings->setMap(mapFiles[listBoxMap.getSelectedItemIndex()]);
+	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
+	gameSettings->setDescription(formatString(getCurrentMapFile()));
+	gameSettings->setMap(getCurrentMapFile());
     gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
     gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
 	gameSettings->setDefaultUnits(true);
@@ -1530,7 +1538,8 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	saveGameFile << "Description=" << gameSettings.getDescription() << std::endl;
-
+	
+	saveGameFile << "MapFilterIndex=" << gameSettings.getMapFilterIndex() << std::endl;
 	saveGameFile << "Map=" << gameSettings.getMap() << std::endl;
 	saveGameFile << "Tileset=" << gameSettings.getTileset() << std::endl;
 	saveGameFile << "TechTree=" << gameSettings.getTech() << std::endl;
@@ -1583,6 +1592,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		properties.load(fileName);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
+		gameSettings.setMapFilterIndex(properties.getInt("MapFilterIndex"));
 		gameSettings.setDescription(properties.getString("Description"));
 		gameSettings.setMap(properties.getString("Map"));
 		gameSettings.setTileset(properties.getString("Tileset"));
@@ -1611,11 +1621,14 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+		listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
+		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
+
 		string mapFile = gameSettings.getMap();
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
 
-		loadMapInfo(Map::getMapPath(mapFiles[listBoxMap.getSelectedItemIndex()]), &mapInfo);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
 		labelMapInfo.setText(mapInfo.desc);
 
 		string tilesetFile = gameSettings.getTileset();
@@ -1968,6 +1981,28 @@ void MenuStateCustomGame::showMessageBox(const string &text, const string &heade
 	else{
 		mainMessageBox.setEnabled(false);
 	}
+}
+
+void MenuStateCustomGame::switchToNextMapGroup(const int direction){
+	int i=listBoxMapFilter.getSelectedItemIndex();
+	// if there are no maps for the current selection we switch to next selection
+	while(formattedPlayerSortedMaps[i].empty()){
+		i=i+direction;
+		if(i>GameConstants::maxPlayers){ 
+			i=0;
+		}
+		if(i<0){
+			i=GameConstants::maxPlayers;
+		}
+	}
+	listBoxMapFilter.setSelectedItemIndex(i);
+	listBoxMap.setItems(formattedPlayerSortedMaps[i]);
+}
+
+string MenuStateCustomGame::getCurrentMapFile(){
+	int i=listBoxMapFilter.getSelectedItemIndex();
+	int mapIndex=listBoxMap.getSelectedItemIndex();
+	return playerSortedMaps[i].at(mapIndex);
 }
 
 void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
