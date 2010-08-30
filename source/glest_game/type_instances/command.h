@@ -24,19 +24,27 @@ using Shared::Graphics::Vec2i;
 
 class CommandType;
 
+enum CommandStateType {
+	cst_None,
+	cst_linkedUnit
+};
+
 // =====================================================
 // 	class Command
 //
 ///	A unit command
 // =====================================================
 
-class Command{
+class Command {
 private:
     const CommandType *commandType;
     Vec2i pos;
 	UnitReference unitRef;		//target unit, used to move and attack optionally
 	CardinalDir facing;			// facing, for build command
 	const UnitType *unitType;	//used for build
+
+	CommandStateType stateType;
+	int stateValue;
 
 public:
     //constructor
@@ -55,6 +63,13 @@ public:
     void setCommandType(const CommandType *commandType);
     void setPos(const Vec2i &pos);
     void setUnit(Unit *unit);
+
+	void setStateType(CommandStateType value) 	{ stateType = value; }
+	CommandStateType getStateType() const		{ return stateType; }
+
+	void setStateValue(int value) 	{ stateValue = value; }
+	int getStateValue() const		{ return stateValue; }
+
 
     std::string toString() const;
 };   

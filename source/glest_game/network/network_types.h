@@ -16,6 +16,7 @@
 
 #include "types.h"
 #include "vec.h"
+#include "command.h"
 
 using std::string;
 using std::min;
@@ -83,6 +84,8 @@ private:
 	int8 fromFactionIndex;
 	uint16 unitFactionUnitCount;
 	int8 unitFactionIndex;
+	int8 commandStateType;
+	int32 commandStateValue;
 
 public:
 	NetworkCommand(){};
@@ -95,9 +98,9 @@ public:
 		int unitTypeId= -1, 
 		int targetId= -1,
 		int facing= -1,
-		bool wantQueue = false);
-	
-	//NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2=-1);
+		bool wantQueue = false,
+		CommandStateType commandStateType = cst_None,
+		int commandTypeStateValue = -1);
 
 	NetworkCommandType getNetworkCommandType() const	{return static_cast<NetworkCommandType>(networkCommandType);}
 	int getUnitId() const								{return unitId;}
@@ -109,6 +112,9 @@ public:
 	int getFromFactionIndex() const						{return fromFactionIndex;}
 	int getUnitFactionUnitCount() const					{return unitFactionUnitCount;}
 	int getUnitFactionIndex() const						{return unitFactionIndex;}
+
+	CommandStateType getCommandStateType() const 		{return static_cast<CommandStateType>(commandStateType);}
+	int getCommandStateValue() const				 	{return commandStateValue;}
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;

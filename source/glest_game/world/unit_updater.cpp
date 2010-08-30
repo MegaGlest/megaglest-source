@@ -753,10 +753,10 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 
     Unit *foundUnitBuilder = NULL;
     if(unit->getCommandSize() > 0 ) {
-		Command *command= unit->getCurrCommand();
+		Command *command = unit->getCurrCommand();
 		if(command != NULL) {
 			const RepairCommandType *rct= dynamic_cast<const RepairCommandType*>(command->getCommandType());
-			if(rct) {
+			if(rct != NULL && command->getStateType() == cst_linkedUnit) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
@@ -770,7 +770,8 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 							if(bct != NULL) {
 								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-								if(command->getPos() == peerCommand->getPos()) {
+								//if(command->getPos() == peerCommand->getPos()) {
+								if(command->getStateValue() == peerUnit->getId()) {
 									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 									foundUnitBuilder = peerUnit;
