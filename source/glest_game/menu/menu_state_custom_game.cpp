@@ -1592,7 +1592,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		properties.load(fileName);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
-		gameSettings.setMapFilterIndex(properties.getInt("MapFilterIndex"));
+		gameSettings.setMapFilterIndex(properties.getInt("MapFilterIndex","0"));
 		gameSettings.setDescription(properties.getString("Description"));
 		gameSettings.setMap(properties.getString("Map"));
 		gameSettings.setTileset(properties.getString("Tileset"));
