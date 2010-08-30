@@ -64,7 +64,7 @@ enum Queueability {
 ///	A complex action performed by a unit, composed by skills
 // =====================================================
 
-class CommandType: public RequirableType{
+class CommandType: public RequirableType {
 protected:
     CommandClass commandTypeClass;
     Clicks clicks;
@@ -74,6 +74,11 @@ public:
 	static const int invalidId= -1;
 
 public:
+	CommandType() {
+	    commandTypeClass 	= ccNull;
+	    clicks 				= cOne;
+		id 					= -1;
+	}
     virtual void update(UnitUpdater *unitUpdater, Unit *unit) const= 0;
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;

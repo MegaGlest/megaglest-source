@@ -314,7 +314,7 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 15; peekAttempt++) {
+	for(int peekAttempt = 1; peekAttempt < 1000; peekAttempt++) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
 		if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == true) {
@@ -337,7 +337,7 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 15; peekAttempt++) {
+	for(int peekAttempt = 1; peekAttempt < 1000; peekAttempt++) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
 		if (NetworkMessage::peek(socket, &data, totalMsgSize) == true) {

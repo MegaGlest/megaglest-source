@@ -52,6 +52,10 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 
 		refPos= computeRefPos(selection);
 
+		int builderUnitId 					= -1;
+		CommandStateType commandStateType 	= cst_None;
+		int commandStateValue 				= -1;
+
 		bool unitSignalledToBuild = false;
 		//give orders to all selected units
 		for(int i=0; i<selection->getCount(); ++i) {
@@ -64,20 +68,23 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 			if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
 				usePos = pos;
 				if(unitSignalledToBuild == false) {
+					builderUnitId		 = unitId;
 					unitSignalledToBuild = true;
 				}
 				else {
-					useCommandtype = unit->getType()->getFirstRepairCommand(unitType);
-					tryQueue = true;
+					useCommandtype 		= unit->getType()->getFirstRepairCommand(unitType);
+					commandStateType 	= cst_linkedUnit;
+					commandStateValue 	= builderUnitId;
+					//tryQueue = true;
 				}
 			}
 
 			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
 					useCommandtype->getId(), usePos, unitType->getId(),
 					(targetUnit != NULL ? targetUnit->getId() : -1),
-					facing, tryQueue);
+					facing, tryQueue, commandStateType,commandStateValue);
 
-			//every unit is ordered to a different position
+			//every unit is ordered to a the position
 			CommandResult result= pushNetworkCommand(&networkCommand);
 			results.push_back(result);
 		}
@@ -290,7 +297,7 @@ CommandResult Commander::computeResult(const CommandResultContainer &results) co
 	}
 }
 
-CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand) const{
+CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand) const {
 	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
 	CommandResult cr= crSuccess;
@@ -432,7 +439,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     }
 }
 
-Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
+Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	assert(networkCommand->getNetworkCommandType()==nctGiveCommand);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkCommand [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str());
@@ -522,6 +529,13 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const{
 	else{
 		command= new Command(ct, target);
 	}
+
+	// Add in any special state
+	CommandStateType commandStateType 	= networkCommand->getCommandStateType();
+	int commandStateValue 				= networkCommand->getCommandStateValue();
+
+	command->setStateType(commandStateType);
+	command->setStateValue(commandStateValue);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
