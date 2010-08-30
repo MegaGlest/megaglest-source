@@ -47,6 +47,8 @@ private:
 	GraphicListBox listBoxEnableServerControlledAI;
 
 	vector<string> mapFiles;
+	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
+	vector<string> formattedPlayerSortedMaps[GameConstants::maxPlayers+1];
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;
 	vector<string> factionFiles;
@@ -147,6 +149,8 @@ private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 	void saveGameSettingsToFile(std::string fileName);
+	void switchToNextMapGroup(const int direction);
+	string getCurrentMapFile();
 	GameSettings loadGameSettingsFromFile(std::string fileName);
 	void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);

@@ -40,6 +40,7 @@ private:
 	int factionCount;
 	int teams[GameConstants::maxPlayers];
 	int startLocationIndex[GameConstants::maxPlayers];
+	int mapFilterIndex;
 	
 
 	bool defaultUnits;
@@ -101,6 +102,7 @@ public:
 	int getFactionCount() const							{return factionCount;}
 	int getTeam(int factionIndex) const					{return teams[factionIndex];}
 	int getStartLocationIndex(int factionIndex) const	{return startLocationIndex[factionIndex];}
+	int getMapFilterIndex() const 						{return mapFilterIndex;}
 
 	bool getDefaultUnits() const				{return defaultUnits;}
 	bool getDefaultResources() const			{return defaultResources;}
@@ -128,6 +130,7 @@ public:
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)								{this->teams[factionIndex]= team;}
 	void setStartLocationIndex(int factionIndex, int startLocationIndex)	{this->startLocationIndex[factionIndex]= startLocationIndex;}
+	void setMapFilterIndex(int mapFilterIndex)								{this->mapFilterIndex=mapFilterIndex;}
 
 	void setDefaultUnits(bool defaultUnits) 						{this->defaultUnits= defaultUnits;}
 	void setDefaultResources(bool defaultResources) 				{this->defaultResources= defaultResources;}
@@ -144,6 +147,7 @@ public:
 		string result = "";
 
 		result += "description = " + description + "\n";
+		result += "mapFilterIndex = " + intToStr(mapFilterIndex) + "\n";
 		result += "map = " + map + "\n";
 		result += "tileset = " + tileset + "\n";
 		result += "tech = " + tech + "\n";
