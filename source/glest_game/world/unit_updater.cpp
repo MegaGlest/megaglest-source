@@ -385,7 +385,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit){
 
 // ==================== updateBuild ====================
 
-void UnitUpdater::updateBuild(Unit *unit){
+void UnitUpdater::updateBuild(Unit *unit) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Chrono chrono;
@@ -393,6 +393,9 @@ void UnitUpdater::updateBuild(Unit *unit){
 
 	Command *command= unit->getCurrCommand();
     const BuildCommandType *bct= static_cast<const BuildCommandType*>(command->getCommandType());
+
+	std::pair<float,Vec2i> distance = map->getUnitDistanceToPos(unit,command->getPos(),command->getUnitType());
+	unit->setCurrentUnitTitle("Distance: " + floatToStr(distance.first) + " build pos: " + distance.second.getString() + " current pos: " + unit->getPos().getString());
 
 	if(unit->getCurrSkill()->getClass() != scBuild) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -499,6 +502,7 @@ void UnitUpdater::updateBuild(Unit *unit){
                 //if there are no free cells
 				unit->cancelCommand();
                 unit->setCurrSkill(scStop);
+
 				if(unit->getFactionIndex()==world->getThisFactionIndex()){
                      console->addStdMessage("BuildingNoPlace");
 				}
@@ -509,6 +513,7 @@ void UnitUpdater::updateBuild(Unit *unit){
         case tsBlocked:
 			if(unit->getPath()->isBlocked()){
 				unit->cancelCommand();
+
 			}
             break;
         }
@@ -522,15 +527,18 @@ void UnitUpdater::updateBuild(Unit *unit){
         //if u is killed while building then u==NULL;
 		if(builtUnit!=NULL && builtUnit!=command->getUnit()){
 			unit->setCurrSkill(scStop);
+
 		}
 		else if(builtUnit==NULL || builtUnit->isBuilt()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
+
         }
         else if(builtUnit->repair()){
             //building finished
             unit->finishCommand();
             unit->setCurrSkill(scStop);
+
 			builtUnit->born();
 			scriptManager->onUnitCreated(builtUnit);
 			if(unit->getFactionIndex()==world->getThisFactionIndex()){

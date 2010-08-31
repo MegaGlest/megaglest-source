@@ -439,8 +439,110 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 	}
 }
 
+Vec2i Map::computeRefPos(const Selection *selection) const {
+    Vec2i total= Vec2i(0);
+    for(int i = 0; i < selection->getCount(); ++i) {
+    	if(selection == NULL || selection->getUnit(i) == NULL) {
+    		throw runtime_error("selection == NULL || selection->getUnit(i) == NULL");
+    	}
+        total = total + selection->getUnit(i)->getPos();
+    }
+
+    return Vec2i(total.x / selection->getCount(), total.y / selection->getCount());
+}
+
+Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
+							const Vec2i &commandPos) const {
+    Vec2i pos;
+	Vec2i posDiff = unitPos - refUnitPos;
+
+	if(abs(posDiff.x) >= 3){
+		posDiff.x = posDiff.x % 3;
+	}
+
+	if(abs(posDiff.y) >= 3){
+		posDiff.y = posDiff.y % 3;
+	}
+
+	pos = commandPos + posDiff;
+    clampPos(pos);
+    return pos;
+}
+
+std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
+	if(unit == NULL) {
+		throw runtime_error("unit == NULL");
+	}
+
+	std::pair<float,Vec2i> result(-1,Vec2i(0));
+	int unitId= unit->getId();
+	Vec2i unitPos= computeDestPos(unit->getPos(), unit->getPos(), pos);
+
+	Vec2i start = pos - Vec2i(1);
+	int unitTypeSize = 0;
+	if(ut != NULL) {
+		unitTypeSize = ut->getSize();
+	}
+	Vec2i end 	= pos + Vec2i(unitTypeSize);
+
+	for(int i = start.x; i <= end.x; ++i) {
+		for(int j = start.y; j <= end.y; ++j){
+			Vec2i testPos(i,j);
+
+			if(ut == NULL || isInUnitTypeCells(ut, pos,testPos) == false) {
+				float distance = unitPos.dist(testPos);
+				if(result.first < 0 || result.first > distance) {
+					result.first = distance;
+					result.second = testPos;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i originalBuildPos,
+								 const UnitType *ut) const {
+	const Unit *closestUnit = NULL;
+	Vec2i refPos = computeRefPos(selection);
+
+	Vec2i pos = originalBuildPos;
+
+	float bestRange = -1;
+
+	Vec2i start = pos - Vec2i(1);
+	int unitTypeSize = 0;
+	if(ut != NULL) {
+		unitTypeSize = ut->getSize();
+	}
+	Vec2i end 	= pos + Vec2i(unitTypeSize);
+
+	for(int i = 0; i < selection->getCount(); ++i) {
+		const Unit *unit = selection->getUnit(i);
+		int unitId= unit->getId();
+		Vec2i unitBuilderPos= computeDestPos(refPos, unit->getPos(), pos);
+
+		for(int i = start.x; i <= end.x; ++i) {
+			for(int j = start.y; j <= end.y; ++j){
+				Vec2i testPos(i,j);
+				if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
+					float distance = unitBuilderPos.dist(testPos);
+					if(bestRange < 0 || bestRange > distance) {
+						bestRange = distance;
+						pos = testPos;
+						closestUnit = unit;
+					}
+				}
+			}
+		}
+	}
+
+	return closestUnit;
+}
+
 Vec2i Map::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
-								 const UnitType *ut) {
+								 const UnitType *ut) const {
 	Vec2i pos = originalBuildPos;
 
 	float bestRange = -1;
@@ -465,7 +567,7 @@ Vec2i Map::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
 }
 
 bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
-								const Vec2i &testPos) {
+								const Vec2i &testPos) const {
 	bool isInsideDestUnitCells = isInUnitTypeCells(ut, pos,testPos);
 	if(isInsideDestUnitCells == false) {
 		Cell *testCell = getCell(testPos);
@@ -488,7 +590,7 @@ bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 
 // is testPos in the cells of unitType where unitType's position is pos
 bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
-							const Vec2i &testPos) {
+							const Vec2i &testPos) const {
 	assert(ut!=NULL);
 
 	Cell *testCell = getCell(testPos);

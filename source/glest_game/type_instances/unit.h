@@ -265,6 +265,9 @@ private:
 
 	int retryCurrCommandCount;
 
+	Vec3f screenPos;
+	string currentUnitTitle;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -393,6 +396,12 @@ public:
 
 	int getRetryCurrCommandCount() const { return retryCurrCommandCount; }
 	void setRetryCurrCommandCount(int value) { retryCurrCommandCount = value; }
+
+	Vec3f getScreenPos() const { return screenPos; }
+	void setScreenPos(Vec3f value) { screenPos = value; }
+
+	string getCurrentUnitTitle() const {return currentUnitTitle;}
+	void setCurrentUnitTitle(string value) { currentUnitTitle = value;}
 
 	std::string toString() const;
 
