@@ -50,6 +50,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 {
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
+
+	currentFactionLogo = "";
+	factionTexture=NULL;
+
 	activeInputLabel = NULL;
 	lastNetworkSendPing = 0;
 	pingCount = 0;
@@ -183,7 +187,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
-	xoffset=120;
+	xoffset=60;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
@@ -251,6 +255,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
 
 	chatManager.init(&console, -1,true);
+}
+
+MenuStateConnectedGame::~MenuStateConnectedGame() {
+	cleanupFactionTexture();
 }
 
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -396,8 +404,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 
 }
 
-void MenuStateConnectedGame::render(){
-
+void MenuStateConnectedGame::render() {
 	try {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -406,6 +413,10 @@ void MenuStateConnectedGame::render(){
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Renderer &renderer= Renderer::getInstance();
+
+		if(factionTexture != NULL) {
+			renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
+		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -661,7 +672,7 @@ void MenuStateConnectedGame::update() {
 			bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			vector<string> maps,tilesets,techtree;
-			const GameSettings *gameSettings=clientInterface->getGameSettings();
+			const GameSettings *gameSettings = clientInterface->getGameSettings();
 		
 			if(gameSettings == NULL) {
 				throw runtime_error("gameSettings == NULL");
@@ -784,6 +795,16 @@ void MenuStateConnectedGame::update() {
 		            mustSwitchPlayerName = true;
 				}
 			}
+
+			if( clientInterface != NULL && clientInterface->isConnected() &&
+				gameSettings != NULL) {
+
+				string factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+				if(currentFactionLogo != factionLogo) {
+					currentFactionLogo = factionLogo;
+					loadFactionTexture(currentFactionLogo);
+				}
+			}
 		}
 
 		//update lobby
@@ -834,6 +855,7 @@ void MenuStateConnectedGame::update() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				program->setState(new Game(program, clientInterface->getGameSettings()));
+				return;
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
@@ -1090,6 +1112,53 @@ string MenuStateConnectedGame::getHumanPlayerName() {
 	}
 
 	return result;
+}
+
+void MenuStateConnectedGame::loadFactionTexture(string filepath) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanupFactionTexture();
+
+	if(filepath=="")
+	{
+		factionTexture=NULL;
+	}
+	else
+	{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
+
+		factionTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+		//loadingTexture = renderer.newTexture2D(rsGlobal);
+		factionTexture->setMipmap(true);
+		//loadingTexture->getPixmap()->load(filepath);
+		factionTexture->load(filepath);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.initTexture(rsGlobal,factionTexture);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void MenuStateConnectedGame::cleanupFactionTexture() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(factionTexture!=NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		factionTexture->end();
+		delete factionTexture;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//delete loadingTexture;
+		factionTexture=NULL;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 }}//end namespace

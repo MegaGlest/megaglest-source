@@ -109,8 +109,12 @@ private:
 	int8 switchSetupRequestFlagType;
 	string defaultPlayerName;
 
+	string currentFactionLogo;
+	Texture2D *factionTexture;
+
 public:
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
+	~MenuStateConnectedGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -131,6 +135,10 @@ private:
 	void returnToJoinMenu();
 	string getHumanPlayerName();
 	void setActiveInputLabel(GraphicLabel *newLable);
+
+	void cleanupFactionTexture();
+	void loadFactionTexture(string filepath);
+
 };
 
 }}//end namespace

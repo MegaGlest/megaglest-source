@@ -143,6 +143,8 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
+	static string findFactionLogoFile(const GameSettings *settings, Logger *logger);
+
 private:
 	//render
     void render3d();
