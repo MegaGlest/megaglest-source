@@ -239,6 +239,7 @@ private:
 
 	bool allowRenderUnitTitles;
 	std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
+	std::vector<Unit *> visibleFrameUnitList;
 
 	bool no2DMouseRendering;
 	bool showDebugUI;

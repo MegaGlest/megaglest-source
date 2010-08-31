@@ -747,9 +747,10 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 }
 
 //pop front (used when order is done)
-CommandResult Unit::finishCommand(){
+CommandResult Unit::finishCommand() {
 
 	retryCurrCommandCount=0;
+	this->setCurrentUnitTitle("");
 	//is empty?
 	if(commands.empty()){
 		return crFailUndefined;
@@ -773,9 +774,11 @@ CommandResult Unit::finishCommand(){
 }
 
 //to cancel a command
-CommandResult Unit::cancelCommand(){
+CommandResult Unit::cancelCommand() {
 
 	retryCurrCommandCount=0;
+	this->setCurrentUnitTitle("");
+
 	//is empty?
 	if(commands.empty()){
 		return crFailUndefined;
@@ -1704,6 +1707,10 @@ std::string Unit::toString() const {
     result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
 
     result += "retryCurrCommandCount = " + intToStr(retryCurrCommandCount) + "\n";
+
+    result += "screenPos = " + screenPos.getString() + "\n";
+
+    result += "currentUnitTitle = " + currentUnitTitle + "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

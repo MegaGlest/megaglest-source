@@ -50,32 +50,43 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 		Vec2i refPos;
 		CommandResultContainer results;
 
-		refPos= computeRefPos(selection);
+		refPos = world->getMap()->computeRefPos(selection);
 
-		int builderUnitId 					= -1;
+		const Unit *builderUnit = world->getMap()->findClosestUnitToPos(selection, pos, unitType);
+		//Vec2i  = world->getMap()->computeDestPos(refPos, builderUnit->getPos(), pos);
+		//std::pair<float,Vec2i> distance = world->getMap()->getUnitDistanceToPos(builderUnit,pos,unitType);
+		//builderUnit->setCurrentUnitTitle("Distance: " + floatToStr(distance.first) + " pos: " + distance.second.getString());
+
+		int builderUnitId 					= builderUnit->getId();
 		CommandStateType commandStateType 	= cst_None;
 		int commandStateValue 				= -1;
 
-		bool unitSignalledToBuild = false;
+		//bool unitSignalledToBuild = false;
 		//give orders to all selected units
-		for(int i=0; i<selection->getCount(); ++i) {
+		for(int i = 0; i < selection->getCount(); ++i) {
 			const Unit *unit = selection->getUnit(i);
 			int unitId= unit->getId();
-			Vec2i currPos= computeDestPos(refPos, unit->getPos(), pos);
+			Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
 
 			Vec2i usePos = currPos;
 			const CommandType *useCommandtype = commandType;
 			if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
 				usePos = pos;
-				if(unitSignalledToBuild == false) {
-					builderUnitId		 = unitId;
-					unitSignalledToBuild = true;
-				}
-				else {
+				//if(unitSignalledToBuild == false) {
+				//if(builderUnit->getId() == unitId)
+				//	builderUnitId		 = unitId;
+					//unitSignalledToBuild = true;
+				//}
+				//else {
+				if(builderUnit->getId() != unitId) {
 					useCommandtype 		= unit->getType()->getFirstRepairCommand(unitType);
 					commandStateType 	= cst_linkedUnit;
 					commandStateValue 	= builderUnitId;
 					//tryQueue = true;
+				}
+				else {
+					commandStateType 	= cst_None;
+					commandStateValue 	= -1;
 				}
 			}
 
@@ -124,7 +135,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
-		refPos= computeRefPos(selection);
+		refPos= world->getMap()->computeRefPos(selection);
 
 		//give orders to all selected units
 		for(int i=0; i<selection->getCount(); ++i){
@@ -133,7 +144,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 			if(ct!=NULL){
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
-				Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
+				Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
 				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue);
 
 				//every unit is ordered to a different pos
@@ -158,13 +169,13 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 		Vec2i refPos;
 		CommandResultContainer results;
 
-		refPos= computeRefPos(selection);
+		refPos= world->getMap()->computeRefPos(selection);
 
 		//give orders to all selected units
 		for(int i=0; i<selection->getCount(); ++i){
 			int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 			int unitId= selection->getUnit(i)->getId();
-			Vec2i currPos= computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
+			Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
 			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
 
 			//every unit is ordered to a different position
@@ -193,13 +204,13 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 		CommandResultContainer results;
 
 		//give orders to all selected units
-		refPos= computeRefPos(selection);
+		refPos= world->getMap()->computeRefPos(selection);
 		for(int i=0; i<selection->getCount(); ++i) {
 			//every unit is ordered to a different pos
 			const Unit *unit = selection->getUnit(i);
 			assert(unit != NULL);
 
-			currPos= computeDestPos(refPos, unit->getPos(), pos);
+			currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
 
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
@@ -254,32 +265,6 @@ void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos)const{
 
 
 // ==================== PRIVATE ====================
-
-Vec2i Commander::computeRefPos(const Selection *selection) const{
-    Vec2i total= Vec2i(0);
-    for(int i=0; i<selection->getCount(); ++i){
-        total= total+selection->getUnit(i)->getPos();
-    }
-
-    return Vec2i(total.x/ selection->getCount(), total.y/ selection->getCount());
-}
-
-Vec2i Commander::computeDestPos(const Vec2i &refUnitPos, const Vec2i &unitPos, const Vec2i &commandPos) const{
-    Vec2i pos;
-	Vec2i posDiff= unitPos-refUnitPos;
-
-	if(abs(posDiff.x)>=3){
-		posDiff.x= posDiff.x % 3;
-	}
-
-	if(abs(posDiff.y)>=3){
-		posDiff.y= posDiff.y % 3;
-	}
-
-	pos= commandPos+posDiff;
-    world->getMap()->clampPos(pos);
-    return pos;
-}
 
 CommandResult Commander::computeResult(const CommandResultContainer &results) const{
 	switch(results.size()){

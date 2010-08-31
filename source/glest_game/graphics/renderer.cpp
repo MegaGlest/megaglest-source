@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
@@ -1570,6 +1569,8 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 	//assert
 	assertGl();
 
+	visibleFrameUnitList.clear();
+
 	bool modelRenderStarted = false;
 
 	for(int i=0; i<world->getFactionCount(); ++i){
@@ -1633,6 +1634,8 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 
 				glPopMatrix();
 				unit->setVisible(true);
+				unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
+				visibleFrameUnitList.push_back(unit);
 
 				if(allowRenderUnitTitles == true) {
 					// Add to the pending render unit title list
@@ -1755,10 +1758,16 @@ void Renderer::renderSelectionEffects(){
 		currVec.y+= 0.3f;
 
 		//selection circle
-		if(world->getThisFactionIndex()==unit->getFactionIndex()){
-			glColor4f(0, unit->getHpRatio(), 0, 0.3f);
+		if(world->getThisFactionIndex() == unit->getFactionIndex()) {
+			if(	showDebugUI == true && unit->getCommandSize() > 0 &&
+				dynamic_cast<const BuildCommandType *>(unit->getCurrCommand()->getCommandType()) != NULL) {
+				glColor4f(unit->getHpRatio(), unit->getHpRatio(), unit->getHpRatio(), 0.3f);
+			}
+			else {
+				glColor4f(0, unit->getHpRatio(), 0, 0.3f);
+			}
 		}
-		else if ( world->getThisTeamIndex()==unit->getTeam()){
+		else if ( world->getThisTeamIndex() == unit->getTeam()){
 			glColor4f(unit->getHpRatio(), unit->getHpRatio(), 0, 0.3f);
 		}
 		else{
@@ -3392,11 +3401,28 @@ void Renderer::setAllowRenderUnitTitles(bool value) {
 
 // This method renders titles for units
 void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
+	std::map<int,bool> unitRenderedList;
+
+	if(visibleFrameUnitList.size() > 0) {
+		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
+			const Unit *unit = visibleFrameUnitList[idx];
+			if(unit != NULL && unit->getCurrentUnitTitle() != "") {
+				//get the screen coordinates
+				Vec3f screenPos = unit->getScreenPos();
+				renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+
+				unitRenderedList[unit->getId()] = true;
+			}
+		}
+		visibleFrameUnitList.clear();
+	}
+
 	if(renderUnitTitleList.size() > 0) {
 		for(int idx = 0; idx < renderUnitTitleList.size(); idx++) {
 			std::pair<Unit *,Vec3f> &unitInfo = renderUnitTitleList[idx];
 			Unit *unit = unitInfo.first;
-			if(unit != NULL) {
+			if(unit != NULL && unitRenderedList.find(unit->getId()) == unitRenderedList.end()) {
 				string str = unit->getFullName() + " - " + intToStr(unit->getId());
 				//get the screen coordinates
 				Vec3f &screenPos = unitInfo.second;
