@@ -118,6 +118,9 @@ private:
 	string defaultPlayerName;
 	int8 switchSetupRequestFlagType;
 
+	string currentFactionLogo;
+	Texture2D *factionTexture;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
 	~MenuStateCustomGame();
@@ -154,6 +157,9 @@ private:
 	GameSettings loadGameSettingsFromFile(std::string fileName);
 	void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);
+
+	void cleanupFactionTexture();
+	void loadFactionTexture(string filepath);
 };
 
 }}//end namespace

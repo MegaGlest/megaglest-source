@@ -736,7 +736,7 @@ void Renderer::renderMouse3d() {
 
 }
 
-void Renderer::renderBackground(const Texture2D *texture){
+void Renderer::renderBackground(const Texture2D *texture) {
 
 	const Metrics &metrics= Metrics::getInstance();
 

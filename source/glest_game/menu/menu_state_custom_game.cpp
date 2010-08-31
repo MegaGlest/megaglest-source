@@ -53,6 +53,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	activeInputLabel=NULL;
 	showGeneralError = false;
 	generalErrorToShow = "---";
+	currentFactionLogo = "";
+	factionTexture=NULL;
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -231,9 +233,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 
 	// Advanced Options
-	labelAdvanced.init(790, 80, 80);
+	labelAdvanced.init(xoffset+650, 150, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
-	listBoxAdvanced.init(810, 80-30, 80);
+	listBoxAdvanced.init(xoffset+650, 150-30, 80);
 	listBoxAdvanced.pushBackItem(lang.get("Yes"));
 	listBoxAdvanced.pushBackItem(lang.get("No"));
 	listBoxAdvanced.setSelectedItemIndex(0);
@@ -296,16 +298,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
 	//list boxes
-	xoffset=120;
+	xoffset=60;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
 		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
 
-        listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
-        listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight, 150);
-		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
-		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
+        listBoxControls[i].init(xoffset+175, setupPos-30-i*rowHeight);
+        listBoxFactions[i].init(xoffset+320, setupPos-30-i*rowHeight, 150);
+		listBoxTeams[i].init(xoffset+495, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+575, setupPos-30-i*rowHeight, 60);
     }
 
 	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -425,6 +427,10 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 	publishToMasterserverThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanupFactionTexture();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::returnToParentMenu(){
@@ -507,45 +513,75 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
         // Send the game settings to each client if we have at least one networked client
 		safeMutex.Lock();
-        if( hasNetworkGameSettings() == true &&
-            needToSetChangedGameSettings == true)
-        {
-        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            serverInterface->setGameSettings(&gameSettings,true);
 
-            needToSetChangedGameSettings    = false;
-            lastSetChangedGameSettings      = time(NULL);
-        }
+        bool dataSynchCheckOk = true;
+		for(int i= 0; i<mapInfo.players; ++i) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		bool bOkToStart = serverInterface->launchGame(&gameSettings);
-		if(bOkToStart == true) {
-			if( listBoxPublishServer.getEditable() &&
-				listBoxPublishServer.getSelectedItemIndex() == 0) {
-
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				needToRepublishToMasterserver = true;
-				lastMasterserverPublishing = 0;
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
+				if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					dataSynchCheckOk = false;
+					break;
+				}
 			}
-			needToBroadcastServerSettings = false;
-			needToRepublishToMasterserver = false;
+		}
+
+		if(dataSynchCheckOk == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			mainMessageBoxState=1;
+			showMessageBox( "You cannot start the game because\none or more clients do not have the same game data!", "Data Mismatch Error", false);
+
 			safeMutex.ReleaseLock();
-
-			delete publishToMasterserverThread;
-			publishToMasterserverThread = NULL;
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			assert(program != NULL);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            program->setState(new Game(program, &gameSettings));
+			return;
 		}
 		else {
-			safeMutex.ReleaseLock();
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        if( hasNetworkGameSettings() == true &&
+	            needToSetChangedGameSettings == true) {
+	        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	            serverInterface->setGameSettings(&gameSettings,true);
+
+	            needToSetChangedGameSettings    = false;
+	            lastSetChangedGameSettings      = time(NULL);
+	        }
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			bool bOkToStart = serverInterface->launchGame(&gameSettings);
+			if(bOkToStart == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if( listBoxPublishServer.getEditable() &&
+					listBoxPublishServer.getSelectedItemIndex() == 0) {
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					needToRepublishToMasterserver = true;
+					lastMasterserverPublishing = 0;
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+				needToBroadcastServerSettings = false;
+				needToRepublishToMasterserver = false;
+				safeMutex.ReleaseLock();
+
+				delete publishToMasterserverThread;
+				publishToMasterserverThread = NULL;
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				assert(program != NULL);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				program->setState(new Game(program, &gameSettings));
+				return;
+			}
+			else {
+				safeMutex.ReleaseLock();
+			}
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -824,9 +860,13 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxAdvanced.mouseMove(x, y);
 }
 
-void MenuStateCustomGame::render(){
+void MenuStateCustomGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
+
+		if(factionTexture != NULL) {
+			renderer.renderTextureQuad(60+575+40,365,200,225,factionTexture,1);
+		}
 
 		if(mainMessageBox.getEnabled()){
 			renderer.renderMessageBox(&mainMessageBox);
@@ -1057,7 +1097,9 @@ void MenuStateCustomGame::update() {
 						currentConnectionCount++;
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
 
-					string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
+					//string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
+					string label = connectionSlot->getVersionString();
+
 					if(connectionSlot != NULL &&
 					   connectionSlot->getAllowDownloadDataSynch() == true &&
 					   connectionSlot->getAllowGameDataSynchCheck() == true)
@@ -1184,11 +1226,11 @@ void MenuStateCustomGame::update() {
 					needToSetChangedGameSettings == true &&
 					difftime(time(NULL),lastSetChangedGameSettings) >= 2);
 
+		GameSettings gameSettings;
+		loadGameSettings(&gameSettings);
+
 		// Send the game settings to each client if we have at least one networked client
-		if(checkDataSynch == true)
-		{
-			GameSettings gameSettings;
-			loadGameSettings(&gameSettings);
+		if(checkDataSynch == true) {
 			serverInterface->setGameSettings(&gameSettings,false);
 			needToSetChangedGameSettings    = false;
 		}
@@ -1250,6 +1292,12 @@ void MenuStateCustomGame::update() {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 		}
 		soundConnectionCount = currentConnectionCount;
+
+		string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
+		if(currentFactionLogo != factionLogo) {
+			currentFactionLogo = factionLogo;
+			loadFactionTexture(currentFactionLogo);
+		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -2064,6 +2112,53 @@ string MenuStateCustomGame::getHumanPlayerName(int index) {
 	}
 
 	return result;
+}
+
+void MenuStateCustomGame::loadFactionTexture(string filepath) {
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanupFactionTexture();
+
+	if(filepath=="")
+	{
+		factionTexture=NULL;
+	}
+	else
+	{
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
+
+		factionTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+		//loadingTexture = renderer.newTexture2D(rsGlobal);
+		factionTexture->setMipmap(true);
+		//loadingTexture->getPixmap()->load(filepath);
+		factionTexture->load(filepath);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.initTexture(rsGlobal,factionTexture);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void MenuStateCustomGame::cleanupFactionTexture() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(factionTexture!=NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		factionTexture->end();
+		delete factionTexture;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//delete loadingTexture;
+		factionTexture=NULL;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 }}//end namespace
