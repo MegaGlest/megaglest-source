@@ -109,6 +109,7 @@ private:
 	int8 switchSetupRequestFlagType;
 	string defaultPlayerName;
 
+	bool enableFactionTexturePreview;
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 
