@@ -71,6 +71,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
     defaultPlayerName = config.getString("NetPlayerName",Socket::getHostName().c_str());
+    enableFactionTexturePreview = config.getBool("FactionPreview","false");
 
     labelMapInfo.setText("?");
 
@@ -1120,26 +1121,26 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 
 	cleanupFactionTexture();
 
-	if(filepath=="")
-	{
-		factionTexture=NULL;
-	}
-	else
-	{
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
+	if(enableFactionTexturePreview == true) {
+		if(filepath == "") {
+			factionTexture=NULL;
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
 
-		factionTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
-		//loadingTexture = renderer.newTexture2D(rsGlobal);
-		factionTexture->setMipmap(true);
-		//loadingTexture->getPixmap()->load(filepath);
-		factionTexture->load(filepath);
+			factionTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+			//loadingTexture = renderer.newTexture2D(rsGlobal);
+			factionTexture->setMipmap(true);
+			//loadingTexture->getPixmap()->load(filepath);
+			factionTexture->load(filepath);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		Renderer &renderer= Renderer::getInstance();
-		renderer.initTexture(rsGlobal,factionTexture);
+			Renderer &renderer= Renderer::getInstance();
+			renderer.initTexture(rsGlobal,factionTexture);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
 	}
 }
 
