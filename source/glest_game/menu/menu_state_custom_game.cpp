@@ -175,7 +175,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMapFilter.init(xoffset+310, mapHeadPos);
 	labelMapFilter.setText(lang.get("MapFilter")+":");
 	listBoxMapFilter.init(xoffset+310, mapPos, 80);
-	listBoxMapFilter.pushBackItem(lang.get("all"));
+	listBoxMapFilter.pushBackItem("-");
 	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
 		listBoxMapFilter.pushBackItem(intToStr(i));
 	}
