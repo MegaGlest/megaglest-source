@@ -800,7 +800,10 @@ void MenuStateConnectedGame::update() {
 			if( clientInterface != NULL && clientInterface->isConnected() &&
 				gameSettings != NULL) {
 
-				string factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+				string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
+				if(factionLogo == "") {
+					factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+				}
 				if(currentFactionLogo != factionLogo) {
 					currentFactionLogo = factionLogo;
 					loadFactionTexture(currentFactionLogo);

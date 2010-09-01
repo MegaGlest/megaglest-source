@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -20,9 +20,9 @@ namespace Glest{ namespace Game{
 // 	class MenuStateScenario
 // ===============================
 
-class MenuStateScenario: public MenuState{
+class MenuStateScenario: public MenuState {
 private:
-    enum Difficulty{
+    enum Difficulty {
         dVeryEasy,
         dEasy,
         dMedium,
@@ -43,8 +43,13 @@ private:
     ScenarioInfo scenarioInfo;
 	vector<string> dirList;
 
+	GraphicMessageBox mainMessageBox;
+	int mainMessageBoxState;
+
+	string autoloadScenarioName;
+
 public:
-	MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList);
+	MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName="");
 
     void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -56,11 +61,12 @@ public:
 	int getScenarioCount() const	{ return listBoxScenario.getItemCount(); }
 
 private:
-    void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+
+	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
     void loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings);
 	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
     ControlType strToControllerType(const string &str);
-
+    void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 

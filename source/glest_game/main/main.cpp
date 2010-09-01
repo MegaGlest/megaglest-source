@@ -52,6 +52,7 @@ const char  *GAME_ARGS[] = {
 	"--help",
 	"--connecthost",
 	"--starthost",
+	"--load-scenario",
 	"--version",
 	"--opengl-info",
 	"--sdl-info",
@@ -63,6 +64,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
+	GAME_ARG_LOADSCENARIO,
 	GAME_ARG_VERSION,
 	GAME_ARG_OPENGL_INFO,
 	GAME_ARG_SDL_INFO,
@@ -462,6 +464,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
 	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
+	printf("\n%s=x\t\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
@@ -695,7 +698,28 @@ int glestMain(int argc, char** argv){
 				return -1;
 			}
 		}
-		else{
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOADSCENARIO])) == true) {
+
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOADSCENARIO]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOADSCENARIO]),&foundParamIndIndex);
+			}
+			string scenarioName = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(scenarioName,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string autoloadScenarioName = paramPartTokens[1];
+				program->initScenario(mainWindow, autoloadScenarioName);
+			}
+			else {
+				printf("\nInvalid scenario name specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return -1;
+			}
+		}
+		else {
 			program->initNormal(mainWindow);
 		}
 

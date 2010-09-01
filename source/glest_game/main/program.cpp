@@ -26,6 +26,7 @@
 #include "network_manager.h"
 #include "menu_state_custom_game.h"
 #include "menu_state_join_game.h"
+#include "menu_state_scenario.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -149,13 +150,22 @@ void Program::initServer(WindowGl *window){
 	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, true));
 }
 
-void Program::initClient(WindowGl *window, const Ip &serverIp){
+void Program::initClient(WindowGl *window, const Ip &serverIp) {
 	MainMenu* mainMenu= NULL;
 
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, true, serverIp));
+}
+
+void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
+	MainMenu* mainMenu= NULL;
+
+	init(window);
+	mainMenu= new MainMenu(this);
+	setState(mainMenu);
+	mainMenu->setState(new MenuStateScenario(this, mainMenu, Config::getInstance().getPathListForType(ptScenarios),autoloadScenarioName));
 }
 
 Program::~Program(){
