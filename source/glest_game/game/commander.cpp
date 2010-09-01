@@ -90,14 +90,16 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 				}
 			}
 
-			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
-					useCommandtype->getId(), usePos, unitType->getId(),
-					(targetUnit != NULL ? targetUnit->getId() : -1),
-					facing, tryQueue, commandStateType,commandStateValue);
+			if(useCommandtype != NULL) {
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
+						useCommandtype->getId(), usePos, unitType->getId(),
+						(targetUnit != NULL ? targetUnit->getId() : -1),
+						facing, tryQueue, commandStateType,commandStateValue);
 
-			//every unit is ordered to a the position
-			CommandResult result= pushNetworkCommand(&networkCommand);
-			results.push_back(result);
+				//every unit is ordered to a the position
+				CommandResult result= pushNetworkCommand(&networkCommand);
+				results.push_back(result);
+			}
 		}
 
 		return computeResult(results);
