@@ -234,19 +234,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 
 	// Advanced Options
-	labelAdvanced.init(xoffset+650, 150, 80);
+	labelAdvanced.init(790, 80, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
-	listBoxAdvanced.init(xoffset+650, 150-30, 80);
+	listBoxAdvanced.init(810,  80-30, 80);
 	listBoxAdvanced.pushBackItem(lang.get("Yes"));
 	listBoxAdvanced.pushBackItem(lang.get("No"));
 	listBoxAdvanced.setSelectedItemIndex(0);
 
 	// network things
 	// PublishServer
-	xoffset=50;
+	if(enableFactionTexturePreview)
+		xoffset=0;
+	else
+		xoffset=90;
 	labelPublishServer.init(xoffset+50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
-	listBoxPublishServer.init(xoffset+60, networkPos, 100);
+	listBoxPublishServer.init(xoffset+50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
@@ -255,10 +258,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		listBoxPublishServer.setSelectedItemIndex(1);
 
 	// Port
-	labelPublishServerExternalPort.init(xoffset+220, networkHeadPos, 150);
+	labelPublishServerExternalPort.init(xoffset+210, networkHeadPos, 150);
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
-	listBoxPublishServerExternalPort.init(xoffset+230, networkPos, 100);
+	listBoxPublishServerExternalPort.init(xoffset+210, networkPos, 100);
 	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> externalPortList;
 	Tokenize(supportExternalPortList,externalPortList,",");
@@ -272,9 +275,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	//listBoxPublishServer.setSelectedItemIndex(0);
 
 	// Network Frame Period
-	labelNetworkFramePeriod.init(xoffset+370, networkHeadPos, 80);
+	labelNetworkFramePeriod.init(xoffset+350, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-	listBoxNetworkFramePeriod.init(xoffset+380, networkPos, 80);
+	listBoxNetworkFramePeriod.init(xoffset+350, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
 	listBoxNetworkFramePeriod.pushBackItem("30");
@@ -282,9 +285,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxNetworkFramePeriod.setSelectedItem("20");
 
 	// Network Frame Period
-	labelNetworkPauseGameForLaggedClients.init(xoffset+530, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(xoffset+520, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
-	listBoxNetworkPauseGameForLaggedClients.init(xoffset+540, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.init(xoffset+520, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
@@ -293,22 +296,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	// Enable Server Controlled AI
 	labelEnableServerControlledAI.init(xoffset+670, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-	listBoxEnableServerControlledAI.init(xoffset+680, networkPos, 80);
+	listBoxEnableServerControlledAI.init(xoffset+670, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
 	//list boxes
-	xoffset=60;
+	xoffset=120;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
 		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
 
-        listBoxControls[i].init(xoffset+175, setupPos-30-i*rowHeight);
-        listBoxFactions[i].init(xoffset+320, setupPos-30-i*rowHeight, 150);
-		listBoxTeams[i].init(xoffset+495, setupPos-30-i*rowHeight, 60);
-		labelNetStatus[i].init(xoffset+575, setupPos-30-i*rowHeight, 60);
+        listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
+        listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight, 150);
+		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
     }
 
 	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -672,7 +675,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(listBoxTileset.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		// TODO: set a map that fits the condition
 		
 		needToRepublishToMasterserver = true;
         if(hasNetworkGameSettings() == true)
@@ -684,6 +686,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(listBoxMapFilter.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+		labelMapInfo.setText(mapInfo.desc);
+		updateControlers();
+		updateNetworkSlots();
 		needToRepublishToMasterserver = true;
 
         if(hasNetworkGameSettings() == true)
@@ -868,7 +876,7 @@ void MenuStateCustomGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
-			renderer.renderTextureQuad(60+575+40,365,200,225,factionTexture,1);
+			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
 		}
 
 		if(mainMessageBox.getEnabled()){
