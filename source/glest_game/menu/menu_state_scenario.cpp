@@ -31,11 +31,17 @@ using namespace	Shared::Xml;
 // 	class MenuStateScenario
 // =====================================================
 
-MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList):
+MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName):
     MenuState(program, mainMenu, "scenario")
 {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+
+	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.setEnabled(false);
+	mainMessageBoxState=0;
+
+	this->autoloadScenarioName = autoloadScenarioName;
     vector<string> results;
 
 	this->dirList = dirList;
@@ -61,7 +67,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
         throw runtime_error("There are no scenarios");
 	}
 	for(int i= 0; i<results.size(); ++i){
-		results[i]= formatString(results[i]);
+		results[i] = formatString(results[i]);
 	}
     listBoxScenario.setItems(results);
 
@@ -76,7 +82,18 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(buttonReturn.mouseClick(x,y)){
+	if(mainMessageBox.getEnabled()){
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button))
+		{
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(button==1)
+			{
+				mainMessageBox.setEnabled(false);
+			}
+		}
+	}
+	else if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
@@ -92,6 +109,10 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
 
 void MenuStateScenario::mouseMove(int x, int y, const MouseState *ms){
 
+	if (mainMessageBox.getEnabled()) {
+		mainMessageBox.mouseMove(x, y);
+	}
+
 	listBoxScenario.mouseMove(x, y);
 
 	buttonReturn.mouseMove(x, y);
@@ -102,19 +123,41 @@ void MenuStateScenario::render(){
 
 	Renderer &renderer= Renderer::getInstance();
 
-	renderer.renderLabel(&labelInfo);
-	renderer.renderLabel(&labelScenario);
-	renderer.renderListBox(&listBoxScenario);
+	if(mainMessageBox.getEnabled()){
+		renderer.renderMessageBox(&mainMessageBox);
+	}
+	else {
+		renderer.renderLabel(&labelInfo);
+		renderer.renderLabel(&labelScenario);
+		renderer.renderListBox(&listBoxScenario);
 
-	renderer.renderButton(&buttonReturn);
-	renderer.renderButton(&buttonPlayNow);
-
+		renderer.renderButton(&buttonReturn);
+		renderer.renderButton(&buttonPlayNow);
+	}
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateScenario::update(){
-	if(Config::getInstance().getBool("AutoTest")){
+	if(Config::getInstance().getBool("AutoTest")) {
 		AutoTest::getInstance().updateScenario(this);
+	}
+	if(this->autoloadScenarioName != "") {
+		listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
+
+		if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
+			mainMessageBoxState=1;
+			showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
+			this->autoloadScenarioName = "";
+		}
+		else {
+			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+			labelInfo.setText(scenarioInfo.desc);
+
+			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+			CoreData &coreData= CoreData::getInstance();
+			soundRenderer.playFx(coreData.getClickSoundC());
+			launchGame();
+		}
 	}
 }
 
@@ -264,6 +307,21 @@ ControlType MenuStateScenario::strToControllerType(const string &str){
     }
 
     throw std::runtime_error("Unknown controller type: " + str);
+}
+
+void MenuStateScenario::showMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(!mainMessageBox.getEnabled()){
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
+	}
 }
 
 }}//end namespace

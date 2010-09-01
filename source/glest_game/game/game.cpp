@@ -153,7 +153,7 @@ int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
     return 0;
 }
 
-string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger) {
+string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,string factionLogoFilter) {
 	string result = "";
 	if(settings == NULL) {
 		result = "";
@@ -191,7 +191,7 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger) {
 		}
 		// use a scenario based loading screen
 		vector<string> loadScreenList;
-		findAll(scenarioDir + "loading_screen.*", loadScreenList, false, false);
+		findAll(scenarioDir + factionLogoFilter, loadScreenList, false, false);
 		if(loadScreenList.size() > 0) {
 			//string senarioLogo = scenarioDir + "/" + "loading_screen.jpg";
 			string senarioLogo = scenarioDir + loadScreenList[0];
@@ -224,7 +224,7 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
 					if(isdir(path.c_str()) == true) {
 						vector<string> loadScreenList;
-						findAll(path + "/" + "loading_screen.*", loadScreenList, false, false);
+						findAll(path + "/" + factionLogoFilter, loadScreenList, false, false);
 						if(loadScreenList.size() > 0) {
 							//string factionLogo = path + "/" + "loading_screen.jpg";
 							string factionLogo = path + "/" + loadScreenList[0];
@@ -262,7 +262,7 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
 			if(isdir(path.c_str()) == true) {
 				vector<string> loadScreenList;
-				findAll(path + "/" + "loading_screen.*", loadScreenList, false, false);
+				findAll(path + "/" + factionLogoFilter, loadScreenList, false, false);
 				if(loadScreenList.size() > 0) {
 					//string factionLogo = path + "/" + "loading_screen.jpg";
 					string factionLogo = path + "/" + loadScreenList[0];

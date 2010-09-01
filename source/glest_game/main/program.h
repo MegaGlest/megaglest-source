@@ -133,6 +133,7 @@ public:
 	void initNormal(WindowGl *window);
 	void initServer(WindowGl *window);
 	void initClient(WindowGl *window, const Ip &serverIp);
+	void initScenario(WindowGl *window, string autoloadScenarioName);
 
 	//main
     void keyDown(char key);

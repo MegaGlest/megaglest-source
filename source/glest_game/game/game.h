@@ -143,7 +143,7 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
-	static string findFactionLogoFile(const GameSettings *settings, Logger *logger);
+	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
 
 private:
 	//render
