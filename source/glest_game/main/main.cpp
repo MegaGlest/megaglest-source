@@ -713,7 +713,7 @@ int glestMain(int argc, char** argv){
 				program->initScenario(mainWindow, autoloadScenarioName);
 			}
 			else {
-				printf("\nInvalid scenario name specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printf("\nInvalid scenario name specified on commandline [%s] scenario [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
 				return -1;
