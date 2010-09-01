@@ -648,6 +648,7 @@ Command *Unit::getCurrCommand() const{
 void Unit::replaceCurrCommand(Command *cmd) {
 	assert(!commands.empty());
 	commands.front() = cmd;
+	this->setCurrentUnitTitle("");
 }
 
 //returns the size of the commands
@@ -1308,7 +1309,8 @@ void Unit::updateTarget(){
 	}
 }
 
-void Unit::clearCommands(){
+void Unit::clearCommands() {
+	this->setCurrentUnitTitle("");
 	while(!commands.empty()){
 		undoCommand(commands.back());
 		delete commands.back();
@@ -1316,7 +1318,7 @@ void Unit::clearCommands(){
 	}
 }
 
-CommandResult Unit::checkCommand(Command *command) const{
+CommandResult Unit::checkCommand(Command *command) const {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1474,6 +1476,7 @@ CommandResult Unit::undoCommand(Command *command){
 	}
 
 	retryCurrCommandCount=0;
+	this->setCurrentUnitTitle("");
 
 	return crSuccess;
 }
