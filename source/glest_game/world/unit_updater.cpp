@@ -810,19 +810,19 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
-	Unit *repaired= map->getCell(command->getPos())->getUnit(fLand);
-	bool nextToRepaired= repaired!=NULL && map->isNextTo(unit->getPos(), repaired);
+	Unit *repaired = map->getCell(command->getPos())->getUnit(fLand);
+	bool nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
 
 	Unit *peerUnitBuilder = NULL;
 	if(repaired == NULL) {
 		peerUnitBuilder = findPeerUnitBuilder(unit);
-
 		if(peerUnitBuilder != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
 
-			// command->getPos()-Vec2i(1)
-			//nextToRepaired= map->isNextTo(unit->getPos(), command->getPos()-Vec2i(1));
-			nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
+			Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
+
+			//nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
+			nextToRepaired = (unit->getPos() == buildPos);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder,nextToRepaired);
 
