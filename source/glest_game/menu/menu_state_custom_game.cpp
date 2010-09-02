@@ -1304,13 +1304,15 @@ void MenuStateCustomGame::update() {
 		}
 		soundConnectionCount = currentConnectionCount;
 
-		string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
-		if(factionLogo == "") {
-			factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
-		}
-		if(currentFactionLogo != factionLogo) {
-			currentFactionLogo = factionLogo;
-			loadFactionTexture(currentFactionLogo);
+		if(enableFactionTexturePreview == true) {
+			string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
+			if(factionLogo == "") {
+				factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
+			}
+			if(currentFactionLogo != factionLogo) {
+				currentFactionLogo = factionLogo;
+				loadFactionTexture(currentFactionLogo);
+			}
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
