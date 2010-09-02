@@ -290,18 +290,28 @@ void Program::loopWorker() {
 	int updateCount = 0;
 	while(prevState == this->programState && updateTimer.isTime()) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		Chrono chronoUpdateLoop;
+		chronoUpdateLoop.start();
+
 		GraphicComponent::update();
 		programState->update();
+		if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] programState->update took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+		if(chronoUpdateLoop.getMillis() > 0) chrono.start();
+
 		if(prevState == this->programState) {
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(soundThreadManager == NULL) {
 				SoundRenderer::getInstance().update();
+				if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+				if(chronoUpdateLoop.getMillis() > 0) chrono.start();
 			}
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			NetworkManager::getInstance().update();
+			if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] NetworkManager::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+			if(chronoUpdateLoop.getMillis() > 0) chrono.start();
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
@@ -310,7 +320,7 @@ void Program::loopWorker() {
 	//if(chrono.getMillis() >= 100) {
 	//	skipRenderFrameCount = (chrono.getMillis() / 100);
 	//}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
 	if(chrono.getMillis() > 0) chrono.start();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
