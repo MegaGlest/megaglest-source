@@ -439,6 +439,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
             bool canOccupyCell = false;
     		switch(this->game->getGameSettings()->getPathFinderType()) {
     			case pfBasic:
+    				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived about to call map->isFreeCells() for command->getPos() = %s, ut->getSize() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getPos().getString().c_str(),ut->getSize());
     				canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
     				break;
     			case pfRoutePlanner:
@@ -498,7 +499,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
 			}
-            else{
+            else {
                 //if there are no free cells
 				unit->cancelCommand();
                 unit->setCurrSkill(scStop);
@@ -506,14 +507,17 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				if(unit->getFactionIndex()==world->getThisFactionIndex()){
                      console->addStdMessage("BuildingNoPlace");
 				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
             }
         	}
             break;
 
         case tsBlocked:
-			if(unit->getPath()->isBlocked()){
+			if(unit->getPath()->isBlocked()) {
 				unit->cancelCommand();
 
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] got tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
 			}
             break;
         }
@@ -522,26 +526,30 @@ void UnitUpdater::updateBuild(Unit *unit) {
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
 
         //if building
-        Unit *builtUnit= map->getCell(unit->getTargetPos())->getUnit(fLand);
+        Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
 
         //if u is killed while building then u==NULL;
-		if(builtUnit!=NULL && builtUnit!=command->getUnit()){
+		if(builtUnit != NULL && builtUnit != command->getUnit()) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->setCurrSkill(scStop);
-
 		}
-		else if(builtUnit==NULL || builtUnit->isBuilt()){
+		else if(builtUnit == NULL || builtUnit->isBuilt()) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
             unit->finishCommand();
             unit->setCurrSkill(scStop);
 
         }
-        else if(builtUnit->repair()){
+        else if(builtUnit->repair()) {
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
             //building finished
             unit->finishCommand();
             unit->setCurrSkill(scStop);
 
 			builtUnit->born();
 			scriptManager->onUnitCreated(builtUnit);
-			if(unit->getFactionIndex()==world->getThisFactionIndex()){
+			if(unit->getFactionIndex() == world->getThisFactionIndex()) {
 				SoundRenderer::getInstance().playFx(
 					bct->getBuiltSound(),
 					unit->getCurrVector(),
@@ -756,6 +764,44 @@ void UnitUpdater::SwapActiveCommand(Unit *unitSrc, Unit *unitDest) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void UnitUpdater::SwapActiveCommandState(Unit *unit, CommandStateType commandStateType,
+										const CommandType *commandType,
+										int originalValue,int newValue) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(commandStateType == cst_linkedUnit) {
+		if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
+
+			for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
+				Unit *peerUnit = unit->getFaction()->getUnit(i);
+				if(peerUnit != NULL) {
+					if(peerUnit->getCommandSize() > 0 ) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						Command *peerCommand = peerUnit->getCurrCommand();
+						//const BuildCommandType *bct = dynamic_cast<const BuildCommandType*>(peerCommand->getCommandType());
+						//if(bct != NULL) {
+						if(peerCommand != NULL) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							//if(command->getPos() == peerCommand->getPos()) {
+							if( peerCommand->getStateType() == commandStateType &&
+									peerCommand->getStateValue() == originalValue) {
+								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+								peerCommand->setStateValue(newValue);
+							}
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -819,24 +865,39 @@ void UnitUpdater::updateRepair(Unit *unit) {
 		if(peerUnitBuilder != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
 
-			Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
+			if(peerUnitBuilder->getCurrCommand()->getUnit() != NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerbuilder's unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getCurrCommand()->getUnit()->getId());
 
-			//nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
-			nextToRepaired = (unit->getPos() == buildPos);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder,nextToRepaired);
-
-			if(nextToRepaired == true) {
+				repaired = peerUnitBuilder->getCurrCommand()->getUnit();
+				nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
+			}
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				SwapActiveCommand(unit,peerUnitBuilder);
-				// Give the swapped unit a fresh chance to help build in case they
-				// were or are about to be blocked
-				peerUnitBuilder->getPath()->clear();
-				peerUnitBuilder->setRetryCurrCommandCount(1);
-				updateUnitCommand(unit);
-				//updateUnitCommand(peerUnitBuilder);
-				return;
+				Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
+
+				//nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
+				nextToRepaired = (unit->getPos() == buildPos);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder,nextToRepaired);
+
+				if(nextToRepaired == true) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					CommandStateType commandStateType = unit->getCurrCommand()->getStateType();
+					SwapActiveCommand(unit,peerUnitBuilder);
+					int oldPeerUnitId = peerUnitBuilder->getId();
+					int newPeerUnitId = unit->getId();
+					SwapActiveCommandState(unit,commandStateType,unit->getCurrCommand()->getCommandType(),oldPeerUnitId,newPeerUnitId);
+
+					// Give the swapped unit a fresh chance to help build in case they
+					// were or are about to be blocked
+					peerUnitBuilder->getPath()->clear();
+					peerUnitBuilder->setRetryCurrCommandCount(1);
+					updateUnitCommand(unit);
+					//updateUnitCommand(peerUnitBuilder);
+					return;
+				}
 			}
 		}
 	}
