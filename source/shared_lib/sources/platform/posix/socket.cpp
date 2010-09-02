@@ -1162,13 +1162,10 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
 
 bool Socket::isReadable() {
     if(isSocketValid() == false) return false;
-#ifndef WIN32
-	struct timeval tv;
-#else
-	TIMEVAL tv;
-#endif
+
+    struct timeval tv;
 	tv.tv_sec= 0;
-	tv.tv_usec= 1;
+	tv.tv_usec= 0;
 
 	fd_set set;
 	FD_ZERO(&set);
@@ -1194,11 +1191,7 @@ bool Socket::isReadable() {
 bool Socket::isWritable(bool waitOnDelayedResponse) {
     if(isSocketValid() == false) return false;
 
-#ifndef WIN32
 	struct timeval tv;
-#else
-	TIMEVAL tv;
-#endif
 	tv.tv_sec= 0;
 	tv.tv_usec= 1;
 
@@ -1207,8 +1200,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
 	FD_SET(sock, &set);
 
     bool result = false;
-    do
-    {
+    do {
     	int i = 0;
     	{
     		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
