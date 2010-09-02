@@ -285,12 +285,12 @@ bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec
 
 // ==================== free cells ====================
 
-bool Map::isFreeCell(const Vec2i &pos, Field field) const{
+bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 	return
 		isInside(pos) &&
 		getCell(pos)->isFree(field) &&
 		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
-		(field!=fLand || !getDeepSubmerged(getCell(pos)));
+		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
 
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const{
@@ -324,10 +324,13 @@ bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const{
 	return false;
 }
 
-bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const{
-	for(int i=pos.x; i<pos.x+size; ++i){
-		for(int j=pos.y; j<pos.y+size; ++j){
-			if(!isFreeCell(Vec2i(i,j), field)){
+bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const {
+	for(int i=pos.x; i<pos.x+size; ++i) {
+		for(int j=pos.y; j<pos.y+size; ++j) {
+			Vec2i testPos(i,j);
+			if(isFreeCell(testPos, field) == false) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
+
                 return false;
 			}
 		}

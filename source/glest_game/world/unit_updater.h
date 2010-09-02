@@ -15,6 +15,7 @@
 #include "gui.h"
 #include "particle.h"
 #include "randomgen.h"
+#include "command.h"
 
 using Shared::Graphics::ParticleObserver;
 using Shared::Util::RandomGen;
@@ -118,6 +119,9 @@ private:
 
 	Unit * findPeerUnitBuilder(Unit *unit);
 	void SwapActiveCommand(Unit *unitSrc, Unit *unitDest);
+	void SwapActiveCommandState(Unit *unit, CommandStateType commandStateType,
+								const CommandType *commandType,
+								int originalValue,int newValue);
 
 };
 
