@@ -86,7 +86,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int xoffset=0;
 	
 	//state
-	labelStatus.init(410, networkHeadPos+30);
+	labelStatus.init(350, networkHeadPos+30);
 	labelStatus.setText("");
 
 	labelInfo.init(30, networkHeadPos+30);
@@ -139,9 +139,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxNetworkFramePeriod.setEditable(false);
 
 	// Network Frame Period
-	labelNetworkPauseGameForLaggedClients.init(xoffset+440, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(xoffset+420, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
-	listBoxNetworkPauseGameForLaggedClients.init(xoffset+440, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.init(xoffset+420, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("No"));
@@ -149,9 +149,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.init(xoffset+680, networkHeadPos, 80);
+	labelEnableServerControlledAI.init(xoffset+640, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-	listBoxEnableServerControlledAI.init(xoffset+680, networkPos, 80);
+	listBoxEnableServerControlledAI.init(xoffset+640, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
@@ -188,7 +188,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
-	xoffset=60;
+	xoffset=120;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
@@ -416,7 +416,8 @@ void MenuStateConnectedGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
-			renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
+			//renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
+			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
 		}
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
