@@ -296,7 +296,7 @@ void Program::loopWorker() {
 		GraphicComponent::update();
 		programState->update();
 		if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] programState->update took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-		if(chronoUpdateLoop.getMillis() > 0) chrono.start();
+		if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 
 		if(prevState == this->programState) {
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -304,14 +304,14 @@ void Program::loopWorker() {
 			if(soundThreadManager == NULL) {
 				SoundRenderer::getInstance().update();
 				if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-				if(chronoUpdateLoop.getMillis() > 0) chrono.start();
+				if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 			}
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			NetworkManager::getInstance().update();
 			if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] NetworkManager::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-			if(chronoUpdateLoop.getMillis() > 0) chrono.start();
+			if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
