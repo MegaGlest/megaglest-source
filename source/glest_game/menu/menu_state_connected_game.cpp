@@ -839,6 +839,9 @@ void MenuStateConnectedGame::update() {
 		if(clientInterface != NULL && clientInterface->isConnected()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
 			clientInterface->updateLobby();
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) chrono.start();
 		}
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -857,6 +860,9 @@ void MenuStateConnectedGame::update() {
 				switchSetupRequestFlagType=ssrft_None;
 			}
 
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) chrono.start();
+
 			//call the chat manager
 			chatManager.updateNetwork();
 
@@ -865,15 +871,13 @@ void MenuStateConnectedGame::update() {
 			console.update();
 
 			//intro
-			if(clientInterface->getIntroDone())
-			{
+			if(clientInterface->getIntroDone()) {
 				labelInfo.setText(lang.get("WaitingHost"));
 				//servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
 			}
 
 			//launch
-			if(clientInterface->getLaunchGame())
-			{
+			if(clientInterface->getLaunchGame()) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				//servers.save(serversSavedFile);
