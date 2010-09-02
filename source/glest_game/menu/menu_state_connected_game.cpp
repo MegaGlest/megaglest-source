@@ -498,6 +498,9 @@ void MenuStateConnectedGame::render() {
 }
 
 void MenuStateConnectedGame::update() {
+	Chrono chrono;
+	chrono.start();
+
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
 
@@ -524,6 +527,9 @@ void MenuStateConnectedGame::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
 
 	//update status label
 	if(clientInterface != NULL && clientInterface->isConnected()) {
@@ -650,6 +656,9 @@ void MenuStateConnectedGame::update() {
             //labelStatus.setText(szBuf);
             labelStatus.setText(label);
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -658,15 +667,23 @@ void MenuStateConnectedGame::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		    clientInterface->close();
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		returnToJoinMenu();
 		return;
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(chrono.getMillis() > 0) chrono.start();
+
 	//process network messages
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 
 		bool mustSwitchPlayerName = false;
 		if(clientInterface->getGameSettingsReceived()) {
@@ -812,6 +829,9 @@ void MenuStateConnectedGame::update() {
 					}
 				}
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) chrono.start();
 		}
 
 		//update lobby
@@ -820,6 +840,9 @@ void MenuStateConnectedGame::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
 			clientInterface->updateLobby();
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -867,11 +890,14 @@ void MenuStateConnectedGame::update() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
-    if(clientInterface != NULL && clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
-
+    //if(clientInterface != NULL && clientInterface->getLaunchGame()) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
 bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions){

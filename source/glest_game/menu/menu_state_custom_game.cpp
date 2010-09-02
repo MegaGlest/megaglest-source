@@ -950,6 +950,9 @@ void MenuStateCustomGame::render() {
 }
 
 void MenuStateCustomGame::update() {
+	Chrono chrono;
+	chrono.start();
+
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
 	try {
@@ -982,10 +985,12 @@ void MenuStateCustomGame::update() {
 		
 		bool masterServerErr = showMasterserverError;
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(masterServerErr)
-		{
+		if(masterServerErr) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true)
@@ -1006,6 +1011,9 @@ void MenuStateCustomGame::update() {
 			showMessageBox( generalErrorToShow, "Error", false);
 		}
 		
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		// handle setting changes from clients
@@ -1081,6 +1089,9 @@ void MenuStateCustomGame::update() {
 			}
 		}
 		
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
 
 		for(int i= 0; i<mapInfo.players; ++i) {
@@ -1230,6 +1241,9 @@ void MenuStateCustomGame::update() {
 			}
 		}
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
@@ -1240,12 +1254,18 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		// Send the game settings to each client if we have at least one networked client
 		if(checkDataSynch == true) {
 			serverInterface->setGameSettings(&gameSettings,false);
 			needToSetChangedGameSettings    = false;
 		}
 		
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(hasOneNetworkSlotOpen) {
@@ -1273,6 +1293,9 @@ void MenuStateCustomGame::update() {
 							   listBoxPublishServer.getSelectedItemIndex() == 0 &&
 							   needToRepublishToMasterserver == true);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		if(callPublishNow == true) {
 			// give it to me baby, aha aha ...
 			publishToMasterserver();
@@ -1283,6 +1306,9 @@ void MenuStateCustomGame::update() {
 		if(broadCastSettings == true) {
 			needToBroadcastServerSettings=true;
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 
 		//call the chat manager
 		chatManager.updateNetwork();
@@ -1298,11 +1324,17 @@ void MenuStateCustomGame::update() {
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 		if(currentConnectionCount > soundConnectionCount){
 			soundConnectionCount = currentConnectionCount;
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 		}
 		soundConnectionCount = currentConnectionCount;
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 
 		if(enableFactionTexturePreview == true) {
 			string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
@@ -1314,6 +1346,9 @@ void MenuStateCustomGame::update() {
 				loadFactionTexture(currentFactionLogo);
 			}
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
