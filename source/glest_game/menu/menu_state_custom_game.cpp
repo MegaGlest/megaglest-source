@@ -985,7 +985,7 @@ void MenuStateCustomGame::update() {
 		
 		bool masterServerErr = showMasterserverError;
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1011,7 +1011,7 @@ void MenuStateCustomGame::update() {
 			showMessageBox( generalErrorToShow, "Error", false);
 		}
 		
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1089,7 +1089,7 @@ void MenuStateCustomGame::update() {
 			}
 		}
 		
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,mapInfo.players);
@@ -1241,7 +1241,7 @@ void MenuStateCustomGame::update() {
 			}
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1254,7 +1254,7 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		// Send the game settings to each client if we have at least one networked client
@@ -1263,7 +1263,7 @@ void MenuStateCustomGame::update() {
 			needToSetChangedGameSettings    = false;
 		}
 		
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1293,7 +1293,7 @@ void MenuStateCustomGame::update() {
 							   listBoxPublishServer.getSelectedItemIndex() == 0 &&
 							   needToRepublishToMasterserver == true);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		if(callPublishNow == true) {
@@ -1307,7 +1307,7 @@ void MenuStateCustomGame::update() {
 			needToBroadcastServerSettings=true;
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//call the chat manager
@@ -1324,7 +1324,7 @@ void MenuStateCustomGame::update() {
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		if(currentConnectionCount > soundConnectionCount){
@@ -1333,7 +1333,7 @@ void MenuStateCustomGame::update() {
 		}
 		soundConnectionCount = currentConnectionCount;
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		if(enableFactionTexturePreview == true) {
@@ -1347,7 +1347,7 @@ void MenuStateCustomGame::update() {
 			}
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
