@@ -150,7 +150,8 @@ const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 //const float Renderer::maxLightDist= 100.f;
 const float Renderer::maxLightDist= 1000.f;
 
-const int MIN_FPS_NORMAL_RENDERING = 20;
+const int MIN_FPS_NORMAL_RENDERING = 15;
+const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
 // ==================== constructor and destructor ====================
 
@@ -162,6 +163,9 @@ Renderer::Renderer(){
 	modelRenderer = NULL;
 	textRenderer = NULL;
 	particleRenderer = NULL;
+
+	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
+	shadowsOffDueToMinRender=false;
 
 	//resources
 	for(int i=0; i<rsCount; ++i){
@@ -1272,7 +1276,7 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
 		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
 
-	if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
+	if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD) {
 		//shadow texture
 		if(shadows==sProjected || shadows==sShadowMapping){
 			glActiveTexture(shadowTexUnit);
@@ -1383,7 +1387,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 
 					glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
-					if(renderFps >= MIN_FPS_NORMAL_RENDERING &&
+					if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD &&
 						shadows == sShadowMapping) {
 						glActiveTexture(shadowTexUnit);
 						glEnable(GL_TEXTURE_2D);
@@ -1585,7 +1589,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 					glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 					glEnable(GL_COLOR_MATERIAL);
 
-					if(renderFps >= MIN_FPS_NORMAL_RENDERING) {
+					if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD) {
 						if(shadows==sShadowMapping){
 							glActiveTexture(shadowTexUnit);
 							glEnable(GL_TEXTURE_2D);
@@ -2378,7 +2382,7 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(const int renderFps){
-	if(renderFps >= MIN_FPS_NORMAL_RENDERING &&
+	if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD &&
 		(shadows==sProjected || shadows==sShadowMapping)) {
 
 		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);

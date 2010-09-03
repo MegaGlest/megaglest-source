@@ -1443,6 +1443,8 @@ void Game::render3d(){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	renderer.renderMouse3d();
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderMouse3d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+
+	renderer.setLastRenderFps(avgRenderFps);
 }
 
 void Game::render2d(){

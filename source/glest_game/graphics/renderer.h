@@ -244,6 +244,9 @@ private:
 	bool no2DMouseRendering;
 	bool showDebugUI;
 
+	int lastRenderFps;
+	bool shadowsOffDueToMinRender;
+
 private:
 	Renderer();
 	~Renderer();
@@ -377,6 +380,9 @@ public:
 
 	bool getShowDebugUI() const { return showDebugUI; }
 	void setShowDebugUI(bool value) { showDebugUI = value; }
+
+	void setLastRenderFps(int value) { lastRenderFps = value;}
+	int getLastRenderFps() const { return lastRenderFps;}
 
 private:
 	//private misc
