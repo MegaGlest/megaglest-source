@@ -193,7 +193,12 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 	this->mainMenu= mainMenu;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	//switch on menu music again, it might be muted
+	Config &config = Config::getInstance();
+	float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+	CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+	
+	
 	//camera
 	XmlTree xmlTree;
 	xmlTree.load("data/core/menu/menu.xml");

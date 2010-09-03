@@ -410,6 +410,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	// write hint to console:
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+				
+	console.addLine(lang.get("TO SWITCH OFF MUSIC PRESS")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1,true);
 
@@ -1330,6 +1335,10 @@ void MenuStateCustomGame::update() {
 		if(currentConnectionCount > soundConnectionCount){
 			soundConnectionCount = currentConnectionCount;
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+			//switch on music again!!
+			Config &config = Config::getInstance();
+			float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+			CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
 		}
 		soundConnectionCount = currentConnectionCount;
 
@@ -2025,6 +2034,25 @@ void MenuStateCustomGame::keyDown(char key) {
 			if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
 			}
+			//Toggle music
+			else if(key == configKeys.getCharKey("ToggleMusic")) {
+				Config &config = Config::getInstance();
+				Lang &lang= Lang::getInstance();
+				
+				float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+				float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
+				if(currentVolume > 0) {
+					CoreData::getInstance().getMenuMusic()->setVolume(0.f);
+					console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+				}
+				else {
+					CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+					//If the config says zero, use the default music volume
+					//gameMusic->setVolume(configVolume ? configVolume : 0.9);
+					console.addLine(lang.get("GameMusic"));
+				}
+			}
+			
 		}
 	}
 }
