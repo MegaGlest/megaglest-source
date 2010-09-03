@@ -128,6 +128,7 @@ void ServerLine::render(){
 	renderer.renderLabel(&tilesetLabel);
 	renderer.renderLabel(&activeSlotsLabel);
 	renderer.renderLabel(&externalConnectPort);
+
 }
 
 // =====================================================
@@ -162,7 +163,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// bottom
 	int buttonPos=130;
 	
-	labelChatUrl.init(50,buttonPos-50);
+	labelChatUrl.init(150,buttonPos-50);
 	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelChatUrl.setText(lang.get("NoServerVisitChat")+":     http://webchat.freenode.net/?channels=glest");
 	
@@ -188,6 +189,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
 	//updateServerInfo();
+	
+	// write hint to console:
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
@@ -235,7 +240,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
 		if(mainMessageBox.mouseClick(x, y, button))
-		{
+		{	
 			soundRenderer.playFx(coreData.getClickSoundA());
 			if(button==1)
 			{
@@ -352,6 +357,8 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&labelChatUrl);
 		renderer.renderButton(&buttonCreateGame);
 		renderer.renderListBox(&listBoxAutoRefresh);
+		// render console
+		renderer.renderConsole(&console,false,false);
 		
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
@@ -370,8 +377,15 @@ void MenuStateMasterserver::update(){
 	if(playServerFoundSound)
 	{
 		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+		//switch on music again!!
+		Config &config = Config::getInstance();
+		float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+		CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+		
 		playServerFoundSound=false;
 	}
+	
+	console.update();
 
 	if(threadedErrorMsg != "") {
 		std::string sError = threadedErrorMsg;
@@ -547,5 +561,29 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 	}
 }
 
+
+void MenuStateMasterserver::keyDown(char key) {
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+	if(key == configKeys.getCharKey("ToggleMusic")) {
+		Config &config = Config::getInstance();
+		Lang &lang= Lang::getInstance();
+		
+		float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+		float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
+		if(currentVolume > 0) {
+			CoreData::getInstance().getMenuMusic()->setVolume(0.f);
+			console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+		}
+		else {
+			CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+			//If the config says zero, use the default music volume
+			//gameMusic->setVolume(configVolume ? configVolume : 0.9);
+			console.addLine(lang.get("GameMusic"));
+		}
+	}
+}
+
+//CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 
 }}//end namespace
