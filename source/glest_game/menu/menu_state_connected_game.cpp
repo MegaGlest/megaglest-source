@@ -946,6 +946,10 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else {
+	    // Add special Observer Faction
+	    Lang &lang= Lang::getInstance();
+	    results.push_back(formatString(lang.get("ObserverOnly")));
+
 		factionFiles= results;
 		for(int i= 0; i<results.size(); ++i){
 			results[i]= formatString(results[i]);

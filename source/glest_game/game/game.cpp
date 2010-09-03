@@ -1638,51 +1638,21 @@ void Game::checkWinner(){
 }
 
 void Game::checkWinnerStandard(){
-	//lose
-	bool lose= false;
-	if(hasBuilding(world.getThisFaction()) == false) {
-		lose= true;
-		for(int i=0; i<world.getFactionCount(); ++i) {
-			if(world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
-				world.getStats()->setVictorious(i);
-			}
-		}
-		gameOver= true;
-		if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
-			// Let the poor user watch everything unfold
-			world.setFogOfWar(false);
-
-			// This caused too much LAG for network games
-			if(this->gameSettings.isNetworkGame() == false) {
-				Renderer::getInstance().setPhotoMode(true);
-				gameCamera.setMaxHeight(500);
-			}
-			// END
-
-			// but don't let him cheat via teamchat
-			chatManager.setDisableTeamMode(true);
-		}
-
-		scriptManager.onGameOver(!lose);
-
-		showLoseMessageBox();
-	}
-
-	//win
-	if(lose == false) {
-		bool win= true;
-		for(int i=0; i<world.getFactionCount(); ++i) {
-			if(i!=world.getThisFactionIndex()){
-				if(hasBuilding(world.getFaction(i)) && world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
-					win= false;
+	if(world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+		// lookup int is team #, value is players alive on team
+		std::map<int,int> teamsAlive;
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			if(i != world.getThisFactionIndex()) {
+				if(hasBuilding(world.getFaction(i))) {
+					teamsAlive[world.getFaction(i)->getTeam()] = teamsAlive[world.getFaction(i)->getTeam()] + 1;
 				}
 			}
 		}
 
-		//if win
-		if(win) {
+		// did some team win
+		if(teamsAlive.size() <= 1) {
 			for(int i=0; i< world.getFactionCount(); ++i) {
-				if(world.getFaction(i)->isAlly(world.getThisFaction())) {
+				if(i != world.getThisFactionIndex() && teamsAlive.find(world.getFaction(i)->getTeam()) != teamsAlive.end()) {
 					world.getStats()->setVictorious(i);
 				}
 			}
@@ -1699,9 +1669,82 @@ void Game::checkWinnerStandard(){
 				// END
 			}
 
-			scriptManager.onGameOver(win);
-
+			scriptManager.onGameOver(true);
 			showWinMessageBox();
+		}
+	}
+	else {
+		//lose
+		bool lose= false;
+		if(hasBuilding(world.getThisFaction()) == false) {
+			lose= true;
+			for(int i=0; i<world.getFactionCount(); ++i) {
+				if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+					if(world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
+						world.getStats()->setVictorious(i);
+					}
+				}
+			}
+			gameOver= true;
+			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+				// Let the poor user watch everything unfold
+				world.setFogOfWar(false);
+
+				// This caused too much LAG for network games
+				if(this->gameSettings.isNetworkGame() == false) {
+					Renderer::getInstance().setPhotoMode(true);
+					gameCamera.setMaxHeight(500);
+				}
+				// END
+
+				// but don't let him cheat via teamchat
+				chatManager.setDisableTeamMode(true);
+			}
+
+			scriptManager.onGameOver(!lose);
+
+			showLoseMessageBox();
+		}
+
+		//win
+		if(lose == false) {
+			bool win= true;
+			for(int i = 0; i < world.getFactionCount(); ++i) {
+				if(i != world.getThisFactionIndex()) {
+					if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+						if(hasBuilding(world.getFaction(i)) && world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
+							win= false;
+						}
+					}
+				}
+			}
+
+			//if win
+			if(win) {
+				for(int i=0; i< world.getFactionCount(); ++i) {
+					if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+						if(world.getFaction(i)->isAlly(world.getThisFaction())) {
+							world.getStats()->setVictorious(i);
+						}
+					}
+				}
+				gameOver= true;
+				if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+					// Let the happy winner view everything left in the world
+					world.setFogOfWar(false);
+
+					// This caused too much LAG for network games
+					if(this->gameSettings.isNetworkGame() == false) {
+						Renderer::getInstance().setPhotoMode(true);
+						gameCamera.setMaxHeight(500);
+					}
+					// END
+				}
+
+				scriptManager.onGameOver(win);
+
+				showWinMessageBox();
+			}
 		}
 	}
 }
@@ -1794,7 +1837,13 @@ void Game::showLoseMessageBox(){
 
 void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
-	showMessageBox(lang.get("YouWin")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+
+	if(world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+		showMessageBox(lang.get("GameOver")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+	}
+	else {
+		showMessageBox(lang.get("YouWin")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+	}
 }
 
 void Game::showMessageBox(const string &text, const string &header, bool toggle) {

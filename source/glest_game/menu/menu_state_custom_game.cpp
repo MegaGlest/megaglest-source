@@ -1895,17 +1895,22 @@ void MenuStateCustomGame::reloadFactions(){
     if(results.size() == 0) {
         throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
     }
+
+    // Add special Observer Faction
+    Lang &lang= Lang::getInstance();
+    results.push_back(formatString(lang.get("ObserverOnly")));
+
     factionFiles= results;
     for(int i= 0; i<results.size(); ++i){
         results[i]= formatString(results[i]);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
     }
+
     for(int i=0; i<GameConstants::maxPlayers; ++i){
         listBoxFactions[i].setItems(results);
         listBoxFactions[i].setSelectedItemIndex(i % results.size());
     }
-
 }
 
 void MenuStateCustomGame::updateControlers(){
