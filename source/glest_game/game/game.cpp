@@ -1503,6 +1503,8 @@ void Game::render2d(){
 	}
 
     string str;
+    std::map<int,string> factionDebugInfo;
+
 	if( renderer.getShowDebugUI() == true || 
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
 		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
@@ -1558,14 +1560,31 @@ void Game::render2d(){
 		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
 
 		// resources
-		for(int i=0; i<world.getFactionCount(); ++i){
-			str+= "Player "+intToStr(i)+" res: ";
-			for(int j=0; j<world.getTechTree()->getResourceTypeCount(); ++j){
+
+		/*
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			//str+= "Player "+intToStr(i)+" res: ";
+			str+= this->gameSettings.getNetworkPlayerName(i) + " res: ";
+			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
 				str+= intToStr(world.getFaction(i)->getResource(j)->getAmount());
 				str+=" ";
 			}
 			str+="\n";
 		}
+		*/
+
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			//str+= "Player "+intToStr(i)+" res: ";
+			string factionInfo = this->gameSettings.getNetworkPlayerName(i) + " res: ";
+			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
+				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+				factionInfo += " ";
+			}
+			//str+="\n";
+
+			factionDebugInfo[i] = factionInfo;
+		}
+
 	}
 
 	if(renderer.getShowDebugUI() == true) {
@@ -1578,6 +1597,15 @@ void Game::render2d(){
 
 		renderer.renderTextShadow(str, coreData.getMenuFontNormal(),
 				fontColor, 10, metrics.getVirtualH() - mh - 60, false);
+
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			string factionInfo = factionDebugInfo[i];
+			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
+			renderer.renderTextShadow(factionInfo, coreData.getMenuFontNormal(),
+					Vec4f(playerColor.x,playerColor.y,playerColor.z,fontColor.w),
+					10, metrics.getVirtualH() - mh - 60 - 210 - (i * 12), false);
+
+		}
 
 		if(renderer.getAllowRenderUnitTitles() == false) {
 			renderer.setAllowRenderUnitTitles(true);
