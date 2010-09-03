@@ -96,28 +96,34 @@ void BattleEnd::render(){
 		int score= kills*100 + unitsProduced*50 + resourcesHarvested/10;
 		string controlString;
 
-		switch(stats.getControl(i)){
-		case ctCpuEasy:
-			controlString= lang.get("CpuEasy");
-			break;
-		case ctCpu:
-			controlString= lang.get("Cpu");
-			break;
-		case ctCpuUltra:
-			controlString= lang.get("CpuUltra");
-			break;
-		case ctCpuMega:
-			controlString= lang.get("CpuMega");
-			break;
-		case ctNetwork:
-			controlString= lang.get("Network");
-			break;
-		case ctHuman:
-			controlString= lang.get("Human");
-			break;
-		default:
-			assert(false);
-		};
+		if(stats.getPersonalityType(i) == fpt_Observer) {
+			controlString= lang.get("ObserverOnly");
+		}
+		else {
+			switch(stats.getControl(i)) {
+			case ctCpuEasy:
+				controlString= lang.get("CpuEasy");
+				break;
+			case ctCpu:
+				controlString= lang.get("Cpu");
+				break;
+			case ctCpuUltra:
+				controlString= lang.get("CpuUltra");
+				break;
+			case ctCpuMega:
+				controlString= lang.get("CpuMega");
+				break;
+			case ctNetwork:
+				controlString= lang.get("Network");
+				break;
+			case ctHuman:
+				controlString= lang.get("Human");
+				break;
+
+			default:
+				assert(false);
+			};
+		}
 
 		Vec3f color = stats.getPlayerColor(i);
 
@@ -127,7 +133,13 @@ void BattleEnd::render(){
 		else {
 			textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
-		textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
+
+		if(stats.getPersonalityType(i) == fpt_Observer) {
+			textRenderer->render(lang.get("GameOver").c_str(), textX, bm+360);
+		}
+		else {
+			textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
+		}
 		textRenderer->render(controlString, textX, bm+320);
 		textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
 		textRenderer->render(intToStr(team).c_str(), textX, bm+240);

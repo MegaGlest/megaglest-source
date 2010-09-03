@@ -16,6 +16,7 @@
 
 #include "game_constants.h"
 #include "faction.h"
+#include "faction_type.h"
 #include "vec.h"
 
 using std::string;
@@ -28,6 +29,7 @@ public:
 	PlayerStats() {
 		control = ctClosed;
 		factionTypeName = "";
+		personalityType = fpt_Normal;
 		teamIndex = 0;
 		victory = false;
 		kills = 0;
@@ -40,6 +42,7 @@ public:
 
 	ControlType control;
 	string factionTypeName;
+	FactionPersonalityType personalityType;
 	int teamIndex;
 	bool victory;
 	int kills;
@@ -76,8 +79,8 @@ public:
 	string getDescription() const	{return description;}
 	int getThisFactionIndex() const	{return thisFactionIndex;}
 	int getFactionCount() const		{return factionCount;}
-
 	const string &getFactionTypeName(int factionIndex) const	{return playerStats[factionIndex].factionTypeName;}
+	FactionPersonalityType getPersonalityType(int factionIndex) const { return playerStats[factionIndex].personalityType;}
 	ControlType getControl(int factionIndex) const				{return playerStats[factionIndex].control;}
 	bool getVictory(int factionIndex) const						{return playerStats[factionIndex].victory;}
 	int getTeam(int factionIndex) const							{return playerStats[factionIndex].teamIndex;}
@@ -90,6 +93,7 @@ public:
 
 	void setDescription(const string& description)							{this->description = description;}
 	void setFactionTypeName(int playerIndex, const string& factionTypeName)	{playerStats[playerIndex].factionTypeName= factionTypeName;}
+	void setPersonalityType(int playerIndex, FactionPersonalityType value)  { playerStats[playerIndex].personalityType = value;}
 	void setControl(int playerIndex, ControlType control)					{playerStats[playerIndex].control= control;}
 	void setTeam(int playerIndex, int teamIndex)							{playerStats[playerIndex].teamIndex= teamIndex;}
 	void setVictorious(int playerIndex);
@@ -99,6 +103,7 @@ public:
 	void harvest(int harvesterFactionIndex, int amount);
 	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
+
 };
 
 }}//end namespace

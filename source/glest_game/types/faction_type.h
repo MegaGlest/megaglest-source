@@ -26,6 +26,11 @@ namespace Glest{ namespace Game{
 ///	Each of the possible factions the user can select
 // =====================================================
 
+enum FactionPersonalityType {
+	fpt_Normal,
+	fpt_Observer
+};
+
 class FactionType{
 private:
 	typedef pair<const UnitType*, int> PairPUnitTypeInt;
@@ -41,6 +46,7 @@ private:
 	StartingUnits startingUnits;
 	Resources startingResources;
 	StrSound *music;
+	FactionPersonalityType personalityType;
 
 public:
 	//init
@@ -62,6 +68,9 @@ public:
 	const UnitType *getUnitType(const string &name) const;  
 	const UpgradeType *getUpgradeType(const string &name) const;  
 	int getStartingResourceAmount(const ResourceType *resourceType) const;
+
+	FactionPersonalityType getPersonalityType() const { return personalityType;}
+	void setPersonalityType(FactionPersonalityType value) { personalityType = value;}
 
 	std::string toString() const;
 	std::vector<std::string> validateFactionType();
