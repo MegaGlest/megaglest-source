@@ -57,6 +57,7 @@ public:
 	bool buttonMouseMove(int x, int y);
 	//void setIndex(int value);
 	void render();
+	
 };
 
 
@@ -87,6 +88,8 @@ private:
 	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
+	
+	Console console;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;
@@ -100,7 +103,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();
-
+		
+	virtual void keyDown(char key);
 	virtual void simpleTask();
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
