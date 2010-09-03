@@ -1575,7 +1575,8 @@ void Game::render2d(){
 
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			//str+= "Player "+intToStr(i)+" res: ";
-			string factionInfo = this->gameSettings.getNetworkPlayerName(i) + " res: ";
+			string factionInfo = this->gameSettings.getNetworkPlayerName(i) +
+					" [" + formatString(this->gameSettings.getFactionTypeName(i)) + "] res: ";
 			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
 				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
 				factionInfo += " ";
@@ -1601,10 +1602,13 @@ void Game::render2d(){
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			string factionInfo = factionDebugInfo[i];
 			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
-			renderer.renderTextShadow(factionInfo, coreData.getMenuFontNormal(),
-					Vec4f(playerColor.x,playerColor.y,playerColor.z,fontColor.w),
-					10, metrics.getVirtualH() - mh - 60 - 210 - (i * 12), false);
+			//renderer.renderTextShadow(factionInfo, coreData.getMenuFontNormal(),
+			//		Vec4f(playerColor.x,playerColor.y,playerColor.z,fontColor.w),
+			//		10, metrics.getVirtualH() - mh - 60 - 210 - (i * 12), false);
 
+			renderer.renderText(factionInfo, coreData.getMenuFontBig(),
+					Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
+					10, metrics.getVirtualH() - mh - 60 - 210 - (i * 16), false);
 		}
 
 		if(renderer.getAllowRenderUnitTitles() == false) {
