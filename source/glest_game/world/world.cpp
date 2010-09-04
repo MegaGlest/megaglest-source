@@ -803,8 +803,8 @@ void World::initCells(bool fogOfWar){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Logger::getInstance().add("State cells", true);
-    for(int i=0; i<map.getSurfaceW(); ++i){
-        for(int j=0; j<map.getSurfaceH(); ++j){
+    for(int i=0; i< map.getSurfaceW(); ++i) {
+        for(int j=0; j< map.getSurfaceH(); ++j) {
 
 			SurfaceCell *sc= map.getSurfaceCell(i, j);
 
@@ -815,6 +815,10 @@ void World::initCells(bool fogOfWar){
 			for (int k = 0; k < GameConstants::maxPlayers; k++) {
 				sc->setExplored(k, !fogOfWar);
 				sc->setVisible(k, !fogOfWar);
+			}
+			for (int k = GameConstants::maxPlayers; k < GameConstants::maxPlayers + GameConstants::specialFactions; k++) {
+				sc->setExplored(k, true);
+				sc->setVisible(k, true);
 			}
 		}
     }
@@ -1091,11 +1095,33 @@ void World::computeFow(int factionIdxToTick) {
 
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-		for(int i=0; i<map.getSurfaceW(); ++i) {
-			for(int j=0; j<map.getSurfaceH(); ++j) {
-				for(int k=0; k<GameConstants::maxPlayers; ++k) {
-					if(fogOfWar || k != thisTeamIndex){
-						map.getSurfaceCell(i, j)->setVisible(k, false);
+		for(int i = 0; i < map.getSurfaceW(); ++i) {
+			for(int j = 0; j < map.getSurfaceH(); ++j) {
+				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
+					if(fogOfWar || k != thisTeamIndex) {
+						if(k == thisTeamIndex && thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
+							map.getSurfaceCell(i, j)->setVisible(k, true);
+							map.getSurfaceCell(i, j)->setExplored(k, true);
+
+							const Vec2i pos(i,j);
+							Vec2i surfPos= Map::toSurfCoords(pos);
+
+							//compute max alpha
+							float maxAlpha= 0.0f;
+							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+								maxAlpha= 1.f;
+							}
+							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+								maxAlpha= 0.3f;
+							}
+
+							//compute alpha
+							float alpha=maxAlpha;
+							minimap.incFowTextureAlphaSurface(surfPos, alpha);
+						}
+						else {
+							map.getSurfaceCell(i, j)->setVisible(k, false);
+						}
 					}
 				}
 			}
@@ -1144,7 +1170,8 @@ void World::computeFow(int factionIdxToTick) {
 	if(fogOfWar) {
 		for(int i=0; i<getFactionCount(); ++i) {
 			Faction *faction= getFaction(i);
-			if(faction->getTeam() == thisTeamIndex){
+			if(faction->getTeam() == thisTeamIndex) {
+				//if(thisTeamIndex == GameConstants::maxPlayers + fpt_Observer) {
 				for(int j=0; j<faction->getUnitCount(); ++j){
 					const Unit *unit= faction->getUnit(j);
 					if(unit->isOperative()){

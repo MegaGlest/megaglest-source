@@ -92,8 +92,8 @@ private:
 	Object *object;
 
 	//visibility
-	bool visible[GameConstants::maxPlayers];
-    bool explored[GameConstants::maxPlayers];
+	bool visible[GameConstants::maxPlayers + GameConstants::specialFactions];
+    bool explored[GameConstants::maxPlayers + GameConstants::specialFactions];
 
 	//cache
 	bool nearSubmerged;

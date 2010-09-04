@@ -1576,7 +1576,8 @@ void Game::render2d(){
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			//str+= "Player "+intToStr(i)+" res: ";
 			string factionInfo = this->gameSettings.getNetworkPlayerName(i) +
-					" [" + formatString(this->gameSettings.getFactionTypeName(i)) + "] res: ";
+					" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
+					" team: " + intToStr(this->gameSettings.getTeam(i)) + "] res: ";
 			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
 				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
 				factionInfo += " ";

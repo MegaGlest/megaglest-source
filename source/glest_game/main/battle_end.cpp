@@ -97,7 +97,7 @@ void BattleEnd::render(){
 		string controlString;
 
 		if(stats.getPersonalityType(i) == fpt_Observer) {
-			controlString= lang.get("ObserverOnly");
+			controlString= GameConstants::OBSERVER_SLOTNAME;
 		}
 		else {
 			switch(stats.getControl(i)) {
