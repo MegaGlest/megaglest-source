@@ -412,7 +412,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 				
-	console.addLine(lang.get("TO SWITCH OFF MUSIC PRESS")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	//chatManager.init(&console, world.getThisTeamIndex());
 	chatManager.init(&console, -1,true);
