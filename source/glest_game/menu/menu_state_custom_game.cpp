@@ -110,13 +110,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonRestoreLastSettings.init(250+130, 180, 200);
 	buttonPlayNow.init(250+130+205, 180, 125);
 
+	int labelOffset=23;
 	int setupPos=590;
 	int mapHeadPos=330;
-	int mapPos=mapHeadPos-30;
-	int aHeadPos=260;
-	int aPos=aHeadPos-30;
+	int mapPos=mapHeadPos-labelOffset;
+	int aHeadPos=mapHeadPos-80;
+	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
-	int networkPos=networkHeadPos-30;
+	int networkPos=networkHeadPos-labelOffset;
 	int xoffset=10;
 	
     //map listBox
@@ -147,7 +148,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
 	}
 
-	labelLocalIP.init(410, networkHeadPos+30);
+	labelLocalIP.init(410, networkHeadPos+labelOffset);
 
 	string ipText = "none";
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -169,7 +170,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelMap.setText(lang.get("Map")+":");
 	listBoxMap.init(xoffset+100, mapPos, 200);
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-	labelMapInfo.init(xoffset+100, mapPos-30, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset, 200, 40);
 	
 	// MapFilter
 	labelMapFilter.init(xoffset+310, mapHeadPos);
@@ -205,27 +206,27 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     listBoxTechTree.setItems(results);
 	labelTechTree.init(xoffset+650, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
+
+	// Allow Observers 	
+	labelAllowObservers.init(xoffset+100, aHeadPos, 80);
+	labelAllowObservers.setText(lang.get("AllowObservers"));
+	listBoxAllowObservers.init(xoffset+100, aPos, 80);
+	listBoxAllowObservers.pushBackItem(lang.get("No"));
+	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
+	listBoxAllowObservers.setSelectedItemIndex(0);
 		
 	// fog - o - war
 	// @350 ? 300 ?
-	
 	labelFogOfWar.init(xoffset+310, aHeadPos, 80);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 	listBoxFogOfWar.init(xoffset+310, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
-
-	labelAllowObservers.init(xoffset+180, aHeadPos, 80);
-	labelAllowObservers.setText(lang.get("AllowObservers"));
-	listBoxAllowObservers.init(xoffset+180, aPos, 80);
-	listBoxAllowObservers.pushBackItem(lang.get("No"));
-	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
-	listBoxAllowObservers.setSelectedItemIndex(0);
-
-	// Enable Observer Mode
+	
+	// View Map At End Of Game
 	labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
-	listBoxEnableObserverMode.init(xoffset+460, aPos, 150);
+	listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
@@ -238,11 +239,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
 	listBoxPathFinderType.setSelectedItemIndex(0);
 
-
 	// Advanced Options
-	labelAdvanced.init(790, 80, 80);
+	labelAdvanced.init(810, 80, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
-	listBoxAdvanced.init(810,  80-30, 80);
+	listBoxAdvanced.init(810,  80-labelOffset, 80);
 	listBoxAdvanced.pushBackItem(lang.get("No"));
 	listBoxAdvanced.pushBackItem(lang.get("Yes"));
 	listBoxAdvanced.setSelectedItemIndex(0);
