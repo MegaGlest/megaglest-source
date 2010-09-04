@@ -43,8 +43,17 @@ enum ControlType{
 	ctHuman
 };
 
+
+enum FactionPersonalityType {
+	fpt_Normal,
+	fpt_Observer,
+
+	fpt_EndCount
+};
+
 class GameConstants {
 public:
+	static const int specialFactions = fpt_EndCount - 1;
 	static const int maxPlayers= 8;
 	static const int serverPort= 61357;
 	//static const int updateFps= 40;
@@ -69,6 +78,8 @@ public:
 	static const char *NETWORK_SLOT_UNCONNECTED_SLOTNAME;
 
 	static const char *folder_path_screenshots;
+
+	static const char *OBSERVER_SLOTNAME;
 };
 
 enum PathType {

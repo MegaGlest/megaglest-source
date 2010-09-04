@@ -338,14 +338,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     controlItems.push_back(lang.get("CpuMega"));
 	controlItems.push_back(lang.get("Network"));
 	controlItems.push_back(lang.get("Human"));
-	teamItems.push_back("1");
-	teamItems.push_back("2");
-	teamItems.push_back("3");
-	teamItems.push_back("4");
-	teamItems.push_back("5");
-	teamItems.push_back("6");
-	teamItems.push_back("7");
-	teamItems.push_back("8");
+
+	for(int i = 1; i <= GameConstants::maxPlayers; ++i) {
+		teamItems.push_back(intToStr(i));
+	}
+	for(int i = GameConstants::maxPlayers + 1; i <= GameConstants::maxPlayers + GameConstants::specialFactions; ++i) {
+		teamItems.push_back(intToStr(i));
+	}
 
 	reloadFactions();
 
@@ -803,7 +802,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     lastSetChangedGameSettings   = time(NULL);
                 }
 			}
-			else if(listBoxFactions[i].mouseClick(x, y)){
+			else if(listBoxFactions[i].mouseClick(x, y)) {
 				needToRepublishToMasterserver = true;
 
                 if(hasNetworkGameSettings() == true)
@@ -1047,7 +1046,7 @@ void MenuStateCustomGame::update() {
 						int switchFactionIdx = switchSetupRequests[i]->getCurrentFactionIndex();
 						if(serverInterface->switchSlot(switchFactionIdx,newFactionIdx)) {
 							try {
-								if(switchSetupRequests[i]->getSelectedFactionName() != ""){
+								if(switchSetupRequests[i]->getSelectedFactionName() != "") {
 									listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 								}
 								if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -1565,9 +1564,18 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
 				labelPlayerNames[i].setText(getHumanPlayerName(i));
 			}
+
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
+			}
+			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers));
+			}
+
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
-			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
@@ -1885,7 +1893,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
 
 }
 
-void MenuStateCustomGame::reloadFactions(){
+void MenuStateCustomGame::reloadFactions() {
 
 	vector<string> results;
 
@@ -1907,7 +1915,7 @@ void MenuStateCustomGame::reloadFactions(){
 
     // Add special Observer Faction
     Lang &lang= Lang::getInstance();
-    results.push_back(formatString(lang.get("ObserverOnly")));
+    results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 
     factionFiles= results;
     for(int i= 0; i<results.size(); ++i){

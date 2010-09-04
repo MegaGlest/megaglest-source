@@ -44,7 +44,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
     // Add special Observer Faction
     Lang &lang= Lang::getInstance();
-    if(name == formatString(lang.get("ObserverOnly"))) {
+    if(name == formatString(GameConstants::OBSERVER_SLOTNAME)) {
     	personalityType = fpt_Observer;
     }
 
@@ -56,7 +56,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		vector<string> unitFilenames;
 		findAll(unitsPath, unitFilenames);
 		unitTypes.resize(unitFilenames.size());
-		for(int i=0; i<unitTypes.size(); ++i){
+		for(int i=0; i<unitTypes.size(); ++i) {
 			string str= dir + "/units/" + unitFilenames[i];
 			unitTypes[i].preLoad(str);
 	
@@ -68,7 +68,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		vector<string> upgradeFilenames;
 		findAll(upgradesPath, upgradeFilenames);
 		upgradeTypes.resize(upgradeFilenames.size());
-		for(int i=0; i<upgradeTypes.size(); ++i){
+		for(int i=0; i<upgradeTypes.size(); ++i) {
 			string str= dir + "/upgrades/" + upgradeFilenames[i];
 			upgradeTypes[i].preLoad(str);
 
@@ -77,20 +77,20 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 		// b1) load units
 		try{
-			for(int i=0; i<unitTypes.size(); ++i){
+			for(int i = 0; i < unitTypes.size(); ++i) {
 				string str= dir + "/units/" + unitTypes[i].getName();
 				unitTypes[i].load(i, str, techTree, this, checksum);
 
 				SDL_PumpEvents();
 			}
 		}
-		catch(const exception &e){
+		catch(const exception &e) {
 			throw runtime_error("Error loading units: "+ dir + "\n" + e.what());
 		}
 
 		// b2) load upgrades
 		try{
-			for(int i=0; i<upgradeTypes.size(); ++i){
+			for(int i = 0; i < upgradeTypes.size(); ++i) {
 				string str= dir + "/upgrades/" + upgradeTypes[i].getName();
 				upgradeTypes[i].load(str, techTree, this, checksum);
 

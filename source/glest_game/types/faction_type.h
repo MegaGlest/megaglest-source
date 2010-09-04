@@ -26,11 +26,6 @@ namespace Glest{ namespace Game{
 ///	Each of the possible factions the user can select
 // =====================================================
 
-enum FactionPersonalityType {
-	fpt_Normal,
-	fpt_Observer
-};
-
 class FactionType{
 private:
 	typedef pair<const UnitType*, int> PairPUnitTypeInt;

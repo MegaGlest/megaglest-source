@@ -42,6 +42,8 @@ const char *GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME = "???";
 
 const char *GameConstants::folder_path_screenshots	= "screens/";
 
+const char *GameConstants::OBSERVER_SLOTNAME		= "*Observer*";
+
 // =====================================================
 // 	class Config
 // =====================================================

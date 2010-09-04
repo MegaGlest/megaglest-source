@@ -230,14 +230,14 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     controlItems.push_back(lang.get("CpuMega"));
 	controlItems.push_back(lang.get("Network"));
 	controlItems.push_back(lang.get("Human"));
-	teamItems.push_back("1");
-	teamItems.push_back("2");
-	teamItems.push_back("3");
-	teamItems.push_back("4");
-	teamItems.push_back("5");
-	teamItems.push_back("6");
-	teamItems.push_back("7");
-	teamItems.push_back("8");
+
+	for(int i = 1; i <= GameConstants::maxPlayers; ++i) {
+		teamItems.push_back(intToStr(i));
+	}
+	for(int i = GameConstants::maxPlayers + 1; i <= GameConstants::maxPlayers + GameConstants::specialFactions; ++i) {
+		teamItems.push_back(intToStr(i));
+	}
+
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
 		labelPlayerNames[i].setText("");
@@ -948,7 +948,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 	else {
 	    // Add special Observer Faction
 	    Lang &lang= Lang::getInstance();
-	    results.push_back(formatString(lang.get("ObserverOnly")));
+	    results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 
 		factionFiles= results;
 		for(int i= 0; i<results.size(); ++i){
