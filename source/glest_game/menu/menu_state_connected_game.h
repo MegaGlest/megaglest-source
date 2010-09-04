@@ -82,6 +82,9 @@ private:
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	GraphicButton grabSlotButton[GameConstants::maxPlayers];
 
+	GraphicLabel labelAllowObservers;
+	GraphicListBox listBoxAllowObservers;
+
 	GraphicLabel *activeInputLabel;
 
 	MapInfo mapInfo;
@@ -131,7 +134,6 @@ public:
 private:
 
     bool hasNetworkGameSettings();
-	void reloadFactions();
 	bool loadFactions(const GameSettings *gameSettings,bool errorOnNoFactions);
 	void returnToJoinMenu();
 	string getHumanPlayerName();

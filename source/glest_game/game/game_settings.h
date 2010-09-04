@@ -48,6 +48,7 @@ private:
 	bool defaultVictoryConditions;
 
 	bool fogOfWar;
+	bool allowObservers;
 	bool enableObserverModeAtEndGame;
 	bool enableServerControlledAI;
 	int networkFramePeriod;
@@ -60,6 +61,7 @@ public:
     GameSettings() {
     	thisFactionIndex					= 0;
     	fogOfWar 							= true;
+    	allowObservers						= false;
     	enableObserverModeAtEndGame 		= false;
     	enableServerControlledAI    		= false;
     	networkFramePeriod					= GameConstants::networkFramePeriod;
@@ -109,6 +111,7 @@ public:
 	bool getDefaultVictoryConditions() const	{return defaultVictoryConditions;}
 
 	bool getFogOfWar() const					{return fogOfWar;}
+	bool getAllowObservers() const				{ return allowObservers;}
 	bool getEnableObserverModeAtEndGame() const {return enableObserverModeAtEndGame;}
 	bool getEnableServerControlledAI() 	  const {return enableServerControlledAI;}
 	int getNetworkFramePeriod()			  const {return networkFramePeriod; }
@@ -137,6 +140,7 @@ public:
 	void setDefaultVictoryConditions(bool defaultVictoryConditions) {this->defaultVictoryConditions= defaultVictoryConditions;}
 
 	void setFogOfWar(bool fogOfWar)									{this->fogOfWar = fogOfWar;}
+	void setAllowObservers(bool value)								{this->allowObservers = value;}
 	void setEnableObserverModeAtEndGame(bool value) 				{this->enableObserverModeAtEndGame = value;}
 	void setEnableServerControlledAI(bool value)					{this->enableServerControlledAI = value;}
 	void setNetworkFramePeriod(int value)							{this->networkFramePeriod = value; }
@@ -170,6 +174,7 @@ public:
 		result += "defaultResources = " + intToStr(defaultResources) + "\n";
 		result += "defaultVictoryConditions = " + intToStr(defaultVictoryConditions) + "\n";
 		result += "fogOfWar = " + intToStr(fogOfWar) + "\n";
+		result += "allowObservers = " + intToStr(allowObservers) + "\n";
 		result += "enableObserverModeAtEndGame = " + intToStr(enableObserverModeAtEndGame) + "\n";
 		result += "enableServerControlledAI = " + intToStr(enableServerControlledAI) + "\n";
 		result += "networkFramePeriod = " + intToStr(networkFramePeriod) + "\n";

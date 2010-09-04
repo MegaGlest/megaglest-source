@@ -84,6 +84,9 @@ private:
 	GraphicLabel labelAdvanced;
 	GraphicListBox listBoxAdvanced;
 
+	GraphicLabel labelAllowObservers;
+	GraphicListBox listBoxAllowObservers;
+
 	GraphicLabel *activeInputLabel;
 
 	bool needToSetChangedGameSettings;

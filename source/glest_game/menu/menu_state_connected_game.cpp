@@ -101,13 +101,23 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	xoffset=170;
 	// fog - o - war
 	// @350 ? 300 ?
-	labelFogOfWar.init(xoffset+100, aHeadPos, 80);
+	labelFogOfWar.init(xoffset+150, aHeadPos, 80);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
-	listBoxFogOfWar.init(xoffset+100, aPos, 80);
+	listBoxFogOfWar.init(xoffset+150, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 	listBoxFogOfWar.setEditable(false);
+
+
+	labelAllowObservers.init(xoffset+50, aHeadPos, 80);
+	labelAllowObservers.setText(lang.get("AllowObservers"));
+	listBoxAllowObservers.init(xoffset+50, aPos, 80);
+	listBoxAllowObservers.pushBackItem(lang.get("No"));
+	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
+	listBoxAllowObservers.setSelectedItemIndex(0);
+	listBoxAllowObservers.setEditable(false);
+
 
 	// Enable Observer Mode
 	labelEnableObserverMode.init(xoffset+250, aHeadPos, 80);
@@ -399,10 +409,9 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 
 	listBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
+	listBoxAllowObservers.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
-
-
 }
 
 void MenuStateConnectedGame::render() {
@@ -460,6 +469,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelInfo);
 		renderer.renderLabel(&labelMap);
 		renderer.renderLabel(&labelFogOfWar);
+		renderer.renderLabel(&labelAllowObservers);
 		renderer.renderLabel(&labelTileset);
 		renderer.renderLabel(&labelTechTree);
 		renderer.renderLabel(&labelControl);
@@ -469,6 +479,7 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderListBox(&listBoxMap);
 		renderer.renderListBox(&listBoxFogOfWar);
+		renderer.renderListBox(&listBoxAllowObservers);
 		renderer.renderListBox(&listBoxTileset);
 		renderer.renderListBox(&listBoxTechTree);
 
@@ -712,6 +723,10 @@ void MenuStateConnectedGame::update() {
 				currentFactionName = gameSettings->getTech();
 				hasFactions = loadFactions(gameSettings,false);
 			}
+			else {
+				// do this to process special faction types liek observers
+				loadFactions(gameSettings,false);
+			}
 			
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
@@ -734,6 +749,15 @@ void MenuStateConnectedGame::update() {
 				listBoxFogOfWar.setSelectedItemIndex(1);
 			}
 			
+			// Allow Observers
+			if(gameSettings->getAllowObservers()) {
+				listBoxAllowObservers.setSelectedItemIndex(1);
+			}
+			else
+			{
+				listBoxAllowObservers.setSelectedItemIndex(0);
+			}
+
 			if(gameSettings->getEnableObserverModeAtEndGame()) {
 				listBoxEnableObserverMode.setSelectedItemIndex(0);
 			}
@@ -947,8 +971,10 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
     }
 	else {
 	    // Add special Observer Faction
-	    Lang &lang= Lang::getInstance();
-	    results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+	    //Lang &lang= Lang::getInstance();
+		if(gameSettings->getAllowObservers() == true) {
+			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+		}
 
 		factionFiles= results;
 		for(int i= 0; i<results.size(); ++i){
@@ -995,49 +1021,6 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 
     return hasNetworkSlot;
 }
-
-void MenuStateConnectedGame::reloadFactions() {
-
-	vector<string> results;
-
-    Config &config = Config::getInstance();
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
-        string &techPath = techPaths[idx];
-
-        findAll(techPath + "/" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
-        if(results.size() > 0) {
-            break;
-        }
-    }
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    if(results.size() == 0) {
-        throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
-    }
-    factionFiles= results;
-    for(int i= 0; i<results.size(); ++i){
-        results[i]= formatString(results[i]);
-
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
-    }
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    for(int i=0; i<GameConstants::maxPlayers; ++i){
-        listBoxFactions[i].setItems(results);
-        listBoxFactions[i].setSelectedItemIndex(i % results.size());
-    }
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-
-
 
 void MenuStateConnectedGame::keyDown(char key) {
 	if(activeInputLabel!=NULL) {

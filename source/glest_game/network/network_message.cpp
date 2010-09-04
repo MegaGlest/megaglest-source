@@ -226,6 +226,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
     data.defaultUnits= gameSettings->getDefaultUnits();
     data.defaultVictoryConditions= gameSettings->getDefaultVictoryConditions();
 	data.fogOfWar = gameSettings->getFogOfWar();
+	data.allowObservers = gameSettings->getAllowObservers();
 	data.enableObserverModeAtEndGame = gameSettings->getEnableObserverModeAtEndGame();
 	data.enableServerControlledAI = gameSettings->getEnableServerControlledAI();
 	data.networkFramePeriod = gameSettings->getNetworkFramePeriod();
@@ -252,8 +253,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
     gameSettings->setDefaultUnits(data.defaultUnits);
     gameSettings->setDefaultVictoryConditions(data.defaultVictoryConditions);
 	gameSettings->setFogOfWar(data.fogOfWar);
+	gameSettings->setAllowObservers(data.allowObservers);
 
-	gameSettings->setFogOfWar(data.fogOfWar);
 	gameSettings->setEnableObserverModeAtEndGame(data.enableObserverModeAtEndGame);
 	gameSettings->setEnableServerControlledAI(data.enableServerControlledAI);
 	gameSettings->setNetworkFramePeriod(data.networkFramePeriod);
