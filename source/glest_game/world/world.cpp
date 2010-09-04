@@ -1104,7 +1104,8 @@ void World::computeFow(int factionIdxToTick) {
 							map.getSurfaceCell(i, j)->setExplored(k, true);
 
 							const Vec2i pos(i,j);
-							Vec2i surfPos= Map::toSurfCoords(pos);
+							//Vec2i surfPos= Map::toSurfCoords(pos);
+							Vec2i surfPos= pos;
 
 							//compute max alpha
 							float maxAlpha= 0.0f;
