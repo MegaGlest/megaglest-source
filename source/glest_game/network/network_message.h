@@ -203,6 +203,7 @@ private:
         int8 defaultUnits;
         int8 defaultVictoryConditions;
 		int8 fogOfWar;
+		int8 allowObservers;
 		int8 enableObserverModeAtEndGame;
 		int8 enableServerControlledAI;
 		uint8 networkFramePeriod; // allowed values 0 - 255
