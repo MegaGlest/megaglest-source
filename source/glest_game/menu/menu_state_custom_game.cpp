@@ -243,8 +243,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelAdvanced.init(790, 80, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
 	listBoxAdvanced.init(810,  80-30, 80);
-	listBoxAdvanced.pushBackItem(lang.get("Yes"));
 	listBoxAdvanced.pushBackItem(lang.get("No"));
+	listBoxAdvanced.pushBackItem(lang.get("Yes"));
 	listBoxAdvanced.setSelectedItemIndex(0);
 
 	// network things
@@ -640,7 +640,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
-	else if (listBoxFogOfWar.mouseClick(x, y)) {
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -650,7 +650,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
-	else if (listBoxAllowObservers.mouseClick(x, y)) {
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -662,7 +662,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
-	else if (listBoxEnableObserverMode.mouseClick(x, y)) {
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -672,7 +672,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
-	else if (listBoxPathFinderType.mouseClick(x, y)) {
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -685,7 +685,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if (listBoxAdvanced.mouseClick(x, y)) {
 		//TODO
 	}
-	else if (listBoxEnableServerControlledAI.mouseClick(x, y)&&listBoxEnableServerControlledAI.getEditable()) {
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableServerControlledAI.mouseClick(x, y) && listBoxEnableServerControlledAI.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
@@ -739,12 +739,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
-	else if(listBoxPublishServerExternalPort.mouseClick(x, y) && listBoxPublishServerExternalPort.getEditable()) {
+	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPublishServerExternalPort.mouseClick(x, y) && listBoxPublishServerExternalPort.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
-	else if(listBoxNetworkFramePeriod.mouseClick(x, y)){
+	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkFramePeriod.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
         if(hasNetworkGameSettings() == true)
@@ -755,7 +755,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
-	else if(listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
+	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
         if(hasNetworkGameSettings() == true)
@@ -873,24 +873,26 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		setActiveInputLabel(NULL);
 	}
 	listBoxMap.mouseMove(x, y);
-	listBoxFogOfWar.mouseMove(x, y);
-	listBoxAllowObservers.mouseMove(x, y);
+	if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+		listBoxFogOfWar.mouseMove(x, y);
+		listBoxAllowObservers.mouseMove(x, y);
+		listBoxPublishServerExternalPort.mouseMove(x, y);
+		listBoxEnableObserverMode.mouseMove(x, y);
+		listBoxEnableServerControlledAI.mouseMove(x, y);
+		labelNetworkFramePeriod.mouseMove(x, y);
+		listBoxNetworkFramePeriod.mouseMove(x, y);
+
+		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
+		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
+
+		labelPathFinderType.mouseMove(x, y);
+		listBoxPathFinderType.mouseMove(x, y);
+	}
 	listBoxTileset.mouseMove(x, y);
 	listBoxMapFilter.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPublishServer.mouseMove(x, y);
-	listBoxPublishServerExternalPort.mouseMove(x, y);
 
-	listBoxEnableObserverMode.mouseMove(x, y);
-	listBoxEnableServerControlledAI.mouseMove(x, y);
-	labelNetworkFramePeriod.mouseMove(x, y);
-	listBoxNetworkFramePeriod.mouseMove(x, y);
-
-	labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
-	listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
-
-	labelPathFinderType.mouseMove(x, y);
-	listBoxPathFinderType.mouseMove(x, y);
 	listBoxAdvanced.mouseMove(x, y);
 }
 
@@ -925,8 +927,18 @@ void MenuStateCustomGame::render() {
 			}
 			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
-			renderer.renderLabel(&labelFogOfWar);
-			renderer.renderLabel(&labelAllowObservers);
+
+			if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+				renderer.renderLabel(&labelFogOfWar);
+				renderer.renderLabel(&labelAllowObservers);
+				renderer.renderLabel(&labelEnableObserverMode);
+				renderer.renderLabel(&labelPathFinderType);
+
+				renderer.renderListBox(&listBoxFogOfWar);
+				renderer.renderListBox(&listBoxAllowObservers);
+				renderer.renderListBox(&listBoxEnableObserverMode);
+				renderer.renderListBox(&listBoxPathFinderType);
+			}
 			renderer.renderLabel(&labelTileset);
 			renderer.renderLabel(&labelMapFilter);
 			renderer.renderLabel(&labelTechTree);
@@ -934,34 +946,32 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelFaction);
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
-			renderer.renderLabel(&labelEnableObserverMode);
-			renderer.renderLabel(&labelPathFinderType);
 			renderer.renderLabel(&labelAdvanced);
 			
 			renderer.renderListBox(&listBoxMap);
-			renderer.renderListBox(&listBoxFogOfWar);
-			renderer.renderListBox(&listBoxAllowObservers);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
-			renderer.renderListBox(&listBoxEnableObserverMode);
-			renderer.renderListBox(&listBoxPathFinderType);
 			renderer.renderListBox(&listBoxAdvanced);
 			
 			renderer.renderChatManager(&chatManager);
 			renderer.renderConsole(&console,showFullConsole,true);
+
 			if(listBoxPublishServer.getEditable())
 			{
 				renderer.renderListBox(&listBoxPublishServer);
 				renderer.renderLabel(&labelPublishServer);
-				renderer.renderListBox(&listBoxPublishServerExternalPort);
-				renderer.renderLabel(&labelPublishServerExternalPort);
-				renderer.renderListBox(&listBoxEnableServerControlledAI);
-				renderer.renderLabel(&labelEnableServerControlledAI);
-				renderer.renderLabel(&labelNetworkFramePeriod);
-				renderer.renderListBox(&listBoxNetworkFramePeriod);
-				renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
-				renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
+
+				if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+					renderer.renderListBox(&listBoxPublishServerExternalPort);
+					renderer.renderLabel(&labelPublishServerExternalPort);
+					renderer.renderListBox(&listBoxEnableServerControlledAI);
+					renderer.renderLabel(&labelEnableServerControlledAI);
+					renderer.renderLabel(&labelNetworkFramePeriod);
+					renderer.renderListBox(&listBoxNetworkFramePeriod);
+					renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
+					renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
+				}
 			}
 		}
 
