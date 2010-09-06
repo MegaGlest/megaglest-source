@@ -26,7 +26,7 @@
 #endif
 
 #ifdef WIN32
- #define S_ISDIR(mode) ((mode) & _S_IFDIR)
+ #define S_ISDIR(mode) (((mode) & _S_IFDIR) == _S_IFDIR)
 #elif defined(__GNUC__)
 
 #else
