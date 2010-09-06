@@ -195,7 +195,7 @@ class Unit {
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;
-	typedef list<UnitParticleSystem*> UnitParticleSystems;
+	typedef vector<UnitParticleSystem*> UnitParticleSystems;
 
 public:
 	static const float speedDivider;
@@ -254,8 +254,9 @@ private:
 
     Commands commands;
 	Observers observers;
-	UnitParticleSystems unitParticleSystems;
+	vector<UnitParticleSystem*> unitParticleSystems;
 	UnitParticleSystems damageParticleSystems;
+	vector<ParticleSystem*> fireParticleSystems;
 
 	CardinalDir modelFacing;
 

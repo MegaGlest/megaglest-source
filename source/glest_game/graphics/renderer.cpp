@@ -477,6 +477,14 @@ void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScop
 	particleManager[rs]->manage(particleSystem);
 }
 
+void Renderer::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems, ResourceScope rs) {
+	particleManager[rs]->cleanupParticleSystems(particleSystems);
+}
+
+void Renderer::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems, ResourceScope rs) {
+	particleManager[rs]->cleanupUnitParticleSystems(particleSystems);
+}
+
 void Renderer::updateParticleManager(ResourceScope rs, int renderFps) {
 	particleManager[rs]->update(renderFps);
 }

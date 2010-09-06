@@ -905,11 +905,10 @@ ParticleManager::~ParticleManager(){
 }
 
 void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
-	list<ParticleSystem*>::const_iterator it;
-
-	for (it=particleSystems.begin(); it!=particleSystems.end(); it++){
-		if((*it)->getVisible()){
-			(*it)->render(pr, mr);
+	for (int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
+		if(ps != NULL && ps->getVisible()) {
+			ps->render(pr, mr);
 		}
 	}
 }
@@ -920,9 +919,10 @@ void ParticleManager::update(int renderFps) {
 
 	int particleSystemCount = particleSystems.size();
 	int particleCount = 0;
-	list<ParticleSystem *>::iterator it;
-	for (it = particleSystems.begin(); it != particleSystems.end(); it++) {
-		ParticleSystem *ps = *it;
+
+	vector<ParticleSystem *> cleanupParticleSystemsList;
+	for (int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
 		if(ps != NULL) {
 			particleCount += ps->getAliveParticleCount();
 
@@ -934,25 +934,69 @@ void ParticleManager::update(int renderFps) {
 			if(showParticle == true) {
 				ps->update();
 				if(ps->isEmpty()) {
-					delete ps;
-					*it= NULL;
+					//delete ps;
+					//*it= NULL;
+					cleanupParticleSystemsList.push_back(ps);
 				}
 			}
 		}
 	}
-	particleSystems.remove(NULL);
+	//particleSystems.remove(NULL);
+	cleanupParticleSystems(cleanupParticleSystemsList);
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, particleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,particleCount);
 }
 
-void ParticleManager::manage(ParticleSystem *ps){
+int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const {
+	int result = -1;
+	for (int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
+		if(ps != NULL && psFind != NULL && psFind == ps) {
+			result = i;
+			break;
+		}
+	}
+	return result;
+}
+
+void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
+
+	int index = findParticleSystems(ps, this->particleSystems);
+	if(ps != NULL && index >= 0) {
+		delete ps;
+		this->particleSystems.erase(this->particleSystems.begin() + index);
+	}
+}
+
+void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems) {
+
+	for (int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
+		cleanupParticleSystems(ps);
+	}
+
+	particleSystems.clear();
+	//this->particleSystems.remove(NULL);
+}
+
+void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems) {
+
+	for (int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
+		cleanupParticleSystems(ps);
+	}
+	particleSystems.clear();
+	//this->particleSystems.remove(NULL);
+}
+
+void ParticleManager::manage(ParticleSystem *ps) {
 	particleSystems.push_back(ps);
 }
 
-void ParticleManager::end(){
-	while(!particleSystems.empty()){
-		delete particleSystems.front();
-		particleSystems.pop_front();
+void ParticleManager::end() {
+	while(particleSystems.empty() == false) {
+		delete particleSystems.back();
+		particleSystems.pop_back();
 	}
 }
 

@@ -200,7 +200,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	meetingPos= pos;
 	alive= true;
 
-	if (!type->hasSkillClass(scBeBuilt)) {
+	if (type->hasSkillClass(scBeBuilt) == false) {
 		float rot= 0.f;
 		random.init(id);
 		rot+= random.randRange(-5, 5);
@@ -210,15 +210,19 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	}
 	// else it was set appropriately in setModelFacing()
 
-    if(getType()->getField(fAir)) currField=fAir;
-    if(getType()->getField(fLand)) currField=fLand;
+    if(getType()->getField(fAir)) {
+    	currField = fAir;
+    }
+    if(getType()->getField(fLand)) {
+    	currField = fLand;
+    }
 
     fire= NULL;
 
 	computeTotalUpgrade();
 
 	//starting skill
-	this->currSkill=getType()->getFirstStOfClass(scStop);
+	this->currSkill = getType()->getFirstStOfClass(scStop);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -246,13 +250,20 @@ Unit::~Unit(){
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//remove commands
-	while(!commands.empty()){
+	while(commands.empty() == false) {
 		delete commands.back();
 		commands.pop_back();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	// If the unit is not visible we better make sure we cleanup associated particles
+	if(this->getVisible() == false) {
+		Renderer::getInstance().cleanupUnitParticleSystems(unitParticleSystems,rsGame);
+		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
+	}
+
 	// fade(and by this remove) all unit particle systems
-	while(!unitParticleSystems.empty()){
+	while(unitParticleSystems.empty() == false) {
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
@@ -420,11 +431,11 @@ bool Unit::isBeingBuilt() const{
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getClass()==scBeBuilt;
+    return (currSkill->getClass() == scBeBuilt);
 }
 
 bool Unit::isBuilt() const{
-    return !isBeingBuilt();
+    return (isBeingBuilt() == false);
 }
 
 bool Unit::isPutrefacting() const{
@@ -485,7 +496,7 @@ bool Unit::isInteresting(InterestingUnitType iut) const {
 
 // ====================================== set ======================================
 
-void Unit::setCurrSkill(const SkillType *currSkill){
+void Unit::setCurrSkill(const SkillType *currSkill) {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -497,20 +508,19 @@ void Unit::setCurrSkill(const SkillType *currSkill){
 		throw runtime_error(szBuf);
 	}
 
-	if(currSkill->getClass()!=this->currSkill->getClass()){
+	if(currSkill->getClass() != this->currSkill->getClass()) {
 		animProgress= 0;
 		lastAnimProgress= 0;
 
-		while(!unitParticleSystems.empty()){
+		while(unitParticleSystems.empty() == false) {
 			unitParticleSystems.back()->fade();
 			unitParticleSystems.pop_back();
 		}
 	}
-	if(showUnitParticles && (!currSkill->unitParticleSystemTypes.empty()) &&
-		(unitParticleSystems.empty()) ){
-		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it!=currSkill->unitParticleSystemTypes.end(); ++it){
-			UnitParticleSystem *ups;
-			ups= new UnitParticleSystem(200);
+	if(showUnitParticles && (currSkill->unitParticleSystemTypes.empty() == false) &&
+		(unitParticleSystems.empty() == true) ) {
+		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it != currSkill->unitParticleSystemTypes.end(); ++it) {
+			UnitParticleSystem *ups = new UnitParticleSystem(200);
 			(*it)->setValues(ups);
 			ups->setPos(getCurrVector());
 			ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
@@ -580,10 +590,10 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 void Unit::setVisible(const bool visible) {
 	this->visible = visible;
 
-	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		(*it)->setVisible(visible);
 	}
-	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it!=damageParticleSystems.end(); ++it){
+	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		(*it)->setVisible(visible);
 	}
 }
@@ -975,31 +985,31 @@ bool Unit::update(){
 	if (fire!=NULL) {
 		fire->setPos(getCurrVector());
 	}
-	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it!=unitParticleSystems.end(); ++it){
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		(*it)->setPos(getCurrVector());
 		(*it)->setRotation(getRotation());
 	}
-	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it!=damageParticleSystems.end(); ++it){
+	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		(*it)->setPos(getCurrVector());
 		(*it)->setRotation(getRotation());
 	}
 	//checks
-	if(animProgress>1.f){
+	if(animProgress>1.f) {
 		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
 	}
 
     bool return_value = false;
 	//checks
-	if(progress>=1.f){
+	if(progress>=1.f) {
 		lastRotation= targetRotation;
-		if(currSkill->getClass()!=scDie){
+		if(currSkill->getClass()!=scDie) {
 			progress= 0.f;
 			return_value = true;
 		}
-		else{
+		else {
 			progress= 1.f;
 			deadCount++;
-			if(deadCount>=maxDeadCount){
+			if(deadCount>=maxDeadCount) {
 				toBeUndertaken= true;
 				return_value = false;
 			}
@@ -1483,14 +1493,14 @@ CommandResult Unit::undoCommand(Command *command){
 
 void Unit::stopDamageParticles(){
 	// stop fire
-	if(fire!=NULL) {
+	if(fire != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		fire->fade();
-		fire= NULL;
+		fire = NULL;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	// stop additional particles
-	while(!damageParticleSystems.empty()) {
+	while(damageParticleSystems.empty() == false) {
 		damageParticleSystems.back()->fade();
 		damageParticleSystems.pop_back();
 	}
@@ -1521,8 +1531,10 @@ void Unit::startDamageParticles(){
 		fps->setTexture(CoreData::getInstance().getFireTexture());
 		fps->setParticleSize(type->getSize()/3.f);
 		fire= fps;
+		fireParticleSystems.push_back(fps);
+
 		Renderer::getInstance().manageParticleSystem(fps, rsGame);
-		if(showUnitParticles){
+		if(showUnitParticles) {
 			// smoke
 			UnitParticleSystem *ups= new UnitParticleSystem(400);
 			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
