@@ -921,7 +921,9 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			startRepairing = true;
 			// Since the unit to be built is not yet existing we need to tell the
 			// other units to move to the build position or else they get in the way
-			repairPos = command->getPos()-Vec2i(1);
+
+			// No need to adjust repair pos since we already did this above via: Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
+			//repairPos = command->getPos()-Vec2i(1);
 		}
 
         //if not repairing
@@ -998,9 +1000,13 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
         //if repairing
 		if(repaired != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			unit->setTarget(repaired);
 		}
 		else if(peerUnitBuilder != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			unit->setTargetPos(command->getPos());
 		}
 
