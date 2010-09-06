@@ -423,9 +423,9 @@ public:
 //	class ParticleManager
 // =====================================================
 
-class ParticleManager{
+class ParticleManager {
 private:
-	list<ParticleSystem*> particleSystems; 
+	vector<ParticleSystem *> particleSystems;
 
 public:
 	~ParticleManager();
@@ -433,6 +433,10 @@ public:
 	void render(ParticleRenderer *pr, ModelRenderer *mr) const;	
 	void manage(ParticleSystem *ps);
 	void end();
+	void cleanupParticleSystems(ParticleSystem *ps);
+	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems);
+	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems);
+	int findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const;
 }; 
 
 }}//end namespace

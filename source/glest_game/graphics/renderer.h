@@ -290,6 +290,8 @@ public:
 	Font2D *newFont(ResourceScope rs);
 	TextRenderer2D *getTextRenderer() const	{return textRenderer;}
 	void manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs);
+	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems,ResourceScope rs);
+	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems,ResourceScope rs);
 	void updateParticleManager(ResourceScope rs,int renderFps=-1);
 	void renderParticleManager(ResourceScope rs);
 	void swapBuffers();
