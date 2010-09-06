@@ -94,7 +94,7 @@ protected:
 	std::string ipAddress;
 
 	SimpleTaskThread *pingThread;
-	std::map<string,float> pingCache;
+	std::map<string,double> pingCache;
 	time_t lastThreadedPing;
 	Mutex pingThreadAccessor;
 
@@ -136,7 +136,7 @@ public:
 	bool isSocketValid() const;
 	static bool isSocketValid(const PLATFORM_SOCKET *validateSocket);
 
-	static float getAveragePingMS(std::string host, int pingCount=5);
+	static double getAveragePingMS(std::string host, int pingCount=5);
 	float getThreadedPingMS(std::string host);
 
 	virtual std::string getIpAddress();

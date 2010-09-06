@@ -112,15 +112,15 @@ private:
 	int lastMouseX[mbCount];
 	int lastMouseY[mbCount];
 
-    static unsigned int lastMouseEvent;	/** for use in mouse hover calculations */
+    static int64 lastMouseEvent;	/** for use in mouse hover calculations */
     static MouseState mouseState;
     static Vec2i mousePos;
     static bool isKeyPressedDown;
 	static bool isFullScreen;
 	static SDL_keysym keystate;
 	
-    static void setLastMouseEvent(unsigned int lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
-    static unsigned int getLastMouseEvent() 				    {return Window::lastMouseEvent;}
+    static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
+    static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}
 
     static const MouseState &getMouseState() 				    {return Window::mouseState;}
     static void setMouseState(MouseButton b, bool state)		{Window::mouseState.set(b, state);}

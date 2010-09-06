@@ -266,11 +266,11 @@ Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned c
 
 
 Ip::Ip(const string& ipString){
-	int offset= 0;
+	size_t offset= 0;
 	int byteIndex= 0;
 
 	for(byteIndex= 0; byteIndex<4; ++byteIndex){
-		int dotPos= ipString.find_first_of('.', offset);
+		size_t dotPos= ipString.find_first_of('.', offset);
 
 		bytes[byteIndex]= atoi(ipString.substr(offset, dotPos-offset).c_str());
 		offset= dotPos+1;
@@ -759,7 +759,7 @@ void Socket::simpleTask()  {
 
 	//printf("Pinging hosts...\n");
 
-	for(std::map<string,float>::iterator iterMap = pingCache.begin();
+	for(std::map<string,double>::iterator iterMap = pingCache.begin();
 		iterMap != pingCache.end(); iterMap++) {
 		MutexSafeWrapper safeMutex(&pingThreadAccessor);
 		iterMap->second = getAveragePingMS(iterMap->first, 1);
@@ -1024,7 +1024,7 @@ int Socket::send(const void *data, int dataSize) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] need to send more data, trying again getLastSocketError() = %d, bytesSent = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,getLastSocketError(),bytesSent,dataSize);
 
 		MutexSafeWrapper safeMutex(&dataSynchAccessor);
-		int totalBytesSent = bytesSent;
+		ssize_t totalBytesSent = bytesSent;
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
@@ -1910,7 +1910,7 @@ void BroadCastSocketThread::execute() {
 	setRunningStatus(false);
 }
 
-float Socket::getAveragePingMS(std::string host, int pingCount) {
+double Socket::getAveragePingMS(std::string host, int pingCount) {
 	double result = -1;
 	return result;
 

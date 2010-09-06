@@ -41,7 +41,7 @@ namespace Shared{ namespace Platform{
 // Matze: hack for now...
 static Window* global_window = 0;
 static int oldX=0,oldY=0;
-unsigned int Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+int64 Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
@@ -153,9 +153,9 @@ bool Window::handleEvent() {
 					//ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
 					codeLocation = "h";
 
-					setMouseState(mbLeft, event.motion.state & SDL_BUTTON_LMASK);
-					setMouseState(mbRight, event.motion.state & SDL_BUTTON_RMASK);
-					setMouseState(mbCenter, event.motion.state & SDL_BUTTON_MMASK);
+					setMouseState(mbLeft, (event.motion.state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK);
+					setMouseState(mbRight, (event.motion.state & SDL_BUTTON_RMASK) == SDL_BUTTON_RMASK);
+					setMouseState(mbCenter, (event.motion.state & SDL_BUTTON_MMASK) == SDL_BUTTON_MMASK);
 
 					if(global_window) {
 						global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
@@ -219,7 +219,7 @@ bool Window::handleEvent() {
 					}
 					*/
 					// Check if the program has lost window focus
-					if (event.active.state & SDL_APPACTIVE == SDL_APPACTIVE) {
+					if ((event.active.state & SDL_APPACTIVE) == SDL_APPACTIVE) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
@@ -249,9 +249,9 @@ bool Window::handleEvent() {
 						showCursor(willShowCursor);
 					}
 					*/
-					if (event.active.state & SDL_APPMOUSEFOCUS != SDL_APPMOUSEFOCUS &&
-						event.active.state & SDL_APPINPUTFOCUS != SDL_APPINPUTFOCUS &&
-						event.active.state & SDL_APPACTIVE != SDL_APPACTIVE) {
+					if ((event.active.state & SDL_APPMOUSEFOCUS) != SDL_APPMOUSEFOCUS &&
+						(event.active.state & SDL_APPINPUTFOCUS) != SDL_APPINPUTFOCUS &&
+						(event.active.state & SDL_APPACTIVE) != SDL_APPACTIVE) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
