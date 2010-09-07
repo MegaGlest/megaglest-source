@@ -146,9 +146,12 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut(std::ostringstream::out);
-		streamOut << "x [" << x << "] y [" << y << "]";
-		return streamOut.str();
+		std::ostringstream streamOut;
+		streamOut << "x [" << x;
+		streamOut << "] y [" << y << "]";
+		std::string result = streamOut.str();
+		streamOut.str(std::string());
+		return result;
 	}
 };
 
@@ -330,9 +333,13 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut(std::ostringstream::out);
-		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "]";
-		return streamOut.str();
+		std::ostringstream streamOut;
+		streamOut << "x [" << x;
+		streamOut << "] y [" << y;
+		streamOut << "] z [" << z << "]";
+		std::string result = streamOut.str();
+		streamOut.str(std::string());
+		return result;
 	}
 
 };
@@ -473,9 +480,14 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut(std::ostringstream::out);
-		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "] w [" << w << "]";
-		return streamOut.str();
+		std::ostringstream streamOut;
+		streamOut << "x [" << x;
+		streamOut << "] y [" << y;
+		streamOut << "] z [" << z;
+		streamOut << "] w [" << w << "]";
+		std::string result = streamOut.str();
+		streamOut.str(std::string());
+		return result;
 	}
 
 };
