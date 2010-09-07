@@ -175,6 +175,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->lastRenderFrame = 0;
 	this->visible = true;
 	this->retryCurrCommandCount=0;
+	this->screenPos = Vec3f(0.0);
 
 	level= NULL;
 	loadType= NULL;
