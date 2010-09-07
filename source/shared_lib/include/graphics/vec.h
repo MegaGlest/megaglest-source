@@ -146,7 +146,7 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut;
+		std::ostringstream streamOut(std::ostringstream::out);
 		streamOut << "x [" << x << "] y [" << y << "]";
 		return streamOut.str();
 	}
@@ -330,7 +330,7 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut;
+		std::ostringstream streamOut(std::ostringstream::out);
 		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "]";
 		return streamOut.str();
 	}
@@ -473,7 +473,7 @@ public:
 	}
 
 	std::string getString() const {
-		std::ostringstream streamOut;
+		std::ostringstream streamOut(std::ostringstream::out);
 		streamOut << "x [" << x << "] y [" << y << "] z [" << z << "] w [" << w << "]";
 		return streamOut.str();
 	}

@@ -71,7 +71,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		return NULL;
 	}
 	is.seekg(0, ios::beg);
-	uint8 * buffer = new uint8[length];
+	uint8 *buffer = new uint8[length];
 	is.read((char*)buffer, length);
 	//Check buffer (weak jpeg check)
 	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
@@ -209,6 +209,9 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	jpeg_finish_decompress( &cinfo );
 	jpeg_destroy_decompress( &cinfo );
 	delete[] row_pointer[0];
+
+	delete[] buffer;
+
 	return ret;
 }
 

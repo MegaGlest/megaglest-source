@@ -15,15 +15,15 @@
 #include <iostream>
 #include "leak_dumper.h"
 
-#define MAIN_FUNCTION(X) int main(int argc, char **argv)                    \
-{																			\
+#define MAIN_FUNCTION(X) int main(int argc, char **argv)                     \
+{																			 \
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                 \
         std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
         return 1;                                                            \
     }                                                                        \
+	atexit(SDL_Quit);                                                        \
 	SDL_EnableUNICODE(1);													 \
     int result = X(argc, argv);                                              \
-    SDL_Quit();                                                              \
     return result;                                                           \
 }
 

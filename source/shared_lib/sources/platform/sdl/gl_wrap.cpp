@@ -34,6 +34,21 @@ namespace Shared{ namespace Platform{
 // ======================================
 //	class PlatformContextGl
 // ======================================
+PlatformContextGl::PlatformContextGl() {
+	icon = NULL;
+	screen = NULL;
+}
+
+PlatformContextGl::~PlatformContextGl() {
+	if(icon != NULL) {
+		SDL_FreeSurface(icon);
+		icon = NULL;
+	}
+	if(screen != NULL) {
+		SDL_FreeSurface(screen);
+		screen = NULL;
+	}
+}
 
 void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing) {
 	
@@ -59,7 +74,13 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 
 #ifndef WIN32
 	if(fileExists("megaglest.bmp")) {
-		SDL_Surface *icon = SDL_LoadBMP("megaglest.bmp");
+
+		if(icon != NULL) {
+			SDL_FreeSurface(icon);
+			icon = NULL;
+		}
+
+		icon = SDL_LoadBMP("megaglest.bmp");
 	//SDL_Surface *icon = IMG_Load("megaglest.ico");
 
 
@@ -84,7 +105,12 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",__FILE__,__FUNCTION__,__LINE__,resW,resH,colorBits);
 
-	SDL_Surface* screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
+	if(screen != NULL) {
+		SDL_FreeSurface(screen);
+		screen = NULL;
+	}
+
+	screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
 	if(screen == 0) {
 		std::ostringstream msg;
 		msg << "Couldn't set video mode "

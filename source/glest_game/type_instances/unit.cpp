@@ -262,7 +262,10 @@ Unit::~Unit(){
 
 		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
 		// Must set this to null of it will be used below in stopDamageParticles()
-		fire = NULL;
+
+		if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
+			fire = NULL;
+		}
 	}
 
 	// fade(and by this remove) all unit particle systems
@@ -985,7 +988,11 @@ bool Unit::update() {
 		}
 	}
 
-	if (fire!=NULL) {
+	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
+		fire = NULL;
+	}
+
+	if (fire != NULL) {
 		fire->setPos(getCurrVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
@@ -1495,6 +1502,11 @@ CommandResult Unit::undoCommand(Command *command){
 }
 
 void Unit::stopDamageParticles() {
+
+	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
+		fire = NULL;
+	}
+
 	// stop fire
 	if(fire != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1525,8 +1537,7 @@ void Unit::startDamageParticles(){
 	}
 	// start fire
 	if(type->getProperty(UnitType::pBurnable) && fire == NULL) {
-		FireParticleSystem *fps;
-		fps= new FireParticleSystem(200);
+		FireParticleSystem *fps = new FireParticleSystem(200);
 		const Game *game = Renderer::getInstance().getGame();
 		fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		fps->setPos(getCurrVector());
