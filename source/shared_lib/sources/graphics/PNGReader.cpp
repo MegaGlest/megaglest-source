@@ -60,24 +60,28 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	is.seekg(0, ios::end);
 	size_t length = is.tellg();
 	is.seekg(0, ios::beg);
-	uint8 * buffer = new uint8[8];
+	uint8 *buffer = new uint8[8];
 	is.read((char*)buffer, 8);
 
 	if (png_sig_cmp(buffer, 0, 8) != 0) {
+		delete [] buffer;
 		return NULL; //This is not a PNG file - could be used for fast checking whether file is supported or not
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr) {
+		delete [] buffer;
 		return NULL;
 	}
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		png_destroy_read_struct(&png_ptr, (png_infopp)NULL,(png_infopp)NULL);
+		delete [] buffer;
 		return NULL;
 	}
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		 png_destroy_read_struct(&png_ptr, &info_ptr,(png_infopp)NULL);
+		png_destroy_read_struct(&png_ptr, &info_ptr,(png_infopp)NULL);
+		delete [] buffer;
 		return NULL; //Error during init_io
 	}
 	png_set_read_fn(png_ptr, &is, user_read_data); 
@@ -104,6 +108,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		delete[] row_pointers;
+		delete [] buffer;
 		return NULL; //error during read_image
 	}
 	for (int y = 0; y < height; ++y) {
@@ -176,6 +181,8 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	delete[] row_pointers;
 
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+
+	delete [] buffer;
 
 	return ret;
 }
