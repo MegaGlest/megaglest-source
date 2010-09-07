@@ -18,6 +18,7 @@
 #include "checksum.h"
 #include "server_interface.h"
 #include "client_interface.h"
+#include "leak_dumper.h"
 
 using Shared::Util::Checksum;
 

@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEROOT_H_
 
 #include "main_menu.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

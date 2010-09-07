@@ -14,6 +14,7 @@
 
 #include "sound.h"
 #include "types.h"
+#include "leak_dumper.h"
 
 using Shared::Platform::uint32;
 

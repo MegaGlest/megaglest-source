@@ -18,6 +18,7 @@
 #include "util.h"
 #include "command_type.h"
 #include "game_util.h"
+#include "leak_dumper.h"
 
 using std::string;
 

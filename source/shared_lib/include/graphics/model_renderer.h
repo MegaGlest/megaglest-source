@@ -14,6 +14,7 @@
 #define _SHARED_GRAPHICS_MODELRENDERER_H_
 
 #include "model.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 

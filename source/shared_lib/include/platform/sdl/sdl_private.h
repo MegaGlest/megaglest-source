@@ -14,6 +14,8 @@
 // This header contains things that should not be used outside the platform/sdl
 // directory
 
+#include "leak_dumper.h"
+
 namespace Shared{ namespace PlatformCommon { namespace Private {
 
 extern bool shouldBeFullscreen;

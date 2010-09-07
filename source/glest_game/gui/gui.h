@@ -20,6 +20,7 @@
 #include "selection.h"
 #include "randomgen.h"
 #include <map>
+#include "leak_dumper.h"
 
 using Shared::Util::RandomGen;
 

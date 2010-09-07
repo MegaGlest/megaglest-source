@@ -16,10 +16,10 @@
 #include <queue>
 
 #include "lua_script.h"
-
 #include "components.h"
 #include "game_constants.h"
 #include <map>
+#include "leak_dumper.h"
 
 using std::string;
 using std::queue;

@@ -14,11 +14,11 @@
 
 #include <list>
 #include <cassert>
-
 #include "vec.h"
 #include "pixmap.h"
 #include "texture_manager.h"
 #include "randomgen.h"
+#include "leak_dumper.h"
 
 using std::list;
 using Shared::Util::RandomGen;

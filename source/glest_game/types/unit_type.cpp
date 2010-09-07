@@ -23,8 +23,8 @@
 #include "resource.h"
 #include "renderer.h"
 #include "game_util.h"
-#include "leak_dumper.h"
 #include "unit_particle_type.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;

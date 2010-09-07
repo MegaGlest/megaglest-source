@@ -16,6 +16,7 @@
 #include "particle.h"
 #include "randomgen.h"
 #include "command.h"
+#include "leak_dumper.h"
 
 using Shared::Graphics::ParticleObserver;
 using Shared::Util::RandomGen;

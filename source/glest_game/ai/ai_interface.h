@@ -18,6 +18,7 @@
 #include "conversion.h"
 #include "ai.h"
 #include "game_settings.h"
+#include "leak_dumper.h"
 
 using Shared::Util::intToStr;
 

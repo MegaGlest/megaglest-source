@@ -38,9 +38,11 @@ using std::string;
 
 #endif
 
+#include "leak_dumper.h"
+
 using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Platform{
+namespace Shared{ namespace Platform {
 
 //
 // This interface describes the methods a callback object must implement

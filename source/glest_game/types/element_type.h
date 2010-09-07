@@ -17,6 +17,7 @@
 
 #include "texture.h"
 #include "resource.h"
+#include "leak_dumper.h"
 
 using std::vector;
 using std::string;

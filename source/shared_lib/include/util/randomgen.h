@@ -12,7 +12,7 @@
 #ifndef _SHARED_UTIL_RANDOM_H_
 #define _SHARED_UTIL_RANDOM_H_
 
-//#include "math_wrapper.h"
+#include "leak_dumper.h"
 
 namespace Shared { namespace Util {
 

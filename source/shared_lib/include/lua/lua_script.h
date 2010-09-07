@@ -13,10 +13,9 @@
 #define _SHARED_LUA_LUASCRIPT_H_
 
 #include <string>
-
 #include <lua.hpp>
-
 #include <vec.h>
+#include "leak_dumper.h"
 
 using std::string;
 

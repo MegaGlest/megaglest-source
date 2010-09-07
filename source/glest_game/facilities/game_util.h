@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "util.h"
+#include "leak_dumper.h"
 
 using std::string;
 using Shared::Util::sharedLibVersionString;

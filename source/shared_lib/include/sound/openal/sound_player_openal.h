@@ -11,12 +11,11 @@
 #include "sound_player.h"
 #include "platform_util.h"
 #include "platform_common.h"
-
 #include <SDL.h>
 #include <AL/alc.h>
 #include <AL/al.h>
-
 #include <vector>
+#include "leak_dumper.h"
 
 using std::vector;
 using namespace Shared::PlatformCommon;

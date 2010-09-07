@@ -16,6 +16,7 @@
 #include <string>
 #include <stdexcept>
 #include "platform_common.h"
+#include "leak_dumper.h"
 
 using namespace Shared::PlatformCommon;
 using std::string;

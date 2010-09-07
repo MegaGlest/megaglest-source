@@ -18,6 +18,7 @@
 #include "sound_container.h"
 #include "checksum.h"
 #include "game_constants.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

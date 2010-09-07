@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "font.h"
+#include "leak_dumper.h"
 
 using std::string;
 using std::vector;

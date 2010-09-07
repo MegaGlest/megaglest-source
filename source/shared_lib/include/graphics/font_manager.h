@@ -13,8 +13,8 @@
 #define _SHARED_GRAPHICS_FONTMANAGER_H_
 
 #include "font.h"
-
 #include <vector>
+#include "leak_dumper.h"
 
 using namespace std;
 

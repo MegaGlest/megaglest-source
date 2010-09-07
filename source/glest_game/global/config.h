@@ -14,8 +14,8 @@
 
 #include "properties.h"
 #include <vector>
-//#include <utility>
 #include "game_constants.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

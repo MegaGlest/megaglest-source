@@ -18,6 +18,7 @@
 #include "faction.h"
 #include "faction_type.h"
 #include "vec.h"
+#include "leak_dumper.h"
 
 using std::string;
 using namespace Shared::Graphics;

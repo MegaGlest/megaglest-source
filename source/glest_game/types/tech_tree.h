@@ -18,6 +18,7 @@
 #include "resource_type.h"
 #include "faction_type.h"
 #include "damage_multiplier.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

@@ -24,6 +24,7 @@
 #include "thread.h"
 #include "types.h"
 #include <time.h>
+#include "leak_dumper.h"
 
 using std::string;
 using std::vector;

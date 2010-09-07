@@ -17,6 +17,7 @@
 #include "chat_manager.h"
 #include <vector>
 #include <string>
+#include "leak_dumper.h"
 
 using Shared::Util::Properties;
 

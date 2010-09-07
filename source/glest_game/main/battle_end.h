@@ -14,6 +14,7 @@
 
 #include "program.h"
 #include "stats.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

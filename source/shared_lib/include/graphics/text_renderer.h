@@ -13,9 +13,9 @@
 #define _SHARED_GRAPHICS_TEXTRENDERER_H_
 
 #include <string>
-
 #include "vec.h"
 #include "font.h"
+#include "leak_dumper.h"
 
 using std::string;
 

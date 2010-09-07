@@ -13,6 +13,8 @@
 #define _GLEST_GAME_MASTERSERVERINFO_H_
 
 #include <string>
+#include "leak_dumper.h"
+
 using std::string;
 
 namespace Glest{ namespace Game{

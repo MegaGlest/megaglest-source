@@ -19,6 +19,7 @@
 #include "texture.h"
 #include "resource.h"
 #include "game_constants.h"
+#include "leak_dumper.h"
 
 using std::map;
 using std::vector;

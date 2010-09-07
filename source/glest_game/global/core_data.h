@@ -18,6 +18,7 @@
 #include "font.h"
 #include "texture.h"
 #include "sound_container.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

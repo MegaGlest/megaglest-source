@@ -20,6 +20,7 @@
 #include "components.h"
 #include "menu_background.h"
 #include "game_settings.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

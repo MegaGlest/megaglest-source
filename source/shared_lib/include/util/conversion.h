@@ -13,6 +13,7 @@
 #define _SHARED_UTIL_CONVERSION_H_
 
 #include <string>
+#include "leak_dumper.h"
 
 using std::string;
 

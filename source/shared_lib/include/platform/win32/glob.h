@@ -47,6 +47,8 @@
 #ifndef SYNSOFT_UNIXEM_INCL_H_GLOB
 #define SYNSOFT_UNIXEM_INCL_H_GLOB
 
+#include "leak_dumper.h"
+
 /* ////////////////////////////////////////////////////////////////////// */
 
 /** \weakgroup unixem Synesis Software UNIX Emulation for Win32

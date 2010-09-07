@@ -13,8 +13,8 @@
 #define _SHARED_GRAPHICS_MODELMANAGER_H_
 
 #include "model.h"
-
 #include <vector>
+#include "leak_dumper.h"
 
 using namespace std;
 

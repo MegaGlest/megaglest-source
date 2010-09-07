@@ -13,6 +13,7 @@
 #define _GLEST_GAME_CHATMANAGER_H_
 
 #include <string>
+#include "leak_dumper.h"
 
 using std::string;
 

@@ -14,9 +14,9 @@
 
 #include <string>
 #include <fstream>
-
 #include "types.h"
 #include "factory.h"
+#include "leak_dumper.h"
 
 struct OggVorbis_File;
 

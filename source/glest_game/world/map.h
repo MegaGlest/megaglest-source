@@ -19,8 +19,8 @@
 #include "object.h"
 #include "game_constants.h"
 #include "selection.h"
-
 #include <cassert>
+#include "leak_dumper.h"
 
 
 namespace Glest{ namespace Game{

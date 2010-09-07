@@ -20,6 +20,7 @@
 #include "window.h"
 #include "simple_threads.h"
 #include "stats.h"
+#include "leak_dumper.h"
 
 using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;

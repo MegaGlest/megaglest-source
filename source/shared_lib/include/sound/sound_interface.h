@@ -13,6 +13,7 @@
 #define _SHARED_SOUND_SOUNDINTERFACE_H_
 
 #include "sound_factory.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Sound{
 

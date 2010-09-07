@@ -14,6 +14,7 @@
 
 #include "pixmap.h"
 #include "texture.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

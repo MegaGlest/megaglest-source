@@ -11,5 +11,7 @@
 
 #endif
 
+#include "leak_dumper.h"
+
 #endif
 

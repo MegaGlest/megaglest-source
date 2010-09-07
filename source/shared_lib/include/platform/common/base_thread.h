@@ -12,6 +12,7 @@
 #ifndef _SHARED_PLATFORMCOMMON_BASETHREAD_H_
 #define _SHARED_PLATFORMCOMMON_BASETHREAD_H_
 
+#include "leak_dumper.h"
 #include "thread.h"
 #include <string>
 

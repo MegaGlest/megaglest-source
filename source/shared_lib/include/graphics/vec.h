@@ -16,6 +16,7 @@
 #include "math_wrapper.h"
 #include <string>
 #include <sstream>
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 
