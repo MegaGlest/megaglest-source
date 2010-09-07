@@ -14,8 +14,8 @@
 
 #include <string>
 #include <map>
-
 #include "types.h"
+#include "leak_dumper.h"
 
 using std::string;
 using Shared::Platform::int32;

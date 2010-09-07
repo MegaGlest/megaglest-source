@@ -28,6 +28,7 @@
 
 #include "sound_factory_openal.h"
 #include "sound_factory_none.h"
+#include "leak_dumper.h"
 
 using std::string;
 

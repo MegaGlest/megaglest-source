@@ -12,6 +12,8 @@
 #ifndef _SHARED_GRAPHICS_GRAPHICSINTERFACE_H_
 #define _SHARED_GRAPHICS_GRAPHICSINTERFACE_H_
 
+#include "leak_dumper.h"
+
 namespace Shared{ namespace Graphics{
 
 class GraphicsFactory;

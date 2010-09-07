@@ -17,6 +17,7 @@
 #include "JPGReader.h"
 #include "PNGReader.h"
 #include "TGAReader.h"
+#include "leak_dumper.h"
 
 //Initialize some objects
 namespace Shared{ namespace Graphics{

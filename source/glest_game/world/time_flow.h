@@ -14,6 +14,7 @@
 
 #include "tileset.h"
 #include "sound.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

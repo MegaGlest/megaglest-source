@@ -259,7 +259,10 @@ Unit::~Unit(){
 	// If the unit is not visible we better make sure we cleanup associated particles
 	if(this->getVisible() == false) {
 		Renderer::getInstance().cleanupUnitParticleSystems(unitParticleSystems,rsGame);
+
 		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
+		// Must set this to null of it will be used below in stopDamageParticles()
+		fire = NULL;
 	}
 
 	// fade(and by this remove) all unit particle systems
@@ -923,7 +926,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	return commandType;
 }
 
-bool Unit::update(){
+bool Unit::update() {
 	assert(progress<=1.f);
 
 	//highlight
@@ -1491,7 +1494,7 @@ CommandResult Unit::undoCommand(Command *command){
 	return crSuccess;
 }
 
-void Unit::stopDamageParticles(){
+void Unit::stopDamageParticles() {
 	// stop fire
 	if(fire != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1521,7 +1524,7 @@ void Unit::startDamageParticles(){
 		}
 	}
 	// start fire
-	if(type->getProperty(UnitType::pBurnable) && fire==NULL){
+	if(type->getProperty(UnitType::pBurnable) && fire == NULL) {
 		FireParticleSystem *fps;
 		fps= new FireParticleSystem(200);
 		const Game *game = Renderer::getInstance().getGame();

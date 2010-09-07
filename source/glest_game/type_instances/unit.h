@@ -18,6 +18,7 @@
 #include "skill_type.h"
 #include "game_constants.h"
 #include <set>
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

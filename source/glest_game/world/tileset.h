@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -13,7 +13,6 @@
 #define _GLEST_GAME_TILESET_H_
 
 #include <map>
-
 #include "graphics_interface.h"
 #include "xml_parser.h"
 #include "object_type.h"
@@ -21,6 +20,7 @@
 #include "randomgen.h"
 #include "surface_atlas.h"
 #include "checksum.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

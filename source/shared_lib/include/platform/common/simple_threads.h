@@ -14,6 +14,7 @@
 #include "base_thread.h"
 #include <vector>
 #include <string>
+#include "leak_dumper.h"
 
 using namespace std;
 

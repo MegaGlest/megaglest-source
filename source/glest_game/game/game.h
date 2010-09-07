@@ -22,8 +22,8 @@
 #include "chat_manager.h"
 #include "script_manager.h"
 #include "game_settings.h"
-//#include "simple_threads.h"
 #include "network_interface.h"
+#include "leak_dumper.h"
 
 using std::vector;
 using namespace Shared::PlatformCommon;

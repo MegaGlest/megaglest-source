@@ -14,6 +14,7 @@
 
 #include "vec.h"
 #include "quaternion.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 

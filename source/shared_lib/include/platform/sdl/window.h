@@ -17,9 +17,9 @@
 #include <string>
 #include <SDL.h>
 #include <cassert>
-
 #include "types.h"
 #include "vec.h"
+#include "leak_dumper.h"
 
 using std::map;
 using std::string;

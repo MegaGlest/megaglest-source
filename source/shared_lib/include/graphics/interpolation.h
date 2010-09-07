@@ -15,6 +15,7 @@
 #include "vec.h"
 #include "model.h"
 #include <map>
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 

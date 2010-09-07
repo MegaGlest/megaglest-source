@@ -13,7 +13,6 @@
 #define FILE_READER_H
 
 #include "platform_util.h"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -21,6 +20,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <typeinfo>
+#include "leak_dumper.h"
 
 using std::map;
 using std::string;

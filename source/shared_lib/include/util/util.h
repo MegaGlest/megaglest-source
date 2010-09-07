@@ -18,6 +18,7 @@
 #include "thread.h"
 #include <curl/curl.h>
 #include <cstdio>
+#include "leak_dumper.h"
 
 using std::string;
 using namespace Shared::Platform;

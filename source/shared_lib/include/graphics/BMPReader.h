@@ -18,6 +18,7 @@
 
 #include "FileReader.h"
 #include "pixmap.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 

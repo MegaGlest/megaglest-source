@@ -13,8 +13,8 @@
 #define _SHARED_GRAPHICS_TEXTUREMANAGER_H_
 
 #include <vector>
-
 #include "texture.h"
+#include "leak_dumper.h"
 
 using std::vector;
 

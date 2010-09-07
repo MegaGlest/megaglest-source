@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <string>
+#include "leak_dumper.h"
 
 using std::vector;
 

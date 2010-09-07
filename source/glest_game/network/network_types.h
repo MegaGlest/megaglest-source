@@ -17,6 +17,7 @@
 #include "types.h"
 #include "vec.h"
 #include "command.h"
+#include "leak_dumper.h"
 
 using std::string;
 using std::min;

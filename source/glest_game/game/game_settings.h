@@ -14,6 +14,7 @@
 
 #include "game_constants.h"
 #include "conversion.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Util;
 

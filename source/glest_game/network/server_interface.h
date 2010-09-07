@@ -18,6 +18,7 @@
 #include "network_interface.h"
 #include "connection_slot.h"
 #include "socket.h"
+#include "leak_dumper.h"
 
 using std::vector;
 using Shared::Platform::ServerSocket;

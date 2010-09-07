@@ -15,6 +15,7 @@
 #include "element_type.h"
 #include "checksum.h"
 #include "conversion.h"
+#include "leak_dumper.h"
 
 using Shared::Util::Checksum;
 using namespace Shared::Util;

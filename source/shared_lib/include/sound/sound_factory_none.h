@@ -10,7 +10,7 @@
 #define _SHARED_SOUND_SOUNDFACTORY_NONEL_H_
 
 #include "sound_factory.h"
-//#include "sound_player_openal.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Sound{
 

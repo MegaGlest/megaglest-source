@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 #include <stdexcept>
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;

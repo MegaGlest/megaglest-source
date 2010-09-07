@@ -19,6 +19,7 @@
 #include "platform_common.h"
 #include <list>
 #include <string>
+#include "leak_dumper.h"
 
 using std::list;
 using std::string;

@@ -13,6 +13,7 @@
 #define _SHARED_GRAPHICS_GL_TEXTRENDERERGL_H_
 
 #include "text_renderer.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{ namespace Gl{
 

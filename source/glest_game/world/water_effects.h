@@ -13,8 +13,8 @@
 #define _GLEST_GAME_WATER_EFFECTS_H_
 
 #include <vector>
-
 #include "vec.h"
+#include "leak_dumper.h"
 
 using std::vector;
 

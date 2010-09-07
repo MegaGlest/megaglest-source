@@ -16,6 +16,7 @@
 #include "masterserver_info.h"
 #include "simple_threads.h"
 #include "network_interface.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

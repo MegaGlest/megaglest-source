@@ -17,6 +17,7 @@
 #include "unit.h"
 #include "vec.h"
 #include "game_constants.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

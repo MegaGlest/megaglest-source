@@ -19,6 +19,7 @@
 #include "factory.h"
 #include "xml_parser.h"
 #include "sound_container.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

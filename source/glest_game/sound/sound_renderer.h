@@ -18,6 +18,7 @@
 #include "vec.h"
 #include "simple_threads.h"
 #include "platform_common.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

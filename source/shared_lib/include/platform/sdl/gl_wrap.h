@@ -30,9 +30,9 @@
 #endif
 
 #include <string>
-
 #include "font.h"
 #include "types.h"
+#include "leak_dumper.h"
 
 using std::string;
 

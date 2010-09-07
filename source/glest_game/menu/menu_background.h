@@ -18,6 +18,7 @@
 #include "texture.h"
 #include "model.h"
 #include "randomgen.h"
+#include "leak_dumper.h"
 
 using Shared::Graphics::RainParticleSystem;
 using Shared::Graphics::FireParticleSystem;

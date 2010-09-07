@@ -14,6 +14,7 @@
 
 #include "main_menu.h"
 #include "chat_manager.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

@@ -15,6 +15,7 @@
 #include "socket.h"
 #include "game_constants.h"
 #include "network_types.h"
+#include "leak_dumper.h"
 
 using Shared::Platform::Socket;
 using Shared::Platform::int8;

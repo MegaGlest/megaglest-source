@@ -15,9 +15,8 @@
 #include <vector>
 
 #include "network_interface.h"
-//#include "game_settings.h"
-
 #include "socket.h"
+#include "leak_dumper.h"
 
 using Shared::Platform::Ip;
 using Shared::Platform::ClientSocket;

@@ -16,6 +16,7 @@
 #include <deque>
 
 #include "texture.h"
+#include "leak_dumper.h"
 
 using std::string;
 using std::deque;

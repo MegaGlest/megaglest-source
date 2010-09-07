@@ -17,8 +17,13 @@
 
 #ifdef SL_LEAK_DUMP
 
+#include <new>
+//#include <memory>
 #include <cstdlib>
 #include <cstdio>
+//#include <cstddef>
+
+using namespace std;
 
 //including this header in any file of a project will cause all
 //leaks to be dumped into leak_dump.txt, but only allocations that 
@@ -68,48 +73,48 @@ public:
 
 //if an allocation ocurrs in a file where "leaks_dumper.h" is not included
 //this operator new is called and file and line will be unknown
-inline void * operator new (size_t bytes){
+void * operator new (size_t bytes) {
 	void *ptr= malloc(bytes);
 	AllocRegistry::getInstance().allocate(AllocInfo(ptr, "unknown", 0, bytes, false));
 	return ptr;
 }
 
-inline void operator delete(void *ptr){
+void operator delete(void *ptr){
 	AllocRegistry::getInstance().deallocate(ptr, false);
 	free(ptr);
 }
 
-inline void * operator new[](size_t bytes){
+void * operator new[](size_t bytes){
 	void *ptr= malloc(bytes);
 	AllocRegistry::getInstance().allocate(AllocInfo(ptr, "unknown", 0, bytes, true));
 	return ptr;
 }
 
-inline void operator delete [](void *ptr){
+void operator delete [](void *ptr){
 	AllocRegistry::getInstance().deallocate(ptr, true);
 	free(ptr);
 }
 
 //if an allocation ocurrs in a file where "leaks_dumper.h" is included 
 //this operator new is called and file and line will be known
-inline void * operator new (size_t bytes, char* file, int line){
+void * operator new (size_t bytes, char* file, int line){
 	void *ptr= malloc(bytes);
 	AllocRegistry::getInstance().allocate(AllocInfo(ptr, file, line, bytes, false));
 	return ptr;
 }
 
-inline void operator delete(void *ptr, char* file, int line){
+void operator delete(void *ptr, char* file, int line){
 	AllocRegistry::getInstance().deallocate(ptr, false);
 	free(ptr);
 }
 
-inline void * operator new[](size_t bytes, char* file, int line){
+void * operator new[](size_t bytes, char* file, int line){
 	void *ptr= malloc(bytes);
 	AllocRegistry::getInstance().allocate(AllocInfo(ptr, file, line, bytes, true));
 	return ptr;
 }
 
-inline void operator delete [](void *ptr, char* file, int line){
+void operator delete [](void *ptr, char* file, int line){
 	AllocRegistry::getInstance().deallocate(ptr, true);
 	free(ptr);
 }
@@ -117,5 +122,6 @@ inline void operator delete [](void *ptr, char* file, int line){
 #define new new(__FILE__, __LINE__)
 
 #endif
+
 
 #endif

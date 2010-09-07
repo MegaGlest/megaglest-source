@@ -14,6 +14,7 @@
 
 #include "context_gl.h"
 #include "window.h"
+#include "leak_dumper.h"
 
 using Shared::Graphics::Gl::ContextGl;
 

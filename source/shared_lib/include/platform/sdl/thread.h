@@ -14,6 +14,7 @@
 
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
+#include "leak_dumper.h"
 
 // =====================================================
 //	class Thread

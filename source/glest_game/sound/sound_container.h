@@ -13,9 +13,9 @@
 #define _GLEST_GAME_SOUNDCONTAINER_H_
 
 #include <vector>
-
 #include "sound.h"
 #include "randomgen.h"
+#include "leak_dumper.h"
 
 using std::vector;
 using Shared::Util::RandomGen;

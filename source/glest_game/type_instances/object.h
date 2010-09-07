@@ -13,6 +13,7 @@
 
 #include "model.h"
 #include "vec.h"
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

@@ -13,6 +13,7 @@
 #define _SHARED_GRAPHICS_MATRIX_H_
 
 #include "vec.h"
+#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
 

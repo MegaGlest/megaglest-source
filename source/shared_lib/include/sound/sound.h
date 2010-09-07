@@ -14,6 +14,7 @@
 
 #include <string>
 #include "sound_file_loader.h" 
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;

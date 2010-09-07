@@ -38,6 +38,8 @@
 #	define IF_DEBUG_EDITION(x)
 #endif
 
+#include "leak_dumper.h"
+
 namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;

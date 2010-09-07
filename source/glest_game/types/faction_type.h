@@ -15,6 +15,7 @@
 #include "unit_type.h"
 #include "upgrade_type.h"
 #include "sound.h"
+#include "leak_dumper.h"
 
 using Shared::Sound::StrSound;
 

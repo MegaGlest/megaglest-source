@@ -18,6 +18,7 @@
 #include "selection.h"
 #include "command_type.h"
 #include "platform_util.h"
+#include "leak_dumper.h"
 
 using std::vector;
 

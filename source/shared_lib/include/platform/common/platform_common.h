@@ -26,6 +26,7 @@
 #include "checksum.h"
 #include <utility>
 #include <SDL.h>
+#include "leak_dumper.h"
 
 using std::string;
 using std::vector;

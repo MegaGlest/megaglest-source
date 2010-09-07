@@ -17,6 +17,7 @@
 #include "network_interface.h"
 #include <time.h>
 #include "base_thread.h"
+#include "leak_dumper.h"
 
 using Shared::Platform::ServerSocket;
 using Shared::Platform::Socket;
