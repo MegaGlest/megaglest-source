@@ -947,6 +947,11 @@ void ParticleManager::update(int renderFps) {
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, particleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,particleCount);
 }
 
+bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particleSystem) const {
+	int index = findParticleSystems(particleSystem, this->particleSystems);
+	return (index >= 0);
+}
+
 int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const {
 	int result = -1;
 	for (int i = 0; i < particleSystems.size(); i++) {

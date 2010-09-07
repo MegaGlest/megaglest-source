@@ -437,6 +437,7 @@ public:
 	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems);
 	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems);
 	int findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const;
+	bool validateParticleSystemStillExists(ParticleSystem * particleSystem) const;
 }; 
 
 }}//end namespace

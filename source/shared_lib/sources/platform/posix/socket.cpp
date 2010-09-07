@@ -626,7 +626,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		   }
 		   ipIdx++;
 		}
-		}
+	}
 
 #ifndef WIN32
 
@@ -662,21 +662,26 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			strncpy(ifrA.ifr_name, szBuf, maxIfNameLength);
 			ifrA.ifr_name[maxIfNameLength] = '\0';
 
-			ioctl(fd, SIOCGIFADDR, &ifr);
+			int result_ifaddrr = ioctl(fd, SIOCGIFADDR, &ifr);
 			ioctl(fd, SIOCGIFFLAGS, &ifrA);
 			close(fd);
 
-			sprintf(myhostaddr, "%s",inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
+			if(result_ifaddrr >= 0) {
+				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
+				if(pSockAddr != NULL) {
+					sprintf(myhostaddr, "%s",inet_ntoa(pSockAddr->sin_addr));
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
-			// Now only include interfaces that are both UP and running
-			if( (ifrA.ifr_flags & IFF_UP) 		== IFF_UP &&
-				(ifrA.ifr_flags & IFF_RUNNING) 	== IFF_RUNNING) {
-				if( strlen(myhostaddr) > 0 &&
-					strncmp(myhostaddr,"127.",4) != 0  &&
-					strncmp(myhostaddr,"0.",2) != 0) {
-					if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
-						ipList.push_back(myhostaddr);
+					// Now only include interfaces that are both UP and running
+					if( (ifrA.ifr_flags & IFF_UP) 		== IFF_UP &&
+						(ifrA.ifr_flags & IFF_RUNNING) 	== IFF_RUNNING) {
+						if( strlen(myhostaddr) > 0 &&
+							strncmp(myhostaddr,"127.",4) != 0  &&
+							strncmp(myhostaddr,"0.",2) != 0) {
+							if(std::find(ipList.begin(),ipList.end(),myhostaddr) == ipList.end()) {
+								ipList.push_back(myhostaddr);
+							}
+						}
 					}
 				}
 			}
