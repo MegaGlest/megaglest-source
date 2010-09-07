@@ -53,9 +53,7 @@ static const int tgaUncompressedBw= 3;
 
 /**Get Extension array, initialised*/
 static inline const string* getExtensionStrings() {
-	static string * extensions = new string[2];
-	extensions[0] = "tga";
-	extensions[1] = "";
+	static const string extensions[] = {"tga", ""};
 	return extensions;
 }
 
