@@ -40,30 +40,41 @@ const int PathFinder::pathFindRefresh= 10;
 
 
 PathFinder::PathFinder(){
-	nodePool= NULL;
+	//nodePool= NULL;
+	nodePool.clear();
+	map=NULL;
 }
 
 PathFinder::PathFinder(const Map *map){
-	nodePool= NULL;
+	//nodePool= NULL;
+	nodePool.clear();
+	map=NULL;
 	init(map);
 }
 
 void PathFinder::init(const Map *map){
-	if(nodePool != NULL) {
-		delete [] nodePool;
-		nodePool = NULL;
-	}
-	nodePool= new Node[pathFindNodesMax];
+	//if(nodePool != NULL) {
+	//	delete [] nodePool;
+	//	nodePool = NULL;
+	//}
+	//nodePool= new Node[pathFindNodesMax];
+	nodePool.resize(pathFindNodesMax);
+
 	this->map= map;
 }
 
 PathFinder::~PathFinder(){
-	delete [] nodePool;
-	nodePool = NULL;
+	//delete [] nodePool;
+	//nodePool = NULL;
+	nodePool.clear();
+	map=NULL;
 }
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 	
+	if(map == NULL) {
+		throw runtime_error("map == NULL");
+	}
 	//route cache
 	UnitPathInterface *path= unit->getPath();
 	if(finalPos==unit->getPos()) {
@@ -148,6 +159,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	Chrono chrono;
 	chrono.start();
 	
+	if(map == NULL) {
+		throw runtime_error("map == NULL");
+	}
+
 	nodePoolCount= 0;
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
@@ -163,8 +178,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	assert(firstNode!=NULL);;
 	firstNode->next= NULL;
 	firstNode->prev= NULL;
-	firstNode->pos= unit->getPos();
-	firstNode->heuristic= heuristic(unit->getPos(), finalPos);
+	const Vec2i unitPos = unit->getPos();
+	firstNode->pos= unitPos;
+	firstNode->heuristic= heuristic(unitPos, finalPos);
 	firstNode->exploredCell= true;
 	openNodes.push_back(firstNode);
 
@@ -188,7 +204,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		node= *it;
 
 		//b3) if minHeuristic is the finalNode, or the path is no more explored => path was found
-		if(node->pos==finalPos || !node->exploredCell){
+		if(node->pos == finalPos || node->exploredCell == false) {
 			pathFound= true;
 			break;
 		}
@@ -200,7 +216,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		for(int i=-1; i<=1 && !nodeLimitReached; ++i){
 			for(int j=-1; j<=1 && !nodeLimitReached; ++j){
 				Vec2i sucPos= node->pos + Vec2i(i, j);
-				if(!openPos(sucPos) && map->aproxCanMove(unit, node->pos, sucPos)){
+				if(openPos(sucPos) == false && map->aproxCanMove(unit, node->pos, sucPos)){
 					//if node is not open and canMove then generate another node
 					Node *sucNode= newNode();
 					if(sucNode!=NULL){
@@ -257,7 +273,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 		currNode= firstNode;
 		for(int i=0; currNode->next!=NULL && i<pathFindRefresh; currNode= currNode->next, i++){
-			path->push(currNode->next->pos);
+			path->add(currNode->next->pos);
 		}
 	}
 
@@ -271,7 +287,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 }
 
 PathFinder::Node *PathFinder::newNode(){
-	if(nodePoolCount<pathFindNodesMax){
+	if(nodePoolCount < pathFindNodesMax){
 		Node *node= &nodePool[nodePoolCount];
 		nodePoolCount++;
 		return node;
@@ -280,6 +296,9 @@ PathFinder::Node *PathFinder::newNode(){
 }
 
 Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos){
+	if(map == NULL) {
+		throw runtime_error("map == NULL");
+	}
 	
 	//unit data
 	Vec2i unitPos= unit->getPos();

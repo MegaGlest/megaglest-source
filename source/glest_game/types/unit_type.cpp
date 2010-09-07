@@ -57,6 +57,7 @@ UnitType::UnitType(){
     light= false;
     multiSelect= false;
 	armorType= NULL;
+	rotatedBuildPos=0;
 
     for(int i=0; i<ccCount; ++i){
         firstCommandTypeOfClass[i]= NULL;

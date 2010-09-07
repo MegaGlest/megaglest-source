@@ -34,7 +34,14 @@ class Unit;
 
 class PathFinder {
 public:
-	struct Node{
+	class Node {
+	public:
+		Node() : pos(0,0) {
+			next=NULL;
+			prev=NULL;
+			heuristic=0.0;
+			exploredCell=false;
+		}
 		Vec2i pos;
 		Node *next;
 		Node *prev;
@@ -51,7 +58,8 @@ public:
 private:
 	Nodes openNodes;
 	Nodes closedNodes;
-	Node *nodePool;
+	//Node *nodePool;
+	std::vector<Node> nodePool;
 	int nodePoolCount;
 	const Map *map;
 

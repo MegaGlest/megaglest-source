@@ -195,10 +195,13 @@ const FactionType *TechTree::getType(const string &name) const{
 }
 
 const ResourceType *TechTree::getTechResourceType(int i) const{
-     for(int j=0; j<getResourceTypeCount(); ++j){
+     for(int j=0; j < getResourceTypeCount(); ++j){
           const ResourceType *rt= getResourceType(j);
           assert(rt != NULL);
-          if(rt->getResourceNumber()==i && rt->getClass()==rcTech)
+          if(rt == NULL) {
+        	  throw runtime_error("rt == NULL");
+          }
+          if(rt->getResourceNumber() == i && rt->getClass() == rcTech)
                return getResourceType(j);
      }
 

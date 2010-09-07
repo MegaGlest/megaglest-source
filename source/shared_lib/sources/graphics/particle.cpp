@@ -369,6 +369,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(partic
 	fixed=false;
 	rotation=0.0f;
 	relativeDirection=true;
+	relative=false;
 	
 	cRotation= Vec3f(1.0f,1.0f,1.0f);
 	fixedAddition = Vec3f(0.0f,0.0f,0.0f);
@@ -437,7 +438,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->speed= p->speed * speed;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	
-	if(!relative){
+	if(relative == false) {
 		p->pos= Vec3f(pos.x+x+offset.x, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z); 
 	}
 	else

@@ -51,6 +51,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 //	GameConstants::cameraFps= 50;
 	GameConstants::updateFps= 40;
 	GameConstants::cameraFps= 100;
+	captureAvgTestStatus = false;
+	lastRenderLog2d		 = 0;
 
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
@@ -1502,7 +1504,7 @@ void Game::render2d(){
 		perfLogging = true;
 	}
 
-    string str;
+    string str="";
     std::map<int,string> factionDebugInfo;
 
 	if( renderer.getShowDebugUI() == true || 

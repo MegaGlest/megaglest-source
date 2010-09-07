@@ -59,7 +59,7 @@ void UnitPathBasic::incBlockCount() {
 	blockCount++;
 }
 
-void UnitPathBasic::push(const Vec2i &path){
+void UnitPathBasic::add(const Vec2i &path){
 	pathQueue.push_back(path);
 }
 

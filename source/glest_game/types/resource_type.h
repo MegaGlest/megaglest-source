@@ -47,6 +47,7 @@ private:
     Model *model;
 
 public:
+    ResourceType();
     void load(const string &dir, Checksum* checksum);
 
     //get
