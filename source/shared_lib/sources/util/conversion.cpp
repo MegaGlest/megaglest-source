@@ -105,25 +105,25 @@ string boolToStr(bool b){
 }
 
 string intToStr(int i){
-	char str[strSize];
+	char str[strSize]="";
 	sprintf(str, "%d", i);
 	return str;
 }
 
 string intToHex(int i){
-	char str[strSize];
+	char str[strSize]="";
 	sprintf(str, "%x", i);
 	return str;
 }
 
 string floatToStr(float f,int precsion){
-	char str[strSize];
+	char str[strSize]="";
 	sprintf(str, "%.*f", precsion,f);
 	return str;
 }
 
 string doubleToStr(double d,int precsion){
-	char str[strSize];
+	char str[strSize]="";
 	sprintf(str, "%.*f", precsion,d);
 	return str;
 }

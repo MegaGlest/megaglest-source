@@ -33,6 +33,7 @@ class Vec2{
 public:
 	T x;
 	T y;
+
 public:
 	Vec2(){
 	};
@@ -52,6 +53,11 @@ public:
 		this->x= v.x;
 		this->y= v.y;
 	}
+	template<typename S>
+	explicit Vec2(Vec2<S> &v){
+		this->x= v.x;
+		this->y= v.y;
+	}
 
 	Vec2(T x, T y){
 		this->x= x;
@@ -64,6 +70,12 @@ public:
 
 	const T *ptr() const{
 		return reinterpret_cast<const T*>(this);
+	}
+
+	Vec2<T> & operator=(const Vec2<T> &v) {
+		this->x= v.x;
+		this->y= v.y;
+		return *this;
 	}
 
 	bool operator ==(const Vec2<T> &v) const{
@@ -201,6 +213,13 @@ public:
 		this->z= v.z;
 	}
 
+	template<typename S>
+	explicit Vec3(Vec3<S> &v){
+		this->x= v.x;
+		this->y= v.y;
+		this->z= v.z;
+	}
+
 	Vec3(T x, T y, T z){
 		this->x= x;
 		this->y= y;
@@ -219,6 +238,13 @@ public:
 
 	const T *ptr() const{
 		return reinterpret_cast<const T*>(this);
+	}
+
+	Vec3<T> & operator=(const Vec3<T> &v) {
+		this->x= v.x;
+		this->y= v.y;
+		this->z= v.z;
+		return *this;
 	}
 
 	bool operator ==(const Vec3<T> &v) const{
@@ -387,6 +413,14 @@ public:
 		this->w= v.w;
 	}
 
+	template<typename S>
+	explicit Vec4(Vec4<S> &v){
+		this->x= v.x;
+		this->y= v.y;
+		this->z= v.z;
+		this->w= v.w;
+	}
+
 	Vec4(T x, T y, T z, T w){
 		this->x= x;
 		this->y= y;
@@ -414,6 +448,14 @@ public:
 
 	const T *ptr() const{
 		return reinterpret_cast<const T*>(this);
+	}
+
+	Vec4<T> & operator=(const Vec4<T> &v) {
+		this->x= v.x;
+		this->y= v.y;
+		this->z= v.z;
+		this->w= v.w;
+		return *this;
 	}
 
 	bool operator ==(const Vec4<T> &v) const{

@@ -107,7 +107,7 @@ public:
 	virtual void clear() = 0;
 	virtual void clearBlockCount() = 0;
 	virtual void incBlockCount() = 0;
-	virtual void push(const Vec2i &path) = 0;
+	virtual void add(const Vec2i &path) = 0;
 	//virtual Vec2i pop() = 0;
 
 	virtual std::string toString() const = 0;
@@ -129,7 +129,7 @@ public:
 	virtual void clear();
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount();
-	virtual void push(const Vec2i &path);
+	virtual void add(const Vec2i &path);
 	Vec2i pop();
 
 	virtual std::string toString() const;
@@ -156,9 +156,9 @@ public:
 	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */
-	virtual void push(const Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+	virtual void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
 	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
-	void push(Vec2i &pos)	{push_front(pos);}	  /**< push onto front of path			  */
+	virtual void add(const Vec2i &pos)	{ push_front(pos);}	  /**< push onto front of path			  */
 
 	
 #if 0

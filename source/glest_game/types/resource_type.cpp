@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -27,6 +27,16 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class ResourceType
 // =====================================================
+
+ResourceType::ResourceType() {
+    resourceClass=rcTech;
+    tilesetObject=0;
+    resourceNumber=0;
+    interval=0;
+	defResPerPatch=0;
+	recoup_cost = false;
+    model = NULL;
+}
 
 void ResourceType::load(const string &dir, Checksum* checksum){
 
