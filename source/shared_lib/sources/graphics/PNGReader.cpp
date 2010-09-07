@@ -73,9 +73,11 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	}
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL,(png_infopp)NULL);
 		return NULL;
 	}
 	if (setjmp(png_jmpbuf(png_ptr))) {
+		 png_destroy_read_struct(&png_ptr, &info_ptr,(png_infopp)NULL);
 		return NULL; //Error during init_io
 	}
 	png_set_read_fn(png_ptr, &is, user_read_data); 
@@ -167,7 +169,14 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		}
 		location+=picComponents*width;
 	}
+
+	for (int y = 0; y < height; ++y) {
+		delete [] row_pointers[y];
+	}
 	delete[] row_pointers;
+
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+
 	return ret;
 }
 
