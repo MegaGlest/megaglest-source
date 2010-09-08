@@ -45,6 +45,8 @@ struct FormatString {
 // 	class MenuStateConnectedGame
 // =====================================================
 
+const char *MenuStateConnectedGame::containerName = "ClientConnectedGame";
+
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
 {
@@ -86,23 +88,32 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int xoffset=0;
 	
 	//state
+	labelStatus.registerGraphicComponent(containerName,"labelStatus");
 	labelStatus.init(350, networkHeadPos+30);
 	labelStatus.setText("");
 
+	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(30, networkHeadPos+30);
 	labelInfo.setText("");
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	
 	//create
+	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(450, 180, 125);
+
+	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(525, 180, 125);
 
 
 	xoffset=170;
 	// fog - o - war
 	// @350 ? 300 ?
+
+	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
 	labelFogOfWar.init(xoffset+150, aHeadPos, 80);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
+
+	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
 	listBoxFogOfWar.init(xoffset+150, aPos, 80);
 	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
 	listBoxFogOfWar.pushBackItem(lang.get("No"));
@@ -110,8 +121,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxFogOfWar.setEditable(false);
 
 
+	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
 	labelAllowObservers.init(xoffset+50, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
+
+	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
 	listBoxAllowObservers.init(xoffset+50, aPos, 80);
 	listBoxAllowObservers.pushBackItem(lang.get("No"));
 	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
@@ -120,7 +134,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	// Enable Observer Mode
+	labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
 	labelEnableObserverMode.init(xoffset+250, aHeadPos, 80);
+
+	listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
 	listBoxEnableObserverMode.init(xoffset+250, aPos, 110);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
@@ -128,8 +145,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxEnableObserverMode.setEditable(false);
 	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
+	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
 	labelPathFinderType.init(xoffset+450, aHeadPos, 80);
 	labelPathFinderType.setText(lang.get("PathFinderType"));
+
+	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
 	listBoxPathFinderType.init(xoffset+450, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
@@ -138,8 +158,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	// Network Frame Period
 	xoffset=0;
+	labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
 	labelNetworkFramePeriod.init(xoffset+170, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+
+	listBoxNetworkFramePeriod.registerGraphicComponent(containerName,"listBoxNetworkFramePeriod");
 	listBoxNetworkFramePeriod.init(xoffset+170, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
@@ -149,8 +172,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxNetworkFramePeriod.setEditable(false);
 
 	// Network Frame Period
+	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
 	labelNetworkPauseGameForLaggedClients.init(xoffset+420, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+
+	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
 	listBoxNetworkPauseGameForLaggedClients.init(xoffset+420, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
@@ -159,8 +185,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	// Enable Server Controlled AI
+	labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
 	labelEnableServerControlledAI.init(xoffset+640, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
+
+	listBoxEnableServerControlledAI.registerGraphicComponent(containerName,"listBoxEnableServerControlledAI");
 	listBoxEnableServerControlledAI.init(xoffset+640, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
@@ -171,17 +200,23 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
 	listBoxMap.init(xoffset+100, mapPos, 200);
 	listBoxMap.setEditable(false);
+
+	labelMap.registerGraphicComponent(containerName,"labelMap");
 	labelMap.init(xoffset+100, mapHeadPos);
 	labelMap.setText(lang.get("Map"));
 
     //tileset listBox
 	//listBoxTileset.init(500, 260, 150);
+	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
 	listBoxTileset.init(xoffset+350, mapPos, 150);
 	listBoxTileset.setEditable(false);
     //listBoxTileset.setItems(results);
 	//labelTileset.init(500, 290);
+
+	labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+350, mapHeadPos);
 	labelTileset.setText(lang.get("Tileset"));
 	
@@ -191,7 +226,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxTechTree.setEditable(false);
     //listBoxTechTree.setItems(results);
 	//labelTechTree.init(700, 290);
+
+	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+550, mapPos, 150);
+
+	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
 	labelTechTree.init(xoffset+550, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
 	
@@ -201,27 +240,42 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	xoffset=120;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
+    	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
 		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
 		labelPlayers[i].setEditable(false);
+
+		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
 		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
 
+		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
         listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
         listBoxControls[i].setEditable(false);
+
+        listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
         listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight);
         listBoxFactions[i].setEditable(false);
+
+        listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
+
+		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
+
+		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
 		grabSlotButton[i].init(xoffset+600, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
+    labelControl.registerGraphicComponent(containerName,"labelControl");
 	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
 	
+	labelFaction.registerGraphicComponent(containerName,"labelFaction");
     labelFaction.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
     
+    labelTeam.registerGraphicComponent(containerName,"labelTeam");
     labelTeam.init(xoffset+520, setupPos, 60, GraphicListBox::defH, true);
 	labelTeam.setText(lang.get("Team"));
 
@@ -266,6 +320,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
 
 	chatManager.init(&console, -1,true);
+
+	GraphicComponent::applyAllCustomProperties(containerName);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateConnectedGame::~MenuStateConnectedGame() {

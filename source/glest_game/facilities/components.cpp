@@ -18,6 +18,7 @@
 #include "core_data.h"
 #include "platform_util.h"
 #include "util.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -34,9 +35,64 @@ float GraphicComponent::fade= 0.f;
 const float GraphicComponent::animSpeed= 0.02f;
 const float GraphicComponent::fadeSpeed= 0.01f;
 
-GraphicComponent::GraphicComponent(){
+std::map<std::string, std::map<std::string, GraphicComponent *> > GraphicComponent::registeredGraphicComponentList;
+
+GraphicComponent::GraphicComponent(std::string containerName, std::string objName) {
+	instanceName = "";
+	if(objName != "") {
+		registerGraphicComponent(containerName,objName);
+	}
 	enabled= true;
 	editable= true;
+}
+
+void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
+	instanceName = objName;
+	registeredGraphicComponentList[containerName][objName] = this;
+}
+
+GraphicComponent * GraphicComponent::findRegisteredComponent(std::string containerName, std::string objName) {
+	GraphicComponent *result = NULL;
+
+	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+		std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.find(objName);
+		if(iterFind2 != iterFind1->second.end()) {
+			result = iterFind2->second;
+		}
+	}
+	return result;
+}
+
+void GraphicComponent::applyAllCustomProperties(std::string containerName) {
+
+	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
+				iterFind2 != iterFind1->second.end(); iterFind2++) {
+			iterFind2->second->applyCustomProperties(containerName);
+		}
+	}
+}
+
+void GraphicComponent::applyCustomProperties(std::string containerName) {
+	if(instanceName != "") {
+		std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+		if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+			std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.find(instanceName);
+			if(iterFind2 != iterFind1->second.end()) {
+				Config &config = Config::getInstance();
+
+				//if(dynamic_cast<GraphicButton *>(iterFind2->second) != NULL) {
+				GraphicComponent *ctl = dynamic_cast<GraphicComponent *>(iterFind2->second);
+				ctl->x = config.getInt(containerName + "_" + iterFind2->first + "_x",intToStr(ctl->x).c_str());
+				ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y",intToStr(ctl->y).c_str());
+				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w",intToStr(ctl->w).c_str());
+				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h",intToStr(ctl->h).c_str());
+				//}
+			}
+		}
+	}
 }
 
 void GraphicComponent::init(int x, int y, int w, int h){
