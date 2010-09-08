@@ -478,7 +478,7 @@ void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScop
 }
 
 bool Renderer::validateParticleSystemStillExists(ParticleSystem * particleSystem,ResourceScope rs) const {
-	particleManager[rs]->validateParticleSystemStillExists(particleSystem);
+	return particleManager[rs]->validateParticleSystemStillExists(particleSystem);
 }
 
 void Renderer::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems, ResourceScope rs) {
