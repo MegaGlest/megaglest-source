@@ -12,7 +12,6 @@
 #include <stdexcept>
 #include <cassert>
 
-#include <SDL.h>
 #ifdef X11_AVAILABLE
 #include <GL/glx.h>
 #endif

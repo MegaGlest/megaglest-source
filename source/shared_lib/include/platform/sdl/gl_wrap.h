@@ -32,6 +32,7 @@
 #include <string>
 #include "font.h"
 #include "types.h"
+#include <SDL.h>
 #include "leak_dumper.h"
 
 using std::string;
