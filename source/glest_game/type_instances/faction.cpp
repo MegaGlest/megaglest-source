@@ -363,34 +363,29 @@ void Faction::applyCostsOnInterval(){
 	}
 	
 	//decrement consumables
-	if((getCpuControl() == false) ||
-		(getCpuControl() == true &&
-		 scriptManager->getPlayerModifiers(this->index)->getAiEnabled() == true))
-	{
-		for(int j=0; j<getUnitCount(); ++j){
-			Unit *unit= getUnit(j);
-			assert(unit != NULL);
-			if(unit->isOperative()){
-				for(int k=0; k<unit->getType()->getCostCount(); ++k){
-					const Resource *resource= unit->getType()->getCost(k);
-					if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
-						incResourceAmount(resource->getType(), -resource->getAmount());
-	
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hunger setting for faction index = %d, hunger = %d, getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getHungerEnabled(),getResource(resource->getType())->getAmount());
+	for(int j=0; j<getUnitCount(); ++j){
+		Unit *unit= getUnit(j);
+		assert(unit != NULL);
+		if(unit->isOperative()){
+			for(int k=0; k<unit->getType()->getCostCount(); ++k){
+				const Resource *resource= unit->getType()->getCost(k);
+				if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
+					incResourceAmount(resource->getType(), -resource->getAmount());
 
-						//decrease unit hp
-						if(scriptManager->getPlayerModifiers(this->index)->getHungerEnabled() == true &&
-							getResource(resource->getType())->getAmount() < 0) {
-							resetResourceAmount(resource->getType());
-							bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
-							if(decHpResult){
-								world->getStats()->die(unit->getFactionIndex());
-								scriptManager->onUnitDied(unit);
-							}
-							StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
-							if(sound!=NULL && thisFaction){
-								SoundRenderer::getInstance().playFx(sound);
-							}
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(resource->getType())->getAmount());
+
+					//decrease unit hp
+					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true &&
+						getResource(resource->getType())->getAmount() < 0) {
+						resetResourceAmount(resource->getType());
+						bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
+						if(decHpResult){
+							world->getStats()->die(unit->getFactionIndex());
+							scriptManager->onUnitDied(unit);
+						}
+						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
+						if(sound!=NULL && thisFaction){
+							SoundRenderer::getInstance().playFx(sound);
 						}
 					}
 				}

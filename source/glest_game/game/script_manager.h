@@ -57,18 +57,18 @@ public:
 
 	void setAsWinner()			{winner= true;}
 
-	void disableHunger()		{hungerEnabled= false;}
-	void enableHunger()			{hungerEnabled= true;}
+	void disableConsume()		{consumeEnabled= false;}
+	void enableConsume()			{consumeEnabled= true;}
 
 	bool getWinner() const			{return winner;}
 
 	bool getAiEnabled() const		{return aiEnabled;}
-	bool getHungerEnabled() const	{return hungerEnabled;}
+	bool getConsumeEnabled() const	{return consumeEnabled;}
 
 private:
 	bool winner;
 	bool aiEnabled;
-	bool hungerEnabled;
+	bool consumeEnabled;
 };
 
 // =====================================================
@@ -183,8 +183,8 @@ private:
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
 	void disableAi(int factionIndex);
 	void enableAi(int factionIndex);
-	void disableHunger(int factionIndex);
-	void enableHunger(int factionIndex);
+	void disableConsume(int factionIndex);
+	void enableConsume(int factionIndex);
 
 	int registerCellTriggerEventForUnitToUnit(int sourceUnitId, int destUnitId);
 	int registerCellTriggerEventForUnitToLocation(int sourceUnitId, const Vec2i &pos);
@@ -200,7 +200,7 @@ private:
 	int getTimerTriggeredEventId();
 
 	bool getAiEnabled(int factionIndex);
-	bool getHungerEnabled(int factionIndex);
+	bool getConsumeEnabled(int factionIndex);
 
 	void setPlayerAsWinner(int factionIndex);
 	void endGame();
@@ -239,11 +239,11 @@ private:
 	static int disableAi(LuaHandle* luaHandle);
 	static int enableAi(LuaHandle* luaHandle);
 
-	static int disableHunger(LuaHandle* luaHandle);
-	static int enableHunger(LuaHandle* luaHandle);
+	static int disableConsume(LuaHandle* luaHandle);
+	static int enableConsume(LuaHandle* luaHandle);
 
 	static int getAiEnabled(LuaHandle* luaHandle);
-	static int getHungerEnabled(LuaHandle* luaHandle);
+	static int getConsumeEnabled(LuaHandle* luaHandle);
 
 	static int registerCellTriggerEventForUnitToUnit(LuaHandle* luaHandle);
 	static int registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandle);
