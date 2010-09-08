@@ -943,14 +943,14 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 	#endif
 			if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN)
 			{
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 				break;
 				//throwException(szBuf);
 			}
 			else if(err == 0)
 			{
 				if(isConnected() == false) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText().c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR PEEKING SOCKET DATA, err = %d %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 					break;
 				}
 				//if(Socket::enableNetworkDebugInfo) printf("In [%s] ioctl returned = %d, size = %ld\n",__FUNCTION__,err,size);
@@ -1115,7 +1115,7 @@ int Socket::receive(void *data, int dataSize)
 int Socket::peek(void *data, int dataSize){
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1130,10 +1130,10 @@ int Socket::peek(void *data, int dataSize){
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,err);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,err);
 	        }
 	    }
 	}
@@ -1142,7 +1142,7 @@ int Socket::peek(void *data, int dataSize){
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,err,getLastSocketErrorFormattedText(&iErr).c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
 	    //throwException(szBuf);
 	}
 
