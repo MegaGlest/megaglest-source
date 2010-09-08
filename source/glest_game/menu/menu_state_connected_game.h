@@ -30,8 +30,9 @@ enum JoinMenu{
 // 	class MenuStateConnectedGame
 // ===============================
 
-class MenuStateConnectedGame: public MenuState{
+class MenuStateConnectedGame: public MenuState {
 private:
+	static const char *containerName;
 	GraphicButton buttonDisconnect;
 	GraphicButton buttonPlayNow;
 	GraphicLabel labelControl;

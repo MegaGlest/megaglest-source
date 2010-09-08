@@ -14,7 +14,8 @@
 
 #include <string>
 #include <vector>
-
+#include <map>
+#include <typeinfo>
 #include "font.h"
 #include "leak_dumper.h"
 
@@ -25,16 +26,20 @@ using Shared::Graphics::Font2D;
 
 namespace Glest{ namespace Game{
 
+class GraphicComponent;
+
 // ===========================================================
 // 	class GraphicComponent
 //
 //	OpenGL renderer GUI components
 // ===========================================================
 
-class GraphicComponent{
+class GraphicComponent {
 public:
 	static const float animSpeed;
 	static const float fadeSpeed;
+
+	static std::map<std::string, std::map<std::string, GraphicComponent *> > registeredGraphicComponentList;
 
 protected:
     int x, y, w, h;
@@ -46,9 +51,16 @@ protected:
 	static float anim;
 	static float fade;
 
+	string instanceName;
+
 public:
-	GraphicComponent();
+	GraphicComponent(std::string containerName="", std::string objName="");
 	virtual ~GraphicComponent(){}
+
+	void registerGraphicComponent(std::string containerName, std::string objName);
+	static  GraphicComponent * findRegisteredComponent(std::string containerName, std::string objName);
+	static void applyAllCustomProperties(std::string containerName);
+	void applyCustomProperties(std::string containerName);
 
     void init(int x, int y, int w, int h);
 
@@ -81,7 +93,7 @@ public:
 // 	class GraphicLabel  
 // ===========================================================
 
-class GraphicLabel: public GraphicComponent{
+class GraphicLabel: public GraphicComponent {
 public:
 	static const int defH;
 	static const int defW;
@@ -101,7 +113,7 @@ public:
 // 	class GraphicButton  
 // ===========================================================
 
-class GraphicButton: public GraphicComponent{
+class GraphicButton: public GraphicComponent {
 public:
 	static const int defH;
 	static const int defW;
@@ -122,7 +134,7 @@ public:
 // 	class GraphicListBox  
 // ===========================================================
 
-class GraphicListBox: public GraphicComponent{
+class GraphicListBox: public GraphicComponent {
 public:
 	static const int defH;
 	static const int defW;
@@ -155,7 +167,7 @@ public:
 // 	class GraphicMessageBox  
 // ===========================================================
 
-class GraphicMessageBox: public GraphicComponent{
+class GraphicMessageBox: public GraphicComponent {
 public:
 	static const int defH;
 	static const int defW;
