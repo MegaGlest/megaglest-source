@@ -206,6 +206,8 @@ public:
 	int getUpdateFps(int factionIndex) const;
 	bool canTickWorld() const;
 
+	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+
 private:
 
 	void initCells(bool fogOfWar);
@@ -221,7 +223,6 @@ private:
 	bool canTickFaction(int factionIdx);
 	int tickFactionIndex();
 	void computeFow(int factionIdxToTick=-1);
-	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
 
 	void updateAllFactionUnits();
 	void underTakeDeadFactionUnits();

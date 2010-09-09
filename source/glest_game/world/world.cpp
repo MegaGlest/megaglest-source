@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const float World::airHeight= 5.f;
 // This limit is to keep RAM use under control while offering better performance.
-int MaxExploredCellsLookupItemCache = 7500;
+int MaxExploredCellsLookupItemCache = 9500;
 time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
@@ -1139,9 +1139,7 @@ void World::computeFow(int factionIdxToTick) {
 				Unit *unit= getFaction(i)->getUnit(j);
 
 				//exploration
-				if(unit->isOperative()) {
-					exploreCells(unit->getCenteredPos(), unit->getType()->getSight(), unit->getTeam());
-				}
+				unit->exploreCells();
 			}
 		}
 	}

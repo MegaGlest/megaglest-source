@@ -45,6 +45,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	Unit::setGame(this);
+
 	original_updateFps = GameConstants::updateFps;
 	original_cameraFps = GameConstants::cameraFps;
 //	GameConstants::updateFps= 20;
@@ -127,6 +129,10 @@ Game::~Game(){
 
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Unit::setGame(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

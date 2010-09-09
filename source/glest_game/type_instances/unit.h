@@ -45,6 +45,7 @@ class TotalUpgrade;
 class UpgradeType;
 class Level;
 class MorphCommandType;
+class Game;
 
 enum CommandResult{
 	crSuccess,
@@ -270,9 +271,13 @@ private:
 	Vec3f screenPos;
 	string currentUnitTitle;
 
+	static Game *game;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
+
+    static void setGame(Game *value) { game=value;}
 
     //queries
 	int getId() const							{return id;}
@@ -404,6 +409,8 @@ public:
 
 	string getCurrentUnitTitle() const {return currentUnitTitle;}
 	void setCurrentUnitTitle(string value) { currentUnitTitle = value;}
+
+	void exploreCells();
 
 	std::string toString() const;
 
