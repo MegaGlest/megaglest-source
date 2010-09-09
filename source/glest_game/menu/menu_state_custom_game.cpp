@@ -45,13 +45,12 @@ struct FormatString {
 // 	class MenuStateCustomGame
 // =====================================================
 
-const char *MenuStateCustomGame::containerName = "CustomGame";
-
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver):
-	MenuState(program, mainMenu, "new-game")
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver) :
+		MenuState(program, mainMenu, "new-game")
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	containerName = "CustomGame";
 	activeInputLabel=NULL;
 	showGeneralError = false;
 	generalErrorToShow = "---";
@@ -2151,7 +2150,7 @@ void MenuStateCustomGame::keyDown(char key) {
 	else {
 		//send key to the chat manager
 		chatManager.keyDown(key);
-		if(!chatManager.getEditEnabled()) {
+		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			if(key == configKeys.getCharKey("ShowFullConsole")) {
@@ -2175,7 +2174,11 @@ void MenuStateCustomGame::keyDown(char key) {
 					console.addLine(lang.get("GameMusic"));
 				}
 			}
-			
+			else if(key == configKeys.getCharKey("SaveGUILayout")) {
+				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+				Lang &lang= Lang::getInstance();
+				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+			}
 		}
 	}
 }
@@ -2213,7 +2216,7 @@ void MenuStateCustomGame::keyUp(char key) {
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		if(chatManager.getEditEnabled()){
+		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}

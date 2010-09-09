@@ -23,7 +23,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateAbout: public MenuState{
 public:
-	static const char *containerName;
 	static const int aboutStringCount1= 3;
 	static const int aboutStringCount2= 3;
 	static const int teammateCount= 9;
@@ -41,6 +40,7 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
+	virtual void keyDown(char key);
 };
 
 }}//end namespace

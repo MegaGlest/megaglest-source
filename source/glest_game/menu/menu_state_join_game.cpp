@@ -41,11 +41,10 @@ const int MenuStateJoinGame::foundServersIndex= 2;
 
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
-const char *MenuStateJoinGame::containerName = "JoinGame";
-
 MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect, Ip serverIp):
 	MenuState(program, mainMenu, "join-game")
 {
+	containerName = "JoinGame";
 	abortAutoFind = false;
 	autoConnectToServer = false;
 	Lang &lang= Lang::getInstance();
@@ -468,10 +467,12 @@ void MenuStateJoinGame::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-	if(!clientInterface->isConnected())
-	{
+	if(clientInterface->isConnected() == false)	{
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(key==vkBack) {
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+		if(key == vkBack) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			string text= labelServerIp.getText();
 
@@ -481,22 +482,36 @@ void MenuStateJoinGame::keyDown(char key){
 
 			labelServerIp.setText(text);
 		}
+		else if(key == configKeys.getCharKey("SaveGUILayout")) {
+			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+			Lang &lang= Lang::getInstance();
+			console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		}
 	}
-	else
-	{
+	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         //send key to the chat manager
         chatManager.keyDown(key);
+
+        if(chatManager.getEditEnabled() == false) {
+        	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+			if(key == configKeys.getCharKey("SaveGUILayout")) {
+				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+				Lang &lang= Lang::getInstance();
+				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+			}
+        }
 	}
 }
 
 void MenuStateJoinGame::keyPress(char c){
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
-	if(!clientInterface->isConnected())
-	{
+	if(clientInterface->isConnected() == false)	{
 		int maxTextSize= 16;
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 		if(c>='0' && c<='9'){
 

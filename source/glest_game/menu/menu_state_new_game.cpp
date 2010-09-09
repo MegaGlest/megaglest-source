@@ -32,11 +32,10 @@ namespace Glest{ namespace Game{
 // 	class MenuStateNewGame
 // =====================================================
 
-const char *MenuStateNewGame::containerName = "NewGame";
-
 MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "root")
 {
+	containerName = "NewGame";
 	Lang &lang= Lang::getInstance();
 
 	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
@@ -102,6 +101,15 @@ void MenuStateNewGame::render(){
 void MenuStateNewGame::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateNewGame(program, mainMenu);
+	}
+}
+
+void MenuStateNewGame::keyDown(char key) {
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(key == configKeys.getCharKey("SaveGUILayout")) {
+		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		//Lang &lang= Lang::getInstance();
+		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 	}
 }
 

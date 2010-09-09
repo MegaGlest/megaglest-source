@@ -34,11 +34,10 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot
 // =====================================================
 
-const char *MenuStateRoot::containerName = "MainMenu";
-
 MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu): 
 	MenuState(program, mainMenu, "root")
 {
+	containerName = "MainMenu";
 	Lang &lang= Lang::getInstance();
 	int i=375;
 
@@ -203,6 +202,12 @@ void MenuStateRoot::keyDown(char key) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
 	}
+	else if(key == configKeys.getCharKey("SaveGUILayout")) {
+		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		//Lang &lang= Lang::getInstance();
+		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+	}
+
 }
 
 void MenuStateRoot::showMessageBox(const string &text, const string &header, bool toggle){

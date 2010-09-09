@@ -31,14 +31,12 @@
 namespace Glest{ namespace Game{
 
 DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
-const char *MenuStateMasterserver::containerName = "MasterServer";
 
 // =====================================================
 // 	class ServerLine
 // =====================================================
 
-ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex) {
-	const char *containerName = MenuStateMasterserver::containerName;
+ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char * containerName) {
 	Lang &lang= Lang::getInstance();
 
 	index=lineIndex;
@@ -150,6 +148,7 @@ void ServerLine::render(){
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "masterserver") 
 {
+	containerName = "MasterServer";
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
@@ -509,7 +508,7 @@ void MenuStateMasterserver::updateServerInfo() {
 						}
 
 						safeMutex.Lock();
-						serverLines.push_back(new ServerLine( masterServerInfo, i));
+						serverLines.push_back(new ServerLine( masterServerInfo, i, containerName));
 						safeMutex.ReleaseLock(true);
 					}
 					else {
@@ -607,6 +606,11 @@ void MenuStateMasterserver::keyDown(char key) {
 			//gameMusic->setVolume(configVolume ? configVolume : 0.9);
 			console.addLine(lang.get("GameMusic"));
 		}
+	}
+	else if(key == configKeys.getCharKey("SaveGUILayout")) {
+		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		Lang &lang= Lang::getInstance();
+		console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 	}
 }
 

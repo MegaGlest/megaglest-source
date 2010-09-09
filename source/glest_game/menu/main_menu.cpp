@@ -189,6 +189,7 @@ bool MainMenu::isInSpecialKeyCaptureEvent() {
 MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->containerName="";
 	this->program= program;
 	this->mainMenu= mainMenu;
 
@@ -233,7 +234,7 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 
 MenuState::~MenuState() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	GraphicComponent::clearRegisteredComponents();
+	GraphicComponent::clearRegisteredComponents(this->containerName);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

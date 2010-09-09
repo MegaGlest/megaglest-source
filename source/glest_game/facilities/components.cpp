@@ -46,13 +46,20 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	editable= true;
 }
 
-void GraphicComponent::clearRegisteredComponents() {
-	GraphicComponent::registeredGraphicComponentList.clear();
+void GraphicComponent::clearRegisteredComponents(std::string containerName) {
+	if(containerName == "") {
+		GraphicComponent::registeredGraphicComponentList.clear();
+	}
+	else {
+		GraphicComponent::registeredGraphicComponentList[containerName].clear();
+	}
 }
 
 void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
 	instanceName = objName;
 	registeredGraphicComponentList[containerName][objName] = this;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str(),registeredGraphicComponentList[containerName].size());
 }
 
 GraphicComponent * GraphicComponent::findRegisteredComponent(std::string containerName, std::string objName) {
@@ -107,6 +114,71 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 			}
 		}
 	}
+}
+
+bool GraphicComponent::saveAllCustomProperties(std::string containerName) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),registeredGraphicComponentList[containerName].size());
+
+	bool foundPropertiesToSave = false;
+	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
+				iterFind2 != iterFind1->second.end(); iterFind2++) {
+			bool saved = iterFind2->second->saveCustomProperties(containerName);
+			foundPropertiesToSave = (saved || foundPropertiesToSave);
+		}
+	}
+
+	if(foundPropertiesToSave == true) {
+		Config &config = Config::getInstance();
+		config.save();
+	}
+
+	return foundPropertiesToSave;
+}
+
+bool GraphicComponent::saveCustomProperties(std::string containerName) {
+	bool savedChange = false;
+	if(instanceName != "") {
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str());
+
+		std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+		if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for [%s]\n",__FILE__,__FUNCTION__,__LINE__,instanceName.c_str());
+
+			std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.find(instanceName);
+			if(iterFind2 != iterFind1->second.end()) {
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FOUND [%s]\n",__FILE__,__FUNCTION__,__LINE__,instanceName.c_str());
+
+				Config &config = Config::getInstance();
+
+				//string languageToken = config.getString("Lang");
+
+				//if(dynamic_cast<GraphicButton *>(iterFind2->second) != NULL) {
+				GraphicComponent *ctl = dynamic_cast<GraphicComponent *>(iterFind2->second);
+
+				// First check default overrides
+				config.setInt(containerName + "_" + iterFind2->first + "_x",ctl->x);
+				config.setInt(containerName + "_" + iterFind2->first + "_y",ctl->y);
+				config.setInt(containerName + "_" + iterFind2->first + "_w",ctl->w);
+				config.setInt(containerName + "_" + iterFind2->first + "_h",ctl->h);
+
+				savedChange = true;
+				// Now check language specific overrides
+				//ctl->x = config.getInt(containerName + "_" + iterFind2->first + "_x_" + languageToken, intToStr(ctl->x).c_str());
+				//ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y_" + languageToken, intToStr(ctl->y).c_str());
+				//ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w_" + languageToken, intToStr(ctl->w).c_str());
+				//ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h_" + languageToken, intToStr(ctl->h).c_str());
+
+				//}
+			}
+		}
+	}
+
+	return savedChange;
 }
 
 void GraphicComponent::init(int x, int y, int w, int h) {

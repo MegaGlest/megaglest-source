@@ -95,6 +95,18 @@ const char vkDown = -10;
 const char vkReturn = -11;
 const char vkBack = -12;
 const char vkTab = -13;
+const char vkF1 = -14;
+const char vkF2 = -15;
+const char vkF3 = -16;
+const char vkF4 = -17;
+const char vkF5 = -18;
+const char vkF6 = -19;
+const char vkF7 = -20;
+const char vkF8 = -21;
+const char vkF9 = -22;
+const char vkF10 = -23;
+const char vkF11 = -24;
+const char vkF12 = -25;
 
 enum WindowStyle{
 	wsFullscreen,

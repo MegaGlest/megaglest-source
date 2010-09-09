@@ -28,11 +28,10 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-const char *MenuStateOptions::containerName = "Options";
-
 MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "config")
 {
+	containerName = "Options";
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	//modeinfos=list<ModeInfo> ();
@@ -456,6 +455,15 @@ void MenuStateOptions::keyPress(char c){
 			}
 		}
 	}
+	else {
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		if(c == configKeys.getCharKey("SaveGUILayout")) {
+			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+			//Lang &lang= Lang::getInstance();
+			//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		}
+	}
+
 }
 
 void MenuStateOptions::render(){

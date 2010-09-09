@@ -23,7 +23,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateNewGame: public MenuState{
 private:
-	static const char *containerName;
 	GraphicButton buttonCustomGame;
 	GraphicButton buttonScenario;
 	GraphicButton buttonTutorial;
@@ -36,6 +35,7 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();
+	virtual void keyDown(char key);
 };
 
 

@@ -61,6 +61,8 @@ public:
 	void setScenario(int i);
 	int getScenarioCount() const	{ return listBoxScenario.getItemCount(); }
 
+	virtual void keyDown(char key);
+
 private:
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);

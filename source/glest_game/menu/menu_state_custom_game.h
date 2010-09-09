@@ -24,9 +24,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface {
 private:
-
-	static const char *containerName;
-
 	GraphicButton buttonReturn;
 	GraphicButton buttonPlayNow;
 	GraphicButton buttonRestoreLastSettings;

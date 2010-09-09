@@ -357,6 +357,10 @@ void MainWindow::eventKeyDown(char key){
 			bool showDebugUI = renderer.getShowDebugUI();
 			renderer.setShowDebugUI(!showDebugUI);
 		}
+		else if(key == configKeys.getCharKey("ReloadINI")) {
+			Config &config = Config::getInstance();
+			config.reload();
+		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

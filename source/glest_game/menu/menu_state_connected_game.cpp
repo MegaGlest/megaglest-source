@@ -45,11 +45,10 @@ struct FormatString {
 // 	class MenuStateConnectedGame
 // =====================================================
 
-const char *MenuStateConnectedGame::containerName = "ClientConnectedGame";
-
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
-	MenuState(program, mainMenu, "connected-game") //← set on connected-game 
+	MenuState(program, mainMenu, "connected-game")
 {
+	containerName = "ClientConnectedGame";
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
 
@@ -1081,7 +1080,7 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 
 void MenuStateConnectedGame::keyDown(char key) {
 	if(activeInputLabel!=NULL) {
-		if(key==vkBack){
+		if(key==vkBack) {
 			string text= activeInputLabel->getText();
 			if(text.size()>1){
 				text.erase(text.end()-2);
@@ -1096,11 +1095,16 @@ void MenuStateConnectedGame::keyDown(char key) {
 	else {
 		//send key to the chat manager
 		chatManager.keyDown(key);
-		if(!chatManager.getEditEnabled()){
+		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
+			}
+			else if(key == configKeys.getCharKey("SaveGUILayout")) {
+				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+				Lang &lang= Lang::getInstance();
+				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 			}
 		}
 	}
