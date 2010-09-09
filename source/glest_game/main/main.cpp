@@ -32,6 +32,7 @@
 #include "menu_state_masterserver.h"
 #include "checksum.h"
 #include <algorithm>
+#include "sound_renderer.h"
 #include "leak_dumper.h"
 
 #ifndef WIN32 
@@ -937,10 +938,11 @@ int glestMain(int argc, char** argv){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	//soundRenderer.stopAllSounds();
-
 	delete mainWindow;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	GraphicComponent::clearRegisteredComponents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
