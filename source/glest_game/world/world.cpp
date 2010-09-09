@@ -962,6 +962,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			ExploredCellsLookupItem::lastDebug = time(NULL);
 			//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
+			SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 		}
 
 		// Ok we limit the cache size due to possible RAM constraints when
@@ -1019,7 +1020,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 				}
 
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [CACHE lookup found]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				if(chrono.getMillis() > 0) chrono.start();
+				chrono.start();
 
 				return;
 			}
@@ -1027,7 +1028,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [CACHE lookup not found] cacheLookupPosResult = %d, cacheLookupSightResult = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult);
-	if(chrono.getMillis() > 0) chrono.start();
+	chrono.start();
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
@@ -1035,21 +1036,25 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 	// Explore, this code is quite expensive when we have lots of units
 	ExploredCellsLookupItem item;
 
+	int loopCount = 0;
     for(int i = -surfSightRange - indirectSightRange -1; i <= surfSightRange + indirectSightRange +1; ++i) {
         for(int j = -surfSightRange - indirectSightRange -1; j <= surfSightRange + indirectSightRange +1; ++j) {
-			Vec2i currRelPos= Vec2i(i, j);
+        	loopCount++;
+        	Vec2i currRelPos= Vec2i(i, j);
             Vec2i currPos= newSurfPos + currRelPos;
             if(map.isInsideSurface(currPos)){
 				SurfaceCell *sc= map.getSurfaceCell(currPos);
 
 				//explore
-				if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
+				//if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
+				if(currRelPos.length() < surfSightRange + indirectSightRange + 1) {
                     sc->setExplored(teamIndex, true);
                     item.exploredCellList.push_back(sc);
 				}
 
 				//visible
-				if(Vec2i(0).dist(currRelPos) < surfSightRange) {
+				//if(Vec2i(0).dist(currRelPos) < surfSightRange) {
+				if(currRelPos.length() < surfSightRange) {
 					sc->setVisible(teamIndex, true);
 					item.visibleCellList.push_back(sc);
 				}
@@ -1057,8 +1062,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
         }
     }
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [RAW explore cells logic] cacheLookupPosResult = %d, cacheLookupSightResult = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult);
-	if(chrono.getMillis() > 0) chrono.start();
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [RAW explore cells logic] cacheLookupPosResult = %d, cacheLookupSightResult = %d, loopCount = %d, MaxExploredCellsLookupItemCache = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult,loopCount,MaxExploredCellsLookupItemCache);
+	chrono.start();
 
     // Ok update our caches with the latest info for this position, sight and team
     if(MaxExploredCellsLookupItemCache > 0) {
@@ -1074,8 +1079,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
 			ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 		}
     }
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [add explorecells result to CACHE]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [add explorecells result to CACHE]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 //computes the fog of war texture, contained in the minimap
