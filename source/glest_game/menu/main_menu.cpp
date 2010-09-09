@@ -231,4 +231,12 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+MenuState::~MenuState() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	GraphicComponent::clearRegisteredComponents();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+
+
 }}//end namespace

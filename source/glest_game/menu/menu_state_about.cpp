@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 MartiC1o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -25,27 +25,34 @@ namespace Glest{ namespace Game{
 // 	class MenuStateAbout
 // =====================================================
 
+const char *MenuStateAbout::containerName = "About";
+
 MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "about")
 {
 	Lang &lang= Lang::getInstance();
 	
 	//init
+	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(460, 100, 125);
 	buttonReturn.setText(lang.get("Return"));
 	
 	for(int i= 0; i<aboutStringCount1; ++i){
+		labelAbout1[i].registerGraphicComponent(containerName,"labelAbout1" + intToStr(i));
 		labelAbout1[i].init(100, 650-i*20);
 		labelAbout1[i].setText(getAboutString1(i));
 	}
 
 	for(int i= 0; i<aboutStringCount2; ++i){
+		labelAbout2[i].registerGraphicComponent(containerName,"labelAbout2" + intToStr(i));
 		labelAbout2[i].init(460, 650-i*20);
 		labelAbout2[i].setText(getAboutString2(i));
 	}
 	
 	for(int i= 0; i<teammateCount; ++i){
+		labelTeammateName[i].registerGraphicComponent(containerName,"labelTeammateName" + intToStr(i));
 		labelTeammateName[i].init(100+i*180, 500);
+		labelTeammateRole[i].registerGraphicComponent(containerName,"labelTeammateRole" + intToStr(i));
 		labelTeammateRole[i].init(100+i*180, 520);
 		labelTeammateName[i].setText(getTeammateName(i));
 		labelTeammateRole[i].setText(getTeammateRole(i));
@@ -59,6 +66,8 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu):
 	labelTeammateRole[7].init(566, 180);
 	labelTeammateName[8].init(800, 160);
 	labelTeammateRole[8].init(800, 180);
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 void MenuStateAbout::mouseClick(int x, int y, MouseButton mouseButton){

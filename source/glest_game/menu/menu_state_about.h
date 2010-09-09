@@ -23,6 +23,7 @@ namespace Glest{ namespace Game{
 
 class MenuStateAbout: public MenuState{
 public:
+	static const char *containerName;
 	static const int aboutStringCount1= 3;
 	static const int aboutStringCount2= 3;
 	static const int teammateCount= 9;

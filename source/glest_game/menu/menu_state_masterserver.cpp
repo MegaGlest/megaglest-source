@@ -31,13 +31,14 @@
 namespace Glest{ namespace Game{
 
 DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
+const char *MenuStateMasterserver::containerName = "MasterServer";
 
 // =====================================================
 // 	class ServerLine
 // =====================================================
 
-ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)	
-{
+ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex) {
+	const char *containerName = MenuStateMasterserver::containerName;
 	Lang &lang= Lang::getInstance();
 
 	index=lineIndex;
@@ -48,53 +49,65 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex)
 	
 	//general info:
 	i+=10;
+	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
 	glestVersionLabel.init(i,startOffset-lineOffset);
 	glestVersionLabel.setText(masterServerInfo->getGlestVersion());
 	i+=80;
+	platformLabel.registerGraphicComponent(containerName,"platformLabel" + intToStr(lineIndex));
 	platformLabel.init(i,startOffset-lineOffset);
 	platformLabel.setText(masterServerInfo->getPlatform());
 	i+=50;
+	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
 	binaryCompileDateLabel.init(i,startOffset-lineOffset);
 	binaryCompileDateLabel.setText(masterServerInfo->getBinaryCompileDate());
 	
 	//game info:
 	i+=130;
+	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(masterServerInfo->getServerTitle());
 	
 	i+=160;
+	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(masterServerInfo->getIpAddress());
 	
 	//game setup info:
 	i+=100;
+	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(masterServerInfo->getTech());
 	
 	i+=100;
+	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
 	mapLabel.init(i,startOffset-lineOffset);
 	mapLabel.setText(masterServerInfo->getMap());
 	
 	i+=100;
+	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.init(i,startOffset-lineOffset);
 	tilesetLabel.setText(masterServerInfo->getTileset());
 	
 	i+=100;
+	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.init(i,startOffset-lineOffset);
 	activeSlotsLabel.setText(intToStr(masterServerInfo->getActiveSlots())+"/"+intToStr(masterServerInfo->getNetworkSlots())+"/"+intToStr(masterServerInfo->getConnectedClients()));
 
 	i+=50;
+	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.init(i,startOffset-lineOffset);
 	externalConnectPort.setText(intToStr(masterServerInfo->getExternalConnectPort()));
 
 	i+=50;
+	selectButton.registerGraphicComponent(containerName,"selectButton" + intToStr(lineIndex));
 	selectButton.init(i, startOffset-lineOffset, 30);
 	selectButton.setText(">");
-	if(glestVersionString!=masterServerInfo->getGlestVersion())
-	{
+	if(glestVersionString!=masterServerInfo->getGlestVersion())	{
 		selectButton.setEnabled(false);
 		selectButton.setEditable(false);
 	}
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 ServerLine::~ServerLine(){
@@ -128,7 +141,6 @@ void ServerLine::render(){
 	renderer.renderLabel(&tilesetLabel);
 	renderer.renderLabel(&activeSlotsLabel);
 	renderer.renderLabel(&externalConnectPort);
-
 }
 
 // =====================================================
@@ -144,7 +156,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	
 	autoRefreshTime=0;
 	playServerFoundSound=false;
-	
+
+	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
@@ -153,6 +166,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	
 
 	// header
+	labelTitle.registerGraphicComponent(containerName,"labelTitle");
 	labelTitle.init(330, 700);
 	labelTitle.setText(lang.get("AvailableServers"));
 
@@ -163,19 +177,29 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// bottom
 	int buttonPos=130;
 	
+	labelChatUrl.registerGraphicComponent(containerName,"labelChatUrl");
 	labelChatUrl.init(150,buttonPos-50);
 	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelChatUrl.setText(lang.get("NoServerVisitChat")+":     http://webchat.freenode.net/?channels=glest");
 	
+	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(50, buttonPos, 150);
+
+    buttonCreateGame.registerGraphicComponent(containerName,"buttonCreateGame");
     buttonCreateGame.init(300, buttonPos, 150);
+
+    buttonRefresh.registerGraphicComponent(containerName,"buttonRefresh");
     buttonRefresh.init(550, buttonPos, 150);
 
 	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
 	buttonCreateGame.setText(lang.get("CustomGame"));
 	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
+
+	labelAutoRefresh.registerGraphicComponent(containerName,"labelAutoRefresh");
 	labelAutoRefresh.init(800,buttonPos+30);
+
+	listBoxAutoRefresh.registerGraphicComponent(containerName,"listBoxAutoRefresh");
 	listBoxAutoRefresh.init(800,buttonPos);
 	listBoxAutoRefresh.pushBackItem(lang.get("Off"));
 	listBoxAutoRefresh.pushBackItem("10 s");
@@ -193,6 +217,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);

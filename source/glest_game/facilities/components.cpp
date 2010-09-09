@@ -69,7 +69,6 @@ GraphicComponent * GraphicComponent::findRegisteredComponent(std::string contain
 }
 
 void GraphicComponent::applyAllCustomProperties(std::string containerName) {
-
 	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
 		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
@@ -87,19 +86,30 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 			if(iterFind2 != iterFind1->second.end()) {
 				Config &config = Config::getInstance();
 
+				string languageToken = config.getString("Lang");
+
 				//if(dynamic_cast<GraphicButton *>(iterFind2->second) != NULL) {
 				GraphicComponent *ctl = dynamic_cast<GraphicComponent *>(iterFind2->second);
+
+				// First check default overrides
 				ctl->x = config.getInt(containerName + "_" + iterFind2->first + "_x",intToStr(ctl->x).c_str());
 				ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y",intToStr(ctl->y).c_str());
 				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w",intToStr(ctl->w).c_str());
 				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h",intToStr(ctl->h).c_str());
+
+				// Now check language specific overrides
+				ctl->x = config.getInt(containerName + "_" + iterFind2->first + "_x_" + languageToken, intToStr(ctl->x).c_str());
+				ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y_" + languageToken, intToStr(ctl->y).c_str());
+				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w_" + languageToken, intToStr(ctl->w).c_str());
+				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h_" + languageToken, intToStr(ctl->h).c_str());
+
 				//}
 			}
 		}
 	}
 }
 
-void GraphicComponent::init(int x, int y, int w, int h){
+void GraphicComponent::init(int x, int y, int w, int h) {
     this->x= x;
     this->y= y;
     this->w= w;

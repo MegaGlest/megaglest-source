@@ -25,6 +25,9 @@ class GraphicMessageBox;
 
 class MenuStateRoot: public MenuState{
 private:
+
+	static const char *containerName;
+
 	GraphicButton buttonNewGame;
 	GraphicButton buttonJoinGame;
 	GraphicButton buttonMasterserverGame;

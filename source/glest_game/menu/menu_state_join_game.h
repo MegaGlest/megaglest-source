@@ -31,6 +31,7 @@ class NetworkMessageIntro;
 
 class MenuStateJoinGame: public MenuState, public DiscoveredServersInterface {
 private:
+	static const char *containerName;
 	static const int newServerIndex;
 	static const int newPrevServerIndex;
 	static const int foundServersIndex;

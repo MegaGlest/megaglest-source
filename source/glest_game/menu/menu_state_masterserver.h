@@ -70,7 +70,11 @@ typedef vector<ServerLine*> ServerLines;
 typedef vector<MasterServerInfo*> MasterServerInfos;
 
 class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface {
+public:
+	static const char *containerName;
+
 private:
+
 	GraphicButton buttonRefresh;
 	GraphicButton buttonReturn;
 	GraphicButton buttonCreateGame;
