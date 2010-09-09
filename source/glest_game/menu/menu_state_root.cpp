@@ -34,22 +34,32 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot
 // =====================================================
 
+const char *MenuStateRoot::containerName = "MainMenu";
+
 MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu): 
 	MenuState(program, mainMenu, "root")
 {
 	Lang &lang= Lang::getInstance();
 	int i=375;
+
+	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
 	buttonNewGame.init(425, i, 150);
 	i-=40;
+	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
     buttonJoinGame.init(425, i, 150);
     i-=40;
+    buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
     buttonMasterserverGame.init(425, i, 150);
     i-=40;
+    buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
     buttonOptions.init(425, i, 150);
     i-=40;
+    buttonAbout.registerGraphicComponent(containerName,"buttonAbout");
     buttonAbout.init(425, i , 150);
     i-=40;
+    buttonExit.registerGraphicComponent(containerName,"buttonExit");
     buttonExit.init(425, i, 150);
+    labelVersion.registerGraphicComponent(containerName,"labelVersion");
 	labelVersion.init(525, 420);
 
 	buttonNewGame.setText(lang.get("NewGame"));
@@ -61,9 +71,11 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	labelVersion.setText(glestVersionString);
 
 	//mesage box
+	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
+	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
@@ -126,7 +138,7 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 
 }
 
-void MenuStateRoot::render(){
+void MenuStateRoot::render() {
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();

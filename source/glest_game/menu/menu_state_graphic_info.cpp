@@ -24,13 +24,22 @@ namespace Glest{ namespace Game{
 // 	class MenuStateGraphicInfo
 // =====================================================
 
+const char *MenuStateGraphicInfo::containerName = "GraphicInfo";
+
 MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu): 
 	MenuState(program, mainMenu, "info")
 {
-	buttonReturn.init(387, 100, 125);
+	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
+	buttonReturn.init(387, 70, 125);
+
+	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(100, 700);
+
+	labelMoreInfo.registerGraphicComponent(containerName,"labelMoreInfo");
 	labelMoreInfo.init(100, 500);
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 
 	Renderer &renderer= Renderer::getInstance();
 	glInfo= renderer.getGlInfo();

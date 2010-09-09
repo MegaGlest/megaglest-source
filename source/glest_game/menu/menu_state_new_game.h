@@ -23,6 +23,7 @@ namespace Glest{ namespace Game{
 
 class MenuStateNewGame: public MenuState{
 private:
+	static const char *containerName;
 	GraphicButton buttonCustomGame;
 	GraphicButton buttonScenario;
 	GraphicButton buttonTutorial;

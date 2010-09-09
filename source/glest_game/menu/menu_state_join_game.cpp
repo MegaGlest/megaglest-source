@@ -41,6 +41,7 @@ const int MenuStateJoinGame::foundServersIndex= 2;
 
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
+const char *MenuStateJoinGame::containerName = "JoinGame";
 
 MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect, Ip serverIp):
 	MenuState(program, mainMenu, "join-game")
@@ -61,46 +62,57 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	servers.load(serversSavedFile);
 
 	//buttons
+	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(300, 300, 125);
 	buttonReturn.setText(lang.get("Return"));
 
+	buttonConnect.registerGraphicComponent(containerName,"buttonConnect");
 	buttonConnect.init(450, 300, 125);
 	buttonConnect.setText(lang.get("Connect"));
 
+	buttonAutoFindServers.registerGraphicComponent(containerName,"buttonAutoFindServers");
 	buttonAutoFindServers.init(595, 300, 125);
 	buttonAutoFindServers.setText(lang.get("FindLANGames"));
 	buttonAutoFindServers.setEnabled(true);
 
 	//server type label
+	labelServerType.registerGraphicComponent(containerName,"labelServerType");
 	labelServerType.init(330, 490);
 	labelServerType.setText(lang.get("ServerType") + ":");
 
 	//server type list box
+	listBoxServerType.registerGraphicComponent(containerName,"listBoxServerType");
 	listBoxServerType.init(465, 490);
 	listBoxServerType.pushBackItem(lang.get("ServerTypeNew"));
 	listBoxServerType.pushBackItem(lang.get("ServerTypePrevious"));
 	listBoxServerType.pushBackItem(lang.get("ServerTypeFound"));
 
 	//server label
+	labelServer.registerGraphicComponent(containerName,"labelServer");
 	labelServer.init(330, 460);
 	labelServer.setText(lang.get("Server") + ": ");
 
 	//server listbox
+	listBoxServers.registerGraphicComponent(containerName,"listBoxServers");
 	listBoxServers.init(465, 460);
 	for(int i= 0; i<servers.getPropertyCount(); ++i){
 		listBoxServers.pushBackItem(servers.getKey(i));
 	}
 
 	// found servers listbox
+	listBoxFoundServers.registerGraphicComponent(containerName,"listBoxFoundServers");
 	listBoxFoundServers.init(465, 460);
 
 	//server ip
+	labelServerIp.registerGraphicComponent(containerName,"labelServerIp");
 	labelServerIp.init(465, 460);
 
-
 	// server port
+	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
 	labelServerPortLabel.init(330,430);
 	labelServerPortLabel.setText(lang.get("ServerPort"));
+
+	labelServerPort.registerGraphicComponent(containerName,"labelServerPort");
 	labelServerPort.init(465,430);
 	string port=intToStr(config.getInt("ServerPort"));
 	if(port!="61357"){
@@ -111,9 +123,11 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	}	
 	labelServerPort.setText(port);
 
+	labelStatus.registerGraphicComponent(containerName,"labelStatus");
 	labelStatus.init(330, 400);
 	labelStatus.setText("");
 
+	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(330, 370);
 	labelInfo.setText("");
 
@@ -131,6 +145,8 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	{
 		labelServerIp.setText(config.getString("ServerIp") + "_");
 	}
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 
 	chatManager.init(&console, -1);
 }

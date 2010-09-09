@@ -32,20 +32,28 @@ namespace Glest{ namespace Game{
 // 	class MenuStateNewGame
 // =====================================================
 
+const char *MenuStateNewGame::containerName = "NewGame";
+
 MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "root")
 {
 	Lang &lang= Lang::getInstance();
 
+	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
 	buttonCustomGame.init(425, 350, 150);
+	buttonScenario.registerGraphicComponent(containerName,"buttonScenario");
     buttonScenario.init(425, 310, 150);
+    buttonTutorial.registerGraphicComponent(containerName,"buttonTutorial");
     buttonTutorial.init(425, 270, 150);
+    buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(425, 230, 150);
 
 	buttonCustomGame.setText(lang.get("CustomGame"));
 	buttonScenario.setText(lang.get("Scenario"));
 	buttonTutorial.setText(lang.get("Tutorial"));
 	buttonReturn.setText(lang.get("Return"));
+
+	GraphicComponent::applyAllCustomProperties(containerName);
 
 	NetworkManager::getInstance().end();
 }

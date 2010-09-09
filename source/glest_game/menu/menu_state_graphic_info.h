@@ -21,8 +21,9 @@ namespace Glest{ namespace Game{
 // 	class MenuStateGraphicInfo  
 // ===============================
 
-class MenuStateGraphicInfo: public MenuState{
+class MenuStateGraphicInfo: public MenuState {
 private:
+	static const char *containerName;
 	GraphicButton buttonReturn;
 	GraphicLabel labelInfo;
 	GraphicLabel labelMoreInfo;
