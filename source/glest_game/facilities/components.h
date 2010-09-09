@@ -57,6 +57,7 @@ public:
 	GraphicComponent(std::string containerName="", std::string objName="");
 	virtual ~GraphicComponent(){}
 
+	static void clearRegisteredComponents();
 	void registerGraphicComponent(std::string containerName, std::string objName);
 	static  GraphicComponent * findRegisteredComponent(std::string containerName, std::string objName);
 	static void applyAllCustomProperties(std::string containerName);

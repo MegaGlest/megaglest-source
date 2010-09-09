@@ -46,6 +46,10 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	editable= true;
 }
 
+void GraphicComponent::clearRegisteredComponents() {
+	GraphicComponent::registeredGraphicComponentList.clear();
+}
+
 void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
 	instanceName = objName;
 	registeredGraphicComponentList[containerName][objName] = this;
