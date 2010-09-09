@@ -802,7 +802,7 @@ bool changeVideoMode(int resW, int resH, int colorBits, int ) {
 }
 
 void restoreVideoMode(bool exitingApp) {
-    SDL_Quit();
+    //SDL_Quit();
 }
 
 int getScreenW() {
