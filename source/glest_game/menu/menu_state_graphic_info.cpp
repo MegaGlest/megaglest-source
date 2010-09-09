@@ -15,7 +15,7 @@
 #include "sound_renderer.h"
 #include "core_data.h"
 #include "menu_state_options.h"
-
+#include "config.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -24,11 +24,10 @@ namespace Glest{ namespace Game{
 // 	class MenuStateGraphicInfo
 // =====================================================
 
-const char *MenuStateGraphicInfo::containerName = "GraphicInfo";
-
 MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu): 
 	MenuState(program, mainMenu, "info")
 {
+	containerName = "GraphicInfo";
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(387, 70, 125);
 
@@ -72,6 +71,15 @@ void MenuStateGraphicInfo::render(){
 	renderer.renderButton(&buttonReturn);
 	renderer.renderLabel(&labelInfo);
 	renderer.renderLabel(&labelMoreInfo);
+}
+
+void MenuStateGraphicInfo::keyDown(char key) {
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(key == configKeys.getCharKey("SaveGUILayout")) {
+		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		//Lang &lang= Lang::getInstance();
+		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+	}
 }
 
 }}//end namespace

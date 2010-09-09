@@ -50,7 +50,7 @@ private:
 	GraphicLabel externalConnectPort;
 
 public:
-	ServerLine( MasterServerInfo *mServerInfo, int lineIndex);
+	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char *containerName);
 	virtual ~ServerLine();
 	MasterServerInfo *getMasterServerInfo() const	{return masterServerInfo;}
 	const int getIndex() const	{return index;}
@@ -70,8 +70,6 @@ typedef vector<ServerLine*> ServerLines;
 typedef vector<MasterServerInfo*> MasterServerInfos;
 
 class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface {
-public:
-	static const char *containerName;
 
 private:
 

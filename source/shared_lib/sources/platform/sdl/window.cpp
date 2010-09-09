@@ -184,6 +184,7 @@ bool Window::handleEvent() {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					break;
+
 				case SDL_KEYUP:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -191,6 +192,8 @@ bool Window::handleEvent() {
 
 					Window::isKeyPressedDown = false;
 					keystate = event.key.keysym;
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
 
 					if(global_window) {
 						global_window->eventKeyUp(getKey(event.key.keysym,true));
@@ -569,6 +572,8 @@ MouseButton Window::getMouseButton(int sdlButton) {
 }
 
 char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
+
 	if(skipSpecialKeys == false) {
 		switch(keysym.sym) {
 			case SDLK_LALT:
@@ -615,6 +620,42 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkTab;
 		case SDLK_BACKSPACE:
 			return vkBack;
+		case SDLK_F1:
+			return vkF1;
+			break;
+		case SDLK_F2:
+			return vkF2;
+			break;
+		case SDLK_F3:
+			return vkF3;
+			break;
+		case SDLK_F4:
+			return vkF4;
+			break;
+		case SDLK_F5:
+			return vkF5;
+			break;
+		case SDLK_F6:
+			return vkF6;
+			break;
+		case SDLK_F7:
+			return vkF7;
+			break;
+		case SDLK_F8:
+			return vkF8;
+			break;
+		case SDLK_F9:
+			return vkF9;
+			break;
+		case SDLK_F10:
+			return vkF10;
+			break;
+		case SDLK_F11:
+			return vkF11;
+			break;
+		case SDLK_F12:
+			return vkF12;
+			break;
 		case SDLK_0:
 			return '0';
 		case SDLK_1:

@@ -119,6 +119,8 @@ protected:
 	MainMenu *mainMenu;
 	Camera camera;
 
+	const char *containerName;
+
 public:
 	MenuState(Program *program, MainMenu *mainMenu, const string &stateName);
 	virtual ~MenuState();

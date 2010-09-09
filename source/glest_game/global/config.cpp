@@ -52,6 +52,17 @@ const string defaultNotFoundValue = "~~NOT FOUND~~";
 
 map<ConfigType,Config> Config::configList;
 
+Config::Config() {
+	fileLoaded.first = false;
+	fileLoaded.second = false;
+	cfgType.first = cfgMainGame;
+	cfgType.second = cfgUserGame;
+	fileName.first = "";
+	fileName.second = "";
+	fileLoaded.first = false;
+	fileLoaded.second = false;
+}
+
 Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
 	fileLoaded.first = false;
 	fileLoaded.second = false;
@@ -106,11 +117,40 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
 Config &Config::getInstance(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
 	if(configList.find(type.first) == configList.end()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		Config config(type, file, fileMustExist);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		configList.insert(map<ConfigType,Config>::value_type(type.first,config));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return configList.find(type.first)->second;
+}
+
+void Config::CopyAll(Config *src, Config *dest) {
+
+	dest->properties	= src->properties;
+	dest->cfgType		= src->cfgType;
+	dest->fileName		= src->fileName;
+	dest->fileLoaded	= src->fileLoaded;
+}
+
+void Config::reload() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame);
+	Config newconfig(type, std::make_pair("glest.ini","glestuser.ini"), std::make_pair(true,false));
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Config &oldconfig = configList.find(type.first)->second;
+	CopyAll(&newconfig, &oldconfig);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Config::save(const string &path){
@@ -226,6 +266,42 @@ char Config::translateStringToCharKey(const string &value) const {
 		}
 		else if(value == "vkEscape") {
 			result = vkEscape;
+		}
+		else if(value == "vkF1") {
+			result = vkF1;
+		}
+		else if(value == "vkF2") {
+			result = vkF2;
+		}
+		else if(value == "vkF3") {
+			result = vkF3;
+		}
+		else if(value == "vkF4") {
+			result = vkF4;
+		}
+		else if(value == "vkF5") {
+			result = vkF5;
+		}
+		else if(value == "vkF6") {
+			result = vkF6;
+		}
+		else if(value == "vkF7") {
+			result = vkF7;
+		}
+		else if(value == "vkF8") {
+			result = vkF8;
+		}
+		else if(value == "vkF9") {
+			result = vkF9;
+		}
+		else if(value == "vkF10") {
+			result = vkF10;
+		}
+		else if(value == "vkF11") {
+			result = vkF11;
+		}
+		else if(value == "vkF12") {
+			result = vkF12;
 		}
 		else {
 			string sError = "Unsupported key translation" + value;

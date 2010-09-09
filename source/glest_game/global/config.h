@@ -44,16 +44,20 @@ private:
 
 	static map<ConfigType,Config> configList;
 
-private:
+protected:
+	Config();
 	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
 
 	char translateStringToCharKey(const string &value) const;
+
+	static void CopyAll(Config *src,Config *dest);
 
 public:
     static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
 				std::pair<string,string> file = std::make_pair("glest.ini","glestuser.ini") ,
 				std::pair<bool,bool> fileMustExist = std::make_pair(true,false) );
 	void save(const string &path="");
+	void reload();
 
 	int getInt(const string &key,const char *defaultValueIfNotFound=NULL) const;
 	bool getBool(const string &key,const char *defaultValueIfNotFound=NULL) const;

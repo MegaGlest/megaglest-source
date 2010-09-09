@@ -34,9 +34,11 @@ using namespace	Shared::Xml;
 MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName):
     MenuState(program, mainMenu, "scenario")
 {
+	containerName = "Scenario";
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
+	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
@@ -46,13 +48,20 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 
 	this->dirList = dirList;
 
+	labelInfo.registerGraphicComponent(containerName,"labelInfo");
     labelInfo.init(350, 350);
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 
+	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(350, 200, 125);
+
+    buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(525, 200, 125);
 
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
     listBoxScenario.init(350, 400, 190);
+
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
 	labelScenario.init(350, 430);
 
 	buttonReturn.setText(lang.get("Return"));
@@ -73,6 +82,8 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 
     loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     labelInfo.setText(scenarioInfo.desc);
+
+    GraphicComponent::applyAllCustomProperties(containerName);
 
 	networkManager.init(nrServer);
 }
@@ -321,6 +332,15 @@ void MenuStateScenario::showMessageBox(const string &text, const string &header,
 	}
 	else{
 		mainMessageBox.setEnabled(false);
+	}
+}
+
+void MenuStateScenario::keyDown(char key) {
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(key == configKeys.getCharKey("SaveGUILayout")) {
+		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		//Lang &lang= Lang::getInstance();
+		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 	}
 }
 
