@@ -155,6 +155,8 @@ set<Unit*> Unit::livingUnitsp;
 
 // ============================ Constructor & destructor =============================
 
+Game *Unit::game = NULL;
+
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -570,6 +572,9 @@ void Unit::setPos(const Vec2i &pos){
 	this->lastPos= this->pos;
 	this->pos= pos;
 	this->meetingPos= pos - Vec2i(1);
+
+	// Attempt to improve performance
+	this->exploreCells();
 
 	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
 }
@@ -1596,6 +1601,28 @@ int Unit::getFrameCount() {
 	}
 
 	return frameCount;
+}
+
+void Unit::exploreCells() {
+	if(this->isOperative()) {
+		const Vec2i &newPos = this->getCenteredPos();
+		int sightRange = this->getType()->getSight();
+		int teamIndex = this->getTeam();
+
+		Chrono chrono;
+		chrono.start();
+
+		if(game == NULL) {
+			throw runtime_error("game == NULL");
+		}
+		else if(game->getWorld() == NULL) {
+			throw runtime_error("game->getWorld() == NULL");
+		}
+
+		game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	}
 }
 
 void Unit::logSynchData(string source) {
