@@ -2565,30 +2565,14 @@ void Renderer::computeSelected(	Selection::UnitContainer &units,
 	//select units by checking the selected buffer
 	int selCount= glRenderMode(GL_RENDER);
 	if(selCount > 0) {
-		const World *world= game->getWorld();
+		VisibleQuadContainerCache &qCache = getQuadCache();
 		for(int i=1; i <= selCount; ++i) {
-			int factionIndex= selectBuffer[i*5-2];
-			//int unitIndex= selectBuffer[i*5-1];
-			int unitId= selectBuffer[i*5-1];
-
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIndex = %d, unitId = %d, selCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIndex,unitId,selCount);
-
-			//if( factionIndex >= 0 && factionIndex < world->getFactionCount() &&
-			//	unitIndex >= 0 && unitIndex < world->getFaction(factionIndex)->getUnitCount()) {
-			//	Unit *unit= world->getFaction(factionIndex)->getUnit(unitIndex);
-			if( factionIndex >= 0 && factionIndex < world->getFactionCount() &&
-					unitId >= 0) {
-
-				const Faction *faction=  world->getFaction(factionIndex);
-				if(faction != NULL) {
-					Unit *unit = faction->findUnit(unitId);
-					if(unit != NULL && unit->isAlive()) {
-						units.push_back(unit);
-					}
-				}
+			int visibleUnitIndex= selectBuffer[i*4-1];
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			if(unit != NULL && unit->isAlive()) {
+				units.push_back(unit);
 			}
 		}
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] units.size() = %d, selCount = %d\n",__FILE__,__FUNCTION__,__LINE__,units.size(),selCount);
 	}
 }
 
@@ -2953,7 +2937,6 @@ void Renderer::renderUnitsFast() {
 	bool modelRenderFactionStarted = false;
 
 	if(useQuadCache == true) {
-		int lastFactionIndex = -1;
 		VisibleQuadContainerCache &qCache = getQuadCache();
 		if(qCache.visibleQuadUnitList.size() > 0) {
 			for(int visibleUnitIndex = 0;
@@ -2970,20 +2953,7 @@ void Renderer::renderUnitsFast() {
 					glInitNames();
 				}
 
-				if(lastFactionIndex != unit->getFactionIndex()) {
-					if(lastFactionIndex != -1) {
-						//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPopName() for lastFactionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFactionIndex);
-						glPopName();
-					}
-
-					modelRenderFactionStarted = true;
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPushName() for lastFactionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getFactionIndex());
-					// Used for selection lookup in computeSelected
-					glPushName(unit->getFactionIndex());
-				}
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPushName() for unit->getId() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getId());
-				// Used for selection lookup in computeSelected
-				glPushName(unit->getId());
+				glPushName(visibleUnitIndex);
 
 				glMatrixMode(GL_MODELVIEW);
 
@@ -3005,8 +2975,6 @@ void Renderer::renderUnitsFast() {
 				glPopMatrix();
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPopName() for unit->getId() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getId());
 				glPopName();
-
-				lastFactionIndex = unit->getFactionIndex();
 			}
 
 			if(modelRenderFactionStarted == true) {
