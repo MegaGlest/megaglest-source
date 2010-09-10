@@ -191,7 +191,7 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 						sc->setObject(NULL);
 					}
 					else if(objNumber <= Tileset::objCount){
-						Object *o= new Object(tileset->getObjectType(objNumber-1), sc->getVertex());
+						Object *o= new Object(tileset->getObjectType(objNumber-1), sc->getVertex(),Vec2i(i, j));
 						sc->setObject(o);
 						for(int k=0; k<techTree->getResourceTypeCount(); ++k){
 							const ResourceType *rt= techTree->getResourceType(k);
@@ -202,7 +202,7 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 					}
 					else{
 						const ResourceType *rt= techTree->getTechResourceType(objNumber - Tileset::objCount) ;
-						Object *o= new Object(NULL, sc->getVertex());
+						Object *o= new Object(NULL, sc->getVertex(),Vec2i(i, j));
 						o->setResource(rt, Vec2i(i, j));
 						sc->setObject(o);
 					}
