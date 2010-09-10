@@ -106,6 +106,9 @@ Gui::Gui(){
 	selectingPos= false;
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
+	lastQuadCalcFrame=0;
+	selectionCalculationFrameSkip=10;
+	minQuadSize=20;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -115,6 +118,7 @@ void Gui::init(Game *game){
 	this->gameCamera= game->getGameCamera();
 	this->console= game->getConsole();
 	this->world= game->getWorld();
+	this->game=game;
 	selection.init(this, world->getThisFactionIndex());
 }
 
@@ -141,11 +145,6 @@ void Gui::invalidatePosObjWorld(){
     validPosObjWorld= false;
 }
 
-void Gui::setComputeSelectionFlag(){
-	computeSelection= true;
-}
-
-
 // ==================== reset state ====================
 
 void Gui::resetState(){
@@ -161,7 +160,10 @@ void Gui::resetState(){
 // ==================== events ====================
 
 void Gui::update(){
-    setComputeSelectionFlag();
+    
+    if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize){
+    	computeSelected(false,false);
+    }
 	mouse3d.update();
 }
 
@@ -238,7 +240,7 @@ void Gui::mouseDownLeftGraphics(int x, int y){
 	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectionQuad()\n",__FILE__,__FUNCTION__);
 
 		selectionQuad.setPosDown(Vec2i(x, y));
-		computeSelected(false);
+		computeSelected(false,false);
 	}
 	computeDisplay();
 
@@ -266,6 +268,10 @@ void Gui::mouseUpLeftGraphics(int x, int y){
 	if(!selectingPos && !selectingMeetingPoint){
 		if(selectionQuad.isEnabled()){
 			selectionQuad.setPosUp(Vec2i(x, y));
+			if(selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize)
+			{
+				computeSelected(false,true);
+			}
 			if(selection.isComandable() && random.randRange(0, 1)==0){
 				SoundRenderer::getInstance().playFx(
 					selection.getFrontUnit()->getType()->getSelectionSound(),
@@ -284,10 +290,7 @@ void Gui::mouseMoveGraphics(int x, int y){
 	//compute selection
 	if(selectionQuad.isEnabled()){
 		selectionQuad.setPosUp(Vec2i(x, y));
-		if(computeSelection){
-			computeSelection= false;
-			computeSelected(false);
-		}
+		computeSelected(false,false);
 	}
 
 	//compute position for building
@@ -303,7 +306,7 @@ void Gui::mouseMoveGraphics(int x, int y){
 void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 	if(!selectingPos && !selectingMeetingPoint){
 		selectionQuad.setPosDown(Vec2i(x, y));
-		computeSelected(true);
+		computeSelected(true,true);
 		computeDisplay();
 	}
 }
@@ -862,42 +865,50 @@ bool Gui::isSharedCommandClass(CommandClass commandClass){
     return true;
 }
 
-void Gui::computeSelected(bool doubleClick){
+void Gui::computeSelected(bool doubleClick, bool force){
 	Selection::UnitContainer units;
-	Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(),
-											selectionQuad.getPosUp());
-	selectingBuilding= false;
-	activeCommandType= NULL;
 
-	//select all units of the same type if double click
-	if(doubleClick && units.size() == 1) {
-		const Unit *refUnit= units.front();
-		int factionIndex= refUnit->getFactionIndex();
-		for(int i=0; i< world->getFaction(factionIndex)->getUnitCount(); ++i) {
-			Unit *unit= world->getFaction(factionIndex)->getUnit(i);
-			if(unit->getPos().dist(refUnit->getPos()) < doubleClickSelectionRadius &&
-				unit->getType() == refUnit->getType())
-			{
-				units.push_back(unit);
+	if( force || ( lastQuadCalcFrame+selectionCalculationFrameSkip < game->getTotalRenderFps() ) ){
+		lastQuadCalcFrame=game->getTotalRenderFps();
+		if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())<minQuadSize){
+			Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(), selectionQuad.getPosDown());
+		}
+		else{
+			Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(), selectionQuad.getPosUp());
+		}
+		selectingBuilding= false;
+		activeCommandType= NULL;
+	
+		//select all units of the same type if double click
+		if(doubleClick && units.size()==1){
+			const Unit *refUnit= units.front();
+			int factionIndex= refUnit->getFactionIndex();
+			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
+				Unit *unit= world->getFaction(factionIndex)->getUnit(i);
+				if(unit->getPos().dist(refUnit->getPos())<doubleClickSelectionRadius &&
+					unit->getType()==refUnit->getType())
+				{
+					units.push_back(unit);
+				}
 			}
 		}
-	}
-
-	bool shiftDown= isKeyDown(vkShift);
-	bool controlDown= isKeyDown(vkControl);
-
-	if(!shiftDown && !controlDown){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.clear()\n",__FILE__,__FUNCTION__,__LINE__);
-		selection.clear();
-	}
-
-	if(!controlDown){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
-		selection.select(units);
-	}
-	else{
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] selection.unSelect(units)\n",__FILE__,__FUNCTION__,__LINE__);
-		selection.unSelect(units);
+	
+		bool shiftDown= isKeyDown(vkShift);
+		bool controlDown= isKeyDown(vkControl);
+	
+		if(!shiftDown && !controlDown){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.clear()\n",__FILE__,__FUNCTION__,__LINE__);
+			selection.clear();
+		}
+	
+		if(!controlDown){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
+			selection.select(units);
+		}
+		else{
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] selection.unSelect(units)\n",__FILE__,__FUNCTION__,__LINE__);
+			selection.unSelect(units);
+		}
 	}
 }
 

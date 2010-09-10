@@ -68,7 +68,7 @@ private:
     int mouse2d;
     int mouseX, mouseY; //coords win32Api
 	int updateFps, lastUpdateFps, avgUpdateFps;
-	int renderFps, lastRenderFps, avgRenderFps;
+	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps;
 	bool paused;
 	bool gameOver;
 	bool renderNetworkStatus;
@@ -113,6 +113,7 @@ public:
 	World *getWorld()						{return &world;}
 	const World *getWorld() const			{return &world;}
 
+	const int getTotalRenderFps() const					{return totalRenderFps;}
     //init
     virtual void load();
     virtual void init();
