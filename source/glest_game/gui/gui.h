@@ -106,13 +106,13 @@ private:
 	RandomGen random;
 	const Commander *commander;
 	const World *world;
+	const Game *game;
 	GameCamera *gameCamera;
 	Console *console;
 
 	//Positions
 	Vec2i posObjWorld;		//world coords
 	bool validPosObjWorld;
-	bool computeSelection;
 
 	//display
 	const UnitType *choosenBuildingType;
@@ -125,6 +125,9 @@ private:
 	Mouse3d mouse3d;
 	Selection selection;
 	SelectionQuad selectionQuad;
+	int lastQuadCalcFrame;
+	int selectionCalculationFrameSkip;
+	int minQuadSize;
 
 	//states
 	bool selectingBuilding;
@@ -157,7 +160,6 @@ public:
 
 	//set
 	void invalidatePosObjWorld();
-	void setComputeSelectionFlag();
 
 	//events
 	void update();
@@ -198,7 +200,7 @@ private:
 	void computeInfoString(int posDisplay);
 	void addOrdersResultToConsole(CommandClass cc, CommandResult rr);
 	bool isSharedCommandClass(CommandClass commandClass);
-	void computeSelected(bool doubleCkick);
+	void computeSelected(bool doubleCkick,bool force);
 	bool computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit);
 };
 

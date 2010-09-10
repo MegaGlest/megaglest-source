@@ -55,6 +55,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	GameConstants::cameraFps= 100;
 	captureAvgTestStatus = false;
 	lastRenderLog2d		 = 0;
+	totalRenderFps       = 0;
 
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
@@ -792,6 +793,7 @@ void Game::render() {
 	}
 
 	renderFps++;
+	totalRenderFps++;
 	renderWorker();
 }
 
