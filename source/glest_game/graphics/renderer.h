@@ -153,6 +153,7 @@ protected:
 		inVisibleUnitList	= obj.inVisibleUnitList;
 		//visibleCellList		= obj.visibleCellList;
 		visibleScaledCellList = obj.visibleScaledCellList;
+		lastVisibleQuad		= obj.lastVisibleQuad;
 	}
 
 public:
@@ -172,13 +173,19 @@ public:
 	//bool operator()(const RenderEntity &lhs,const RenderEntity &rhs) const;
 
 	void clearCacheData() {
+		clearVolatileCacheData();
+
 		visibleObjectList.clear();
-		visibleUnitList.clear();
-		inVisibleUnitList.clear();
 		//visibleCellList.clear();
 		visibleScaledCellList.clear();
 	}
+	void clearVolatileCacheData() {
+		visibleUnitList.clear();
+		inVisibleUnitList.clear();
+	}
+
 	int cacheFrame;
+	Quad2i lastVisibleQuad;
 	std::vector<Object *> visibleObjectList;
 	std::vector<Unit   *> visibleUnitList;
 	std::vector<Unit   *> inVisibleUnitList;
