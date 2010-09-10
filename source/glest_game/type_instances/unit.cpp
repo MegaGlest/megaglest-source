@@ -286,7 +286,8 @@ Unit::~Unit(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Renderer &renderer= Renderer::getInstance();
-	renderer.setQuadCacheDirty(true);
+	//renderer.setQuadCacheDirty(true);
+	renderer.removeUnitFromQuadCache(this);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

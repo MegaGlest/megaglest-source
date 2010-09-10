@@ -50,7 +50,8 @@ Object::~Object(){
 	delete resource;
 
 	Renderer &renderer= Renderer::getInstance();
-	renderer.setQuadCacheDirty(true);
+	//renderer.setQuadCacheDirty(true);
+	renderer.removeObjectFromQuadCache(this);
 }
 
 const Model *Object::getModel() const{

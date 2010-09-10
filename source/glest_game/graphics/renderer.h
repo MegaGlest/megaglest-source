@@ -373,6 +373,8 @@ public:
 
 	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
 	void setQuadCacheDirty(bool value);
+	void removeObjectFromQuadCache(const Object *o);
+	void removeUnitFromQuadCache(const Unit *unit);
 
 private:
 	//private misc
