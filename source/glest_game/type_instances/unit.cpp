@@ -282,6 +282,12 @@ Unit::~Unit(){
 
 	delete this->unitPath;
 	this->unitPath = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Renderer &renderer= Renderer::getInstance();
+	renderer.setQuadCacheDirty(true);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
