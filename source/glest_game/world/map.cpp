@@ -906,8 +906,7 @@ const Vec2i &PosCircularIterator::getPos(){
 // 	class PosQuadIterator
 // =====================================================
 
-PosQuadIterator::PosQuadIterator(const Map *map, const Quad2i &quad, int step){
-	this->map= map;
+PosQuadIterator::PosQuadIterator(const Quad2i &quad, int step){
 	this->quad= quad;
 	this->boundingRect= quad.computeBoundingRect();
 	this->step= step;

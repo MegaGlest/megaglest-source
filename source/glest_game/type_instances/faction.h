@@ -130,7 +130,7 @@ public:
 	bool isAlly(const Faction *faction);
 
     //other
-	Unit *findUnit(int id);
+	Unit *findUnit(int id) const;
 	void addUnit(Unit *unit);
 	void removeUnit(Unit *unit);
 	void addStore(const UnitType *unitType);

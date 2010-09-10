@@ -449,21 +449,21 @@ void Faction::setResourceBalance(const ResourceType *rt, int balance){
 	assert(false);
 }
 
-Unit *Faction::findUnit(int id){
+Unit *Faction::findUnit(int id) const {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,id);
 
-	UnitMap::iterator it= unitMap.find(id);
+	UnitMap::const_iterator itFound = unitMap.find(id);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
-	if(it==unitMap.end()){
+	if(itFound == unitMap.end()) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return NULL;
 	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %p\n",__FILE__,__FUNCTION__, __LINE__,it->second);
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->id = %d\n",__FILE__,__FUNCTION__, __LINE__,it->second->getId());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %s\n",__FILE__,__FUNCTION__, __LINE__,it->second->toString().c_str());
-	return it->second;
+	return itFound->second;
 }
 
 void Faction::addUnit(Unit *unit){
