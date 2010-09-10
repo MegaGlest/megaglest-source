@@ -79,6 +79,7 @@ protected:
 
 	void CopyAll(const VisibleQuadContainerCache &obj) {
 		cacheFrame 			= obj.cacheFrame;
+		cacheIsDirty		= obj.cacheIsDirty;
 		visibleObjectList	= obj.visibleObjectList;
 		visibleUnitList		= obj.visibleUnitList;
 		visibleQuadUnitList = obj.visibleQuadUnitList;
@@ -92,6 +93,7 @@ public:
 
 	VisibleQuadContainerCache() {
 		cacheFrame = 0;
+		cacheIsDirty = false;
 		clearCacheData();
 	}
 	VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {
@@ -118,6 +120,7 @@ public:
 
 	int cacheFrame;
 	Quad2i lastVisibleQuad;
+	bool cacheIsDirty;
 	std::vector<Object *> visibleObjectList;
 	std::vector<Unit   *> visibleQuadUnitList;
 	std::vector<Unit   *> visibleUnitList;
@@ -369,6 +372,7 @@ public:
 	int getLastRenderFps() const { return lastRenderFps;}
 
 	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
+	void setQuadCacheDirty(bool value);
 
 private:
 	//private misc
