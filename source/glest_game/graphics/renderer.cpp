@@ -3520,6 +3520,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	Vec3f pos1Right= pos1 - normal*(width+0.05f);
 
 	//arrow body
+	glBegin(GL_TRIANGLE_STRIP);
 	for(int i=0; i<=tesselation; ++i) {
 		float t= static_cast<float>(i)/tesselation;
 		Vec3f a= pos1Left.lerp(t, pos2Left);
@@ -3528,12 +3529,12 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 
 		glColor4fv(c.ptr());
 
-		glBegin(GL_TRIANGLE_STRIP);
 		glVertex3fv(a.ptr());
 		glVertex3fv(b.ptr());
-		glEnd();
+
 	}
 
+	glEnd();
 	//arrow end
 	glBegin(GL_TRIANGLES);
 		glVertex3fv((pos2Left + normal*(arrowEndSize-0.1f)).ptr());
