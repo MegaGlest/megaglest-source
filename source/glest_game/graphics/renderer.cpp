@@ -3786,9 +3786,17 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 VisibleQuadContainerCache & Renderer::getQuadCache(bool updateOnDirtyFrame) {
 	if(game != NULL && game->getWorld() != NULL) {
 		const World *world= game->getWorld();
-		if(updateOnDirtyFrame == true && world->getFrameCount() != quadCache.cacheFrame) {
+		if(updateOnDirtyFrame == true &&
+			(world->getFrameCount() != quadCache.cacheFrame ||
+			 visibleQuad != quadCache.lastVisibleQuad)) {
+
 			// Dump cached info
-			quadCache.clearCacheData();
+			if(visibleQuad != quadCache.lastVisibleQuad) {
+				quadCache.clearCacheData();
+			}
+			else {
+				quadCache.clearVolatileCacheData();
+			}
 
 			// Unit calculations
 			for(int i = 0; i < world->getFactionCount(); ++i) {
@@ -3804,37 +3812,40 @@ VisibleQuadContainerCache & Renderer::getQuadCache(bool updateOnDirtyFrame) {
 				}
 			}
 
-			// Object calculations
-			const Map *map= world->getMap();
-			PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
-			while(pqi.next()){
-				const Vec2i &pos= pqi.getPos();
-				if(map->isInside(pos)) {
-					const Vec2i &mapPos = Map::toSurfCoords(pos);
+			if(visibleQuad != quadCache.lastVisibleQuad) {
+				// Object calculations
+				const Map *map= world->getMap();
+				PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
+				while(pqi.next()){
+					const Vec2i &pos= pqi.getPos();
+					if(map->isInside(pos)) {
+						const Vec2i &mapPos = Map::toSurfCoords(pos);
 
-					//quadCache.visibleCellList.push_back(mapPos);
+						//quadCache.visibleCellList.push_back(mapPos);
 
-					SurfaceCell *sc = map->getSurfaceCell(mapPos);
-					Object *o = sc->getObject();
-					bool isExplored = (sc->isExplored(world->getThisTeamIndex()) && o != NULL);
-					//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
-					bool isVisible = true;
+						SurfaceCell *sc = map->getSurfaceCell(mapPos);
+						Object *o = sc->getObject();
+						bool isExplored = (sc->isExplored(world->getThisTeamIndex()) && o != NULL);
+						//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+						bool isVisible = true;
 
-					if(isExplored == true && isVisible == true) {
-						quadCache.visibleObjectList.push_back(o);
+						if(isExplored == true && isVisible == true) {
+							quadCache.visibleObjectList.push_back(o);
+						}
 					}
 				}
-			}
 
-			Quad2i scaledQuad = visibleQuad / Map::cellScale;
-			PosQuadIterator pqis(map, scaledQuad);
-			while(pqis.next()) {
-				const Vec2i &pos= pqis.getPos();
-				if(map->isInside(pos)) {
-					quadCache.visibleScaledCellList.push_back(pos);
+				Quad2i scaledQuad = visibleQuad / Map::cellScale;
+				PosQuadIterator pqis(map, scaledQuad);
+				while(pqis.next()) {
+					const Vec2i &pos= pqis.getPos();
+					if(map->isInside(pos)) {
+						quadCache.visibleScaledCellList.push_back(pos);
+					}
 				}
-			}
 
+				quadCache.lastVisibleQuad = visibleQuad;
+			}
 			quadCache.cacheFrame = world->getFrameCount();
 		}
 	}
