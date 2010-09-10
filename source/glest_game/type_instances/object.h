@@ -39,9 +39,10 @@ private:
 	float rotation;
 	int variation;
 	int lastRenderFrame;
+	Vec2i mapPos;
 
 public:
-	Object(ObjectType *objectType, const Vec3f &pos);
+	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
 	~Object();
 
 	void setHeight(float height)		{pos.y= height;}
@@ -59,6 +60,7 @@ public:
 	int getLastRenderFrame() const { return lastRenderFrame; }
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }
 
+	const Vec2i & getMapPos() const { return mapPos; }
 };
 
 }}//end namespace

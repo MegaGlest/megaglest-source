@@ -1303,6 +1303,55 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 
 	glActiveTexture(baseTexUnit);
 
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0; visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+		Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+		SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+		SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+		SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+		SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+		triangleCount+= 2;
+		pointCount+= 4;
+
+		//set texture
+		currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+		if(currTex != lastTex) {
+			lastTex = currTex;
+			glBindTexture(GL_TEXTURE_2D, lastTex);
+		}
+
+		const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+		glBegin(GL_TRIANGLE_STRIP);
+
+		//draw quad using immediate mode
+		glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
+		glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
+		glNormal3fv(tc01->getNormal().ptr());
+		glVertex3fv(tc01->getVertex().ptr());
+
+		glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
+		glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
+		glNormal3fv(tc00->getNormal().ptr());
+		glVertex3fv(tc00->getVertex().ptr());
+
+		glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
+		glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
+		glNormal3fv(tc11->getNormal().ptr());
+		glVertex3fv(tc11->getVertex().ptr());
+
+		glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
+		glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
+		glNormal3fv(tc10->getNormal().ptr());
+		glVertex3fv(tc10->getVertex().ptr());
+
+		glEnd();
+	}
+
+/*
 	Quad2i scaledQuad= visibleQuad/Map::cellScale;
 
 	PosQuadIterator pqi(map, scaledQuad);
@@ -1354,6 +1403,7 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 		}
 	}
 	//glEnd();
+*/
 
 	//Restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(false);
@@ -1378,6 +1428,74 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 	const Texture2D *fowTex= NULL;
 	Vec3f baseFogColor;
 
+
+    int thisTeamIndex= world->getThisTeamIndex();
+    bool modelRenderStarted = false;
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0; visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+		Object *o = qCache.visibleObjectList[visibleIndex];
+
+		const Model *objModel= o->getModel();
+		const Vec3f &v= o->getConstPos();
+
+		if(modelRenderStarted == false) {
+			modelRenderStarted = true;
+
+			fowTex= world->getMinimap()->getFowTexture();
+			baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+
+			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+
+			if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD &&
+				shadows == sShadowMapping) {
+				glActiveTexture(shadowTexUnit);
+				glEnable(GL_TEXTURE_2D);
+
+				glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+
+				static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+				enableProjectiveTexturing();
+			}
+
+			glActiveTexture(baseTexUnit);
+
+			glEnable(GL_COLOR_MATERIAL);
+			glAlphaFunc(GL_GREATER, 0.5f);
+
+			modelRenderer->begin(true, true, false);
+		}
+		//ambient and diffuse color is taken from cell color
+
+		float fowFactor= fowTex->getPixmap()->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
+		Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
+		glColor4fv(color.ptr());
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
+		glFogfv(GL_FOG_COLOR, (baseFogColor * fowFactor).ptr());
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(v.x, v.y, v.z);
+		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+
+		objModel->updateInterpolationData(0.f, true);
+		modelRenderer->render(objModel);
+
+		triangleCount+= objModel->getTriangleCount();
+		pointCount+= objModel->getVertexCount();
+
+		glPopMatrix();
+	}
+
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+		glPopAttrib();
+	}
+
+	//restore
+	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+
+/*
     int thisTeamIndex= world->getThisTeamIndex();
     bool modelRenderStarted = false;
 
@@ -1448,6 +1566,7 @@ void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+*/
 
 	assertGl();
 }
@@ -1588,6 +1707,87 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 	visibleFrameUnitList.clear();
 
 	bool modelRenderStarted = false;
+	int lastFactionIndex = -1;
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleUnitIndex = 0; visibleUnitIndex < qCache.visibleUnitList.size(); ++visibleUnitIndex) {
+		Unit *unit = qCache.visibleUnitList[visibleUnitIndex];
+
+		meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
+
+		if(modelRenderStarted == false) {
+			modelRenderStarted = true;
+
+			glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+			glEnable(GL_COLOR_MATERIAL);
+
+			if(lastRenderFps >= MIN_FPS_NORMAL_RENDERING && renderFps >= MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD) {
+				if(shadows == sShadowMapping) {
+					glActiveTexture(shadowTexUnit);
+					glEnable(GL_TEXTURE_2D);
+
+					glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+
+					static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+					enableProjectiveTexturing();
+				}
+			}
+			glActiveTexture(baseTexUnit);
+
+			modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+		}
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+
+		//translate
+		Vec3f currVec= unit->getCurrVectorFlat();
+		glTranslatef(currVec.x, currVec.y, currVec.z);
+
+		//rotate
+		glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+		glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
+
+		//dead alpha
+		float alpha= 1.0f;
+		const SkillType *st= unit->getCurrSkill();
+		if(st->getClass() == scDie && static_cast<const DieSkillType*>(st)->getFade()) {
+			alpha= 1.0f-unit->getAnimProgress();
+			glDisable(GL_COLOR_MATERIAL);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
+		}
+		else{
+			glEnable(GL_COLOR_MATERIAL);
+		}
+
+		//render
+		const Model *model= unit->getCurrentModel();
+		model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+
+		modelRenderer->render(model);
+		triangleCount+= model->getTriangleCount();
+		pointCount+= model->getVertexCount();
+
+		glPopMatrix();
+		unit->setVisible(true);
+		unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
+		visibleFrameUnitList.push_back(unit);
+
+		if(allowRenderUnitTitles == true) {
+			// Add to the pending render unit title list
+			renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+		}
+	}
+
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+		glPopAttrib();
+	}
+
+	//restore
+	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+
+/*
+	bool modelRenderStarted = false;
 
 	for(int i=0; i<world->getFactionCount(); ++i){
 		meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
@@ -1671,6 +1871,8 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 
 	//restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+*/
+
 
 	//assert
 	assertGl();
@@ -1987,6 +2189,28 @@ void Renderer::renderMinimap(){
 	glDisable(GL_TEXTURE_2D);
 
 	//draw units
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleUnitList.size() > 0) {
+		glBegin(GL_QUADS);
+
+		for(int visibleUnitIndex = 0; visibleUnitIndex < qCache.visibleUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleUnitList[visibleUnitIndex];
+
+			Vec2i pos= unit->getPos() / Map::cellScale;
+			int size= unit->getType()->getSize();
+			Vec3f color=  unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0, 0);
+			glColor3fv(color.ptr());
+			glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
+			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
+			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
+			glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
+		}
+
+		glEnd();
+	}
+
+/*
 	glBegin(GL_QUADS);
 	for(int i=0; i<world->getFactionCount(); ++i){
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
@@ -2004,6 +2228,7 @@ void Renderer::renderMinimap(){
 		}
 	}
 	glEnd();
+*/
 
     //draw camera
 	float wRatio= static_cast<float>(metrics.getMinimapW()) / world->getMap()->getW();
@@ -2378,13 +2603,15 @@ void Renderer::computeSelected(Selection::UnitContainer &units, const Vec2i &pos
 	//select units
 	const World *world= game->getWorld();
 	int selCount= glRenderMode(GL_RENDER);
-	for(int i=1; i<=selCount; ++i){
+	for(int i=1; i <= selCount; ++i) {
 		int factionIndex= selectBuffer[i*5-2];
 		int unitIndex= selectBuffer[i*5-1];
 
-		if(factionIndex < world->getFactionCount() && unitIndex < world->getFaction(factionIndex)->getUnitCount()) {
+		if( factionIndex >= 0 && factionIndex < world->getFactionCount() &&
+			unitIndex >= 0 && unitIndex < world->getFaction(factionIndex)->getUnitCount()) {
+
 			Unit *unit= world->getFaction(factionIndex)->getUnit(unitIndex);
-			if(unit->isAlive()){
+			if(unit->isAlive()) {
 				units.push_back(unit);
 			}
 		}
@@ -2751,10 +2978,68 @@ void Renderer::renderUnitsFast(){
 
 	bool modelRenderStarted = false;
 	bool modelRenderFactionStarted = false;
-	//modelRenderer->begin(false, false, false);
-	//glInitNames();
+
+	int lastFactionIndex = -1;
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleUnitIndex = 0; visibleUnitIndex < qCache.visibleUnitList.size(); ++visibleUnitIndex) {
+		Unit *unit = qCache.visibleUnitList[visibleUnitIndex];
+
+		if(lastFactionIndex != unit->getFactionIndex()) {
+			modelRenderFactionStarted = false;
+		}
+		if(modelRenderStarted == false) {
+			modelRenderStarted = true;
+			glPushAttrib(GL_ENABLE_BIT);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+
+			modelRenderer->begin(false, false, false);
+			glInitNames();
+		}
+
+		if(modelRenderFactionStarted == false) {
+			modelRenderFactionStarted = true;
+			glPushName(unit->getFactionIndex());
+		}
+		glPushName(visibleUnitIndex);
+
+		glMatrixMode(GL_MODELVIEW);
+
+		//debuxar modelo
+		glPushMatrix();
+
+		//translate
+		Vec3f currVec= unit->getCurrVectorFlat();
+		glTranslatef(currVec.x, currVec.y, currVec.z);
+
+		//rotate
+		glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+		//render
+		const Model *model= unit->getCurrentModel();
+		model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+		modelRenderer->render(model);
+
+		glPopMatrix();
+		glPopName();
+
+		if((lastFactionIndex != -1 && lastFactionIndex != unit->getFactionIndex()) ||
+			(visibleUnitIndex == qCache.visibleUnitList.size() - 1)) {
+			glPopName();
+		}
+
+		lastFactionIndex = unit->getFactionIndex();
+	}
+
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+		glPopAttrib();
+	}
+
+/*
+	bool modelRenderStarted = false;
+	bool modelRenderFactionStarted = false;
 	for(int i=0; i<world->getFactionCount(); ++i){
-		//glPushName(i);
 		modelRenderFactionStarted = false;
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			Unit *unit= world->getFaction(i)->getUnit(j);
@@ -2803,6 +3088,8 @@ void Renderer::renderUnitsFast(){
 		modelRenderer->end();
 		glPopAttrib();
 	}
+*/
+
 	assertGl();
 }
 
@@ -2826,8 +3113,53 @@ void Renderer::renderObjectsFast() {
 	int thisTeamIndex= world->getThisTeamIndex();
 	bool modelRenderStarted = false;
 
-	//modelRenderer->begin(false, true, false);
-//	std::vector<RenderEntity> vctEntity;
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0; visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+		Object *o = qCache.visibleObjectList[visibleIndex];
+
+		const Model *objModel= o->getModel();
+		const Vec3f &v= o->getConstPos();
+
+		if(modelRenderStarted == false) {
+			modelRenderStarted = true;
+			glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+			glDisable(GL_LIGHTING);
+
+			glAlphaFunc(GL_GREATER, 0.5f);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+			//set color to the texture alpha
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+
+			//set alpha to the texture alpha
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+
+			modelRenderer->begin(false, true, false);
+		}
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(v.x, v.y, v.z);
+		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+
+		modelRenderer->render(objModel);
+
+		glPopMatrix();
+
+	}
+
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+		glPopAttrib();
+	}
+
+/*
+	int thisTeamIndex= world->getThisTeamIndex();
+	bool modelRenderStarted = false;
 
 	PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
 	while(pqi.next()){
@@ -2885,6 +3217,7 @@ void Renderer::renderObjectsFast() {
 		modelRenderer->end();
 		glPopAttrib();
 	}
+*/
 
 	assertGl();
 }
@@ -3448,6 +3781,65 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 		}
 		renderUnitTitleList.clear();
 	}
+}
+
+VisibleQuadContainerCache & Renderer::getQuadCache(bool updateOnDirtyFrame) {
+	if(game != NULL && game->getWorld() != NULL) {
+		const World *world= game->getWorld();
+		if(updateOnDirtyFrame == true && world->getFrameCount() != quadCache.cacheFrame) {
+			// Dump cached info
+			quadCache.clearCacheData();
+
+			// Unit calculations
+			for(int i = 0; i < world->getFactionCount(); ++i) {
+				for(int j = 0; j < world->getFaction(i)->getUnitCount(); ++j) {
+					Unit *unit= world->getFaction(i)->getUnit(j);
+					if(world->toRenderUnit(unit, visibleQuad)) {
+						quadCache.visibleUnitList.push_back(unit);
+					}
+					else {
+						unit->setVisible(false);
+						quadCache.inVisibleUnitList.push_back(unit);
+					}
+				}
+			}
+
+			// Object calculations
+			const Map *map= world->getMap();
+			PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
+			while(pqi.next()){
+				const Vec2i &pos= pqi.getPos();
+				if(map->isInside(pos)) {
+					const Vec2i &mapPos = Map::toSurfCoords(pos);
+
+					//quadCache.visibleCellList.push_back(mapPos);
+
+					SurfaceCell *sc = map->getSurfaceCell(mapPos);
+					Object *o = sc->getObject();
+					bool isExplored = (sc->isExplored(world->getThisTeamIndex()) && o != NULL);
+					//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+					bool isVisible = true;
+
+					if(isExplored == true && isVisible == true) {
+						quadCache.visibleObjectList.push_back(o);
+					}
+				}
+			}
+
+			Quad2i scaledQuad = visibleQuad / Map::cellScale;
+			PosQuadIterator pqis(map, scaledQuad);
+			while(pqis.next()) {
+				const Vec2i &pos= pqis.getPos();
+				if(map->isInside(pos)) {
+					quadCache.visibleScaledCellList.push_back(pos);
+				}
+			}
+
+			quadCache.cacheFrame = world->getFrameCount();
+		}
+	}
+
+	return quadCache;
 }
 
 }}//end namespace

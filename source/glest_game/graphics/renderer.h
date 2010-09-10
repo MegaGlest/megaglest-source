@@ -142,6 +142,51 @@ public:
 	}
 };
 
+
+class VisibleQuadContainerCache {
+protected:
+
+	void CopyAll(const VisibleQuadContainerCache &obj) {
+		cacheFrame 			= obj.cacheFrame;
+		visibleObjectList	= obj.visibleObjectList;
+		visibleUnitList		= obj.visibleUnitList;
+		inVisibleUnitList	= obj.inVisibleUnitList;
+		//visibleCellList		= obj.visibleCellList;
+		visibleScaledCellList = obj.visibleScaledCellList;
+	}
+
+public:
+
+	VisibleQuadContainerCache() {
+		cacheFrame = 0;
+		clearCacheData();
+	}
+	VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {
+		CopyAll(obj);
+	}
+	VisibleQuadContainerCache & operator=(const VisibleQuadContainerCache &obj) {
+		CopyAll(obj);
+		return *this;
+	}
+	//bool operator<(const RenderEntity &rhs) const;
+	//bool operator()(const RenderEntity &lhs,const RenderEntity &rhs) const;
+
+	void clearCacheData() {
+		visibleObjectList.clear();
+		visibleUnitList.clear();
+		inVisibleUnitList.clear();
+		//visibleCellList.clear();
+		visibleScaledCellList.clear();
+	}
+	int cacheFrame;
+	std::vector<Object *> visibleObjectList;
+	std::vector<Unit   *> visibleUnitList;
+	std::vector<Unit   *> inVisibleUnitList;
+	//std::vector<Vec2i> visibleCellList;
+	std::vector<Vec2i> visibleScaledCellList;
+};
+
+
 class Renderer : public RendererInterface {
 public:
 	//progress bar
@@ -214,6 +259,7 @@ private:
 	int pointCount;
 	Quad2i visibleQuad;
 	Vec4f nearestLightPos;
+	VisibleQuadContainerCache quadCache;
 
 	//renderers
 	ModelRenderer *modelRenderer;
@@ -388,6 +434,8 @@ public:
 
 	void setLastRenderFps(int value) { lastRenderFps = value;}
 	int getLastRenderFps() const { return lastRenderFps;}
+
+	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true);
 
 private:
 	//private misc
