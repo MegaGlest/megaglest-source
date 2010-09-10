@@ -2934,7 +2934,7 @@ void Renderer::renderUnitsFast() {
 	assertGl();
 
 	bool modelRenderStarted = false;
-	bool modelRenderFactionStarted = false;
+	//bool modelRenderFactionStarted = false;
 
 	if(useQuadCache == true) {
 		VisibleQuadContainerCache &qCache = getQuadCache();
@@ -2977,10 +2977,10 @@ void Renderer::renderUnitsFast() {
 				glPopName();
 			}
 
-			if(modelRenderFactionStarted == true) {
+			//if(modelRenderFactionStarted == true) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPopName() for lastFactionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFactionIndex);
-				glPopName();
-			}
+				//glPopName();
+			//}
 
 			if(modelRenderStarted == true) {
 				modelRenderer->end();
@@ -3717,12 +3717,19 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 	}
 }
 
+void Renderer::setQuadCacheDirty(bool value) {
+	quadCache.cacheIsDirty = value;
+}
+
 VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 													bool forceNew) {
 	//forceNew = true;
 	if(game != NULL && game->getWorld() != NULL) {
 		const World *world= game->getWorld();
 
+		if(quadCache.cacheIsDirty == true) {
+			forceNew = true;
+		}
 		if(forceNew == true ||
 			(updateOnDirtyFrame == true &&
 			(world->getFrameCount() != quadCache.cacheFrame ||
@@ -3796,6 +3803,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				}
 			}
 			quadCache.cacheFrame = world->getFrameCount();
+			quadCache.cacheIsDirty = false;
 			quadCache.lastVisibleQuad = visibleQuad;
 		}
 	}

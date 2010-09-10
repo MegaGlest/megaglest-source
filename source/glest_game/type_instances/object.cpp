@@ -19,6 +19,7 @@
 #include "resource.h"
 #include "util.h"
 #include "randomgen.h"
+#include "renderer.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -46,7 +47,10 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 }
 
 Object::~Object(){
-	delete resource; 
+	delete resource;
+
+	Renderer &renderer= Renderer::getInstance();
+	renderer.setQuadCacheDirty(true);
 }
 
 const Model *Object::getModel() const{
