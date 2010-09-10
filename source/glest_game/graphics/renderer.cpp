@@ -3773,7 +3773,10 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				const Faction *faction = world->getFaction(i);
 				for(int j = 0; j < faction->getUnitCount(); ++j) {
 					Unit *unit= faction->getUnit(j);
-					if(world->toRenderUnit(unit, visibleQuad)) {
+
+					bool insideQuad 	= visibleQuad.isInside(unit->getPos());
+					bool renderInMap 	= world->toRenderUnit(unit);
+					if(insideQuad == true && renderInMap == true) {
 						quadCache.visibleQuadUnitList.push_back(unit);
 					}
 					else {
@@ -3782,7 +3785,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						//quadCache.inVisibleUnitList.push_back(unit);
 					}
 
-					if(world->toRenderUnit(unit)) {
+					if(renderInMap == true) {
 						quadCache.visibleUnitList.push_back(unit);
 					}
 				}
@@ -3805,7 +3808,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						SurfaceCell *sc = map->getSurfaceCell(mapPos);
 						Object *o = sc->getObject();
 						bool isExplored = (sc->isExplored(world->getThisTeamIndex()) && o != NULL);
-						//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
+						//bool isVisible = (sc->isVisible(world->getThisTeamIndex()) && o != NULL);
 						bool isVisible = true;
 
 						if(isExplored == true && isVisible == true) {

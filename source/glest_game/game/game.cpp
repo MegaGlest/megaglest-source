@@ -1535,6 +1535,9 @@ void Game::render2d(){
 		str+= "\n";
 		str+= "Visible quad area: " + floatToStr(visibleQuad.area()) +"\n";
 
+		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
+		int visibleUnitCount = qCache.visibleQuadUnitList.size();
+		/*
 		int visibleUnitCount = 0;
 		for(int i=0; i< world.getFactionCount(); ++i){
 			for(int j=0; j< world.getFaction(i)->getUnitCount(); ++j){
@@ -1544,8 +1547,11 @@ void Game::render2d(){
 				}
 			}
 		}
+		*/
 		str+= "Visible unit count: " + intToStr(visibleUnitCount) +"\n";
 
+		int visibleObjectCount = qCache.visibleObjectList.size();
+		/*
 		int visibleObjectCount = 0;
 		Map *map= world.getMap();
 		int thisTeamIndex= world.getThisTeamIndex();
@@ -1565,6 +1571,7 @@ void Game::render2d(){
 				}
 			}
 		}
+		*/
 		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
 
 		// resources
