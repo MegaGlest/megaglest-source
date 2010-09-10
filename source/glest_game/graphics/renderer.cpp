@@ -3722,6 +3722,38 @@ void Renderer::setQuadCacheDirty(bool value) {
 	quadCache.cacheIsDirty = value;
 }
 
+void Renderer::removeObjectFromQuadCache(const Object *o) {
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0;
+			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+		Object *currentObj = qCache.visibleObjectList[visibleIndex];
+		if(currentObj == o) {
+			qCache.visibleObjectList.erase(qCache.visibleObjectList.begin() + visibleIndex);
+			break;
+		}
+	}
+}
+
+void Renderer::removeUnitFromQuadCache(const Unit *unit) {
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0;
+			visibleIndex < qCache.visibleQuadUnitList.size(); ++visibleIndex) {
+		Unit *currentUnit = qCache.visibleQuadUnitList[visibleIndex];
+		if(currentUnit == unit) {
+			qCache.visibleQuadUnitList.erase(qCache.visibleQuadUnitList.begin() + visibleIndex);
+			break;
+		}
+	}
+	for(int visibleIndex = 0;
+			visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
+		Unit *currentUnit = qCache.visibleUnitList[visibleIndex];
+		if(currentUnit == unit) {
+			qCache.visibleUnitList.erase(qCache.visibleUnitList.begin() + visibleIndex);
+			break;
+		}
+	}
+}
+
 VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 													bool forceNew) {
 	//forceNew = true;
