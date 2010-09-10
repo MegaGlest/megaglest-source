@@ -74,75 +74,6 @@ class Object;
 ///	OpenGL renderer, uses the shared library
 // ===========================================================
 
-enum RenderEntityState {
-	resNone,
-	resInterpolated,
-	resRendered
-};
-
-enum RenderEntityType {
-	retObject,
-	retUnit,
-	retUnitFast
-};
-
-class RenderEntity {
-protected:
-	RenderEntityState state;
-
-	void CopyAll(const RenderEntity &obj) {
-		this->type   = obj.type;
-		this->state  = obj.state;
-		this->o 	 = obj.o;
-		this->mapPos = obj.mapPos;
-		this->unit	 = obj.unit;
-		this->teamTexture = obj.teamTexture;;
-	}
-
-public:
-
-	static bool forceRenderWithIterpolation;
-
-	RenderEntity() {
-		this->type = retObject;
-		this->o    = NULL;
-		this->unit = NULL;
-		this->teamTexture = NULL;
-		setState(resNone);
-	}
-	RenderEntity(RenderEntityType type,Object *o, Vec2i mapPos, Unit *unit,const Texture2D *teamTexture=NULL) {
-		this->type   = type;
-		this->o 	 = o;
-		this->mapPos = mapPos;
-		this->unit 	 = unit;
-		this->teamTexture = teamTexture;
-		setState(resNone);
-	}
-	RenderEntity(const RenderEntity &obj) {
-		CopyAll(obj);
-	}
-	RenderEntity & operator=(const RenderEntity &obj) {
-		CopyAll(obj);
-		return *this;
-	}
-	bool operator<(const RenderEntity &rhs) const;
-	bool operator()(const RenderEntity &lhs,const RenderEntity &rhs) const;
-
-	RenderEntityType type;
-	Object *o;
-	Vec2i  mapPos;
-	Unit   *unit;
-	const Texture2D *teamTexture;
-
-	RenderEntityState getState() {
-		return this->state;
-	}
-	void setState(RenderEntityState value) {
-		this->state = value;
-	}
-};
-
-
 class VisibleQuadContainerCache {
 protected:
 
@@ -150,7 +81,8 @@ protected:
 		cacheFrame 			= obj.cacheFrame;
 		visibleObjectList	= obj.visibleObjectList;
 		visibleUnitList		= obj.visibleUnitList;
-		inVisibleUnitList	= obj.inVisibleUnitList;
+		visibleQuadUnitList = obj.visibleQuadUnitList;
+		//inVisibleUnitList	= obj.inVisibleUnitList;
 		//visibleCellList		= obj.visibleCellList;
 		visibleScaledCellList = obj.visibleScaledCellList;
 		lastVisibleQuad		= obj.lastVisibleQuad;
@@ -169,26 +101,27 @@ public:
 		CopyAll(obj);
 		return *this;
 	}
-	//bool operator<(const RenderEntity &rhs) const;
-	//bool operator()(const RenderEntity &lhs,const RenderEntity &rhs) const;
 
 	void clearCacheData() {
 		clearVolatileCacheData();
-
-		visibleObjectList.clear();
-		//visibleCellList.clear();
-		visibleScaledCellList.clear();
+		clearNonVolatileCacheData();
 	}
 	void clearVolatileCacheData() {
 		visibleUnitList.clear();
-		inVisibleUnitList.clear();
+		visibleQuadUnitList.clear();
+		//inVisibleUnitList.clear();
+	}
+	void clearNonVolatileCacheData() {
+		visibleObjectList.clear();
+		visibleScaledCellList.clear();
 	}
 
 	int cacheFrame;
 	Quad2i lastVisibleQuad;
 	std::vector<Object *> visibleObjectList;
+	std::vector<Unit   *> visibleQuadUnitList;
 	std::vector<Unit   *> visibleUnitList;
-	std::vector<Unit   *> inVisibleUnitList;
+	//std::vector<Unit   *> inVisibleUnitList;
 	//std::vector<Vec2i> visibleCellList;
 	std::vector<Vec2i> visibleScaledCellList;
 };
@@ -237,7 +170,7 @@ public:
 	static const float maxLightDist;
 	
 public:
-	enum Shadows{
+	enum Shadows {
 		sDisabled,
 		sProjected,
 		sShadowMapping,
@@ -302,6 +235,7 @@ private:
 	int lastRenderFps;
 	bool shadowsOffDueToMinRender;
 
+	bool useQuadCache;
 private:
 	Renderer();
 	~Renderer();
@@ -381,17 +315,9 @@ public:
     //complex rendering
     void renderSurface(const int renderFps, const int worldFrameCount);
 	void renderObjects(const int renderFps, const int worldFrameCount);
-	void renderObject(RenderEntity &entity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
-	void renderObject(Object *o,const Vec2i &mapPos,const Vec3f &baseFogColor,const int worldFrameCount);
-	void prepareObjectForRender(RenderEntity &entity);
-	void renderObjectList(std::vector<RenderEntity> &vctEntity,const Vec3f &baseFogColor,const int renderFps, const int worldFrameCount);
 
 	void renderWater();
     void renderUnits(const int renderFps, const int worldFrameCount);
-    void prepareUnitForRender(RenderEntity &entity);
-    void renderUnitList(std::vector<RenderEntity> &vctEntity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount);
-    void renderUnit(RenderEntity &entity,MeshCallbackTeamColor *meshCallbackTeamColor,const int renderFps, const int worldFrameCount);
-    void renderUnit(Unit *unit,MeshCallbackTeamColor *meshCallbackTeamColor, const Texture2D *teamTexture, const int worldFrameCount);
 
 	void renderSelectionEffects();
 	void renderWaterEffects();
@@ -442,7 +368,7 @@ public:
 	void setLastRenderFps(int value) { lastRenderFps = value;}
 	int getLastRenderFps() const { return lastRenderFps;}
 
-	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true);
+	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
 
 private:
 	//private misc
@@ -456,12 +382,7 @@ private:
 
 	//selection render
 	void renderObjectsFast();
-	void renderObjectFastList(std::vector<RenderEntity> &vctEntity);
 	void renderUnitsFast();
-	void renderUnitFastList(std::vector<RenderEntity> &vctEntity);
-	void renderUnitFast(RenderEntity &entity);
-	void renderUnitFast(Unit *unit, int x, int y);
-	void prepareUnitFastForRender(RenderEntity &entity);
 
 	//gl requirements
 	void checkGlCaps();

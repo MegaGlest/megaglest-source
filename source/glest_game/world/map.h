@@ -271,15 +271,14 @@ public:
 // 	class PosQuadIterator
 // ===============================
 
-class PosQuadIterator{
+class PosQuadIterator {
 private:
 	Quad2i quad;
 	Rect2i boundingRect;
-	const Map *map;
 	Vec2i pos;
 	int step;
 public:
-	PosQuadIterator(const Map *map, const Quad2i &quad, int step=1);
+	PosQuadIterator(const Quad2i &quad, int step=1);
 	bool next();
 	void skipX();
 	const Vec2i &getPos();

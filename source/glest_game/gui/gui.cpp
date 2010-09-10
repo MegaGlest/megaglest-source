@@ -864,18 +864,19 @@ bool Gui::isSharedCommandClass(CommandClass commandClass){
 
 void Gui::computeSelected(bool doubleClick){
 	Selection::UnitContainer units;
-	Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(), selectionQuad.getPosUp());
+	Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(),
+											selectionQuad.getPosUp());
 	selectingBuilding= false;
 	activeCommandType= NULL;
 
 	//select all units of the same type if double click
-	if(doubleClick && units.size()==1){
+	if(doubleClick && units.size() == 1) {
 		const Unit *refUnit= units.front();
 		int factionIndex= refUnit->getFactionIndex();
-		for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
+		for(int i=0; i< world->getFaction(factionIndex)->getUnitCount(); ++i) {
 			Unit *unit= world->getFaction(factionIndex)->getUnit(i);
-			if(unit->getPos().dist(refUnit->getPos())<doubleClickSelectionRadius &&
-				unit->getType()==refUnit->getType())
+			if(unit->getPos().dist(refUnit->getPos()) < doubleClickSelectionRadius &&
+				unit->getType() == refUnit->getType())
 			{
 				units.push_back(unit);
 			}

@@ -831,7 +831,7 @@ void World::initSplattedTextures(){
 	for(int i=0; i<map.getSurfaceW()-1; ++i){
         for(int j=0; j<map.getSurfaceH()-1; ++j){
 			Vec2f coord;
-			const Texture2D *texture;
+			const Texture2D *texture=NULL;
 			SurfaceCell *sc00= map.getSurfaceCell(i, j);
 			SurfaceCell *sc10= map.getSurfaceCell(i+1, j);
 			SurfaceCell *sc01= map.getSurfaceCell(i, j+1);

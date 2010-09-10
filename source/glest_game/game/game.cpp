@@ -1549,7 +1549,7 @@ void Game::render2d(){
 		int visibleObjectCount = 0;
 		Map *map= world.getMap();
 		int thisTeamIndex= world.getThisTeamIndex();
-		PosQuadIterator pqi(map, visibleQuad, Map::cellScale);
+		PosQuadIterator pqi(visibleQuad, Map::cellScale);
 		while(pqi.next()){
 			const Vec2i &pos= pqi.getPos();
 			bool isPosVisible = map->isInside(pos.x, pos.y);

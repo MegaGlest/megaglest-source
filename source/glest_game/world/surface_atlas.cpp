@@ -29,12 +29,15 @@ namespace Glest{ namespace Game{
 //	class PixmapInfo
 // =====================================================
 
-SurfaceInfo::SurfaceInfo(const Pixmap2D *lu, const Pixmap2D *ru, const Pixmap2D *ld, const Pixmap2D *rd) {
+SurfaceInfo::SurfaceInfo(const Pixmap2D *lu, const Pixmap2D *ru, const Pixmap2D *ld,
+						const Pixmap2D *rd) {
 	this->leftDown= ld;
 	this->leftUp= lu;
 	this->rightDown= rd;
 	this->rightUp= ru;
 	center= NULL;
+	texture=NULL;
+
 }
 
 SurfaceInfo::SurfaceInfo(const Pixmap2D *center) {
@@ -43,6 +46,7 @@ SurfaceInfo::SurfaceInfo(const Pixmap2D *center) {
 	this->rightDown= NULL;
 	this->rightUp= NULL;
 	this->center= center;
+	texture=NULL;
 }
 
 bool SurfaceInfo::operator==(const SurfaceInfo &si) const {
