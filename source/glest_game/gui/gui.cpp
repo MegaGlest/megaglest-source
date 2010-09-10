@@ -97,7 +97,6 @@ Gui::Gui(){
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     posObjWorld= Vec2i(54, 14);
-    computeSelection= false;
 	validPosObjWorld= false;
     activeCommandType= NULL;
     activeCommandClass= ccStop;
