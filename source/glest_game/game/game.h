@@ -95,6 +95,8 @@ private:
 	int updateFpsAvgTest;
 	int renderFpsAvgTest;
 
+	bool photoModeEnabled;
+
 public:
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();

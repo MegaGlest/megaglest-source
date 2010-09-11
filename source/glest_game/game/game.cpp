@@ -49,8 +49,6 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 
 	original_updateFps = GameConstants::updateFps;
 	original_cameraFps = GameConstants::cameraFps;
-//	GameConstants::updateFps= 20;
-//	GameConstants::cameraFps= 50;
 	GameConstants::updateFps= 40;
 	GameConstants::cameraFps= 100;
 	captureAvgTestStatus = false;
@@ -63,7 +61,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
-
+	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
 	//MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] MIN_RENDER_FPS_ALLOWED = %d\n",__FILE__,__FUNCTION__,__LINE__,MIN_RENDER_FPS_ALLOWED);
@@ -528,6 +526,7 @@ void Game::init()
 	//mesage box
 	errorMessageBox.init(lang.get("Ok"));
 	errorMessageBox.setEnabled(false);
+	errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
 
 	//init world, and place camera
 	commander.init(&world);
@@ -1113,7 +1112,7 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 	}
 }
 
-void Game::keyDown(char key){
+void Game::keyDown(char key) {
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
@@ -1123,7 +1122,7 @@ void Game::keyDown(char key){
 		//send key to the chat manager
 		chatManager.keyDown(key);
 
-		if(!chatManager.getEditEnabled()){
+		if(chatManager.getEditEnabled() == false) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -1133,6 +1132,9 @@ void Game::keyDown(char key){
 			}
 			else if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= true;
+			}
+			else if(key == configKeys.getCharKey("TogglePhotoMode")) {
+				photoModeEnabled = !photoModeEnabled;
 			}
 			//Toggle music
 			else if(key == configKeys.getCharKey("ToggleMusic")) {
@@ -1274,6 +1276,8 @@ void Game::keyDown(char key){
 				}
 			}
 		}
+
+		//throw runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -1287,17 +1291,14 @@ void Game::keyDown(char key){
 
 void Game::keyUp(char key){
 	try {
-		if(chatManager.getEditEnabled()){
+		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
 		else {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-			if(key == configKeys.getCharKey("RenderNetworkStatus")) {
-				//renderNetworkStatus= false;
-			}
-			else if(key == configKeys.getCharKey("ShowFullConsole")) {
+			if(key == configKeys.getCharKey("ShowFullConsole")) {
 				showFullConsole= false;
 			}
 			else if(key == configKeys.getCharKey("CameraRotateLeft") ||
@@ -1469,7 +1470,7 @@ void Game::render2d(){
 	renderer.renderDisplay();
 
 	//minimap
-	if(!config.getBool("PhotoMode")){
+	if(photoModeEnabled == false) {
         renderer.renderMinimap();
 	}
 
@@ -1477,11 +1478,11 @@ void Game::render2d(){
 	renderer.renderSelectionQuad();
 
 	//exit message box
-	if(mainMessageBox.getEnabled()){
-		renderer.renderMessageBox(&mainMessageBox);
-	}
-	if(errorMessageBox.getEnabled()){
+	if(errorMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&errorMessageBox);
+	}
+	if(mainMessageBox.getEnabled()) {
+		renderer.renderMessageBox(&mainMessageBox);
 	}
 
 	//script message box
@@ -1656,7 +1657,7 @@ void Game::render2d(){
 	}
 
     //resource info
-	if(config.getBool("PhotoMode") == false) {
+	if(photoModeEnabled == false) {
         renderer.renderResourceStatus();
 		renderer.renderConsole(&console,showFullConsole);
     }
@@ -1799,11 +1800,11 @@ void Game::checkWinnerStandard(){
 	}
 }
 
-void Game::checkWinnerScripted(){
-	if(scriptManager.getGameOver()){
+void Game::checkWinnerScripted() {
+	if(scriptManager.getGameOver()) {
 		gameOver= true;
-		for(int i= 0; i<world.getFactionCount(); ++i){
-			if(scriptManager.getPlayerModifiers(i)->getWinner()){
+		for(int i= 0; i<world.getFactionCount(); ++i) {
+			if(scriptManager.getPlayerModifiers(i)->getWinner()) {
 				world.getStats()->setVictorious(i);
 			}
 		}
