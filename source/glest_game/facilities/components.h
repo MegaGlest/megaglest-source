@@ -59,33 +59,33 @@ public:
 	virtual ~GraphicComponent(){}
 
 	static void clearRegisteredComponents(std::string containerName="");
-	void registerGraphicComponent(std::string containerName, std::string objName);
+	virtual void registerGraphicComponent(std::string containerName, std::string objName);
 	static  GraphicComponent * findRegisteredComponent(std::string containerName, std::string objName);
 	static void applyAllCustomProperties(std::string containerName);
-	void applyCustomProperties(std::string containerName);
+	virtual void applyCustomProperties(std::string containerName);
 
 	static bool saveAllCustomProperties(std::string containerName);
-	bool saveCustomProperties(std::string containerName);
+	virtual bool saveCustomProperties(std::string containerName);
 
-    void init(int x, int y, int w, int h);
+	virtual void init(int x, int y, int w, int h);
 
-	int getX() const				{return x;}
-	int getY() const				{return y;}
-	int getW() const				{return w;}
-	int getH() const				{return h;}
-	const string &getText() const	{return text;}
-	const Font2D *getFont() const	{return font;}
-	bool getEnabled() const			{return enabled;}
-	bool getEditable() const		{return editable;}
-	bool getVisible() const			{return visible;}
+    virtual int getX() const				{return x;}
+	virtual int getY() const				{return y;}
+	virtual int getW() const				{return w;}
+	virtual int getH() const				{return h;}
+	virtual const string &getText() const	{return text;}
+	virtual const Font2D *getFont() const	{return font;}
+	virtual bool getEnabled() const			{return enabled;}
+	virtual bool getEditable() const		{return editable;}
+	virtual bool getVisible() const			{return visible;}
 
-	void setX(int x)					{this->x= x;}
-	void setY(int y)					{this->y= y;}
-	void setText(const string &text)	{this->text= text;}
-	void setFont(const Font2D *font)	{this->font= font;}
-	void setEnabled(bool enabled)		{this->enabled= enabled;}
-	void setEditable(bool editable)		{this->editable= editable;}
-	void setVisible(bool value)			{this->visible = value;}
+	virtual void setX(int x)					{this->x= x;}
+	virtual void setY(int y)					{this->y= y;}
+	virtual void setText(const string &text)	{this->text= text;}
+	virtual void setFont(const Font2D *font)	{this->font= font;}
+	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
+	virtual void setEditable(bool editable)		{this->editable= editable;}
+	virtual void setVisible(bool value)			{this->visible = value;}
 
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
@@ -194,6 +194,9 @@ public:
 	const GraphicButton *getButton1() const	{return &button1;}
 	const GraphicButton *getButton2() const	{return &button2;}
 	string getHeader() const				{return header;}
+
+	virtual void setX(int x);
+	virtual void setY(int y);
 	
 	void setHeader(string header)			{this->header= header;}
 
