@@ -142,6 +142,7 @@ private:
 
 	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
+	void loadMapInfo(string file, MapInfo *mapInfo);
 
 };
 

@@ -74,13 +74,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     defaultPlayerName = config.getString("NetPlayerName",Socket::getHostName().c_str());
     enableFactionTexturePreview = config.getBool("FactionPreview","false");
 
-    labelMapInfo.setText("?");
-
 	vector<string> teamItems, controlItems, results;
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
-	int aHeadPos=260;
+	int aHeadPos=245;
 	int aPos=aHeadPos-30;
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-30;
@@ -196,12 +194,17 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxEnableServerControlledAI.setEditable(false);
 
 	xoffset=70;
+	int labelOffset=23;
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
 	listBoxMap.init(xoffset+100, mapPos, 200);
 	listBoxMap.setEditable(false);
+
+    labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset, 200, 40);
+    labelMapInfo.setText("?");
 
 	labelMap.registerGraphicComponent(containerName,"labelMap");
 	labelMap.init(xoffset+100, mapHeadPos);
@@ -313,7 +316,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	labelMapInfo.setText(mapInfo.desc);
+
+	//loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+    //loadMapInfo(Map::getMapPath(""), &mapInfo);
+	//labelMapInfo.setText(mapInfo.desc);
 
 	//init controllers
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
@@ -531,7 +537,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelControl);
 		renderer.renderLabel(&labelFaction);
 		renderer.renderLabel(&labelTeam);
-		//renderer.renderLabel(&labelMapInfo);
+		renderer.renderLabel(&labelMapInfo);
 
 		renderer.renderListBox(&listBoxMap);
 		renderer.renderListBox(&listBoxFogOfWar);
@@ -689,19 +695,15 @@ void MenuStateConnectedGame::update() {
             }
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
-               clientInterface->getNetworkGameDataSynchCheckOk() == false)
-            {
+               clientInterface->getNetworkGameDataSynchCheckOk() == false) {
                 label = label + " -waiting to synch:";
-                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false)
-                {
+                if(clientInterface->getNetworkGameDataSynchCheckOkMap() == false) {
                     label = label + " map";
                 }
-                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false)
-                {
+                if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false) {
                     label = label + " tile";
                 }
-                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false)
-                {
+                if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
                     label = label + " techtree";
                 }
                 //if(clientInterface->getNetworkGameDataSynchCheckOkFogOfWar() == false)
@@ -789,10 +791,11 @@ void MenuStateConnectedGame::update() {
 			// map
 			maps.push_back(formatString(gameSettings->getMap()));
 			listBoxMap.setItems(maps);
-			if(currentMap != gameSettings->getMap())
-			{// load the setup again
+			if(currentMap != gameSettings->getMap()) {// load the setup again
 				currentMap = gameSettings->getMap();
 			}
+		    loadMapInfo(Map::getMapPath(currentMap), &mapInfo);
+			labelMapInfo.setText(mapInfo.desc);
 			
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1244,6 +1247,53 @@ void MenuStateConnectedGame::cleanupFactionTexture() {
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo) {
+
+	struct MapFileHeader{
+		int32 version;
+		int32 maxPlayers;
+		int32 width;
+		int32 height;
+		int32 altFactor;
+		int32 waterLevel;
+		int8 title[128];
+	};
+
+	Lang &lang= Lang::getInstance();
+
+	try{
+		FILE *f= fopen(file.c_str(), "rb");
+		if(f==NULL)
+			throw runtime_error("Can't open file");
+
+		MapFileHeader header;
+		size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
+
+		mapInfo->size.x= header.width;
+		mapInfo->size.y= header.height;
+		mapInfo->players= header.maxPlayers;
+
+		mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
+		mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
+
+		fclose(f);
+
+	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+			labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+	        listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+	        listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+			listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+	    }
+
+	}
+	catch(exception e){
+		throw runtime_error("Error loading map file: "+file+'\n'+e.what());
+	}
+
 }
 
 }}//end namespace

@@ -47,6 +47,7 @@ protected:
 	const Font2D *font; 
 	bool enabled;
 	bool editable;
+	bool visible;
 
 	static float anim;
 	static float fade;
@@ -75,7 +76,8 @@ public:
 	const string &getText() const	{return text;}
 	const Font2D *getFont() const	{return font;}
 	bool getEnabled() const			{return enabled;}
-	bool getEditable() const			{return editable;}
+	bool getEditable() const		{return editable;}
+	bool getVisible() const			{return visible;}
 
 	void setX(int x)					{this->x= x;}
 	void setY(int y)					{this->y= y;}
@@ -83,6 +85,7 @@ public:
 	void setFont(const Font2D *font)	{this->font= font;}
 	void setEnabled(bool enabled)		{this->enabled= enabled;}
 	void setEditable(bool editable)		{this->editable= editable;}
+	void setVisible(bool value)			{this->visible = value;}
 
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
