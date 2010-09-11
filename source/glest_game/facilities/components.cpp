@@ -42,8 +42,9 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	if(objName != "") {
 		registerGraphicComponent(containerName,objName);
 	}
-	enabled= true;
-	editable= true;
+	enabled  = true;
+	editable = true;
+	visible  = true;
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {
@@ -190,7 +191,11 @@ void GraphicComponent::init(int x, int y, int w, int h) {
 	enabled= true;
 }
 
-bool GraphicComponent::mouseMove(int x, int y){
+bool GraphicComponent::mouseMove(int x, int y) {
+	if(this->getVisible() == false) {
+		return false;
+	}
+
     return 
         x > this->x &&
         y > this->y &&
@@ -199,7 +204,7 @@ bool GraphicComponent::mouseMove(int x, int y){
 }
 
 bool GraphicComponent::mouseClick(int x, int y){
-	if(getEnabled()&&getEditable())
+	if(getVisible() && getEnabled() && getEditable())
     	return mouseMove(x, y);
     else
     	return false;
@@ -241,7 +246,11 @@ void GraphicButton::init(int x, int y, int w, int h){
 }
 
 bool GraphicButton::mouseMove(int x, int y){
-    bool b= GraphicComponent::mouseMove(x, y);
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	bool b= GraphicComponent::mouseMove(x, y);
     lighted= b;
     return b;
 }
@@ -306,12 +315,20 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 }
     
 bool GraphicListBox::mouseMove(int x, int y){
-    return 
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	return
         graphButton1.mouseMove(x, y) || 
         graphButton2.mouseMove(x, y);
 }
 
 bool GraphicListBox::mouseClick(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
 	if(!items.empty()){
 		bool b1= graphButton1.mouseClick(x, y);
 		bool b2= graphButton2.mouseClick(x, y);
@@ -369,11 +386,19 @@ void GraphicMessageBox::init(const string &button1Str){
 }
 
 bool GraphicMessageBox::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
 	return button1.mouseMove(x, y) || button2.mouseMove(x, y);
 }
 
 bool GraphicMessageBox::mouseClick(int x, int y){
-    bool b1= button1.mouseClick(x, y);
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	bool b1= button1.mouseClick(x, y);
 	bool b2= button2.mouseClick(x, y);
 	if(buttonCount==1){
 		return b1;
@@ -384,7 +409,11 @@ bool GraphicMessageBox::mouseClick(int x, int y){
 }
 
 bool GraphicMessageBox::mouseClick(int x, int y, int &clickedButton){
-    bool b1= button1.mouseClick(x, y);
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	bool b1= button1.mouseClick(x, y);
 	bool b2= button2.mouseClick(x, y);
 
 	if(buttonCount==1){

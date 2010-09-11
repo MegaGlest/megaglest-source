@@ -1998,6 +1998,16 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
 		mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
 
 		fclose(f);
+
+	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+			labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+	        listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+	        listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+			listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+	    }
+
 	}
 	catch(exception e){
 		throw runtime_error("Error loading map file: "+file+'\n'+e.what());

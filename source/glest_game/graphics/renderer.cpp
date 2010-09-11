@@ -1027,7 +1027,10 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 
 // ============= COMPONENTS =============================
 
-void Renderer::renderLabel(const GraphicLabel *label){
+void Renderer::renderLabel(const GraphicLabel *label) {
+	if(label->getVisible() == false) {
+		return;
+	}
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
@@ -1049,7 +1052,11 @@ void Renderer::renderLabel(const GraphicLabel *label){
 	glPopAttrib();
 }
 
-void Renderer::renderButton(const GraphicButton *button){
+void Renderer::renderButton(const GraphicButton *button) {
+	if(button->getVisible() == false) {
+		return;
+	}
+
     int x= button->getX();
     int y= button->getY();
     int h= button->getH();
@@ -1152,7 +1159,10 @@ void Renderer::renderButton(const GraphicButton *button){
     glPopAttrib();
 }
 
-void Renderer::renderListBox(const GraphicListBox *listBox){
+void Renderer::renderListBox(const GraphicListBox *listBox) {
+	if(listBox->getVisible() == false) {
+		return;
+	}
 
 	renderButton(listBox->getButton1());
     renderButton(listBox->getButton2());
@@ -1169,7 +1179,10 @@ void Renderer::renderListBox(const GraphicListBox *listBox){
 	glPopAttrib();
 }
 
-void Renderer::renderMessageBox(const GraphicMessageBox *messageBox){
+void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
+	if(messageBox->getVisible() == false) {
+		return;
+	}
 
 	//background
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
