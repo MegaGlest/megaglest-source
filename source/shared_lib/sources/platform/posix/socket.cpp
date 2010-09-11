@@ -988,8 +988,11 @@ int Socket::send(const void *data, int dataSize) {
 		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+#ifdef __APPLE__
+        bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
+#else
         bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+#endif
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -1016,9 +1019,12 @@ int Socket::send(const void *data, int dataSize) {
 
 	        //if(Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
-
+#ifdef __APPLE__
+                bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
+#else			
                 bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
-
+#endif
+			
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        //}
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
@@ -1042,8 +1048,11 @@ int Socket::send(const void *data, int dataSize) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
 	        	const char *sendBuf = (const char *)data;
-                bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
-
+#ifdef __APPLE__
+			bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
+#else
+			bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
+#endif
                 if(bytesSent > 0) {
                 	totalBytesSent += bytesSent;
                 }
