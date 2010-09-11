@@ -419,7 +419,11 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	globfree(&globbuf);
 
     // Look recursively for sub-folders
+#ifdef __APPLE__ //APPLE does'nt have the GLOB_ONLYDIR definition..
+	res = glob(mypath.c_str(), 0, 0, &globbuf);
+#else 
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+#endif
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
@@ -427,6 +431,13 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	}
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+#ifdef __APPLE__ 
+		struct stat statStruct;
+		// only process if dir..
+		int actStat = lstat( globbuf.gl_pathv[i], &statStruct);
+		if( S_ISDIR(statStruct.st_mode) == 0)
+			continue;
+#endif
 		const char* p = globbuf.gl_pathv[i];
         getFolderTreeContentsCheckSumRecursively(string(p) + "/*", filterFileExt, &checksum);
 	}
@@ -556,7 +567,11 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	globfree(&globbuf);
 
     // Look recursively for sub-folders
+#ifdef __APPLE__
+	res = glob(mypath.c_str(), 0, 0, &globbuf);
+#else //APPLE doesn't have the GLOB_ONLYDIR definition..
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+#endif
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
@@ -564,6 +579,13 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	}
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+#ifdef __APPLE__ 		
+		struct stat statStruct;
+		// only get if dir..
+		int actStat = lstat( globbuf.gl_pathv[ i], &statStruct);
+		if( S_ISDIR(statStruct.st_mode) == 0)
+			continue;
+#endif
 		const char* p = globbuf.gl_pathv[i];
         checksumFiles = getFolderTreeContentsCheckSumListRecursively(string(p) + "/*", filterFileExt, &checksumFiles);
 	}

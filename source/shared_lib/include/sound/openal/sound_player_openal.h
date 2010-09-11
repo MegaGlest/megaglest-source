@@ -12,8 +12,13 @@
 #include "platform_util.h"
 #include "platform_common.h"
 #include <SDL.h>
-#include <AL/alc.h>
+#ifdef __APPLE__
+#include <OpenAL/alc.h> 
+#include <OpenAL/al.h>
+#else
+#include <AL/alc.h> 
 #include <AL/al.h>
+#endif
 #include <vector>
 #include "leak_dumper.h"
 
