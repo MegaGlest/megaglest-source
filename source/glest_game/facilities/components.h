@@ -155,6 +155,7 @@ public:
     void init(int x, int y, int w=defW, int h=defH);
     
 	int getItemCount() const				{return items.size();}
+	string getItem(int index) const			{return items[index];}
 	int getSelectedItemIndex() const		{return selectedItemIndex;}
 	string getSelectedItem() const			{return items[selectedItemIndex];}
 	const GraphicButton *getButton1() const	{return &graphButton1;}
