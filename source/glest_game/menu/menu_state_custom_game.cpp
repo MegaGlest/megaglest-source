@@ -588,6 +588,51 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		std::vector<string> randomFactionSelectionList;
+		int RandomCount = 0;
+		for(int i= 0; i < mapInfo.players; ++i) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			// Check for random faction selection and choose the faction now
+			if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+
+				// Max 1000 tries to get a random, unused faction
+				for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
+					srand(time(NULL) + findRandomFaction);
+					int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
+					string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] selectedFactionName [%s] selectedFactionIndex = %d, findRandomFaction = %d\n",__FILE__,__FUNCTION__,__LINE__,selectedFactionName.c_str(),selectedFactionIndex,findRandomFaction);
+
+					if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+						selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME) &&
+						std::find(randomFactionSelectionList.begin(),randomFactionSelectionList.end(),selectedFactionName) == randomFactionSelectionList.end()) {
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						listBoxFactions[i].setSelectedItem(selectedFactionName);
+						randomFactionSelectionList.push_back(selectedFactionName);
+						break;
+					}
+				}
+
+				if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
+
+					listBoxFactions[i].setSelectedItemIndex(RandomCount);
+					randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
+
+				RandomCount++;
+			}
+		}
+
+		if(RandomCount > 0) {
+			needToSetChangedGameSettings = true;
+		}
+
 		safeMutex.ReleaseLock(true);
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
@@ -599,7 +644,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		safeMutex.Lock();
 
         bool dataSynchCheckOk = true;
-		for(int i= 0; i<mapInfo.players; ++i) {
+		for(int i= 0; i < mapInfo.players; ++i) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
@@ -626,8 +671,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	        if( hasNetworkGameSettings() == true &&
-	            needToSetChangedGameSettings == true) {
+	        if( (hasNetworkGameSettings() == true &&
+	             needToSetChangedGameSettings == true) || (RandomCount > 0)) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	            serverInterface->setGameSettings(&gameSettings,true);
 
@@ -1669,6 +1714,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				labelPlayerNames[i].setText(getHumanPlayerName(i));
 			}
 
+
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
@@ -1721,6 +1769,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 			gameSettings->setFactionControl(slotIndex, ct);
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 
@@ -1842,6 +1892,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
 			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
 			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionTypeName [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getFactionTypeName(i).c_str());
+
 			gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"") );
 		}
 
@@ -2040,6 +2093,8 @@ void MenuStateCustomGame::reloadFactions() {
     if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
     	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
     }
+
+    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
     factionFiles= results;
     for(int i= 0; i<results.size(); ++i){

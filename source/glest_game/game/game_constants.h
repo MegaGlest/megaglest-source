@@ -80,6 +80,7 @@ public:
 	static const char *folder_path_screenshots;
 
 	static const char *OBSERVER_SLOTNAME;
+	static const char *RANDOMFACTION_SLOTNAME;
 };
 
 enum PathType {

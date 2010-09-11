@@ -1034,6 +1034,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		if(gameSettings->getAllowObservers() == true) {
 			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 		}
+		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
 		factionFiles= results;
 		for(int i= 0; i<results.size(); ++i){
