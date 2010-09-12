@@ -42,7 +42,7 @@ wxString ToUnicode(const string& str) {
 // ===============================================
 
 MainWindow::MainWindow()
-		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxDefaultPosition, wxSize(1024, 768))
+		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxPoint(0,0), wxSize(1024, 768))
 		, lastX(0), lastY(0)
 		, currentBrush(btHeight)
 		, height(0)
