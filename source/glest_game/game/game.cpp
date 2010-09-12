@@ -86,7 +86,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-Game::~Game(){
+Game::~Game() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	thisGamePtr = NULL;
@@ -297,23 +297,34 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 	return result;
 }
 
-void Game::load(){
+void Game::load() {
+	load(lgt_All);
+}
+
+void Game::load(LoadGameItem loadTypes) {
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->gameSettings.toString().c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] loadTypes = %d, gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,loadTypes,this->gameSettings.toString().c_str());
 
 	Config &config = Config::getInstance();
 	Logger &logger= Logger::getInstance();
-	Game::findFactionLogoFile(&gameSettings, &logger);
 
 	string mapName= gameSettings.getMap();
 	string tilesetName= gameSettings.getTileset();
 	string techName= gameSettings.getTech();
 	string scenarioName= gameSettings.getScenario();
 
+	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		Game::findFactionLogoFile(&gameSettings, &logger);
+
+		SDL_PumpEvents();
+	}
+
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         scenarioDir = gameSettings.getScenarioDir();
         if(EndsWith(scenarioDir, ".xml") == true) {
             scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
@@ -321,128 +332,15 @@ void Game::load(){
         }
     }
 
-/*
-	bool loadingImageUsed=false;
-	
-	logger.setState(Lang::getInstance().get("Loading"));
-
-	if(scenarioName.empty()){
-		logger.setSubtitle(formatString(mapName)+" - "+formatString(tilesetName)+" - "+formatString(techName));
-	}
-	else{
-		logger.setSubtitle(formatString(scenarioName));
-	}
-
-    Config &config = Config::getInstance();
-    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
-
-    //bool skipCustomLoadScreen = true;
-    bool skipCustomLoadScreen = false;
-
-    string scenarioDir = "";
-    if(skipCustomLoadScreen == false && gameSettings.getScenarioDir() != "") {
-        scenarioDir = gameSettings.getScenarioDir();
-        if(EndsWith(scenarioDir, ".xml") == true) {
-            scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
-            scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings.getScenario().size(), gameSettings.getScenario().size() + 1);
-        }
-        // use a scenario based loading screen
-        vector<string> loadScreenList;
-        findAll(scenarioDir + "loading_screen.*", loadScreenList, false, false);
-        if(loadScreenList.size() > 0) {
-			//string senarioLogo = scenarioDir + "/" + "loading_screen.jpg";
-        	string senarioLogo = scenarioDir + loadScreenList[0];
-			if(fileExists(senarioLogo) == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",__FILE__,__FUNCTION__,senarioLogo.c_str());
-
-				logger.loadLoadingScreen(senarioLogo);
-				loadingImageUsed=true;
-			}
-        }
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str(),gameSettings.getScenario().c_str(),scenarioDir.c_str());
-    }
-	
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	//SDL_PumpEvents();
-
-	if(skipCustomLoadScreen == false && loadingImageUsed == false){
-		// try to use a faction related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
-		for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
-			if( gameSettings.getFactionControl(i) == ctHuman || 
-				(gameSettings.getFactionControl(i) == ctNetwork && gameSettings.getThisFactionIndex() == i)){
-				vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);	
-				for(int idx = 0; idx < pathList.size(); idx++) {
-					const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ gameSettings.getFactionTypeName(i);
-		        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
-		        	if(isdir(path.c_str()) == true) {
-				        vector<string> loadScreenList;
-				        findAll(path + "/" + "loading_screen.*", loadScreenList, false, false);
-				        if(loadScreenList.size() > 0) {
-							//string factionLogo = path + "/" + "loading_screen.jpg";
-				        	string factionLogo = path + "/" + loadScreenList[0];
-
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
-
-							if(fileExists(factionLogo) == true) {
-								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
-
-								logger.loadLoadingScreen(factionLogo);
-								loadingImageUsed = true;
-								break;
-							}
-				        }
-		        	}
-
-		        	if(loadingImageUsed == true) {
-		        		break;
-		        	}
-		        }
-		        break;
-			}
-	    }
-	}
-	if(skipCustomLoadScreen == false && loadingImageUsed == false){
-		// try to use a tech related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for tech loading screen\n",__FILE__,__FUNCTION__);
-		
-		vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);	
-		for(int idx = 0; idx < pathList.size(); idx++) {
-			const string path = pathList[idx]+ "/" +techName;
-        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
-        	if(isdir(path.c_str()) == true) {
-		        vector<string> loadScreenList;
-		        findAll(path + "/" + "loading_screen.*", loadScreenList, false, false);
-		        if(loadScreenList.size() > 0) {
-					//string factionLogo = path + "/" + "loading_screen.jpg";
-		        	string factionLogo = path + "/" + loadScreenList[0];
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
-
-					if(fileExists(factionLogo) == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
-
-						logger.loadLoadingScreen(factionLogo);
-						loadingImageUsed = true;
-						break;
-					}
-		        }
-        	}
-        	if(loadingImageUsed == true) {
-        		break;
-        	}
-        }
-	}
-*/
 	//throw runtime_error("Test!");
-
-	SDL_PumpEvents();
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//tileset
-    world.loadTileset(config.getPathListForType(ptTilesets,scenarioDir), tilesetName, &checksum);
+	if((loadTypes & lgt_TileSet) == lgt_TileSet) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		world.loadTileset(	config.getPathListForType(ptTilesets,scenarioDir),
+    						tilesetName, &checksum);
+	}
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -450,31 +348,36 @@ void Game::load(){
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	set<string> factions;
+    set<string> factions;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if((loadTypes & lgt_TechTree) == lgt_TechTree) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //tech, load before map because of resources
-    world.loadTech(config.getPathListForType(ptTechs,scenarioDir), techName, factions, &checksum);
+		//tech, load before map because of resources
+		world.loadTech(	config.getPathListForType(ptTechs,scenarioDir), techName,
+						factions, &checksum);
 
-	// Validate the faction setup to ensure we don't have any bad associations
-    /*
-	std::vector<std::string> results = world.validateFactionTypes();
-	if(results.size() > 0) {
-		// Display the validation errors
-		string errorText = "Errors were detected:\n";
-		for(int i = 0; i < results.size(); ++i) {
-			if(i > 0) {
-				errorText += "\n";
+		// Validate the faction setup to ensure we don't have any bad associations
+		/*
+		std::vector<std::string> results = world.validateFactionTypes();
+		if(results.size() > 0) {
+			// Display the validation errors
+			string errorText = "Errors were detected:\n";
+			for(int i = 0; i < results.size(); ++i) {
+				if(i > 0) {
+					errorText += "\n";
+				}
+				errorText += results[i];
 			}
-			errorText += results[i];
+			throw runtime_error(errorText);
 		}
-		throw runtime_error(errorText);
-	}
-	*/
+		*/
+    }
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -483,7 +386,10 @@ void Game::load(){
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //map
-	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
+    if((loadTypes & lgt_Map) == lgt_Map) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
+    }
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -492,10 +398,13 @@ void Game::load(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //scenario
-	if(!scenarioName.empty()){
-		Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
-		world.loadScenario(gameSettings.getScenarioDir(), &checksum);
-	}
+    if((loadTypes & lgt_Scenario) == lgt_Scenario) {
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(scenarioName.empty() == false) {
+			Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
+			world.loadScenario(gameSettings.getScenarioDir(), &checksum);
+		}
+    }
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -505,9 +414,13 @@ void Game::load(){
     //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Game::init()
+void Game::init() {
+	init(false);
+}
+
+void Game::init(bool initForPreviewOnly)
 {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initForPreviewOnly = %d\n",__FILE__,__FUNCTION__,__LINE__,initForPreviewOnly);
 
 	Lang &lang= Lang::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -516,140 +429,166 @@ void Game::init()
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
+	if(map == NULL) {
+		throw runtime_error("map == NULL");
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	logger.setState(lang.get("Initializing"));
 
-	//mesage box
-	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
-	mainMessageBox.setEnabled(false);
+	if(initForPreviewOnly == false) {
+		logger.setState(lang.get("Initializing"));
 
-	//mesage box
-	errorMessageBox.init(lang.get("Ok"));
-	errorMessageBox.setEnabled(false);
-	errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
+		//mesage box
+		mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+		mainMessageBox.setEnabled(false);
 
-	//init world, and place camera
-	commander.init(&world);
+		//mesage box
+		errorMessageBox.init(lang.get("Ok"));
+		errorMessageBox.setEnabled(false);
+		errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
 
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	SDL_PumpEvents();
+		//init world, and place camera
+		commander.init(&world);
+
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		SDL_PumpEvents();
+	}
 
 	world.init(this, gameSettings.getDefaultUnits());
 
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	SDL_PumpEvents();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	gui.init(this);
+	if(initForPreviewOnly == false) {
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		SDL_PumpEvents();
 
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	//SDL_PumpEvents();
+		gui.init(this);
 
-	chatManager.init(&console, world.getThisTeamIndex());
-	console.clearStoredLines();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		//SDL_PumpEvents();
+
+		chatManager.init(&console, world.getThisTeamIndex());
+		console.clearStoredLines();
+	}
+
 	gameCamera.init(map->getW(), map->getH());
-	gameCamera.setPos(Vec2f(v.x, v.y));
 
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	SDL_PumpEvents();
+	if(world.getThisFaction() != NULL) {
+		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+		gameCamera.setPos(Vec2f(v.x, v.y));
+	}
 
-	scriptManager.init(&world, &gameCamera);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+	if(initForPreviewOnly == false) {
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		SDL_PumpEvents();
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] creating AI's\n",__FILE__,__FUNCTION__);
+		scriptManager.init(&world, &gameCamera);
 
-	//create IAs
-	aiInterfaces.resize(world.getFactionCount());
-	for(int i=0; i<world.getFactionCount(); ++i){
-		Faction *faction= world.getFaction(i);
-		if(faction->getCpuControl()){
-			aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
-			logger.add("Creating AI for faction " + intToStr(i), true);
+		//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] creating AI's\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//create IAs
+		aiInterfaces.resize(world.getFactionCount());
+		for(int i=0; i < world.getFactionCount(); ++i) {
+			Faction *faction= world.getFaction(i);
+			if(faction->getCpuControl()) {
+				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
+				logger.add("Creating AI for faction " + intToStr(i), true);
+			}
+			else {
+				aiInterfaces[i]= NULL;
+			}
 		}
-		else{
-			aiInterfaces[i]= NULL;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		SDL_PumpEvents();
+
+		//weather particle systems
+		if(world.getTileset()->getWeather() == wRainy) {
+			logger.add("Creating rain particle system", true);
+			weatherParticleSystem= new RainParticleSystem();
+			weatherParticleSystem->setSpeed(12.f/GameConstants::updateFps);
+			weatherParticleSystem->setPos(gameCamera.getPos());
+			renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 		}
-	}
-
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	SDL_PumpEvents();
-
-	//wheather particle systems
-	if(world.getTileset()->getWeather() == wRainy){
-		logger.add("Creating rain particle system", true);
-		weatherParticleSystem= new RainParticleSystem();
-		weatherParticleSystem->setSpeed(12.f/GameConstants::updateFps);
-		weatherParticleSystem->setPos(gameCamera.getPos());
-		renderer.manageParticleSystem(weatherParticleSystem, rsGame);
-	}
-	else if(world.getTileset()->getWeather() == wSnowy){
-		logger.add("Creating snow particle system", true);
-		weatherParticleSystem= new SnowParticleSystem(1200);
-		weatherParticleSystem->setSpeed(1.5f/GameConstants::updateFps);
-		weatherParticleSystem->setPos(gameCamera.getPos());
-		weatherParticleSystem->setTexture(coreData.getSnowTexture());
-		renderer.manageParticleSystem(weatherParticleSystem, rsGame);
-	}
+		else if(world.getTileset()->getWeather() == wSnowy) {
+			logger.add("Creating snow particle system", true);
+			weatherParticleSystem= new SnowParticleSystem(1200);
+			weatherParticleSystem->setSpeed(1.5f/GameConstants::updateFps);
+			weatherParticleSystem->setPos(gameCamera.getPos());
+			weatherParticleSystem->setTexture(coreData.getSnowTexture());
+			renderer.manageParticleSystem(weatherParticleSystem, rsGame);
+		}
+    }
 
 	//init renderer state
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
 
-    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+	if(initForPreviewOnly == false) {
+		//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 
-    // give CPU time to update other things to avoid apperance of hanging
-    sleep(0);
-	SDL_PumpEvents();
+		// give CPU time to update other things to avoid apperance of hanging
+		sleep(0);
+		SDL_PumpEvents();
 
-	//sounds
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//sounds
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	Tileset *tileset= world.getTileset();
-	AmbientSounds *ambientSounds= tileset->getAmbientSounds();
+		Tileset *tileset= world.getTileset();
+		AmbientSounds *ambientSounds= tileset->getAmbientSounds();
 
-	//rain
-	if(tileset->getWeather()==wRainy && ambientSounds->isEnabledRain()){
-		logger.add("Starting ambient stream", true);
-		soundRenderer.playAmbient(ambientSounds->getRain());
+		//rain
+		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
+			logger.add("Starting ambient stream", true);
+			soundRenderer.playAmbient(ambientSounds->getRain());
+		}
+
+		//snow
+		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
+			logger.add("Starting ambient stream", true);
+			soundRenderer.playAmbient(ambientSounds->getSnow());
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
+		logger.add("Waiting for network players", true);
+		networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
+
+		//std::string worldLog = world.DumpWorldToLog(true);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
+		logger.add("Starting music stream", true);
+
+		if(world.getThisFaction() == NULL) {
+			throw runtime_error("world.getThisFaction() == NULL");
+		}
+		if(world.getThisFaction()->getType() == NULL) {
+			throw runtime_error("world.getThisFaction()->getType() == NULL");
+		}
+		//if(world.getThisFaction()->getType()->getMusic() == NULL) {
+		//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
+		//}
+
+		StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
+		soundRenderer.playMusic(gameMusic);
+
+		logger.add("Launching game");
 	}
-
-	//snow
-	if(tileset->getWeather()==wSnowy && ambientSounds->isEnabledSnow()){
-		logger.add("Starting ambient stream", true);
-		soundRenderer.playAmbient(ambientSounds->getSnow());
-	}
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
-	logger.add("Waiting for network players", true);
-	networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
-
-    //std::string worldLog = world.DumpWorldToLog(true);
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
-	logger.add("Starting music stream", true);
-
-	if(world.getThisFaction() == NULL) {
-		throw runtime_error("world.getThisFaction() == NULL");
-	}
-	if(world.getThisFaction()->getType() == NULL) {
-		throw runtime_error("world.getThisFaction()->getType() == NULL");
-	}
-	//if(world.getThisFaction()->getType()->getMusic() == NULL) {
-	//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
-	//}
-
-	StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
-	soundRenderer.playMusic(gameMusic);
-
-	logger.add("Launching game");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
@@ -661,7 +600,7 @@ void Game::init()
 // ==================== update ====================
 
 //update
-void Game::update(){
+void Game::update() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	try {

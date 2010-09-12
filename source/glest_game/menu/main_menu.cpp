@@ -95,10 +95,11 @@ void MainMenu::render(){
 
 	fps++;
 
-    renderer.clearBuffers();
+	renderer.clearBuffers();
 	
 	//3d
 	renderer.reset3dMenu();
+
 	renderer.clearZBuffer();
 	renderer.loadCameraMatrix(menuBackground.getCamera());
 	renderer.renderMenuBackground(&menuBackground);

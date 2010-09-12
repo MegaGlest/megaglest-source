@@ -30,7 +30,7 @@ namespace Glest{ namespace Game{
 
 const float Minimap::exploredAlpha= 0.5f;
 
-Minimap::Minimap(){
+Minimap::Minimap() {
 	fowPixmap0= NULL;
 	fowPixmap1= NULL;
 	fogOfWar= true;//Config::getInstance().getBool("FogOfWar");
@@ -66,7 +66,7 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar){
 	computeTexture(world);
 }
 
-Minimap::~Minimap(){
+Minimap::~Minimap() {
 	Logger::getInstance().add("Minimap", true);
 	delete fowPixmap0;
 	delete fowPixmap1;
@@ -74,7 +74,7 @@ Minimap::~Minimap(){
 
 // ==================== set ====================
 
-void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha){
+void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha) {
 	
 	assert(sPos.x<fowPixmap1->getW() && sPos.y<fowPixmap1->getH());
 	
@@ -83,7 +83,7 @@ void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha){
 	}
 }
 
-void Minimap::resetFowTex(){
+void Minimap::resetFowTex() {
 	Pixmap2D *tmpPixmap= fowPixmap0;
 	fowPixmap0= fowPixmap1;
 	fowPixmap1= tmpPixmap;
@@ -111,7 +111,7 @@ void Minimap::resetFowTex(){
 	}
 }
 
-void Minimap::updateFowTex(float t){
+void Minimap::updateFowTex(float t) {
 	for(int i=0; i<fowPixmap0->getW(); ++i){
 		for(int j=0; j<fowPixmap0->getH(); ++j){
 			float p1= fowPixmap1->getPixelf(i, j);
@@ -125,7 +125,7 @@ void Minimap::updateFowTex(float t){
 
 // ==================== PRIVATE ==================== 
 
-void Minimap::computeTexture(const World *world){
+void Minimap::computeTexture(const World *world) {
 
 	Vec3f color;
 	const Map *map= world->getMap();

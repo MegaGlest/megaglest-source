@@ -861,10 +861,15 @@ void World::initFactionTypes(GameSettings *gs){
 	//create stats
 	stats.init(gs->getFactionCount(), gs->getThisFactionIndex(), gs->getDescription());
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//create factions
 	this->thisFactionIndex= gs->getThisFactionIndex();
 	factions.resize(gs->getFactionCount());
-	for(int i=0; i<factions.size(); ++i){
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factions.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,factions.size());
+
+	for(int i=0; i < factions.size(); ++i) {
 		const FactionType *ft= techTree->getType(gs->getFactionTypeName(i));
 		factions[i].init(
 			ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
@@ -878,7 +883,11 @@ void World::initFactionTypes(GameSettings *gs){
 		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0));
 	}
 
-	thisTeamIndex= getFaction(thisFactionIndex)->getTeam();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(factions.size() > 0) {
+		thisTeamIndex= getFaction(thisFactionIndex)->getTeam();
+	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
