@@ -32,6 +32,16 @@ namespace Glest{ namespace Game{
 
 class GraphicMessageBox;
 
+enum LoadGameItem {
+	lgt_FactionPreview 	= 0x01,
+	lgt_TileSet 		= 0x02,
+	lgt_TechTree		= 0x04,
+	lgt_Map				= 0x08,
+	lgt_Scenario		= 0x10,
+
+	lgt_All				= (lgt_FactionPreview | lgt_TileSet | lgt_TechTree | lgt_Map | lgt_Scenario)
+};
+
 // =====================================================
 // 	class Game
 //
@@ -117,8 +127,10 @@ public:
 
 	const int getTotalRenderFps() const					{return totalRenderFps;}
     //init
+    virtual void load(LoadGameItem loadTypes);
     virtual void load();
     virtual void init();
+    virtual void init(bool initForPreviewOnly);
 	virtual void update();
 	virtual void updateCamera();
 	virtual void render();

@@ -150,7 +150,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	
 	for ( int i = 0 ; i<mapFiles.size(); i++ )
 	{// fetch info and put map in right list
-		loadMapInfo(Map::getMapPath(mapFiles.at(i)), &mapInfo);
+		loadMapInfo(Map::getMapPath(mapFiles.at(i)), &mapInfo, false);
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
 	}
@@ -450,7 +450,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
     
 
-	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
 
 	labelMapInfo.setText(mapInfo.desc);
 
@@ -743,7 +743,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
@@ -825,7 +825,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
@@ -1091,12 +1091,186 @@ void MenuStateCustomGame::render() {
 		}
 
 		if(program != NULL) program->renderProgramMsgBox();
+
+		if(mapPreview.hasFileLoaded() == true) {
+
+			int mouseX = mainMenu->getMouseX();
+			int mouseY = mainMenu->getMouseY();
+			int mouse2dAnim = mainMenu->getMouse2dAnim();
+
+		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+			renderMap(&mapPreview, 0, 0, 250, 250, 2, 10, 350);
+		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(szBuf);
 	}
+}
+
+void MenuStateCustomGame::renderMap(const MapPreview *map, int x, int y,
+									int clientW, int clientH, int cellSize,
+									int screenX, int screenY) {
+	float alt=0;
+	float showWater=0;
+
+	assertGl();
+
+	glMatrixMode(GL_PROJECTION);
+
+	glLoadIdentity();
+
+	glOrtho(0, clientW, 0, clientH, 1, -1);
+
+	glViewport(screenX, screenY, clientW, clientH);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	glPushMatrix();
+
+	glPushAttrib(GL_CURRENT_BIT);
+
+	glTranslatef(static_cast<float>(x), static_cast<float>(y), 0.0f);
+	glLineWidth(1);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(0, 0, 0);
+
+
+	for (int j = 0; j < map->getH(); j++) {
+		for (int i = 0; i < map->getW(); i++) {
+			if (i * cellSize + x > -cellSize
+					&& i * cellSize + x < clientW
+					&& clientH - cellSize - j * cellSize + y > -cellSize
+					&& clientH - cellSize - j * cellSize + y < clientH) {
+
+				//surface
+				alt = map->getHeight(i, j) / 20.f;
+				showWater = map->getWaterLevel()/ 20.f - alt;
+				showWater = (showWater > 0)? showWater:0;
+				Vec3f surfColor;
+				switch (map->getSurface(i, j)) {
+					case 1: surfColor = Vec3f(0.0, 0.8f * alt, 0.f + showWater); break;
+					case 2: surfColor = Vec3f(0.4f * alt, 0.6f * alt, 0.f + showWater); break;
+					case 3: surfColor = Vec3f(0.6f * alt, 0.3f * alt, 0.f + showWater); break;
+					case 4: surfColor = Vec3f(0.7f * alt, 0.7f * alt, 0.7f * alt + showWater); break;
+					case 5: surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater); break;
+				}
+
+				glColor3fv(surfColor.ptr());
+
+				glBegin(GL_TRIANGLE_STRIP);
+				glVertex2i(i * cellSize, clientH - j * cellSize - cellSize);
+				glVertex2i(i * cellSize, clientH - j * cellSize);
+				glVertex2i(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+				glVertex2i(i * cellSize + cellSize, clientH - j * cellSize);
+				glEnd();
+
+				//objects
+				switch (map->getObject(i, j)) {
+					case 0: glColor3f(0.f, 0.f, 0.f); break;
+					case 1: glColor3f(1.f, 0.f, 0.f); break;
+					case 2: glColor3f(1.f, 1.f, 1.f); break;
+					case 3: glColor3f(0.5f, 0.5f, 1.f); break;
+					case 4: glColor3f(0.f, 0.f, 1.f); break;
+					case 5: glColor3f(0.5f, 0.5f, 0.5f); break;
+					case 6: glColor3f(1.f, 0.8f, 0.5f); break;
+					case 7: glColor3f(0.f, 1.f, 1.f); break;
+					case 8: glColor3f(0.7f, 0.1f, 0.3f); break;
+					case 9: glColor3f(0.5f, 1.f, 0.1f); break;
+					case 10: glColor3f(1.f, 0.2f, 0.8f); break;
+				}
+
+				if (map->getObject(i, j) != 0) {
+					glPointSize(cellSize / 2.f);
+					glBegin(GL_POINTS);
+					glVertex2i(i * cellSize + cellSize / 2, clientH - j * cellSize - cellSize / 2);
+					glEnd();
+				}
+
+//				bool found = false;
+
+				//height lines
+//				if (!found) {
+					glColor3fv((surfColor*0.5f).ptr());
+					//left
+					if (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j)) {
+						glBegin(GL_LINES);
+						glVertex2i(i * cellSize, clientH - (j + 1) * cellSize);
+						glVertex2i(i * cellSize, clientH - j * cellSize);
+						glEnd();
+					}
+					//down
+					if (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j)) {
+						glBegin(GL_LINES);
+						glVertex2i(i * cellSize, clientH - j * cellSize);
+						glVertex2i((i + 1) * cellSize, clientH - j * cellSize);
+						glEnd();
+					}
+
+					glColor3fv((surfColor*2.f).ptr());
+					//left
+					if (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j)) {
+						glBegin(GL_LINES);
+						glVertex2i(i * cellSize, clientH - (j + 1) * cellSize);
+						glVertex2i(i * cellSize, clientH - j * cellSize);
+						glEnd();
+					}
+					if (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j)) {
+						glBegin(GL_LINES);
+						glVertex2i(i * cellSize, clientH - j * cellSize);
+						glVertex2i((i + 1) * cellSize, clientH - j * cellSize);
+						glEnd();
+					}
+//				}
+
+				//resources
+				switch (map->getResource(i, j)) {
+					case 1: glColor3f(1.f, 1.f, 0.f); break;
+					case 2: glColor3f(0.5f, 0.5f, 0.5f); break;
+					case 3: glColor3f(1.f, 0.f, 0.f); break;
+					case 4: glColor3f(0.f, 0.f, 1.f); break;
+					case 5: glColor3f(0.5f, 0.5f, 1.f); break;
+				}
+
+				if (map->getResource(i, j) != 0) {
+					glBegin(GL_LINES);
+					glVertex2i(i * cellSize, clientH - j * cellSize - cellSize);
+					glVertex2i(i * cellSize + cellSize, clientH - j * cellSize);
+					glVertex2i(i * cellSize, clientH - j * cellSize);
+					glVertex2i(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+					glEnd();
+				}
+			}
+		}
+	}
+
+
+	//start locations
+	glLineWidth(3);
+	for (int i = 0; i < map->getMaxFactions(); i++) {
+		switch (i) {
+			case 0: glColor3f(1.f, 0.f, 0.f); break;
+			case 1: glColor3f(0.f, 0.f, 1.f); break;
+			case 2: glColor3f(0.f, 1.f, 0.f); break;
+			case 3: glColor3f(1.f, 1.f, 0.f); break;
+			case 4: glColor3f(1.f, 1.f, 1.f); break;
+			case 5: glColor3f(0.f, 1.f, 0.8f); break;
+			case 6: glColor3f(1.f, 0.5f, 0.f); break;
+			case 7: glColor3f(1.f, 0.5f, 1.f); break;
+   		}
+		glBegin(GL_LINES);
+		glVertex2i((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
+		glVertex2i((map->getStartLocationX(i) + 1) * cellSize + cellSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - cellSize);
+		glVertex2i((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - cellSize);
+		glVertex2i((map->getStartLocationX(i) + 1) * cellSize + cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
+		glEnd();
+	}
+
+	glPopMatrix();
+	glPopAttrib();
+
+	assertGl();
 }
 
 void MenuStateCustomGame::update() {
@@ -1907,7 +2081,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 
 		string tilesetFile = gameSettings.getTileset();
@@ -2021,7 +2195,7 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
     return hasNetworkSlot;
 }
 
-void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
+void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 
 	struct MapFileHeader{
 		int32 version;
@@ -2061,9 +2235,14 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo){
 			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
 	    }
 
+	    // Not painting properly so this is on hold
+	    if(loadMapPreview == true) {
+	    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    	mapPreview.loadFromFile(file.c_str());
+	    }
 	}
 	catch(exception e){
-		throw runtime_error("Error loading map file: "+file+'\n'+e.what());
+		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 
 }
@@ -2435,5 +2614,202 @@ void MenuStateCustomGame::cleanupFactionTexture() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
+
+
+// =======================================
+
+MapPreview::MapPreview() {
+	altFactor = 3;
+	waterLevel = 4;
+	cells = NULL;
+	startLocations = NULL;
+	reset(128, 128, 10.f, 1);
+	resetFactions(8);
+	title = "";
+	desc = "";
+	author = "";
+	refAlt = 10;
+}
+
+MapPreview::~MapPreview() {
+	delete [] startLocations;
+	startLocations = NULL;
+
+	for (int i = 0; i < h; i++) {
+		delete [] cells[i];
+	}
+	delete [] cells;
+	cells = NULL;
+}
+
+
+float MapPreview::getHeight(int x, int y) const {
+	return cells[x][y].height;
+}
+
+int MapPreview::getSurface(int x, int y) const {
+	return cells[x][y].surface;
+}
+
+int MapPreview::getObject(int x, int y) const {
+	return cells[x][y].object;
+}
+
+int MapPreview::getResource(int x, int y) const {
+	return cells[x][y].resource;
+}
+
+int MapPreview::getStartLocationX(int index) const {
+	return startLocations[index].x;
+}
+
+int MapPreview::getStartLocationY(int index) const {
+	return startLocations[index].y;
+}
+
+bool MapPreview::inside(int x, int y) {
+	return (x >= 0 && x < w && y >= 0 && y < h);
+}
+
+void MapPreview::reset(int w, int h, float alt, int surf) {
+	if (w < 16 || h < 16) {
+		throw runtime_error("Size of map must be at least 16x16");
+		return;
+	}
+
+	if (w > 1024 || h > 1024) {
+		throw runtime_error("Size of map can be at most 1024x1024");
+		return;
+	}
+
+	if (alt < 0 || alt > 20) {
+		throw runtime_error("Height must be in the range 0-20");
+		return;
+	}
+
+	if (surf < 1 || surf > 5) {
+		throw runtime_error("Surface must be in the range 1-5");
+		return;
+	}
+
+	if (cells != NULL) {
+		for (int i = 0; i < this->w; i++) {
+			delete [] cells[i];
+		}
+		delete [] cells;
+	}
+
+	this->w = w;
+	this->h = h;
+	this->maxFactions = maxFactions;
+
+	cells = new Cell*[w];
+	for (int i = 0; i < w; i++) {
+		cells[i] = new Cell[h];
+		for (int j = 0; j < h; j++) {
+			cells[i][j].height = alt;
+			cells[i][j].object = 0;
+			cells[i][j].resource = 0;
+			cells[i][j].surface = surf;
+		}
+	}
+}
+
+void MapPreview::resetFactions(int maxPlayers) {
+	if (maxPlayers<1 || maxPlayers>8){
+		throw runtime_error("Max Players must be in the range 1-8");
+	}
+
+	if (startLocations != NULL) {
+		delete [] startLocations;
+		startLocations = NULL;
+	}
+
+	maxFactions = maxPlayers;
+
+	startLocations = new StartLocation[maxFactions];
+	for (int i = 0; i < maxFactions; i++) {
+		startLocations[i].x = 0;
+		startLocations[i].y = 0;
+	}
+}
+
+int MapPreview::getHeightFactor() const {
+	return altFactor;
+}
+
+int MapPreview::getWaterLevel() const {
+	return waterLevel;
+}
+
+void MapPreview::loadFromFile(const string &path) {
+	altFactor = 3;
+	waterLevel = 4;
+	cells = NULL;
+	startLocations = NULL;
+	reset(128, 128, 10.f, 1);
+	resetFactions(8);
+	title = "";
+	desc = "";
+	author = "";
+	refAlt = 10;
+
+	FILE *f1 = fopen(path.c_str(), "rb");
+	if (f1 != NULL) {
+
+		//read header
+		MapFileHeaderPreview header;
+		size_t bytes = fread(&header, sizeof(MapFileHeaderPreview), 1, f1);
+
+		altFactor = header.altFactor;
+		waterLevel = header.waterLevel;
+		title = header.title;
+		author = header.author;
+		desc = header.description;
+
+		//read start locations
+		resetFactions(header.maxFactions);
+		for (int i = 0; i < maxFactions; ++i) {
+			bytes = fread(&startLocations[i].x, sizeof(int32), 1, f1);
+			bytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
+		}
+
+		//read Heights
+		reset(header.width, header.height, 10, 1);
+		for (int j = 0; j < h; ++j) {
+			for (int i = 0; i < w; ++i) {
+				bytes = fread(&cells[i][j].height, sizeof(float), 1, f1);
+			}
+		}
+
+		//read surfaces
+		for (int j = 0; j < h; ++j) {
+			for (int i = 0; i < w; ++i) {
+				bytes = fread(&cells[i][j].surface, sizeof(int8), 1, f1);
+			}
+		}
+
+		//read objects
+		for (int j = 0; j < h; ++j) {
+			for (int i = 0; i < w; ++i) {
+				int8 obj;
+				bytes = fread(&obj, sizeof(int8), 1, f1);
+				if (obj <= 10) {
+					cells[i][j].object = obj;
+				} else {
+					cells[i][j].resource = obj - 10;
+				}
+			}
+		}
+
+		fclose(f1);
+
+		fileLoaded = true;
+	} else {
+		throw runtime_error("error opening map file: " + path);
+	}
+}
+
+// ==================== PRIVATE ====================
 
 }}//end namespace

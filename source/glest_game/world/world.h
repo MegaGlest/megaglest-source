@@ -157,6 +157,7 @@ public:
 	const Faction *getFaction(int i) const			{return &factions[i];}
 	Faction *getFaction(int i) 						{return &factions[i];}
 	const Minimap *getMinimap() const				{return &minimap;}
+	Minimap *getMiniMapObject() 					{return &minimap;}
 	const Stats *getStats() const					{return &stats;};
 	Stats *getStats()								{return &stats;};
 	const WaterEffects *getWaterEffects() const		{return &waterEffects;}

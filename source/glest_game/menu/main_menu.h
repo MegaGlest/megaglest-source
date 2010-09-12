@@ -105,6 +105,11 @@ public:
 	
 	void setState(MenuState *state);
 	virtual bool isInSpecialKeyCaptureEvent();
+
+    int getMouseX() const {return mouseX;}
+    int getMouseY() const {return mouseY;}
+    int getMouse2dAnim() const {return mouse2dAnim;}
+
 };
 
 
