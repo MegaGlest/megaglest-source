@@ -2413,14 +2413,14 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 		GLuint waterHandle= static_cast<Texture2DGl*>(menuBackground->getWaterTexture())->getHandle();
 		glBindTexture(GL_TEXTURE_2D, waterHandle);
 		for(int i=1; i < waterTesselation; ++i) {
-			for(int j=1; j<waterTesselation; ++j) {
-				glBegin(GL_TRIANGLE_STRIP);
+			glBegin(GL_TRIANGLE_STRIP);
+			for(int j=1; j < waterTesselation; ++j) {
 				glTexCoord2i(1, 2 % j);
 				glVertex3f(-waterSize+i*waterQuadSize, waterHeight, -waterSize+j*waterQuadSize);
 				glTexCoord2i(0, 2 % j);
 				glVertex3f(-waterSize+(i+1)*waterQuadSize, waterHeight, -waterSize+j*waterQuadSize);
-				glEnd();
 			}
+			glEnd();
 		}
 		glDisable(GL_BLEND);
 
