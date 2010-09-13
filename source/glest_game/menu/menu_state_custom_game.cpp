@@ -2635,7 +2635,8 @@ void MenuStateCustomGame::cleanupFactionTexture() {
 MapPreview::MapPreview() {
 	altFactor = 3;
 	waterLevel = 4;
-	cells = NULL;
+	//cells = NULL;
+	cells.clear();
 	startLocations = NULL;
 	reset(128, 128, 10.f, 1);
 	resetFactions(8);
@@ -2650,13 +2651,15 @@ MapPreview::~MapPreview() {
 	startLocations = NULL;
 
 	if(hasFileLoaded() == true) {
-		for (int i = 0; i < h; i++) {
-			delete [] cells[i];
-		}
-		delete [] cells;
+		//for (int i = 0; i < h; i++) {
+		//	delete [] cells[i];
+		//}
+		//delete [] cells;
+
 		fileLoaded = false;
 	}
-	cells = NULL;
+	//cells = NULL;
+	cells.clear();
 }
 
 
@@ -2709,20 +2712,26 @@ void MapPreview::reset(int w, int h, float alt, int surf) {
 		return;
 	}
 
+	/*
 	if (cells != NULL) {
 		for (int i = 0; i < this->w; i++) {
 			delete [] cells[i];
 		}
 		delete [] cells;
 	}
+	*/
+	cells.clear();
 
 	this->w = w;
 	this->h = h;
 	this->maxFactions = maxFactions;
 
-	cells = new Cell*[w];
+	cells.resize(w);
+
+	//cells = new Cell*[w];
 	for (int i = 0; i < w; i++) {
-		cells[i] = new Cell[h];
+		//cells[i] = new Cell[h];
+		cells[i].resize(h);
 		for (int j = 0; j < h; j++) {
 			cells[i][j].height = alt;
 			cells[i][j].object = 0;
@@ -2762,7 +2771,8 @@ int MapPreview::getWaterLevel() const {
 void MapPreview::loadFromFile(const string &path) {
 	altFactor = 3;
 	waterLevel = 4;
-	cells = NULL;
+	//cells = NULL;
+	cells.clear();
 	startLocations = NULL;
 	reset(128, 128, 10.f, 1);
 	resetFactions(8);

@@ -64,7 +64,8 @@ private:
 	int w;
 	int altFactor;
 	int waterLevel;
-	Cell **cells;
+	//Cell **cells;
+	std::vector<std::vector<Cell> > cells;
 	int maxFactions;
 	StartLocation *startLocations;
 	int refAlt;
