@@ -363,6 +363,10 @@
 					Name="gl"
 					>
 					<File
+						RelativePath="..\..\source\shared_lib\sources\graphics\gl\base_renderer.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\source\shared_lib\sources\graphics\gl\context_gl.cpp"
 						>
 					</File>
@@ -581,6 +585,10 @@
 			<Filter
 				Name="graphics"
 				>
+				<File
+					RelativePath="..\..\source\shared_lib\include\graphics\gl\base_renderer.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\graphics\BMPReader.h"
 					>
