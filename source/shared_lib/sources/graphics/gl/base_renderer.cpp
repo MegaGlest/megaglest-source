@@ -190,12 +190,12 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 	assertGl();
 }
 
-void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
-							 	 	 bool renderAll, int screenX, int screenY) {
+void BaseRenderer::renderMapPreview( const MapPreview *map, bool renderAll, 
+									 int screenX, int screenY, int sizeW, int sizeH) {
 	float alt=0;
 	float showWater=0;
-	int renderMapHeight=128;
-	int renderMapWidth=128;
+	int renderMapHeight=64;
+	int renderMapWidth=64;
 	float clientW=256;
 	float clientH=256;
 	float cellSize=2;
@@ -218,11 +218,10 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 
 	glLoadIdentity();
 
-	glViewport(screenX, screenY, renderMapWidth,renderMapHeight);
-	//glViewport(1, 1, renderMapWidth*4,renderMapHeight*4);
-	glOrtho(0, clientW, 0, clientH, -1, 1);
-	//glOrtho(-clientW, clientW, -clientH, clientH, -1000, 1000);
-
+	//	glViewport(screenX, screenY, sizeH,sizeW);
+	//	glOrtho(0, clientW, 0, clientH, -1, 1);
+	glOrtho(0, sizeW, 0, sizeH, 0, 1);
+	
 	//glMatrixMode(GL_MODELVIEW);
 
 	glPushMatrix();

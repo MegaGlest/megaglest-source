@@ -28,7 +28,7 @@ public:
 
 	virtual void initMapSurface(int clientW, int clientH);
 	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize);
-	virtual void renderMapPreview(const MapPreview *map, int x, int y,bool renderAll, int screenX, int screenY);
+	virtual void renderMapPreview(const MapPreview *map, bool renderAll, int screenX, int screenY, int sizeW, int sizeH);
 };
 
 }} // end namespace

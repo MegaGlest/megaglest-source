@@ -567,8 +567,6 @@ void MenuStateConnectedGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
-		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console,showFullConsole,true);
 
 		if(mapPreview.hasFileLoaded() == true) {
 
@@ -578,8 +576,11 @@ void MenuStateConnectedGame::render() {
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
-		    renderer.renderMapPreview(&mapPreview, 0, 0, renderAll, 10, 350);
+		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,128,128);
 		}
+		renderer.renderChatManager(&chatManager);
+		renderer.renderConsole(&console,showFullConsole,true);
+		
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
