@@ -12,8 +12,8 @@
 
 #include "map_preview.h"
 
-//#include <cmath>
 #include "math_wrapper.h"
+#include <cstdlib>
 #include <stdexcept>
 
 using namespace Shared::Util;
@@ -247,15 +247,15 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 					}
 
 					// Determine which gradients to use and take a weighted average
-					if (abs(normIf) > abs(normJf)) {
+					if (fabs(normIf) > fabs(normJf)) {
 						usedGrad =
-								gradient[normI[0]] [normJ[0]] * abs(normJf) +
-								gradient[normI[0]] [normJ[1]] * (1 - abs(normJf));
+								gradient[normI[0]] [normJ[0]] * fabs(normJf) +
+								gradient[normI[0]] [normJ[1]] * (1 - fabs(normJf));
 					}
-					else if (abs(normIf) < abs(normJf)) {
+					else if (fabs(normIf) < fabs(normJf)) {
 						usedGrad =
-								gradient[normI[0]] [normJ[0]] * abs(normIf) +
-								gradient[normI[1]] [normJ[0]] * (1 - abs(normIf));
+								gradient[normI[0]] [normJ[0]] * fabs(normIf) +
+								gradient[normI[1]] [normJ[0]] * (1 - fabs(normIf));
 					}
 					else {
 						usedGrad =
