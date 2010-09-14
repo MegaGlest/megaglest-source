@@ -56,8 +56,15 @@ static void term_source (j_decompress_ptr cinfo) {
 
 /**Return an array containing the used extensions,
   * initialized*/
-static inline const string* getExtensions() {
-	static const string extensions[] = {"jpg", "jpeg", ""};
+//static inline const string* getExtensions() {
+	//static const string extensions[] = {"jpg", "jpeg", ""};
+static inline std::vector<string> getExtensions() {
+	static std::vector<string> extensions;
+	if(extensions.size() == 0) {
+		extensions.push_back("jpg");
+		extensions.push_back("jpeg");
+	}
+
 	return extensions;
 }
 
