@@ -396,7 +396,8 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 			producerWarriorCount++;
 		}
 		
-		if(aiInterface->getControlType()==ctCpuMega)
+		if(	aiInterface->getControlType() == ctCpuMega ||
+			aiInterface->getControlType() == ctNetworkCpuMega)
 		{
 			if(producerWarriorCount>maxProducerWarriors)
 			{
@@ -434,11 +435,13 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		}
     }
 
-    if(aiInterface->getControlType()==ctCpuEasy)
+    if(	aiInterface->getControlType() == ctCpuEasy ||
+    	aiInterface->getControlType() == ctNetworkCpuEasy)
 	{
 		minWarriors+= 1;
 	}
-	else if(aiInterface->getControlType()==ctCpuMega)
+	else if(aiInterface->getControlType() == ctCpuMega ||
+			aiInterface->getControlType() == ctNetworkCpuMega)
 	{
 		minWarriors+= 3;
 		if(minWarriors>maxMinWarriors-1 || randomMinWarriorsReached)

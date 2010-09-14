@@ -496,11 +496,16 @@ void Game::init(bool initForPreviewOnly)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] creating AI's\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//create IAs
+		//create AIs
+
+		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+		NetworkRole role 				= networkManager.getNetworkRole();
+
 		aiInterfaces.resize(world.getFactionCount());
 		for(int i=0; i < world.getFactionCount(); ++i) {
 			Faction *faction= world.getFaction(i);
-			if(faction->getCpuControl()) {
+			if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
 				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
 				logger.add("Creating AI for faction " + intToStr(i), true);
 			}
@@ -627,21 +632,25 @@ void Game::update() {
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		//update
-		for(int i=0; i<updateLoops; ++i){
+		for(int i = 0; i < updateLoops; ++i) {
 			chrono.start();
 			Renderer &renderer= Renderer::getInstance();
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			if( this->gameSettings.getEnableServerControlledAI() == false ||
-				this->gameSettings.isNetworkGame()         		 == false ||
-				(this->gameSettings.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer)) {
-				//AiInterface
-				for(int i=0; i<world.getFactionCount(); ++i){
-					if(world.getFaction(i)->getCpuControl() && scriptManager.getPlayerModifiers(i)->getAiEnabled()){
-						aiInterfaces[i]->update();
-					}
+			bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+			bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+			NetworkRole role 				= networkManager.getNetworkRole();
+
+			//AiInterface
+			for(int i = 0; i < world.getFactionCount(); ++i) {
+				Faction *faction = world.getFaction(i);
+				if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+					scriptManager.getPlayerModifiers(i)->getAiEnabled() == true) {
+
+					aiInterfaces[i]->update();
 				}
 			}
+
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			if(chrono.getMillis() > 0) chrono.start();
 

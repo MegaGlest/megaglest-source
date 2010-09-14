@@ -92,6 +92,7 @@ public:
 	const FactionType *getType() const					{return factionType;}
 	int getIndex() const								{return index;}
 	int getTeam() const									{return teamIndex;}
+	bool getCpuControl(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role) const;
 	bool getCpuControl() const;
 	bool getCpuEasyControl() const						{return control==ctCpuEasy;}
 	bool getCpuUltraControl() const						{return control==ctCpuUltra;}

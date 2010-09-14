@@ -33,16 +33,27 @@ enum TravelState {
 	tsImpossible
 };
 
-enum ControlType{
+enum ControlType {
     ctClosed,
 	ctCpuEasy,
 	ctCpu,
 	ctCpuUltra,
 	ctCpuMega,
 	ctNetwork,
-	ctHuman
+	ctHuman,
+
+	ctNetworkCpuEasy,
+	ctNetworkCpu,
+	ctNetworkCpuUltra,
+	ctNetworkCpuMega
+
 };
 
+enum NetworkRole {
+	nrServer,
+	nrClient,
+	nrIdle
+};
 
 enum FactionPersonalityType {
 	fpt_Normal,
