@@ -211,21 +211,25 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 
 	assertGl();
 
+	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
 
-	glOrtho(0, clientW, 0, clientH, 1, -1);
-
 	glViewport(screenX, screenY, renderMapWidth,renderMapHeight);
+	//glViewport(1, 1, renderMapWidth*4,renderMapHeight*4);
+	glOrtho(0, clientW, 0, clientH, -1, 1);
+	//glOrtho(-clientW, clientW, -clientH, clientH, -1000, 1000);
 
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_MODELVIEW);
 
 	glPushMatrix();
 
 	glPushAttrib(GL_CURRENT_BIT);
 
-	glTranslatef(static_cast<float>(x), static_cast<float>(y), 0.0f);
+	//glTranslatef(static_cast<float>(x), static_cast<float>(y), 0.0f);
 	glLineWidth(1);
 	//glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(0, 0, 0);
@@ -255,34 +259,37 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 		glEnd();
 
 		//objects
-		switch (map->getObject(i, j)) {
-			case 0: glColor3f(0.f, 0.f, 0.f); break;
-			case 1: glColor3f(1.f, 0.f, 0.f); break;
-			case 2: glColor3f(1.f, 1.f, 1.f); break;
-			case 3: glColor3f(0.5f, 0.5f, 1.f); break;
-			case 4: glColor3f(0.f, 0.f, 1.f); break;
-			case 5: glColor3f(0.5f, 0.5f, 0.5f); break;
-			case 6: glColor3f(1.f, 0.8f, 0.5f); break;
-			case 7: glColor3f(0.f, 1.f, 1.f); break;
-			case 8: glColor3f(0.7f, 0.1f, 0.3f); break;
-			case 9: glColor3f(0.5f, 1.f, 0.1f); break;
-			case 10: glColor3f(1.f, 0.2f, 0.8f); break;// we don't render unvisible blocking objects
-		}
+		if(renderAll == true) {
+			switch (map->getObject(i, j)) {
+				case 0: glColor3f(0.f, 0.f, 0.f); break;
+				case 1: glColor3f(1.f, 0.f, 0.f); break;
+				case 2: glColor3f(1.f, 1.f, 1.f); break;
+				case 3: glColor3f(0.5f, 0.5f, 1.f); break;
+				case 4: glColor3f(0.f, 0.f, 1.f); break;
+				case 5: glColor3f(0.5f, 0.5f, 0.5f); break;
+				case 6: glColor3f(1.f, 0.8f, 0.5f); break;
+				case 7: glColor3f(0.f, 1.f, 1.f); break;
+				case 8: glColor3f(0.7f, 0.1f, 0.3f); break;
+				case 9: glColor3f(0.5f, 1.f, 0.1f); break;
+				case 10: glColor3f(1.f, 0.2f, 0.8f); break;// we don't render unvisible blocking objects
+			}
 
-		if ( renderAll && (map->getObject(i, j) != 0) && (map->getObject(i, j) != 10) ){
-			glPointSize(cellSize / 2.f);
-			glBegin(GL_POINTS);
-			glVertex2i(i * cellSize + cellSize / 2, clientH - j * cellSize - cellSize / 2);
-			glEnd();
+			if ( renderAll && (map->getObject(i, j) != 0) && (map->getObject(i, j) != 10) ){
+				glPointSize(cellSize / 2.f);
+				glBegin(GL_POINTS);
+				glVertex2i(i * cellSize + cellSize / 2, clientH - j * cellSize - cellSize / 2);
+				glEnd();
+			}
 		}
 
 //		bool found = false;
 
 		//height lines
 //		if (!found) {
-			glColor3fv((surfColor*0.5f).ptr());
+
 			//left
 			if (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j)) {
+				glColor3fv((surfColor*0.5f).ptr());
 				glBegin(GL_LINES);
 				glVertex2f(i * cellSize, clientH - (j + 1) * cellSize);
 				glVertex2f(i * cellSize, clientH - j * cellSize);
@@ -290,21 +297,24 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 			}
 			//down
 			if (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j)) {
+				glColor3fv((surfColor*0.5f).ptr());
 				glBegin(GL_LINES);
 				glVertex2f(i * cellSize, clientH - j * cellSize);
 				glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
 				glEnd();
 			}
 
-			glColor3fv((surfColor*2.f).ptr());
+
 			//left
 			if (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j)) {
+				glColor3fv((surfColor*2.f).ptr());
 				glBegin(GL_LINES);
 				glVertex2f(i * cellSize, clientH - (j + 1)  * cellSize);
 				glVertex2f(i * cellSize, clientH - j * cellSize);
 				glEnd();
 			}
 			if (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j)) {
+				glColor3fv((surfColor*2.f).ptr());
 				glBegin(GL_LINES);
 				glVertex2f(i * cellSize, clientH - j * cellSize);
 				glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
@@ -313,21 +323,23 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 //				}
 
 			//resources
-			switch (map->getResource(i, j)) {
-				case 1: glColor3f(1.f, 1.f, 0.f); break;
-				case 2: glColor3f(0.5f, 0.5f, 0.5f); break;
-				case 3: glColor3f(1.f, 0.f, 0.f); break;
-				case 4: glColor3f(0.f, 0.f, 1.f); break;
-				case 5: glColor3f(0.5f, 0.5f, 1.f); break;
-			}
+			if(renderAll == true) {
+				switch (map->getResource(i, j)) {
+					case 1: glColor3f(1.f, 1.f, 0.f); break;
+					case 2: glColor3f(0.5f, 0.5f, 0.5f); break;
+					case 3: glColor3f(1.f, 0.f, 0.f); break;
+					case 4: glColor3f(0.f, 0.f, 1.f); break;
+					case 5: glColor3f(0.5f, 0.5f, 1.f); break;
+				}
 
-			if (renderAll && map->getResource(i, j) != 0) {
-				glBegin(GL_LINES);
-				glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
-				glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
-				glVertex2f(i * cellSize, clientH - j * cellSize);
-				glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
-				glEnd();
+				if (renderAll && map->getResource(i, j) != 0) {
+					glBegin(GL_LINES);
+					glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
+					glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
+					glVertex2f(i * cellSize, clientH - j * cellSize);
+					glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+					glEnd();
+				}
 			}
 		}
 
@@ -364,6 +376,8 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, int x, int y,
 
 	glPopMatrix();
 	glPopAttrib();
+
+	glViewport(0, 0, 0, 0);
 
 	assertGl();
 }
