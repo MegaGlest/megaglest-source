@@ -9,39 +9,23 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#ifndef _SHARED_GRAPHICS_GL_CONTEXTGL_H_
-#define _SHARED_GRAPHICS_GL_CONTEXTGL_H_ 
-
 #include "context.h"
-#include "gl_wrap.h"
+
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
-
-using Platform::PlatformContextGl;
+namespace Shared{ namespace Graphics{
 
 // =====================================================
-//	class ContextGl
+//	class Context
 // =====================================================
 
-class ContextGl: public Context {
-protected:
-	PlatformContextGl pcgl;
+Context::Context() {
+	colorBits= 32;
+	depthBits= 24;
+	stencilBits= 0;
+	hardware_acceleration=0;
+	fullscreen_anti_aliasing=0;
 
-public:
-	ContextGl();
-	virtual ~ContextGl(){}
+}
 
-	virtual void init();
-	virtual void end();
-	virtual void reset(){};
-
-	virtual void makeCurrent();
-	virtual void swapBuffers();
-
-	const PlatformContextGl *getPlatformContextGl() const	{return &pcgl;}
-};
-
-}}}//end namespace
-
-#endif
+}}//end namespace
