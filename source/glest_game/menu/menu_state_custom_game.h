@@ -15,90 +15,12 @@
 #include "main_menu.h"
 #include "chat_manager.h"
 #include "simple_threads.h"
-#include "game.h"
+#include "map_preview.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+using namespace Shared::Map;
 
-struct MapFileHeaderPreview {
-	int32 version;
-	int32 maxFactions;
-	int32 width;
-	int32 height;
-	int32 altFactor;
-	int32 waterLevel;
-	int8 title[128];
-	int8 author[128];
-	int8 description[256];
-};
-
-// ===============================================
-//	class Map
-// ===============================================
-
-class MapPreview {
-public:
-	static const int maxHeight = 20;
-	static const int minHeight = 0;
-
-private:
-	struct Cell {
-		int surface;
-		int object;
-		int resource;
-		float height;
-	};
-
-	struct StartLocation {
-		int x;
-		int y;
-	};
-
-	RandomGen random;
-	string title;
-	string author;
-	string desc;
-	string recScn;
-	int type;
-	int h;
-	int w;
-	int altFactor;
-	int waterLevel;
-	//Cell **cells;
-	std::vector<std::vector<Cell> > cells;
-	int maxFactions;
-	StartLocation *startLocations;
-	int refAlt;
-	bool fileLoaded;
-
-public:
-	MapPreview();
-	~MapPreview();
-	float getHeight(int x, int y) const;
-	int getSurface(int x, int y) const;
-	int getObject(int x, int y) const;
-	int getResource(int x, int y) const;
-	int getStartLocationX(int index) const;
-	int getStartLocationY(int index) const;
-	int getHeightFactor() const;
-	int getWaterLevel() const;
-	bool inside(int x, int y);
-
-	int getH() const			{return h;}
-	int getW() const			{return w;}
-	int getMaxFactions() const	{return maxFactions;}
-	string getTitle() const		{return title;}
-	string getDesc() const		{return desc;}
-	string getAuthor() const	{return author;}
-
-	void reset(int w, int h, float alt, int surf);
-	void resetFactions(int maxFactions);
-
-	void loadFromFile(const string &path);
-	bool hasFileLoaded() const { return fileLoaded; }
-};
-
-
+namespace Glest { namespace Game {
 
 // ===============================
 // 	class MenuStateCustomGame

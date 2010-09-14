@@ -4,6 +4,26 @@ UseAutoconf ;
 
 Package license.txt readme.txt ;
 
+#ALWAYS getSVNVersion : @getSVNVersion_action ; 
+
+rule getSVNVersion {
+  echo 'hi' ;
+}
+
+actions getSVNVersion_action
+{ 
+#  echo '"'`svnversion`'"' >sources/glest_game/facilities/svn_version_tmp.h
+   echo '"'`svnversion`'"' ;
+   echo 'hi' ;
+#  if diff -N svn_version_tmp.hpp src/svn_version.hpp >/dev/null; then 
+#    rm svn_version_tmp.hpp 
+#  else 
+#    mv svn_version_tmp.hpp src/svn_version.hpp 
+#  fi 
+} 
+
+ALWAYS getSVNVersion ;
+
 #### Library ####
 
 SubDir TOP shared_lib sources ;
@@ -37,6 +57,7 @@ LIB_DIRS =
 	sound
 	sound/openal
 	xml
+	map
 	glew
 	lua
 	streflop

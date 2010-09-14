@@ -115,7 +115,7 @@ void UndoPoint::revert() {
 			//std::cout << "attempting to restore the surface array" << std::endl;
 			for (int i = 0; i < w; i++) {
 				for (int j = 0; j < h; j++) {
-					 Program::map->setSurface(i, j, surface[j * w + i]);
+					 Program::map->setSurface(i, j, static_cast<MapSurfaceType>(surface[j * w + i]));
 				}
 			}
 			if (change != ctAll) break;
@@ -141,13 +141,13 @@ void UndoPoint::revert() {
 //	class Program
 // ===============================================
 
-Map *Program::map = NULL;
+MapPreview *Program::map = NULL;
 
 Program::Program(int w, int h) {
 	cellSize = 6;
 	ofsetX = 0;
 	ofsetY = 0;
-	map = new Map();
+	map = new MapPreview();
 	renderer.init(w, h);
 }
 
@@ -186,7 +186,7 @@ void Program::pirateChangeMapHeight(int x, int y, int Height, int radius) {
 }
 
 void Program::changeMapSurface(int x, int y, int surface, int radius) {
-	map->changeSurface((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, surface, radius);
+	map->changeSurface((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, static_cast<MapSurfaceType>(surface), radius);
 }
 
 void Program::changeMapObject(int x, int y, int object, int radius) {
@@ -261,17 +261,17 @@ void Program::randomizeMap() {
 }
 
 void Program::switchMapSurfaces(int surf1, int surf2) {
-	map->switchSurfaces(surf1, surf2);
+	map->switchSurfaces(static_cast<MapSurfaceType>(surf1), static_cast<MapSurfaceType>(surf2));
 }
 
 void Program::reset(int w, int h, int alt, int surf) {
 	undoStack.clear();
 	redoStack.clear();
-	map->reset(w, h, (float) alt, surf);
+	map->reset(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
 }
 
 void Program::resize(int w, int h, int alt, int surf) {
-	map->resize(w, h, (float) alt, surf);
+	map->resize(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
 }
 
 void Program::resetFactions(int maxFactions) {
