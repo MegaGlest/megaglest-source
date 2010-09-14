@@ -120,6 +120,19 @@ void BattleEnd::render(){
 				controlString= lang.get("Human");
 				break;
 
+			case ctNetworkCpuEasy:
+				controlString= lang.get("NetworkCpuEasy");
+				break;
+			case ctNetworkCpu:
+				controlString= lang.get("NetworkCpu");
+				break;
+			case ctNetworkCpuUltra:
+				controlString= lang.get("NetworkCpuUltra");
+				break;
+			case ctNetworkCpuMega:
+				controlString= lang.get("NetworkCpuMega");
+				break;
+
 			default:
 				assert(false);
 			};

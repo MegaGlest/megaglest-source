@@ -110,8 +110,28 @@ int Faction::getStoreAmount(const ResourceType *rt) const{
 	return 0;
 }
 
-bool Faction::getCpuControl() const{
-	return control==ctCpuEasy ||control==ctCpu || control==ctCpuUltra|| control==ctCpuMega;
+bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, NetworkRole role) const {
+	bool result = false;
+	if(enableServerControlledAI == false || isNetworkGame == false) {
+			result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
+	}
+	else {
+		if(isNetworkGame == true) {
+			if(role == nrServer) {
+				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
+			}
+			else {
+				result = (control == ctNetworkCpuEasy ||control == ctNetworkCpu || control == ctNetworkCpuUltra || control == ctNetworkCpuMega);
+			}
+		}
+	}
+
+	return result;
+}
+
+bool Faction::getCpuControl() const {
+	return 	control == ctCpuEasy 		||control == ctCpu 			|| control == ctCpuUltra 		|| control == ctCpuMega ||
+			control == ctNetworkCpuEasy ||control == ctNetworkCpu 	|| control == ctNetworkCpuUltra || control == ctNetworkCpuMega;
 }
 
 // ==================== upgrade manager ====================

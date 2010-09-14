@@ -297,6 +297,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	controlItems.push_back(lang.get("Network"));
 	controlItems.push_back(lang.get("Human"));
 
+	if(config.getBool("EnableNetworkCpu","false") == true) {
+		controlItems.push_back(lang.get("NetworkCpuEasy"));
+		controlItems.push_back(lang.get("NetworkCpu"));
+	    controlItems.push_back(lang.get("NetworkCpuUltra"));
+	    controlItems.push_back(lang.get("NetworkCpuMega"));
+	}
+
 	for(int i = 1; i <= GameConstants::maxPlayers; ++i) {
 		teamItems.push_back(intToStr(i));
 	}

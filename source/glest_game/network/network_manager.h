@@ -28,13 +28,7 @@ namespace Glest{ namespace Game{
 //	class NetworkManager
 // =====================================================
 
-enum NetworkRole{
-	nrServer,
-	nrClient,
-	nrIdle
-};
-
-class NetworkManager{
+class NetworkManager {
 private:
 	GameNetworkInterface* gameNetworkInterface;
 	NetworkRole networkRole;

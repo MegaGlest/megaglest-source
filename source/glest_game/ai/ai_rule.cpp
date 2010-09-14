@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -197,7 +197,8 @@ void AiRuleAddTasks::execute(){
 		ai->addPriorityTask(new ProduceTask(ucWorker));
 	}
 	else{
-		if(ai->getAiInterface()->getControlType()==ctCpuMega)
+		if(	ai->getAiInterface()->getControlType() == ctCpuMega ||
+			ai->getAiInterface()->getControlType() == ctNetworkCpuMega)
 		{
 			//workers
 			if(workerCount<5) ai->addTask(new ProduceTask(ucWorker));
@@ -235,7 +236,8 @@ void AiRuleAddTasks::execute(){
 			if(upgradeCount==2 && workerCount>15) ai->addTask(new UpgradeTask());
 			if(ai->isStableBase()) ai->addTask(new UpgradeTask());
 		}
-		else if(ai->getAiInterface()->getControlType()==ctCpuEasy)
+		else if(ai->getAiInterface()->getControlType() == ctCpuEasy ||
+				ai->getAiInterface()->getControlType() == ctNetworkCpuEasy)
 		{// Easy CPU
 			//workers
 			if(workerCount<buildingCount+2) ai->addTask(new ProduceTask(ucWorker));
@@ -522,7 +524,8 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 		//produce from random producer
 		if(!producers.empty()){
-			if(aiInterface->getControlType()==ctCpuMega)
+			if(	aiInterface->getControlType() == ctCpuMega ||
+				aiInterface->getControlType() == ctNetworkCpuMega)
 			{// mega cpu trys to balance the commands to the producers
 				int randomstart=ai->getRandom()->randRange(0, producers.size()-1);
 				int lowestCommandCount=1000000;

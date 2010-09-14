@@ -90,6 +90,7 @@ public:
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
+	bool executeCommandOverNetwork();
 };
 
 }}//end namespace
