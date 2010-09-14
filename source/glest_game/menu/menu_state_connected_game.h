@@ -14,11 +14,12 @@
 
 #include "main_menu.h"
 #include "chat_manager.h"
+#include "map_preview.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
-enum JoinMenu{
+enum JoinMenu {
 	jmSimple,
 	jmMasterserver,
 
@@ -117,7 +118,10 @@ private:
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 
+	MapPreview mapPreview;
+
 public:
+
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
 	~MenuStateConnectedGame();
 
@@ -142,7 +146,7 @@ private:
 
 	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
-	void loadMapInfo(string file, MapInfo *mapInfo);
+	void loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
 
 };
 

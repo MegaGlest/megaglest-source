@@ -562,6 +562,17 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
+
+		if(mapPreview.hasFileLoaded() == true) {
+
+			int mouseX = mainMenu->getMouseX();
+			int mouseY = mainMenu->getMouseY();
+			int mouse2dAnim = mainMenu->getMouse2dAnim();
+
+		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
+		    renderer.renderMapPreview(&mapPreview, 0, 0, renderAll, 10, 350);
+		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -794,7 +805,7 @@ void MenuStateConnectedGame::update() {
 			if(currentMap != gameSettings->getMap()) {// load the setup again
 				currentMap = gameSettings->getMap();
 			}
-		    loadMapInfo(Map::getMapPath(currentMap), &mapInfo);
+		    loadMapInfo(Map::getMapPath(currentMap), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
 			
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1250,7 +1261,7 @@ void MenuStateConnectedGame::cleanupFactionTexture() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo) {
+void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 
 	struct MapFileHeader{
 		int32 version;
@@ -1290,6 +1301,11 @@ void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo) {
 			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
 	    }
 
+	    // Not painting properly so this is on hold
+	    if(loadMapPreview == true) {
+	    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    	mapPreview.loadFromFile(file.c_str());
+	    }
 	}
 	catch(exception e){
 		throw runtime_error("Error loading map file: "+file+'\n'+e.what());
