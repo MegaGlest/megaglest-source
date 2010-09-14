@@ -1076,8 +1076,6 @@ void MenuStateCustomGame::render() {
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxAdvanced);
 			
-			renderer.renderChatManager(&chatManager);
-			renderer.renderConsole(&console,showFullConsole,true);
 
 			if(listBoxPublishServer.getEditable())
 			{
@@ -1107,8 +1105,12 @@ void MenuStateCustomGame::render() {
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
-		    renderer.renderMapPreview(&mapPreview, 0, 0, renderAll, 10, 350);
+		    const Metrics &metrics= Metrics::getInstance();
+		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,metrics.getVirtualW(),metrics.getVirtualH());
 		}
+		
+		renderer.renderChatManager(&chatManager);
+		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
