@@ -30,6 +30,7 @@
 #include "model_renderer.h"
 #include "model.h"
 #include "graphics_interface.h"
+#include "base_renderer.h"
 
 #ifdef DEBUG_RENDERING_ENABLED
 #	define IF_DEBUG_EDITION(x) x
@@ -130,7 +131,7 @@ public:
 };
 
 
-class Renderer : public RendererInterface {
+class Renderer : public RendererInterface, public BaseRenderer {
 public:
 	//progress bar
 	static const int maxProgressBar;

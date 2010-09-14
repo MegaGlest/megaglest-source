@@ -148,7 +148,7 @@ Program::Program(int w, int h) {
 	ofsetX = 0;
 	ofsetY = 0;
 	map = new MapPreview();
-	renderer.init(w, h);
+	renderer.initMapSurface(w, h);
 }
 
 Program::~Program() {
