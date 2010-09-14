@@ -37,7 +37,7 @@ void Renderer::init(int clientW, int clientH) {
 	assertGl();
 }
 
-void Renderer::renderMap(Map *map, int x, int y, int clientW, int clientH, int cellSize) {
+void Renderer::renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize) {
 	float alt;
 	float showWater;
 
