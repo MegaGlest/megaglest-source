@@ -376,7 +376,7 @@ void BaseRenderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	glPopMatrix();
 	glPopAttrib();
 
-	glViewport(0, 0, 0, 0);
+	//glViewport(0, 0, 0, 0);
 
 	assertGl();
 }
