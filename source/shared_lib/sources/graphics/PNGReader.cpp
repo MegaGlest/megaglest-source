@@ -44,8 +44,13 @@ static void user_write_data(png_structp png_ptr, png_bytep data, png_size_t leng
 static void user_flush_data(png_structp png_ptr) {}
 
 /**Get Extension array, initialised*/
-static inline const string* getExtensionsPng() {
-	static const string extensions[] = {"png", ""};
+//static inline const string* getExtensionsPng() {
+static inline std::vector<string> getExtensionsPng() {
+	//static const string extensions[] = {"png", ""};
+	static std::vector<string> extensions;
+	if(extensions.size() == 0) {
+		extensions.push_back("png");
+	}
 	return extensions;
 }
 

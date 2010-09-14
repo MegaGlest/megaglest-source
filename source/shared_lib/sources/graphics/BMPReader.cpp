@@ -52,8 +52,15 @@ struct BitmapInfoHeader{
 #pragma pack(pop)
 
 /**Returns a string containing the extensions we want, intitialisation is guaranteed*/
-static inline const string* getExtensionsBmp() {
-	static const string extensions[] = {"bmp", ""};
+//static inline const string* getExtensionsBmp() {
+static inline std::vector<string> getExtensionsBmp() {
+	//static const string extensions[] = {"bmp", ""};
+	static std::vector<string> extensions;
+
+	if(extensions.size() == 0) {
+		extensions.push_back("bmp");
+	}
+
 	return extensions;
 }
 

@@ -20,6 +20,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <typeinfo>
+#include <vector>
 #include "leak_dumper.h"
 
 using std::map;
@@ -42,12 +43,14 @@ namespace Shared{
 template <class T>
 class FileReader {
 public:
-	string const * extensions;
+	//string const * extensions;
+	std::vector<string> extensions;
 
 	/**Creates a filereader being able to possibly load files
 	 * from the specified extension
 	 **/
-	FileReader(string const * extensions);
+	//FileReader(string const * extensions);
+	FileReader(std::vector<string> extensions);
 
 	/**Creates a low-priority filereader
 	 **/
@@ -234,16 +237,20 @@ T* FileReader<T>::readPath(const string& filepath, T* object) {
 }
 
 template <typename T>
-FileReader<T>::FileReader(string const * extensions): extensions(extensions) {
+FileReader<T>::FileReader(std::vector<string> extensions): extensions(extensions) {
 	getFileReaders().push_back(this);
-	string const * nextExtension = extensions;
-	while (((*nextExtension) != "")) {
-		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[*nextExtension];
+	//string const * nextExtension = extensions;
+	std::vector<string> nextExtension = extensions;
+	//while (((*nextExtension) != "")) {
+	for(int i = 0; i < nextExtension.size(); ++i) {
+		//vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[*nextExtension];
+		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[nextExtension[i]];
 		if (curPossibleReaders == NULL) {
-			(getFileReadersMap())[*nextExtension] = (curPossibleReaders = new vector<FileReader<T> const *>());
+			//(getFileReadersMap())[*nextExtension] = (curPossibleReaders = new vector<FileReader<T> const *>());
+			(getFileReadersMap())[nextExtension[i]] = (curPossibleReaders = new vector<FileReader<T> const *>());
 		}
 		curPossibleReaders->push_back(this);
-		++nextExtension;
+		//++nextExtension;
 	}
 }
 
@@ -254,12 +261,15 @@ FileReader<T>::FileReader(string const * extensions): extensions(extensions) {
 template <typename T>
 bool FileReader<T>::canRead(const string& filepath) const {
 	const string& realExtension = extractExtension(filepath);
-	const string* haveExtension = extensions;
-	while (*haveExtension != "") {
-		if (realExtension == *haveExtension) {
+	//const string* haveExtension = extensions;
+	std::vector<string> haveExtension = extensions;
+	//while (*haveExtension != "") {
+	for(int i = 0; i < haveExtension.size(); ++i) {
+		//if (realExtension == *haveExtension) {
+		if (realExtension == haveExtension[i]) {
 			return true;
 		}
-		++haveExtension;
+		//++haveExtension;
 	}
 	return false;
 }
