@@ -12,16 +12,19 @@
 #ifndef _SHARED_GRAPHICS_GRAPHICSINTERFACE_H_
 #define _SHARED_GRAPHICS_GRAPHICSINTERFACE_H_
 
+#include "map_preview.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{
+using namespace Shared::Map;
+
+namespace Shared { namespace Graphics {
 
 class GraphicsFactory;
 class Context;
 class Texture2D;
 class Model;
 
-enum ResourceScope{
+enum ResourceScope {
 	rsGlobal,
 	rsMenu,
 	rsGame,
@@ -35,13 +38,20 @@ public:
 	virtual Model *newModel(ResourceScope rs) = 0;
 };
 
+class RendererMapInterface {
+public:
+	virtual void initMapSurface(int clientW, int clientH) = 0;
+	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize) = 0;
+	virtual void renderMapPreview(const MapPreview *map, int x, int y,bool renderAll, int screenX, int screenY) = 0;
+};
+
 // =====================================================
 //	class GraphicsInterface  
 //
 ///	Interface for the graphic engine
 // =====================================================
 
-class GraphicsInterface{
+class GraphicsInterface {
 private:
 	GraphicsFactory *graphicsFactory;
 	Context *currentContext;

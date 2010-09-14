@@ -171,8 +171,6 @@ private:
 
 	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
-
-	void renderMap(	const MapPreview *map, int x, int y,bool renderAll, int screenX, int screenY);
 };
 
 }}//end namespace

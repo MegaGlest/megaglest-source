@@ -14,12 +14,14 @@
 
 //#include "map.h"
 #include "map_preview.h"
-#include "renderer.h"
+//#include "renderer.h"
+#include "base_renderer.h"
 
 #include <stack>
 
 using std::stack;
 using namespace Shared::Map;
+using namespace Shared::Graphics;
 
 namespace MapEditor {
 
@@ -90,7 +92,8 @@ public:
 
 class Program {
 private:
-	Renderer renderer;
+	//Renderer renderer;
+	BaseRenderer renderer;
 	int ofsetX, ofsetY;
 	int cellSize;
 	//static Map *map;
