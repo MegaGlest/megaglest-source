@@ -2860,6 +2860,7 @@ void Renderer::saveScreen(const string &path){
 
 	Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
 
+	glFinish();
 	glReadPixels(0, 0, pixmap.getW(), pixmap.getH(), GL_RGB, GL_UNSIGNED_BYTE, pixmap.getPixels());
 	pixmap.saveTga(path);
 }
