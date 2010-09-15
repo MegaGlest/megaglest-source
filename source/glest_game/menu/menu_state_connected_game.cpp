@@ -576,7 +576,8 @@ void MenuStateConnectedGame::render() {
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
-		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,128,128);
+		    const Metrics &metrics= Metrics::getInstance();
+		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,metrics.getVirtualW(),metrics.getVirtualH());
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
