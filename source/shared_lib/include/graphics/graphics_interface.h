@@ -42,7 +42,6 @@ class RendererMapInterface {
 public:
 	virtual void initMapSurface(int clientW, int clientH) = 0;
 	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize) = 0;
-	virtual void renderMapPreview(const MapPreview *map, bool renderAll, int screenX, int screenY, int sizeW, int sizeH) = 0;
 };
 
 // =====================================================
