@@ -1141,6 +1141,38 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
+	else {
+		// Deal with observers
+		for(int i = 0; i < map.getSurfaceW(); ++i) {
+			for(int j = 0; j < map.getSurfaceH(); ++j) {
+				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
+					if(fogOfWar || k != thisTeamIndex) {
+						if(k == thisTeamIndex && thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
+							map.getSurfaceCell(i, j)->setVisible(k, true);
+							map.getSurfaceCell(i, j)->setExplored(k, true);
+
+							const Vec2i pos(i,j);
+							//Vec2i surfPos= Map::toSurfCoords(pos);
+							Vec2i surfPos= pos;
+
+							//compute max alpha
+							float maxAlpha= 0.0f;
+							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+								maxAlpha= 1.f;
+							}
+							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+								maxAlpha= 0.3f;
+							}
+
+							//compute alpha
+							float alpha=maxAlpha;
+							minimap.incFowTextureAlphaSurface(surfPos, alpha);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
