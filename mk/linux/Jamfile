@@ -51,6 +51,7 @@ LIB_DIRS =
     platform/common
 	platform/sdl
 	platform/posix
+	platform/unix
 	util
 	graphics
 	graphics/gl
