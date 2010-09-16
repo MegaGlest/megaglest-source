@@ -3947,7 +3947,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 			if ( renderAll && (map->getObject(i, j) != 0) && (map->getObject(i, j) != 10) ){
 				glPointSize(cellSize / 2.f);
 				glBegin(GL_POINTS);
-				glVertex2i(i * cellSize + cellSize / 2, clientH - j * cellSize - cellSize / 2);
+				glVertex2f(i * cellSize + cellSize / 2.f, clientH - j * cellSize - cellSize / 2.f);
 				glEnd();
 			}
 		}
