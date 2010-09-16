@@ -249,6 +249,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\win32_deps\src\glprocs.c"
 				>
 			</File>
@@ -492,10 +496,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\common\platform_common.cpp"
 					>
 				</File>
@@ -524,6 +524,10 @@
 					>
 					<File
 						RelativePath="..\..\source\shared_lib\sources\platform\win32\factory_repository.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\shared_lib\sources\platform\win32\gl_wrap_billy.cpp"
 						>
 					</File>
 					<File
