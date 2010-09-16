@@ -24,7 +24,7 @@ actions getSVNVersion_action
 
 ALWAYS getSVNVersion ;
 
-#### Library ####
+####  Library  ####
 
 SubDir TOP shared_lib sources ;
 
