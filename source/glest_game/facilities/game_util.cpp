@@ -114,8 +114,8 @@ string getAboutString2(int i){
 	return "";
 }
 
-string getTeammateName(int i){
-	switch(i){
+string getTeammateName(int i) {
+	switch(i) {
 	case 0: return "Martiño Figueroa";
 	case 1: return "José Luis González";
 	case 2: return "Tucho Fernández";
@@ -124,11 +124,12 @@ string getTeammateName(int i){
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	case 7: return "Titus Tscharntke";
-	case 8: return "Mark Vejvoda"; 	}
+	case 8: return "Mark Vejvoda";
+	}
 	return "";
 }
 
-string getTeammateRole(int i){
+string getTeammateRole(int i) {
 	Lang &l= Lang::getInstance();
 
 	switch(i){
