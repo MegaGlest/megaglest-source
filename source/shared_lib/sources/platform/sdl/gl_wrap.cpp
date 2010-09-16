@@ -141,14 +141,14 @@ void PlatformContextGl::swapBuffers() {
 }
 	
 	
-	const char *getPlatformExtensions(const PlatformContextGl *pcgl) {
+const char *getPlatformExtensions(const PlatformContextGl *pcgl) {
 		return "";
-	}
+}
 	
-	void *getGlProcAddress(const char *procName) {
+void *getGlProcAddress(const char *procName) {
 		void* proc = SDL_GL_GetProcAddress(procName);
 		assert(proc!=NULL);
 		return proc;
-	}
+}
 
 }}//end namespace 
