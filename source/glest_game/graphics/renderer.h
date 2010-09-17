@@ -240,6 +240,9 @@ private:
 	bool shadowsOffDueToMinRender;
 
 	bool useQuadCache;
+
+	Pixmap2D *pixmapScreenShot;
+
 private:
 	Renderer();
 	~Renderer();

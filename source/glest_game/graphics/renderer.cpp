@@ -155,6 +155,8 @@ Renderer::Renderer() {
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
 
+	pixmapScreenShot = NULL;;
+
 	//resources
 	for(int i=0; i < rsCount; ++i) {
 		modelManager[i] = NULL;
@@ -207,6 +209,8 @@ Renderer::~Renderer(){
 		delete fontManager[i];
 		fontManager[i] = NULL;
 	}
+
+	delete pixmapScreenShot;
 
 	this->menu = NULL;
 	this->game = NULL;
@@ -2858,11 +2862,29 @@ void Renderer::saveScreen(const string &path){
 
 	const Metrics &sm= Metrics::getInstance();
 
-	Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
+	if( pixmapScreenShot == NULL ||
+		pixmapScreenShot->getW() != sm.getScreenW() ||
+		pixmapScreenShot->getH() != sm.getScreenH()) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		delete pixmapScreenShot;
+		pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glFinish();
-	glReadPixels(0, 0, pixmap.getW(), pixmap.getH(), GL_RGB, GL_UNSIGNED_BYTE, pixmap.getPixels());
-	pixmap.saveTga(path);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
+				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	pixmapScreenShot->saveTga(path);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
