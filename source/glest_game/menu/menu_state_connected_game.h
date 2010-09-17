@@ -124,6 +124,10 @@ private:
 	int mainMessageBoxState;
 
 	std::string lastMissingMap;
+	std::string lastMissingTechtree;
+	std::string lastMissingTileSet;
+	
+	std::vector<std::string> tileSets;
 
 public:
 

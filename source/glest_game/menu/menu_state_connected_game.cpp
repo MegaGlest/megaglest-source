@@ -55,6 +55,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	currentFactionLogo = "";
 	factionTexture=NULL;
 	lastMissingMap="";
+	lastMissingTechtree ="";
+	lastMissingTileSet = "";
 
 	activeInputLabel = NULL;
 	lastNetworkSendPing = 0;
@@ -341,6 +343,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	chatManager.init(&console, -1,true);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
+
+	//tileset listBox
+    findDirs(config.getPathListForType(ptTilesets), tileSets);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -811,7 +817,28 @@ void MenuStateConnectedGame::update() {
 					throw runtime_error("gameSettings == NULL");
 				}
 				// tileset
-				tilesets.push_back(formatString(gameSettings->getTileset()));
+				if(std::find(this->tileSets.begin(),this->tileSets.end(),gameSettings->getTileset()) != this->tileSets.end()) {
+					lastMissingTileSet = "";
+
+					tilesets.push_back(formatString(gameSettings->getTileset()));
+				}
+				else {
+					tilesets.push_back("***missing***");
+
+					NetworkManager &networkManager= NetworkManager::getInstance();
+					ClientInterface* clientInterface= networkManager.getClientInterface();
+					const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+					if(lastMissingTileSet != gameSettings->getTileset()) {
+						lastMissingTileSet = gameSettings->getTileset();
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						char szMsg[1024]="";
+						sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+						clientInterface->sendTextMessage(szMsg,-1, true);
+					}
+				}
 				listBoxTileset.setItems(tilesets);
 		
 				// techtree
@@ -1082,14 +1109,19 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			listBoxFactions[i].setItems(results);
 		}
 
-		char szMsg[1024]="";
-		sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-		clientInterface->sendTextMessage(szMsg,-1, true);
+		if(lastMissingTechtree != gameSettings->getTech()) {
+			lastMissingTechtree = gameSettings->getTech();
+
+			char szMsg[1024]="";
+			sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+			clientInterface->sendTextMessage(szMsg,-1, true);
+		}
 
 		foundFactions = false;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else {
+		lastMissingTechtree = "";
 	    // Add special Observer Faction
 	    //Lang &lang= Lang::getInstance();
 		if(gameSettings->getAllowObservers() == true) {
