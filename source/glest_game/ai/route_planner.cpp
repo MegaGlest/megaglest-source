@@ -141,7 +141,10 @@ bool RoutePlanner::isLegalMove(Unit *unit, const Vec2i &pos2) const {
 
 	float d = unit->getPos().dist(pos2);
 	if (d > 1.5 || d < 0.9f) {
-		throw runtime_error("The new Pathfinder lied.");
+		// path is invalid, this shouldn't happen... but it does.
+		static_cast<UnitPath*>(unit->getPath())->clear();
+		unit->getWaypointPath()->clear();
+		return false;
 	}
 
 	const Vec2i &pos1 = unit->getPos();
