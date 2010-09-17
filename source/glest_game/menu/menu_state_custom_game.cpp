@@ -150,7 +150,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	
 	for ( int i = 0 ; i<mapFiles.size(); i++ )
 	{// fetch info and put map in right list
-		loadMapInfo(Map::getMapPath(mapFiles.at(i)), &mapInfo, false);
+		loadMapInfo(Map::getMapPath(mapFiles.at(i),"",false), &mapInfo, false);
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
 	}
@@ -750,7 +750,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
@@ -2086,7 +2086,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 	    	mapPreview.loadFromFile(file.c_str());
 	    }
 	}
-	catch(exception e){
+	catch(exception &e){
 		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 

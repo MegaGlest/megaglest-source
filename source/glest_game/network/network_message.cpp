@@ -497,7 +497,7 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 
     //map
     Checksum checksum;
-    string file = Map::getMapPath(gameSettings->getMap(),scenarioDir);
+    string file = Map::getMapPath(gameSettings->getMap(),scenarioDir,false);
 	checksum.addFile(file);
 	data.header.mapCRC = checksum.getSum();
 
