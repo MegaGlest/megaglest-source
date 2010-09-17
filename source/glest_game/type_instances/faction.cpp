@@ -375,8 +375,12 @@ void Faction::applyCostsOnInterval(){
 		if(unit->isOperative()){
 			for(int k=0; k<unit->getType()->getCostCount(); ++k){
 				const Resource *resource= unit->getType()->getCost(k);
-				if(resource->getType()->getClass()==rcConsumable && resource->getAmount()<0){
+				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() < 0) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
+
 					incResourceAmount(resource->getType(), -resource->getAmount());
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
 				}
 			}
 		}
@@ -386,20 +390,30 @@ void Faction::applyCostsOnInterval(){
 	for(int j=0; j<getUnitCount(); ++j){
 		Unit *unit= getUnit(j);
 		assert(unit != NULL);
-		if(unit->isOperative()){
-			for(int k=0; k<unit->getType()->getCostCount(); ++k){
+		if(unit->isOperative()) {
+			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
 				const Resource *resource= unit->getType()->getCost(k);
-				if(resource->getType()->getClass()==rcConsumable && resource->getAmount()>0){
+				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() > 0){
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
+
 					incResourceAmount(resource->getType(), -resource->getAmount());
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(resource->getType())->getAmount());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(resource->getType())->getAmount(),unit->getFullName().c_str(),unit->getId());
 
 					//decrease unit hp
 					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true &&
 						getResource(resource->getType())->getAmount() < 0) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 						resetResourceAmount(resource->getType());
 						bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
-						if(decHpResult){
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
+
+						if(decHpResult) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 							world->getStats()->die(unit->getFactionIndex());
 							scriptManager->onUnitDied(unit);
 						}
