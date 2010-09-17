@@ -953,7 +953,8 @@ void MenuStateConnectedGame::update() {
 
 		clientInterface= NetworkManager::getInstance().getClientInterface();
 		if(clientInterface != NULL && clientInterface->isConnected()) {
-			if(clientInterface->getIntroDone() == true &&
+			if(	initialSettingsReceivedFromServer == true &&
+				clientInterface->getIntroDone() == true &&
 				(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				//needToSetChangedGameSettings = false;
