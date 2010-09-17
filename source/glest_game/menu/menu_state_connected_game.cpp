@@ -69,6 +69,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
+
+    mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
+	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.setEnabled(false);
+	mainMessageBoxState=0;
+
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
     defaultPlayerName = config.getString("NetPlayerName",Socket::getHostName().c_str());
@@ -348,7 +354,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
-	if(buttonDisconnect.mouseClick(x,y)){
+	if(mainMessageBox.getEnabled()){
+		int button= 1;
+		if(mainMessageBox.mouseClick(x, y, button))
+		{
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(button==1)
+			{
+				mainMessageBox.setEnabled(false);
+			}
+		}
+	}
+	else if(buttonDisconnect.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -457,6 +474,10 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 
 void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 
+	if (mainMessageBox.getEnabled()) {
+		mainMessageBox.mouseMove(x, y);
+	}
+
 	buttonDisconnect.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 
@@ -487,11 +508,14 @@ void MenuStateConnectedGame::render() {
 	try {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		Renderer &renderer= Renderer::getInstance();
+		if(mainMessageBox.getEnabled()){
+			renderer.renderMessageBox(&mainMessageBox);
+		}
+
 		if (!initialSettingsReceivedFromServer) return;
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
 			//renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
@@ -1096,7 +1120,8 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(szBuf);
+		//throw runtime_error(szBuf);
+		showMessageBox( szBuf, "Error", false);
 	}
 
     return hasNetworkSlot;
@@ -1317,9 +1342,25 @@ void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 	    }
 	}
 	catch(exception e){
-		throw runtime_error("Error loading map file: "+file+'\n'+e.what());
+		//throw runtime_error("Error loading map file: "+file+'\n'+e.what());
+		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
 	}
 
+}
+
+void MenuStateConnectedGame::showMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(!mainMessageBox.getEnabled()){
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
+	}
 }
 
 }}//end namespace
