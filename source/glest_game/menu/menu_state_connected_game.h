@@ -123,6 +123,8 @@ private:
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
+	std::string lastMissingMap;
+
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
@@ -149,7 +151,7 @@ private:
 
 	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
-	void loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
+	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 };

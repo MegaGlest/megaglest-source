@@ -54,6 +54,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
+	lastMissingMap="";
 
 	activeInputLabel = NULL;
 	lastNetworkSendPing = 0;
@@ -797,229 +798,245 @@ void MenuStateConnectedGame::update() {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
-		bool mustSwitchPlayerName = false;
-		if(clientInterface->getGameSettingsReceived()) {
-			updateDataSynchDetailText = true;
-			bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			vector<string> maps,tilesets,techtree;
-			const GameSettings *gameSettings = clientInterface->getGameSettings();
+		try {
+			bool mustSwitchPlayerName = false;
+			if(clientInterface->getGameSettingsReceived()) {
+				updateDataSynchDetailText = true;
+				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				vector<string> maps,tilesets,techtree;
+				const GameSettings *gameSettings = clientInterface->getGameSettings();
+			
+				if(gameSettings == NULL) {
+					throw runtime_error("gameSettings == NULL");
+				}
+				// tileset
+				tilesets.push_back(formatString(gameSettings->getTileset()));
+				listBoxTileset.setItems(tilesets);
 		
-			if(gameSettings == NULL) {
-				throw runtime_error("gameSettings == NULL");
-			}
-			// tileset
-			tilesets.push_back(formatString(gameSettings->getTileset()));
-			listBoxTileset.setItems(tilesets);
-	
-			// techtree
-			techtree.push_back(formatString(gameSettings->getTech()));
-			listBoxTechTree.setItems(techtree);
-			
-			// factions
-			bool hasFactions = true;
-			if(currentFactionName != gameSettings->getTech())
-			{
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
-				currentFactionName = gameSettings->getTech();
-				hasFactions = loadFactions(gameSettings,false);
-			}
-			else {
-				// do this to process special faction types liek observers
-				loadFactions(gameSettings,false);
-			}
-			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
+				// techtree
+				techtree.push_back(formatString(gameSettings->getTech()));
+				listBoxTechTree.setItems(techtree);
+				
+				// factions
+				bool hasFactions = true;
+				if(currentFactionName != gameSettings->getTech())
+				{
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
+					currentFactionName = gameSettings->getTech();
+					hasFactions = loadFactions(gameSettings,false);
+				}
+				else {
+					// do this to process special faction types liek observers
+					loadFactions(gameSettings,false);
+				}
+				
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
-			// map
-			maps.push_back(formatString(gameSettings->getMap()));
-			listBoxMap.setItems(maps);
-			if(currentMap != gameSettings->getMap()) {// load the setup again
-				currentMap = gameSettings->getMap();
-			}
-		    loadMapInfo(Map::getMapPath(currentMap), &mapInfo, true);
-			labelMapInfo.setText(mapInfo.desc);
-			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				// map
+				if(currentMap != gameSettings->getMap()) {// load the setup again
+					currentMap = gameSettings->getMap();
+				}
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,"",false), &mapInfo, true);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(mapLoaded == true) {
+					maps.push_back(formatString(gameSettings->getMap()));
+				}
+				else {
+					maps.push_back("***missing***");
+				}
+				listBoxMap.setItems(maps);
+				labelMapInfo.setText(mapInfo.desc);
+				
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			// FogOfWar
-			if(gameSettings->getFogOfWar()){
-				listBoxFogOfWar.setSelectedItemIndex(0); 
-			}
-			else
-			{
-				listBoxFogOfWar.setSelectedItemIndex(1);
-			}
-			
-			// Allow Observers
-			if(gameSettings->getAllowObservers()) {
-				listBoxAllowObservers.setSelectedItemIndex(1);
-			}
-			else
-			{
-				listBoxAllowObservers.setSelectedItemIndex(0);
-			}
+				// FogOfWar
+				if(gameSettings->getFogOfWar()){
+					listBoxFogOfWar.setSelectedItemIndex(0); 
+				}
+				else
+				{
+					listBoxFogOfWar.setSelectedItemIndex(1);
+				}
+				
+				// Allow Observers
+				if(gameSettings->getAllowObservers()) {
+					listBoxAllowObservers.setSelectedItemIndex(1);
+				}
+				else
+				{
+					listBoxAllowObservers.setSelectedItemIndex(0);
+				}
 
-			if(gameSettings->getEnableObserverModeAtEndGame()) {
-				listBoxEnableObserverMode.setSelectedItemIndex(0);
-			}
-			else {
-				listBoxEnableObserverMode.setSelectedItemIndex(1);
-			}
-			if(gameSettings->getEnableServerControlledAI()) {
-					listBoxEnableServerControlledAI.setSelectedItemIndex(0);
-			}
-			else {
-				listBoxEnableServerControlledAI.setSelectedItemIndex(1);
-			}
-			if(gameSettings->getNetworkPauseGameForLaggedClients()) {
-				listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(1);
-			}
-			else {
-				listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(0);
-			}
-			if(gameSettings->getPathFinderType() == pfBasic) {
-				listBoxPathFinderType.setSelectedItemIndex(0);
-			}
-			else {
-				listBoxPathFinderType.setSelectedItemIndex(1);
-			}
+				if(gameSettings->getEnableObserverModeAtEndGame()) {
+					listBoxEnableObserverMode.setSelectedItemIndex(0);
+				}
+				else {
+					listBoxEnableObserverMode.setSelectedItemIndex(1);
+				}
+				if(gameSettings->getEnableServerControlledAI()) {
+						listBoxEnableServerControlledAI.setSelectedItemIndex(0);
+				}
+				else {
+					listBoxEnableServerControlledAI.setSelectedItemIndex(1);
+				}
+				if(gameSettings->getNetworkPauseGameForLaggedClients()) {
+					listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(1);
+				}
+				else {
+					listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(0);
+				}
+				if(gameSettings->getPathFinderType() == pfBasic) {
+					listBoxPathFinderType.setSelectedItemIndex(0);
+				}
+				else {
+					listBoxPathFinderType.setSelectedItemIndex(1);
+				}
 
-			listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings->getNetworkFramePeriod()),false);
+				listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings->getNetworkFramePeriod()),false);
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			// Control
-			for(int i=0; i<GameConstants::maxPlayers; ++i){
-				listBoxControls[i].setSelectedItemIndex(ctClosed);
-				listBoxFactions[i].setEditable(false);
-				listBoxTeams[i].setEditable(false);
-			}
-			
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				// Control
+				for(int i=0; i<GameConstants::maxPlayers; ++i){
+					listBoxControls[i].setSelectedItemIndex(ctClosed);
+					listBoxFactions[i].setEditable(false);
+					listBoxTeams[i].setEditable(false);
+				}
+				
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(hasFactions == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);
+				if(hasFactions == true) {
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);
 
-				for(int i=0; i<gameSettings->getFactionCount(); ++i){
-					int slot=gameSettings->getStartLocationIndex(i);
-					listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
-					listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
-					//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
-					listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
+					for(int i=0; i<gameSettings->getFactionCount(); ++i){
+						int slot=gameSettings->getStartLocationIndex(i);
+						listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
+						listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
+						//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
+						listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
 
-					if(gameSettings->getFactionControl(i) == ctNetwork ){
-						labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
-						if(gameSettings->getThisFactionIndex() != i &&
+						if(gameSettings->getFactionControl(i) == ctNetwork ){
+							labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
+							if(gameSettings->getThisFactionIndex() != i &&
+									gameSettings->getNetworkPlayerName(i) != "" &&
+									gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+								labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
+							}
+						}
+						
+						if(gameSettings->getFactionControl(i) == ctNetwork &&
+							gameSettings->getThisFactionIndex() == i){
+							// set my current slot to ctHuman
+							listBoxControls[slot].setSelectedItemIndex(ctHuman);
+							listBoxFactions[slot].setEditable(true);
+							listBoxTeams[slot].setEditable(true);
+
+							if(labelPlayerNames[slot].getText() == "" &&
 								gameSettings->getNetworkPlayerName(i) != "" &&
 								gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-							labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
+								labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
+							}
 						}
-					}
-					
-					if(gameSettings->getFactionControl(i) == ctNetwork &&
-						gameSettings->getThisFactionIndex() == i){
-						// set my current slot to ctHuman
-						listBoxControls[slot].setSelectedItemIndex(ctHuman);
-						listBoxFactions[slot].setEditable(true);
-						listBoxTeams[slot].setEditable(true);
+						
+						settingsReceivedFromServer=true;
+						initialSettingsReceivedFromServer=true;
 
-						if(labelPlayerNames[slot].getText() == "" &&
-							gameSettings->getNetworkPlayerName(i) != "" &&
-							gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-							labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
-						}
-					}
-					
-					settingsReceivedFromServer=true;
-					initialSettingsReceivedFromServer=true;
+						needToSetChangedGameSettings = true;
+						lastSetChangedGameSettings   = time(NULL);
 
-		            needToSetChangedGameSettings = true;
-		            lastSetChangedGameSettings   = time(NULL);
-
-		            mustSwitchPlayerName = true;
-				}
-			}
-
-			if(enableFactionTexturePreview == true) {
-				if( clientInterface != NULL && clientInterface->isConnected() &&
-					gameSettings != NULL) {
-
-					string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
-					if(factionLogo == "") {
-						factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
-					}
-					if(currentFactionLogo != factionLogo) {
-						currentFactionLogo = factionLogo;
-						loadFactionTexture(currentFactionLogo);
+						mustSwitchPlayerName = true;
 					}
 				}
+
+				if(enableFactionTexturePreview == true) {
+					if( clientInterface != NULL && clientInterface->isConnected() &&
+						gameSettings != NULL) {
+
+						string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
+						if(factionLogo == "") {
+							factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+						}
+						if(currentFactionLogo != factionLogo) {
+							currentFactionLogo = factionLogo;
+							loadFactionTexture(currentFactionLogo);
+						}
+					}
+				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) chrono.start();
+			}
+
+			//update lobby
+			clientInterface= NetworkManager::getInstance().getClientInterface();
+			if(clientInterface != NULL && clientInterface->isConnected()) {
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
+				clientInterface->updateLobby();
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) chrono.start();
 			}
 
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			if(chrono.getMillis() > 0) chrono.start();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			clientInterface= NetworkManager::getInstance().getClientInterface();
+			if(clientInterface != NULL && clientInterface->isConnected()) {
+				if(	initialSettingsReceivedFromServer == true &&
+					clientInterface->getIntroDone() == true &&
+					(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					//needToSetChangedGameSettings = false;
+					//lastSetChangedGameSettings = time(NULL);
+					clientInterface->sendSwitchSetupRequest("",clientInterface->getPlayerIndex(),-1,-1,getHumanPlayerName(),switchSetupRequestFlagType);
+					switchSetupRequestFlagType=ssrft_None;
+				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(chrono.getMillis() > 0) chrono.start();
+
+				//call the chat manager
+				chatManager.updateNetwork();
+
+				//console732
+
+				console.update();
+
+				//intro
+				if(clientInterface->getIntroDone()) {
+					labelInfo.setText(lang.get("WaitingHost"));
+					//servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+				}
+
+				//launch
+				if(clientInterface->getLaunchGame()) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					//servers.save(serversSavedFile);
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					assert(clientInterface != NULL);
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					program->setState(new Game(program, clientInterface->getGameSettings()));
+					return;
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
 		}
-
-		//update lobby
-		clientInterface= NetworkManager::getInstance().getClientInterface();
-		if(clientInterface != NULL && clientInterface->isConnected()) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
-			clientInterface->updateLobby();
-
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			if(chrono.getMillis() > 0) chrono.start();
-		}
-
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		if(chrono.getMillis() > 0) chrono.start();
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		clientInterface= NetworkManager::getInstance().getClientInterface();
-		if(clientInterface != NULL && clientInterface->isConnected()) {
-			if(	initialSettingsReceivedFromServer == true &&
-				clientInterface->getIntroDone() == true &&
-				(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				//needToSetChangedGameSettings = false;
-				//lastSetChangedGameSettings = time(NULL);
-				clientInterface->sendSwitchSetupRequest("",clientInterface->getPlayerIndex(),-1,-1,getHumanPlayerName(),switchSetupRequestFlagType);
-				switchSetupRequestFlagType=ssrft_None;
-			}
-
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			if(chrono.getMillis() > 0) chrono.start();
-
-			//call the chat manager
-			chatManager.updateNetwork();
-
-			//console732
-
-			console.update();
-
-			//intro
-			if(clientInterface->getIntroDone()) {
-				labelInfo.setText(lang.get("WaitingHost"));
-				//servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
-			}
-
-			//launch
-			if(clientInterface->getLaunchGame()) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				//servers.save(serversSavedFile);
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				assert(clientInterface != NULL);
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				program->setState(new Game(program, clientInterface->getGameSettings()));
-				return;
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			}
+		catch(const runtime_error &ex) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"Error [%s]",ex.what());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+			//throw runtime_error(szBuf);
+			showMessageBox( szBuf, "Error", false);
 		}
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1119,7 +1136,8 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
     }
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"Error [%s]",ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 		//throw runtime_error(szBuf);
 		showMessageBox( szBuf, "Error", false);
 	}
@@ -1295,7 +1313,7 @@ void MenuStateConnectedGame::cleanupFactionTexture() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
+bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 
 	struct MapFileHeader{
 		int32 version;
@@ -1309,43 +1327,78 @@ void MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 	Lang &lang= Lang::getInstance();
 
-	try{
-		FILE *f= fopen(file.c_str(), "rb");
-		if(f==NULL)
-			throw runtime_error("Can't open file");
+	bool mapLoaded = false;
+	try {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str());
 
-		MapFileHeader header;
-		size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
+		if(file != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		mapInfo->size.x= header.width;
-		mapInfo->size.y= header.height;
-		mapInfo->players= header.maxPlayers;
+			lastMissingMap = file;
 
-		mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
-		mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
+			FILE *f= fopen(file.c_str(), "rb");
+			if(f==NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				throw runtime_error("[2]Can't open file");
+			}
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		fclose(f);
+			MapFileHeader header;
+			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
 
-	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-			labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-	        listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-	        listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-			listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
-	    }
+			mapInfo->size.x= header.width;
+			mapInfo->size.y= header.height;
+			mapInfo->players= header.maxPlayers;
 
-	    // Not painting properly so this is on hold
-	    if(loadMapPreview == true) {
-	    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    	mapPreview.loadFromFile(file.c_str());
-	    }
+			mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
+			mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
+
+			fclose(f);
+
+			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+				labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+				listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+				listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+				listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+				labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+			}
+
+			// Not painting properly so this is on hold
+			if(loadMapPreview == true) {
+	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    		mapPreview.loadFromFile(file.c_str());
+			}
+
+			mapLoaded = true;
+		}
+		else {
+			mapInfo->desc = "***missing***";
+
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			ClientInterface* clientInterface= networkManager.getClientInterface();
+			const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s] lastMissingMap [%s] gameSettings->getMap() [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str(),lastMissingMap.c_str(),gameSettings->getMap().c_str());
+			if(lastMissingMap != gameSettings->getMap()) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				lastMissingMap = gameSettings->getMap();
+
+				char szMsg[1024]="";
+				sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+				clientInterface->sendTextMessage(szMsg,-1, true);
+			}
+		}
 	}
-	catch(exception e){
+	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+
 		//throw runtime_error("Error loading map file: "+file+'\n'+e.what());
 		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
 	}
 
+	return mapLoaded;
 }
 
 void MenuStateConnectedGame::showMessageBox(const string &text, const string &header, bool toggle){
