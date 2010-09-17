@@ -725,7 +725,7 @@ void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
 		}
 	}
 
-	delete pixel;
+	delete [] pixel;
 }
 
 bool Pixmap2D::doDimensionsAgree(const Pixmap2D *pixmap){
