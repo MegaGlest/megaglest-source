@@ -2167,6 +2167,9 @@ void Renderer::renderMinimap(){
 			for(int visibleIndex = 0;
 					visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
 				Unit *unit = qCache.visibleUnitList[visibleIndex];
+				if (!unit->isAlive()) {
+					continue;
+				}
 
 				Vec2i pos= unit->getPos() / Map::cellScale;
 				int size= unit->getType()->getSize();
@@ -2190,6 +2193,9 @@ void Renderer::renderMinimap(){
 			for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 				Unit *unit= world->getFaction(i)->getUnit(j);
 				if(world->toRenderUnit(unit)){
+					if (!unit->isAlive()) {
+						continue;
+					}
 					Vec2i pos= unit->getPos()/Map::cellScale;
 					int size= unit->getType()->getSize();
 					Vec3f color=  world->getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
