@@ -112,7 +112,8 @@ protected:
 	Vec3f pos;
 	Vec4f color;
 	Vec4f colorNoEnergy;
-	int emissionRate;
+	float emissionRate;
+	float emissionState;
 	int maxParticleEnergy;
 	int varParticleEnergy;
 	float particleSize;
@@ -149,7 +150,7 @@ public:
 	void setPos(Vec3f pos);
 	void setColor(Vec4f color);
 	void setColorNoEnergy(Vec4f color);
-	void setEmissionRate(int emissionRate);
+	void setEmissionRate(float emissionRate);
 	void setMaxParticleEnergy(int maxParticleEnergy);
 	void setVarParticleEnergy(int varParticleEnergy);
 	void setParticleSize(float particleSize);
@@ -397,7 +398,7 @@ public:
 private:
 	ProjectileParticleSystem *prevParticleSystem;
 
-	int emissionRateFade;
+	float emissionRateFade;
 	float verticalSpreadA;
 	float verticalSpreadB;
 	float horizontalSpreadA;
@@ -411,7 +412,7 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
 
-	void setEmissionRateFade(int emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
 	void setVerticalSpreadA(float verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
 	void setVerticalSpreadB(float verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
 	void setHorizontalSpreadA(float horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}

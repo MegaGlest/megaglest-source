@@ -57,7 +57,8 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	pos= Vec3f(0.0f);
 	color= Vec4f(1.0f);
 	colorNoEnergy= Vec4f(0.0f);
-	emissionRate= 15;
+	emissionRate= 15.0f;
+	emissionState= 1.0f;
 	speed= 1.0f;
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
@@ -94,10 +95,19 @@ void ParticleSystem::update() {
 		}
 
 		if(state != ParticleSystem::sFade){
-			for(int i = 0; i < emissionRate; ++i){
+			emissionState=emissionState+emissionRate;
+			int emissionIntValue=emissionState;
+			for(int i = 0; i < emissionIntValue; i++){
 				Particle *p = createParticle();
 				initParticle(p, i);
 			}
+			emissionState=emissionState-(float)emissionIntValue;
+			if(aliveParticleCount==0){
+				Particle *p = createParticle();
+				initParticle(p, 0);
+				emissionState=0;
+			}
+			
 		}
 	}
 }
@@ -143,7 +153,7 @@ void ParticleSystem::setColorNoEnergy(Vec4f colorNoEnergy){
 	this->colorNoEnergy= colorNoEnergy;
 }
 
-void ParticleSystem::setEmissionRate(int emissionRate){
+void ParticleSystem::setEmissionRate(float emissionRate){
 	this->emissionRate= emissionRate;
 }
 
@@ -531,7 +541,7 @@ RainParticleSystem::RainParticleSystem(int particleCount):ParticleSystem(particl
 	setWind(0.0f, 0.0f);
 	setRadius(20.0f);
 
-	setEmissionRate(25);
+	setEmissionRate(25.0f);
 	setParticleSize(3.0f);
 	setColor(Vec4f(0.5f, 0.5f, 0.5f, 0.3f));
 	setSpeed(0.2f);
@@ -583,7 +593,7 @@ SnowParticleSystem::SnowParticleSystem(int particleCount):ParticleSystem(particl
 	setWind(0.0f, 0.0f);
 	setRadius(30.0f);
 
-	setEmissionRate(2);
+	setEmissionRate(2.0f);
 	setParticleSize(0.2f);
 	setColor(Vec4f(0.8f, 0.8f, 0.8f, 0.8f));
 	setSpeed(0.05f);
@@ -672,7 +682,7 @@ AttackParticleSystem::Primitive AttackParticleSystem::strToPrimitive(const strin
 // ===========================================================================
 
 ProjectileParticleSystem::ProjectileParticleSystem(int particleCount): AttackParticleSystem(particleCount){
-	setEmissionRate(20);
+	setEmissionRate(20.0f);
 	setColor(Vec4f(1.0f, 0.3f, 0.0f, 0.5f));
 	setMaxParticleEnergy(100);
 	setVarParticleEnergy(50);
