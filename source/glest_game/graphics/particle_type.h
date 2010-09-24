@@ -57,7 +57,7 @@ protected:
 	float sizeNoEnergy;
 	float speed;
 	float gravity;
-	int emissionRate;
+	float emissionRate;
 	int energyMax;
 	int energyVar;
 	string mode;
@@ -102,7 +102,7 @@ public:
 	SplashParticleSystem *create();
 
 private:
-	int emissionRateFade;
+	float emissionRateFade;
 	float verticalSpreadA;
 	float verticalSpreadB;
 	float horizontalSpreadA;

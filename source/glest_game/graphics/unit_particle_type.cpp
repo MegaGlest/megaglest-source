@@ -110,7 +110,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 
 	//emission rate
 	const XmlNode *emissionRateNode= particleSystemNode->getChild("emission-rate");
-	emissionRate= emissionRateNode->getAttribute("value")->getIntValue();
+	emissionRate= emissionRateNode->getAttribute("value")->getFloatValue();
 
 	//energy max
 	const XmlNode *energyMaxNode= particleSystemNode->getChild("energy-max");

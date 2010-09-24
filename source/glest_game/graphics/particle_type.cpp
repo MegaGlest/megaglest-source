@@ -111,7 +111,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 
 	//emission rate
 	const XmlNode *emissionRateNode= particleSystemNode->getChild("emission-rate");
-	emissionRate= emissionRateNode->getAttribute("value")->getIntValue();
+	emissionRate= emissionRateNode->getAttribute("value")->getFloatValue();
 
 	//energy max
 	const XmlNode *energyMaxNode= particleSystemNode->getChild("energy-max");
@@ -234,7 +234,7 @@ void ParticleSystemTypeSplash::load(const string &dir, const string &path,Render
 
 		//emission rate fade
 		const XmlNode *emissionRateFadeNode= particleSystemNode->getChild("emission-rate-fade");
-		emissionRateFade= emissionRateFadeNode->getAttribute("value")->getIntValue();
+		emissionRateFade= emissionRateFadeNode->getAttribute("value")->getFloatValue();
 		
 		//spread values
 		const XmlNode *verticalSpreadNode= particleSystemNode->getChild("vertical-spread");

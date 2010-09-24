@@ -55,7 +55,7 @@ protected:
 	float sizeNoEnergy;
 	float speed;
 	float gravity;
-	int emissionRate;
+	float emissionRate;
 	int energyMax;
 	int energyVar;
     bool relative;
