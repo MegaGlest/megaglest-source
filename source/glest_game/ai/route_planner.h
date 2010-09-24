@@ -77,14 +77,14 @@ __inline void getDiags(const Vec2i &s, const Vec2i &d, const int size, Vec2i &d1
 			d2.x = s.x; d2.y = d.y + size - 1;
 		} else {  // ne
 			d1.x = s.x; d1.y = d.y;
-			d2.x = d.x + size - 1; d2.y = s.y - size + 1;
+			d2.x = d.x + size - 1; d2.y = s.y + size - 1;
 		}
 	} else {  // travelling west
 		if (d.y > s.y) {  // sw
 			d1.x = d.x; d1.y = s.y;
 			d2.x = s.x + size - 1; d2.y = d.y + size - 1;
 		} else {  // nw
-			d1.x = d.x; d1.y = s.y - size + 1;
+			d1.x = d.x; d1.y = s.y + size - 1;
 			d2.x = s.x + size - 1; d2.y = d.y;
 		}
 	}
