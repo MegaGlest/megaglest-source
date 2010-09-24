@@ -419,7 +419,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	globfree(&globbuf);
 
     // Look recursively for sub-folders
-#ifdef __APPLE__ //APPLE does'nt have the GLOB_ONLYDIR definition..
+#if defined(__APPLE__) || defined(__FreeBSD__)
 	res = glob(mypath.c_str(), 0, 0, &globbuf);
 #else 
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
@@ -431,7 +431,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	}
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
-#ifdef __APPLE__ 
+#if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only process if dir..
 		int actStat = lstat( globbuf.gl_pathv[i], &statStruct);
@@ -567,7 +567,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	globfree(&globbuf);
 
     // Look recursively for sub-folders
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__FreeBSD__)
 	res = glob(mypath.c_str(), 0, 0, &globbuf);
 #else //APPLE doesn't have the GLOB_ONLYDIR definition..
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
@@ -579,7 +579,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	}
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
-#ifdef __APPLE__ 		
+#if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only get if dir..
 		int actStat = lstat( globbuf.gl_pathv[ i], &statStruct);
