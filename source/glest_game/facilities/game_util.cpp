@@ -37,6 +37,8 @@ string getPlatformNameString() {
 	string platform = "";
 #if defined(WIN32)
 	platform = "Windows";
+#elif defined(__FreeBSD__)
+	platform = "FreeBSD";
 #elif defined(__GNUC__)
 	platform = "GNU";
 #else
