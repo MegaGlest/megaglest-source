@@ -127,7 +127,7 @@ SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 # [RCL] FIXME: make it compiler-agnostic
 SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse")
 
-ADD_LIBRARY(glest_lib ${MG_SOURCE_FILES})
+ADD_LIBRARY(glest_lib ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 TARGET_LINK_LIBRARIES(glest_lib streflop)
 TARGET_LINK_LIBRARIES(glest_lib ${EXTERNAL_LIBS})
 
