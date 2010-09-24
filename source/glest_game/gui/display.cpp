@@ -79,7 +79,7 @@ void Display::switchColor(){
 int Display::computeDownIndex(int x, int y){
 	y= y-(downY-cellSideCount*imageSize);
 	
-	if(y>imageSize*cellSideCount){
+	if(y>imageSize*cellSideCount || y < 0){
 		return invalidPos;
 	}
 
