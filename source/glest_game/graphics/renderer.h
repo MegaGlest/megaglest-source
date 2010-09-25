@@ -393,7 +393,7 @@ private:
 
 	//selection render
 	void renderObjectsFast();
-	void renderUnitsFast();
+	void renderUnitsFast(bool renderingShadows = false);
 
 	//gl requirements
 	void checkGlCaps();
