@@ -133,6 +133,15 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     	relativeDirection=true;
     }
     
+    if(particleSystemNode->hasChild("static-particle-count")){
+	    //staticParticleCount
+		const XmlNode *staticParticleCountNode= particleSystemNode->getChild("static-particle-count");
+		staticParticleCount= staticParticleCountNode->getAttribute("value")->getIntValue();
+    }
+    else{
+    	staticParticleCount=0;
+    }
+    
     //fixed
     const XmlNode *fixedNode= particleSystemNode->getChild("fixed");
     fixed= fixedNode->getAttribute("value")->getBoolValue();
@@ -186,8 +195,19 @@ void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setRelativeDirection(relativeDirection);
     ups->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ups->setTeamcolorEnergy(teamcolorEnergy);
+    ups->setStaticParticleCount(staticParticleCount);
     ups->setRadius(radius);
     ups->setBlendMode(ParticleSystem::strToBlendMode(mode));
+    //prepare system for given staticParticleCount
+	if(staticParticleCount>0)
+	{
+		ups->setEmissionRate(0.0f);
+		ups->setSpeed(0);
+		direction.x= 0.0f;
+		direction.y= 0.0f;
+		direction.z= 0.0f;
+		ups->setDirection(direction);
+	}
 }
 
 void UnitParticleSystemType::load(const string &dir, const string &path, RendererInterface *renderer){

@@ -211,6 +211,7 @@ private:
 	Vec3f cRotation;
 	Vec3f fixedAddition;
     Vec3f oldPosition;
+    bool energyUp;
 public:
 	enum Primitive{
 		pQuad,
@@ -227,6 +228,7 @@ public:
 	float sizeNoEnergy;
 	float gravity;
 	float rotation;
+	int staticParticleCount;
 
 public:
 	UnitParticleSystem(int particleCount= 2000);
@@ -250,6 +252,7 @@ public:
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
 	void setPrimitive(Primitive primitive)				{this->primitive= primitive;}
+	void setStaticParticleCount(int staticParticleCount){this->staticParticleCount= staticParticleCount;}
 
 	static Primitive strToPrimitive(const string &str);
 	

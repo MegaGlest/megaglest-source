@@ -63,6 +63,7 @@ protected:
     bool fixed;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
+    int staticParticleCount;
     string mode;
 
 public:
