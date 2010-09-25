@@ -1802,6 +1802,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 				}
 				else {
 					glEnable(GL_COLOR_MATERIAL);
+					glAlphaFunc(GL_GREATER, 0.5f);
 				}
 
 				//render
@@ -1884,6 +1885,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 					}
 					else{
 						glEnable(GL_COLOR_MATERIAL);
+						glAlphaFunc(GL_GREATER, 0.5f);
 					}
 
 					//render
@@ -1918,7 +1920,8 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 		//restore
 		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 	}
-
+	// reset alpha
+	glAlphaFunc(GL_GREATER, 0.0f);
 	//assert
 	assertGl();
 }
@@ -2687,7 +2690,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 			}
 
 			//render 3d
-			renderUnitsFast();
+			renderUnitsFast(true);
 			renderObjectsFast();
 
 			//read color buffer
@@ -2968,7 +2971,7 @@ Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight) {
 // ==================== fast render ====================
 
 //render units for selection purposes
-void Renderer::renderUnitsFast() {
+void Renderer::renderUnitsFast(bool renderingShadows) {
 	assert(game != NULL);
 	const World *world= game->getWorld();
 	assert(world != NULL);
@@ -2987,18 +2990,36 @@ void Renderer::renderUnitsFast() {
 
 				if(modelRenderStarted == false) {
 					modelRenderStarted = true;
-					glPushAttrib(GL_ENABLE_BIT);
-					glDisable(GL_TEXTURE_2D);
+					//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
 					glDisable(GL_LIGHTING);
-
-					modelRenderer->begin(false, false, false);
+					if (!renderingShadows) {
+						glPushAttrib(GL_ENABLE_BIT);
+						glDisable(GL_TEXTURE_2D);
+					} else {
+						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+						glEnable(GL_TEXTURE_2D);
+						glAlphaFunc(GL_GREATER, 0.5f);
+				
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+				
+						//set color to the texture alpha
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+				
+						//set alpha to the texture alpha
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+					}
+				
+					modelRenderer->begin(false, renderingShadows, false);
 					glInitNames();
 				}
 
 				glPushName(visibleUnitIndex);
 
 				glMatrixMode(GL_MODELVIEW);
-
 				//debuxar modelo
 				glPushMatrix();
 
@@ -3040,11 +3061,30 @@ void Renderer::renderUnitsFast() {
 				if(world->toRenderUnit(unit, visibleQuad)) {
 					if(modelRenderStarted == false) {
 						modelRenderStarted = true;
-						glPushAttrib(GL_ENABLE_BIT);
-						glDisable(GL_TEXTURE_2D);
+						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
 						glDisable(GL_LIGHTING);
+						
+						if (!renderingShadows) {
+							glDisable(GL_TEXTURE_2D);
+						} else {
+							glEnable(GL_TEXTURE_2D);
+							glAlphaFunc(GL_GREATER, 0.5f);
+					
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					
+							//set color to the texture alpha
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+					
+							//set alpha to the texture alpha
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+						}
+					
+						modelRenderer->begin(false, renderingShadows, false);
 
-						modelRenderer->begin(false, false, false);
 						glInitNames();
 					}
 					if(modelRenderFactionStarted == false) {
