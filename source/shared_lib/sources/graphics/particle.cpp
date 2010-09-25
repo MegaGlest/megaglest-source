@@ -58,7 +58,7 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	color= Vec4f(1.0f);
 	colorNoEnergy= Vec4f(0.0f);
 	emissionRate= 15.0f;
-	emissionState= 1.0f;
+	emissionState= 1.0f; // initialized with 1 because we must have at least one particle in the beginning!
 	speed= 1.0f;
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
@@ -102,11 +102,11 @@ void ParticleSystem::update() {
 				initParticle(p, i);
 			}
 			emissionState=emissionState-(float)emissionIntValue;
-			if(aliveParticleCount==0){
-				Particle *p = createParticle();
-				initParticle(p, 0);
-				emissionState=0;
-			}
+//			if(aliveParticleCount==0){
+//				Particle *p = createParticle();
+//				initParticle(p, 0);
+//				emissionState=0;
+//			}
 			
 		}
 	}
@@ -380,10 +380,16 @@ UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(partic
 	rotation=0.0f;
 	relativeDirection=true;
 	relative=false;
+	staticParticleCount=0;
 	
 	cRotation= Vec3f(1.0f,1.0f,1.0f);
 	fixedAddition = Vec3f(0.0f,0.0f,0.0f);
-	
+	//prepare system for given staticParticleCount
+	if(staticParticleCount>0)
+	{
+		emissionState= (float)staticParticleCount;
+	}
+	energyUp=false;
 }
 
 void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
@@ -492,7 +498,29 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	p->speed+= p->accel;
 	p->color = color * energyRatio + colorNoEnergy * (1.0f-energyRatio);
 	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f-energyRatio);
-	p->energy--;
+	if(state == ParticleSystem::sFade || staticParticleCount<1)
+	{
+		p->energy--;
+	}
+	else
+	{
+		if(maxParticleEnergy>0)
+		{
+			if(energyUp){
+				p->energy++;
+			}
+			else {
+				p->energy--;
+			}
+			
+			if(p->energy==1){
+				energyUp=true;
+			}
+			if(p->energy==maxParticleEnergy){
+				energyUp=false;
+			}
+		}
+	}
 
 	/*
 	p->lastPos= p->pos;
@@ -876,6 +904,10 @@ void SplashParticleSystem::update(){
 	ParticleSystem::update();
 	if(state!=sPause){
 		emissionRate-= emissionRateFade;
+		if(emissionRate<0.0f)
+		{//otherwise this system lives forever!
+			fade();
+		}
 	}
 }
 
