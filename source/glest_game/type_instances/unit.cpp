@@ -1299,6 +1299,7 @@ bool Unit::morph(const MorphCommandType *mct){
 		computeTotalUpgrade();
 		map->putUnitCells(this, pos);
 		faction->applyDiscount(morphUnitType, mct->getDiscount());
+		faction->applyStaticProduction(morphUnitType);
 		return true;
 	}
 	else{
