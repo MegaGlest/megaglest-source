@@ -115,6 +115,7 @@ private:
 	string defaultPlayerName;
 
 	bool enableFactionTexturePreview;
+	bool enableMapPreview;
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 
