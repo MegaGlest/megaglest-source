@@ -62,7 +62,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
     defaultPlayerName = config.getString("NetPlayerName",Socket::getHostName().c_str());
-    enableFactionTexturePreview = config.getBool("FactionPreview","false");
+    enableFactionTexturePreview = config.getBool("FactionPreview","true");
+    enableMapPreview = config.getBool("MapPreview","true");
     
     showFullConsole=false;
 
@@ -1097,7 +1098,7 @@ void MenuStateCustomGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
-		if(mapPreview.hasFileLoaded() == true) {
+		if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
 
 			int mouseX = mainMenu->getMouseX();
 			int mouseY = mainMenu->getMouseY();

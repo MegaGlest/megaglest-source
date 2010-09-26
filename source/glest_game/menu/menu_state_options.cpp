@@ -38,8 +38,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
 	
-	int leftline=670;
-	int rightline=670;
+	int leftline=700;
+	int rightline=700;
 	int leftLabelStart=250;
 	int leftColumnStart=leftLabelStart+150;
 	int rightLabelStart=500;
@@ -64,7 +64,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelSoundFactory.setText(lang.get("SoundAndMusic"));
 
 	listBoxSoundFactory.registerGraphicComponent(containerName,"listBoxSoundFactory");
-	listBoxSoundFactory.init(leftColumnStart, leftline, 80);
+	listBoxSoundFactory.init(leftColumnStart, leftline, 100);
 	listBoxSoundFactory.pushBackItem("None");
 	listBoxSoundFactory.pushBackItem("OpenAL");
 #ifdef WIN32
@@ -276,6 +276,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxUnitParticles.setSelectedItemIndex(clamp(config.getBool("UnitParticles"), 0, 1));
 	leftline-=30;
 
+	//unit particles
+	labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
+	labelMapPreview.init(leftLabelStart,leftline);
+	labelMapPreview.setText(lang.get("ShowMapPreview"));
+
+	listBoxMapPreview.registerGraphicComponent(containerName,"listBoxMapPreview");
+	listBoxMapPreview.init(leftColumnStart,leftline,80);
+	listBoxMapPreview.pushBackItem(lang.get("No"));
+	listBoxMapPreview.pushBackItem(lang.get("Yes"));
+	listBoxMapPreview.setSelectedItemIndex(clamp(config.getBool("MapPreview","true"), 0, 1));
+	leftline-=30;
+
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
 	buttonOk.init(200, buttonRowPos, 100);	
@@ -291,7 +303,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	buttonVideoInfo.setText(lang.get("VideoInfo"));
 	buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
-	buttonVideoInfo.init(620, buttonRowPos, 100);
+	buttonVideoInfo.init(620, buttonRowPos, 125);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
@@ -393,6 +405,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxFilter.mouseClick(x, y);
 		listBoxTextures3D.mouseClick(x, y);
 		listBoxUnitParticles.mouseClick(x, y);
+		listBoxMapPreview.mouseClick(x, y);
 		listBoxLights.mouseClick(x, y);
 		listBoxSoundFactory.mouseClick(x, y);
 		listBoxVolumeFx.mouseClick(x, y);
@@ -422,6 +435,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxShadows.mouseMove(x, y);
 	listBoxTextures3D.mouseMove(x, y);
 	listBoxUnitParticles.mouseMove(x, y);
+	listBoxMapPreview.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
 	listBoxScreenModes.mouseMove(x, y);
 	listFontSizeAdjustment.mouseMove(x, y);
@@ -482,6 +496,7 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listBoxShadows);
 		renderer.renderListBox(&listBoxTextures3D);
 		renderer.renderListBox(&listBoxUnitParticles);
+		renderer.renderListBox(&listBoxMapPreview);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
 		renderer.renderListBox(&listBoxSoundFactory);
@@ -494,6 +509,7 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelShadows);
 		renderer.renderLabel(&labelTextures3D);
 		renderer.renderLabel(&labelUnitParticles);
+		renderer.renderLabel(&labelMapPreview);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
 		renderer.renderLabel(&labelSoundFactory);
@@ -536,6 +552,7 @@ void MenuStateOptions::saveConfig(){
 	config.setString("Filter", listBoxFilter.getSelectedItem());
 	config.setBool("Textures3D", listBoxTextures3D.getSelectedItemIndex());
 	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
+	config.setBool("MapPreview", listBoxMapPreview.getSelectedItemIndex());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());

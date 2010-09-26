@@ -127,6 +127,7 @@ private:
 	int8 switchSetupRequestFlagType;
 
 	bool enableFactionTexturePreview;
+	bool enableMapPreview;
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 

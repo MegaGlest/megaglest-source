@@ -56,8 +56,9 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		} else {
 			int p = i - fontInfo->min_char_or_byte2;
 			metrics.setWidth(i, static_cast<float> (
-						fontInfo->per_char[p].rbearing 
-						- fontInfo->per_char[p].lbearing));
+			fontInfo->per_char[p].width));
+//						fontInfo->per_char[p].rbearing 
+//						- fontInfo->per_char[p].lbearing));
 		}
 	}
 

@@ -70,6 +70,9 @@ private:
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
 	
+	GraphicLabel labelMapPreview;
+	GraphicListBox listBoxMapPreview;
+	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	
