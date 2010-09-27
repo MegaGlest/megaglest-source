@@ -235,41 +235,46 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
-	if(res < 0) {
-		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
-	}
-
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
-		const char* p = globbuf.gl_pathv[i];
-		const char* begin = p;
-		for( ; *p != 0; ++p) {
-			// strip the path component
-			if(*p == '/')
-				begin = p+1;
-		}
-		if(!(strcmp(".", begin)==0 || strcmp("..", begin)==0 || strcmp(".svn", begin)==0)) {
-			results.push_back(begin);
-		}
-		else {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,begin);
+	if(res < 0)
+	{
+		if(errorOnNotFound) {
+			std::stringstream msg;
+			msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+			throw runtime_error(msg.str());
 		}
 	}
+	else
+	{
+		for(int i = 0; i < globbuf.gl_pathc; ++i) {
+			const char* p = globbuf.gl_pathv[i];
+			const char* begin = p;
+			for( ; *p != 0; ++p) {
+				// strip the path component
+				if(*p == '/')
+					begin = p+1;
+			}
+			if(!(strcmp(".", begin)==0 || strcmp("..", begin)==0 || strcmp(".svn", begin)==0)) {
+				results.push_back(begin);
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,begin);
+			}
+		}
 
-	globfree(&globbuf);
+		globfree(&globbuf);
 
-	if(results.size() == 0 && errorOnNotFound == true) {
-		throw runtime_error("No files found in: " + mypath);
-	}
+		if(results.size() == 0 && errorOnNotFound == true) {
+			throw runtime_error("No files found in: " + mypath);
+		}
 
-	if(cutExtension) {
-		for (size_t i=0; i<results.size(); ++i){
-			results.at(i)=cutLastExt(results.at(i));
+		if(cutExtension) {
+			for (size_t i=0; i<results.size(); ++i){
+				results.at(i)=cutLastExt(results.at(i));
+			}
 		}
 	}
 }
-
+	
 bool isdir(const char *path)
 {
   string friendly_path = path;

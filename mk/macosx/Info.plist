@@ -7,11 +7,11 @@
 	<key>CFBundleExecutable</key>
 	<string>MegaGlest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>3.2.2r1, © 2001-2009 The Glest Team All Rights Reserved.</string>
+	<string>${MEGAGLEST_VERSION}, © 2001-2010 The Glest Team All Rights Reserved.</string>
 	<key>CFBundleIconFile</key>
 	<string>MegaGlest</string>
 	<key>CFBundleIdentifier</key>
-	<string>jp.ne.ivory.ciderhouse.MegaGlest</string>
+	<string>geovah.MegaGlest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -19,75 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.2.2</string>
+	<string>${MEGAGLEST_VERSION}</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>3.2</string>
-	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-</dict>
-</plist>
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>MegaGlest</string>
-	<key>CFBundleGetInfoString</key>
-	<string>3.2.2r1, © 2001-2009 The Glest Team All Rights Reserved.</string>
-	<key>CFBundleIconFile</key>
-	<string>MegaGlest</string>
-	<key>CFBundleIdentifier</key>
-	<string>jp.ne.ivory.ciderhouse.MegaGlest</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>MegaGlest</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>3.2.2</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>3.2</string>
-	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-</dict>
-</plist>
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>MegaGlest</string>
-	<key>CFBundleGetInfoString</key>
-	<string>3.2.2r1, © 2001-2009 The Glest Team All Rights Reserved.</string>
-	<key>CFBundleIconFile</key>
-	<string>MegaGlest</string>
-	<key>CFBundleIdentifier</key>
-	<string>jp.ne.ivory.ciderhouse.MegaGlest</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>MegaGlest</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>3.2.2</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>3.2</string>
+	<string>${MEGAGLEST_VERSION}</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

@@ -39,6 +39,8 @@ string getPlatformNameString() {
 	platform = "Windows";
 #elif defined(__FreeBSD__)
 	platform = "FreeBSD";
+#elif defined(__APPLE__)
+	platform = "MacOSX";
 #elif defined(__GNUC__)
 	platform = "GNU";
 #else
