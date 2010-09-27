@@ -504,7 +504,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	}
 	else
 	{
-		if(maxParticleEnergy>0)
+		if(maxParticleEnergy>2)
 		{
 			if(energyUp){
 				p->energy++;

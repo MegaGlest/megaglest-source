@@ -1802,7 +1802,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 				}
 				else {
 					glEnable(GL_COLOR_MATERIAL);
-					glAlphaFunc(GL_GREATER, 0.5f);
+					glAlphaFunc(GL_GREATER, 0.4f);
 				}
 
 				//render
@@ -1885,7 +1885,7 @@ void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
 					}
 					else{
 						glEnable(GL_COLOR_MATERIAL);
-						glAlphaFunc(GL_GREATER, 0.5f);
+						glAlphaFunc(GL_GREATER, 0.4f);
 					}
 
 					//render
@@ -2998,7 +2998,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 					} else {
 						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
 						glEnable(GL_TEXTURE_2D);
-						glAlphaFunc(GL_GREATER, 0.5f);
+						glAlphaFunc(GL_GREATER, 0.4f);
 				
 						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 				
@@ -3068,7 +3068,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 							glDisable(GL_TEXTURE_2D);
 						} else {
 							glEnable(GL_TEXTURE_2D);
-							glAlphaFunc(GL_GREATER, 0.5f);
+							glAlphaFunc(GL_GREATER, 0.4f);
 					
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 					
