@@ -99,7 +99,7 @@
 		for ( ; !@socket_connect( $socket, $remote_ip, $service_port ); )
 	    	{
 	      		$socket_last_error = socket_last_error( $socket );
-	      		if ( $socket_last_error == 115 || $socket_last_error == 114 || $socket_last_error == 10035)
+	      		if ( $socket_last_error == 115 || $socket_last_error == 114 || $socket_last_error == 10035 || $socket_last_error == 10037)
 	      		{
 	        		if ( ( time() - $time ) >= $timeout )
 	        		{
