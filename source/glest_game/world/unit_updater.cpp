@@ -864,9 +864,22 @@ void UnitUpdater::updateRepair(Unit *unit) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
 	Unit *repaired = map->getCell(command->getPos())->getUnit(fLand);
+
+	// Check if the 'repaired' unit is actually the peer unit in a multi-build?
+	Unit *peerUnitBuilder = findPeerUnitBuilder(unit);
+	if(peerUnitBuilder != NULL && peerUnitBuilder == repaired) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
+
+		if(peerUnitBuilder->getCurrCommand()->getUnit() != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerbuilder's unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getCurrCommand()->getUnit()->getId());
+
+			repaired = peerUnitBuilder->getCurrCommand()->getUnit();
+		}
+	}
+
 	bool nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
 
-	Unit *peerUnitBuilder = NULL;
+	peerUnitBuilder = NULL;
 	if(repaired == NULL) {
 		peerUnitBuilder = findPeerUnitBuilder(unit);
 		if(peerUnitBuilder != NULL) {
