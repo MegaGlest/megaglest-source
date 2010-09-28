@@ -99,7 +99,7 @@
 		for ( ; !@socket_connect( $socket, $remote_ip, $service_port ); )
 	    	{
 	      		$socket_last_error = socket_last_error( $socket );
-	      		if ( $socket_last_error == 115 || $socket_last_error == 114 || $socket_last_error == 10035 || $socket_last_error == 10037)
+	      		if ( $socket_last_error == 115 || $socket_last_error == 114)
 	      		{
 	        		if ( ( time() - $time ) >= $timeout )
 	        		{
@@ -110,6 +110,11 @@
 	        		sleep( 1 );
 	        		continue;
 	      		}
+	      		// for answers on this see: http://bobobobo.wordpress.com/2008/11/09/resolving-winsock-error-10035-wsaewouldblock/
+	      		else if($socket_last_error == 10035 || $socket_last_error == 10037) {
+	      			break;
+	      		}
+	      		
 	      		$canconnect = false;
 	        	echo 'socket_connect() failed.' . PHP_EOL . ' Reason: (' . $socket_last_error . ') ' . socket_strerror( $socket_last_error ) . PHP_EOL;
 	          	break;
