@@ -26,7 +26,7 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.7-beta2";
+const string glestVersionString= "v3.3.7-beta3";
 const string SVN_Rev = "$Rev$";
 
 string getCrashDumpFileName(){
@@ -104,7 +104,7 @@ string getAboutString1(int i){
 	switch(i){
 	case 0: return "Glest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
-	case 2: return "Copyright 2001-2010 The Glest Team";
+	case 2: return "Copyright 2001-2010 The Mega-Glest Team";
 	}
 	return "";
 }
