@@ -1915,7 +1915,12 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionTypeName [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getFactionTypeName(i).c_str());
 
-			gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"") );
+			if(gameSettings.getFactionControl(i) == ctHuman) {
+				gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"") );
+			}
+			else {
+				gameSettings.setNetworkPlayerName(i,"");
+			}
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
