@@ -855,6 +855,10 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = %p\n",__FILE__,__FUNCTION__,__LINE__,unit);
 
+	if(unit != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit doing the repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(),unit->getId());
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -865,9 +869,19 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
 	Unit *repaired = map->getCell(command->getPos())->getUnit(fLand);
 
+	if(repaired != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit to repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str(),repaired->getId());
+	}
+
 	// Check if the 'repaired' unit is actually the peer unit in a multi-build?
 	Unit *peerUnitBuilder = findPeerUnitBuilder(unit);
-	if(peerUnitBuilder != NULL && peerUnitBuilder == repaired) {
+
+	if(peerUnitBuilder != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit peer [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getFullName().c_str(),peerUnitBuilder->getId());
+	}
+
+	// Esnure we have the right unit to repair
+	if(peerUnitBuilder != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
 
 		if(peerUnitBuilder->getCurrCommand()->getUnit() != NULL) {
