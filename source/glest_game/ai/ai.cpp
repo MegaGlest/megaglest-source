@@ -10,16 +10,14 @@
 // ==============================================================
 
 #include "ai.h" 
-
 #include <ctime>
-
 #include "ai_interface.h"
 #include "ai_rule.h"
 #include "unit_type.h"
 #include "unit.h"
 #include "program.h"
 #include "config.h"
-#include <limits>
+//#include <limits>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -188,7 +186,8 @@ float Ai::getRatioOfClass(UnitClass uc){
 
 const ResourceType *Ai::getNeededResource(int unitIndex) {
     
-	int amount = numeric_limits<int>::max();
+	//int amount = numeric_limits<int>::max();
+	int amount = INT_MAX;
 	const ResourceType *neededResource= NULL;
     const TechTree *tt= aiInterface->getTechTree();
 
