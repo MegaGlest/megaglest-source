@@ -602,38 +602,40 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// Check for random faction selection and choose the faction now
-			if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
-
-				// Max 1000 tries to get a random, unused faction
-				for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
-					srand(time(NULL) + findRandomFaction);
-					int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
-					string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] selectedFactionName [%s] selectedFactionIndex = %d, findRandomFaction = %d\n",__FILE__,__FUNCTION__,__LINE__,selectedFactionName.c_str(),selectedFactionIndex,findRandomFaction);
-
-					if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
-						selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME) &&
-						std::find(randomFactionSelectionList.begin(),randomFactionSelectionList.end(),selectedFactionName) == randomFactionSelectionList.end()) {
-
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						listBoxFactions[i].setSelectedItem(selectedFactionName);
-						randomFactionSelectionList.push_back(selectedFactionName);
-						break;
-					}
-				}
-
+			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 				if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 
-					listBoxFactions[i].setSelectedItemIndex(RandomCount);
-					randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
+					// Max 1000 tries to get a random, unused faction
+					for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
+						srand(time(NULL) + findRandomFaction);
+						int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
+						string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] selectedFactionName [%s] selectedFactionIndex = %d, findRandomFaction = %d\n",__FILE__,__FUNCTION__,__LINE__,selectedFactionName.c_str(),selectedFactionIndex,findRandomFaction);
+
+						if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+							selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME) &&
+							std::find(randomFactionSelectionList.begin(),randomFactionSelectionList.end(),selectedFactionName) == randomFactionSelectionList.end()) {
+
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							listBoxFactions[i].setSelectedItem(selectedFactionName);
+							randomFactionSelectionList.push_back(selectedFactionName);
+							break;
+						}
+					}
+
+					if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
+
+						listBoxFactions[i].setSelectedItemIndex(RandomCount);
+						randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
+					}
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
+
+					RandomCount++;
 				}
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
-
-				RandomCount++;
 			}
 		}
 

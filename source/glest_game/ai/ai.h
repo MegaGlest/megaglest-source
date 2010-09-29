@@ -159,7 +159,7 @@ public:
 	int getCountOfClass(UnitClass uc);
 	float getRatioOfClass(UnitClass uc);
 
-	const ResourceType *getNeededResource();
+	const ResourceType *getNeededResource(int unitIndex);
 	bool isStableBase();
 	bool findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Vec2i &pos);
 	bool findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly);

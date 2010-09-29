@@ -19,6 +19,7 @@
 #include "unit.h"
 #include "program.h"
 #include "config.h"
+#include <limits>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -185,18 +186,27 @@ float Ai::getRatioOfClass(UnitClass uc){
 	}
 }
 
-const ResourceType *Ai::getNeededResource(){
+const ResourceType *Ai::getNeededResource(int unitIndex) {
     
-    int amount= -1;
+	int amount = numeric_limits<int>::max();
 	const ResourceType *neededResource= NULL;
     const TechTree *tt= aiInterface->getTechTree();
 
-    for(int i=0; i<tt->getResourceTypeCount(); ++i){
+    for(int i = 0; i < tt->getResourceTypeCount(); ++i) {
         const ResourceType *rt= tt->getResourceType(i);
         const Resource *r= aiInterface->getResource(rt);
-		if(rt->getClass()!=rcStatic && rt->getClass()!=rcConsumable && (r->getAmount()<amount || amount==-1)){
-            amount= r->getAmount();
-            neededResource= rt;
+		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable &&
+			r->getAmount() < amount) {
+
+			// Now MAKE SURE the unit has a harvest command for this resource
+			// AND that the resource is within eye-sight to avoid units
+			// standing around doing nothing.
+			const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt);
+			Vec2i resPos;
+			if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos)) {
+				amount= r->getAmount();
+				neededResource= rt;
+			}
         }
     }
 
@@ -472,14 +482,14 @@ void Ai::returnBase(int unitIndex){
     //aiInterface->printLog(1, "Order return to base pos:" + intToStr(pos.x)+", "+intToStr(pos.y)+": "+rrToStr(r)+"\n");
 }
 
-void Ai::harvest(int unitIndex){
+void Ai::harvest(int unitIndex) {
 	
-	const ResourceType *rt= getNeededResource();
+	const ResourceType *rt= getNeededResource(unitIndex);
 
-	if(rt!=NULL){
+	if(rt != NULL) {
 		const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt);
 		Vec2i resPos;
-		if(hct!=NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos)){
+		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos)) {
 			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2)); 
 			aiInterface->giveCommand(unitIndex, hct, resPos);
 			//aiInterface->printLog(4, "Order harvest pos:" + intToStr(resPos.x)+", "+intToStr(resPos.y)+": "+rrToStr(r)+"\n");
