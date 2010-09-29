@@ -1656,7 +1656,8 @@ void Game::checkWinnerStandard(){
 				}
 			}
 			gameOver= true;
-			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+			if( this->gameSettings.isNetworkGame() == false ||
+				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the happy winner view everything left in the world
 				world.setFogOfWar(false);
 
@@ -1685,7 +1686,8 @@ void Game::checkWinnerStandard(){
 				}
 			}
 			gameOver= true;
-			if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+			if( this->gameSettings.isNetworkGame() == false ||
+				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the poor user watch everything unfold
 				world.setFogOfWar(false);
 
@@ -1728,7 +1730,8 @@ void Game::checkWinnerStandard(){
 					}
 				}
 				gameOver= true;
-				if(this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+				if( this->gameSettings.isNetworkGame() == false ||
+					this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 					// Let the happy winner view everything left in the world
 					world.setFogOfWar(false);
 
