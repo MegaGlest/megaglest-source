@@ -1113,7 +1113,10 @@ void World::computeFow(int factionIdxToTick) {
 			for(int j = 0; j < map.getSurfaceH(); ++j) {
 				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
 					if(fogOfWar || k != thisTeamIndex) {
-						if(k == thisTeamIndex && thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
+						if(	k == thisTeamIndex &&
+							(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer ||
+							 (game->getGameOver() == true && (game->getGameSettings()->isNetworkGame() == false ||
+							  game->getGameSettings()->getEnableObserverModeAtEndGame() == true)))) {
 							map.getSurfaceCell(i, j)->setVisible(k, true);
 							map.getSurfaceCell(i, j)->setExplored(k, true);
 

@@ -160,6 +160,8 @@ public:
 
 	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
 
+	bool getGameOver() { return gameOver; }
+
 private:
 	//render
     void render3d();
