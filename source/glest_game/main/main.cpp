@@ -51,6 +51,7 @@ bool gameInitialized = false;
 
 const char  *GAME_ARGS[] = {
 	"--help",
+	"--autostart-lastgame",
 	"--connecthost",
 	"--starthost",
 	"--load-scenario",
@@ -59,10 +60,12 @@ const char  *GAME_ARGS[] = {
 	"--sdl-info",
 	"--validate-techtrees",
 	"--validate-factions"
+
 };
 
 enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
+	GAME_ARG_AUTOSTART_LASTGAME,
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_LOADSCENARIO,
@@ -467,6 +470,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("Commandline Parameter:\t\tDescription:");
 	printf("\n----------------------\t\t------------");
 	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+	printf("\n%s\t\tAutomatically starts a game with the last game settings you played.",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
 	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
@@ -681,6 +685,9 @@ int glestMain(int argc, char** argv){
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
 			program->initServer(mainWindow);
+		}
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
+			program->initServer(mainWindow,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
 			int foundParamIndIndex = -1;

@@ -45,10 +45,11 @@ struct FormatString {
 // 	class MenuStateCustomGame
 // =====================================================
 
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver) :
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart) :
 		MenuState(program, mainMenu, "new-game")
 {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	this->autostart = autostart;
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] autostart = %d\n",__FILE__,__FUNCTION__,__LINE__,autostart);
 
 	containerName = "CustomGame";
 	activeInputLabel=NULL;
@@ -588,165 +589,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		saveGameSettingsToFile("lastCustomGamSettings.mgg");
-
-		closeUnusedSlots();
-		soundRenderer.playFx(coreData.getClickSoundC());
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		std::vector<string> randomFactionSelectionList;
-		int RandomCount = 0;
-		for(int i= 0; i < mapInfo.players; ++i) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			// Check for random faction selection and choose the faction now
-			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
-				if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
-
-					// Max 1000 tries to get a random, unused faction
-					for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
-						srand(time(NULL) + findRandomFaction);
-						int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
-						string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
-
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] selectedFactionName [%s] selectedFactionIndex = %d, findRandomFaction = %d\n",__FILE__,__FUNCTION__,__LINE__,selectedFactionName.c_str(),selectedFactionIndex,findRandomFaction);
-
-						if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
-							selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME) &&
-							std::find(randomFactionSelectionList.begin(),randomFactionSelectionList.end(),selectedFactionName) == randomFactionSelectionList.end()) {
-
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-							listBoxFactions[i].setSelectedItem(selectedFactionName);
-							randomFactionSelectionList.push_back(selectedFactionName);
-							break;
-						}
-					}
-
-					if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
-
-						listBoxFactions[i].setSelectedItemIndex(RandomCount);
-						randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
-					}
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
-
-					RandomCount++;
-				}
-			}
-		}
-
-		if(RandomCount > 0) {
-			needToSetChangedGameSettings = true;
-		}
-
-		safeMutex.ReleaseLock(true);
-		GameSettings gameSettings;
-		loadGameSettings(&gameSettings);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-
-        // Send the game settings to each client if we have at least one networked client
-		safeMutex.Lock();
-
-        bool dataSynchCheckOk = true;
-		for(int i= 0; i < mapInfo.players; ++i) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-				if(	connectionSlot != NULL && connectionSlot->isConnected() &&
-					connectionSlot->getAllowGameDataSynchCheck() == true &&
-					connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					dataSynchCheckOk = false;
-					break;
-				}
-			}
-		}
-
-		if(dataSynchCheckOk == false) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			mainMessageBoxState=1;
-			showMessageBox( "You cannot start the game because\none or more clients do not have the same game data!", "Data Mismatch Error", false);
-
-			safeMutex.ReleaseLock();
-			return;
-		}
-		else {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	        if( (hasNetworkGameSettings() == true &&
-	             needToSetChangedGameSettings == true) || (RandomCount > 0)) {
-	        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	            serverInterface->setGameSettings(&gameSettings,true);
-
-	            needToSetChangedGameSettings    = false;
-	            lastSetChangedGameSettings      = time(NULL);
-	        }
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			bool bOkToStart = serverInterface->launchGame(&gameSettings);
-			if(bOkToStart == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				if( listBoxPublishServer.getEditable() &&
-					listBoxPublishServer.getSelectedItemIndex() == 0) {
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-					needToRepublishToMasterserver = true;
-					lastMasterserverPublishing = 0;
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				}
-				needToBroadcastServerSettings = false;
-				needToRepublishToMasterserver = false;
-				safeMutex.ReleaseLock();
-
-				delete publishToMasterserverThread;
-				publishToMasterserverThread = NULL;
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				assert(program != NULL);
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				program->setState(new Game(program, &gameSettings));
-				return;
-			}
-			else {
-				safeMutex.ReleaseLock();
-			}
-		}
+		PlayNow();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
-		// Ensure we have set the gamesettings at least once
-		GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
-		if(gameSettings.getMap() == "") {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			loadGameSettings(&gameSettings);
-		}
-
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		serverInterface->setGameSettings(&gameSettings,false);
-
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
+		RestoreLastGameSettings();
 	}
 	else if(listBoxMap.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
@@ -974,6 +822,169 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateCustomGame::RestoreLastGameSettings() {
+	// Ensure we have set the gamesettings at least once
+	GameSettings gameSettings = loadGameSettingsFromFile("lastCustomGamSettings.mgg");
+	if(gameSettings.getMap() == "") {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		loadGameSettings(&gameSettings);
+	}
+
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	serverInterface->setGameSettings(&gameSettings,false);
+
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	needToRepublishToMasterserver = true;
+
+	if(hasNetworkGameSettings() == true)
+	{
+		needToSetChangedGameSettings = true;
+		lastSetChangedGameSettings   = time(NULL);
+	}
+}
+
+void MenuStateCustomGame::PlayNow() {
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	saveGameSettingsToFile("lastCustomGamSettings.mgg");
+
+	closeUnusedSlots();
+	CoreData &coreData= CoreData::getInstance();
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	soundRenderer.playFx(coreData.getClickSoundC());
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	std::vector<string> randomFactionSelectionList;
+	int RandomCount = 0;
+	for(int i= 0; i < mapInfo.players; ++i) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		// Check for random faction selection and choose the faction now
+		if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
+			if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+
+				// Max 1000 tries to get a random, unused faction
+				for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
+					srand(time(NULL) + findRandomFaction);
+					int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
+					string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] selectedFactionName [%s] selectedFactionIndex = %d, findRandomFaction = %d\n",__FILE__,__FUNCTION__,__LINE__,selectedFactionName.c_str(),selectedFactionIndex,findRandomFaction);
+
+					if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+						selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME) &&
+						std::find(randomFactionSelectionList.begin(),randomFactionSelectionList.end(),selectedFactionName) == randomFactionSelectionList.end()) {
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						listBoxFactions[i].setSelectedItem(selectedFactionName);
+						randomFactionSelectionList.push_back(selectedFactionName);
+						break;
+					}
+				}
+
+				if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
+
+					listBoxFactions[i].setSelectedItemIndex(RandomCount);
+					randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
+
+				RandomCount++;
+			}
+		}
+	}
+
+	if(RandomCount > 0) {
+		needToSetChangedGameSettings = true;
+	}
+
+	safeMutex.ReleaseLock(true);
+	GameSettings gameSettings;
+	loadGameSettings(&gameSettings);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+	// Send the game settings to each client if we have at least one networked client
+	safeMutex.Lock();
+
+	bool dataSynchCheckOk = true;
+	for(int i= 0; i < mapInfo.players; ++i) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
+			if(	connectionSlot != NULL && connectionSlot->isConnected() &&
+				connectionSlot->getAllowGameDataSynchCheck() == true &&
+				connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				dataSynchCheckOk = false;
+				break;
+			}
+		}
+	}
+
+	if(dataSynchCheckOk == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		mainMessageBoxState=1;
+		showMessageBox( "You cannot start the game because\none or more clients do not have the same game data!", "Data Mismatch Error", false);
+
+		safeMutex.ReleaseLock();
+		return;
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if( (hasNetworkGameSettings() == true &&
+			 needToSetChangedGameSettings == true) || (RandomCount > 0)) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			serverInterface->setGameSettings(&gameSettings,true);
+
+			needToSetChangedGameSettings    = false;
+			lastSetChangedGameSettings      = time(NULL);
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		bool bOkToStart = serverInterface->launchGame(&gameSettings);
+		if(bOkToStart == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if( listBoxPublishServer.getEditable() &&
+				listBoxPublishServer.getSelectedItemIndex() == 0) {
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				needToRepublishToMasterserver = true;
+				lastMasterserverPublishing = 0;
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+			needToBroadcastServerSettings = false;
+			needToRepublishToMasterserver = false;
+			safeMutex.ReleaseLock();
+
+			delete publishToMasterserverThread;
+			publishToMasterserverThread = NULL;
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			assert(program != NULL);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			program->setState(new Game(program, &gameSettings));
+			return;
+		}
+		else {
+			safeMutex.ReleaseLock();
+		}
+	}
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
@@ -1527,6 +1538,12 @@ void MenuStateCustomGame::update() {
 		if(chrono.getMillis() > 0) chrono.start();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(autostart == true) {
+			safeMutex.ReleaseLock();
+			RestoreLastGameSettings();
+			PlayNow();
+		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
