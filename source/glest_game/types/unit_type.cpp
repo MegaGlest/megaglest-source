@@ -24,6 +24,7 @@
 #include "renderer.h"
 #include "game_util.h"
 #include "unit_particle_type.h"
+#include "faction.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -434,11 +435,16 @@ const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
     return firstSkillTypeOfClass[skillClass];
 }
 
-const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *resourceType) const{
-	for(int i=0; i<commandTypes.size(); ++i) {
-		if(commandTypes[i]->getClass()== ccHarvest){
-			const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(commandTypes[i]);
-			if(hct->canHarvest(resourceType)){
+const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *resourceType, const Faction *faction) const {
+	for(int i = 0; i < commandTypes.size(); ++i) {
+		if(commandTypes[i]->getClass() == ccHarvest) {
+			const HarvestCommandType *hct = static_cast<const HarvestCommandType*>(commandTypes[i]);
+
+			if (faction->reqsOk(hct) == false) {
+			 	continue;
+			}
+
+			if(hct->canHarvest(resourceType)) {
 				return hct;
 			}
 		}

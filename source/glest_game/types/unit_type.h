@@ -31,6 +31,7 @@ class UnitParticleSystemType;
 class ResourceType;
 class TechTree;
 class FactionType;
+class Faction;
 
 
 // ===============================
@@ -172,7 +173,7 @@ public:
 	const SkillType *getSkillType(const string &skillName, SkillClass skillClass) const;
 	const SkillType *getFirstStOfClass(SkillClass skillClass) const;
     const CommandType *getFirstCtOfClass(CommandClass commandClass) const;
-    const HarvestCommandType *getFirstHarvestCommand(const ResourceType *resourceType) const;
+    const HarvestCommandType *getFirstHarvestCommand(const ResourceType *resourceType,const Faction *faction) const;
 	const AttackCommandType *getFirstAttackCommand(Field field) const;
 	const RepairCommandType *getFirstRepairCommand(const UnitType *repaired) const;
 
