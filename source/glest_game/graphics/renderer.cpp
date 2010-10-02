@@ -137,8 +137,8 @@ const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 //const float Renderer::maxLightDist= 100.f;
 const float Renderer::maxLightDist= 1000.f;
 
-const int MIN_FPS_NORMAL_RENDERING = 9;
-const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
+const int MIN_FPS_NORMAL_RENDERING = 10;
+const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 35;
 
 // ==================== constructor and destructor ====================
 
