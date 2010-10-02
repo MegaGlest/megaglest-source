@@ -930,7 +930,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		//check harvest command
 		Resource *resource= sc->getResource();
 		if(resource!=NULL){
-			commandType= type->getFirstHarvestCommand(resource->getType());
+			commandType= type->getFirstHarvestCommand(resource->getType(),this->getFaction());
 		}
 	}
 

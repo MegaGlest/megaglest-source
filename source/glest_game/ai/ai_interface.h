@@ -30,7 +30,7 @@ namespace Glest{ namespace Game{
 ///	The AI will interact with the game through this interface
 // =====================================================
 
-class AiInterface{
+class AiInterface {
 private:
     World *world;
     Commander *commander;
@@ -80,7 +80,7 @@ public:
     const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
     const TechTree *getTechTree(); 
-    bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos);
+    bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos, bool usableResourceTypeOnly);
     bool isAlly(const Unit *unit) const;
 	bool isAlly(int factionIndex) const;
 	bool reqsOk(const RequirableType *rt); 

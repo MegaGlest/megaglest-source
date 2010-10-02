@@ -200,9 +200,9 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
 			// Now MAKE SURE the unit has a harvest command for this resource
 			// AND that the resource is within eye-sight to avoid units
 			// standing around doing nothing.
-			const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt);
+			const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt,aiInterface->getMyUnit(unitIndex)->getFaction());
 			Vec2i resPos;
-			if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos)) {
+			if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
 				amount= r->getAmount();
 				neededResource= rt;
 			}
@@ -486,9 +486,9 @@ void Ai::harvest(int unitIndex) {
 	const ResourceType *rt= getNeededResource(unitIndex);
 
 	if(rt != NULL) {
-		const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt);
+		const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt,aiInterface->getMyUnit(unitIndex)->getFaction());
 		Vec2i resPos;
-		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos)) {
+		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
 			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2)); 
 			aiInterface->giveCommand(unitIndex, hct, resPos);
 			//aiInterface->printLog(4, "Order harvest pos:" + intToStr(resPos.x)+", "+intToStr(resPos.y)+": "+rrToStr(r)+"\n");

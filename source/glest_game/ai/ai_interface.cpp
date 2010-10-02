@@ -371,29 +371,45 @@ const TechTree *AiInterface::getTechTree(){
 	return world->getTechTree();
 }
 
-bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos){
-	float tmpDist;
+bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i &pos,
+											Vec2i &resultPos, bool usableResourceTypeOnly) {
+	float tmpDist=0;
 
 	float nearestDist= infinity;
 	bool anyResource= false;
 
-	const Map *map= world->getMap();
+	bool canUseResourceType = (usableResourceTypeOnly == false);
+	if(usableResourceTypeOnly == true) {
+		// can any unit harvest this resource yet?
+		for(int i = 0; i < getMyUnitCount(); ++i) {
+			const Unit *unit = getMyUnit(i);
+			const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
+			if(hct != NULL) {
+				canUseResourceType = true;
+				break;
+			}
+		}
+	}
 
-	for(int i=0; i<map->getW(); ++i){
-		for(int j=0; j<map->getH(); ++j){
-			Vec2i surfPos= Map::toSurfCoords(Vec2i(i, j));
-			
-			//if explored cell
-			if(map->getSurfaceCell(surfPos)->isExplored(teamIndex)){
-				Resource *r= map->getSurfaceCell(surfPos)->getResource(); 
+	if(canUseResourceType == true) {
+		const Map *map= world->getMap();
+
+		for(int i=0; i<map->getW(); ++i){
+			for(int j=0; j<map->getH(); ++j){
+				Vec2i surfPos= Map::toSurfCoords(Vec2i(i, j));
 				
-				//if resource cell
-				if(r!=NULL && r->getType()==rt){
-					tmpDist= pos.dist(Vec2i(i, j));
-					if(tmpDist<nearestDist){
-						anyResource= true;
-						nearestDist= tmpDist;
-						resultPos= Vec2i(i, j);
+				//if explored cell
+				if(map->getSurfaceCell(surfPos)->isExplored(teamIndex)){
+					Resource *r= map->getSurfaceCell(surfPos)->getResource();
+
+					//if resource cell
+					if(r != NULL && r->getType() == rt) {
+						tmpDist= pos.dist(Vec2i(i, j));
+						if(tmpDist < nearestDist) {
+							anyResource= true;
+							nearestDist= tmpDist;
+							resultPos= Vec2i(i, j);
+						}
 					}
 				}
 			}
