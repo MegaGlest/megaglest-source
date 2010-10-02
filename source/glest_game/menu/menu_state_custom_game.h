@@ -132,9 +132,10 @@ private:
 	Texture2D *factionTexture;
 
 	MapPreview mapPreview;
+	bool autostart;
 
 public:
-	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false);
+	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
 	~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -172,6 +173,9 @@ private:
 
 	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
+
+	void RestoreLastGameSettings();
+	void PlayNow();
 };
 
 }}//end namespace

@@ -77,6 +77,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	lastRenderFps=-1;
 	avgUpdateFps=-1;
 	avgRenderFps=-1;
+	currentAvgRenderFpsTotal=0;
+	tickCount=0;
 	paused= false;
 	gameOver= false;
 	renderNetworkStatus= false;
@@ -764,18 +766,24 @@ void Game::renderWorker() {
 
 // ==================== tick ====================
 
-void Game::tick(){
+void Game::tick() {
+	tickCount++;
+
 	if(avgUpdateFps == -1) {
 		avgUpdateFps = updateFps;
 	}
 	else {
 		avgUpdateFps = (avgUpdateFps + updateFps) / 2;
 	}
+	currentAvgRenderFpsTotal += renderFps;
+
 	if(avgRenderFps == -1) {
 		avgRenderFps = renderFps;
 	}
-	else {
-		avgRenderFps = (avgRenderFps + renderFps) / 2;
+	// Update the average every 10 game ticks
+	if(tickCount % 10 == 0) {
+		avgRenderFps = currentAvgRenderFpsTotal / 10;
+		currentAvgRenderFpsTotal = 0;
 	}
 
 	if(captureAvgTestStatus == true) {

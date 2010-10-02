@@ -132,7 +132,7 @@ public:
     static Program *getInstance()	{return singleton;}
 
 	void initNormal(WindowGl *window);
-	void initServer(WindowGl *window);
+	void initServer(WindowGl *window,bool autostart=false);
 	void initClient(WindowGl *window, const Ip &serverIp);
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 

@@ -23,9 +23,11 @@
 #include "script_manager.h"
 #include "game_settings.h"
 #include "network_interface.h"
+#include "types.h"
 #include "leak_dumper.h"
 
 using std::vector;
+using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
@@ -78,7 +80,8 @@ private:
     int mouse2d;
     int mouseX, mouseY; //coords win32Api
 	int updateFps, lastUpdateFps, avgUpdateFps;
-	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps;
+	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
+	Uint64 tickCount;
 	bool paused;
 	bool gameOver;
 	bool renderNetworkStatus;
