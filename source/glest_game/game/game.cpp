@@ -780,9 +780,10 @@ void Game::tick() {
 	if(avgRenderFps == -1) {
 		avgRenderFps = renderFps;
 	}
-	// Update the average every 10 game ticks
-	if(tickCount % 10 == 0) {
-		avgRenderFps = currentAvgRenderFpsTotal / 10;
+	// Update the average every x game ticks
+	const int CHECK_AVG_FPS_EVERY_X_TICKS = 15;
+	if(tickCount % CHECK_AVG_FPS_EVERY_X_TICKS == 0) {
+		avgRenderFps = currentAvgRenderFpsTotal / CHECK_AVG_FPS_EVERY_X_TICKS;
 		currentAvgRenderFpsTotal = 0;
 	}
 
