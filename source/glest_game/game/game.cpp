@@ -1769,6 +1769,19 @@ void Game::checkWinnerScripted() {
 			}
 		}
 
+		if( this->gameSettings.isNetworkGame() == false ||
+			this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+			// Let the happy winner view everything left in the world
+			//world.setFogOfWar(false);
+
+			// This caused too much LAG for network games
+			if(this->gameSettings.isNetworkGame() == false) {
+				Renderer::getInstance().setPhotoMode(true);
+				gameCamera.setMaxHeight(500);
+			}
+			// END
+		}
+
 		scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
 
 		if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
