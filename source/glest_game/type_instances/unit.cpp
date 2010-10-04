@@ -1362,7 +1362,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		throw runtime_error(szBuf);
 	}
 	//if not operative or has not command type => fail
-	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())){
+	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())|| !this->getFaction()->reqsOk(command->getCommandType())){
         return crFailUndefined;
 	}
 
