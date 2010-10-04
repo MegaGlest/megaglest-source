@@ -321,11 +321,11 @@ public:
 	void renderMessageBox(const GraphicMessageBox *listBox);
 
     //complex rendering
-    void renderSurface(const int renderFps, const int worldFrameCount);
-	void renderObjects(const int renderFps, const int worldFrameCount);
+    void renderSurface(const int renderFps);
+	void renderObjects(const int renderFps);
 
 	void renderWater();
-    void renderUnits(const int renderFps, const int worldFrameCount);
+    void renderUnits(const int renderFps);
 
 	void renderSelectionEffects();
 	void renderWaterEffects();

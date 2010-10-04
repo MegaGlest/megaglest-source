@@ -61,6 +61,8 @@ const int ScriptManager::messageWrapCount= 30;
 const int ScriptManager::displayTextWrapCount= 64;
 
 void ScriptManager::init(World* world, GameCamera *gameCamera){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	const Scenario*	scenario= world->getScenario();
 
 	this->world= world;
@@ -140,14 +142,20 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	gameOver= false;
 	gameWon = false;
 
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	//call startup function
 	luaScript.beginCall("startup");
 	luaScript.endCall();
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ========================== events ===============================================
 
 void ScriptManager::onMessageBoxOk(){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Lang &lang= Lang::getInstance();
 
 	if(!messageQueue.empty()){
@@ -160,11 +168,15 @@ void ScriptManager::onMessageBoxOk(){
 }
 
 void ScriptManager::onResourceHarvested(){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	luaScript.beginCall("resourceHarvested");
 	luaScript.endCall();
 }
 
 void ScriptManager::onUnitCreated(const Unit* unit){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	lastCreatedUnitName= unit->getType()->getName();
 	lastCreatedUnitId= unit->getId();
 	luaScript.beginCall("unitCreated");
@@ -174,6 +186,8 @@ void ScriptManager::onUnitCreated(const Unit* unit){
 }
 
 void ScriptManager::onUnitDied(const Unit* unit){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	lastDeadUnitName= unit->getType()->getName();
 	lastDeadUnitId= unit->getId();
 	luaScript.beginCall("unitDied");
@@ -181,16 +195,19 @@ void ScriptManager::onUnitDied(const Unit* unit){
 }
 
 void ScriptManager::onGameOver(bool won) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	gameWon = won;
 	luaScript.beginCall("gameOver");
 	luaScript.endCall();
 }
 
 void ScriptManager::onTimerTriggerEvent() {
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size());
 	if(TimerTriggerEventList.size() <= 0) {
 		return;
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size());
 
 	for(std::map<int,TimerTriggerEvent>::iterator iterMap = TimerTriggerEventList.begin();
 		iterMap != TimerTriggerEventList.end(); iterMap++) {
@@ -212,14 +229,14 @@ void ScriptManager::onTimerTriggerEvent() {
 }
 
 void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %p, CellTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,movingUnit,CellTriggerEventList.size());
 	if(CellTriggerEventList.size() <= 0) {
 		return;
 	}
-	else {
-		// remove any delayed removals
-		unregisterCellTriggerEvent(-1);
-	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %p, CellTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,movingUnit,CellTriggerEventList.size());
+
+	// remove any delayed removals
+	unregisterCellTriggerEvent(-1);
 
 	inCellTriggerEvent = true;
 	if(movingUnit != NULL) {
@@ -365,6 +382,8 @@ void ScriptManager::setDisplayText(const string &text){
 }
 
 void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
     va_list argList;
@@ -381,42 +400,50 @@ void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
 }
 
 void ScriptManager::setCameraPosition(const Vec2i &pos){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameCamera->centerXZ(pos.x, pos.y);
 }
 
 void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i pos){
-	//SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->createUnit(unitName, factionIndex, pos);
 }
 
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveResource(resourceName, factionIndex, amount);
 }
 
 void ScriptManager::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->givePositionCommand(unitId, commandName, pos);
 }
 
 void ScriptManager::giveAttackCommand(int unitId, int unitToAttackId) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveAttackCommand(unitId, unitToAttackId);
 }
 
 void ScriptManager::giveProductionCommand(int unitId, const string &producedName){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveProductionCommand(unitId, producedName);
 }
 
 void ScriptManager::giveUpgradeCommand(int unitId, const string &producedName){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveUpgradeCommand(unitId, producedName);
 }
 
 void ScriptManager::disableAi(int factionIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableAi();
@@ -425,6 +452,7 @@ void ScriptManager::disableAi(int factionIndex){
 }
 
 void ScriptManager::enableAi(int factionIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].enableAi();
@@ -439,6 +467,7 @@ bool ScriptManager::getAiEnabled(int factionIndex){
 }
 
 void ScriptManager::disableConsume(int factionIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableConsume();
@@ -446,6 +475,7 @@ void ScriptManager::disableConsume(int factionIndex){
 }
 
 void ScriptManager::enableConsume(int factionIndex){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].enableConsume();
@@ -605,14 +635,17 @@ int ScriptManager::getTimerEventSecondsElapsed(int eventId) {
 	return result;
 }
 
-void ScriptManager::setPlayerAsWinner(int factionIndex){
+void ScriptManager::setPlayerAsWinner(int factionIndex) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].setAsWinner();
 	}
 }
 
-void ScriptManager::endGame(){
+void ScriptManager::endGame() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	gameOver= true;
 }
@@ -643,28 +676,33 @@ Vec2i ScriptManager::getPerformanceTimerResults() {
 	return world->getGame()->getPerformanceTimerResults();
 }
 
-Vec2i ScriptManager::getStartLocation(int factionIndex){
+Vec2i ScriptManager::getStartLocation(int factionIndex) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getStartLocation(factionIndex);
 }
 
 
-Vec2i ScriptManager::getUnitPosition(int unitId){
+Vec2i ScriptManager::getUnitPosition(int unitId) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitPosition(unitId);
 }
 
-int ScriptManager::getUnitFaction(int unitId){
+int ScriptManager::getUnitFaction(int unitId) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitFactionIndex(unitId);
 }
 
-int ScriptManager::getResourceAmount(const string &resourceName, int factionIndex){
+int ScriptManager::getResourceAmount(const string &resourceName, int factionIndex) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getResourceAmount(resourceName, factionIndex);
 }
 
-const string &ScriptManager::getLastCreatedUnitName(){
+const string &ScriptManager::getLastCreatedUnitName() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastCreatedUnitName;
 }
@@ -684,27 +722,32 @@ bool ScriptManager::getGameWon() {
 	return gameWon;
 }
 
-int ScriptManager::getLastCreatedUnitId(){
+int ScriptManager::getLastCreatedUnitId() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastCreatedUnitId;
 }
 
-const string &ScriptManager::getLastDeadUnitName(){
+const string &ScriptManager::getLastDeadUnitName() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastDeadUnitName;
 }
 
-int ScriptManager::getLastDeadUnitId(){
+int ScriptManager::getLastDeadUnitId() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return lastDeadUnitId;
 }
 
-int ScriptManager::getUnitCount(int factionIndex){
+int ScriptManager::getUnitCount(int factionIndex) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitCount(factionIndex);
 }
 
-int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName){
+int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
@@ -1000,6 +1043,7 @@ int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 }
 
 int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	  //const char *ret;
 	  //lua_lock(luaHandle);

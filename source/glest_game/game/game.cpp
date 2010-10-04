@@ -1372,7 +1372,7 @@ void Game::render3d(){
 
 	//surface
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	renderer.renderSurface(avgRenderFps,world.getFrameCount());
+	renderer.renderSurface(avgRenderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSurface]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
 
@@ -1384,13 +1384,13 @@ void Game::render3d(){
 
 	//units
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	renderer.renderUnits(avgRenderFps,world.getFrameCount());
+	renderer.renderUnits(avgRenderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
 
 	//objects
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	renderer.renderObjects(avgRenderFps,world.getFrameCount());
+	renderer.renderObjects(avgRenderFps);
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
 
