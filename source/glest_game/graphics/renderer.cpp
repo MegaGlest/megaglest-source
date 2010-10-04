@@ -1261,7 +1261,7 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 
 // ==================== complex rendering ====================
 
-void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
+void Renderer::renderSurface(const int renderFps) {
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
 			getDebugRenderer().renderSurface(visibleQuad / Map::cellScale);
@@ -1457,7 +1457,7 @@ void Renderer::renderSurface(const int renderFps, const int worldFrameCount) {
 	)
 }
 
-void Renderer::renderObjects(const int renderFps, const int worldFrameCount) {
+void Renderer::renderObjects(const int renderFps) {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
@@ -1738,7 +1738,7 @@ void Renderer::renderWater() {
 	assertGl();
 }
 
-void Renderer::renderUnits(const int renderFps, const int worldFrameCount) {
+void Renderer::renderUnits(const int renderFps) {
 	Unit *unit=NULL;
 	const World *world= game->getWorld();
 	MeshCallbackTeamColor meshCallbackTeamColor;
