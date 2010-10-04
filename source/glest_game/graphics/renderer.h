@@ -237,6 +237,7 @@ private:
 	bool showDebugUI;
 
 	int lastRenderFps;
+	float smoothedRenderFps;
 	bool shadowsOffDueToMinRender;
 
 	bool useQuadCache;
@@ -373,7 +374,7 @@ public:
 	bool getShowDebugUI() const { return showDebugUI; }
 	void setShowDebugUI(bool value) { showDebugUI = value; }
 
-	void setLastRenderFps(int value) { lastRenderFps = value;}
+	void setLastRenderFps(int value);
 	int getLastRenderFps() const { return lastRenderFps;}
 
 	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
