@@ -43,7 +43,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	int lineOffset=25*lineIndex;
 	masterServerInfo=mServerInfo;
 	int i=10;
-	int startOffset=650;
+	int startOffset=630;
 	
 	//general info:
 	i+=10;
@@ -155,6 +155,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	
 	autoRefreshTime=0;
 	playServerFoundSound=false;
+	announcementLoaded=false;
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
@@ -163,16 +164,22 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	
 	lastRefreshTimer= time(NULL);	
 	
+	// announcement
+	announcementLabel.registerGraphicComponent(containerName,"announcementLabel");
+    announcementLabel.init(10, 730);
+    announcementLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    announcementLabel.setText("");
 
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
-	labelTitle.init(330, 700);
+	labelTitle.init(330, 670);
+	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setText(lang.get("AvailableServers"));
 
 	if(Config::getInstance().getString("Masterserver","") == "") {
 		labelTitle.setText("*** " + lang.get("AvailableServers"));
 	}
-
+    
 	// bottom
 	int buttonPos=130;
 	
@@ -378,6 +385,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderButton(&buttonRefresh);
 		renderer.renderButton(&buttonReturn);
 		renderer.renderLabel(&labelTitle);
+		renderer.renderLabel(&announcementLabel);
 		renderer.renderLabel(&labelAutoRefresh);
 		renderer.renderLabel(&labelChatUrl);
 		renderer.renderButton(&buttonCreateGame);
@@ -452,6 +460,13 @@ void MenuStateMasterserver::updateServerInfo() {
 		int numberOfOldServerLines=serverLines.size();
 		clearServerLines();
 		safeMutex.ReleaseLock(true);
+
+		if(!announcementLoaded)
+		{
+			std::string announcementTxt = SystemFlags::getHTTP(Config::getInstance().getString("AnnouncementURL","http://megaglest.pepper.freeit.org/announcement.txt"));
+			announcementLabel.setText(announcementTxt);
+			announcementLoaded=true;
+		}
 
 		if(Config::getInstance().getString("Masterserver","") != "") {
 			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
