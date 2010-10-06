@@ -105,7 +105,7 @@ protected:
 	bool active;
 	bool visible;
 	int aliveParticleCount;
-	//int particleCount;
+	int particleCount;
 	
 
 	Texture *texture;

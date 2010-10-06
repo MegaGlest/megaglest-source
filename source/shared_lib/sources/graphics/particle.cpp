@@ -50,7 +50,7 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	particleObserver= NULL;
 	
 	//params
-	//this->particleCount= particleCount;
+	this->particleCount= particleCount;
 	//this->particleCount= particles.size();
 	maxParticleEnergy= 250;
 	varParticleEnergy= 50;
@@ -101,13 +101,7 @@ void ParticleSystem::update() {
 				Particle *p = createParticle();
 				initParticle(p, i);
 			}
-			emissionState=emissionState-(float)emissionIntValue;
-//			if(aliveParticleCount==0){
-//				Particle *p = createParticle();
-//				initParticle(p, 0);
-//				emissionState=0;
-//			}
-			
+			emissionState=emissionState-(float)emissionIntValue;			
 		}
 	}
 }
@@ -206,16 +200,21 @@ int ParticleSystem::isEmpty() const{
 Particle * ParticleSystem::createParticle(){
 
 	//if any dead particles
-	if(aliveParticleCount < particles.size()) {
+	if(aliveParticleCount < particleCount) {
 		++aliveParticleCount;
 		return &particles[aliveParticleCount-1];
 	}
 
 	//if not
-	particles.push_back(Particle());
-	int particleCount = particles.size();
-	int minEnergy = particles[particleCount-1].energy;
-	int minEnergyParticle = particleCount-1;
+	int minEnergy = particles[0].energy;
+	int minEnergyParticle = 0;
+
+	for(int i = 0; i < particleCount; ++i){
+		if(particles[i].energy < minEnergy){
+			minEnergy = particles[i].energy;
+			minEnergyParticle = i;
+		}
+	}
 	return &particles[minEnergyParticle];
 
 /*
@@ -521,22 +520,6 @@ void UnitParticleSystem::updateParticle(Particle *p){
 			}
 		}
 	}
-
-	/*
-	p->lastPos= p->pos;
-	p->pos= p->pos+p->speed;
-	p->energy--;
-
-	if(p->color.x>0.0f)
-		p->color.x*= 0.98f;
-	if(p->color.y>0.0f)
-		p->color.y*= 0.98f;
-	if(p->color.w>0.0f)
-		p->color.w*= 0.98f;
-
-	p->speed.x*=1.001f;
-	*/
-
 }
 
 // ================= SET PARAMS ====================
@@ -961,13 +944,13 @@ void ParticleManager::update(int renderFps) {
 	chrono.start();
 
 	int particleSystemCount = particleSystems.size();
-	int particleCount = 0;
+	int currentParticleCount = 0;
 
 	vector<ParticleSystem *> cleanupParticleSystemsList;
 	for (int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		if(ps != NULL) {
-			particleCount += ps->getAliveParticleCount();
+			currentParticleCount += ps->getAliveParticleCount();
 
 			bool showParticle = true;
 			if( dynamic_cast<UnitParticleSystem *>(ps) != NULL ||
@@ -987,7 +970,7 @@ void ParticleManager::update(int renderFps) {
 	//particleSystems.remove(NULL);
 	cleanupParticleSystems(cleanupParticleSystemsList);
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, particleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,particleCount);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, currentParticleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,currentParticleCount);
 }
 
 bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particleSystem) const {
