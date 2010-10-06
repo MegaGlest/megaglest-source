@@ -464,7 +464,8 @@ void MenuStateMasterserver::updateServerInfo() {
 		if(!announcementLoaded)
 		{
 			std::string announcementTxt = SystemFlags::getHTTP(Config::getInstance().getString("AnnouncementURL","http://megaglest.pepper.freeit.org/announcement.txt"));
-			announcementLabel.setText(announcementTxt);
+			if(announcementTxt.substr (0,31)=="Announcement from Masterserver:")
+				announcementLabel.setText(announcementTxt);
 			announcementLoaded=true;
 		}
 
