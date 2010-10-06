@@ -82,10 +82,13 @@ private:
 	ServerLines serverLines;
 	GraphicLabel labelChatUrl;
 	
+	GraphicLabel announcementLabel;
+	
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	
+	bool announcementLoaded;
 	bool needUpdateFromServer;
 	int autoRefreshTime;
 	time_t lastRefreshTimer;
