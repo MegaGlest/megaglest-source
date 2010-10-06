@@ -82,11 +82,12 @@ enum GAME_ARG_TYPE {
 
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
-	virtual void handle(){
+	virtual void handle() {
 		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString;
 #ifdef WIN32
 		msg += ", attaching the generated "+getCrashDumpFileName()+" file.";
 #endif
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
         Program *program = Program::getInstance();
@@ -101,6 +102,7 @@ public:
 	static void handleRuntimeError(const char *msg) {
 		Program *program = Program::getInstance();
 
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 
         if(program && gameInitialized == true) {
@@ -566,13 +568,14 @@ int glestMain(int argc, char** argv){
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      = config.getBool("DebugMode","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     = config.getBool("DebugNetwork","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled = config.getBool("DebugPerformance","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  = config.getBool("DebugWorldSynch","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  = config.getBool("DebugUnitCommands","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  = config.getBool("DebugPathFinder","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  = config.getBool("DebugLUA","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      	= config.getBool("DebugMode","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     	= config.getBool("DebugNetwork","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled 	= config.getBool("DebugPerformance","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  	= config.getBool("DebugWorldSynch","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  	= config.getBool("DebugUnitCommands","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  	= config.getBool("DebugPathFinder","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  			= config.getBool("DebugLUA","false");
+		SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
 
 		string debugLogFile 			= config.getString("DebugLogFile","");
         if(getGameReadWritePath() != "") {
@@ -602,6 +605,7 @@ int glestMain(int argc, char** argv){
         if(debugLUALogFile == "") {
         	debugLUALogFile = debugLogFile;
         }
+		string debugErrorLogFile = config.getString("DebugLogFileError","");
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
@@ -610,16 +614,18 @@ int glestMain(int argc, char** argv){
         SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName = debugUnitCommandsLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName   = debugPathFinderLogFile;
         SystemFlags::getSystemSettingType(SystemFlags::debugLUA).debugLogFileName  		   = debugLUALogFile;
+        SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
 
         if(haveSpecialOutputCommandLineOption == false) {
-        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d]\n",
+        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
         			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled);
+        			SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled,
+        			SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled);
         }
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);

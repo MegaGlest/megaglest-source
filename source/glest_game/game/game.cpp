@@ -715,7 +715,9 @@ void Game::update() {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
@@ -896,6 +898,7 @@ void Game::mouseDownLeft(int x, int y){
 		}
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -910,6 +913,7 @@ void Game::mouseDownRight(int x, int y){
 		gui.mouseDownRightGraphics(x, y);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -924,6 +928,7 @@ void Game::mouseUpLeft(int x, int y){
 		gui.mouseUpLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -950,6 +955,7 @@ void Game::mouseDoubleClickLeft(int x, int y){
 		gui.mouseDoubleClickLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -1043,6 +1049,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 		lastMousePos.y = mouseY;
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -1060,6 +1067,7 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 		//gameCamera.setMoveY(1);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -1237,6 +1245,7 @@ void Game::keyDown(char key) {
 		//throw runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
@@ -1277,6 +1286,7 @@ void Game::keyUp(char key){
 		}
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {

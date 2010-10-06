@@ -15,7 +15,7 @@
 #include <stdexcept>
 
 #include "conversion.h"
-
+#include "util.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -26,6 +26,7 @@
 XERCES_CPP_NAMESPACE_USE
 
 using namespace std;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Xml{
 
@@ -59,7 +60,8 @@ XmlIo::XmlIo(){
 	try{
 		XMLPlatformUtils::Initialize();
 	}
-	catch(const XMLException&){
+	catch(const XMLException &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system\n",__FILE__,__FUNCTION__,__LINE__);
 		throw runtime_error("Error initializing XML system");
 	}
 
@@ -69,7 +71,8 @@ XmlIo::XmlIo(){
 
 		implementation = DOMImplementationRegistry::getDOMImplementation(str);
 	}
-	catch(const DOMException){
+	catch(const DOMException &ex){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser\n",__FILE__,__FUNCTION__,__LINE__);
 		throw runtime_error("Exception while creating XML parser");
 	}
 }
@@ -110,8 +113,9 @@ XmlNode *XmlIo::load(const string &path){
 		parser->release();
 		return rootNode;
 	}
-	catch(const DOMException &e){
-		throw runtime_error("Exception while loading: " + path + ": " + XMLString::transcode(e.msg));
+	catch(const DOMException &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while loading: [%s], %s\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		throw runtime_error("Exception while loading: " + path + ": " + XMLString::transcode(ex.msg));
 	}
 }
 
@@ -145,6 +149,7 @@ void XmlIo::save(const string &path, const XmlNode *node){
 		document->release();
 	}
 	catch(const DOMException &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
 		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
 	}
 }

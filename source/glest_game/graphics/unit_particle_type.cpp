@@ -16,12 +16,12 @@
 #include "xml_parser.h"
 #include "config.h"
 #include "game_constants.h"
-//#include "renderer.h"
 
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -220,6 +220,7 @@ void UnitParticleSystemType::load(const string &dir, const string &path, Rendere
 		UnitParticleSystemType::load(particleSystemNode, dir, renderer);
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }

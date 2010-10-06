@@ -110,6 +110,7 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 		}
     }
     catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR trying to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
     }
 

@@ -123,6 +123,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading UpgradeType: "+ dir + "\n" +e.what());
 	}
 

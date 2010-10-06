@@ -342,7 +342,9 @@ bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 
 		initOk = true;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	} catch(const exception &ex) {
+	}
+	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		printOpenALInfo();
 		//throw std::runtime_error(ex.what());
@@ -416,7 +418,9 @@ void SoundPlayerOpenAL::play(StaticSound* staticSound) {
 		if(source == 0)
 			return;
 		source->play(staticSound);
-	} catch(std::exception& e) {
+	}
+	catch(std::exception& e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		std::cerr << "Couldn't play static sound: " << e.what() << "\n";
 	}
 }
@@ -429,7 +433,9 @@ void SoundPlayerOpenAL::play(StrSound* strSound, int64 fadeOn) {
 	try {
 		StreamSoundSource* source = findStreamSoundSource();
 		source->play(strSound, fadeOn);
-	} catch(std::exception& e) {
+	}
+	catch(std::exception& e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		std::cerr << "Couldn't play streaming sound: " << e.what() << "\n";
 	}
 }
@@ -473,7 +479,10 @@ void SoundPlayerOpenAL::updateStreams() {
 			StreamSoundSource* source = *i;
 			try {
 				source->update();
-			} catch(std::exception& e) {
+			}
+			catch(std::exception& e) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+
 				std::cerr << "Error while updating sound stream: "
 					<< e.what() << "\n";
 			}
@@ -481,6 +490,7 @@ void SoundPlayerOpenAL::updateStreams() {
 		alcProcessContext(context);
 		checkAlcError("Error while processing audio context: ");
 	} catch(...) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
 		printOpenALInfo();
 		throw;
 	}

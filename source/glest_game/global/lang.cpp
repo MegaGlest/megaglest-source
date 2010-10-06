@@ -70,22 +70,28 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 	}
 }
 
-string Lang::get(const string &s){
+string Lang::get(const string &s) {
 	try{
 		string result = strings.getString(s);
 		replaceAll(result, "\\n", "\n");
 		return result;
 	}
-	catch(exception &){
+	catch(exception &ex) {
+		if(strings.getpath() != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
 		return "???" + s + "???";
 	}
 }
 
-string Lang::getScenarioString(const string &s){
+string Lang::getScenarioString(const string &s) {
 	try{
 		return scenarioStrings.getString(s);
 	}
-	catch(exception &){
+	catch(exception &ex) {
+		if(scenarioStrings.getpath() != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
 		return "???" + s + "???";
 	}
 }

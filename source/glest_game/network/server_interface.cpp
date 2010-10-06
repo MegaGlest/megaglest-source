@@ -387,6 +387,7 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 	catch(const exception &ex) {
 		alreadyInLagCheck = false;
 
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	throw runtime_error(ex.what());
 	}
@@ -518,6 +519,7 @@ void ServerInterface::update() {
 								}
 							}
 							catch(const exception &ex) {
+								SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 								errorMsgList.push_back(ex.what());
 							}
@@ -608,6 +610,7 @@ void ServerInterface::update() {
 								}
 							}
 							catch(const exception &ex) {
+								SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 								errorMsgList.push_back(ex.what());
 							}
@@ -676,6 +679,7 @@ void ServerInterface::update() {
 							}
 						}
 						catch(const exception &ex) {
+							SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 							errorMsgList.push_back(ex.what());
 						}
@@ -687,6 +691,7 @@ void ServerInterface::update() {
 		}
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		errorMsgList.push_back(ex.what());
 	}
@@ -740,6 +745,7 @@ void ServerInterface::updateKeyframe(int frameCount){
 		broadcastMessage(&networkMessageCommandList);
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		DisplayErrorMessage(ex.what());
 	}
@@ -937,6 +943,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 		gameStartTime = time(NULL);
     }
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		DisplayErrorMessage(ex.what());
 	}
@@ -1168,6 +1175,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
     	}
     }
     catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	//throw runtime_error(ex.what());
 
@@ -1196,6 +1204,7 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage* n
 		}
 	}
     catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	//throw runtime_error(ex.what());
     	DisplayErrorMessage(ex.what());

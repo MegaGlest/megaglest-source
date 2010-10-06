@@ -389,6 +389,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 	}
 	//Exception handling (conversions and so on);
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading UnitType: " + path + "\n" + e.what());
 	}
 

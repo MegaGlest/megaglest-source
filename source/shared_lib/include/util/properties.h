@@ -71,9 +71,9 @@ public:
 	void setFloat(const string &key, float value);
 	void setString(const string &key, const string &value);
 
+	string getpath() const { return path;}
+
 	string toString();
-
-
 };
 
 }}//end namespace
