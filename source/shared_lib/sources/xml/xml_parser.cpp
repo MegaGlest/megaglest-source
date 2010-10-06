@@ -15,18 +15,16 @@
 #include <stdexcept>
 
 #include "conversion.h"
-#include "util.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
+#include "util.h"
 #include "leak_dumper.h"
 
 
 XERCES_CPP_NAMESPACE_USE
 
 using namespace std;
-using namespace Shared::Util;
 
 namespace Shared{ namespace Xml{
 
@@ -103,7 +101,7 @@ XmlNode *XmlIo::load(const string &path){
 		config->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
 		config->setParameter(XMLUni::fgDOMValidate, true);
 #endif		
-		DOMDocument *document= parser->parseURI(path.c_str());
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
 
 		if(document==NULL){
 			throw runtime_error("Can not parse URL: " + path);
@@ -124,10 +122,10 @@ void XmlIo::save(const string &path, const XmlNode *node){
 		XMLCh str[strSize];
 		XMLString::transcode(node->getName().c_str(), str, strSize-1);
 
-		DOMDocument *document= implementation->createDocument(0, str, 0);  
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);  
 		DOMElement *documentElement= document->getDocumentElement();
 		
-		for(int i=0; i<node->getChildCount(); ++i){
+		for(unsigned int i=0; i<node->getChildCount(); ++i){
 			documentElement->appendChild(node->getChild(i)->buildElement(document));
 		}
 		
@@ -194,7 +192,7 @@ XmlNode::XmlNode(DOMNode *node){
 	}
 
 	//check children
-	for(int i=0; i<node->getChildNodes()->getLength(); ++i){
+	for(unsigned int i=0; i<node->getChildNodes()->getLength(); ++i){
 		DOMNode *currentNode= node->getChildNodes()->item(i);
 		if(currentNode->getNodeType()==DOMNode::ELEMENT_NODE){
 			XmlNode *xmlNode= new XmlNode(currentNode);
@@ -205,7 +203,7 @@ XmlNode::XmlNode(DOMNode *node){
 	//check attributes
 	DOMNamedNodeMap *domAttributes= node->getAttributes();
 	if(domAttributes!=NULL){
-		for(int i=0; i<domAttributes->getLength(); ++i){
+		for(unsigned int i=0; i<domAttributes->getLength(); ++i){
 			DOMNode *currentNode= domAttributes->item(i);
 			if(currentNode->getNodeType()==DOMNode::ATTRIBUTE_NODE){
 				XmlAttribute *xmlAttribute= new XmlAttribute(domAttributes->item(i));
@@ -227,10 +225,10 @@ XmlNode::XmlNode(const string &name){
 }
 
 XmlNode::~XmlNode(){
-	for(int i=0; i<children.size(); ++i){
+	for(unsigned int i=0; i<children.size(); ++i){
 		delete children[i];
 	}
-	for(int i=0; i<attributes.size(); ++i){
+	for(unsigned int i=0; i<attributes.size(); ++i){
 		delete attributes[i];
 	}
 }
@@ -243,7 +241,7 @@ XmlAttribute *XmlNode::getAttribute(int i) const{
 }
 
 XmlAttribute *XmlNode::getAttribute(const string &name) const{
-	for(int i=0; i<attributes.size(); ++i){
+	for(unsigned int i=0; i<attributes.size(); ++i){
 		if(attributes[i]->getName()==name){
 			return attributes[i];
 		}
@@ -264,7 +262,7 @@ XmlNode *XmlNode::getChild(const string &childName, int i) const{
 	}
 
 	int count= 0;
-	for(int j=0; j<children.size(); ++j){
+	for(unsigned int j=0; j<children.size(); ++j){
 		if(children[j]->getName()==childName){
 			if(count==i){
 				return children[j];
@@ -279,7 +277,7 @@ XmlNode *XmlNode::getChild(const string &childName, int i) const{
 bool XmlNode::hasChildAtIndex(const string &childName, int i) const
 {
 	int count= 0;
-	for(int j = 0; j < children.size(); ++j)
+	for(unsigned int j = 0; j < children.size(); ++j)
 	{
 		if(children[j]->getName()==childName)
 		{
@@ -297,7 +295,7 @@ bool XmlNode::hasChildAtIndex(const string &childName, int i) const
 bool XmlNode::hasChild(const string &childName) const
 {
 	int count= 0;
-	for(int j = 0; j < children.size(); ++j)
+	for(unsigned int j = 0; j < children.size(); ++j)
 	{
 		if(children[j]->getName()==childName)
 		{
@@ -320,13 +318,13 @@ XmlAttribute *XmlNode::addAttribute(const string &name, const string &value){
 	return attr;
 }
 
-DOMElement *XmlNode::buildElement(DOMDocument *document) const{
+DOMElement *XmlNode::buildElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document) const{
 	XMLCh str[strSize];
 	XMLString::transcode(name.c_str(), str, strSize-1);
 
 	DOMElement *node= document->createElement(str);
 
-	for(int i=0; i<attributes.size(); ++i){
+	for(unsigned int i=0; i<attributes.size(); ++i){
         XMLString::transcode(attributes[i]->getName().c_str(), str, strSize-1);
 		DOMAttr *attr= document->createAttribute(str);
 
@@ -336,7 +334,7 @@ DOMElement *XmlNode::buildElement(DOMDocument *document) const{
 		node->setAttributeNode(attr);
 	}
 
-	for(int i=0; i<children.size(); ++i){
+	for(unsigned int i=0; i<children.size(); ++i){
 		node->appendChild(children[i]->buildElement(document));
 	}
 
@@ -350,7 +348,7 @@ string XmlNode::getTreeString() const{
 
 	if(!children.empty()){
 		str+= " (";
-		for(int i=0; i<children.size(); ++i){
+		for(unsigned int i=0; i<children.size(); ++i){
 			str+= children[i]->getTreeString();
 			str+= " ";
 		}
@@ -419,7 +417,7 @@ const string &XmlAttribute::getRestrictedValue() const
 {
 	const string allowedCharacters = "abcdefghijklmnopqrstuvwxyz1234567890._-/";
 
-	for(int i= 0; i<value.size(); ++i){
+	for(unsigned int i= 0; i<value.size(); ++i){
 		if(allowedCharacters.find(value[i])==string::npos){
 			throw runtime_error(
 				string("The string \"" + value + "\" contains a character that is not allowed: \"") + value[i] +

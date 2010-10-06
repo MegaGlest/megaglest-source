@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <string.h>
 #include "SDL_syswm.h"
+#include <iostream>
 
 #include "leak_dumper.h"
 
