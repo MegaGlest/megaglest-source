@@ -82,8 +82,10 @@ void LuaScript::loadCode(const string &code, const string &name){
 		throw runtime_error("Error initializing lua: " + errorToString(errorCode));
 	}
 
+	const char *errMsg = lua_tostring(luaState, -1);
+
 	//SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d,\ncode [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,code.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d, errMsg = %s\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,(errMsg != NULL ? errMsg : ""));
 }
 
 void LuaScript::beginCall(const string& functionName){
