@@ -617,6 +617,7 @@ void MenuStateConnectedGame::render() {
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
 }
@@ -1062,6 +1063,7 @@ void MenuStateConnectedGame::update() {
 		catch(const runtime_error &ex) {
 			char szBuf[1024]="";
 			sprintf(szBuf,"Error [%s]",ex.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 			//throw runtime_error(szBuf);
 			showMessageBox( szBuf, "Error", false);
@@ -1170,6 +1172,7 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Error [%s]",ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 		//throw runtime_error(szBuf);
 		showMessageBox( szBuf, "Error", false);
@@ -1425,6 +1428,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 		}
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 
 		//throw runtime_error("Error loading map file: "+file+'\n'+e.what());

@@ -128,6 +128,7 @@ void ResourceType::load(const string &dir, Checksum* checksum){
 		}
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading resource type: " + path + "\n" + e.what());
 	}
 }

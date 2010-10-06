@@ -85,7 +85,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	catch(const std::exception &ex) {
 		serverInitError = true;
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);!!!
 		showGeneralError=true;
@@ -1237,6 +1238,7 @@ void MenuStateCustomGame::update() {
 								}
 							}
 							catch(const runtime_error &e) {
+								SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 							}
 						}
@@ -1262,6 +1264,7 @@ void MenuStateCustomGame::update() {
 							}
 						}
 						catch(const runtime_error &e) {
+							SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 						}
 					}
@@ -1548,6 +1551,7 @@ void MenuStateCustomGame::update() {
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);
 		showGeneralError=true;
@@ -2023,6 +2027,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
         }
     }
     catch(const exception &ex) {
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	showMessageBox( ex.what(), "Error", false);
 
@@ -2055,8 +2060,8 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
     }
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		//throw runtime_error(szBuf);
+		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		showGeneralError=true;
 		generalErrorToShow = ex.what();
@@ -2111,7 +2116,8 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 	    	mapPreview.loadFromFile(file.c_str());
 	    }
 	}
-	catch(exception &e){
+	catch(exception &e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
 		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 
@@ -2178,7 +2184,8 @@ void MenuStateCustomGame::updateControlers(){
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
 }
@@ -2197,7 +2204,8 @@ void MenuStateCustomGame::closeUnusedSlots(){
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
 }
@@ -2215,6 +2223,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 				catch(const std::exception &ex) {
 					char szBuf[1024]="";
 					sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 					showGeneralError=true;
 					if(serverInterface->isPortBound() == false) {
@@ -2236,7 +2245,8 @@ void MenuStateCustomGame::updateNetworkSlots() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);!!!
 		showGeneralError=true;

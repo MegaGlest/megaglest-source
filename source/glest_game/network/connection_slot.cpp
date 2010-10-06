@@ -134,6 +134,7 @@ void ConnectionSlotThread::execute() {
 	catch(const exception &ex) {
 		setRunningStatus(false);
 
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw runtime_error(ex.what());
@@ -644,6 +645,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 		}
 	}
 	catch(const exception &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 
 		threadErrorList.push_back(ex.what());

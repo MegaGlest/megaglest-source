@@ -100,6 +100,7 @@ bool Properties::getBool(const string &key, const char *defaultValueIfNotFound) 
 		return strToBool(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -109,6 +110,7 @@ int Properties::getInt(const string &key,const char *defaultValueIfNotFound) con
 		return strToInt(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -126,6 +128,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 		return strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -189,6 +192,7 @@ bool Properties::getBool(const char *key, const char *defaultValueIfNotFound) co
 		return strToBool(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -198,6 +202,7 @@ int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const
 		return strToInt(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -207,6 +212,7 @@ float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) 
 		return strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }

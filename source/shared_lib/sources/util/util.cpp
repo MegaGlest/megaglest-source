@@ -151,12 +151,13 @@ CURL *SystemFlags::initHTTP() {
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	if(SystemFlags::debugLogFileList.size() == 0) {
-		SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
-		SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 = SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
-		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] = SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
-		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  = SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
-		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  = SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
-		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  = SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
+		SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
+		SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
+		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] 	= SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
+		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  	= SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
+		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
+		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
+		SystemFlags::debugLogFileList[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -360,8 +361,11 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
         MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-		if (type != debugPathFinder) {
+		if (type != debugPathFinder && type != debugError) {
 	        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+		}
+		else if (type == debugError) {
+			(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << szBuf;
 		}
 		else {
 	        (*currentDebugLog.fileStream) << szBuf;
@@ -372,8 +376,11 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     }
     // output to console
     else {
-		if (type != debugPathFinder) {
+		if (type != debugPathFinder && type != debugError) {
 			printf("[%s] %s", szBuf2, szBuf);
+		}
+		else if (type == debugError) {
+			printf("[%s] *ERROR* %s", szBuf2, szBuf);
 		}
 		else {
 			printf("%s", szBuf);

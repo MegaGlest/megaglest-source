@@ -17,11 +17,12 @@
 #include "model.h"
 #include "config.h"
 #include "game_constants.h"
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
@@ -202,6 +203,7 @@ void ParticleSystemTypeProjectile::load(const string &dir, const string &path,Re
 		}
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }
@@ -246,6 +248,7 @@ void ParticleSystemTypeSplash::load(const string &dir, const string &path,Render
 		horizontalSpreadB= horizontalSpreadNode->getAttribute("b")->getFloatValue(-1.0f, 1.0f);
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }

@@ -152,6 +152,10 @@ void PlatformExceptionHandler::install(string dumpFileName){
 //}
 
 void message(string message){
+	std::cerr << "******************************************************\n";
+	std::cerr << "    " << message << "\n";
+	std::cerr << "******************************************************\n";
+
 	MessageBox(NULL, message.c_str(), "Message", MB_OK);
 }
 

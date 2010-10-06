@@ -531,6 +531,7 @@ void MenuStateMasterserver::updateServerInfo() {
 		safeMutex.ReleaseLock(true);
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		threadedErrorMsg = e.what();
 	}

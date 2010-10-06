@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martio Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -493,6 +493,7 @@ void Model::loadG3d(const string &path){
 		fclose(f);
     }
 	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
 	}
 }

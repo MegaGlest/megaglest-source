@@ -215,6 +215,7 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 		fclose(f);
 	}
 	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading map: "+ path+ "\n"+ e.what());
 	}
 }

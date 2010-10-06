@@ -368,6 +368,7 @@ void ClientInterface::updateLobby() {
 					//}
 				}
 				catch(const runtime_error &ex) {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 					string sErr = ex.what();
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error during processing, sErr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
