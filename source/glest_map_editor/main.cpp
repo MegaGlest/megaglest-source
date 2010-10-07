@@ -299,7 +299,11 @@ MainWindow::MainWindow()
 #else
 	//std::cout << "B" << std::endl;
 	wxIcon icon;
-	icon.LoadFile(wxT("editor.ico"),wxBITMAP_TYPE_ICO);
+	std::ifstream testFile("editor.ico");
+	if(testFile.good())	{
+		testFile.close();
+		icon.LoadFile(wxT("editor.ico"),wxBITMAP_TYPE_ICO);
+	}
 #endif
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
