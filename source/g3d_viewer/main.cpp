@@ -128,7 +128,11 @@ MainWindow::MainWindow(const string &modelPath)
 #else
 	//std::cout << "B" << std::endl;
 	wxIcon icon;
-	icon.LoadFile(wxT("g3dviewer.ico"),wxBITMAP_TYPE_ICO);
+	std::ifstream testFile("g3dviewer.ico");
+	if(testFile.good())	{
+		testFile.close();
+		icon.LoadFile(wxT("g3dviewer.ico"),wxBITMAP_TYPE_ICO);
+	}
 #endif
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
