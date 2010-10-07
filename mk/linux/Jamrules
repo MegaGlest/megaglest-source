@@ -4,7 +4,12 @@ if ! $(top_builddir)
 }
 top_srcdir = $(TOP) ;
 
-MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse ;
+MUDFLAP_FLAGS = -g -DGLIBCXX_FORCE_NEW ;
+MUDFLAP_LIBS = ;
+#MUDFLAP_FLAGS = -fmudflapth -include mf-runtime.h
+#MUDFLAP_LIBS = -lmudflapth
+
+MGFLAGS = -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse $(MUDFLAP_FLAGS) ;
 
 JAMCONFIG ?= $(top_builddir)/Jamconfig ;
 include $(JAMCONFIG) ;
@@ -35,13 +40,13 @@ CPPFLAGS                   += $(MGFLAGS) ;
 COMPILER_CFLAGS            += -Wall -W -Wno-unused -Wno-sign-compare $(MGFLAGS) ;
 COMPILER_CFLAGS_optimize   += -O3 -DNDEBUG $(MGFLAGS) ;
 COMPILER_CXXFLAGS_optimize += -O3 -DNDEBUG $(MGFLAGS) ;
-COMPILER_LIBS_optimize     += ;
+COMPILER_LIBS_optimize     += $(MUDFLAP_LIBS) ;
 COMPILER_CFLAGS_debug      += -DDEBUG -g3 ;
 COMPILER_CXXFLAGS_debug    += -DDEBUG -g3 ;
-COMPILER_LIBS_debug        += -g3 ;
+COMPILER_LIBS_debug        += -g3 $(MUDFLAP_LIBS) ;
 COMPILER_CFLAGS_profile    += -O3 -fno-inline -pg ;
 COMPILER_CXXFLAGS_profile  += -O3 -fno-inline -g3 -pg ;
-COMPILER_LIBS_profile      += -pg ;
+COMPILER_LIBS_profile      += -pg $(MUDFLAP_LIBS) ;
 
 LINK = $(CXX) ;
 
