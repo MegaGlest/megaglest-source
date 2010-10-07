@@ -5,7 +5,7 @@
 
 # Below is the old version to compare with. The new version is pulled from
 # configure.ac
-OLD_VERSION=3.3.5
+OLD_VERSION=3.3.6
 
 cd release
 
