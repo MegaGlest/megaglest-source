@@ -69,7 +69,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "editor.ico",
-            commandline = "%0/glest_editor",
+            commandline = "%0/editor",
             category = "Game"
         },
 
@@ -81,7 +81,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "g3dviewer.ico",
-            commandline = "%0/glest_g3dviewer",
+            commandline = "%0/g3dviewer",
             category = "Game"
         }
 		
