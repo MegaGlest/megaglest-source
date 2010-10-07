@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -26,7 +26,7 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.7-beta3";
+const string glestVersionString= "v3.3.7";
 const string SVN_Rev = "$Rev$";
 
 string getCrashDumpFileName(){
