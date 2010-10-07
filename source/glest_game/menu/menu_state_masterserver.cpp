@@ -461,11 +461,14 @@ void MenuStateMasterserver::updateServerInfo() {
 		clearServerLines();
 		safeMutex.ReleaseLock(true);
 
-		if(!announcementLoaded)
-		{
-			std::string announcementTxt = SystemFlags::getHTTP(Config::getInstance().getString("AnnouncementURL","http://megaglest.pepper.freeit.org/announcement.txt"));
-			if(announcementTxt.substr (0,31)=="Announcement from Masterserver:")
-				announcementLabel.setText(announcementTxt);
+		if(announcementLoaded == false) {
+			string announcementURL = Config::getInstance().getString("AnnouncementURL","http://megaglest.pepper.freeit.org/announcement.txt");
+			if(announcementURL != "") {
+				std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
+				if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
+					announcementLabel.setText(announcementTxt);
+				}
+			}
 			announcementLoaded=true;
 		}
 

@@ -121,6 +121,7 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode(bool exitingApp=false);
 
+bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
 
 string replaceAll(string& context, const string& from, const string& to);

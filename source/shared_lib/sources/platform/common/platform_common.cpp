@@ -304,6 +304,10 @@ bool isdir(const char *path)
   return ret;
 }
 
+bool StartsWith(const std::string &str, const std::string &key) {
+  return str.find(key) == 0;
+}
+
 bool EndsWith(const string &str, const string& key)
 {
     bool result = false;
