@@ -2406,7 +2406,7 @@ string MenuStateCustomGame::getCurrentMapFile(){
 }
 
 void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
-/*
+
 	if(newLable != NULL) {
 		string text= newLable->getText();
 		size_t found = text.find_last_of("_");
@@ -2424,7 +2424,7 @@ void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
 		activeInputLabel->setText(text);
 	}
 	activeInputLabel = newLable;
-*/
+
 }
 
 string MenuStateCustomGame::getHumanPlayerName(int index) {
@@ -2433,7 +2433,7 @@ string MenuStateCustomGame::getHumanPlayerName(int index) {
 	//printf("\nIn [%s::%s Line: %d] index = %d\n",__FILE__,__FUNCTION__,__LINE__,index);
 	//fflush(stdout);
 
-/*
+
 	if(index < 0) {
 		for(int j = 0; j < GameConstants::maxPlayers; ++j) {
 			if(listBoxControls[j].getSelectedItemIndex() >= 0) {
@@ -2461,7 +2461,7 @@ string MenuStateCustomGame::getHumanPlayerName(int index) {
 			}
 		}
 	}
-*/
+
 	return result;
 }
 
