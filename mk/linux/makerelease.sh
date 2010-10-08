@@ -12,7 +12,7 @@ mkdir -p $RELEASEDIR
 pushd "`pwd`/../../source"
 find glest_game/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find shared_lib/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find configurator/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find masterserver/ \( -name "*.php" -o -name "*.sql" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
