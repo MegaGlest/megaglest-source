@@ -531,9 +531,9 @@ int glestMain(int argc, char** argv){
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) == true) {
 #ifdef USE_STREFLOP
 	streflop_init<streflop::Simple>();
-	printf("%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
+	printf("%s, SVN: [%s], [STREFLOP]\n",getNetworkVersionString().c_str(),getSVNRevisionString().c_str());
 #else
-	printf("%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
+	printf("%s, SVN: [%s]\n",getNetworkVersionString().c_str(),getSVNRevisionString().c_str());
 #endif
 	}
 
