@@ -443,13 +443,14 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
 				   (labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
-					if(grabSlotButton[i].mouseClick(x, y) )
-					{
+					if(grabSlotButton[i].mouseClick(x, y) ) {
 						soundRenderer.playFx(coreData.getClickSoundA());
 						clientInterface->setGameSettingsReceived(false);
 						settingsReceivedFromServer=false;
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
 						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),myCurrentIndex,i,listBoxTeams[myCurrentIndex].getSelectedItemIndex(),labelPlayerNames[myCurrentIndex].getText(),switchSetupRequestFlagType);
+						labelPlayerNames[myCurrentIndex].setText("");
+						labelPlayerNames[i].setText("");
 						switchSetupRequestFlagType=ssrft_None;
 						break;
 					}
