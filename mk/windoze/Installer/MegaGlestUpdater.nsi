@@ -1,9 +1,11 @@
 ;--------------------------------
 ; General Attributes
 
-!define APNAME Mega-Glest
-!define APVER 3.3.5
-!define APVER_UPDATE 3.3.5.1-beta1
+!define APNAME MegaGlest
+!define APVER 3.3.7
+!define APNAME_OLD Mega-Glest
+!define APVER_OLD 3.3.6
+!define APVER_UPDATE 3.3.7
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -70,16 +72,29 @@ Function MUIGUIInit
 #  GetDlgItem $0 $0 1006
 #  SetCtlColors $0 0xDF9437 0xDF9437
 
-   ReadRegStr $R0 HKLM Software\${APNAME}_${APVER} "Install_Dir"
+   StrCpy $R2 ${APVER}
+
+   ReadRegStr $R0 HKLM Software\${APNAME} "Install_Dir"
+   StrCmp $R0 "" +2 0
+   ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "UninstallString"
+   ReadRegStr $R2 HKLM Software\${APNAME} "Version"
    StrCmp $R0 "" 0 foundInst
-   
+
+   ReadRegStr $R0 HKLM Software\${APNAME_OLD}_${APVER_OLD} "Install_Dir"
+   StrCmp $R0 "" +2 0
+   ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME_OLD}_${APVER_OLD}" "UninstallString"
+   StrCpy $R2 ${APVER_OLD}
+   StrCmp $R0 "" 0 foundInst
+
    IfFileExists $INSTDIR\glest_game.exe 0 +2
    StrCpy $R0 "$INSTDIR"
+   StrCpy $R2 "?"
    IfFileExists $INSTDIR\glest_game.exe foundInst
 
    IfFileExists $EXEDIR\glest_game.exe 0 +2
    StrCpy $R0 "$EXEDIR"
-   IfFileExists $EXEDIR\glest_game.exe foundInst notFoundInst
+   StrCpy $R2 "?"
+   IfFileExists $EXEDIR\glest_game.exe foundInst doneInit
 
 foundInst:
    StrCpy $INSTDIR "$R0"
@@ -144,16 +159,17 @@ Section "${APNAME} (required)"
   SetOutPath $INSTDIR
 
   ; remove old Norsemen training_field upgrade
-  RMDir /r "$INSTDIR\techs\megapack\factions\norsemen\upgrades\training_field"
+  #RMDir /r "$INSTDIR\techs\megapack\factions\norsemen\upgrades\training_field"
 
   ; Put file there
   File "..\..\..\data\glest_game\glest_game.exe"
   File "..\..\..\data\glest_game\glest_editor.exe"
   File "..\..\..\data\glest_game\glest_configurator.exe"
   File "..\..\..\data\glest_game\g3d_viewer.exe"
+  File "..\..\..\data\glest_game\*.ini"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\*.lng"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\*.xml"
+  #File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
+  #File /r /x .svn /x mydata "..\..\..\data\glest_game\*.xml"
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 
