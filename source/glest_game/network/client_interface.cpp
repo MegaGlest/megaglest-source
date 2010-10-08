@@ -181,7 +181,7 @@ void ClientInterface::updateLobby() {
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d, playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey,playerIndex);
 
                 //check consistency
                 if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
@@ -471,7 +471,7 @@ void ClientInterface::updateLobby() {
                     //set the faction index
                     if(gameSettings.getStartLocationIndex(i) == playerIndex) {
                         gameSettings.setThisFactionIndex(i);
-                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
                     }
                 }
 
@@ -487,9 +487,10 @@ void ClientInterface::updateLobby() {
 		case nmtPlayerIndexMessage:
 		{
 			PlayerIndexMessage playerIndexMessage(-1);
-			if(receiveMessage(&playerIndexMessage))
-            {
+			if(receiveMessage(&playerIndexMessage)) {
 				playerIndex= playerIndexMessage.getPlayerIndex();
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtPlayerIndexMessage, playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
             }
 		}
 		break;
@@ -791,7 +792,11 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 }
 
 void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal){
-	NetworkMessageText networkMessageText(text, getHumanPlayerName(), teamIndex);
+
+	string humanPlayerName = getHumanPlayerName();
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
+
+	NetworkMessageText networkMessageText(text, humanPlayerName, teamIndex);
 	sendMessage(&networkMessageText);
 
 	if(echoLocal == true) {
@@ -1015,9 +1020,9 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 string ClientInterface::getHumanPlayerName(int index) {
 	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
 
-	if(index >= 0 || playerIndex >= 0) {
+	if(index >= 0 || playerIndex > 0) {
 		if(index < 0) {
-			index = playerIndex;
+			index = playerIndex-1;
 		}
 		if(gameSettings.getNetworkPlayerName(index) != "") {
 			result = gameSettings.getNetworkPlayerName(index);
