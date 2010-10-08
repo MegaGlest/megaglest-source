@@ -179,18 +179,15 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 		}
     }
     
-    if(dynamic_cast<const CommandType *>(rt) != NULL ){
-    	const CommandType *ct=(CommandType *) rt;
-	    if(ct->getProduced() != NULL &&  dynamic_cast<const UnitType *>(ct->getProduced()) != NULL ){
-	    	
-			const UnitType *producedUnitType= (UnitType *) ct->getProduced();   			
-	   		if(producedUnitType->getMaxUnitCount()>0){
-				if(producedUnitType->getMaxUnitCount()<=getCountForMaxUnitCount(producedUnitType)){
-			        return false;
-				}
-	   		}
-	    }
+    if(dynamic_cast<const UnitType *>(rt) != NULL ){
+    	const UnitType *producedUnitType=(UnitType *) rt;		
+   		if(producedUnitType->getMaxUnitCount()>0){
+			if(producedUnitType->getMaxUnitCount()<=getCountForMaxUnitCount(producedUnitType)){
+		        return false;
+			}
+   		}
     }
+    
 	return true;
 }
 
