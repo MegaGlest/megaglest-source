@@ -3,8 +3,8 @@
 
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.3.5
-!define APVER 3.3.6
+!define APVER_OLD 3.3.6
+!define APVER 3.3.7
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
