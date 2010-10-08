@@ -1020,9 +1020,9 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 string ClientInterface::getHumanPlayerName(int index) {
 	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
 
-	if(index >= 0 || playerIndex > 0) {
+	if(index >= 0 || gameSettings.getThisFactionIndex() >= 0) {
 		if(index < 0) {
-			index = playerIndex-1;
+			index = gameSettings.getThisFactionIndex();
 		}
 		if(gameSettings.getNetworkPlayerName(index) != "") {
 			result = gameSettings.getNetworkPlayerName(index);
