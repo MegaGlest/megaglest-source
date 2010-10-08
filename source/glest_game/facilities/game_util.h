@@ -29,6 +29,7 @@ extern const string networkVersionString;
 
 string getCrashDumpFileName();
 string getPlatformNameString();
+string getSVNRevisionString();
 string getCompilerNameString();
 string getNetworkVersionString();
 string getNetworkPlatformFreeVersionString();

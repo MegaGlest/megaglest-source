@@ -25,9 +25,9 @@ using namespace Shared::Platform;
 
 namespace Glest { namespace Game {
 
-const string mailString= "contact_game@glest.org";
-const string glestVersionString= "v3.3.7";
-const string SVN_Rev = "$Rev$";
+const string mailString			= "contact_game@glest.org";
+const string glestVersionString	= "v3.3.7";
+const string SVN_Rev 			= "$Rev$";
 
 string getCrashDumpFileName(){
 	return "glest" + glestVersionString + ".dmp";
@@ -52,6 +52,10 @@ string getPlatformNameString() {
 #endif
 
 	return platform;
+}
+
+string getSVNRevisionString() {
+	return SVN_Rev;
 }
 
 string getCompilerNameString() {
@@ -100,7 +104,7 @@ string getNetworkPlatformFreeVersionString() {
 	return glestVersionString;
 }
 
-string getAboutString1(int i){
+string getAboutString1(int i) {
 	switch(i){
 	case 0: return "Glest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
