@@ -1182,13 +1182,16 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 
 void MenuStateConnectedGame::keyDown(char key) {
 	if(activeInputLabel != NULL) {
-		if(key == vkBack) {
-			string text= activeInputLabel->getText();
-			if(text.size() > 1) {
-				text.erase(text.end() - 2);
-			}
-			if(text.size() == 1) {
+		string text = activeInputLabel->getText();
+		if(key == vkBack && text.length() > 0) {
+			size_t found = text.find_last_of("_");
+			if (found == string::npos) {
 				text.erase(text.end() - 1);
+			}
+			else {
+				if(text.size() > 1) {
+					text.erase(text.end() - 2);
+				}
 			}
 
 			activeInputLabel->setText(text);
