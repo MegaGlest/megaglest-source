@@ -620,6 +620,8 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkTab;
 		case SDLK_BACKSPACE:
 			return vkBack;
+		case SDLK_DELETE:
+			return vkDelete;
 		case SDLK_F1:
 			return vkF1;
 			break;

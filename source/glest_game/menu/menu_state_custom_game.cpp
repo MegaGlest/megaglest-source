@@ -813,16 +813,23 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     lastSetChangedGameSettings   = time(NULL);;
                 }
 			}
-			else if(labelPlayerNames[i].mouseClick(x, y) && ( activeInputLabel != &labelPlayerNames[i] )){
-				ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-				if(ct == ctHuman) {
-					setActiveInputLabel(&labelPlayerNames[i]);
-				}
+			else if(labelPlayerNames[i].mouseClick(x, y)) {
+				SetActivePlayerNameEditor();
 			}
 		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateCustomGame::SetActivePlayerNameEditor() {
+	for(int i = 0; i < mapInfo.players; ++i) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+		if(ct == ctHuman) {
+			setActiveInputLabel(&labelPlayerNames[i]);
+			break;
+		}
+	}
 }
 
 void MenuStateCustomGame::RestoreLastGameSettings() {
@@ -997,7 +1004,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonRestoreLastSettings.mouseMove(x, y);
 
 	bool editingPlayerName = false;
-	for(int i=0; i<GameConstants::maxPlayers; ++i){
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
         listBoxControls[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
@@ -1207,7 +1214,7 @@ void MenuStateCustomGame::update() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,switchSetupRequests[i]->getSwitchFlags());
 
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getToFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,switchSetupRequests[i]->getToFactionIndex());
 					//printf("switchSetupRequests[i]->getSelectedFactionName()=%s\n",switchSetupRequests[i]->getSelectedFactionName().c_str());
 					//printf("switchSetupRequests[i]->getToTeam()=%d\n",switchSetupRequests[i]->getToTeam());
 					
@@ -1235,6 +1242,7 @@ void MenuStateCustomGame::update() {
 								if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
 									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[newFactionIdx].getText().c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
 									labelPlayerNames[newFactionIdx].setText(switchSetupRequests[i]->getNetworkPlayerName());
+									SetActivePlayerNameEditor();
 								}
 							}
 							catch(const runtime_error &e) {
@@ -1260,6 +1268,7 @@ void MenuStateCustomGame::update() {
 								else {
 									labelPlayerNames[i].setText("");
 								}
+								SetActivePlayerNameEditor();
 								//switchSetupRequests[i]->clearSwitchFlag(ssrft_NetworkPlayerName);
 							}
 						}
@@ -1754,10 +1763,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
-				labelPlayerNames[i].setText(getHumanPlayerName(i));
+				//labelPlayerNames[i].setText(getHumanPlayerName(i));
+				//SetActivePlayerNameEditor();
 			}
-
-
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
@@ -1802,6 +1810,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 			labelPlayerNames[i].setText("");
 		}
     }
+
 	// Next save closed slots
 	int closedCount = 0;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -2015,6 +2024,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 			labelPlayerNames[i].setText(gameSettings.getNetworkPlayerName(i));
 		}
+
+		SetActivePlayerNameEditor();
 
 		updateControlers();
 		updateNetworkSlots();
@@ -2256,12 +2267,16 @@ void MenuStateCustomGame::updateNetworkSlots() {
 }
 
 void MenuStateCustomGame::keyDown(char key) {
-	if(activeInputLabel!=NULL) {
-		if(key==vkBack) {
-			string text= activeInputLabel->getText();
-			if(text.size()>1){
-				text.erase(text.end()-2);
+	if(activeInputLabel != NULL) {
+		if(key == vkBack) {
+			string text = activeInputLabel->getText();
+			if(text.size() > 1) {
+				text.erase(text.end() - 2);
 			}
+			if(text.size() == 1) {
+				text.erase(text.end() - 1);
+			}
+
 			activeInputLabel->setText(text);
 
 			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
@@ -2308,13 +2323,13 @@ void MenuStateCustomGame::keyDown(char key) {
 }
 
 void MenuStateCustomGame::keyPress(char c) {
-	if(activeInputLabel!=NULL) {
+	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
-	    for(int i=0; i<GameConstants::maxPlayers; ++i) {
+	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			if(&labelPlayerNames[i] == activeInputLabel) {
-				if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
-					(c=='-')||(c=='(')||(c==')')){
-					if(activeInputLabel->getText().size()<maxTextSize) {
+				if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+				   (c=='-') || (c=='(') || (c==')')) {
+					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
 						text.insert(text.end()-1, c);
 						activeInputLabel->setText(text);
@@ -2388,27 +2403,23 @@ string MenuStateCustomGame::getCurrentMapFile(){
 }
 
 void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
-	if(newLable!=NULL) {
+	if(newLable != NULL) {
 		string text= newLable->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found==string::npos)
-		{
-			text=text+"_";
+		size_t found = text.find_last_of("_");
+		if (found == string::npos) {
+			text += "_";
 		}
 		newLable->setText(text);
 	}
-	if(activeInputLabel!=NULL && !activeInputLabel->getText().empty()){
+	if(activeInputLabel != NULL && activeInputLabel->getText().empty() == false) {
 		string text= activeInputLabel->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found!=string::npos)
-		{
-			text=text.substr(0,found);
+		size_t found = text.find_last_of("_");
+		if (found != string::npos) {
+			text = text.substr(0,found);
 		}
 		activeInputLabel->setText(text);
 	}
-	activeInputLabel=newLable;
+	activeInputLabel = newLable;
 }
 
 string MenuStateCustomGame::getHumanPlayerName(int index) {
