@@ -1261,6 +1261,8 @@ void MenuStateConnectedGame::keyUp(char key) {
 }
 
 void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
+
+/*
 	if(newLable != NULL) {
 		string text= newLable->getText();
 		size_t found = text.find_last_of("_");
@@ -1278,11 +1280,13 @@ void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
 		activeInputLabel->setText(text);
 	}
 	activeInputLabel = newLable;
+*/
 }
 
 string MenuStateConnectedGame::getHumanPlayerName() {
 	string result = defaultPlayerName;
 
+/*
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 	for(int j=0; j<GameConstants::maxPlayers; ++j) {
@@ -1301,7 +1305,7 @@ string MenuStateConnectedGame::getHumanPlayerName() {
 			break;
 		}
 	}
-
+*/
 	return result;
 }
 
