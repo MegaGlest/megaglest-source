@@ -690,9 +690,16 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 	int count=0;
 	for(Commands::const_iterator it= commands.begin(); it!=commands.end(); ++it){
 			const CommandType* ct=(*it)->getCommandType();
-        	if(ct->getClass()==ccProduce || ct->getClass()==ccMorph || ct->getClass()==ccBuild ){
+        	if(ct->getClass()==ccProduce || ct->getClass()==ccMorph ){
         		const UnitType *producedUnitType= static_cast<const UnitType*>(ct->getProduced());
         		if(producedUnitType==ut)
+        		{
+        			count++;
+        		}
+        	}
+        	if(ct->getClass()==ccBuild){
+        		const UnitType *builtUnitType= (*it)->getUnitType();
+        		if(builtUnitType==ut)
         		{
         			count++;
         		}
