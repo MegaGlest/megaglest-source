@@ -176,6 +176,8 @@ private:
 
 	void RestoreLastGameSettings();
 	void PlayNow();
+
+	void SetActivePlayerNameEditor();
 };
 
 }}//end namespace

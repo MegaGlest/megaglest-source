@@ -456,8 +456,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(labelPlayerNames[i].mouseClick(x, y) && ( activeInputLabel != &labelPlayerNames[i] )){
-					if(clientInterface->getGameSettings() != NULL &&
-						i == clientInterface->getGameSettings()->getThisFactionIndex()) {
+					if(i == clientInterface->getPlayerIndex()) {
 						setActiveInputLabel(&labelPlayerNames[i]);
 					}
 				}
@@ -1018,7 +1017,7 @@ void MenuStateConnectedGame::update() {
 				if(	initialSettingsReceivedFromServer == true &&
 					clientInterface->getIntroDone() == true &&
 					(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getHumanPlayerName() = [%s], clientInterface->getGameSettings()->getThisFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,getHumanPlayerName().c_str(),clientInterface->getGameSettings()->getThisFactionIndex());
 					//needToSetChangedGameSettings = false;
 					//lastSetChangedGameSettings = time(NULL);
 					clientInterface->sendSwitchSetupRequest("",clientInterface->getPlayerIndex(),-1,-1,getHumanPlayerName(),switchSetupRequestFlagType);
@@ -1182,12 +1181,16 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 }
 
 void MenuStateConnectedGame::keyDown(char key) {
-	if(activeInputLabel!=NULL) {
-		if(key==vkBack) {
+	if(activeInputLabel != NULL) {
+		if(key == vkBack) {
 			string text= activeInputLabel->getText();
-			if(text.size()>1){
-				text.erase(text.end()-2);
+			if(text.size() > 1) {
+				text.erase(text.end() - 2);
 			}
+			if(text.size() == 1) {
+				text.erase(text.end() - 1);
+			}
+
 			activeInputLabel->setText(text);
 
 			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
@@ -1214,15 +1217,15 @@ void MenuStateConnectedGame::keyDown(char key) {
 }
 
 void MenuStateConnectedGame::keyPress(char c) {
-	if(activeInputLabel!=NULL) {
+	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
-	    for(int i=0; i<GameConstants::maxPlayers; ++i){
-			if(&labelPlayerNames[i] == activeInputLabel){
-				if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
-					(c=='-')||(c=='(')||(c==')')){
-					if(activeInputLabel->getText().size()<maxTextSize) {
+	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(&labelPlayerNames[i] == activeInputLabel) {
+				if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+				   (c=='-') || (c=='(') || (c==')')) {
+					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
-						text.insert(text.end()-1, c);
+						text.insert(text.end() -1, c);
 						activeInputLabel->setText(text);
 
 						switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
@@ -1255,25 +1258,23 @@ void MenuStateConnectedGame::keyUp(char key) {
 }
 
 void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
-	if(newLable!=NULL) {
+	if(newLable != NULL) {
 		string text= newLable->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found==string::npos) {
-			text=text+"_";
+		size_t found = text.find_last_of("_");
+		if (found == string::npos) {
+			text += "_";
 		}
 		newLable->setText(text);
 	}
-	if(activeInputLabel!=NULL && !activeInputLabel->getText().empty()) {
+	if(activeInputLabel != NULL && activeInputLabel->getText().empty() == false) {
 		string text= activeInputLabel->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found!=string::npos) {
-			text=text.substr(0,found);
+		size_t found = text.find_last_of("_");
+		if (found != string::npos) {
+			text = text.substr(0,found);
 		}
 		activeInputLabel->setText(text);
 	}
-	activeInputLabel=newLable;
+	activeInputLabel = newLable;
 }
 
 string MenuStateConnectedGame::getHumanPlayerName() {
@@ -1283,8 +1284,7 @@ string MenuStateConnectedGame::getHumanPlayerName() {
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 	for(int j=0; j<GameConstants::maxPlayers; ++j) {
 		if(	clientInterface != NULL &&
-			clientInterface->getGameSettings() != NULL &&
-			j == clientInterface->getGameSettings()->getThisFactionIndex() &&
+			j == clientInterface->getPlayerIndex() &&
 			labelPlayerNames[j].getText() != "") {
 			result = labelPlayerNames[j].getText();
 

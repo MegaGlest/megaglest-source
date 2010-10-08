@@ -460,6 +460,7 @@ void ClientInterface::updateLobby() {
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
 
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
                 //replace server player by network
                 for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
                     //replace by network
@@ -468,8 +469,9 @@ void ClientInterface::updateLobby() {
                     }
 
                     //set the faction index
-                    if(gameSettings.getStartLocationIndex(i)==playerIndex) {
+                    if(gameSettings.getStartLocationIndex(i) == playerIndex) {
                         gameSettings.setThisFactionIndex(i);
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
                     }
                 }
 

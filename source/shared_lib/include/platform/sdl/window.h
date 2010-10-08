@@ -107,6 +107,7 @@ const char vkF9 = -22;
 const char vkF10 = -23;
 const char vkF11 = -24;
 const char vkF12 = -25;
+const char vkDelete = -26;
 
 enum WindowStyle{
 	wsFullscreen,
