@@ -1242,7 +1242,7 @@ void MenuStateCustomGame::update() {
 								if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
 									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[newFactionIdx].getText().c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
 									labelPlayerNames[newFactionIdx].setText(switchSetupRequests[i]->getNetworkPlayerName());
-									SetActivePlayerNameEditor();
+									//SetActivePlayerNameEditor();
 								}
 							}
 							catch(const runtime_error &e) {
@@ -1268,7 +1268,7 @@ void MenuStateCustomGame::update() {
 								else {
 									labelPlayerNames[i].setText("");
 								}
-								SetActivePlayerNameEditor();
+								//SetActivePlayerNameEditor();
 								//switchSetupRequests[i]->clearSwitchFlag(ssrft_NetworkPlayerName);
 							}
 						}
@@ -2025,7 +2025,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 			labelPlayerNames[i].setText(gameSettings.getNetworkPlayerName(i));
 		}
 
-		SetActivePlayerNameEditor();
+		//SetActivePlayerNameEditor();
 
 		updateControlers();
 		updateNetworkSlots();
