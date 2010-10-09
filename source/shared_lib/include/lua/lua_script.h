@@ -34,6 +34,8 @@ class LuaScript{
 private:
 	LuaHandle *luaState;
 	int argumentCount;
+	string currentLuaFunction;
+	bool currentLuaFunctionIsValid;
 
 public:
 	LuaScript();
