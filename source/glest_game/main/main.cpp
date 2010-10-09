@@ -33,6 +33,7 @@
 #include "checksum.h"
 #include <algorithm>
 #include "sound_renderer.h"
+#include "font_gl.h"
 #include "leak_dumper.h"
 
 #ifndef WIN32 
@@ -44,6 +45,7 @@ using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace Shared::Graphics;
+using namespace Shared::Graphics::Gl;
 
 namespace Glest{ namespace Game{
 
@@ -574,6 +576,7 @@ int glestMain(int argc, char** argv){
 	try{
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
+		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

@@ -23,6 +23,8 @@ using namespace Platform;
 //	class Font2DGl
 // =====================================================
 
+string FontGl::default_fonttype = "fixed";
+
 void Font2DGl::init(){
 	assertGl();
 
