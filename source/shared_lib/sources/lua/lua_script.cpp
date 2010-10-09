@@ -48,6 +48,8 @@ public:
 LuaScript::LuaScript() {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
+	currentLuaFunction = "";
+	currentLuaFunctionIsValid = false;
 	luaState= luaL_newstate();
 
 	luaL_openlibs(luaState);
@@ -68,6 +70,8 @@ LuaScript::~LuaScript() {
 void LuaScript::loadCode(const string &code, const string &name){
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
+	//printf("Code [%s]\nName [%s]\n",code.c_str(),name.c_str());
+
 	int errorCode= luaL_loadbuffer(luaState, code.c_str(), code.length(), name.c_str());
 	if(errorCode !=0 ) {
 		throw runtime_error("Error loading lua code: " + errorToString(errorCode));
@@ -82,30 +86,38 @@ void LuaScript::loadCode(const string &code, const string &name){
 		throw runtime_error("Error initializing lua: " + errorToString(errorCode));
 	}
 
-	const char *errMsg = lua_tostring(luaState, -1);
+	//const char *errMsg = lua_tostring(luaState, -1);
+
+	//printf("END of call to Name [%s]\n",name.c_str());
 
 	//SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d,\ncode [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,code.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d, errMsg = %s\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,(errMsg != NULL ? errMsg : ""));
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
 }
 
-void LuaScript::beginCall(const string& functionName){
+void LuaScript::beginCall(const string& functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	currentLuaFunction = functionName;
 
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 
 	lua_getglobal(luaState, functionName.c_str());
-	//if( lua_isfunction(luaState,lua_gettop(luaState)) == false) {
-	//	throw runtime_error("Error unknown lua function called: [" + functionName + "]");
-	//}
+	currentLuaFunctionIsValid = lua_isfunction(luaState,lua_gettop(luaState));
 	argumentCount= 0;
 }
 
-void LuaScript::endCall(){
+void LuaScript::endCall() {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	lua_pcall(luaState, argumentCount, 0, 0);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] currentLuaFunction [%s], currentLuaFunctionIsValid = %d\n",__FILE__,__FUNCTION__,__LINE__,currentLuaFunction.c_str(),currentLuaFunctionIsValid);
+
+	if(currentLuaFunctionIsValid == true) {
+		int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
+		if(errorCode !=0 ) {
+			throw runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+		}
+	}
 }
 
 void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName) {
