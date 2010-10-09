@@ -14,20 +14,27 @@
 
 #include "font.h"
 #include "opengl.h"
+#include <string>
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+using namespace std;
+
+namespace Shared { namespace Graphics { namespace Gl {
 
 // =====================================================
 //	class FontGl
 // =====================================================
 
-class FontGl{
+class FontGl {
 protected:
 	GLuint handle;
+	static string default_fonttype;
 
 public:
 	GLuint getHandle() const				{return handle;}
+
+	static string getDefault_fontType() { return default_fonttype; }
+	static void setDefault_fontType(string value) { default_fonttype = value; }
 };
 
 // =====================================================

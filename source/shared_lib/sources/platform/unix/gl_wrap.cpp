@@ -12,7 +12,6 @@
 #include <stdexcept>
 #include <cassert>
 
-
 #include <GL/glx.h>
 
 #include "opengl.h"
@@ -21,15 +20,13 @@
 #include "util.h"
 #include "window.h"
 #include <vector>
-//#include <SDL_image.h>
+#include "font_gl.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
 
-namespace Shared{ namespace Platform{
-	
-
+namespace Shared { namespace Platform {
 
 // ======================================
 //	Global Fcs  
@@ -42,8 +39,16 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		throw std::runtime_error("Couldn't create font: display is 0");
 	}
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
-	if(!fontInfo) {
-		throw std::runtime_error("Font not found.");
+	if(fontInfo == NULL) {
+		string default_font = FontGl::getDefault_fontType();
+
+		//throw std::runtime_error("Font not found: [" + type + "]");
+		SystemFlags::OutputDebug(SystemFlags::debugError,"Font not found [%s] trying to fallback to [%s]\n",type.c_str(),default_font.c_str());
+
+		fontInfo = XLoadQueryFont(display, default_font.c_str());
+		if(fontInfo == NULL) {
+			throw std::runtime_error("Font not found: [" + type + "]");
+		}
 	}
 
 	// we need the height of 'a' which sould ~ be half ascent+descent
@@ -53,7 +58,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		if(i < fontInfo->min_char_or_byte2 ||
 				i > fontInfo->max_char_or_byte2) {
 			metrics.setWidth(i, static_cast<float>(6));
-		} else {
+		}
+		else {
 			int p = i - fontInfo->min_char_or_byte2;
 			metrics.setWidth(i, static_cast<float> (
 			fontInfo->per_char[p].width));
