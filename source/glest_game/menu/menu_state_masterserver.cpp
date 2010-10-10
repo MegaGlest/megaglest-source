@@ -115,9 +115,23 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	selectButton.init(i, startOffset-lineOffset, 30);
 	selectButton.setText(">");
 
-	if(glestVersionString!=masterServerInfo->getGlestVersion())	{
-		selectButton.setEnabled(false);
-		selectButton.setEditable(false);
+	//printf("glestVersionString [%s] masterServerInfo->getGlestVersion() [%s]\n",glestVersionString.c_str(),masterServerInfo->getGlestVersion().c_str());
+	if(glestVersionString != masterServerInfo->getGlestVersion()) {
+		vector<string> tokens;
+		vector<string> tokensServer;
+		Tokenize(glestVersionString,tokens,".");
+		Tokenize(masterServerInfo->getGlestVersion(),tokensServer,".");
+		// only check the first 3 sections with . to compare makor versions #'s
+		bool compatibleWithServer = (tokens.size() >= 3 && tokensServer.size() >= 3);
+		for(int i = 0; compatibleWithServer == true && i < 3; ++i) {
+			if(tokens[i] != tokensServer[i]) {
+				compatibleWithServer = false;
+			}
+		}
+		if(compatibleWithServer == false) {
+			selectButton.setEnabled(false);
+			selectButton.setEditable(false);
+		}
 	}
 
 	GraphicComponent::applyAllCustomProperties(containerName);
