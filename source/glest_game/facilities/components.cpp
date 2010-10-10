@@ -56,6 +56,19 @@ void GraphicComponent::clearRegisteredComponents(std::string containerName) {
 	}
 }
 
+void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, std::string objName) {
+	GraphicComponent *obj = findRegisteredComponent(containerName, objName);
+	if(obj) {
+		GraphicComponent::registeredGraphicComponentList[containerName].erase(objName);
+	}
+}
+
+void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, std::vector<std::string> objNameList) {
+	for(int idx = 0; idx < objNameList.size(); ++idx) {
+		GraphicComponent::clearRegisterGraphicComponent(containerName, objNameList[idx]);
+	}
+}
+
 void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
 	instanceName = objName;
 	registeredGraphicComponentList[containerName][objName] = this;

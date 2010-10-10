@@ -37,6 +37,7 @@ DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
 // =====================================================
 
 ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char * containerName) {
+	this->containerName = containerName;
 	Lang &lang= Lang::getInstance();
 
 	index=lineIndex;
@@ -48,58 +49,72 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	//general info:
 	i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
+	registeredObjNameList.push_back("glestVersionLabel" + intToStr(lineIndex));
 	glestVersionLabel.init(i,startOffset-lineOffset);
 	glestVersionLabel.setText(masterServerInfo->getGlestVersion());
+
 	i+=80;
+	registeredObjNameList.push_back("platformLabel" + intToStr(lineIndex));
 	platformLabel.registerGraphicComponent(containerName,"platformLabel" + intToStr(lineIndex));
 	platformLabel.init(i,startOffset-lineOffset);
 	platformLabel.setText(masterServerInfo->getPlatform());
+
 	i+=50;
+	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
 	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
 	binaryCompileDateLabel.init(i,startOffset-lineOffset);
 	binaryCompileDateLabel.setText(masterServerInfo->getBinaryCompileDate());
 	
 	//game info:
 	i+=130;
+	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(masterServerInfo->getServerTitle());
 	
 	i+=160;
+	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(masterServerInfo->getIpAddress());
 	
 	//game setup info:
 	i+=100;
+	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
 	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(masterServerInfo->getTech());
 	
 	i+=100;
+	registeredObjNameList.push_back("mapLabel" + intToStr(lineIndex));
 	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
 	mapLabel.init(i,startOffset-lineOffset);
 	mapLabel.setText(masterServerInfo->getMap());
 	
 	i+=100;
+	registeredObjNameList.push_back("tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.init(i,startOffset-lineOffset);
 	tilesetLabel.setText(masterServerInfo->getTileset());
 	
 	i+=100;
+	registeredObjNameList.push_back("activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.init(i,startOffset-lineOffset);
 	activeSlotsLabel.setText(intToStr(masterServerInfo->getActiveSlots())+"/"+intToStr(masterServerInfo->getNetworkSlots())+"/"+intToStr(masterServerInfo->getConnectedClients()));
 
 	i+=50;
+	registeredObjNameList.push_back("externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.init(i,startOffset-lineOffset);
 	externalConnectPort.setText(intToStr(masterServerInfo->getExternalConnectPort()));
 
 	i+=50;
+	registeredObjNameList.push_back("selectButton" + intToStr(lineIndex));
 	selectButton.registerGraphicComponent(containerName,"selectButton" + intToStr(lineIndex));
 	selectButton.init(i, startOffset-lineOffset, 30);
 	selectButton.setText(">");
+
 	if(glestVersionString!=masterServerInfo->getGlestVersion())	{
 		selectButton.setEnabled(false);
 		selectButton.setEditable(false);
@@ -108,7 +123,8 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
-ServerLine::~ServerLine(){
+ServerLine::~ServerLine() {
+	GraphicComponent::clearRegisterGraphicComponent(containerName, registeredObjNameList);
 	delete masterServerInfo;
 }
 
