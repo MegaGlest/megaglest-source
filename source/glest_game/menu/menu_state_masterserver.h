@@ -49,6 +49,9 @@ private:
 
 	GraphicLabel externalConnectPort;
 
+	const char * containerName;
+	std::vector<std::string> registeredObjNameList;
+
 public:
 	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char *containerName);
 	virtual ~ServerLine();
