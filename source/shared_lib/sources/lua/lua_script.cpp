@@ -95,8 +95,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 }
 
 void LuaScript::beginCall(const string& functionName) {
-	Lua_STREFLOP_Wrapper streflopWrapper;
-
+	//Lua_STREFLOP_Wrapper streflopWrapper;
 	currentLuaFunction = functionName;
 
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
