@@ -173,16 +173,16 @@ bool Faction::reqsOk(const RequirableType *rt) const{
     }
 
 	//required upgrades
-    for(int i=0; i<rt->getUpgradeReqCount(); ++i){
-		if(!upgradeManager.isUpgraded(rt->getUpgradeReq(i))){
+    for(int i=0; i<rt->getUpgradeReqCount(); ++i) {
+		if(upgradeManager.isUpgraded(rt->getUpgradeReq(i)) == false) {
 			return false;
 		}
     }
     
-    if(dynamic_cast<const UnitType *>(rt) != NULL ){
+    if(dynamic_cast<const UnitType *>(rt) != NULL ) {
     	const UnitType *producedUnitType=(UnitType *) rt;		
-   		if(producedUnitType->getMaxUnitCount()>0){
-			if(producedUnitType->getMaxUnitCount()<=getCountForMaxUnitCount(producedUnitType)){
+   		if(producedUnitType != NULL && producedUnitType->getMaxUnitCount() > 0) {
+			if(producedUnitType->getMaxUnitCount() <= getCountForMaxUnitCount(producedUnitType)) {
 		        return false;
 			}
    		}
