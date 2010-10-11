@@ -159,7 +159,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 
 	labelLocalIP.registerGraphicComponent(containerName,"labelLocalIP");
-	labelLocalIP.init(410, networkHeadPos+labelOffset);
+	labelLocalIP.init(210, networkHeadPos+labelOffset);
 
 	string ipText = "none";
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -173,7 +173,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 			ipText += ip;
 		}
 	}
-	labelLocalIP.setText(lang.get("LanIP") + ipText);
+	string externalPort=config.getString("MasterServerExternalPort", "61357");
+	string serverPort=config.getString("ServerPort", "61357");
+	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 
 	// Map
 	xoffset=70;
@@ -291,17 +293,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	// network things
 	// PublishServer
-	if(enableFactionTexturePreview)
-		xoffset=0;
-	else
-		xoffset=90;
+	xoffset=90;
 
 	labelPublishServer.registerGraphicComponent(containerName,"labelPublishServer");
-	labelPublishServer.init(xoffset+50, networkHeadPos, 100);
+	labelPublishServer.init(50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
 
 	listBoxPublishServer.registerGraphicComponent(containerName,"listBoxPublishServer");
-	listBoxPublishServer.init(xoffset+50, networkPos, 100);
+	listBoxPublishServer.init(50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
 	if(openNetworkSlots)
@@ -309,32 +308,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	else
 		listBoxPublishServer.setSelectedItemIndex(1);
 
-	// Port
-	labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
-	labelPublishServerExternalPort.init(xoffset+210, networkHeadPos, 150);
-	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
-
-	listBoxPublishServerExternalPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
-	listBoxPublishServerExternalPort.init(xoffset+210, networkPos, 100);
-	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
-	std::vector<std::string> externalPortList;
-	Tokenize(supportExternalPortList,externalPortList,",");
-
-	for(int idx = 0; idx < externalPortList.size(); idx++) {
-		if(externalPortList[idx] != "" && IsNumeric(externalPortList[idx].c_str(),false)) {
-			listBoxPublishServerExternalPort.pushBackItem(externalPortList[idx]);
-		}
-	}
-	
-	//listBoxPublishServer.setSelectedItemIndex(0);
-
 	// Network Frame Period
 	labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
-	labelNetworkFramePeriod.init(xoffset+350, networkHeadPos, 80);
+	labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
 	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
 
 	listBoxNetworkFramePeriod.registerGraphicComponent(containerName,"listBoxNetworkFramePeriod");
-	listBoxNetworkFramePeriod.init(xoffset+350, networkPos, 80);
+	listBoxNetworkFramePeriod.init(xoffset+230, networkPos, 80);
 	listBoxNetworkFramePeriod.pushBackItem("10");
 	listBoxNetworkFramePeriod.pushBackItem("20");
 	listBoxNetworkFramePeriod.pushBackItem("30");
@@ -343,11 +323,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	// Network Frame Period
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	labelNetworkPauseGameForLaggedClients.init(xoffset+520, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
 
 	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
-	listBoxNetworkPauseGameForLaggedClients.init(xoffset+520, networkPos, 80);
+	listBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos, 80);
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
@@ -355,11 +335,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	// Enable Server Controlled AI
 	labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
-	labelEnableServerControlledAI.init(xoffset+670, networkHeadPos, 80);
+	labelEnableServerControlledAI.init(xoffset+550, networkHeadPos, 80);
 	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
 
 	listBoxEnableServerControlledAI.registerGraphicComponent(containerName,"listBoxEnableServerControlledAI");
-	listBoxEnableServerControlledAI.init(xoffset+670, networkPos, 80);
+	listBoxEnableServerControlledAI.init(xoffset+550, networkPos, 80);
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
 	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
 	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
@@ -713,11 +693,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
-	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPublishServerExternalPort.mouseClick(x, y) && listBoxPublishServerExternalPort.getEditable()) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
-		soundRenderer.playFx(coreData.getClickSoundC());
-	}
 	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkFramePeriod.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -1020,7 +995,6 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 		listBoxFogOfWar.mouseMove(x, y);
 		listBoxAllowObservers.mouseMove(x, y);
-		listBoxPublishServerExternalPort.mouseMove(x, y);
 		listBoxEnableObserverMode.mouseMove(x, y);
 		listBoxEnableServerControlledAI.mouseMove(x, y);
 		labelNetworkFramePeriod.mouseMove(x, y);
@@ -1105,8 +1079,6 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelPublishServer);
 
 				if(listBoxAdvanced.getSelectedItemIndex() == 1) {
-					renderer.renderListBox(&listBoxPublishServerExternalPort);
-					renderer.renderLabel(&labelPublishServerExternalPort);
 					renderer.renderListBox(&listBoxEnableServerControlledAI);
 					renderer.renderLabel(&labelEnableServerControlledAI);
 					renderer.renderLabel(&labelNetworkFramePeriod);
@@ -1466,14 +1438,12 @@ void MenuStateCustomGame::update() {
 		if(hasOneNetworkSlotOpen) {
 			//listBoxPublishServer.setSelectedItemIndex(0);
 			listBoxPublishServer.setEditable(true);
-			listBoxPublishServerExternalPort.setEditable(true);
 			listBoxEnableServerControlledAI.setEditable(true);
 		}
 		else
 		{
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
-			listBoxPublishServerExternalPort.setEditable(false);
 			listBoxEnableServerControlledAI.setEditable(false);
 		}
 		
@@ -1579,6 +1549,7 @@ void MenuStateCustomGame::publishToMasterserver()
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
+	Config &config= Config::getInstance();
 	//string serverinfo="";
 	publishToServerInfo.clear();
 
@@ -1622,7 +1593,7 @@ void MenuStateCustomGame::publishToMasterserver()
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
 	//string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
-	string externalport = listBoxPublishServerExternalPort.getSelectedItem();
+	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1877,7 +1848,6 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
 	saveGameFile << "NetworkFramePeriod=" << gameSettings.getNetworkFramePeriod() << std::endl;
 	saveGameFile << "NetworkPauseGameForLaggedClients=" << gameSettings.getNetworkPauseGameForLaggedClients() << std::endl;
-	saveGameFile << "ExternalPortNumber=" << listBoxPublishServerExternalPort.getSelectedItem() << std::endl;
 
 	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
 	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
@@ -1993,8 +1963,6 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
 		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-
-		listBoxPublishServerExternalPort.setSelectedItem(intToStr(properties.getInt("ExternalPortNumber",listBoxPublishServerExternalPort.getSelectedItem().c_str())));
 
 		listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
 

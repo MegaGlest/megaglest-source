@@ -108,7 +108,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
 	
 	
-	leftline-=30;
+	//leftline-=30;
 	labelMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 	labelMiscSection.init(leftLabelStart+captionOffset, leftline);
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
@@ -168,7 +168,34 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	
 	labelServerPort.setText(port);
+	
+	// external server port
+	leftline-=30;
+	
+	labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
+	labelPublishServerExternalPort.init(leftLabelStart, leftline, 150);
+	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
+	
+	listBoxPublishServerExternalPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
+	listBoxPublishServerExternalPort.init(leftColumnStart, leftline, 170);
+	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> externalPortList;
+	Tokenize(supportExternalPortList,externalPortList,",");
 
+	string currentPort=config.getString("MasterServerExternalPort", "61357");
+	int masterServerExternalPortSelectionIndex=0;
+	for(int idx = 0; idx < externalPortList.size(); idx++) {
+		if(externalPortList[idx] != "" && IsNumeric(externalPortList[idx].c_str(),false)) {
+			listBoxPublishServerExternalPort.pushBackItem(externalPortList[idx]);
+			if(currentPort==externalPortList[idx])
+			{
+				masterServerExternalPortSelectionIndex=idx;
+			}
+		}
+	}
+	listBoxPublishServerExternalPort.setSelectedItemIndex(masterServerExternalPortSelectionIndex);
+	
+	// Video Section
 	leftline-=30;
 	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 	labelVideoSection.init(leftLabelStart+captionOffset, leftline);
@@ -414,6 +441,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxScreenModes.mouseClick(x, y);
 		listFontSizeAdjustment.mouseClick(x, y);
 		listBoxFullscreenWindowed.mouseClick(x, y);
+		listBoxPublishServerExternalPort.mouseClick(x, y);
 	}
 }
 
@@ -439,6 +467,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxLights.mouseMove(x, y);
 	listBoxScreenModes.mouseMove(x, y);
 	listFontSizeAdjustment.mouseMove(x, y);
+	listBoxPublishServerExternalPort.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -527,6 +556,8 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelFontSizeAdjustment);
 		renderer.renderLabel(&labelFullscreenWindowed);
 		renderer.renderListBox(&listBoxFullscreenWindowed);
+		renderer.renderLabel(&labelPublishServerExternalPort);
+		renderer.renderListBox(&listBoxPublishServerExternalPort);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -560,6 +591,7 @@ void MenuStateOptions::saveConfig(){
 	config.setString("FontSizeAdjustment", listFontSizeAdjustment.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
+	config.setString("MasterServerExternalPort", listBoxPublishServerExternalPort.getSelectedItem());
 	
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
