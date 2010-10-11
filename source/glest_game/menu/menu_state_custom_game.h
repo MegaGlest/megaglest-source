@@ -67,9 +67,6 @@ private:
 	
 	GraphicLabel labelPublishServer;
 	GraphicListBox listBoxPublishServer;
-
-	GraphicLabel labelPublishServerExternalPort;
-	GraphicListBox listBoxPublishServerExternalPort;
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
