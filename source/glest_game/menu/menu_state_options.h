@@ -76,6 +76,9 @@ private:
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	
+	GraphicLabel labelPublishServerExternalPort;
+	GraphicListBox listBoxPublishServerExternalPort;
+	
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
