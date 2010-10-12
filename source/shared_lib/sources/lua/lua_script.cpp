@@ -96,13 +96,14 @@ void LuaScript::loadCode(const string &code, const string &name){
 
 void LuaScript::beginCall(const string& functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
+
 	currentLuaFunction = functionName;
 
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 
 	lua_getglobal(luaState, functionName.c_str());
-	currentLuaFunctionIsValid = (lua_isfunction(luaState,lua_gettop(luaState)) == 1);
+	currentLuaFunctionIsValid = lua_isfunction(luaState,lua_gettop(luaState));
 	argumentCount= 0;
 }
 
@@ -116,6 +117,10 @@ void LuaScript::endCall() {
 		if(errorCode !=0 ) {
 			throw runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
 		}
+	}
+	else
+	{
+		lua_pcall(luaState, argumentCount, 0, 0);
 	}
 }
 
