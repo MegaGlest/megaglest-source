@@ -86,6 +86,7 @@ private:
 	GraphicLabel labelChatUrl;
 	
 	GraphicLabel announcementLabel;
+	GraphicLabel versionInfoLabel;
 	
 	
 	GraphicMessageBox mainMessageBox;
