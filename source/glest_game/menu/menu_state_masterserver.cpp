@@ -44,7 +44,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	int lineOffset=25*lineIndex;
 	masterServerInfo=mServerInfo;
 	int i=10;
-	int startOffset=630;
+	int startOffset=600;
 	
 	//general info:
 	i+=10;
@@ -200,9 +200,14 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     announcementLabel.setFont(CoreData::getInstance().getMenuFontBig());
     announcementLabel.setText("");
 
+    // versionInfo
+    versionInfoLabel.registerGraphicComponent(containerName,"versionInfoLabel");
+    versionInfoLabel.init(10, 680);
+    versionInfoLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    versionInfoLabel.setText("");
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
-	labelTitle.init(330, 670);
+	labelTitle.init(330, 640);
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setText(lang.get("AvailableServers"));
 
@@ -416,6 +421,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderButton(&buttonReturn);
 		renderer.renderLabel(&labelTitle);
 		renderer.renderLabel(&announcementLabel);
+		renderer.renderLabel(&versionInfoLabel);
 		renderer.renderLabel(&labelAutoRefresh);
 		renderer.renderLabel(&labelChatUrl);
 		renderer.renderButton(&buttonCreateGame);
@@ -497,6 +503,14 @@ void MenuStateMasterserver::updateServerInfo() {
 				std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
 				if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
 					announcementLabel.setText(announcementTxt);
+				}
+			}
+			string versionURL = Config::getInstance().getString("versionURL","http://megaglest.pepper.freeit.org/")+glestVersionString+".txt";
+			printf("\nversionURL=%s\n",versionURL.c_str());
+			if(versionURL != "") {
+				std::string versionTxt = SystemFlags::getHTTP(versionURL);
+				if(StartsWith(versionTxt,"Version info:") == true) {
+					versionInfoLabel.setText(versionTxt);
 				}
 			}
 			announcementLoaded=true;
