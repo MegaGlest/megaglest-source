@@ -506,7 +506,7 @@ void MenuStateMasterserver::updateServerInfo() {
 				}
 			}
 			string versionURL = Config::getInstance().getString("versionURL","http://megaglest.pepper.freeit.org/")+glestVersionString+".txt";
-			printf("\nversionURL=%s\n",versionURL.c_str());
+			//printf("\nversionURL=%s\n",versionURL.c_str());
 			if(versionURL != "") {
 				std::string versionTxt = SystemFlags::getHTTP(versionURL);
 				if(StartsWith(versionTxt,"Version info:") == true) {
