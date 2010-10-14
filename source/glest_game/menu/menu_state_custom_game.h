@@ -153,7 +153,7 @@ private:
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
-	void reloadFactions();
+	void reloadFactions(bool keepExistingSelectedItem);
 	void updateControlers();
 	void closeUnusedSlots();
 	void updateNetworkSlots();
