@@ -410,7 +410,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		teamItems.push_back(intToStr(i));
 	}
 
-	reloadFactions();
+	reloadFactions(false);
 
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
@@ -608,7 +608,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
 
-		reloadFactions();
+		reloadFactions(true);
 
         if(hasNetworkGameSettings() == true)
         {
@@ -677,7 +677,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         }
 	}
 	else if(listBoxTechTree.mouseClick(x, y)){
-		reloadFactions();
+		reloadFactions(false);
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -1973,7 +1973,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-		reloadFactions();
+		reloadFactions(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
 
@@ -2103,7 +2103,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 
 }
 
-void MenuStateCustomGame::reloadFactions() {
+void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
 
 	vector<string> results;
 
@@ -2123,13 +2123,13 @@ void MenuStateCustomGame::reloadFactions() {
         throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
     }
 
+    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+
     // Add special Observer Faction
     //Lang &lang= Lang::getInstance();
     if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
     	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
     }
-
-    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
     factionFiles= results;
     for(int i= 0; i<results.size(); ++i){
@@ -2139,8 +2139,23 @@ void MenuStateCustomGame::reloadFactions() {
     }
 
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-        listBoxFactions[i].setItems(results);
-        listBoxFactions[i].setSelectedItemIndex(i % results.size());
+    	int originalIndex = listBoxFactions[i].getSelectedItemIndex();
+
+    	//printf("[a] i = %d, originalIndex = %d\n",i,originalIndex);
+
+    	listBoxFactions[i].setItems(results);
+        if( keepExistingSelectedItem == false ||
+        	(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
+        	 listBoxFactions[i].getSelectedItem() == formatString(GameConstants::OBSERVER_SLOTNAME))) {
+        	listBoxFactions[i].setSelectedItemIndex(i % results.size());
+
+        	//printf("[b] i = %d, listBoxFactions[i].getSelectedItemIndex() = %d\n",i,listBoxFactions[i].getSelectedItemIndex());
+        }
+        else if(originalIndex < results.size()) {
+        	listBoxFactions[i].setSelectedItemIndex(originalIndex);
+
+        	//printf("[c] i = %d, originalIndex = %d\n",i,originalIndex);
+        }
     }
 }
 
