@@ -929,6 +929,7 @@ void MenuStateCustomGame::PlayNow() {
 			 needToSetChangedGameSettings == true) || (RandomCount > 0)) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			serverInterface->setGameSettings(&gameSettings,true);
+			serverInterface->broadcastGameSetup(&gameSettings);
 
 			needToSetChangedGameSettings    = false;
 			lastSetChangedGameSettings      = time(NULL);
