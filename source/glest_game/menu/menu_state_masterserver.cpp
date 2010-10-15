@@ -179,6 +179,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	MenuState(program, mainMenu, "masterserver") 
 {
 	containerName = "MasterServer";
+	updateFromMasterserverThread = NULL;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
