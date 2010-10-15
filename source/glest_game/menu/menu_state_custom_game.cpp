@@ -1745,7 +1745,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
 			}
 			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers));
+				listBoxTeams[i].setSelectedItem(intToStr(1));
 			}
 
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
@@ -2140,15 +2140,24 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
 
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	int originalIndex = listBoxFactions[i].getSelectedItemIndex();
-
     	//printf("[a] i = %d, originalIndex = %d\n",i,originalIndex);
+
+    	string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
+
+    	//printf("[a1] i = %d, originalValue = [%s]\n",i,originalValue.c_str());
 
     	listBoxFactions[i].setItems(results);
         if( keepExistingSelectedItem == false ||
         	(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
-        	 listBoxFactions[i].getSelectedItem() == formatString(GameConstants::OBSERVER_SLOTNAME))) {
+        			originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
         	listBoxFactions[i].setSelectedItemIndex(i % results.size());
 
+        	if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+        		listBoxFactions[i].getSelectedItem() != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+    			if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+    				listBoxTeams[i].setSelectedItem(intToStr(1));
+    			}
+        	}
         	//printf("[b] i = %d, listBoxFactions[i].getSelectedItemIndex() = %d\n",i,listBoxFactions[i].getSelectedItemIndex());
         }
         else if(originalIndex < results.size()) {
