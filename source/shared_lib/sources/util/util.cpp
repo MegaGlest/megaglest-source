@@ -125,6 +125,8 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 	}
 	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeOut);
 
+	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
+
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
