@@ -184,7 +184,9 @@ void ClientInterface::updateLobby() {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d, playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey,playerIndex);
 
                 //check consistency
-                if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
+				bool compatible = checkVersionComptability(networkMessageIntro.getVersionString(), getNetworkVersionString());
+				if(compatible == false) {
+                //if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
                 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                 	bool versionMatched = false;
