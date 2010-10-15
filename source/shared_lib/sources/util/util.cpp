@@ -542,4 +542,24 @@ bool fileExists(const string &path){
 	return false;
 }
 
+bool checkVersionComptability(string clientVersionString, string serverVersionString) {
+	bool compatible = (clientVersionString == serverVersionString);
+	if(compatible == false) {
+		vector<string> tokens;
+		vector<string> tokensServer;
+		Tokenize(clientVersionString,tokens,".");
+		Tokenize(serverVersionString,tokensServer,".");
+
+		// only check the first 3 sections with . to compare makor versions #'s
+		compatible = (tokens.size() >= 3 && tokensServer.size() >= 3);
+		for(int i = 0; compatible == true && i < 3; ++i) {
+			if(tokens[i] != tokensServer[i]) {
+				compatible = false;
+			}
+		}
+	}
+
+	return compatible;
+}
+
 }}//end namespace

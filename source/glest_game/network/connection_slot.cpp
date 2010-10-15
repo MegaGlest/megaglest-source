@@ -368,7 +368,9 @@ void ConnectionSlot::update(bool checkForNewClients) {
 								}
 
 								//check consistency
-								if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
+								bool compatible = checkVersionComptability(getNetworkVersionString(), networkMessageIntro.getVersionString());
+								if(compatible == false) {
+								//if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 									bool versionMatched = false;
