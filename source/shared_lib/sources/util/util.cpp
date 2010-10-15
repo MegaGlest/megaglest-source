@@ -342,15 +342,17 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
             }
 
             if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-            	printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner);
+            	printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d, file stream open = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner,currentDebugLog.fileStream->is_open());
             }
 
-            MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+            if(currentDebugLog.fileStream->is_open() == true) {
+				MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-            (*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
-            (*currentDebugLog.fileStream).flush();
+				(*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
+				(*currentDebugLog.fileStream).flush();
 
-            safeMutex.ReleaseLock();
+				safeMutex.ReleaseLock();
+            }
         }
 
         //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
@@ -359,23 +361,29 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
         assert(currentDebugLog.fileStream != NULL);
 
-        MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+        if(currentDebugLog.fileStream->is_open() == true) {
+			MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-		if (type != debugPathFinder && type != debugError) {
-	        (*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
-		}
-		else if (type == debugError) {
-			(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << szBuf;
-		}
-		else {
-	        (*currentDebugLog.fileStream) << szBuf;
-		}
-        (*currentDebugLog.fileStream).flush();
+			if (type != debugPathFinder && type != debugError) {
+				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
+			}
+			else if (type == debugError) {
+				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << szBuf;
+			}
+			else {
+				(*currentDebugLog.fileStream) << szBuf;
+			}
+			(*currentDebugLog.fileStream).flush();
 
-        safeMutex.ReleaseLock();
+			safeMutex.ReleaseLock();
+        }
     }
+
     // output to console
-    else {
+    if(	currentDebugLog.debugLogFileName == "" ||
+    	(currentDebugLog.debugLogFileName != "" &&
+        (currentDebugLog.fileStream == NULL ||
+         currentDebugLog.fileStream->is_open() == false))) {
 		if (type != debugPathFinder && type != debugError) {
 			printf("[%s] %s", szBuf2, szBuf);
 		}
