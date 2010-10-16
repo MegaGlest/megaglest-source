@@ -22,6 +22,9 @@ AUTOCONFSTUFF="configure.ac autogen.sh Jamrules Jamfile `find mk/jam -name "*.ja
 cp -p --parents $AUTOCONFSTUFF $RELEASEDIR
 cp -p ../../docs/readme*.txt ../../docs/*license*.txt $RELEASEDIR
 cp -p glest.ini $RELEASEDIR
+cp -p glestkeys.ini $RELEASEDIR
+cp -p servers.ini $RELEASEDIR
+cp -p glest.ico $RELEASEDIR
 
 pushd $RELEASEDIR
 ./autogen.sh
