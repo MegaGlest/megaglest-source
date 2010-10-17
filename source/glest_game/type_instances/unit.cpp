@@ -49,6 +49,10 @@ bool UnitPathBasic::isBlocked() const {
 	return blockCount >= maxBlockCount;
 }
 
+bool UnitPathBasic::isStuck() const {
+	return (isBlocked() == true && blockCount >= (maxBlockCount * 2));
+}
+
 void UnitPathBasic::clear() {
 	pathQueue.clear();
 	blockCount= 0;
@@ -178,6 +182,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->visible = true;
 	this->retryCurrCommandCount=0;
 	this->screenPos = Vec3f(0.0);
+	this->inBailOutAttempt = false;
 
 	level= NULL;
 	loadType= NULL;
@@ -1783,6 +1788,8 @@ std::string Unit::toString() const {
     result += "screenPos = " + screenPos.getString() + "\n";
 
     result += "currentUnitTitle = " + currentUnitTitle + "\n";
+
+    result += "inBailOutAttempt = " + intToStr(inBailOutAttempt) + "\n";
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

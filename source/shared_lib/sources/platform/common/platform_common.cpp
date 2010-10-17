@@ -66,8 +66,8 @@ namespace Shared { namespace PlatformCommon {
 namespace Private {
 
 bool shouldBeFullscreen = false;
-int ScreenWidth;
-int ScreenHeight;
+int ScreenWidth = 800;
+int ScreenHeight = 600;
 
 }
 

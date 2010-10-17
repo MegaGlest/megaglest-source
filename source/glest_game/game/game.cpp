@@ -1602,9 +1602,9 @@ void Game::render2d(){
 		}
 		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
-	else if(renderer.getAllowRenderUnitTitles() == true) {
-		renderer.setAllowRenderUnitTitles(false);
-	}
+	//else if(renderer.getAllowRenderUnitTitles() == true) {
+	//	renderer.setAllowRenderUnitTitles(false);
+	//}
 
 	//network status
 	if(renderNetworkStatus == true) {

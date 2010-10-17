@@ -19,6 +19,7 @@
 #include "unit.h"
 #include "unit_type.h"
 #include "platform_common.h"
+#include "command.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -35,24 +36,26 @@ namespace Glest{ namespace Game{
 // ===================== PUBLIC ======================== 
 
 const int PathFinder::maxFreeSearchRadius= 10;	
-const int PathFinder::pathFindNodesMax= 400;
-const int PathFinder::pathFindRefresh= 10;
+//const int PathFinder::pathFindNodesMax= 400;
+const int PathFinder::pathFindNodesMax= 500;
+//const int PathFinder::pathFindRefresh= 10;
+const int PathFinder::pathFindRefresh= 5;
 
 
-PathFinder::PathFinder(){
+PathFinder::PathFinder() {
 	//nodePool= NULL;
 	nodePool.clear();
 	map=NULL;
 }
 
-PathFinder::PathFinder(const Map *map){
+PathFinder::PathFinder(const Map *map) {
 	//nodePool= NULL;
 	nodePool.clear();
 	map=NULL;
 	init(map);
 }
 
-void PathFinder::init(const Map *map){
+void PathFinder::init(const Map *map) {
 	//if(nodePool != NULL) {
 	//	delete [] nodePool;
 	//	nodePool = NULL;
@@ -70,16 +73,28 @@ PathFinder::~PathFinder(){
 	map=NULL;
 }
 
-TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
+TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 	
 	if(map == NULL) {
 		throw runtime_error("map == NULL");
 	}
 	//route cache
 	UnitPathInterface *path= unit->getPath();
-	if(finalPos==unit->getPos()) {
+	if(finalPos == unit->getPos()) {
 		//if arrived
 		unit->setCurrSkill(scStop);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+			string commandDesc = "none";
+			Command *command= unit->getCurrCommand();
+			if(command != NULL && command->getCommandType() != NULL) {
+				commandDesc = command->getCommandType()->toString();
+			}
+			char szBuf[1024]="";
+			sprintf(szBuf,"State: arrived#1 at pos: %s, command [%s]",finalPos.getString().c_str(),commandDesc.c_str());
+			unit->setCurrentUnitTitle(szBuf);
+		}
+
 		return tsArrived;
 	}
 	else {
@@ -113,9 +128,56 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos){
 	TravelState ts= aStar(unit, finalPos);
 
 	//post actions
-	switch(ts){
+	switch(ts) {
 	case tsBlocked:
 	case tsArrived:
+		// The unit is stuck (not only blocked but unable to go anywhere for a while)
+		// We will try to bail out of the immediate area
+		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
+			path->isStuck() == true) {
+			unit->setInBailOutAttempt(true);
+
+			// Try to bail out up to 20 cells away
+			for(int bailoutX = -20; bailoutX <= 20 && ts == tsBlocked; ++bailoutX) {
+				for(int bailoutY = -20; bailoutY <= 20 && ts == tsBlocked; ++bailoutY) {
+					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
+					if(map->canMove(unit, unit->getPos(), newFinalPos)) {
+						ts= aStar(unit, newFinalPos);
+						if(ts == tsMoving) {
+							unit->setInBailOutAttempt(false);
+
+							if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
+								UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
+								Vec2i pos= basicPath->pop();
+								if(map->canMove(unit, unit->getPos(), pos)) {
+									unit->setTargetPos(pos);
+								}
+								else {
+									unit->setCurrSkill(scStop);
+									return tsBlocked;
+								}
+							}
+							else if(dynamic_cast<UnitPath *>(path) != NULL) {
+								UnitPath *advPath = dynamic_cast<UnitPath *>(path);
+								Vec2i pos= advPath->peek();
+								if(map->canMove(unit, unit->getPos(), pos)) {
+									advPath->pop();
+									unit->setTargetPos(pos);
+								}
+								else {
+									unit->setCurrSkill(scStop);
+									return tsBlocked;
+								}
+							}
+							else {
+								throw runtime_error("unsupported or missing path finder detected!");
+							}
+						}
+					}
+				}
+			}
+			unit->setInBailOutAttempt(false);
+		}
 		unit->setCurrSkill(scStop);
 		break;
 	case tsMoving:
@@ -167,7 +229,17 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
 	//if arrived
-	if(finalPos==unit->getPos()){
+	if(finalPos == unit->getPos()) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+			string commandDesc = "none";
+			Command *command= unit->getCurrCommand();
+			if(command != NULL && command->getCommandType() != NULL) {
+				commandDesc = command->getCommandType()->toString();
+			}
+			char szBuf[1024]="";
+			sprintf(szBuf,"State: arrived#2 at pos: %s, command [%s]",targetPos.getString().c_str(),commandDesc.c_str());
+			unit->setCurrentUnitTitle(szBuf);
+		}
 		return tsArrived;
 	}
 
@@ -175,7 +247,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 	//a) push starting pos into openNodes
 	Node *firstNode= newNode();
-	assert(firstNode!=NULL);;
+	assert(firstNode != NULL);
+	if(firstNode == NULL) {
+		throw runtime_error("firstNode == NULL");
+	}
+
 	firstNode->next= NULL;
 	firstNode->prev= NULL;
 	const Vec2i unitPos = unit->getPos();
@@ -191,10 +267,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	while(!nodeLimitReached){
+	while(nodeLimitReached == false) {
 		
 		//b1) is open nodes is empty => failed to find the path
-		if(openNodes.empty()){
+		if(openNodes.empty() == true) {
 			pathFound= false;
 			break;
 		}
@@ -213,13 +289,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		//add all succesors that are not in closedNodes or openNodes to openNodes
 		closedNodes.push_back(node);
 		openNodes.erase(it);
-		for(int i=-1; i<=1 && !nodeLimitReached; ++i){
-			for(int j=-1; j<=1 && !nodeLimitReached; ++j){
+		for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
+			for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
 				Vec2i sucPos= node->pos + Vec2i(i, j);
-				if(openPos(sucPos) == false && map->aproxCanMove(unit, node->pos, sucPos)){
+				if(openPos(sucPos) == false && map->aproxCanMove(unit, node->pos, sucPos)) {
 					//if node is not open and canMove then generate another node
 					Node *sucNode= newNode();
-					if(sucNode!=NULL){
+					if(sucNode != NULL) {
 						sucNode->pos= sucPos;
 						sucNode->heuristic= heuristic(sucNode->pos, finalPos); 
 						sucNode->prev= node;
@@ -227,7 +303,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 						sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
 						openNodes.push_back(sucNode);
 					}
-					else{
+					else {
 						nodeLimitReached= true;
 					}
 				}
@@ -240,9 +316,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	Node *lastNode= node;
 
 	//if consumed all nodes find best node (to avoid strange behaviour)
-	if(nodeLimitReached){
-		for(Nodes::iterator it= closedNodes.begin(); it!=closedNodes.end(); ++it){
-			if((*it)->heuristic < lastNode->heuristic){
+	if(nodeLimitReached == true) {
+		for(Nodes::iterator it= closedNodes.begin(); it != closedNodes.end(); ++it) {
+			if((*it)->heuristic < lastNode->heuristic) {
 				lastNode= *it;
 			}
 		}
@@ -251,10 +327,22 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check results of path finding
-	TravelState ts;
+	TravelState ts = tsImpossible;
 	UnitPathInterface *path= unit->getPath();
-	if(pathFound==false || lastNode==firstNode){
+	if(pathFound == false || lastNode == firstNode) {
 		//blocked
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+			string commandDesc = "none";
+			Command *command= unit->getCurrCommand();
+			if(command != NULL && command->getCommandType() != NULL) {
+				commandDesc = command->getCommandType()->toString();
+			}
+
+			char szBuf[1024]="";
+			sprintf(szBuf,"State: blocked, cmd [%s] pos: %s, dest pos: %s, reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
+			unit->setCurrentUnitTitle(szBuf);
+		}
+
 		ts= tsBlocked;
 		path->incBlockCount();
 	}
@@ -264,7 +352,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 		//build next pointers
 		Node *currNode= lastNode;
-		while(currNode->prev!=NULL){
+		while(currNode->prev != NULL) {
 			currNode->prev->next= currNode;
 			currNode= currNode->prev;
 		}
@@ -272,8 +360,20 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 		path->clear();
 
 		currNode= firstNode;
-		for(int i=0; currNode->next!=NULL && i<pathFindRefresh; currNode= currNode->next, i++){
+		for(int i=0; currNode->next != NULL && i < pathFindRefresh; currNode= currNode->next, i++) {
 			path->add(currNode->next->pos);
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+			string commandDesc = "none";
+			Command *command= unit->getCurrCommand();
+			if(command != NULL && command->getCommandType() != NULL) {
+				commandDesc = command->getCommandType()->toString();
+			}
+
+			char szBuf[1024]="";
+			sprintf(szBuf,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
+			unit->setCurrentUnitTitle(szBuf);
 		}
 	}
 
@@ -286,8 +386,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	return ts;
 }
 
-PathFinder::Node *PathFinder::newNode(){
-	if(nodePoolCount < pathFindNodesMax){
+PathFinder::Node *PathFinder::newNode() {
+	if(nodePoolCount < pathFindNodesMax) {
 		Node *node= &nodePool[nodePoolCount];
 		nodePoolCount++;
 		return node;
@@ -295,39 +395,39 @@ PathFinder::Node *PathFinder::newNode(){
 	return NULL;
 }
 
-Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos){
+Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos) {
 	if(map == NULL) {
 		throw runtime_error("map == NULL");
 	}
 	
 	//unit data
-	Vec2i unitPos= unit->getPos();
 	int size= unit->getType()->getSize();
 	Field field= unit->getCurrField();
 	int teamIndex= unit->getTeam();
 
 	//if finalPos is free return it
-	if(map->isAproxFreeCells(finalPos, size, field, teamIndex)){
+	if(map->isAproxFreeCells(finalPos, size, field, teamIndex)) {
 		return finalPos;
 	}
 
 	//find nearest pos
+	Vec2i unitPos= unit->getPos();
 	Vec2i nearestPos= unitPos;
 	float nearestDist= unitPos.dist(finalPos);
-	for(int i= -maxFreeSearchRadius; i<=maxFreeSearchRadius; ++i){
-		for(int j= -maxFreeSearchRadius; j<=maxFreeSearchRadius; ++j){
+	for(int i= -maxFreeSearchRadius; i <= maxFreeSearchRadius; ++i) {
+		for(int j= -maxFreeSearchRadius; j <= maxFreeSearchRadius; ++j) {
 			Vec2i currPos= finalPos + Vec2i(i, j);
-			if(map->isAproxFreeCells(currPos, size, field, teamIndex)){
+			if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
 				float dist= currPos.dist(finalPos);
 				
 				//if nearer from finalPos
-				if(dist<nearestDist){
+				if(dist < nearestDist){
 					nearestPos= currPos;
 					nearestDist= dist;
 				}
 				//if the distance is the same compare distance to unit
-				else if(dist==nearestDist){
-					if(currPos.dist(unitPos)<nearestPos.dist(unitPos)){
+				else if(dist == nearestDist){
+					if(currPos.dist(unitPos) < nearestPos.dist(unitPos)) {
 						nearestPos= currPos;
 					}
 				}
@@ -337,18 +437,21 @@ Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos)
 	return nearestPos;
 }
 
-float PathFinder::heuristic(const Vec2i &pos, const Vec2i &finalPos){
+float PathFinder::heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 	return pos.dist(finalPos);
 }
 
 //returns an iterator to the lowest heuristic node
-PathFinder::Nodes::iterator PathFinder::minHeuristic(){
+PathFinder::Nodes::iterator PathFinder::minHeuristic() {
 
-	Nodes::iterator minNodeIt=  openNodes.begin();
+	assert(openNodes.empty() == false);
+	if(openNodes.empty() == true) {
+		throw runtime_error("openNodes.empty() == true");
+	}
 
-	assert(!openNodes.empty());
+	Nodes::iterator minNodeIt =  openNodes.begin();
 
-	for(Nodes::iterator it= openNodes.begin(); it!=openNodes.end(); ++it){
+	for(Nodes::iterator it= openNodes.begin(); it != openNodes.end(); ++it) {
 		if((*it)->heuristic < (*minNodeIt)->heuristic){
 			minNodeIt= it;
 		}
@@ -357,17 +460,17 @@ PathFinder::Nodes::iterator PathFinder::minHeuristic(){
 	return minNodeIt;
 }
 
-bool PathFinder::openPos(const Vec2i &sucPos){
+bool PathFinder::openPos(const Vec2i &sucPos) {
 
-	for(Nodes::reverse_iterator it= closedNodes.rbegin(); it!=closedNodes.rend(); ++it){
-		if(sucPos==(*it)->pos){
+	for(Nodes::reverse_iterator it= closedNodes.rbegin(); it != closedNodes.rend(); ++it) {
+		if(sucPos == (*it)->pos) {
 			return true;
 		}
 	}
 
 	//use reverse iterator to find a node faster
-	for(Nodes::reverse_iterator it= openNodes.rbegin(); it!=openNodes.rend(); ++it){
-		if(sucPos==(*it)->pos){
+	for(Nodes::reverse_iterator it= openNodes.rbegin(); it != openNodes.rend(); ++it) {
+		if(sucPos == (*it)->pos) {
 			return true;
 		}
 	}
