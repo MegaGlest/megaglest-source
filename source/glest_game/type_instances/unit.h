@@ -104,12 +104,15 @@ public:
 
 	virtual bool isBlocked() const = 0;
 	virtual bool isEmpty() const = 0;
+	virtual bool isStuck() const = 0;
 
 	virtual void clear() = 0;
 	virtual void clearBlockCount() = 0;
 	virtual void incBlockCount() = 0;
 	virtual void add(const Vec2i &path) = 0;
 	//virtual Vec2i pop() = 0;
+	virtual int getBlockCount() const = 0;
+	virtual int getQueueCount() const = 0;
 
 	virtual std::string toString() const = 0;
 };
@@ -126,12 +129,15 @@ public:
 	UnitPathBasic();
 	virtual bool isBlocked() const;
 	virtual bool isEmpty() const;
+	virtual bool isStuck() const;
 
 	virtual void clear();
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount();
 	virtual void add(const Vec2i &path);
 	Vec2i pop();
+	virtual int getBlockCount() const { return blockCount; }
+	virtual int getQueueCount() const { return pathQueue.size(); }
 
 	virtual std::string toString() const;
 };
@@ -152,7 +158,9 @@ private:
 public:
 	UnitPath() : blockCount(0) {} /**< Construct path object */
 	virtual bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
-	virtual bool isEmpty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
+	virtual bool isEmpty() const	{return list<Vec2i>::empty();}	/**< is path empty				  */
+	virtual bool isStuck() const	{return false; }
+
 	int  size() const		{return list<Vec2i>::size();}	/**< size of path				 */
 	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
 	virtual void clearBlockCount() { blockCount = 0; }
@@ -172,7 +180,8 @@ public:
 	//virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
 	void pop()		{ erase(begin()); }	/**< pop the next position off the path */
 #endif
-	int getBlockCount() const { return blockCount; }
+	virtual int getBlockCount() const { return blockCount; }
+	virtual int getQueueCount() const { return this->size(); }
 
 	virtual std::string toString() const;
 };
@@ -270,6 +279,8 @@ private:
 
 	Vec3f screenPos;
 	string currentUnitTitle;
+
+	bool inBailOutAttempt;
 
 	static Game *game;
 
@@ -411,6 +422,9 @@ public:
 	void setCurrentUnitTitle(string value) { currentUnitTitle = value;}
 
 	void exploreCells();
+
+	bool getInBailOutAttempt() const { return inBailOutAttempt; }
+	void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }
 
 	std::string toString() const;
 
