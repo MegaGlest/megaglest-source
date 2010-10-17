@@ -183,6 +183,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->retryCurrCommandCount=0;
 	this->screenPos = Vec3f(0.0);
 	this->inBailOutAttempt = false;
+	this->lastHarvestResourceTarget.first = Vec2i(0);
 
 	level= NULL;
 	loadType= NULL;
@@ -244,6 +245,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
 Unit::~Unit(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,id);
+
+	badHarvestPosList.clear();
 
 	//Just to be sure, should already be removed
 	if (livingUnits.erase(id)) {
@@ -1675,6 +1678,75 @@ void Unit::logSynchData(string source) {
 					source.c_str(),
 					szBuf);
 	    }
+	}
+}
+
+void Unit::addBadHarvestPos(const Vec2i &value) {
+	Chrono chron;
+	chron.start();
+	badHarvestPosList.push_back(std::pair<Vec2i,Chrono>(value,chron));
+	cleanupOldBadHarvestPos();
+}
+
+void Unit::removeBadHarvestPos(const Vec2i &value) {
+	for(int i = 0; i < badHarvestPosList.size(); ++i) {
+		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
+		if(item.first == value) {
+			badHarvestPosList.erase(badHarvestPosList.begin() + i);
+			break;
+		}
+	}
+	cleanupOldBadHarvestPos();
+}
+
+bool Unit::isBadHarvestPos(const Vec2i &value) {
+	cleanupOldBadHarvestPos();
+
+	bool result = false;
+	for(int i = 0; i < badHarvestPosList.size(); ++i) {
+		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
+		if(item.first == value) {
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
+void Unit::cleanupOldBadHarvestPos() {
+	for(int i = badHarvestPosList.size() - 1; i >= 0; --i) {
+		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
+
+		// If this position has been is the list for longer than 120
+		// seconds remove it so the unit could potentially try it again
+		if(item.second.getMillis() >= 1200000) {
+			badHarvestPosList.erase(badHarvestPosList.begin() + i);
+		}
+	}
+}
+
+void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
+	if(pos == NULL) {
+		lastHarvestResourceTarget.first = Vec2i(0);
+		//lastHarvestResourceTarget.second = 0;
+	}
+	else {
+		const Vec2i resourceLocation = *pos;
+		if(resourceLocation != lastHarvestResourceTarget.first) {
+			lastHarvestResourceTarget.first = resourceLocation;
+
+			Chrono chron;
+			chron.start();
+			lastHarvestResourceTarget.second = chron;
+		}
+		else {
+			// If we cannot harvest for > 10 seconds tag the position
+			// as a bad one
+			if(lastHarvestResourceTarget.second.getMillis() > 10000) {
+				addBadHarvestPos(resourceLocation);
+			}
+		}
 	}
 }
 
