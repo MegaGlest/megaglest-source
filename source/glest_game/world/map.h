@@ -197,7 +197,7 @@ public:
 	bool isInside(const Vec2i &pos) const;
 	bool isInsideSurface(int sx, int sy) const;
 	bool isInsideSurface(const Vec2i &sPos) const;
-	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size) const;
+	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL) const;
 	bool isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const;
 
 	//free cells

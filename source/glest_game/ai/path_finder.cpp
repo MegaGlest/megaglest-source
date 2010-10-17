@@ -173,10 +173,18 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 								throw runtime_error("unsupported or missing path finder detected!");
 							}
 						}
+						else if(ts == tsArrived) {
+							ts = aStar(unit, finalPos);
+							break;
+						}
 					}
 				}
 			}
 			unit->setInBailOutAttempt(false);
+
+			if(ts == tsArrived) {
+				ts = tsBlocked;
+			}
 		}
 		unit->setCurrSkill(scStop);
 		break;
@@ -230,17 +238,20 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 
 	//if arrived
 	if(finalPos == unit->getPos()) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
-			string commandDesc = "none";
-			Command *command= unit->getCurrCommand();
-			if(command != NULL && command->getCommandType() != NULL) {
-				commandDesc = command->getCommandType()->toString();
+		Command *command= unit->getCurrCommand();
+		if(command == NULL || command->getPos() != unit->getPos()) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+				string commandDesc = "none";
+				Command *command= unit->getCurrCommand();
+				if(command != NULL && command->getCommandType() != NULL) {
+					commandDesc = command->getCommandType()->toString();
+				}
+				char szBuf[1024]="";
+				sprintf(szBuf,"State: arrived#2 at pos: %s, command [%s]",targetPos.getString().c_str(),commandDesc.c_str());
+				unit->setCurrentUnitTitle(szBuf);
 			}
-			char szBuf[1024]="";
-			sprintf(szBuf,"State: arrived#2 at pos: %s, command [%s]",targetPos.getString().c_str(),commandDesc.c_str());
-			unit->setCurrentUnitTitle(szBuf);
+			return tsArrived;
 		}
-		return tsArrived;
 	}
 
 	//path find algorithm
@@ -338,8 +349,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 				commandDesc = command->getCommandType()->toString();
 			}
 
+			std::pair<Vec2i,Chrono> lastHarvest = unit->getLastHarvestResourceTarget();
+
 			char szBuf[1024]="";
-			sprintf(szBuf,"State: blocked, cmd [%s] pos: %s, dest pos: %s, reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
+			sprintf(szBuf,"State: blocked, cmd [%s] pos: [%s], dest pos: [%s], lastHarvest = [%s - %lld], reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),lastHarvest.first.getString().c_str(),lastHarvest.second.getMillis(), pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
 			unit->setCurrentUnitTitle(szBuf);
 		}
 

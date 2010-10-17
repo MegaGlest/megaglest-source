@@ -572,7 +572,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 // ==================== updateHarvest ====================
 
-void UnitUpdater::updateHarvest(Unit *unit){
+void UnitUpdater::updateHarvest(Unit *unit) {
 	Chrono chrono;
 	chrono.start();
 
@@ -585,17 +585,17 @@ void UnitUpdater::updateHarvest(Unit *unit){
 
 	if(unit->getCurrSkill()->getClass() != scHarvest) {
 		//if not working
-		if(unit->getLoadCount()==0){
+		if(unit->getLoadCount() == 0) {
 			//if not loaded go for resources
 			Resource *r= map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
-			if(r!=NULL && hct->canHarvest(r->getType())){
+			if(r != NULL && hct->canHarvest(r->getType())) {
 				//if can harvest dest. pos
 				bool canHarvestDestPos = false;
 
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-						canHarvestDestPos = (unit->getPos().dist(command->getPos())<harvestDistance &&
-											  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize()));
+						canHarvestDestPos = (unit->getPos().dist(command->getPos()) < harvestDistance &&
+											  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit));
 	    				break;
 	    			case pfRoutePlanner:
 	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
@@ -605,22 +605,24 @@ void UnitUpdater::updateHarvest(Unit *unit){
 	    	    }
 
 				if (canHarvestDestPos == true) {
-						//if it finds resources it starts harvesting
-						unit->setCurrSkill(hct->getHarvestSkillType());
-						unit->setTargetPos(targetPos);
-						command->setPos(targetPos);
-						unit->setLoadCount(0);
+					unit->setLastHarvestResourceTarget(&targetPos);
 
-			    		switch(this->game->getGameSettings()->getPathFinderType()) {
-			    			case pfBasic:
-			    				unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
-			    				break;
-			    			case pfRoutePlanner:
-			    				unit->setLoadType(r->getType());
-			    				break;
-			    			default:
-			    				throw runtime_error("detected unsupported pathfinder type!");
-			    	    }
+					//if it finds resources it starts harvesting
+					unit->setCurrSkill(hct->getHarvestSkillType());
+					unit->setTargetPos(targetPos);
+					command->setPos(targetPos);
+					unit->setLoadCount(0);
+
+					switch(this->game->getGameSettings()->getPathFinderType()) {
+						case pfBasic:
+							unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+							break;
+						case pfRoutePlanner:
+							unit->setLoadType(r->getType());
+							break;
+						default:
+							throw runtime_error("detected unsupported pathfinder type!");
+					}
 				}
 				else {
 
@@ -652,7 +654,7 @@ void UnitUpdater::updateHarvest(Unit *unit){
 				}
 			}
 		}
-		else{
+		else {
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
 			if(store!=NULL) {
@@ -702,8 +704,10 @@ void UnitUpdater::updateHarvest(Unit *unit){
 			}
 		}
 	}
-	else{
+	else {
 		//if working
+		//unit->setLastHarvestResourceTarget(NULL);
+
 		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()));
 		Resource *r= sc->getResource();
 

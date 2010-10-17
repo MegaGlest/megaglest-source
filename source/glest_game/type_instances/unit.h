@@ -18,9 +18,10 @@
 #include "skill_type.h"
 #include "game_constants.h"
 #include <set>
+#include "platform_common.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 using Shared::Graphics::ParticleSystem;
 using Shared::Graphics::UnitParticleSystem;
@@ -29,6 +30,7 @@ using Shared::Graphics::Vec2f;
 using Shared::Graphics::Vec3f;
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Model;
+using Shared::PlatformCommon::Chrono;
 
 using std::set;
 
@@ -281,6 +283,13 @@ private:
 	string currentUnitTitle;
 
 	bool inBailOutAttempt;
+	// This buffer stores a list of bad harvest cells, along with the start
+	// time of when it was detected. Typically this may be due to a unit
+	// constantly getting blocked from getting to the resource so this
+	// list may be used to tell areas of the game to ignore those cells for a
+	// period of time
+	std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
+	std::pair<Vec2i,Chrono> lastHarvestResourceTarget;
 
 	static Game *game;
 
@@ -425,6 +434,16 @@ public:
 
 	bool getInBailOutAttempt() const { return inBailOutAttempt; }
 	void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }
+
+	std::vector<std::pair<Vec2i,Chrono> > getBadHarvestPosList() const { return badHarvestPosList; }
+	void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
+	void addBadHarvestPos(const Vec2i &value);
+	void removeBadHarvestPos(const Vec2i &value);
+	bool isBadHarvestPos(const Vec2i &value);
+	void cleanupOldBadHarvestPos();
+
+	void setLastHarvestResourceTarget(const Vec2i *pos);
+	std::pair<Vec2i,Chrono> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
 
 	std::string toString() const;
 
