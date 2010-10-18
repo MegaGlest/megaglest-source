@@ -10,20 +10,16 @@
 // ==============================================================
 
 #include "ai.h" 
-#include <ctime>
 #include "ai_interface.h"
 #include "ai_rule.h"
 #include "unit_type.h"
 #include "unit.h"
-#include "program.h"
-#include "config.h"
-//#include <limits>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 // =====================================================
 // 	class ProduceTask
@@ -111,42 +107,50 @@ string UpgradeTask::toString() const{
 // 	class Ai
 // =====================================================
 
-void Ai::init(AiInterface *aiInterface){
+void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 	this->aiInterface= aiInterface; 
-	startLoc= random.randRange(0, aiInterface->getMapMaxPlayers()-1);
-    upgradeCount= 0;
+	if(useStartLocation == -1) {
+		startLoc = random.randRange(0, aiInterface->getMapMaxPlayers()-1);
+	}
+	else {
+		startLoc = useStartLocation;
+	}
 	minWarriors= minMinWarriors;
 	randomMinWarriorsReached= false;
 	//add ai rules
-	aiRules.resize(14);
-	aiRules[0]= new AiRuleWorkerHarvest(this);
-	aiRules[1]= new AiRuleRefreshHarvester(this);
-	aiRules[2]= new AiRuleScoutPatrol(this);
-	aiRules[3]= new AiRuleReturnBase(this);
-	aiRules[4]= new AiRuleMassiveAttack(this);
-	aiRules[5]= new AiRuleAddTasks(this);
-	aiRules[6]= new AiRuleProduceResourceProducer(this);
-	aiRules[7]= new AiRuleBuildOneFarm(this);
-	aiRules[8]= new AiRuleProduce(this);
-	aiRules[9]= new AiRuleBuild(this);
-	aiRules[10]= new AiRuleUpgrade(this);
-	aiRules[11]= new AiRuleExpand(this);
-	aiRules[12]= new AiRuleRepair(this);
-	aiRules[13]= new AiRuleRepair(this);
+	aiRules.clear();
+	aiRules.push_back(new AiRuleWorkerHarvest(this));
+	aiRules.push_back(new AiRuleRefreshHarvester(this));
+	aiRules.push_back(new AiRuleScoutPatrol(this));
+	aiRules.push_back(new AiRuleReturnBase(this));
+	aiRules.push_back(new AiRuleMassiveAttack(this));
+	aiRules.push_back(new AiRuleAddTasks(this));
+	aiRules.push_back(new AiRuleProduceResourceProducer(this));
+	aiRules.push_back(new AiRuleBuildOneFarm(this));
+	aiRules.push_back(new AiRuleProduce(this));
+	aiRules.push_back(new AiRuleBuild(this));
+	aiRules.push_back(new AiRuleUpgrade(this));
+	aiRules.push_back(new AiRuleExpand(this));
+	aiRules.push_back(new AiRuleRepair(this));
+	aiRules.push_back(new AiRuleRepair(this));
 }
 
-Ai::~Ai(){
+Ai::~Ai() {
 	deleteValues(tasks.begin(), tasks.end());
 	deleteValues(aiRules.begin(), aiRules.end());
 }
 
-void Ai::update(){
+void Ai::update() {
 	//process ai rules
-	for(AiRules::iterator it= aiRules.begin(); it!=aiRules.end(); ++it){
-		if((aiInterface->getTimer() % ((*it)->getTestInterval()*GameConstants::updateFps/1000))==0){
-			if((*it)->test()){
-				aiInterface->printLog(3, intToStr(1000*aiInterface->getTimer()/GameConstants::updateFps) + ": Executing rule: " + (*it)->getName() + '\n');
-				(*it)->execute();
+	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
+		AiRule *rule = aiRules[ruleIdx];
+		if(rule == NULL) {
+			throw runtime_error("rule == NULL");
+		}
+		if((aiInterface->getTimer() % (rule->getTestInterval() * GameConstants::updateFps / 1000)) == 0){
+			if(rule->test()) {
+				aiInterface->printLog(3, intToStr(1000 * aiInterface->getTimer() / GameConstants::updateFps) + ": Executing rule: " + rule->getName() + '\n');
+				rule->execute();
 			}
 		}
 	}

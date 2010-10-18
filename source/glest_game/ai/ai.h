@@ -111,7 +111,7 @@ public:
 ///	Main AI class
 // ===============================
 
-class Ai{
+class Ai {
 private:
 	static const int harvesterPercent= 30;
 	static const int maxBuildRadius= 40; 
@@ -123,7 +123,7 @@ private:
 	static const int villageRadius= 15;
 
 public:
-	enum ResourceUsage{
+	enum ResourceUsage {
 		ruHarvester,
 		ruWarrior,
 		ruBuilding,
@@ -131,7 +131,8 @@ public:
 	};
 
 private:
-	typedef vector<AiRule*> AiRules;
+	//typedef vector<AiRule*> AiRules;
+	typedef vector<AiRule *> AiRules;
 	typedef list<const Task*> Tasks;
 	typedef deque<Vec2i> Positions;
 
@@ -140,7 +141,6 @@ private:
 	AiRules aiRules;
     int startLoc;
     bool randomMinWarriorsReached;
-	int upgradeCount;
 	Tasks tasks;
 	Positions expansionPositions;
 	RandomGen random;
@@ -148,12 +148,12 @@ private:
 public: 
 	int minWarriors;
     ~Ai();
-	void init(AiInterface *aiInterface);
+	void init(AiInterface *aiInterface,int useStartLocation=-1);
     void update(); 
 
     //state requests
 	AiInterface *getAiInterface() const		{return aiInterface;}
-	RandomGen* getRandom()						{return &random;}
+	RandomGen* getRandom()					{return &random;}
     int getCountOfType(const UnitType *ut);
 	
 	int getCountOfClass(UnitClass uc);

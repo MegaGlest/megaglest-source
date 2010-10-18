@@ -141,6 +141,8 @@ public:
 	void incResourceAmount(const ResourceType *rt, int amount);
 	void setResourceBalance(const ResourceType *rt, int balance);
 
+	void setControlType(ControlType value) { control = value; }
+
 	std::string toString() const;
 
 private:

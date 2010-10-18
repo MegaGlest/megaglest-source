@@ -31,7 +31,7 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
-AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex){
+AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->world= game.getWorld();
@@ -44,7 +44,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex){
 	timer= 0;
 
 	//init ai
-	ai.init(this);
+	ai.init(this,useStartLocation);
 
 	//config
 	logLevel= Config::getInstance().getInt("AiLog");

@@ -186,6 +186,8 @@ private:
 
 	void renderWorker();
 	static int ErrorDisplayMessage(const char *msg, bool exitApp);
+
+	void ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role);
 };
 
 }}//end namespace

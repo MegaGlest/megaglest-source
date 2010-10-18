@@ -633,15 +633,18 @@ void Game::update() {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
+		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+		NetworkRole role 				= networkManager.getNetworkRole();
+
+		// Check to see if we are playing a network game and if any players
+		// have disconnected?
+		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
+
 		//update
 		for(int i = 0; i < updateLoops; ++i) {
 			chrono.start();
-			Renderer &renderer= Renderer::getInstance();
-
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-			bool isNetworkGame 				= this->gameSettings.isNetworkGame();
-			NetworkRole role 				= networkManager.getNetworkRole();
 
 			//AiInterface
 			for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -683,6 +686,7 @@ void Game::update() {
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			if(chrono.getMillis() > 0) chrono.start();
 
+			Renderer &renderer= Renderer::getInstance();
 			renderer.updateParticleManager(rsGame,avgRenderFps);
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			if(chrono.getMillis() > 0) chrono.start();
@@ -723,6 +727,34 @@ void Game::update() {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
+	}
+}
+
+void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
+	if(role == nrServer && isNetworkGame == true) {
+		Logger &logger= Logger::getInstance();
+		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			Faction *faction = world.getFaction(i);
+			if(	faction->getControlType() == ctNetwork ||
+				faction->getControlType() == ctNetworkCpuEasy ||
+				faction->getControlType() == ctNetworkCpu ||
+				faction->getControlType() == ctNetworkCpuUltra ||
+				faction->getControlType() == ctNetworkCpuMega) {
+				ConnectionSlot *slot =  server->getSlot(i);
+				if(aiInterfaces[i] == NULL && (slot == NULL || slot->isConnected() == false)) {
+
+					faction->setControlType(ctCpu);
+					aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
+					logger.add("Creating AI for faction " + intToStr(i), true);
+
+					char szBuf[255]="";
+					sprintf(szBuf,"Player #%d [%s] has disconnected, switching player to AI mode!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+					server->sendTextMessage(szBuf,-1,true);
+				}
+			}
+		}
 	}
 }
 
