@@ -125,7 +125,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 	}
 		
 	//route cache miss
-	TravelState ts= aStar(unit, finalPos);
+	TravelState ts= aStar(unit, finalPos, false);
 
 	//post actions
 	switch(ts) {
@@ -142,7 +142,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 				for(int bailoutY = -20; bailoutY <= 20 && ts == tsBlocked; ++bailoutY) {
 					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 					if(map->canMove(unit, unit->getPos(), newFinalPos)) {
-						ts= aStar(unit, newFinalPos);
+						ts= aStar(unit, newFinalPos, true);
 						if(ts == tsMoving) {
 							unit->setInBailOutAttempt(false);
 
@@ -173,10 +173,10 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 								throw runtime_error("unsupported or missing path finder detected!");
 							}
 						}
-						else if(ts == tsArrived) {
-							ts = aStar(unit, finalPos);
-							break;
-						}
+						//else if(ts == tsArrived) {
+						//	ts = aStar(unit, finalPos, true);
+						//	break;
+						//}
 					}
 				}
 			}
@@ -225,7 +225,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 // ==================== PRIVATE ==================== 
 
 //route a unit using A* algorithm
-TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
+TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout) {
 	Chrono chrono;
 	chrono.start();
 	
@@ -237,6 +237,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
 	//if arrived
+	/*
 	if(finalPos == unit->getPos()) {
 		Command *command= unit->getCurrCommand();
 		if(command == NULL || command->getPos() != unit->getPos()) {
@@ -247,12 +248,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos){
 					commandDesc = command->getCommandType()->toString();
 				}
 				char szBuf[1024]="";
-				sprintf(szBuf,"State: arrived#2 at pos: %s, command [%s]",targetPos.getString().c_str(),commandDesc.c_str());
+				sprintf(szBuf,"State: arrived#2 at pos: %s, command [%s] inBailout = %d",targetPos.getString().c_str(),commandDesc.c_str(),inBailout);
 				unit->setCurrentUnitTitle(szBuf);
 			}
 			return tsArrived;
 		}
 	}
+	*/
 
 	//path find algorithm
 

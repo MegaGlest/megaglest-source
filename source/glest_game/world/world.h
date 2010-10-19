@@ -174,7 +174,7 @@ public:
 
 	//misc
 	void update();
-	Unit* findUnitById(int id);
+	Unit* findUnitById(int id) const;
 	const UnitType* findUnitTypeById(const FactionType* factionType, int id);
 	bool placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated= false);
 	void moveUnitCells(Unit *unit);

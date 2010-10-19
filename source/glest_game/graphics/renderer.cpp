@@ -3788,8 +3788,12 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 		for(int idx = 0; idx < renderUnitTitleList.size(); idx++) {
 			std::pair<Unit *,Vec3f> &unitInfo = renderUnitTitleList[idx];
 			Unit *unit = unitInfo.first;
-			if(unit != NULL && unitRenderedList.find(unit->getId()) == unitRenderedList.end()) {
-				string str = unit->getFullName() + " - " + intToStr(unit->getId());
+
+			const World *world= game->getWorld();
+			Unit *validUnit = world->findUnitById(unit->getId());
+
+			if(validUnit != NULL && unitRenderedList.find(validUnit->getId()) == unitRenderedList.end()) {
+				string str = validUnit->getFullName() + " - " + intToStr(validUnit->getId());
 				//get the screen coordinates
 				Vec3f &screenPos = unitInfo.second;
 				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
