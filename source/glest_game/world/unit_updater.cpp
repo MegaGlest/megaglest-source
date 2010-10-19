@@ -609,7 +609,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				if (canHarvestDestPos == true) {
 					unit->setLastHarvestResourceTarget(NULL);
 
-					canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL);
+					canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
 					if(canHarvestDestPos == true) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
@@ -668,7 +668,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						if (canHarvestDestPos == true) {
 							unit->setLastHarvestResourceTarget(NULL);
 
-							canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL);
+							canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
 							if(canHarvestDestPos == true) {
 								//if it finds resources it starts harvesting
 								unit->setCurrSkill(hct->getHarvestSkillType());
@@ -678,7 +678,10 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
-										unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+										{
+										const ResourceType *loadType = map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType();
+										unit->setLoadType(loadType);
+										}
 										break;
 									case pfRoutePlanner:
 										unit->setLoadType(r->getType());
