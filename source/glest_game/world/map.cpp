@@ -24,6 +24,8 @@
 #include "game_settings.h"
 #include "platform_util.h"
 #include "pos_iterator.h"
+#include "faction.h"
+#include "command.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -249,7 +251,7 @@ bool Map::isInsideSurface(const Vec2i &sPos) const{
 }
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
-bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit) const {
+bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit, bool fallbackToPeersHarvestingSameResource) const {
 	for(int i = -1; i <= size; ++i) {
 		for(int j = -1; j <= size; ++j) {
 			if(isInside(pos.x + i, pos.y + j)) {
@@ -259,6 +261,29 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 						resourcePos= pos + Vec2i(i,j);
 
 						if(unit == NULL || unit->isBadHarvestPos(resourcePos) == false) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
+		for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
+			Unit *peerUnit = unit->getFaction()->getUnit(i);
+			if( peerUnit != NULL && peerUnit->getId() != unit->getId() &&
+				peerUnit->getType()->getSize() <= unit->getType()->getSize()) {
+				if( peerUnit->getCurrSkill()->getClass() == scHarvest &&
+					peerUnit->getLoadType() == rt &&
+					peerUnit->getCurrCommand() != NULL) {
+
+					if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 30) {
+						if(i == 0 || (unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) < unit->getPos().dist(resourcePos))) {
+							resourcePos = peerUnit->getCurrCommand()->getPos();
+						}
+						if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 5) {
+							resourcePos = peerUnit->getCurrCommand()->getPos();
 							return true;
 						}
 					}
@@ -384,22 +409,25 @@ bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalD
 // ==================== unit placement ====================
 
 //checks if a unit can move from between 2 cells
-bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const{
+bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
 	int size= unit->getType()->getSize();
 
-	for(int i=pos2.x; i<pos2.x+size; ++i){
-		for(int j=pos2.y; j<pos2.y+size; ++j){
-			if(isInside(i, j)){
-				if(getCell(i, j)->getUnit(unit->getCurrField())!=unit){
-					if(!isFreeCell(Vec2i(i, j), unit->getCurrField())){
+	for(int i=pos2.x; i<pos2.x+size; ++i) {
+		for(int j=pos2.y; j<pos2.y+size; ++j) {
+			if(isInside(i, j)) {
+				if(getCell(i, j)->getUnit(unit->getCurrField()) != unit) {
+					if(isFreeCell(Vec2i(i, j), unit->getCurrField()) == false) {
 						return false;
 					}
 				}
 			}
-			else{
+			else {
 				return false;
 			}
 		}
+	}
+	if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+		return false;
 	}
     return true;
 }
@@ -411,37 +439,47 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) c
 	Field field= unit->getCurrField();
 
 	//single cell units
-	if(size==1){
-		if(!isAproxFreeCell(pos2, field, teamIndex)){
+	if(size==1) {
+		if(isAproxFreeCell(pos2, field, teamIndex) == false){
 			return false;
 		}
-		if(pos1.x!=pos2.x && pos1.y!=pos2.y){
-			if(!isAproxFreeCell(Vec2i(pos1.x, pos2.y), field, teamIndex)){
+		if(pos1.x != pos2.x && pos1.y != pos2.y){
+			if(isAproxFreeCell(Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
 				return false;
 			}
-			if(!isAproxFreeCell(Vec2i(pos2.x, pos1.y), field, teamIndex)){
+			if(isAproxFreeCell(Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
 				return false;
 			}
 		}
+
+		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+			return false;
+		}
+
 		return true;
 	}
 
 	//multi cell units
-	else{
-		for(int i=pos2.x; i<pos2.x+size; ++i){
-			for(int j=pos2.y; j<pos2.y+size; ++j){
+	else {
+		for(int i=pos2.x; i<pos2.x+size; ++i) {
+			for(int j=pos2.y; j<pos2.y+size; ++j) {
 				if(isInside(i, j)){
-					if(getCell(i, j)->getUnit(unit->getCurrField())!=unit){
-						if(!isAproxFreeCell(Vec2i(i, j), field, teamIndex)){
+					if(getCell(i, j)->getUnit(unit->getCurrField())!=unit) {
+						if(isAproxFreeCell(Vec2i(i, j), field, teamIndex) == false) {
 							return false;
 						}
 					}
 				}
-				else{
+				else {
 					return false;
 				}
 			}
 		}
+
+		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+			return false;
+		}
+
 		return true;
 	}
 }

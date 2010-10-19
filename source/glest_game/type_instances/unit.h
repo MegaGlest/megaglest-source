@@ -116,6 +116,8 @@ public:
 	virtual int getBlockCount() const = 0;
 	virtual int getQueueCount() const = 0;
 
+	virtual vector<Vec2i> getQueue() const = 0;
+
 	virtual std::string toString() const = 0;
 };
 
@@ -140,6 +142,8 @@ public:
 	Vec2i pop();
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return pathQueue.size(); }
+
+	virtual vector<Vec2i> getQueue() const { return pathQueue; }
 
 	virtual std::string toString() const;
 };
@@ -184,6 +188,14 @@ public:
 #endif
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return this->size(); }
+
+	virtual vector<Vec2i> getQueue() const {
+		vector<Vec2i> result;
+		for(list<Vec2i>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
+			result.push_back(*iter);
+		}
+		return result;
+	}
 
 	virtual std::string toString() const;
 };
@@ -290,6 +302,8 @@ private:
 	// period of time
 	std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
 	std::pair<Vec2i,Chrono> lastHarvestResourceTarget;
+
+	std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
 
 	static Game *game;
 
@@ -439,11 +453,14 @@ public:
 	void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
 	void addBadHarvestPos(const Vec2i &value);
 	void removeBadHarvestPos(const Vec2i &value);
-	bool isBadHarvestPos(const Vec2i &value);
+	bool isBadHarvestPos(const Vec2i &value,bool checkPeerUnits=true) const;
 	void cleanupOldBadHarvestPos();
 
 	void setLastHarvestResourceTarget(const Vec2i *pos);
 	std::pair<Vec2i,Chrono> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
+
+	std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
+	void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
 
 	std::string toString() const;
 

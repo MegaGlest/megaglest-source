@@ -45,7 +45,15 @@ class World;
 ///	Each of the game players
 // =====================================================
 
-class Faction{
+class FactionPathSuccessCache {
+public:
+	// The unit Size for the path findings
+	int unitSize;
+	// a List of paths with their # success counts
+	vector<std::pair<vector<Vec2i>, int> > pathQueue;
+};
+
+class Faction {
 private:
     typedef vector<Resource> Resources;
     typedef vector<Resource> Store;
@@ -64,7 +72,6 @@ private:
 	World *world;
 	ScriptManager *scriptManager;
 	
-
     ControlType control;
 
 	Texture2D *texture;
@@ -75,6 +82,8 @@ private:
 	int startLocationIndex;
 
 	bool thisFaction;
+
+	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 
 public:
 	Faction();
@@ -142,6 +151,9 @@ public:
 	void setResourceBalance(const ResourceType *rt, int balance);
 
 	void setControlType(ControlType value) { control = value; }
+
+	std::vector<Vec2i> findCachedPath(const Vec2i &target, Unit *unit);
+	void addCachedPath(const Vec2i &target, Unit *unit);
 
 	std::string toString() const;
 
