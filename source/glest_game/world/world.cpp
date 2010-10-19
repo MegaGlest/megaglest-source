@@ -458,22 +458,13 @@ void World::tick() {
 	}
 }
 
-Unit* World::findUnitById(int id){
+Unit* World::findUnitById(int id) const {
 	for(int i= 0; i<getFactionCount(); ++i){
-		Faction* faction= getFaction(i);
+		const Faction* faction= getFaction(i);
 		Unit* unit = faction->findUnit(id);
 		if(unit != NULL) {
 			return unit;
 		}
-/*
-		for(int j= 0; j<faction->getUnitCount(); ++j){
-			Unit* unit= faction->getUnit(j);
-
-			if(unit->getId()==id){
-				return unit;
-			}
-		}
-*/
 	}
 	return NULL;
 }

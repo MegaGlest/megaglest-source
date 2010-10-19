@@ -71,7 +71,7 @@ public:
 	TravelState findPath(Unit *unit, const Vec2i &finalPos);
 
 private:
-	TravelState aStar(Unit *unit, const Vec2i &finalPos);
+	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout);
 	Node *newNode();
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	float heuristic(const Vec2i &pos, const Vec2i &finalPos);
