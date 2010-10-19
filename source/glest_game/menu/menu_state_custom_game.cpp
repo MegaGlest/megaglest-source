@@ -872,8 +872,18 @@ void MenuStateCustomGame::PlayNow() {
 				if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",__FILE__,__FUNCTION__,__LINE__,RandomCount);
 
-					listBoxFactions[i].setSelectedItemIndex(RandomCount);
-					randomFactionSelectionList.push_back(listBoxFactions[i].getItem(RandomCount));
+					// Find first real faction and use it
+					int factionIndexToUse = RandomCount;
+					for(int useIdx = 0; useIdx < listBoxFactions[i].getItemCount(); useIdx++) {
+						string selectedFactionName = listBoxFactions[i].getItem(useIdx);
+						if(	selectedFactionName != formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+							selectedFactionName != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+							factionIndexToUse = useIdx;
+							break;
+						}
+					}
+					listBoxFactions[i].setSelectedItemIndex(factionIndexToUse);
+					randomFactionSelectionList.push_back(listBoxFactions[i].getItem(factionIndexToUse));
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, listBoxFactions[i].getSelectedItem() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,listBoxFactions[i].getSelectedItem().c_str());
