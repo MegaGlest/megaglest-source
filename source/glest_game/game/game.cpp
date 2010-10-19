@@ -223,38 +223,70 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 
 	if(skipCustomLoadScreen == false && loadingImageUsed == false){
 		// try to use a faction related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for faction loading screen\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for faction loading screen\n",__FILE__,__FUNCTION__,__LINE__);
 		for ( int i=0; i < settings->getFactionCount(); ++i ) {
 			if( settings->getFactionControl(i) == ctHuman ||
-				(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)){
-				vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
-				for(int idx = 0; idx < pathList.size(); idx++) {
-					const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ settings->getFactionTypeName(i);
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
-					if(isdir(path.c_str()) == true) {
-						vector<string> loadScreenList;
-						findAll(path + "/" + factionLogoFilter, loadScreenList, false, false);
-						if(loadScreenList.size() > 0) {
-							//string factionLogo = path + "/" + "loading_screen.jpg";
-							string factionLogo = path + "/" + loadScreenList[0];
+				(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
 
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+				//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,settings->getFactionTypeName(i).c_str());
+				if(settings->getFactionTypeName(i) == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+					const string factionLogo = "data/core/misc_textures/observer.jpg";
+					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
-							if(fileExists(factionLogo) == true) {
-								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+					if(fileExists(factionLogo) == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
-								result = factionLogo;
-								if(logger != NULL) {
-									logger->loadLoadingScreen(result);
+						result = factionLogo;
+						if(logger != NULL) {
+							logger->loadLoadingScreen(result);
+						}
+						loadingImageUsed = true;
+					}
+				}
+				else if(settings->getFactionTypeName(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+					const string factionLogo = "data/core/misc_textures/random.jpg";
+					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+					if(fileExists(factionLogo) == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+						result = factionLogo;
+						if(logger != NULL) {
+							logger->loadLoadingScreen(result);
+						}
+						loadingImageUsed = true;
+					}
+				}
+				else {
+					vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
+					for(int idx = 0; idx < pathList.size(); idx++) {
+						const string path = pathList[idx]+ "/" +techName+ "/"+ "factions"+ "/"+ settings->getFactionTypeName(i);
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+						if(isdir(path.c_str()) == true) {
+							vector<string> loadScreenList;
+							findAll(path + "/" + factionLogoFilter, loadScreenList, false, false);
+							if(loadScreenList.size() > 0) {
+								//string factionLogo = path + "/" + "loading_screen.jpg";
+								string factionLogo = path + "/" + loadScreenList[0];
+
+								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+								if(fileExists(factionLogo) == true) {
+									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+									result = factionLogo;
+									if(logger != NULL) {
+										logger->loadLoadingScreen(result);
+									}
+									loadingImageUsed = true;
+									break;
 								}
-								loadingImageUsed = true;
-								break;
 							}
 						}
-					}
 
-					if(loadingImageUsed == true) {
-						break;
+						if(loadingImageUsed == true) {
+							break;
+						}
 					}
 				}
 				break;
@@ -263,12 +295,12 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 	}
 	if(skipCustomLoadScreen == false && loadingImageUsed == false){
 		// try to use a tech related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Searching for tech loading screen\n",__FILE__,__FUNCTION__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",__FILE__,__FUNCTION__,__LINE__);
 
 		vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
 		for(int idx = 0; idx < pathList.size(); idx++) {
 			const string path = pathList[idx]+ "/" +techName;
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,path.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 			if(isdir(path.c_str()) == true) {
 				vector<string> loadScreenList;
 				findAll(path + "/" + factionLogoFilter, loadScreenList, false, false);
@@ -276,10 +308,10 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 					//string factionLogo = path + "/" + "loading_screen.jpg";
 					string factionLogo = path + "/" + loadScreenList[0];
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					if(fileExists(factionLogo) == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found loading screen '%s'\n",__FILE__,__FUNCTION__,factionLogo.c_str());
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
 						result = factionLogo;
 						if(logger != NULL) {
