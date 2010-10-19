@@ -68,7 +68,7 @@ public:
 	PathFinder(const Map *map);
 	~PathFinder();
 	void init(const Map *map);
-	TravelState findPath(Unit *unit, const Vec2i &finalPos);
+	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL);
 
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout);
