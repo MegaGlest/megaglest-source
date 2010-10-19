@@ -20,6 +20,7 @@
 #include "unit_type.h"
 #include "platform_common.h"
 #include "command.h"
+#include "faction.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -95,6 +96,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
+		unit->getFaction()->addCachedPath(finalPos,unit);
 		return tsArrived;
 	}
 	else {
@@ -105,6 +107,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				Vec2i pos= basicPath->pop();
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
+					unit->addCurrentTargetPathTakenCell(finalPos,pos);
 					return tsMoving;
 				}
 			}
@@ -124,13 +127,29 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		}
 	}
 		
-	//route cache miss
-	TravelState ts= aStar(unit, finalPos, false);
+	TravelState ts = tsImpossible;
+	std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
+	if(cachedPath.size() > 0) {
+		path->clear();
+
+		for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
+			path->add(cachedPath[i]);
+		}
+		ts = tsMoving;
+	}
+	else {
+		//route cache miss
+		ts = aStar(unit, finalPos, false);
+	}
 
 	//post actions
 	switch(ts) {
 	case tsBlocked:
 	case tsArrived:
+
+		if(ts == tsArrived) {
+			unit->getFaction()->addCachedPath(finalPos,unit);
+		}
 		// The unit is stuck (not only blocked but unable to go anywhere for a while)
 		// We will try to bail out of the immediate area
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
@@ -204,6 +223,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				Vec2i pos= basicPath->pop();
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
+					unit->addCurrentTargetPathTakenCell(finalPos,pos);
 				}
 				else {
 					unit->setCurrSkill(scStop);

@@ -591,6 +591,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 			if(r != NULL && hct->canHarvest(r->getType())) {
 				//if can harvest dest. pos
 				bool canHarvestDestPos = false;
+				targetPos.x = -1;
+				targetPos.y = -1;
 
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
@@ -607,24 +609,27 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				if (canHarvestDestPos == true) {
 					unit->setLastHarvestResourceTarget(NULL);
 
-					//if it finds resources it starts harvesting
-					unit->setCurrSkill(hct->getHarvestSkillType());
-					unit->setTargetPos(targetPos);
-					command->setPos(targetPos);
-					unit->setLoadCount(0);
+					canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL);
+					if(canHarvestDestPos == true) {
+						//if it finds resources it starts harvesting
+						unit->setCurrSkill(hct->getHarvestSkillType());
+						unit->setTargetPos(targetPos);
+						command->setPos(targetPos);
+						unit->setLoadCount(0);
 
-					switch(this->game->getGameSettings()->getPathFinderType()) {
-						case pfBasic:
-							unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
-							break;
-						case pfRoutePlanner:
-							unit->setLoadType(r->getType());
-							break;
-						default:
-							throw runtime_error("detected unsupported pathfinder type!");
+						switch(this->game->getGameSettings()->getPathFinderType()) {
+							case pfBasic:
+								unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+								break;
+							case pfRoutePlanner:
+								unit->setLoadType(r->getType());
+								break;
+							default:
+								throw runtime_error("detected unsupported pathfinder type!");
+						}
 					}
 				}
-				else {
+				if(canHarvestDestPos == false) {
 					unit->setLastHarvestResourceTarget(&targetPos);
 
 					//if not continue walking
@@ -648,10 +653,75 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    	    }
 
 		    		if(wasStuck == true) {
-						//if can't harvest, search for another resource
-						unit->setCurrSkill(scStop);
-						if(searchForResource(unit, hct) == false) {
-							unit->finishCommand();
+		    			switch(this->game->getGameSettings()->getPathFinderType()) {
+							case pfBasic:
+								canHarvestDestPos = (unit->getPos().dist(command->getPos()) < harvestDistance &&
+													  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, true));
+								break;
+							case pfRoutePlanner:
+								canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
+								break;
+							default:
+								throw runtime_error("detected unsupported pathfinder type!");
+						}
+
+						if (canHarvestDestPos == true) {
+							unit->setLastHarvestResourceTarget(NULL);
+
+							canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL);
+							if(canHarvestDestPos == true) {
+								//if it finds resources it starts harvesting
+								unit->setCurrSkill(hct->getHarvestSkillType());
+								unit->setTargetPos(targetPos);
+								command->setPos(targetPos);
+								unit->setLoadCount(0);
+
+								switch(this->game->getGameSettings()->getPathFinderType()) {
+									case pfBasic:
+										unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+										break;
+									case pfRoutePlanner:
+										unit->setLoadType(r->getType());
+										break;
+									default:
+										throw runtime_error("detected unsupported pathfinder type!");
+								}
+							}
+						}
+						if(canHarvestDestPos == false) {
+							unit->setLastHarvestResourceTarget(&targetPos);
+
+							if(targetPos.x >= 0) {
+								//if not continue walking
+								wasStuck = false;
+								TravelState tsValue = tsImpossible;
+								switch(this->game->getGameSettings()->getPathFinderType()) {
+									case pfBasic:
+										tsValue = pathFinder->findPath(unit, targetPos, &wasStuck);
+										if (tsValue == tsMoving) {
+											unit->setCurrSkill(hct->getMoveSkillType());
+											command->setPos(targetPos);
+										}
+										break;
+									case pfRoutePlanner:
+										tsValue = routePlanner->findPathToResource(unit, targetPos, r->getType());
+										if (tsValue == tsMoving) {
+											unit->setCurrSkill(hct->getMoveSkillType());
+											command->setPos(targetPos);
+										}
+										break;
+									default:
+										throw runtime_error("detected unsupported pathfinder type!");
+								}
+							}
+
+				    		if(wasStuck == true) {
+								//if can't harvest, search for another resource
+								unit->setCurrSkill(scStop);
+								if(searchForResource(unit, hct) == false) {
+									unit->finishCommand();
+								}
+				    		}
 						}
 		    		}
 				}

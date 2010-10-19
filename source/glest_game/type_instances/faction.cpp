@@ -584,6 +584,105 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 	assert(false);
 }
 
+std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
+	std::vector<Vec2i> result;
+	if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
+		// Lets find the shortest and most successful path already taken by a
+		// similar sized unit
+
+		bool foundCachedPath = false;
+
+		std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
+		int unitSize = unit->getType()->getSize();
+		for(int i = 0; i < cacheList.size(); ++i) {
+			FactionPathSuccessCache &cache = cacheList[i];
+			if(cache.unitSize <= unitSize) {
+				vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
+
+				for(int j = 0; j < pathQueue.size(); ++j) {
+					// Now start at the end of the path and see how many nodes
+					// until we reach a cell near the unit's current position
+					std::pair<vector<Vec2i>, int> &path = pathQueue[j];
+
+					for(int k = path.first.size() - 1; k >= 0; --k) {
+						if(world->getMap()->canMove(unit, unit->getPos(), path.first[k]) == true) {
+							if(foundCachedPath == false) {
+								for(int l = k; l < path.first.size(); ++l) {
+									result.push_back(path.first[l]);
+								}
+							}
+							else {
+								if(result.size() > (path.first.size() - k)) {
+									for(int l = k; l < path.first.size(); ++l) {
+										result.push_back(path.first[l]);
+									}
+								}
+							}
+							foundCachedPath = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+void Faction::addCachedPath(const Vec2i &target, Unit *unit) {
+	if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
+		FactionPathSuccessCache cache;
+		cache.unitSize = unit->getType()->getSize();
+		cache.pathQueue.push_back(make_pair<vector<Vec2i>, int>(unit->getCurrentTargetPathTaken().second,1));
+		successfulPathFinderTargetList[target].push_back(cache);
+	}
+	else {
+		bool finishedAdd = false;
+		std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken = unit->getCurrentTargetPathTaken();
+		std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
+		int unitSize = unit->getType()->getSize();
+		for(int i = 0; i < cacheList.size() && finishedAdd == false; ++i) {
+			FactionPathSuccessCache &cache = cacheList[i];
+			if(cache.unitSize <= unitSize) {
+				vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
+
+				for(int j = 0; j < pathQueue.size() && finishedAdd == false; ++j) {
+					// Now start at the end of the path and see how many nodes are the same
+					std::pair<vector<Vec2i>, int> &path = pathQueue[j];
+					int minPathSize = std::min(path.first.size(),currentTargetPathTaken.second.size());
+					int intersectIndex = -1;
+
+					for(int k = 0; k < minPathSize; ++k) {
+						if(path.first[path.first.size() - k - 1] != currentTargetPathTaken.second[currentTargetPathTaken.second.size() - k - 1]) {
+							intersectIndex = k;
+							break;
+						}
+					}
+
+					// New path is same or longer than old path so replace
+					// old path with new
+					if(intersectIndex + 1 == path.first.size()) {
+						path.first = currentTargetPathTaken.second;
+						path.second++;
+						finishedAdd = true;
+					}
+					// Old path is same or longer than new path so
+					// do nothing
+					else if(intersectIndex + 1 == currentTargetPathTaken.second.size()) {
+						path.second++;
+						finishedAdd = true;
+					}
+				}
+
+				// If new path is >= 10 cells add it
+				if(finishedAdd == false && currentTargetPathTaken.second.size() >= 10) {
+					pathQueue.push_back(make_pair<vector<Vec2i>, int>(currentTargetPathTaken.second,1));
+				}
+			}
+		}
+	}
+}
+
 std::string Faction::toString() const {
 	std::string result = "";
 

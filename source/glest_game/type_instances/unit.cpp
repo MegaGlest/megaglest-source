@@ -1699,8 +1699,8 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 	cleanupOldBadHarvestPos();
 }
 
-bool Unit::isBadHarvestPos(const Vec2i &value) {
-	cleanupOldBadHarvestPos();
+bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
+	//cleanupOldBadHarvestPos();
 
 	bool result = false;
 	for(int i = 0; i < badHarvestPosList.size(); ++i) {
@@ -1711,6 +1711,21 @@ bool Unit::isBadHarvestPos(const Vec2i &value) {
 		}
 	}
 
+	if(result == false && checkPeerUnits == true) {
+		// Check if any other units of similar type have this position tagged
+		// as bad?
+		for(int i = 0; i < this->getFaction()->getUnitCount(); ++i) {
+			Unit *peerUnit = this->getFaction()->getUnit(i);
+			if( peerUnit != NULL && peerUnit->getId() != this->getId() &&
+				peerUnit->getType()->getSize() <= this->getType()->getSize()) {
+				if(peerUnit->isBadHarvestPos(value,false) == true) {
+					result = true;
+					break;
+				}
+			}
+		}
+	}
+
 	return result;
 }
 
@@ -1718,9 +1733,9 @@ void Unit::cleanupOldBadHarvestPos() {
 	for(int i = badHarvestPosList.size() - 1; i >= 0; --i) {
 		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
 
-		// If this position has been is the list for longer than 120
+		// If this position has been is the list for longer than 240
 		// seconds remove it so the unit could potentially try it again
-		if(item.second.getMillis() >= 1200000) {
+		if(item.second.getMillis() >= 2400000) {
 			badHarvestPosList.erase(badHarvestPosList.begin() + i);
 		}
 	}
@@ -1748,6 +1763,14 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 			}
 		}
 	}
+}
+
+void Unit::addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell) {
+	if(currentTargetPathTaken.first != target) {
+		currentTargetPathTaken.second.clear();
+	}
+	currentTargetPathTaken.first = target;
+	currentTargetPathTaken.second.push_back(cell);
 }
 
 std::string Unit::toString() const {
