@@ -605,7 +605,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 	    	    }
 
 				if (canHarvestDestPos == true) {
-					unit->setLastHarvestResourceTarget(&targetPos);
+					unit->setLastHarvestResourceTarget(NULL);
 
 					//if it finds resources it starts harvesting
 					unit->setCurrSkill(hct->getHarvestSkillType());
@@ -625,12 +625,14 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 					}
 				}
 				else {
+					unit->setLastHarvestResourceTarget(&targetPos);
 
 					//if not continue walking
+					bool wasStuck = false;
 					TravelState tsValue = tsImpossible;
 		    		switch(this->game->getGameSettings()->getPathFinderType()) {
 		    			case pfBasic:
-							tsValue = pathFinder->findPath(unit, command->getPos());
+							tsValue = pathFinder->findPath(unit, command->getPos(), &wasStuck);
 							if (tsValue == tsMoving) {
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
@@ -644,12 +646,20 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    			default:
 		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
+
+		    		if(wasStuck == true) {
+						//if can't harvest, search for another resource
+						unit->setCurrSkill(scStop);
+						if(searchForResource(unit, hct) == false) {
+							unit->finishCommand();
+						}
+		    		}
 				}
 			}
-			else{
+			else {
 				//if can't harvest, search for another resource
 				unit->setCurrSkill(scStop);
-				if(!searchForResource(unit, hct)){
+				if(searchForResource(unit, hct) == false) {
 					unit->finishCommand();
 				}
 			}
@@ -699,7 +709,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 					unit->setLoadCount(0);
 				}
 			}
-			else{
+			else {
 				unit->finishCommand();
 			}
 		}
@@ -1358,25 +1368,28 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 
 //looks for a resource of type rt, if rt==NULL looks for any
 //resource the unit can harvest
-bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct){
+bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
 	Chrono chrono;
 	chrono.start();
 
     Vec2i pos= unit->getCurrCommand()->getPos();
 
-    for(int radius= 0; radius<maxResSearchRadius; radius++){
-        for(int i=pos.x-radius; i<=pos.x+radius; ++i){
-            for(int j=pos.y-radius; j<=pos.y+radius; ++j){
-				if(map->isInside(i, j)){
+    for(int radius= 0; radius < maxResSearchRadius; radius++) {
+        for(int i = pos.x - radius; i <= pos.x + radius; ++i) {
+            for(int j=pos.y - radius; j <= pos.y + radius; ++j) {
+				if(map->isInside(i, j)) {
 					Resource *r= map->getSurfaceCell(Map::toSurfCoords(Vec2i(i, j)))->getResource();
-                    if(r!=NULL){
-						if(hct->canHarvest(r->getType())){
-							unit->getCurrCommand()->setPos(Vec2i(i, j));
+                    if(r != NULL) {
+						if(hct->canHarvest(r->getType())) {
+							const Vec2i newPos = Vec2i(i, j);
+							if(unit->isBadHarvestPos(newPos) == false) {
+								unit->getCurrCommand()->setPos(newPos);
 
-						    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-							if(chrono.getMillis() > 0) chrono.start();
+								if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+								if(chrono.getMillis() > 0) chrono.start();
 
-							return true;
+								return true;
+							}
                         }
                     }
                 }

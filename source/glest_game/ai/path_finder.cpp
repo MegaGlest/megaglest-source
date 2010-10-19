@@ -73,7 +73,7 @@ PathFinder::~PathFinder(){
 	map=NULL;
 }
 
-TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
+TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck) {
 	
 	if(map == NULL) {
 		throw runtime_error("map == NULL");
@@ -135,6 +135,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 		// We will try to bail out of the immediate area
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
 			path->isStuck() == true) {
+			if(wasStuck != NULL) {
+				*wasStuck = true;
+			}
 			unit->setInBailOutAttempt(true);
 
 			// Try to bail out up to 20 cells away
@@ -143,6 +146,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 					if(map->canMove(unit, unit->getPos(), newFinalPos)) {
 						ts= aStar(unit, newFinalPos, true);
+
+						/*
 						if(ts == tsMoving) {
 							unit->setInBailOutAttempt(false);
 
@@ -173,6 +178,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 								throw runtime_error("unsupported or missing path finder detected!");
 							}
 						}
+						*/
+
 						//else if(ts == tsArrived) {
 						//	ts = aStar(unit, finalPos, true);
 						//	break;
@@ -182,11 +189,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos) {
 			}
 			unit->setInBailOutAttempt(false);
 
-			if(ts == tsArrived) {
-				ts = tsBlocked;
-			}
+			//if(ts == tsArrived) {
+			//	ts = tsBlocked;
+			//}
 		}
-		unit->setCurrSkill(scStop);
+		if(ts == tsArrived || ts == tsBlocked) {
+			unit->setCurrSkill(scStop);
+		}
 		break;
 	case tsMoving:
 		{
