@@ -616,6 +616,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						unit->setTargetPos(targetPos);
 						command->setPos(targetPos);
 						unit->setLoadCount(0);
+						unit->getFaction()->addResourceTypeTargetToCache(r->getType(), targetPos);
 
 						switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
@@ -675,6 +676,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								unit->setTargetPos(targetPos);
 								command->setPos(targetPos);
 								unit->setLoadCount(0);
+								unit->getFaction()->addResourceTypeTargetToCache(r->getType(), targetPos);
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:

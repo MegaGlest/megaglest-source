@@ -584,6 +584,57 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 	assert(false);
 }
 
+void Faction::addResourceTypeTargetToCache(const ResourceType *type, const Vec2i &pos) {
+	bool duplicateEntry = false;
+	if(cacheResourceTypeTargetList.size() > 0) {
+		for(int i = 0; i < cacheResourceTypeTargetList.size(); ++i) {
+			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
+			if(cache.first == type && cache.second == pos) {
+				duplicateEntry = true;
+				break;
+			}
+		}
+	}
+	if(duplicateEntry == false) {
+		cacheResourceTypeTargetList.push_back(make_pair<const ResourceType *, Vec2i>(type,pos));
+	}
+
+	cleanupResourceTypeTargetCache();
+}
+
+Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
+	Vec2i result(-1);
+	if(cacheResourceTypeTargetList.size() > 0) {
+		for(int i = 0; i < cacheResourceTypeTargetList.size(); ++i) {
+			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
+
+			Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache.second))->getResource();
+			if(resource != NULL && cache.first == type) {
+				if(result.x < 0 || unit->getPos().dist(cache.second) < unit->getPos().dist(result)) {
+					result = cache.second;
+				}
+			}
+		}
+	}
+
+	cleanupResourceTypeTargetCache();
+
+	return result;
+}
+
+void Faction::cleanupResourceTypeTargetCache() {
+	if(cacheResourceTypeTargetList.size() > 0) {
+		for(int i = cacheResourceTypeTargetList.size() - 1; i >= 0; --i) {
+			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
+
+			Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache.second))->getResource();
+			if(resource == NULL) {
+				cacheResourceTypeTargetList.erase(cacheResourceTypeTargetList.begin() + i);
+			}
+		}
+	}
+}
+
 std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 	std::vector<Vec2i> result;
 	if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
