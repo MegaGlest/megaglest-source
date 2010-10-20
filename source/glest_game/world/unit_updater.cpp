@@ -578,7 +578,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 	Command *command= unit->getCurrCommand();
     const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(command->getCommandType());
-	Vec2i targetPos;
+	Vec2i targetPos(-1);
 
 	TravelState tsValue = tsImpossible;
 	UnitPathInterface *path= unit->getPath();
@@ -587,17 +587,21 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		//if not working
 		if(unit->getLoadCount() == 0) {
 			//if not loaded go for resources
-			Resource *r= map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
+			Resource *r = map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
 			if(r != NULL && hct->canHarvest(r->getType())) {
 				//if can harvest dest. pos
 				bool canHarvestDestPos = false;
-				targetPos.x = -1;
-				targetPos.y = -1;
 
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-						canHarvestDestPos = (unit->getPos().dist(command->getPos()) < harvestDistance &&
-											  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit));
+	    				{
+	    					bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+	    					if(isNearResource == true) {
+	    						if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
+	    							canHarvestDestPos = true;
+	    						}
+	    					}
+	    				}
 	    				break;
 	    			case pfRoutePlanner:
 	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
@@ -616,11 +620,11 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						unit->setTargetPos(targetPos);
 						command->setPos(targetPos);
 						unit->setLoadCount(0);
-						unit->getFaction()->addResourceTypeTargetToCache(r->getType(), targetPos);
+						unit->getFaction()->addResourceTargetToCache(targetPos);
 
 						switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
-								unit->setLoadType(map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType());
+								unit->setLoadType(r->getType());
 								break;
 							case pfRoutePlanner:
 								unit->setLoadType(r->getType());
@@ -653,11 +657,17 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
 
-		    		if(wasStuck == true) {
+		    		if(wasStuck == true && unit->isAlive() == true) {
 		    			switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
-								canHarvestDestPos = (unit->getPos().dist(command->getPos()) < harvestDistance &&
-													  map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, true));
+								{
+									bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+									if(isNearResource == true) {
+										if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
+											canHarvestDestPos = true;
+										}
+									}
+								}
 								break;
 							case pfRoutePlanner:
 								canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
@@ -676,14 +686,11 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								unit->setTargetPos(targetPos);
 								command->setPos(targetPos);
 								unit->setLoadCount(0);
-								unit->getFaction()->addResourceTypeTargetToCache(r->getType(), targetPos);
+								unit->getFaction()->addResourceTargetToCache(targetPos);
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
-										{
-										const ResourceType *loadType = map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->getResource()->getType();
-										unit->setLoadType(loadType);
-										}
+										unit->setLoadType(r->getType());
 										break;
 									case pfRoutePlanner:
 										unit->setLoadType(r->getType());
