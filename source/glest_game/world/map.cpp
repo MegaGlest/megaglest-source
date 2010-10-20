@@ -256,7 +256,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 		for(int j = -1; j <= size; ++j) {
 			if(isInside(pos.x + i, pos.y + j)) {
 				Resource *r= getSurfaceCell(toSurfCoords(Vec2i(pos.x + i, pos.y + j)))->getResource();
-				if(r != NULL){
+				if(r != NULL) {
 					if(r->getType() == rt) {
 						resourcePos= pos + Vec2i(i,j);
 
@@ -270,20 +270,23 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	}
 
 	if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
+		// Look for another unit that is currently harvesting the same resource
+		// type right now
 		for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
 			Unit *peerUnit = unit->getFaction()->getUnit(i);
 			if( peerUnit != NULL && peerUnit->getId() != unit->getId() &&
 				peerUnit->getType()->getSize() <= unit->getType()->getSize()) {
-				if( peerUnit->getCurrSkill()->getClass() == scHarvest &&
+				if( peerUnit->getCurrSkill() != NULL &&
+					peerUnit->getCurrSkill()->getClass() == scHarvest &&
 					peerUnit->getLoadType() == rt &&
 					peerUnit->getCurrCommand() != NULL) {
 
 					if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 40) {
-						if(i == 0 || (unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) < unit->getPos().dist(resourcePos))) {
+						if( i == 0 ||
+							(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) < unit->getPos().dist(resourcePos))) {
 							resourcePos = peerUnit->getCurrCommand()->getPos();
 						}
 						if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 5) {
-							resourcePos = peerUnit->getCurrCommand()->getPos();
 							return true;
 						}
 					}
@@ -291,15 +294,18 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 			}
 		}
 
+
+		// Check the faction cache for a known position where we can harvest
+		// this resource type
 		Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
 		if(result.x >= 0) {
 			resourcePos = result;
-
 			if(unit->getPos().dist(resourcePos) <= 5) {
 				return true;
 			}
 		}
 	}
+
 	return false;
 }
 

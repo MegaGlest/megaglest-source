@@ -584,19 +584,19 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 	assert(false);
 }
 
-void Faction::addResourceTypeTargetToCache(const ResourceType *type, const Vec2i &pos) {
+void Faction::addResourceTargetToCache(const Vec2i &pos) {
 	bool duplicateEntry = false;
-	if(cacheResourceTypeTargetList.size() > 0) {
-		for(int i = 0; i < cacheResourceTypeTargetList.size(); ++i) {
-			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
-			if(cache.first == type && cache.second == pos) {
+	if(cacheResourceTargetList.size() > 0) {
+		for(int i = 0; i < cacheResourceTargetList.size(); ++i) {
+			const Vec2i &cache = cacheResourceTargetList[i];
+			if(cache == pos) {
 				duplicateEntry = true;
 				break;
 			}
 		}
 	}
 	if(duplicateEntry == false) {
-		cacheResourceTypeTargetList.push_back(make_pair<const ResourceType *, Vec2i>(type,pos));
+		cacheResourceTargetList.push_back(pos);
 	}
 
 	cleanupResourceTypeTargetCache();
@@ -604,14 +604,18 @@ void Faction::addResourceTypeTargetToCache(const ResourceType *type, const Vec2i
 
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
-	if(cacheResourceTypeTargetList.size() > 0) {
-		for(int i = 0; i < cacheResourceTypeTargetList.size(); ++i) {
-			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
+	if(cacheResourceTargetList.size() > 0) {
+		const Map *map = world->getMap();
+		for(int i = 0; i < cacheResourceTargetList.size(); ++i) {
+			const Vec2i &cache = cacheResourceTargetList[i];
 
-			Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache.second))->getResource();
-			if(resource != NULL && cache.first == type) {
-				if(result.x < 0 || unit->getPos().dist(cache.second) < unit->getPos().dist(result)) {
-					result = cache.second;
+			const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
+			if( sc != NULL && sc->getResource() != NULL) {
+				const Resource *resource = sc->getResource();
+				if(resource->getType() != NULL && resource->getType() == type) {
+					if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
+						result = cache;
+					}
 				}
 			}
 		}
@@ -623,13 +627,18 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 }
 
 void Faction::cleanupResourceTypeTargetCache() {
-	if(cacheResourceTypeTargetList.size() > 0) {
-		for(int i = cacheResourceTypeTargetList.size() - 1; i >= 0; --i) {
-			std::pair<const ResourceType *, Vec2i> &cache = cacheResourceTypeTargetList[i];
+	if(cacheResourceTargetList.size() > 0) {
+		for(int i = cacheResourceTargetList.size() - 1; i >= 0; --i) {
+			const Vec2i &cache = cacheResourceTargetList[i];
 
-			Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache.second))->getResource();
-			if(resource == NULL) {
-				cacheResourceTypeTargetList.erase(cacheResourceTypeTargetList.begin() + i);
+			if(world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache)) != NULL) {
+				Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache))->getResource();
+				if(resource == NULL) {
+					cacheResourceTargetList.erase(cacheResourceTargetList.begin() + i);
+				}
+			}
+			else {
+				cacheResourceTargetList.erase(cacheResourceTargetList.begin() + i);
 			}
 		}
 	}
