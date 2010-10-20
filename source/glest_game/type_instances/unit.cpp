@@ -678,8 +678,10 @@ bool Unit::anyCommand() const{
 
 //return current command, assert that there is always one command
 Command *Unit::getCurrCommand() const{
-	assert(!commands.empty());
-	return commands.front();
+	if(commands.empty() == false) {
+		return commands.front();
+	}
+	return NULL;
 }
 
 void Unit::replaceCurrCommand(Command *cmd) {

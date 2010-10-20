@@ -278,7 +278,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 					peerUnit->getLoadType() == rt &&
 					peerUnit->getCurrCommand() != NULL) {
 
-					if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 30) {
+					if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 40) {
 						if(i == 0 || (unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) < unit->getPos().dist(resourcePos))) {
 							resourcePos = peerUnit->getCurrCommand()->getPos();
 						}
@@ -288,6 +288,15 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 						}
 					}
 				}
+			}
+		}
+
+		Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
+		if(result.x >= 0) {
+			resourcePos = result;
+
+			if(unit->getPos().dist(resourcePos) <= 5) {
+				return true;
 			}
 		}
 	}
