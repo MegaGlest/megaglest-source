@@ -60,7 +60,7 @@ void ModelManager::end(){
 void ModelManager::endModel(Model *model,bool mustExistInList) {
 	if(model != NULL) {
 		bool found = false;
-		for(int idx = 0; idx < models.size(); idx++) {
+		for(unsigned int idx = 0; idx < models.size(); idx++) {
 			Model *curModel = models[idx];
 			if(curModel == model) {
 				found = true;
@@ -82,7 +82,7 @@ void ModelManager::endLastModel(bool mustExistInList) {
 	bool found = false;
 	if(models.size() > 0) {
 		found = true;
-		int index = models.size()-1;
+		size_t index = models.size()-1;
 		Model *curModel = models[index];
 		models.erase(models.begin() + index);
 

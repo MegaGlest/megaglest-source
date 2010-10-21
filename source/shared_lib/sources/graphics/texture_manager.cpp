@@ -43,7 +43,7 @@ void TextureManager::initTexture(Texture *texture) {
 void TextureManager::endTexture(Texture *texture,bool mustExistInList) {
 	if(texture != NULL) {
 		bool found = false;
-		for(int idx = 0; idx < textures.size(); idx++) {
+		for(unsigned int idx = 0; idx < textures.size(); idx++) {
 			Texture *curTexture = textures[idx];
 			if(curTexture == texture) {
 				found = true;
@@ -63,7 +63,7 @@ void TextureManager::endLastTexture(bool mustExistInList) {
 	bool found = false;
 	if(textures.size() > 0) {
 		found = true;
-		int index = textures.size()-1;
+		int index = (int)textures.size()-1;
 		Texture *curTexture = textures[index];
 		textures.erase(textures.begin() + index);
 
@@ -76,7 +76,7 @@ void TextureManager::endLastTexture(bool mustExistInList) {
 }
 
 void TextureManager::init(bool forceInit) {
-	for(int i=0; i<textures.size(); ++i){
+	for(unsigned int i=0; i<textures.size(); ++i){
 		Texture *texture = textures[i];
 		if(texture == NULL) {
 			throw std::runtime_error("texture == NULL during init");
@@ -89,7 +89,7 @@ void TextureManager::init(bool forceInit) {
 }
 
 void TextureManager::end(){
-	for(int i=0; i<textures.size(); ++i){
+	for(unsigned int i=0; i<textures.size(); ++i){
 		if(textures[i] != NULL) {
 			textures[i]->end();
 			delete textures[i];
@@ -107,7 +107,7 @@ void TextureManager::setMaxAnisotropy(int maxAnisotropy){
 }
 
 Texture *TextureManager::getTexture(const string &path){
-	for(int i=0; i<textures.size(); ++i){
+	for(unsigned int i=0; i<textures.size(); ++i){
 		if(textures[i]->getPath()==path){
 			return textures[i];
 		}

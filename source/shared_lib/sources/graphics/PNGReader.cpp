@@ -32,7 +32,7 @@ namespace Shared{ namespace Graphics{
 
 static void user_read_data(png_structp read_ptr, png_bytep data, png_size_t length) {
 	ifstream& is = *((ifstream*)png_get_io_ptr(read_ptr));
-	is.read((char*)data,length);
+	is.read((char*)data,(std::streamsize)length);
 	if (!is.good()) {
 		png_error(read_ptr,"Could not read from png-file");
 	}
@@ -120,21 +120,21 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		row_pointers[y] = new png_byte[info_ptr->rowbytes];
 	}
 	png_read_image(png_ptr, row_pointers);
-	int fileComponents = info_ptr->rowbytes/info_ptr->width;
-	int picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
+	size_t fileComponents = info_ptr->rowbytes/info_ptr->width;
+	size_t picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
 	//std::cout << "PNG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 	//picComponents = 4;
 	//Copy image
-	ret->init(width,height,picComponents);
+	ret->init(width,height,(int)picComponents);
 	uint8* pixels = ret->getPixels();
-	const int rowbytes = info_ptr->rowbytes;
-	int location = 0;
+	const size_t rowbytes = info_ptr->rowbytes;
+	size_t location = 0;
 	for (int y = height-1; y >= 0; --y) { //you have to somehow invert the lines
 		if (picComponents == fileComponents) {
 			memcpy(pixels+location,row_pointers[y],rowbytes);
 		} else {
 			int r,g,b,a,l;
-			for (int xPic = 0, xFile = 0; xFile < rowbytes; xPic+= picComponents, xFile+= fileComponents) {
+			for (size_t xPic = 0, xFile = 0; xFile < rowbytes; xPic+= picComponents, xFile+= fileComponents) {
 				switch(fileComponents) {
 					case 3:
 						r = row_pointers[y][xFile];
@@ -170,14 +170,14 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						break;
 					default:
 						//just so at least something works
-						for (int i = 0; i < picComponents; ++i) {
+						for (unsigned int i = 0; i < picComponents; ++i) {
 							pixels[location+xPic+i] = l;
 						}
 						//TODO: Error
 				}
 			}
 		}
-		location+=picComponents*width;
+		location += picComponents * width;
 	}
 
 	for (int y = 0; y < height; ++y) {

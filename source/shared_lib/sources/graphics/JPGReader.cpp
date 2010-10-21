@@ -79,7 +79,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	}
 	is.seekg(0, ios::beg);
 	uint8 *buffer = new uint8[length];
-	is.read((char*)buffer, length);
+	is.read((char*)buffer, (std::streamsize)length);
 	//Check buffer (weak jpeg check)
 	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
 	// Proper header check found from: http://www.fastgraph.com/help/jpeg_header_format.html

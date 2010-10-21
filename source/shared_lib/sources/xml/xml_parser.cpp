@@ -233,7 +233,7 @@ XmlNode::~XmlNode(){
 	}
 }
 
-XmlAttribute *XmlNode::getAttribute(int i) const{
+XmlAttribute *XmlNode::getAttribute(unsigned int i) const{
 	if(i>=attributes.size()){
 		throw runtime_error(getName()+" node doesn't have "+intToStr(i)+" attributes");
 	}
@@ -249,14 +249,14 @@ XmlAttribute *XmlNode::getAttribute(const string &name) const{
 	throw runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
 }
 
-XmlNode *XmlNode::getChild(int i) const {
+XmlNode *XmlNode::getChild(unsigned int i) const {
 	if(i>=children.size())
 		throw runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
 	return children[i];
 }
 
 
-XmlNode *XmlNode::getChild(const string &childName, int i) const{
+XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	if(i>=children.size()){
 		throw runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}

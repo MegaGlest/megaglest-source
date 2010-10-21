@@ -281,7 +281,7 @@ void MainWindow::loadModel(string path) {
 		this->modelPathList.push_back(path);
 	}
 
-	for(int idx =0; idx < this->modelPathList.size(); idx++) {
+	for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
 		string modelPath = this->modelPathList[idx];
 
 		timer->Stop();
@@ -313,7 +313,7 @@ void MainWindow::loadParticle(string path) {
 	}
 
 	if(this->particlePathList.size() > 0) {
-		for(int idx = 0; idx < this->particlePathList.size(); idx++) {
+		for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
 			string particlePath = this->particlePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
 
@@ -392,7 +392,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 	if(this->particleProjectilePathList.size() > 0) {
 
-		for(int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
+		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
 			string particlePath = this->particleProjectilePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
 

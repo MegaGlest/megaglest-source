@@ -32,7 +32,7 @@ void Properties::load(const string &path){
 	ifstream fileStream;
 	char lineBuffer[maxLine]="";
 	string line, key, value;
-	int pos=0;
+	size_t pos=0;
 
 	this->path= path;
 

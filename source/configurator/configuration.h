@@ -52,7 +52,7 @@ public:
 	bool getIcon() const				{return icon;}
 	const string &getIconPath() const	{return iconPath;}
 
-	int getFieldGroupCount() const			{return fieldGroups.size();}
+	size_t getFieldGroupCount() const			{return fieldGroups.size();}
 	FieldGroup *getFieldGroup(int i) const	{return fieldGroups[i];}
 
     static wxString ToUnicode(const char* str) {
@@ -80,7 +80,7 @@ private:
 public:
 	~FieldGroup();
 
-	int getFieldCount() const		{return fields.size();}
+	size_t getFieldCount() const		{return fields.size();}
 	Field *getField(int i) const	{return fields[i];}
 	const string &getName() const	{return name;}
 

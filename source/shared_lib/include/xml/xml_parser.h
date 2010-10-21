@@ -105,10 +105,10 @@ public:
 	size_t getAttributeCount() const	{return attributes.size();}
 	const string &getText() const	{return text;}
 
-	XmlAttribute *getAttribute(int i) const;
+	XmlAttribute *getAttribute(unsigned int i) const;
 	XmlAttribute *getAttribute(const string &name) const;
-	XmlNode *getChild(int i) const;
-	XmlNode *getChild(const string &childName, int childIndex=0) const;
+	XmlNode *getChild(unsigned int i) const;
+	XmlNode *getChild(const string &childName, unsigned int childIndex=0) const;
 	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
 	bool hasChild(const string &childName) const;
 	XmlNode *getParent() const;

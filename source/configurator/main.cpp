@@ -54,7 +54,7 @@ MainWindow::MainWindow() :
 	topSizer->Add(notebook, 0, wxALL, 0);
 	mainSizer->Add(topSizer, 0, wxALL, margin);
 
-	for(int i=0; i<configuration.getFieldGroupCount(); ++i){
+	for(unsigned int i=0; i<configuration.getFieldGroupCount(); ++i){
 
 		//create page
 		FieldGroup *fg= configuration.getFieldGroup(i);
@@ -67,7 +67,7 @@ MainWindow::MainWindow() :
 		panelSizer->Add(gridSizer, 0, wxALL, panelMargin);
 		panel->SetSizer(panelSizer);
 
-		for(int j=0; j<fg->getFieldCount(); ++j){
+		for(unsigned int j=0; j<fg->getFieldCount(); ++j){
 			Field *f= fg->getField(j);
 			FieldText *staticText= new FieldText(panel, this, f);
 			staticText->SetAutoLayout(true);
@@ -120,9 +120,9 @@ void MainWindow::onButtonCancel(wxCommandEvent &event){
 }
 
 void MainWindow::onButtonDefault(wxCommandEvent &event){
-	for(int i=0; i<configuration.getFieldGroupCount(); ++i){
+	for(unsigned int i=0; i<configuration.getFieldGroupCount(); ++i){
 		FieldGroup *fg= configuration.getFieldGroup(i);
-		for(int j=0; j<fg->getFieldCount(); ++j){
+		for(unsigned int j=0; j<fg->getFieldCount(); ++j){
 			Field *f= fg->getField(j);
 			f->setValue(f->getDefaultValue());
 			f->updateControl();

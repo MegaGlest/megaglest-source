@@ -81,8 +81,8 @@ int MapPreview::getStartLocationY(int index) const {
 }
 
 static int get_dist(int delta_x, int delta_y) {
-	float dx = delta_x;
-	float dy = delta_y;
+	float dx = (float)delta_x;
+	float dy = (float)delta_y;
 
 	return static_cast<int>(sqrtf(dx * dx + dy * dy));
 }
@@ -131,7 +131,7 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 	// If the radius is 1 don't bother doing any calculations
 	if (radius == 1) {
 		if(inside(x, y)){
-			cells[x][y].height = goalAlt;
+			cells[x][y].height = (float)goalAlt;
 		}
 		return;
 	}

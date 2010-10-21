@@ -53,7 +53,7 @@ void Checksum::addSum(int32 value) {
 }
 
 void Checksum::addString(const string &value){
-	for(int i= 0; i<value.size(); ++i){
+	for(unsigned int i= 0; i<value.size(); ++i){
 		addByte(value[i]);
 	}
 }
@@ -169,7 +169,7 @@ int32 Checksum::getFinalFileListSum() {
 }
 
 int32 Checksum::getFileCount() {
-	return fileList.size();
+	return (int32)fileList.size();
 }
 
 }}//end namespace
