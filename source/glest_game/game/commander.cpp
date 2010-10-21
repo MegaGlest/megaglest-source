@@ -279,7 +279,7 @@ CommandResult Commander::computeResult(const CommandResultContainer &results) co
 			if(results[i]!=crSuccess){
 				return crSomeFailed;
 			}
-		}http://de.wikipedia.org/wiki/Iatrogen
+		}
 		return crSuccess;
 	}
 }
@@ -399,7 +399,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
 
-                    unit->giveCommand(command, networkCommand->getWantQueue());
+                    unit->giveCommand(command, (networkCommand->getWantQueue() != 0));
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }

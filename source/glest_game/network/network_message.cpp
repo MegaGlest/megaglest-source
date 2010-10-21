@@ -249,16 +249,16 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setTech(data.tech.getString());
 	gameSettings->setFactionCount(data.factionCount);
 	gameSettings->setThisFactionIndex(data.thisFactionIndex);
-	gameSettings->setDefaultResources(data.defaultResources);
-    gameSettings->setDefaultUnits(data.defaultUnits);
-    gameSettings->setDefaultVictoryConditions(data.defaultVictoryConditions);
-	gameSettings->setFogOfWar(data.fogOfWar);
-	gameSettings->setAllowObservers(data.allowObservers);
+	gameSettings->setDefaultResources((data.defaultResources != 0));
+    gameSettings->setDefaultUnits((data.defaultUnits != 0));
+    gameSettings->setDefaultVictoryConditions((data.defaultVictoryConditions != 0));
+	gameSettings->setFogOfWar((data.fogOfWar != 0));
+	gameSettings->setAllowObservers((data.allowObservers != 0));
 
-	gameSettings->setEnableObserverModeAtEndGame(data.enableObserverModeAtEndGame);
-	gameSettings->setEnableServerControlledAI(data.enableServerControlledAI);
+	gameSettings->setEnableObserverModeAtEndGame((data.enableObserverModeAtEndGame != 0));
+	gameSettings->setEnableServerControlledAI((data.enableServerControlledAI != 0));
 	gameSettings->setNetworkFramePeriod(data.networkFramePeriod);
-	gameSettings->setNetworkPauseGameForLaggedClients(data.networkPauseGameForLaggedClients);
+	gameSettings->setNetworkPauseGameForLaggedClients((data.networkPauseGameForLaggedClients != 0));
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(data.pathFinderType));
 
 	for(int i= 0; i<data.factionCount; ++i){

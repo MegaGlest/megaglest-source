@@ -453,7 +453,7 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 		if(useArgParamLen == true) {
 			compareLen = strlen(argv[idx]);
 		}
-		if(strnicmp(argName.c_str(),argv[idx],compareLen) == 0) {
+		if(_strnicmp(argName.c_str(),argv[idx],compareLen) == 0) {
 			result = true;
 			if(foundIndex != NULL) {
 				*foundIndex = idx;

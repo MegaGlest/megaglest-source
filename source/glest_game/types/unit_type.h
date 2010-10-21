@@ -164,7 +164,7 @@ public:
 	const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	bool getMeetingPoint() const						{return meetingPoint;}
-	bool isMobile() const								{return firstSkillTypeOfClass[scMove];}
+	bool isMobile() const								{return (firstSkillTypeOfClass[scMove] != NULL);}
 	Texture2D *getMeetingPointImage() const				{return meetingPointImage;}
 	StaticSound *getSelectionSound() const				{return selectionSounds.getRandSound();}
 	StaticSound *getCommandSound() const				{return commandSounds.getRandSound();}

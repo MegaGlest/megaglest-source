@@ -397,7 +397,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		
 		bool currentFullscreenWindowed=config.getBool("Windowed");
-		bool selectedFullscreenWindowed=listBoxFullscreenWindowed.getSelectedItemIndex();
+		bool selectedFullscreenWindowed = (listBoxFullscreenWindowed.getSelectedItemIndex() != 0);
 		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
 			mainMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
@@ -579,11 +579,11 @@ void MenuStateOptions::saveConfig(){
 	int index= listBoxShadows.getSelectedItemIndex();
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
 
-	config.setBool("Windowed", listBoxFullscreenWindowed.getSelectedItemIndex());
+	config.setBool("Windowed", (listBoxFullscreenWindowed.getSelectedItemIndex() != 0));
 	config.setString("Filter", listBoxFilter.getSelectedItem());
-	config.setBool("Textures3D", listBoxTextures3D.getSelectedItemIndex());
-	config.setBool("UnitParticles", listBoxUnitParticles.getSelectedItemIndex());
-	config.setBool("MapPreview", listBoxMapPreview.getSelectedItemIndex());
+	config.setBool("Textures3D", (listBoxTextures3D.getSelectedItemIndex() != 0));
+	config.setBool("UnitParticles", (listBoxUnitParticles.getSelectedItemIndex() != 0));
+	config.setBool("MapPreview", (listBoxMapPreview.getSelectedItemIndex() != 0));
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
