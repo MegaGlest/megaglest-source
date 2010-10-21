@@ -771,7 +771,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				}
 
 				//world->changePosCells(unit,unit->getPos()+unit->getDest());
-				if(map->isNextTo(unit->getPos(), store)){
+				if(map->isNextTo(unit->getPos(), store)) {
 
 					//update resources
 					int resourceAmount= unit->getLoadCount();
@@ -800,7 +800,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		//if working
 		//unit->setLastHarvestResourceTarget(NULL);
 
-		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()));
+		const Vec2i unitTargetPos = unit->getTargetPos();
+		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
 		Resource *r= sc->getResource();
 
 		if (r != NULL) {
@@ -821,6 +822,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						if (r->decAmount(1)) {
 							const ResourceType *rt = r->getType();
 							sc->deleteResource();
+							unit->getFaction()->removeResourceTargetFromCache(unitTargetPos);
 
 							switch(this->game->getGameSettings()->getPathFinderType()) {
 								case pfBasic:

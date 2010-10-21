@@ -602,6 +602,19 @@ void Faction::addResourceTargetToCache(const Vec2i &pos) {
 	cleanupResourceTypeTargetCache();
 }
 
+void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
+	if(cacheResourceTargetList.size() > 0) {
+		for(int i = 0; i < cacheResourceTargetList.size(); ++i) {
+			const Vec2i &cache = cacheResourceTargetList[i];
+			if(cache == pos) {
+				cacheResourceTargetList.erase(cacheResourceTargetList.begin() + i);
+				break;
+			}
+		}
+	}
+	cleanupResourceTypeTargetCache();
+}
+
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
 	if(cacheResourceTargetList.size() > 0) {
@@ -614,7 +627,29 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 				const Resource *resource = sc->getResource();
 				if(resource->getType() != NULL && resource->getType() == type) {
 					if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
-						result = cache;
+						if(unit->isBadHarvestPos(cache) == false) {
+							result = cache;
+						}
+						else {
+							const int harvestDistance = 5;
+							int size = unit->getType()->getSize();
+							for(int j = -harvestDistance; j <= size; ++j) {
+								for(int k = -harvestDistance; k <= size; ++k) {
+									Vec2i newPos = unit->getPos() + Vec2i(j,k);
+									if(map->isInside(newPos.x, newPos.y)) {
+										Resource *r= map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+										if(r != NULL) {
+											if(r->getType() == type) {
+												if(unit->isBadHarvestPos(newPos) == false) {
+													result= newPos;
+												}
+											}
+										}
+									}
+								}
+							}
+
+						}
 					}
 				}
 			}
