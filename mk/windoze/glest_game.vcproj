@@ -146,8 +146,8 @@
 				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="0"
 				ProgramDataBaseFileName="$(IntDir)\$(ProjectName).pdb"
-				WarningLevel="2"
-				Detect64BitPortabilityProblems="true"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4018;4244;4250"
 			/>

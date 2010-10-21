@@ -126,7 +126,7 @@
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="c:\temp\release\$(TargetName).pch"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
