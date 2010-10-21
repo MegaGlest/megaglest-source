@@ -39,6 +39,7 @@
 #ifndef WIN32 
   #define stricmp strcasecmp 
   #define strnicmp strncasecmp 
+  #define _strnicmp strncasecmp
 #endif
 
 using namespace std;
