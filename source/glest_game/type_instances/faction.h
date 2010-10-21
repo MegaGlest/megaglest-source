@@ -84,7 +84,7 @@ private:
 	bool thisFaction;
 
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
-	std::vector<Vec2i> cacheResourceTargetList;
+	std::map<Vec2i,int> cacheResourceTargetList;
 
 public:
 	Faction();
@@ -160,7 +160,7 @@ public:
 	void removeResourceTargetFromCache(const Vec2i &pos);
 	void addCloseResourceTargetToCache(const Vec2i &pos);
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
-	void cleanupResourceTypeTargetCache();
+	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
 
 	std::string toString() const;
 
