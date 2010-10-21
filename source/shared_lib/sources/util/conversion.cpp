@@ -104,9 +104,9 @@ string boolToStr(bool b){
 	}
 }
 
-string intToStr(int64 i){
+string intToStr(int64 i) {
 	char str[strSize]="";
-	sprintf(str, "%d", i);
+	sprintf(str, "%lld", i);
 	return str;
 }
 

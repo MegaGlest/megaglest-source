@@ -853,7 +853,7 @@ int glestMain(int argc, char** argv){
 							}
 
 							printf("\n----------------------------------------------------------------");
-							printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),factionsList.size());
+							printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
 							for(int j = 0; j < factionsList.size(); ++j) {
 								if(	filteredFactionList.size() == 0 ||
 									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
@@ -905,7 +905,7 @@ int glestMain(int argc, char** argv){
 								}
 
 								if(techtree_errors == false) {
-									printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),factions.size());
+									printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),(int)factions.size());
 									for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
 										printf("Faction [%s]\n",(*it).c_str());
 									}
