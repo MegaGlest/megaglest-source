@@ -260,24 +260,42 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients = true;
 
-		if(connectionSlot != NULL &&
-		   (gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggered == true))) {
-			if(connectionSlot->isConnected() == false || socketTriggered == true) {
-				if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList[i] = %i\n",__FILE__,__FUNCTION__,(socketTriggered ? 1 : 0));
+		// Safety check since we can experience a disconnect and the slot is NULL
+		if(slots[event->triggerId] == connectionSlot) {
+			if(connectionSlot != NULL &&
+			   (gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggered == true))) {
+				if(connectionSlot->isConnected() == false || socketTriggered == true) {
+					if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList[i] = %i\n",__FILE__,__FUNCTION__,(socketTriggered ? 1 : 0));
 
-				if(connectionSlot->isConnected()) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to call connectionSlot->update() for socketId = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getSocket()->getSocketId());
-				}
-				else {
-					if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] getSocket() == NULL\n",__FILE__,__FUNCTION__);
-				}
-				connectionSlot->update(checkForNewClients);
+					if(connectionSlot->isConnected()) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to call connectionSlot->update() for socketId = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getSocket()->getSocketId());
+					}
+					else {
+						if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] getSocket() == NULL\n",__FILE__,__FUNCTION__);
+					}
 
-				// This means no clients are trying to connect at the moment
-				if(connectionSlot != NULL && connectionSlot->getSocket() == NULL) {
-					checkForNewClients = false;
+					if(slots[event->triggerId] == connectionSlot) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						connectionSlot->update(checkForNewClients);
+
+						// This means no clients are trying to connect at the moment
+						if(connectionSlot != NULL && connectionSlot->getSocket() == NULL) {
+							checkForNewClients = false;
+						}
+					}
+					else {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						event->connectionSlot = slots[event->triggerId];
+					}
 				}
 			}
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			event->connectionSlot = slots[event->triggerId];
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
