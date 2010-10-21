@@ -838,7 +838,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             int retval = 0;
             {
             	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
-            	retval = select(imaxsocket + 1, &rfds, NULL, NULL, &tv);
+            	retval = select((int)imaxsocket + 1, &rfds, NULL, NULL, &tv);
             }
             if(retval < 0)
             {
@@ -899,7 +899,7 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
         int retval = 0;
         {
         	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
-        	retval = select(socket + 1, &rfds, NULL, NULL, &tv);
+        	retval = select((int)socket + 1, &rfds, NULL, NULL, &tv);
         }
         if(retval)
         {
@@ -1188,7 +1188,7 @@ bool Socket::isReadable() {
 	int i = 0;
 	{
 		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
-		i= select(sock+1, &set, NULL, NULL, &tv);
+		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
 	if(i < 0) {
         if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1218,7 +1218,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     	int i = 0;
     	{
     		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
-        	i = select(sock+1, NULL, &set, NULL, &tv);
+        	i = select((int)sock + 1, NULL, &set, NULL, &tv);
     	}
         if(i < 0 ) {
             if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1395,7 +1395,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 
                {
             	   MutexSafeWrapper safeMutex(&dataSynchAccessor);
-            	   err = select(sock+1, NULL, &myset, NULL, &tv);
+            	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
                }
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED)

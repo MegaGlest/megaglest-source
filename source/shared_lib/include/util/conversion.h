@@ -13,9 +13,12 @@
 #define _SHARED_UTIL_CONVERSION_H_
 
 #include <string>
+#include "types.h"
 #include "leak_dumper.h"
 
 using std::string;
+
+using namespace Shared::Platform;
 
 namespace Shared { namespace Util {
 
@@ -28,7 +31,7 @@ bool strToInt(const string &s, int *i);
 bool strToFloat(const string &s, float *f);
 
 string boolToStr(bool b);
-string intToStr(int i);
+string intToStr(int64 i);
 string intToHex(int i);
 string floatToStr(float f,int precsion=2);
 string doubleToStr(double f,int precsion=2);

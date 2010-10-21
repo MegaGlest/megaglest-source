@@ -203,7 +203,7 @@ void * LuaArguments::getGenericData(int argumentIndex) const{
 	//	return (void *)result;
 	//}
 	else if(lua_isnumber(luaState, argumentIndex)) {
-		int result = luaL_checkinteger(luaState, argumentIndex);
+		lua_Integer result = luaL_checkinteger(luaState, argumentIndex);
 		printf("\nGENERIC param %d is an int, %d!\n",argumentIndex,result);
 		return (void *)result;
 	}

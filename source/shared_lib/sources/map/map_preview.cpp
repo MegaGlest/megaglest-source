@@ -35,7 +35,7 @@ MapPreview::MapPreview() {
 	cells.clear();
 	//startLocations = NULL;
 	startLocations.clear();
-	reset(DEFAULT_MAP_CELL_WIDTH, DEFAULT_MAP_CELL_LENGTH, DEFAULT_MAP_CELL_HEIGHT, DEFAULT_MAP_CELL_SURFACE_TYPE);
+	reset(DEFAULT_MAP_CELL_WIDTH, DEFAULT_MAP_CELL_LENGTH, (float)DEFAULT_MAP_CELL_HEIGHT, DEFAULT_MAP_CELL_SURFACE_TYPE);
 	resetFactions(DEFAULT_MAP_FACTIONCOUNT);
 	title = "";
 	desc = "";
@@ -144,22 +144,22 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 	int indexJ = 0;
 		for (int j = y - radius; j <= y + radius; j += radius) {
 			// round off the corners
-			int ti, tj;
+			int ti=0, tj=0;
 			if (abs(i - x) == abs(j - y)) {
-				ti = (i - x) * 0.707 + x + 0.5;
-				tj = (j - y) * 0.707 + y + 0.5;
+				ti = (int)((i - x) * 0.707 + x + 0.5);
+				tj = (int)((j - y) * 0.707 + y + 0.5);
 			} else {
 				ti = i;
 				tj = j;
 			}
 			if (inside(ti, tj)) {
-				gradient[indexI][indexJ] = (cells[ti][tj].height - goalAlt) / radius;
+				gradient[indexI][indexJ] = (cells[ti][tj].height - (float)goalAlt) / (float)radius;
 			//} else if (dist == 0) {
 				//gradient[indexI][indexJ] = 0;
 			}
 			else {
 				// assume outside the map bounds is height 10
-				gradient[indexI][indexJ] = (10.0 - goalAlt) / radius;
+				gradient[indexI][indexJ] = (10.0f - (float)goalAlt) / (float)radius;
 			}
 			//std::cout << "gradient[" << indexI << "][" << indexJ << "] = " << gradient[indexI][indexJ] << std::endl;
 			//std::cout << "derived from height " << cells[ti][tj].height << " at " << ti << " " << tj << std::endl;
@@ -658,7 +658,7 @@ void MapPreview::loadFromFile(const string &path) {
 		}
 
 		//read Heights
-		reset(header.width, header.height, DEFAULT_MAP_CELL_HEIGHT, DEFAULT_MAP_CELL_SURFACE_TYPE);
+		reset(header.width, header.height, (float)DEFAULT_MAP_CELL_HEIGHT, DEFAULT_MAP_CELL_SURFACE_TYPE);
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
 				bytes = fread(&cells[i][j].height, sizeof(float), 1, f1);
