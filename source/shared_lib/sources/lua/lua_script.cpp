@@ -252,7 +252,7 @@ void LuaArguments::returnString(const string &value){
 }
 
 void LuaArguments::returnVec2i(const Vec2i &value){
-	Lua_STREFLOP_Wrapper streflopWrapper;
+	//Lua_STREFLOP_Wrapper streflopWrapper;
 
 	++returnCount;
 
