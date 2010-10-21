@@ -137,7 +137,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			string factionName = *it;
 
 		    char szBuf[1024]="";
-		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,factions.size(),factionName.c_str());
+		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,(int)factions.size(),factionName.c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 
