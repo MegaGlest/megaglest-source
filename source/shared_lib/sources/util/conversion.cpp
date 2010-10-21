@@ -106,7 +106,7 @@ string boolToStr(bool b){
 
 string intToStr(int64 i) {
 	char str[strSize]="";
-	sprintf(str, "%lld", i);
+	sprintf(str, "%lld", (long long int)i);
 	return str;
 }
 
