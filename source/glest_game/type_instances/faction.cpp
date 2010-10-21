@@ -615,6 +615,23 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 	cleanupResourceTypeTargetCache();
 }
 
+void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
+	const Map *map = world->getMap();
+	const int harvestDistance = 5;
+	for(int j = -harvestDistance; j <= harvestDistance; ++j) {
+		for(int k = -harvestDistance; k <= harvestDistance; ++k) {
+			Vec2i newPos = pos + Vec2i(j,k);
+			if(map->isInside(newPos.x, newPos.y)) {
+				Resource *r= map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+				if(r != NULL) {
+					addResourceTargetToCache(newPos);
+				}
+			}
+		}
+	}
+}
+
+
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
 	if(cacheResourceTargetList.size() > 0) {
