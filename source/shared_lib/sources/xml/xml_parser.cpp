@@ -41,7 +41,7 @@ public:
 			char msgStr[strSize], fileStr[strSize];
 			XMLString::transcode(domError.getMessage(), msgStr, strSize-1);
 			XMLString::transcode(domError.getLocation()->getURI(), fileStr, strSize-1);
-			XMLFileLoc lineNumber= domError.getLocation()->getLineNumber();
+			uint64 lineNumber= domError.getLocation()->getLineNumber();
 			throw runtime_error("Error parsing XML, file: " + string(fileStr) + ", line: " + intToStr(lineNumber) + ": " + string(msgStr));
 		}
 		return true;
