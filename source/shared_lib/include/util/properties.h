@@ -49,7 +49,7 @@ public:
 	void load(const string &path);
 	void save(const string &path);
 
-	int getPropertyCount()	{return propertyVector.size();}
+	int getPropertyCount()	{return (int)propertyVector.size();}
 	string getKey(int i)	{return propertyVector[i].first;}
 	string getString(int i)	{return propertyVector[i].second;}
 

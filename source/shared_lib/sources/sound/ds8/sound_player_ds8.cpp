@@ -420,7 +420,7 @@ void SoundPlayerDs8::play(StrSound *strSound, int64 fadeOn){
 void SoundPlayerDs8::stop(StrSound *strSound, int64 fadeOff){
 	if(initOk == false) return;
 	//find the buffer with this sound and stop it
-	for(int i= 0; i<params.strBufferCount; ++i){
+	for(unsigned int i= 0; i<params.strBufferCount; ++i){
 		if(strSoundBuffers[i].getSound()==strSound){
 			strSoundBuffers[i].stop(fadeOff);
 		}
@@ -430,13 +430,13 @@ void SoundPlayerDs8::stop(StrSound *strSound, int64 fadeOff){
 void SoundPlayerDs8::stopAllSounds(){
 	if(initOk == false) return;
 
-	for(int i=0; i<params.strBufferCount; ++i){
+	for(unsigned int i=0; i<params.strBufferCount; ++i){
 		if(!strSoundBuffers[i].isFree()){
 			strSoundBuffers[i].stop(0);
 			strSoundBuffers[i].end();
 		}
 	}
-	for(int i=0; i<params.staticBufferCount; ++i){
+	for(unsigned int i=0; i<params.staticBufferCount; ++i){
 		if(!staticSoundBuffers[i].isFree()){
 			staticSoundBuffers[i].end();
 		}
@@ -446,7 +446,7 @@ void SoundPlayerDs8::stopAllSounds(){
 void SoundPlayerDs8::updateStreams(){
 	if(initOk == false) return;
 
-	for(int i=0; i<params.strBufferCount; ++i){
+	for(unsigned int i=0; i<params.strBufferCount; ++i){
 		strSoundBuffers[i].update();
 	}
 }
@@ -460,7 +460,7 @@ bool SoundPlayerDs8::findStaticBuffer(Sound *sound, int *bufferIndex){
     assert(sound!=NULL);
 	
     //1st: we try fo find a stopped buffer with the same sound
-	for(int i=0; i<staticSoundBuffers.size(); ++i){
+	for(unsigned int i=0; i<staticSoundBuffers.size(); ++i){
 		if(sound==staticSoundBuffers[i].getSound() && staticSoundBuffers[i].isReady()){
 			*bufferIndex= i;
 			bufferFound= true;
@@ -481,7 +481,7 @@ bool SoundPlayerDs8::findStaticBuffer(Sound *sound, int *bufferIndex){
 
     //3rd: we try to find a stopped buffer
     if(!bufferFound){
-        for(int i=0; i<staticSoundBuffers.size(); ++i){
+        for(unsigned int i=0; i<staticSoundBuffers.size(); ++i){
 			if(staticSoundBuffers[i].isReady()){
 				staticSoundBuffers[i].end();
 				*bufferIndex= i;

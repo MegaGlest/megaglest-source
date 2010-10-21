@@ -242,7 +242,7 @@ FileReader<T>::FileReader(std::vector<string> extensions): extensions(extensions
 	//string const * nextExtension = extensions;
 	std::vector<string> nextExtension = extensions;
 	//while (((*nextExtension) != "")) {
-	for(int i = 0; i < nextExtension.size(); ++i) {
+	for(unsigned int i = 0; i < nextExtension.size(); ++i) {
 		//vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[*nextExtension];
 		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[nextExtension[i]];
 		if (curPossibleReaders == NULL) {
@@ -264,7 +264,7 @@ bool FileReader<T>::canRead(const string& filepath) const {
 	//const string* haveExtension = extensions;
 	std::vector<string> haveExtension = extensions;
 	//while (*haveExtension != "") {
-	for(int i = 0; i < haveExtension.size(); ++i) {
+	for(unsigned int i = 0; i < haveExtension.size(); ++i) {
 		//if (realExtension == *haveExtension) {
 		if (realExtension == haveExtension[i]) {
 			return true;

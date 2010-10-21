@@ -19,7 +19,7 @@ namespace Configurator{
 
 
 Configuration::~Configuration(){
-	for(int i= 0; i<fieldGroups.size(); ++i){
+	for(unsigned int i= 0; i<fieldGroups.size(); ++i){
 		delete fieldGroups[i];
 	}
 }
@@ -60,7 +60,7 @@ void Configuration::loadStructure(const string &path){
 
 	fieldGroups.resize(fieldGroupsNode->getChildCount());
 
-	for(int i=0; i<fieldGroups.size(); ++i){
+	for(unsigned int i=0; i<fieldGroups.size(); ++i){
 		const XmlNode *fieldGroupNode= fieldGroupsNode->getChild("field-group", i);
 		FieldGroup *fieldGroup= new FieldGroup();
 		fieldGroup->load(fieldGroupNode);
@@ -73,9 +73,9 @@ void Configuration::loadValues(const string &path){
 
 	properties.load(path);
 
-	for(int i=0; i<fieldGroups.size(); ++i){
+	for(unsigned int i=0; i<fieldGroups.size(); ++i){
 		FieldGroup *fg= fieldGroups[i];
-		for(int j=0; j<fg->getFieldCount(); ++j){
+		for(unsigned int j=0; j<fg->getFieldCount(); ++j){
 			Field *f= fg->getField(j);
 			f->setValue(properties.getString(f->getVariableName(),""));
 		}
@@ -87,9 +87,9 @@ void Configuration::save(){
 
 	properties.load(fileName);
 
-	for(int i=0; i<fieldGroups.size(); ++i){
+	for(unsigned int i=0; i<fieldGroups.size(); ++i){
 		FieldGroup *fg= fieldGroups[i];
-		for(int j=0; j<fg->getFieldCount(); ++j){
+		for(unsigned int j=0; j<fg->getFieldCount(); ++j){
 			Field *f= fg->getField(j);
 			f->updateValue();
 			if(!f->isValueValid(f->getValue())){
@@ -112,7 +112,7 @@ string Field::getInfo() const{
 // ===============================================
 
 FieldGroup::~FieldGroup(){
-	for(int i= 0; i<fields.size(); ++i){
+	for(unsigned int i= 0; i<fields.size(); ++i){
 		delete fields[i];
 	}
 }
@@ -122,7 +122,7 @@ void FieldGroup::load(const XmlNode *groupNode){
 	name= groupNode->getAttribute("name")->getValue();
 
 	fields.resize(groupNode->getChildCount());
-	for(int i=0; i<fields.size(); ++i){
+	for(unsigned int i=0; i<fields.size(); ++i){
 		const XmlNode *fieldNode= groupNode->getChild("field", i);
 
 		Field *f= newField(fieldNode->getAttribute("type")->getValue());
@@ -290,7 +290,7 @@ bool StringField::isValueValid(const string &value){
 
 void EnumField::createControl(wxWindow *parent, wxSizer *sizer){
 	comboBox= new wxComboBox(parent, -1, Configuration::ToUnicode(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-	for(int i=0; i<enumerants.size(); ++i){
+	for(unsigned int i=0; i<enumerants.size(); ++i){
 		comboBox->Append(Configuration::ToUnicode(enumerants[i].c_str()));
 	}
 	comboBox->SetValue(Configuration::ToUnicode(value.c_str()));
@@ -311,7 +311,7 @@ bool EnumField::isValueValid(const string &value){
 
 void EnumField::loadSpecific(const XmlNode *fieldNode){
 	const XmlNode *enumsNode= fieldNode->getChild("enums");
-	for(int i=0; i<enumsNode->getChildCount(); ++i){
+	for(unsigned int i=0; i<enumsNode->getChildCount(); ++i){
 		const XmlNode *enumNode= enumsNode->getChild("enum", i);
 		enumerants.push_back(enumNode->getAttribute("value")->getValue());
 	}

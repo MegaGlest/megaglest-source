@@ -74,7 +74,7 @@ ParticleSystem::~ParticleSystem(){
 
 //updates all living particles and creates new ones
 void ParticleSystem::update() {
-	if(aliveParticleCount > particles.size()) {
+	if(aliveParticleCount > (int)particles.size()) {
 		throw runtime_error("aliveParticleCount >= particles.size()");
 	}
 
@@ -96,7 +96,7 @@ void ParticleSystem::update() {
 
 		if(state != ParticleSystem::sFade){
 			emissionState=emissionState+emissionRate;
-			int emissionIntValue=emissionState;
+			int emissionIntValue=(int)emissionState;
 			for(int i = 0; i < emissionIntValue; i++){
 				Particle *p = createParticle();
 				initParticle(p, i);
@@ -931,7 +931,7 @@ ParticleManager::~ParticleManager(){
 }
 
 void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
-	for (int i = 0; i < particleSystems.size(); i++) {
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		if(ps != NULL && ps->getVisible()) {
 			ps->render(pr, mr);
@@ -943,11 +943,11 @@ void ParticleManager::update(int renderFps) {
 	Chrono chrono;
 	chrono.start();
 
-	int particleSystemCount = particleSystems.size();
+	size_t particleSystemCount = particleSystems.size();
 	int currentParticleCount = 0;
 
 	vector<ParticleSystem *> cleanupParticleSystemsList;
-	for (int i = 0; i < particleSystems.size(); i++) {
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		if(ps != NULL) {
 			currentParticleCount += ps->getAliveParticleCount();
@@ -980,7 +980,7 @@ bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particl
 
 int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const {
 	int result = -1;
-	for (int i = 0; i < particleSystems.size(); i++) {
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		if(ps != NULL && psFind != NULL && psFind == ps) {
 			result = i;
@@ -1001,7 +1001,7 @@ void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
 
 void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems) {
 
-	for (int i = 0; i < particleSystems.size(); i++) {
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		cleanupParticleSystems(ps);
 	}
@@ -1012,7 +1012,7 @@ void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleS
 
 void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems) {
 
-	for (int i = 0; i < particleSystems.size(); i++) {
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
 		ParticleSystem *ps = particleSystems[i];
 		cleanupParticleSystems(ps);
 	}

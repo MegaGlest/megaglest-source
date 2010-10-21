@@ -28,12 +28,9 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 // =====================================================
 
 bool isGlExtensionSupported(const char *extensionName){
-    const char *s;
-	GLint len;
 	const GLubyte *extensionStr= glGetString(GL_EXTENSIONS);
-
-	s= reinterpret_cast<const char *>(extensionStr);
-	len= strlen(extensionName);
+	const char *s= reinterpret_cast<const char *>(extensionStr);
+	size_t len= strlen(extensionName);
 
     if(s != NULL) {
         while ((s = strstr (s, extensionName)) != NULL) {

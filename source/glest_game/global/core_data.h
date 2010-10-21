@@ -76,7 +76,7 @@ public:
 	Texture2D *getButtonSmallTexture() const	{return buttonSmallTexture;}
 	Texture2D *getButtonBigTexture() const		{return buttonBigTexture;}
 
-	int getLogoTextureExtraCount() const {return logoTextureList.size();}
+	size_t getLogoTextureExtraCount() const {return logoTextureList.size();}
 	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}
 
 	StrSound *getIntroMusic() 				{return &introMusic;}

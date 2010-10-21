@@ -42,7 +42,7 @@ FontMetrics::~FontMetrics(){
 
 float FontMetrics::getTextWidth(const string &str) const{
 	float width= 0.f;
-	for(unsigned int i=0; i< str.size() && i < Font::charCount; ++i){
+	for(unsigned int i=0; i< str.size() && (int)i < Font::charCount; ++i){
 		if(str[i] >= Font::charCount) {
 			string sError = "str[i] >= Font::charCount, [" + str + "] i = " + intToStr(i);
 			throw runtime_error(sError);

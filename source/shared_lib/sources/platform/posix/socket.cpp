@@ -980,7 +980,7 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 
 int Socket::send(const void *data, int dataSize) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	ssize_t bytesSent= 0;
+	int bytesSent= 0;
 	if(isSocketValid() == true)	{
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		errno = 0;
@@ -1035,7 +1035,7 @@ int Socket::send(const void *data, int dataSize) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] need to send more data, trying again getLastSocketError() = %d, bytesSent = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,getLastSocketError(),bytesSent,dataSize);
 
 		MutexSafeWrapper safeMutex(&dataSynchAccessor);
-		ssize_t totalBytesSent = bytesSent;
+		int totalBytesSent = bytesSent;
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
