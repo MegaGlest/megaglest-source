@@ -877,35 +877,35 @@ bool isKeyDown(int virtualKey) {
 	if(key >= 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
 
-		return keystate[key];
+		return (keystate[key] != 0);
 	}
 	switch(key) {
 		case vkAdd:
-			return keystate[SDLK_PLUS] | keystate[SDLK_KP_PLUS];
+			return (keystate[SDLK_PLUS] != 0 || keystate[SDLK_KP_PLUS] != 0);
 		case vkSubtract:
-			return keystate[SDLK_MINUS] | keystate[SDLK_KP_MINUS];
+			return (keystate[SDLK_MINUS] != 0 || keystate[SDLK_KP_MINUS] != 0);
 		case vkAlt:
-			return keystate[SDLK_LALT] | keystate[SDLK_RALT];
+			return (keystate[SDLK_LALT] != 0 || keystate[SDLK_RALT] != 0);
 		case vkControl:
-			return keystate[SDLK_LCTRL] | keystate[SDLK_RCTRL];
+			return (keystate[SDLK_LCTRL] != 0 || keystate[SDLK_RCTRL] != 0);
 		case vkShift:
-			return keystate[SDLK_LSHIFT] | keystate[SDLK_RSHIFT];
+			return (keystate[SDLK_LSHIFT] != 0 || keystate[SDLK_RSHIFT] != 0);
 		case vkEscape:
-			return keystate[SDLK_ESCAPE];
+			return (keystate[SDLK_ESCAPE] != 0);
 		case vkUp:
-			return keystate[SDLK_UP];
+			return (keystate[SDLK_UP] != 0);
 		case vkLeft:
-			return keystate[SDLK_LEFT];
+			return (keystate[SDLK_LEFT] != 0);
 		case vkRight:
-			return keystate[SDLK_RIGHT];
+			return (keystate[SDLK_RIGHT] != 0);
 		case vkDown:
-			return keystate[SDLK_DOWN];
+			return (keystate[SDLK_DOWN] != 0);
 		case vkReturn:
-			return keystate[SDLK_RETURN] | keystate[SDLK_KP_ENTER];
+			return (keystate[SDLK_RETURN] != 0 || keystate[SDLK_KP_ENTER] != 0);
 		case vkBack:
-			return keystate[SDLK_BACKSPACE];
+			return  (keystate[SDLK_BACKSPACE] != 0);
 		case vkDelete:
-			return keystate[SDLK_DELETE];
+			return (keystate[SDLK_DELETE] != 0);
 		default:
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;

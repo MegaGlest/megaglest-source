@@ -613,7 +613,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				if (canHarvestDestPos == true) {
 					unit->setLastHarvestResourceTarget(NULL);
 
-					canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
+					canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
 					if(canHarvestDestPos == true) {
 						//if it finds resources it starts harvesting
 						unit->setCurrSkill(hct->getHarvestSkillType());
@@ -679,7 +679,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						if (canHarvestDestPos == true) {
 							unit->setLastHarvestResourceTarget(NULL);
 
-							canHarvestDestPos == (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
+							canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
 							if(canHarvestDestPos == true) {
 								//if it finds resources it starts harvesting
 								unit->setCurrSkill(hct->getHarvestSkillType());

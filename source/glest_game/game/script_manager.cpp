@@ -464,6 +464,7 @@ bool ScriptManager::getAiEnabled(int factionIndex){
 	if(factionIndex<GameConstants::maxPlayers){
 		return playerModifiers[factionIndex].getAiEnabled();
 	}
+	return false;
 }
 
 void ScriptManager::disableConsume(int factionIndex){
@@ -484,9 +485,10 @@ void ScriptManager::enableConsume(int factionIndex){
 
 bool ScriptManager::getConsumeEnabled(int factionIndex){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex < GameConstants::maxPlayers){
 		return playerModifiers[factionIndex].getConsumeEnabled();
 	}
+	return false;
 }
 
 int ScriptManager::registerCellTriggerEventForUnitToUnit(int sourceUnitId, int destUnitId) {
