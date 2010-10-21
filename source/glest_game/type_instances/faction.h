@@ -158,6 +158,7 @@ public:
 
 	void addResourceTargetToCache(const Vec2i &pos);
 	void removeResourceTargetFromCache(const Vec2i &pos);
+	void addCloseResourceTargetToCache(const Vec2i &pos);
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
 	void cleanupResourceTypeTargetCache();
 

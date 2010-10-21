@@ -521,6 +521,8 @@ void World::moveUnitCells(Unit *unit){
 		map.clearUnitCells(unit, unit->getPos());
 		map.putUnitCells(unit, newPos);
 	}
+	// Add resources close by to the faction's cache
+	unit->getFaction()->addCloseResourceTargetToCache(newPos);
 
 	//water splash
 	if(tileset.getWaterEffects() && unit->getCurrField()==fLand){
