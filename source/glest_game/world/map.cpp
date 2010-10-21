@@ -272,6 +272,9 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
 		// Look for another unit that is currently harvesting the same resource
 		// type right now
+
+		/* This should not be needed due to the check below
+		 *
 		for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
 			Unit *peerUnit = unit->getFaction()->getUnit(i);
 			if( peerUnit != NULL && peerUnit->getId() != unit->getId() &&
@@ -293,6 +296,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 				}
 			}
 		}
+		*/
 
 
 		// Check the faction cache for a known position where we can harvest
