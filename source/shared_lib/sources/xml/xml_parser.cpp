@@ -41,7 +41,7 @@ public:
 			char msgStr[strSize], fileStr[strSize];
 			XMLString::transcode(domError.getMessage(), msgStr, strSize-1);
 			XMLString::transcode(domError.getLocation()->getURI(), fileStr, strSize-1);
-			int lineNumber= domError.getLocation()->getLineNumber();
+			XMLFileLoc lineNumber= domError.getLocation()->getLineNumber();
 			throw runtime_error("Error parsing XML, file: " + string(fileStr) + ", line: " + intToStr(lineNumber) + ": " + string(msgStr));
 		}
 		return true;
@@ -54,23 +54,23 @@ public:
 
 bool XmlIo::initialized= false;
 
-XmlIo::XmlIo(){
+XmlIo::XmlIo() {
 	try{
 		XMLPlatformUtils::Initialize();
 	}
 	catch(const XMLException &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",__FILE__,__FUNCTION__,__LINE__,e.getMessage());
 		throw runtime_error("Error initializing XML system");
 	}
 
-	try{
+	try {
         XMLCh str[strSize];
         XMLString::transcode("LS", str, strSize-1);
 
 		implementation = DOMImplementationRegistry::getDOMImplementation(str);
 	}
-	catch(const DOMException &ex){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser\n",__FILE__,__FUNCTION__,__LINE__);
+	catch(const DOMException &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",__FILE__,__FUNCTION__,__LINE__,ex.getMessage());
 		throw runtime_error("Exception while creating XML parser");
 	}
 }

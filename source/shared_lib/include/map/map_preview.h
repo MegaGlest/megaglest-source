@@ -42,7 +42,7 @@ static const int MAX_MAP_CELL_DIMENSION		= 1024;
 
 static const int MIN_MAP_CELL_HEIGHT 		= 0;
 static const int MAX_MAP_CELL_HEIGHT 		= 20;
-static const int DEFAULT_MAP_CELL_HEIGHT 		= 10;
+static const int DEFAULT_MAP_CELL_HEIGHT 	= 10;
 
 static const int MIN_MAP_FACTIONCOUNT 		= 1;
 static const int MAX_MAP_FACTIONCOUNT 		= 8;
