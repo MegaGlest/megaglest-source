@@ -142,8 +142,8 @@ void Map::pirateChangeHeight(int x, int y, int height, int radius) {
 			// round off the corners
 			int ti, tj;
 			if (abs(i - x) == abs(j - y)) {
-				ti = (i - x) * 0.707 + x + 0.5;
-				tj = (j - y) * 0.707 + y + 0.5;
+				ti = (int)((i - x) * 0.707 + x + 0.5);
+				tj = (int)((j - y) * 0.707 + y + 0.5);
 			} else {
 				ti = i;
 				tj = j;
@@ -154,7 +154,7 @@ void Map::pirateChangeHeight(int x, int y, int height, int radius) {
 				//gradient[indexI][indexJ] = 0;
 			} else {
 				// assume outside the map bounds is height 10
-				gradient[indexI][indexJ] = (10.0 - goalAlt) / radius;
+				gradient[indexI][indexJ] = (10.0f - (float)goalAlt) / (float)radius;
 			}
 			//std::cout << "gradient[" << indexI << "][" << indexJ << "] = " << gradient[indexI][indexJ] << std::endl;
 			//std::cout << "derived from height " << cells[ti][tj].height << " at " << ti << " " << tj << std::endl;

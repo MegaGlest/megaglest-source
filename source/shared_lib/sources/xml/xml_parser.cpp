@@ -19,6 +19,7 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include "util.h"
+#include "types.h"
 #include "leak_dumper.h"
 
 
@@ -41,7 +42,7 @@ public:
 			char msgStr[strSize], fileStr[strSize];
 			XMLString::transcode(domError.getMessage(), msgStr, strSize-1);
 			XMLString::transcode(domError.getLocation()->getURI(), fileStr, strSize-1);
-			uint64 lineNumber= domError.getLocation()->getLineNumber();
+			Shared::Platform::uint64 lineNumber= domError.getLocation()->getLineNumber();
 			throw runtime_error("Error parsing XML, file: " + string(fileStr) + ", line: " + intToStr(lineNumber) + ": " + string(msgStr));
 		}
 		return true;
