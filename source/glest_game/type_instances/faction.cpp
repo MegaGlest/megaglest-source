@@ -366,6 +366,90 @@ void Faction::deApplyStaticConsumption(const ProducibleType *p)
 //apply resource on interval (cosumable resouces)
 void Faction::applyCostsOnInterval(){
 
+	// For each Resource type we store in the int a total consumed value, then
+	// a vector of units that consume the resource type
+	std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > > resourceIntervalUsage;
+
+	// count up consumables usage for the interval
+	for(int j = 0; j < getUnitCount(); ++j) {
+		Unit *unit = getUnit(j);
+		if(unit->isOperative() == true) {
+			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
+				const Resource *resource = unit->getType()->getCost(k);
+				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resource->getType() [%s] store = %d, unit cost = %d\n",__FILE__,__FUNCTION__,__LINE__,resource->getType()->getName().c_str(), getResource(resource->getType())->getAmount(),resource->getAmount());
+
+					if(resourceIntervalUsage.find(resource->getType()) == resourceIntervalUsage.end()) {
+						resourceIntervalUsage[resource->getType()] = make_pair<int, std::vector<Unit *> >(0,std::vector<Unit *>());
+					}
+					// Negative cost means accumulate the resource type
+					resourceIntervalUsage[resource->getType()].first += -resource->getAmount();
+
+					// If the cost > 0 then the unit is a consumer
+					if(resource->getAmount() > 0) {
+						resourceIntervalUsage[resource->getType()].second.push_back(unit);
+					}
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage[resource->getType()].first = %d, consumerCount = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage[resource->getType()].first,resourceIntervalUsage[resource->getType()].second.size());
+				}
+			}
+		}
+	}
+
+	// Apply consumable resource usage
+	if(resourceIntervalUsage.size() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage.size());
+
+		for(std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > >::iterator iter = resourceIntervalUsage.begin();
+																							iter != resourceIntervalUsage.end();
+																							++iter) {
+			// Apply resource type usage to faction resource store
+			const ResourceType *rt = iter->first;
+			int resourceTypeUsage = iter->second.first;
+			incResourceAmount(rt, resourceTypeUsage);
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rt [%s] resourceTypeUsage = %d store = %d\n",__FILE__,__FUNCTION__,__LINE__,rt->getName().c_str(), resourceTypeUsage,getResource(rt)->getAmount());
+
+			// Check if we have any unit consumers
+			if(getResource(rt)->getAmount() < 0) {
+				resetResourceAmount(rt);
+
+				// Apply consequences to consumer units of this resource type
+				std::vector<Unit *> &resourceConsumers = iter->second.second;
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceConsumers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceConsumers.size());
+
+				for(int i = 0; i < resourceConsumers.size(); ++i) {
+					Unit *unit = resourceConsumers[i];
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(rt)->getAmount());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(rt)->getAmount(),unit->getFullName().c_str(),unit->getId());
+
+					//decrease unit hp
+					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
+
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
+
+						if(decHpResult) {
+							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							world->getStats()->die(unit->getFactionIndex());
+							scriptManager->onUnitDied(unit);
+						}
+						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
+						if(sound != NULL && thisFaction) {
+							SoundRenderer::getInstance().playFx(sound);
+						}
+					}
+				}
+			}
+		}
+	}
+
+/*
 	//increment consumables
 	for(int j=0; j<getUnitCount(); ++j){
 		Unit *unit= getUnit(j);
@@ -423,6 +507,7 @@ void Faction::applyCostsOnInterval(){
 			}
 		}
 	}
+*/
 }
 
 bool Faction::checkCosts(const ProducibleType *pt){
