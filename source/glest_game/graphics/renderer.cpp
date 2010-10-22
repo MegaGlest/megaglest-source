@@ -25,7 +25,7 @@
 #include "factory_repository.h"
 #include <cstdlib>
 #include <algorithm>
-
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -762,7 +762,7 @@ void Renderer::renderBackground(const Texture2D *texture) {
 	assertGl();
 }
 
-void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha){
+void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha,const Vec3f *color){
     assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -771,7 +771,14 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 
-	glColor4f(1.f, 1.f, 1.f, alpha);
+	if(color != NULL) {
+		Vec4f newColor(*color);
+		newColor.w = alpha;
+		glColor4fv(newColor.ptr());
+	}
+	else {
+		glColor4f(1.f, 1.f, 1.f, alpha);
+	}
 	renderQuad(x, y, w, h, texture);
 
 	glPopAttrib();
@@ -789,15 +796,31 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 	glEnable(GL_BLEND);
 	Vec4f fontColor;
 
-	if(game!=NULL){
-		fontColor=game->getGui()->getDisplay()->getColor();
+	if(game != NULL) {
+		fontColor = game->getGui()->getDisplay()->getColor();
 	}
 	else {
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 	}
-	if(showFullConsole){
-		for(int i=0; i<console->getStoredLineCount(); ++i){
+
+	Vec4f defaultFontColor = fontColor;
+
+	if(showFullConsole) {
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+
+		for(int i = 0; i < console->getStoredLineCount(); ++i) {
+			int playerIndex = console->getStoredLinePlayerIndex(i);
+			if(playerIndex >= 0) {
+				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
+				fontColor.x = playerColor.x;
+				fontColor.y = playerColor.y;
+				fontColor.z = playerColor.z;
+			}
+			else {
+				fontColor = defaultFontColor;
+			}
+
 			renderTextShadow(
 				console->getStoredLine(i),
 				CoreData::getInstance().getConsoleFont(),
@@ -806,7 +829,20 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 		}
 	}
 	else if(showMenuConsole) {
-		for(int i=0; i<console->getStoredLineCount() && i<maxConsoleLines; ++i){
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+
+		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
+			int playerIndex = console->getStoredLinePlayerIndex(i);
+			if(playerIndex >= 0) {
+				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
+				fontColor.x = playerColor.x;
+				fontColor.y = playerColor.y;
+				fontColor.z = playerColor.z;
+			}
+			else {
+				fontColor = defaultFontColor;
+			}
+
 			renderTextShadow(
 				console->getStoredLine(i),
 				CoreData::getInstance().getConsoleFont(),
@@ -815,7 +851,20 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 		}
 	}
 	else {
-		for(int i=0; i<console->getLineCount(); ++i) {
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+
+		for(int i = 0; i < console->getLineCount(); ++i) {
+			int playerIndex = console->getLinePlayerIndex(i);
+			if(playerIndex >= 0) {
+				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
+				fontColor.x = playerColor.x;
+				fontColor.y = playerColor.y;
+				fontColor.z = playerColor.z;
+			}
+			else {
+				fontColor = defaultFontColor;
+			}
+
 			renderTextShadow(
 				console->getLine(i),
 				CoreData::getInstance().getConsoleFont(),
@@ -826,24 +875,23 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 	glPopAttrib();
 }
 
-void Renderer::renderChatManager(const ChatManager *chatManager){
+void Renderer::renderChatManager(const ChatManager *chatManager) {
 	Vec4f fontColor;
 	Lang &lang= Lang::getInstance();
 
-	if(chatManager->getEditEnabled()){
-		string text;
+	if(chatManager->getEditEnabled()) {
+		string text="";
 
-		if(chatManager->getTeamMode()){
-			text+= lang.get("Team");
+		if(chatManager->getTeamMode()) {
+			text += lang.get("Team");
 		}
-		else
-		{
-			text+= lang.get("All");
+		else {
+			text += lang.get("All");
 		}
-		text+= ": " + chatManager->getText() + "_";
+		text += ": " + chatManager->getText() + "_";
 
-		if(game!=NULL){
-			fontColor=game->getGui()->getDisplay()->getColor();
+		if(game != NULL) {
+			fontColor = game->getGui()->getDisplay()->getColor();
 		}
 		else {
 			// white shadowed is default ( in the menu for example )
@@ -1032,6 +1080,23 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 // ============= COMPONENTS =============================
 
 void Renderer::renderLabel(const GraphicLabel *label) {
+	Vec4f *colorWithAlpha = NULL;
+	renderLabel(label,colorWithAlpha);
+}
+
+void Renderer::renderLabel(const GraphicLabel *label,const Vec3f *color) {
+	if(color != NULL) {
+		Vec4f colorWithAlpha = Vec4f(*color);
+		colorWithAlpha.w = GraphicComponent::getFade();
+		renderLabel(label,&colorWithAlpha);
+	}
+	else {
+		Vec4f *colorWithAlpha = NULL;
+		renderLabel(label,colorWithAlpha);
+	}
+}
+
+void Renderer::renderLabel(const GraphicLabel *label,const Vec4f *color) {
 	if(label->getVisible() == false) {
 		return;
 	}
@@ -1051,7 +1116,12 @@ void Renderer::renderLabel(const GraphicLabel *label) {
 		textPos= Vec2i(x, y+h/4);
 	}
 
-	renderText(label->getText(), label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+	if(color != NULL) {
+		renderText(label->getText(), label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+	}
+	else {
+		renderText(label->getText(), label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+	}
 
 	glPopAttrib();
 }

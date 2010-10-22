@@ -97,6 +97,7 @@ public:
 	}
 
 	virtual string getHumanPlayerName(int index=-1);
+	virtual int getHumanPlayerIndex() const;
 
 public:
 

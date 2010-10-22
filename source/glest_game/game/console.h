@@ -36,7 +36,9 @@ private:
 	static const int consoleLines= 5;
 
 public:
-	typedef pair<string, float> StringTimePair;
+	// The float is elapsed time, the int is playerindex (-1 is no player)
+	typedef pair<float, int> StringTimePairData;
+	typedef pair<string, StringTimePairData > StringTimePair;
 	typedef vector<StringTimePair> Lines;
 	typedef Lines::const_iterator LineIterator;
 
@@ -44,9 +46,6 @@ private:
 	float timeElapsed; 
 	Lines lines;
 	Lines storedLines;
-
-	//this should be deleted from here someday
-	bool won, lost;
 
 	//config
 	int maxLines;
@@ -57,13 +56,16 @@ public:
 	Console();
 	
 	int getStoredLineCount() const		{return storedLines.size();}
-	int getLineCount() const		{return lines.size();}
-	string getLine(int i) const		{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].first;}
-	string getStoredLine(int i) const		{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].first;}
+	int getLineCount() const			{return lines.size();}
+	string getLine(int i) const			{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].first;}
+	string getStoredLine(int i) const	{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].first;}
+
+	int getLinePlayerIndex(int i) const			{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].second.second;}
+	int getStoredLinePlayerIndex(int i) const	{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].second.second;}
 
 	void clearStoredLines();
 	void addStdMessage(const string &s);
-	void addLine(string line, bool playSound= false);
+	void addLine(string line, bool playSound= false,int playerIndex=-1);
 	void update();
 	bool isEmpty();
 };

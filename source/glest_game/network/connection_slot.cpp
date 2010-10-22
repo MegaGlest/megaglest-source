@@ -311,7 +311,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 							if(gotIntro == true) {
 								NetworkMessageText networkMessageText;
 								if(receiveMessage(&networkMessageText)) {
-									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
 									this->addChatInfo(msg);
 									gotTextMsg = true;
 
