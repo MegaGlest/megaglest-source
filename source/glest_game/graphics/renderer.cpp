@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include "cache_manager.h"
+#include "network_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -786,16 +787,8 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
-void Renderer::renderConsole(const Console *console,const bool showFullConsole,const bool showMenuConsole){
-
-	if(console == NULL) {
-		throw runtime_error("console == NULL");
-	}
-
-	glPushAttrib(GL_ENABLE_BIT);
-	glEnable(GL_BLEND);
+void Renderer::RenderConsoleLine(int lineIndex, string line,int playerIndex,int xPosition) {
 	Vec4f fontColor;
-
 	if(game != NULL) {
 		fontColor = game->getGui()->getDisplay()->getColor();
 	}
@@ -806,70 +799,77 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 
 	Vec4f defaultFontColor = fontColor;
 
-	if(showFullConsole) {
+	if(playerIndex >= 0) {
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+		Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
+		fontColor.x = playerColor.x;
+		fontColor.y = playerColor.y;
+		fontColor.z = playerColor.z;
 
-		for(int i = 0; i < console->getStoredLineCount(); ++i) {
-			int playerIndex = console->getStoredLinePlayerIndex(i);
-			if(playerIndex >= 0) {
-				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
-				fontColor.x = playerColor.x;
-				fontColor.y = playerColor.y;
-				fontColor.z = playerColor.z;
-			}
-			else {
+		GameNetworkInterface *gameNetInterface = NetworkManager::getInstance().getGameNetworkInterface();
+		if(gameNetInterface != NULL && gameNetInterface->getGameSettings() != NULL) {
+			const GameSettings *gameSettings = gameNetInterface->getGameSettings();
+			string playerName = gameSettings->getNetworkPlayerName(playerIndex);
+			if(StartsWith(line, playerName + ":") == true) {
+				line = line.erase(0,playerName.length()+1);
+				string headerLine = "*" + playerName + ":";
+
+				renderTextShadow(
+						headerLine,
+					CoreData::getInstance().getConsoleFont(),
+					fontColor,
+					xPosition, lineIndex * 20 + 20);
+
 				fontColor = defaultFontColor;
+				xPosition += (7 * (playerName.length() + 2));
 			}
-
-			renderTextShadow(
-				console->getStoredLine(i),
-				CoreData::getInstance().getConsoleFont(),
-				fontColor,
-				20, i*20+20);
-		}
-	}
-	else if(showMenuConsole) {
-		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
-
-		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
-			int playerIndex = console->getStoredLinePlayerIndex(i);
-			if(playerIndex >= 0) {
-				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
-				fontColor.x = playerColor.x;
-				fontColor.y = playerColor.y;
-				fontColor.z = playerColor.z;
-			}
-			else {
-				fontColor = defaultFontColor;
-			}
-
-			renderTextShadow(
-				console->getStoredLine(i),
-				CoreData::getInstance().getConsoleFont(),
-				fontColor,
-				20, i*20+20);
 		}
 	}
 	else {
-		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+		fontColor = defaultFontColor;
+	}
 
+	renderTextShadow(
+			line,
+		CoreData::getInstance().getConsoleFont(),
+		fontColor,
+		xPosition, lineIndex * 20 + 20);
+}
+
+void Renderer::renderConsole(const Console *console,const bool showFullConsole,const bool showMenuConsole){
+
+	if(console == NULL) {
+		throw runtime_error("console == NULL");
+	}
+
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable(GL_BLEND);
+
+	if(showFullConsole) {
+		for(int i = 0; i < console->getStoredLineCount(); ++i) {
+			string line = console->getStoredLine(i);
+			int playerIndex = console->getStoredLinePlayerIndex(i);
+			int xPosition = 20;
+
+			RenderConsoleLine(i, line,playerIndex,xPosition);
+		}
+	}
+	else if(showMenuConsole) {
+		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
+			string line = console->getStoredLine(i);
+			int playerIndex = console->getStoredLinePlayerIndex(i);
+			int xPosition = 20;
+
+			RenderConsoleLine(i, line,playerIndex,xPosition);
+		}
+	}
+	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
+			string line = console->getLine(i);
 			int playerIndex = console->getLinePlayerIndex(i);
-			if(playerIndex >= 0) {
-				Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
-				fontColor.x = playerColor.x;
-				fontColor.y = playerColor.y;
-				fontColor.z = playerColor.z;
-			}
-			else {
-				fontColor = defaultFontColor;
-			}
+			int xPosition = 20;
 
-			renderTextShadow(
-				console->getLine(i),
-				CoreData::getInstance().getConsoleFont(),
-				fontColor,
-				20, i*20+20);
+			RenderConsoleLine(i, line,playerIndex,xPosition);
 		}
 	}
 	glPopAttrib();
