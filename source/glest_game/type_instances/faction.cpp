@@ -364,7 +364,7 @@ void Faction::deApplyStaticConsumption(const ProducibleType *p)
 }
 
 //apply resource on interval (cosumable resouces)
-void Faction::applyCostsOnInterval(){
+void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 
 	// For each Resource type we store in the int a total consumed value, then
 	// a vector of units that consume the resource type
@@ -376,7 +376,7 @@ void Faction::applyCostsOnInterval(){
 		if(unit->isOperative() == true) {
 			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
 				const Resource *resource = unit->getType()->getCost(k);
-				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
+				if(resource->getType() == rtApply && resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resource->getType() [%s] store = %d, unit cost = %d\n",__FILE__,__FUNCTION__,__LINE__,resource->getType()->getName().c_str(), getResource(resource->getType())->getAmount(),resource->getAmount());
 
 					if(resourceIntervalUsage.find(resource->getType()) == resourceIntervalUsage.end()) {
