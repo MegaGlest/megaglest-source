@@ -774,7 +774,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 				faction->getControlType() == ctNetworkCpu ||
 				faction->getControlType() == ctNetworkCpuUltra ||
 				faction->getControlType() == ctNetworkCpuMega) {
-				ConnectionSlot *slot =  server->getSlot(i);
+				ConnectionSlot *slot =  server->getSlot(faction->getIndex());
 				if(aiInterfaces[i] == NULL && (slot == NULL || slot->isConnected() == false)) {
 
 					faction->setControlType(ctCpu);
