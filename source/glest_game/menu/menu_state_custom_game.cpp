@@ -432,6 +432,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
+		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+
 		listBoxControls[i].setItems(controlItems);
 		labelNetStatus[i].setText("");
     }
@@ -780,6 +782,15 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 			else if(listBoxTeams[i].mouseClick(x, y))
 			{
+				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+					//printf("i = %d factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] listBoxTeams[i].getSelectedItemIndex() = %d, lastSelectedTeamIndex[i] = %d\n",i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),listBoxTeams[i].getSelectedItemIndex(),lastSelectedTeamIndex[i]);
+					if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+						lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+					}
+				}
+				else {
+					lastSelectedTeamIndex[i] = -1;
+				}
 				needToRepublishToMasterserver = true;
 
                 if(hasNetworkGameSettings() == true)
@@ -1772,7 +1783,19 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
 			}
 			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-				listBoxTeams[i].setSelectedItem(intToStr(1));
+				if(lastSelectedTeamIndex[i] >= 0 && lastSelectedTeamIndex[i] + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+					if(lastSelectedTeamIndex[i] == 0) {
+						lastSelectedTeamIndex[i] = GameConstants::maxPlayers-1;
+					}
+					else if(lastSelectedTeamIndex[i] == GameConstants::maxPlayers-1) {
+						lastSelectedTeamIndex[i] = 0;
+					}
+
+					listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
+				}
+				else {
+					listBoxTeams[i].setSelectedItem(intToStr(1));
+				}
 			}
 
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
@@ -2008,6 +2031,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
 			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
+			lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 
 			string factionName = gameSettings.getFactionTypeName(i);
 			factionName = formatString(factionName);

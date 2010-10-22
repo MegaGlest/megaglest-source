@@ -130,6 +130,7 @@ private:
 
 	MapPreview mapPreview;
 	bool autostart;
+	std::map<int,int> lastSelectedTeamIndex;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
