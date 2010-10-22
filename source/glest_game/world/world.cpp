@@ -288,7 +288,7 @@ void World::updateAllFactionConsumableCosts() {
 		const ResourceType *rt= techTree->getResourceType(i);
 		if(rt->getClass() == rcConsumable && frameCount % (rt->getInterval() * GameConstants::updateFps)==0){
 			for(int i=0; i<getFactionCount(); ++i){
-				getFaction(i)->applyCostsOnInterval();
+				getFaction(i)->applyCostsOnInterval(rt);
 			}
 		}
 	}

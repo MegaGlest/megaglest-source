@@ -128,7 +128,7 @@ public:
 	void deApplyCosts(const ProducibleType *p);
 	void deApplyStaticCosts(const ProducibleType *p);
 	void deApplyStaticConsumption(const ProducibleType *p);
-	void applyCostsOnInterval();
+	void applyCostsOnInterval(const ResourceType *rtApply);
 	bool checkCosts(const ProducibleType *pt);
 
 	//reqs
