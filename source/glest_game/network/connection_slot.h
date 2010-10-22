@@ -162,6 +162,7 @@ public:
 
 	void validateConnection();
 	virtual string getHumanPlayerName(int index=-1);
+	virtual int getHumanPlayerIndex() const {return playerIndex;}
 
 protected:
 

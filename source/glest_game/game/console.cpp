@@ -28,31 +28,29 @@ namespace Glest{ namespace Game{
 // 	class Console
 // =====================================================
 
-Console::Console(){
+Console::Console() {
 	//config
-	maxLines= Config::getInstance().getInt("ConsoleMaxLines");
-	maxStoredLines= Config::getInstance().getInt("ConsoleMaxLinesStored");
-	timeout= Config::getInstance().getInt("ConsoleTimeout");
-
-	timeElapsed= 0.0f;
+	maxLines		= Config::getInstance().getInt("ConsoleMaxLines");
+	maxStoredLines	= Config::getInstance().getInt("ConsoleMaxLinesStored");
+	timeout			= Config::getInstance().getInt("ConsoleTimeout");
+	timeElapsed		= 0.0f;
 }
 
-void Console::addStdMessage(const string &s){
+void Console::addStdMessage(const string &s) {
 	addLine(Lang::getInstance().get(s));
 }
 
-void Console::addLine(string line, bool playSound){
-	try
-	{
-		if(playSound){
+void Console::addLine(string line, bool playSound, int playerIndex) {
+	try {
+		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
 		}
-		lines.insert(lines.begin(), StringTimePair(line, timeElapsed));
-		if(lines.size()>maxLines){
+		lines.insert(lines.begin(), StringTimePair(line, StringTimePairData(timeElapsed,playerIndex)));
+		if(lines.size() > maxLines) {
 			lines.pop_back();
 		}
-		storedLines.insert(storedLines.begin(), StringTimePair(line, timeElapsed));
-		if(storedLines.size()>maxStoredLines){
+		storedLines.insert(storedLines.begin(), StringTimePair(line, StringTimePairData(timeElapsed,playerIndex)));
+		if(storedLines.size() > maxStoredLines) {
 			storedLines.pop_back();
 		}
 	}
@@ -64,23 +62,23 @@ void Console::addLine(string line, bool playSound){
 	}
 }
 
-void Console::clearStoredLines(){
-	while(!storedLines.empty()){
+void Console::clearStoredLines() {
+	while(storedLines.empty() == false) {
 		storedLines.pop_back();
     }   
 }
 
-void Console::update(){
-	timeElapsed+= 1.f/GameConstants::updateFps;
+void Console::update() {
+	timeElapsed += 1.f / GameConstants::updateFps;
 	
-	if(!lines.empty()){
-		if(lines.back().second<timeElapsed-timeout){
+	if(lines.empty() == false) {
+		if(lines.back().second.first < (timeElapsed - timeout)) {
 			lines.pop_back();
 		}
     }   
 }
 
-bool Console::isEmpty(){
+bool Console::isEmpty() {
 	return lines.empty();   
 }
          

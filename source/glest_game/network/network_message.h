@@ -282,7 +282,7 @@ public:
 // =====================================================
 
 #pragma pack(push, 1)
-class NetworkMessageText: public NetworkMessage{
+class NetworkMessageText: public NetworkMessage {
 private:
 	static const int maxTextStringSize= 340;
 	static const int maxSenderStringSize= 60;
@@ -293,6 +293,7 @@ private:
 		NetworkString<maxTextStringSize> text;
 		NetworkString<maxSenderStringSize> sender;
 		int8 teamIndex;
+		int8 playerIndex;
 	};
 
 private:
@@ -300,11 +301,12 @@ private:
 
 public:
 	NetworkMessageText(){}
-	NetworkMessageText(const string &text, const string &sender, int teamIndex);
+	NetworkMessageText(const string &text, const string &sender, int teamIndex, int playerIndex);
 
 	string getText() const		{return data.text.getString();}
 	string getSender() const	{return data.sender.getString();}
 	int getTeamIndex() const	{return data.teamIndex;}
+	int getPlayerIndex() const  {return data.playerIndex;}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

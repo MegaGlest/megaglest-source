@@ -103,6 +103,7 @@ public:
 
 	const string &getVersionString() const	{return versionString;}
 	virtual string getHumanPlayerName(int index=-1);
+	virtual int getHumanPlayerIndex() const {return playerIndex;}
 
 protected:
 

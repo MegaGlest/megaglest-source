@@ -304,7 +304,7 @@ public:
 	void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
     void renderMouse3d();
     void renderBackground(const Texture2D *texture);
-	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f);
+	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
@@ -316,6 +316,8 @@ public:
 
     //components
 	void renderLabel(const GraphicLabel *label);
+	void renderLabel(const GraphicLabel *label,const Vec3f *color);
+	void renderLabel(const GraphicLabel *label,const Vec4f *color);
     void renderButton(const GraphicButton *button);
     void renderListBox(const GraphicListBox *listBox);
 	void renderMessageBox(const GraphicMessageBox *listBox);

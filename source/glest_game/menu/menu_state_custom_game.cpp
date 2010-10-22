@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <time.h>
 #include <curl/curl.h>
-
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 
@@ -1038,13 +1038,30 @@ void MenuStateCustomGame::render() {
 		}
 		else
 		{
-			int i;
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
 			renderer.renderButton(&buttonRestoreLastSettings);
-	
-			for(i=0; i<GameConstants::maxPlayers; ++i){
-				renderer.renderLabel(&labelPlayers[i]);
+
+			// Get a reference to the player texture cache
+			std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+
+			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				if(crcPlayerTextureCache[i] != NULL) {
+					// Render the player # label the player's color
+					Vec3f playerColor = crcPlayerTextureCache[i]->getPixmap()->getPixel3f(0, 0);
+					renderer.renderLabel(&labelPlayers[i],&playerColor);
+
+					// Blend the color with white so make it more readable
+					Vec4f newColor(1.f, 1.f, 1.f, 0.57);
+					renderer.renderLabel(&labelPlayers[i],&newColor);
+
+					//int quadWidth = labelPlayerNames[i].getX() - labelPlayers[i].getX() - 5;
+					//renderer.renderTextureQuad(labelPlayers[i].getX(), labelPlayers[i].getY(), quadWidth, labelPlayers[i].getH(), crcPlayerTextureCache[i],1.0f,&playerColor);
+				}
+				else {
+					renderer.renderLabel(&labelPlayers[i]);
+				}
+
 				renderer.renderLabel(&labelPlayerNames[i]);
 
 				renderer.renderListBox(&listBoxControls[i]);

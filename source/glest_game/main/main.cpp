@@ -34,6 +34,7 @@
 #include <algorithm>
 #include "sound_renderer.h"
 #include "font_gl.h"
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 #ifndef WIN32 
@@ -933,6 +934,21 @@ int glestMain(int argc, char** argv){
         	createDirectoryPaths(screenShotsPath);
 			//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         }
+
+        // Cache Player textures - START
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+        for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+        	string playerTexture = "data/core/faction_textures/faction" + intToStr(index) + ".tga";
+        	if(fileExists(playerTexture) == true) {
+        		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
+        		texture->load(playerTexture);
+        		crcPlayerTextureCache[index] = texture;
+        	}
+        	else {
+        		crcPlayerTextureCache[index] = NULL;
+        	}
+        }
+        // Cache Player textures - END
 
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);

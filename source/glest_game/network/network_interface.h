@@ -45,21 +45,24 @@ class ChatMsgInfo {
 protected:
 
 	void copyAll(const ChatMsgInfo &obj) {
-		this->chatText		= obj.chatText.c_str();
-		this->chatSender	= obj.chatSender.c_str();
-		this->chatTeamIndex	= obj.chatTeamIndex;
+		this->chatText			= obj.chatText.c_str();
+		this->chatSender		= obj.chatSender.c_str();
+		this->chatTeamIndex		= obj.chatTeamIndex;
+		this->chatPlayerIndex 	= obj.chatPlayerIndex;
 	}
 public:
 
 	ChatMsgInfo() {
-		this->chatText		= "";
-		this->chatSender	= "";
-		this->chatTeamIndex	= -1;
+		this->chatText			= "";
+		this->chatSender		= "";
+		this->chatTeamIndex		= -1;
+		this->chatPlayerIndex	= -1;
 	}
-	ChatMsgInfo(string chatText, string chatSender,int chatTeamIndex) {
+	ChatMsgInfo(string chatText, string chatSender,int chatTeamIndex, int chatPlayerIndex) {
 		this->chatText		= chatText;
 		this->chatSender	= chatSender;
 		this->chatTeamIndex	= chatTeamIndex;
+		this->chatPlayerIndex = chatPlayerIndex;
 	}
 	ChatMsgInfo(const ChatMsgInfo& obj) {
 		copyAll(obj);
@@ -72,6 +75,7 @@ public:
 	string chatText;
 	string chatSender;
 	int chatTeamIndex;
+	int chatPlayerIndex;
 
 };
 
@@ -107,6 +111,7 @@ public:
 	virtual const Socket* getSocket() const= 0;
 	virtual void close()= 0;
 	virtual string getHumanPlayerName(int index=-1) = 0;
+	virtual int getHumanPlayerIndex() const = 0;
 
     static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
     static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }

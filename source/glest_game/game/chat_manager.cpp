@@ -32,7 +32,7 @@ namespace Glest{ namespace Game{
 
 const int ChatManager::maxTextLenght= 64;
 
-ChatManager::ChatManager(){
+ChatManager::ChatManager() {
 	console= NULL;
 	editEnabled= false;
 	teamMode= false;
@@ -40,21 +40,21 @@ ChatManager::ChatManager(){
 	disableTeamMode = false;
 }
 
-void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu){
+void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu) {
 	this->console= console;
 	this->thisTeamIndex= thisTeamIndex;
 	this->disableTeamMode= false;
 	this->inMenu=inMenu;
 }
 
-void ChatManager::keyUp(char key){
+void ChatManager::keyUp(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	
 	try {
-		if(editEnabled){
+		if(editEnabled) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-			if(key==vkEscape)
+			if(key == vkEscape)
 			{
 				text.clear();
 				editEnabled= false;
@@ -78,7 +78,7 @@ void ChatManager::setDisableTeamMode(bool value) {
 	}
 }
 
-void ChatManager::keyDown(char key){
+void ChatManager::keyDown(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 	try {
@@ -112,19 +112,21 @@ void ChatManager::keyDown(char key){
 			{
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-				if(editEnabled){
+				if(editEnabled == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-					if(!text.empty()) {
-						string playerName = gameNetworkInterface->getHumanPlayerName();
+					if(text.empty() == false) {
+						string playerName 	= gameNetworkInterface->getHumanPlayerName();
+						int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
+						console->addLine(playerName + ": " + text,false,playerIndex);
 
-						console->addLine(playerName + ": " + text);
 						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
-						if(!inMenu) editEnabled= false;
+						if(inMenu == false) {
+							editEnabled= false;
+						}
 					}
-					else
-					{
+					else {
 						editEnabled= false;
 					}	
 					text.clear();
@@ -184,9 +186,8 @@ void ChatManager::updateNetwork() {
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
 
-				if(teamIndex==-1 || teamIndex==thisTeamIndex){
-					//console->addLine(msg.chatText, true);
-					console->addLine(msg.chatSender + ": " + msg.chatText, true);
+				if(teamIndex == -1 || teamIndex == thisTeamIndex) {
+					console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 				}

@@ -435,7 +435,7 @@ void ClientInterface::updateLobby() {
             {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
-        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
         		this->addChatInfo(msg);
             }
         }
@@ -622,7 +622,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					sleep(0);
 				}
 
-        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
         		this->addChatInfo(msg);
 			}
 			break;
@@ -793,16 +793,16 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal){
+void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
 
 	string humanPlayerName = getHumanPlayerName();
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
 
-	NetworkMessageText networkMessageText(text, humanPlayerName, teamIndex);
+	NetworkMessageText networkMessageText(text, humanPlayerName, teamIndex,playerIndex);
 	sendMessage(&networkMessageText);
 
 	if(echoLocal == true) {
-		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex());
+		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getSender().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
 		this->addChatInfo(msg);
 	}
 
@@ -960,7 +960,7 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			NetworkMessageText netMsg = NetworkMessageText();
 			this->receiveMessage(&netMsg);
 
-    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex());
+    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex());
     		this->addChatInfo(msg);
 			}
 			break;
