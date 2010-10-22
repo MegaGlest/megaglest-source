@@ -866,7 +866,7 @@ void World::initFactionTypes(GameSettings *gs){
 	for(int i=0; i < factions.size(); ++i) {
 		const FactionType *ft= techTree->getType(gs->getFactionTypeName(i));
 		factions[i].init(
-			ft, gs->getFactionControl(i), techTree, game, gs->getStartLocationIndex(i), gs->getTeam(i),
+			ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
 			gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
 
 		stats.setTeam(i, gs->getTeam(i));
