@@ -273,38 +273,12 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 		// Look for another unit that is currently harvesting the same resource
 		// type right now
 
-		/* This should not be needed due to the check below
-		 *
-		for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
-			Unit *peerUnit = unit->getFaction()->getUnit(i);
-			if( peerUnit != NULL && peerUnit->getId() != unit->getId() &&
-				peerUnit->getType()->getSize() <= unit->getType()->getSize()) {
-				if( peerUnit->getCurrSkill() != NULL &&
-					peerUnit->getCurrSkill()->getClass() == scHarvest &&
-					peerUnit->getLoadType() == rt &&
-					peerUnit->getCurrCommand() != NULL) {
-
-					if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 40) {
-						if( i == 0 ||
-							(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) < unit->getPos().dist(resourcePos))) {
-							resourcePos = peerUnit->getCurrCommand()->getPos();
-						}
-						if(unit->getPos().dist(peerUnit->getCurrCommand()->getPos()) <= 5) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		*/
-
-
 		// Check the faction cache for a known position where we can harvest
 		// this resource type
 		Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
 		if(result.x >= 0) {
 			resourcePos = result;
-			if(unit->getPos().dist(resourcePos) <= 5) {
+			if(unit->getPos().dist(resourcePos) <= size) {
 				return true;
 			}
 		}

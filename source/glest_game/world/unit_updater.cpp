@@ -657,11 +657,13 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
 
-		    		if(wasStuck == true && unit->isAlive() == true) {
+		    		// If the unit is blocked or Even worse 'stuck' then try to
+		    		// find the same resource type elsewhere, but close by
+		    		if((wasStuck == true || tsValue == tsBlocked) && unit->isAlive() == true) {
 		    			switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
 								{
-									bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+									bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit,true);
 									if(isNearResource == true) {
 										if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
 											canHarvestDestPos = true;
