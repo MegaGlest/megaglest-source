@@ -974,7 +974,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal);
 
-	NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex, gameSettings.getThisFactionIndex());
+	NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex, getHumanPlayerIndex());
 	broadcastMessage(&networkMessageText);
 
 	if(echoLocal == true) {
@@ -1373,7 +1373,7 @@ string ServerInterface::getHumanPlayerName(int index) {
 }
 
 int ServerInterface::getHumanPlayerIndex() const {
-	return gameSettings.getThisFactionIndex();
+	return gameSettings.getStartLocationIndex(gameSettings.getThisFactionIndex());
 }
 
 }}//end namespace
