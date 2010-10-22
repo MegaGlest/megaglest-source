@@ -372,6 +372,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 
 		bool msgBoxEnabled = msgBox.getEnabled();
 
+		bool showingOSCursor = isCursorShowing();
 		if(dynamic_cast<Game *>(programState) != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -426,14 +427,16 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		Config &config = Config::getInstance();
-		if(config.getBool("No2DMouseRendering","false") == false) {
-			showCursor(false);
-		}
-		sleep(0);
+		if(showingOSCursor == false) {
+			Config &config = Config::getInstance();
+			if(config.getBool("No2DMouseRendering","false") == false) {
+				showCursor(false);
+			}
+			sleep(0);
 
-		if(dynamic_cast<Intro *>(programState) != NULL && msgBoxEnabled == true) {
-			showCursor(true);
+			if(dynamic_cast<Intro *>(programState) != NULL && msgBoxEnabled == true) {
+				showCursor(true);
+			}
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -131,6 +131,7 @@ int getScreenH();
 
 void sleep(int millis);
 
+bool isCursorShowing();
 void showCursor(bool b);
 bool isKeyDown(int virtualKey);
 string getCommandLine();
