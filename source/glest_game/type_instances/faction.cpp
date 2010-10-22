@@ -77,7 +77,7 @@ void Faction::init(
 	}
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
-	texture->load("data/core/faction_textures/faction"+intToStr(index)+".tga");
+	texture->load("data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
