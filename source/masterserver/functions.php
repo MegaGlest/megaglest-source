@@ -5,8 +5,11 @@
 	function clean_str( $text )
 	{  // tomreyn says: I'm afraid this function is more likely to cause to trouble than to fix stuff (you have mysql escaping and html escaping elsewhere where it makes more sense, but strip off < and > here already, but then you don't filter non-visible bytes here)
 		//$text=strtolower($text);
-		$code_entities_match   = array('!','@','#','$','%','^','&','*','(',')','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",',','/','*','+','~','`','=');
-		$code_entities_replace = array('','','','','','','','','','','','','','','','','','','','','');
+		//$code_entities_match   = array('!','@','#','$','%','^','&','*','(',')','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",',','/','*','+','~','`','=');
+		//$code_entities_replace = array('','','','','','','','','','','','','','','','','','','','','');
+		$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
+		$code_entities_replace = array('','','','','','','','','','','','','');
+        
 		$text = str_replace( $code_entities_match, $code_entities_replace, $text );
 		return $text;
 	}
