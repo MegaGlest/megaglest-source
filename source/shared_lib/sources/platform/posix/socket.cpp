@@ -1797,15 +1797,15 @@ void BroadCastSocketThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
 
 	const int MAX_NIC_COUNT = 10;
-    short port;                 // The port for the broadcast.
+    short port=0;                 // The port for the broadcast.
     struct sockaddr_in bcLocal[MAX_NIC_COUNT]; // local socket address for the broadcast.
     PLATFORM_SOCKET bcfd[MAX_NIC_COUNT];                // The socket used for the broadcast.
     bool one = true;            // Parameter for "setscokopt".
-    int pn;                     // The number of the packet broadcasted.
-    char buff[1024];            // Buffers the data to be broadcasted.
-    char myhostname[100];       // hostname of local machine
-    char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
-    struct hostent* myhostent;
+    int pn=0;                     // The number of the packet broadcasted.
+    char buff[1024]="";            // Buffers the data to be broadcasted.
+    char myhostname[100]="";       // hostname of local machine
+    //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
+    struct hostent* myhostent=NULL;
 
     /* get my host name */
     gethostname(myhostname,100);
@@ -1814,46 +1814,52 @@ void BroadCastSocketThread::execute() {
     // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();
 
+    // Subnet, IP Address
+    std::vector<std::string> ipSubnetMaskList;
 	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
 		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
-		strcpy(subnetmask[idx], broadCastAddress.c_str());
+		//strcpy(subnetmask[idx], broadCastAddress.c_str());
+		if(broadCastAddress != "" && std::find(ipSubnetMaskList.begin(),ipSubnetMaskList.end(),broadCastAddress) == ipSubnetMaskList.end()) {
+			ipSubnetMaskList.push_back(broadCastAddress);
+		}
 	}
 
 	port = htons( Socket::getBroadCastPort() );
 
-	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+	//for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+	for(unsigned int idx = 0; idx < ipSubnetMaskList.size(); idx++) {
 		// Create the broadcast socket
 		memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
 		bcLocal[idx].sin_family			= AF_INET;
-		bcLocal[idx].sin_addr.s_addr	= inet_addr(subnetmask[idx]); //htonl( INADDR_BROADCAST );
+		bcLocal[idx].sin_addr.s_addr	= inet_addr(ipSubnetMaskList[idx].c_str()); //htonl( INADDR_BROADCAST );
 		bcLocal[idx].sin_port			= port;  // We are letting the OS fill in the port number for the local machine.
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
 		bcfd[idx] = -1;
 #endif
-		if(strlen(subnetmask[idx]) > 0) {
-			bcfd[idx]						= socket( AF_INET, SOCK_DGRAM, 0 );
-			if( bcfd[idx] <= 0  ) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
-				//exit(-1);
-			}
-			// Mark the socket for broadcast.
-			else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", subnetmask[idx], getLastSocketErrorFormattedText().c_str());
-				//exit(-1);
-			}
-		}
+		//if(strlen(subnetmask[idx]) > 0) {
+		bcfd[idx] = socket( AF_INET, SOCK_DGRAM, 0 );
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] setting up broadcast on address [%s]\n",__FILE__,__FUNCTION__,__LINE__,subnetmask[idx]);
+		if( bcfd[idx] <= 0  ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", ipSubnetMaskList[idx].c_str(), getLastSocketErrorFormattedText().c_str());
+			//exit(-1);
+		}
+		// Mark the socket for broadcast.
+		else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", ipSubnetMaskList[idx].c_str(), getLastSocketErrorFormattedText().c_str());
+			//exit(-1);
+		}
+		//}
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] setting up broadcast on address [%s]\n",__FILE__,__FUNCTION__,__LINE__,ipSubnetMaskList[idx].c_str());
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	time_t elapsed = 0;
-	for( pn = 1; getQuitStatus() == false; pn++ )
-	{
-		for(unsigned int idx = 0; getQuitStatus() == false && idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+	for( pn = 1; getQuitStatus() == false; pn++ ) {
+		for(unsigned int idx = 0; getQuitStatus() == false && idx < ipSubnetMaskList.size(); idx++) {
 			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
@@ -1866,8 +1872,7 @@ void BroadCastSocketThread::execute() {
 						elapsed = time(NULL);
 						// Broadcast the packet to the subnet
 						//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-						if( sendto( bcfd[idx], buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-						{
+						if( sendto( bcfd[idx], buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 ) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
 							//exit(-1);
 						}
@@ -1883,7 +1888,7 @@ void BroadCastSocketThread::execute() {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						break;
 					}
-					sleep( 100 ); // send out broadcast every 1 seconds
+					sleep(100); // send out broadcast every 1 seconds
 
 					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
@@ -1912,7 +1917,7 @@ void BroadCastSocketThread::execute() {
 		}
 	}
 
-	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+	for(unsigned int idx = 0; idx < ipSubnetMaskList.size(); idx++) {
 		if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 #ifndef WIN32
         ::close(bcfd[idx]);
