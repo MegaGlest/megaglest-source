@@ -45,6 +45,7 @@ private:
 	SimpleTaskThread *publishToMasterserverThread;
 	Mutex masterServerThreadAccessor;
 	time_t lastMasterserverHeartbeatTime;
+	bool needToRepublishToMasterserver;
 
 public:
 	ServerInterface();
@@ -102,6 +103,9 @@ public:
 
 	virtual string getHumanPlayerName(int index=-1);
 	virtual int getHumanPlayerIndex() const;
+
+	bool getNeedToRepublishToMasterserver() const {return needToRepublishToMasterserver;}
+	void setNeedToRepublishToMasterserver(bool value) {needToRepublishToMasterserver = value;}
 
 public:
 

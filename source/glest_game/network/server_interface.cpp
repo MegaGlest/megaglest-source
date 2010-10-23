@@ -66,6 +66,7 @@ ServerInterface::ServerInterface() {
     gameStartTime = 0;
     publishToMasterserverThread = NULL;
     lastMasterserverHeartbeatTime = 0;
+    needToRepublishToMasterserver = false;
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
@@ -103,7 +104,8 @@ ServerInterface::~ServerInterface() {
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 	safeMutex.ReleaseLock();
-	// This triggers a gameOVer message to be sent to the masterserver
+	// This triggers a gameOver message to be sent to the masterserver
+	lastMasterserverHeartbeatTime = 0;
 	simpleTask();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1076,6 +1078,7 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings) {
     	delete publishToMasterserverThread;
     	publishToMasterserverThread = NULL;
 
+    	lastMasterserverHeartbeatTime = 0;
     	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
     	publishToMasterserverThread->setUniqueID(__FILE__);
     	publishToMasterserverThread->start();
@@ -1453,8 +1456,7 @@ void ServerInterface::simpleTask() {
 
 		lastMasterserverHeartbeatTime = time(NULL);
 
-		bool isNetworkGame = (this->getGameSettings() != NULL && this->getGameSettings()->isNetworkGame());
-		if(isNetworkGame == true) {
+		if(needToRepublishToMasterserver == true) {
 			//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
 			string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
