@@ -21,7 +21,7 @@
 #include "logger.h"
 #include <time.h>
 #include "util.h"
-
+#include "game_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -59,11 +59,13 @@ double LAG_CHECK_GRACE_PERIOD = 15;
 // badly and we want to give time for them to catch up
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 2;
 
-ServerInterface::ServerInterface(){
+ServerInterface::ServerInterface() {
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
     currentFrameCount = 0;
     gameStartTime = 0;
+    publishToMasterserverThread = NULL;
+    lastMasterserverHeartbeatTime = 0;
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
@@ -82,7 +84,7 @@ ServerInterface::ServerInterface(){
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 }
 
-ServerInterface::~ServerInterface(){
+ServerInterface::~ServerInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<GameConstants::maxPlayers; ++i){
@@ -96,6 +98,13 @@ ServerInterface::~ServerInterface(){
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	close();
+
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	delete publishToMasterserverThread;
+	publishToMasterserverThread = NULL;
+	safeMutex.ReleaseLock();
+	// This triggers a gameOVer message to be sent to the masterserver
+	simpleTask();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -202,7 +211,7 @@ void ServerInterface::removeSlot(int playerIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 }
 
-ConnectionSlot* ServerInterface::getSlot(int playerIndex){
+ConnectionSlot* ServerInterface::getSlot(int playerIndex) {
 	return slots[playerIndex];
 }
 
@@ -218,10 +227,10 @@ bool ServerInterface::hasClientConnection() {
 	return result;
 }
 
-int ServerInterface::getConnectedSlotCount(){
+int ServerInterface::getConnectedSlotCount() {
 	int connectedSlotCount= 0;
 
-	for(int i= 0; i<GameConstants::maxPlayers; ++i){
+	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
 		if(slots[i]!= NULL){
 			++connectedSlotCount;
 		}
@@ -870,7 +879,7 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 	return discard;
 }
 
-void ServerInterface::waitUntilReady(Checksum* checksum){
+void ServerInterface::waitUntilReady(Checksum* checksum) {
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] START\n",__FUNCTION__);
 
@@ -989,8 +998,7 @@ void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ServerInterface::quitGame(bool userManuallyQuit)
-{
+void ServerInterface::quitGame(bool userManuallyQuit) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(userManuallyQuit == true) {
@@ -1041,33 +1049,36 @@ string ServerInterface::getNetworkStatus() {
 	return str;
 }
 
-bool ServerInterface::launchGame(const GameSettings* gameSettings){
-
+bool ServerInterface::launchGame(const GameSettings* gameSettings) {
     bool bOkToStart = true;
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    for(int i= 0; i<GameConstants::maxPlayers; ++i)
-    {
+    for(int i= 0; i<GameConstants::maxPlayers; ++i) {
         ConnectionSlot *connectionSlot= slots[i];
         if(connectionSlot != NULL &&
            connectionSlot->getAllowDownloadDataSynch() == true &&
-           connectionSlot->isConnected())
-        {
-            if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
-            {
+           connectionSlot->isConnected()) {
+            if(connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
                 bOkToStart = false;
                 break;
             }
         }
     }
 
-    if(bOkToStart == true)
-    {
+    if(bOkToStart == true) {
    		serverSocket.stopBroadCastThread();
 
         NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtLaunch);
         broadcastMessage(&networkMessageLaunch);
+
+        MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+    	delete publishToMasterserverThread;
+    	publishToMasterserverThread = NULL;
+
+    	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+    	publishToMasterserverThread->setUniqueID(__FILE__);
+    	publishToMasterserverThread->start();
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1377,5 +1388,107 @@ string ServerInterface::getHumanPlayerName(int index) {
 int ServerInterface::getHumanPlayerIndex() const {
 	return gameSettings.getStartLocationIndex(gameSettings.getThisFactionIndex());
 }
+
+std::map<string,string> ServerInterface::publishToMasterserver() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	// The server player counts as 1 for each of these
+	int slotCountUsed=1;
+	int slotCountHumans=1;
+	int slotCountConnectedPlayers=1;
+
+	Config &config= Config::getInstance();
+	//string serverinfo="";
+	std::map<string,string> publishToServerInfo;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+		if(slots[i] != NULL)	{
+			slotCountUsed++;
+			slotCountHumans++;
+			ConnectionSlot* connectionSlot= slots[i];
+			if((connectionSlot!=NULL) && (connectionSlot->isConnected())) {
+				slotCountConnectedPlayers++;
+			}
+		}
+	}
+
+	//?status=waiting&system=linux&info=titus
+	publishToServerInfo["glestVersion"] = glestVersionString;
+	publishToServerInfo["platform"] = getPlatformNameString();
+    publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
+
+	//game info:
+	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game *IN PROGRESS*";
+	//ip is automatically set
+
+	//game setup info:
+	publishToServerInfo["tech"] = this->getGameSettings()->getTech();
+	publishToServerInfo["map"] = this->getGameSettings()->getMap();
+	publishToServerInfo["tileset"] = this->getGameSettings()->getTileset();
+	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
+	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
+	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
+	//string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
+	string externalport = config.getString("MasterServerExternalPort", "61357");
+	publishToServerInfo["externalconnectport"] = externalport;
+
+	if(publishToMasterserverThread == NULL) {
+		publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game *FINISHED*";
+		publishToServerInfo["gameCmd"]= "gameOver";
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return publishToServerInfo;
+}
+
+void ServerInterface::simpleTask() {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= 30) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		lastMasterserverHeartbeatTime = time(NULL);
+
+		bool isNetworkGame = (this->getGameSettings() != NULL && this->getGameSettings()->isNetworkGame());
+		if(isNetworkGame == true) {
+			//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
+			string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+
+			std::map<string,string> newPublishToServerInfo = publishToMasterserver();
+
+			CURL *handle = SystemFlags::initHTTP();
+			for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+				iterMap != newPublishToServerInfo.end(); iterMap++) {
+
+				request += iterMap->first;
+				request += "=";
+				request += SystemFlags::escapeURL(iterMap->second,handle);
+				request += "&";
+			}
+
+			//printf("the request is:\n%s\n",request.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
+
+			std::string serverInfo = SystemFlags::getHTTP(request,handle);
+			SystemFlags::cleanupHTTP(&handle);
+
+			//printf("the result is:\n'%s'\n",serverInfo.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+
+			// uncomment to enable router setup check of this server
+			if(EndsWith(serverInfo, "OK") == false) {
+				//showMasterserverError=true;
+				//masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
+			}
+		}
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 
 }}//end namespace

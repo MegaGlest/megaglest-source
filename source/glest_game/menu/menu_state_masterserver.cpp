@@ -41,8 +41,8 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	Lang &lang= Lang::getInstance();
 
 	index=lineIndex;
-	int lineOffset=25*lineIndex;
-	masterServerInfo=mServerInfo;
+	int lineOffset = 25 * lineIndex;
+	masterServerInfo = *mServerInfo;
 	int i=10;
 	int startOffset=600;
 	
@@ -51,63 +51,63 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
 	registeredObjNameList.push_back("glestVersionLabel" + intToStr(lineIndex));
 	glestVersionLabel.init(i,startOffset-lineOffset);
-	glestVersionLabel.setText(masterServerInfo->getGlestVersion());
+	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
 	i+=80;
 	registeredObjNameList.push_back("platformLabel" + intToStr(lineIndex));
 	platformLabel.registerGraphicComponent(containerName,"platformLabel" + intToStr(lineIndex));
 	platformLabel.init(i,startOffset-lineOffset);
-	platformLabel.setText(masterServerInfo->getPlatform());
+	platformLabel.setText(masterServerInfo.getPlatform());
 
 	i+=50;
 	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
 	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
 	binaryCompileDateLabel.init(i,startOffset-lineOffset);
-	binaryCompileDateLabel.setText(masterServerInfo->getBinaryCompileDate());
+	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
 	
 	//game info:
 	i+=130;
 	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,startOffset-lineOffset);
-	serverTitleLabel.setText(masterServerInfo->getServerTitle());
+	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 	
 	i+=160;
 	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,startOffset-lineOffset);
-	ipAddressLabel.setText(masterServerInfo->getIpAddress());
+	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 	
 	//game setup info:
 	i+=100;
 	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
 	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,startOffset-lineOffset);
-	techLabel.setText(masterServerInfo->getTech());
+	techLabel.setText(masterServerInfo.getTech());
 	
 	i+=100;
 	registeredObjNameList.push_back("mapLabel" + intToStr(lineIndex));
 	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
 	mapLabel.init(i,startOffset-lineOffset);
-	mapLabel.setText(masterServerInfo->getMap());
+	mapLabel.setText(masterServerInfo.getMap());
 	
 	i+=100;
 	registeredObjNameList.push_back("tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.init(i,startOffset-lineOffset);
-	tilesetLabel.setText(masterServerInfo->getTileset());
+	tilesetLabel.setText(masterServerInfo.getTileset());
 	
 	i+=100;
 	registeredObjNameList.push_back("activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.init(i,startOffset-lineOffset);
-	activeSlotsLabel.setText(intToStr(masterServerInfo->getActiveSlots())+"/"+intToStr(masterServerInfo->getNetworkSlots())+"/"+intToStr(masterServerInfo->getConnectedClients()));
+	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots())+"/"+intToStr(masterServerInfo.getNetworkSlots())+"/"+intToStr(masterServerInfo.getConnectedClients()));
 
 	i+=50;
 	registeredObjNameList.push_back("externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.init(i,startOffset-lineOffset);
-	externalConnectPort.setText(intToStr(masterServerInfo->getExternalConnectPort()));
+	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
 	i+=50;
 	registeredObjNameList.push_back("selectButton" + intToStr(lineIndex));
@@ -116,16 +116,23 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	selectButton.setText(">");
 
 	//printf("glestVersionString [%s] masterServerInfo->getGlestVersion() [%s]\n",glestVersionString.c_str(),masterServerInfo->getGlestVersion().c_str());
-	bool compatible = checkVersionComptability(glestVersionString, masterServerInfo->getGlestVersion());
+	bool compatible = checkVersionComptability(glestVersionString, masterServerInfo.getGlestVersion());
 	selectButton.setEnabled(compatible);
 	selectButton.setEditable(compatible);
+
+	registeredObjNameList.push_back("gameFull" + intToStr(lineIndex));
+	gameFull.registerGraphicComponent(containerName,"gameFull" + intToStr(lineIndex));
+	gameFull.init(i, startOffset-lineOffset);
+	gameFull.setText(lang.get("MGGameSlotsFull"));
+	gameFull.setEnabled(!compatible);
+	gameFull.setEditable(!compatible);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 ServerLine::~ServerLine() {
 	GraphicComponent::clearRegisterGraphicComponent(containerName, registeredObjNameList);
-	delete masterServerInfo;
+	//delete masterServerInfo;
 }
 
 bool ServerLine::buttonMouseClick(int x, int y){
@@ -136,10 +143,29 @@ bool ServerLine::buttonMouseMove(int x, int y){
 	return selectButton.mouseMove(x,y);
 }
 
-void ServerLine::render(){
+void ServerLine::render() {
 	Renderer &renderer= Renderer::getInstance();
 
-	renderer.renderButton(&selectButton);
+	bool joinEnabled = (masterServerInfo.getNetworkSlots() > masterServerInfo.getConnectedClients());
+	if(joinEnabled == true) {
+		selectButton.setEnabled(true);
+		selectButton.setVisible(true);
+
+		gameFull.setEnabled(false);
+		gameFull.setEditable(false);
+
+		renderer.renderButton(&selectButton);
+	}
+	else {
+		selectButton.setEnabled(false);
+		selectButton.setVisible(false);
+
+		gameFull.setEnabled(true);
+		gameFull.setEditable(true);
+
+		renderer.renderLabel(&gameFull);
+	}
+
 	//general info:
 	renderer.renderLabel(&glestVersionLabel);
 	renderer.renderLabel(&platformLabel);
@@ -209,6 +235,72 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	labelChatUrl.init(150,buttonPos-50);
 	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
 	labelChatUrl.setText(lang.get("NoServerVisitChat")+":     http://webchat.freenode.net/?channels=glest");
+
+	// Titles for current games - START
+	int lineIndex = 0;
+	int lineOffset=25*lineIndex;
+	int i=10;
+	int startOffset=623;
+
+	//general info:
+	i+=10;
+	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel");
+	glestVersionLabel.init(i,startOffset-lineOffset);
+	glestVersionLabel.setText(lang.get("MGVersion"));
+
+	i+=80;
+	platformLabel.registerGraphicComponent(containerName,"platformLabel");
+	platformLabel.init(i,startOffset-lineOffset);
+	platformLabel.setText(lang.get("MGPlatform"));
+
+	i+=50;
+	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel");
+	binaryCompileDateLabel.init(i,startOffset-lineOffset);
+	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
+
+	//game info:
+	i+=130;
+	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel");
+	serverTitleLabel.init(i,startOffset-lineOffset);
+	serverTitleLabel.setText(lang.get("MGGameTitle"));
+
+	i+=160;
+	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
+	ipAddressLabel.init(i,startOffset-lineOffset);
+	ipAddressLabel.setText(lang.get("MGGameIP"));
+
+	//game setup info:
+	i+=100;
+	techLabel.registerGraphicComponent(containerName,"techLabel");
+	techLabel.init(i,startOffset-lineOffset);
+	techLabel.setText(lang.get("TechTree"));
+
+	i+=100;
+	mapLabel.registerGraphicComponent(containerName,"mapLabel");
+	mapLabel.init(i,startOffset-lineOffset);
+	mapLabel.setText(lang.get("Map"));
+
+	i+=100;
+	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel");
+	tilesetLabel.init(i,startOffset-lineOffset);
+	tilesetLabel.setText(lang.get("Tileset"));
+
+	i+=100;
+	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel");
+	activeSlotsLabel.init(i,startOffset-lineOffset);
+	activeSlotsLabel.setText(lang.get("MGGameSlots"));
+
+	i+=50;
+	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort");
+	externalConnectPort.init(i,startOffset-lineOffset);
+	externalConnectPort.setText(lang.get("Port"));
+
+	i+=50;
+	selectButton.registerGraphicComponent(containerName,"selectButton");
+	selectButton.init(i, startOffset-lineOffset);
+	selectButton.setText(lang.get("MGJoinGameSlots"));
+
+	// Titles for current games - END
 	
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(50, buttonPos, 150);
@@ -399,20 +491,44 @@ void MenuStateMasterserver::render(){
 	Renderer &renderer= Renderer::getInstance();
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-	if(mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 	else
 	{
 		renderer.renderButton(&buttonRefresh);
 		renderer.renderButton(&buttonReturn);
-		renderer.renderLabel(&labelTitle);
-		renderer.renderLabel(&announcementLabel);
+
+		renderer.renderLabel(&labelTitle,&GREEN);
+		renderer.renderLabel(&announcementLabel,&YELLOW);
 		renderer.renderLabel(&versionInfoLabel);
+
 		renderer.renderLabel(&labelAutoRefresh);
 		renderer.renderLabel(&labelChatUrl);
 		renderer.renderButton(&buttonCreateGame);
 		renderer.renderListBox(&listBoxAutoRefresh);
+
+		// Render titles for server games listed
+		const Vec4f titleLabelColor = CYAN;
+
+		//general info:
+		renderer.renderLabel(&glestVersionLabel,&titleLabelColor);
+		renderer.renderLabel(&platformLabel,&titleLabelColor);
+		renderer.renderLabel(&binaryCompileDateLabel,&titleLabelColor);
+
+		//game info:
+		renderer.renderLabel(&serverTitleLabel,&titleLabelColor);
+		renderer.renderLabel(&ipAddressLabel,&titleLabelColor);
+
+		//game setup info:
+		renderer.renderLabel(&techLabel,&titleLabelColor);
+		renderer.renderLabel(&mapLabel,&titleLabelColor);
+		renderer.renderLabel(&tilesetLabel,&titleLabelColor);
+		renderer.renderLabel(&activeSlotsLabel,&titleLabelColor);
+		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
+		renderer.renderLabel(&selectButton,&titleLabelColor);
+
+
 		// render console
 		renderer.renderConsole(&console,false,false);
 		

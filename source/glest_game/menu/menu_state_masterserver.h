@@ -28,9 +28,10 @@ namespace Glest{ namespace Game{
 class ServerLine {
 private:
 
-	MasterServerInfo *masterServerInfo;
+	MasterServerInfo masterServerInfo;
 	int index;
 	GraphicButton selectButton;
+	GraphicLabel gameFull;
 
 	//general info:
 	GraphicLabel glestVersionLabel;
@@ -55,7 +56,7 @@ private:
 public:
 	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char *containerName);
 	virtual ~ServerLine();
-	MasterServerInfo *getMasterServerInfo() const	{return masterServerInfo;}
+	MasterServerInfo *getMasterServerInfo() {return &masterServerInfo;}
 	const int getIndex() const	{return index;}
 	bool buttonMouseClick(int x, int y);
 	bool buttonMouseMove(int x, int y);
@@ -88,6 +89,27 @@ private:
 	GraphicLabel announcementLabel;
 	GraphicLabel versionInfoLabel;
 	
+
+
+	GraphicLabel glestVersionLabel;
+	GraphicLabel platformLabel;
+	GraphicLabel binaryCompileDateLabel;
+
+	//game info:
+	GraphicLabel serverTitleLabel;
+	GraphicLabel ipAddressLabel;
+
+	//game setup info:
+	GraphicLabel techLabel;
+	GraphicLabel mapLabel;
+	GraphicLabel tilesetLabel;
+	GraphicLabel activeSlotsLabel;
+
+	GraphicLabel externalConnectPort;
+
+	GraphicLabel selectButton;
+
+
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
