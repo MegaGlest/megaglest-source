@@ -89,6 +89,16 @@ public:
 	const string &getScenarioDir() const						{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
 	const string &getNetworkPlayerName(int factionIndex) const  {return networkPlayerNames[factionIndex];}
+	const string getNetworkPlayerNameByPlayerIndex(int playerIndex) const  {
+		string result = "";
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(startLocationIndex[i] == playerIndex) {
+				result = networkPlayerNames[i];
+				break;
+			}
+		}
+		return result;
+	}
 	ControlType getFactionControl(int factionIndex) const		{return factionControls[factionIndex];}
 
 	bool isNetworkGame() const {

@@ -677,16 +677,16 @@ void ServerInterface::update() {
 									this->addChatInfo(msg);
 
 									string newChatText     = msg.chatText.c_str();
-									string newChatSender   = msg.chatSender.c_str();
+									//string newChatSender   = msg.chatSender.c_str();
 									int newChatTeamIndex   = msg.chatTeamIndex;
 									int newChatPlayerIndex = msg.chatPlayerIndex;
 
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex,newChatPlayerIndex);
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
-									NetworkMessageText networkMessageText(newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex,newChatPlayerIndex);
+									NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 									broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
 								}
 							}
 
@@ -806,20 +806,20 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				NetworkMessageText netMsg = NetworkMessageText();
 				connectionSlot->receiveMessage(&netMsg);
 
-	    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getSender().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex());
+	    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex());
 	    		this->addChatInfo(msg);
 
 				string newChatText     = msg.chatText.c_str();
-				string newChatSender   = msg.chatSender.c_str();
+				//string newChatSender   = msg.chatSender.c_str();
 				int newChatTeamIndex   = msg.chatTeamIndex;
 				int newChatPlayerIndex = msg.chatPlayerIndex;
 
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex,newChatPlayerIndex);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
-				NetworkMessageText networkMessageText(newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex,newChatPlayerIndex);
+				NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 				broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatSender [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatSender.c_str(),newChatTeamIndex);
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
 
 				}
 				break;
@@ -974,13 +974,15 @@ void ServerInterface::waitUntilReady(Checksum* checksum){
 void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal);
 
-	NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex, getHumanPlayerIndex());
+	//NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex, getHumanPlayerIndex());
+	NetworkMessageText networkMessageText(text, teamIndex, getHumanPlayerIndex());
 	broadcastMessage(&networkMessageText);
 
 	if(echoLocal == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-		ChatMsgInfo msg(text.c_str(),networkMessageText.getSender().c_str(),teamIndex,networkMessageText.getPlayerIndex());
+		//ChatMsgInfo msg(text.c_str(),networkMessageText.getSender().c_str(),teamIndex,networkMessageText.getPlayerIndex());
+		ChatMsgInfo msg(text.c_str(),teamIndex,networkMessageText.getPlayerIndex());
 		this->addChatInfo(msg);
 	}
 

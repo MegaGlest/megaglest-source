@@ -119,7 +119,7 @@ void ChatManager::keyDown(char key) {
 					if(text.empty() == false) {
 						string playerName 	= gameNetworkInterface->getHumanPlayerName();
 						int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
-						console->addLine(playerName + ": " + text,false,playerIndex);
+						console->addLine(text,false,playerIndex);
 
 						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
 						if(inMenu == false) {
@@ -187,7 +187,8 @@ void ChatManager::updateNetwork() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
 
 				if(teamIndex == -1 || teamIndex == thisTeamIndex) {
-					console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
+					//console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
+					console->addLine(msg.chatText, true, msg.chatPlayerIndex);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 				}
