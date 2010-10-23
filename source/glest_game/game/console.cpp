@@ -18,6 +18,7 @@
 #include "sound_renderer.h"
 #include "core_data.h"
 #include <stdexcept>
+#include "network_manager.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -45,11 +46,27 @@ void Console::addLine(string line, bool playSound, int playerIndex) {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
 		}
-		lines.insert(lines.begin(), StringTimePair(line, StringTimePairData(timeElapsed,playerIndex)));
+		ConsoleLineInfo info;
+		info.text               = line;
+		info.timeStamp          = timeElapsed;
+		info.PlayerIndex        = playerIndex;
+		info.originalPlayerName	= "";
+		if(playerIndex >= 0) {
+			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+			if(gameNetworkInterface != NULL) {
+				info.originalPlayerName	= gameNetworkInterface->getGameSettings()->getNetworkPlayerNameByPlayerIndex(playerIndex);
+				//for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				//	printf("i = %d, playerName = [%s]\n",i,gameNetworkInterface->getGameSettings()->getNetworkPlayerName(i).c_str());
+				//}
+			}
+		}
+		//printf("info.PlayerIndex = %d, line [%s]\n",info.PlayerIndex,info.originalPlayerName.c_str());
+
+		lines.insert(lines.begin(), info);
 		if(lines.size() > maxLines) {
 			lines.pop_back();
 		}
-		storedLines.insert(storedLines.begin(), StringTimePair(line, StringTimePairData(timeElapsed,playerIndex)));
+		storedLines.insert(storedLines.begin(), info);
 		if(storedLines.size() > maxStoredLines) {
 			storedLines.pop_back();
 		}
@@ -72,7 +89,7 @@ void Console::update() {
 	timeElapsed += 1.f / GameConstants::updateFps;
 	
 	if(lines.empty() == false) {
-		if(lines.back().second.first < (timeElapsed - timeout)) {
+		if(lines.back().timeStamp < (timeElapsed - timeout)) {
 			lines.pop_back();
 		}
     }   
@@ -81,6 +98,30 @@ void Console::update() {
 bool Console::isEmpty() {
 	return lines.empty();   
 }
-         
+
+string Console::getLine(int i) const {
+	if(i < 0 || i >= lines.size())
+		throw runtime_error("i >= Lines.size()");
+	return lines[i].text;
+}
+
+string Console::getStoredLine(int i) const {
+	if(i < 0 || i >= storedLines.size())
+		throw runtime_error("i >= storedLines.size()");
+	return storedLines[i].text;
+}
+
+ConsoleLineInfo Console::getLineItem(int i) const {
+	if(i < 0 || i >= lines.size())
+		throw runtime_error("i >= Lines.size()");
+	return lines[i];
+}
+
+ConsoleLineInfo Console::getStoredLineItem(int i) const {
+	if(i < 0 || i >= storedLines.size())
+		throw runtime_error("i >= storedLines.size()");
+	return storedLines[i];
+}
+
 
 }}//end namespace

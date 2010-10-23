@@ -46,7 +46,6 @@ protected:
 
 	void copyAll(const ChatMsgInfo &obj) {
 		this->chatText			= obj.chatText.c_str();
-		this->chatSender		= obj.chatSender.c_str();
 		this->chatTeamIndex		= obj.chatTeamIndex;
 		this->chatPlayerIndex 	= obj.chatPlayerIndex;
 	}
@@ -54,13 +53,11 @@ public:
 
 	ChatMsgInfo() {
 		this->chatText			= "";
-		this->chatSender		= "";
 		this->chatTeamIndex		= -1;
 		this->chatPlayerIndex	= -1;
 	}
-	ChatMsgInfo(string chatText, string chatSender,int chatTeamIndex, int chatPlayerIndex) {
+	ChatMsgInfo(string chatText, int chatTeamIndex, int chatPlayerIndex) {
 		this->chatText		= chatText;
-		this->chatSender	= chatSender;
 		this->chatTeamIndex	= chatTeamIndex;
 		this->chatPlayerIndex = chatPlayerIndex;
 	}
@@ -73,7 +70,6 @@ public:
 	}
 
 	string chatText;
-	string chatSender;
 	int chatTeamIndex;
 	int chatPlayerIndex;
 

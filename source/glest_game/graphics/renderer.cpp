@@ -787,7 +787,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
-void Renderer::RenderConsoleLine(int lineIndex, string line,int playerIndex,int xPosition) {
+void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
 	if(game != NULL) {
 		fontColor = game->getGui()->getDisplay()->getColor();
@@ -799,9 +799,9 @@ void Renderer::RenderConsoleLine(int lineIndex, string line,int playerIndex,int 
 
 	Vec4f defaultFontColor = fontColor;
 
-	if(playerIndex >= 0) {
+	if(lineInfo->PlayerIndex >= 0) {
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
-		Vec3f playerColor = crcPlayerTextureCache[playerIndex]->getPixmap()->getPixel3f(0, 0);
+		Vec3f playerColor = crcPlayerTextureCache[lineInfo->PlayerIndex]->getPixmap()->getPixel3f(0, 0);
 		fontColor.x = playerColor.x;
 		fontColor.y = playerColor.y;
 		fontColor.z = playerColor.z;
@@ -809,20 +809,22 @@ void Renderer::RenderConsoleLine(int lineIndex, string line,int playerIndex,int 
 		GameNetworkInterface *gameNetInterface = NetworkManager::getInstance().getGameNetworkInterface();
 		if(gameNetInterface != NULL && gameNetInterface->getGameSettings() != NULL) {
 			const GameSettings *gameSettings = gameNetInterface->getGameSettings();
-			string playerName = gameSettings->getNetworkPlayerName(playerIndex);
-			if(StartsWith(line, playerName + ":") == true) {
-				line = line.erase(0,playerName.length()+1);
-				string headerLine = "*" + playerName + ":";
+			string playerName = gameSettings->getNetworkPlayerNameByPlayerIndex(lineInfo->PlayerIndex);
+			if(playerName != lineInfo->originalPlayerName && lineInfo->originalPlayerName != "") {
+				playerName = lineInfo->originalPlayerName;
+			}
+			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
-				renderTextShadow(
+			string headerLine = "*" + playerName + ":";
+
+			renderTextShadow(
 						headerLine,
 					CoreData::getInstance().getConsoleFont(),
 					fontColor,
 					xPosition, lineIndex * 20 + 20);
 
-				fontColor = defaultFontColor;
-				xPosition += (7 * (playerName.length() + 2));
-			}
+			fontColor = defaultFontColor;
+			xPosition += (7 * (playerName.length() + 2));
 		}
 	}
 	else {
@@ -830,7 +832,7 @@ void Renderer::RenderConsoleLine(int lineIndex, string line,int playerIndex,int 
 	}
 
 	renderTextShadow(
-			line,
+			lineInfo->text,
 		CoreData::getInstance().getConsoleFont(),
 		fontColor,
 		xPosition, lineIndex * 20 + 20);
@@ -847,29 +849,23 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 
 	if(showFullConsole) {
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
-			string line = console->getStoredLine(i);
-			int playerIndex = console->getStoredLinePlayerIndex(i);
 			int xPosition = 20;
-
-			RenderConsoleLine(i, line,playerIndex,xPosition);
+			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
+			RenderConsoleLine(i, xPosition, &lineInfo);
 		}
 	}
 	else if(showMenuConsole) {
 		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
-			string line = console->getStoredLine(i);
-			int playerIndex = console->getStoredLinePlayerIndex(i);
 			int xPosition = 20;
-
-			RenderConsoleLine(i, line,playerIndex,xPosition);
+			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
+			RenderConsoleLine(i, xPosition, &lineInfo);
 		}
 	}
 	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
-			string line = console->getLine(i);
-			int playerIndex = console->getLinePlayerIndex(i);
 			int xPosition = 20;
-
-			RenderConsoleLine(i, line,playerIndex,xPosition);
+			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
+			RenderConsoleLine(i, xPosition, &lineInfo);
 		}
 	}
 	glPopAttrib();

@@ -68,7 +68,7 @@ class Console;
 class MenuBackground;
 class ChatManager;
 class Object;
-
+class ConsoleLineInfo;
 // ===========================================================
 // 	class Renderer
 //
@@ -306,7 +306,7 @@ public:
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false);
-	void RenderConsoleLine(int lineIndex, string line,int playerIndex,int xPosition);
+	void RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLineInfo *lineInfo);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();

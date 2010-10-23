@@ -393,20 +393,20 @@ void NetworkMessageCommandList::send(Socket* socket) const{
 //	class NetworkMessageText
 // =====================================================
 
-NetworkMessageText::NetworkMessageText(const string &text, const string &sender, int teamIndex, int playerIndex) {
-
+//NetworkMessageText::NetworkMessageText(const string &text, const string &sender, int teamIndex, int playerIndex) {
+NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex) {
 	if(text.length() >= maxTextStringSize) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 		//throw runtime_error("NetworkMessageText - text.length() >= maxStringSize");
 	}
-	if(sender.length() >= maxSenderStringSize) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - sender [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,sender.c_str(),sender.length(),maxSenderStringSize);
+	//if(sender.length() >= maxSenderStringSize) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - sender [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,sender.c_str(),sender.length(),maxSenderStringSize);
 		//throw runtime_error("NetworkMessageText - sender.length() >= maxSenderStringSize");
-	}
+	//}
 
 	data.messageType	= nmtText;
 	data.text			= text;
-	data.sender			= sender;
+	//data.sender			= sender;
 	data.teamIndex		= teamIndex;
 	data.playerIndex 	= playerIndex;
 }
@@ -415,7 +415,7 @@ bool NetworkMessageText::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 
 	data.text.nullTerminate();
-	data.sender.nullTerminate();
+	//data.sender.nullTerminate();
 
 	return result;
 }

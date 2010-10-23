@@ -1772,6 +1772,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, slotIndex = %d, getHumanPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,slotIndex,getHumanPlayerName(i).c_str());
 
 				gameSettings->setThisFactionIndex(slotIndex);
+				//gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
 				//labelPlayerNames[i].setText(getHumanPlayerName(i));
 				//SetActivePlayerNameEditor();
@@ -2269,7 +2270,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 	try {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
-		for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 			if(serverInterface->getSlot(i) == NULL &&
 				listBoxControls[i].getSelectedItemIndex() == ctNetwork)	{
 				try {

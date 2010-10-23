@@ -23,7 +23,7 @@ using std::vector;
 using std::pair;
 using namespace std;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 // =====================================================
 // 	class Console
@@ -31,15 +31,21 @@ namespace Glest{ namespace Game{
 //	In-game console that shows various types of messages
 // =====================================================
 
-class Console{
+class ConsoleLineInfo {
+public:
+	string text;
+	float timeStamp;
+	int PlayerIndex;
+	string originalPlayerName;
+};
+
+class Console {
 private:
 	static const int consoleLines= 5;
 
 public:
-	// The float is elapsed time, the int is playerindex (-1 is no player)
-	typedef pair<float, int> StringTimePairData;
-	typedef pair<string, StringTimePairData > StringTimePair;
-	typedef vector<StringTimePair> Lines;
+
+	typedef vector<ConsoleLineInfo> Lines;
 	typedef Lines::const_iterator LineIterator;
 
 private:
@@ -57,11 +63,10 @@ public:
 	
 	int getStoredLineCount() const		{return storedLines.size();}
 	int getLineCount() const			{return lines.size();}
-	string getLine(int i) const			{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].first;}
-	string getStoredLine(int i) const	{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].first;}
-
-	int getLinePlayerIndex(int i) const			{ if(i < 0 || i >= lines.size()) throw runtime_error("i >= Lines.size()"); return lines[i].second.second;}
-	int getStoredLinePlayerIndex(int i) const	{ if(i < 0 || i >= storedLines.size()) throw runtime_error("i >= storedLines.size()"); return storedLines[i].second.second;}
+	string getLine(int i) const;
+	string getStoredLine(int i) const;
+	ConsoleLineInfo getLineItem(int i) const;
+	ConsoleLineInfo getStoredLineItem(int i) const;
 
 	void clearStoredLines();
 	void addStdMessage(const string &s);
