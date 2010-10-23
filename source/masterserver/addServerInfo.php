@@ -44,6 +44,11 @@
 	$activeSlots       = (int)    clean_str( $_GET['activeSlots'] );
 	$networkSlots      = (int)    clean_str( $_GET['networkSlots'] );
 	$connectedClients  = (int)    clean_str( $_GET['connectedClients'] );
+    
+    $gameCmd = "";
+    if(isset($_GET["gameCmd"])) {
+        $gameCmd = (string)    clean_str( $_GET['gameCmd'] );
+}
 	
 	define( 'DB_LINK', db_connect() );
 
@@ -57,12 +62,12 @@
 	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
 	header( 'Content-Type: text/plain; charset=utf-8' );
 
-	if ( $connectedClients == $networkSlots )   // game servers' slots are all full
+	if ( ($glestVersion <= "3.3.7.2" && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
 	{ // delete server; no checks are performed
 		mysql_db_query( MYSQL_DATABASE, 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
 		echo 'OK' ;	
 	}
-	else  if ( $remote_ip == $server[0] && $service_port == $server[1] )    // this server is contained in the database
+	else if ( $remote_ip == $server[0] && $service_port == $server[1] )    // this server is contained in the database
 	{ // update database info on this game server; no checks are performed
 		mysql_db_query( MYSQL_DATABASE, 'UPDATE glestserver SET ' .
 			'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .

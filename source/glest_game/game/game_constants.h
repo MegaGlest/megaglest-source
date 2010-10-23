@@ -3,11 +3,12 @@
 
 #include <cassert>
 #include <stdio.h>
+#include "vec.h"
 
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Marti�o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -15,11 +16,23 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+using namespace Shared::Graphics;
+
 namespace Glest{ namespace Game{
 
 // =====================================================
 //	class GameConstants
 // =====================================================
+
+const Vec4f BLACK(0, 0, 0, 1);
+const Vec4f RED(1, 0, 0, 1);
+const Vec4f GREEN(0, 1, 0, 1);
+const Vec4f BLUE(0, 0, 1, 1);
+const Vec4f GLASS(1, 1, 1, 0.3);
+const Vec4f CYAN(0, 1, 1, 1);
+const Vec4f YELLOW(1, 1, 0, 1);
+const Vec4f MAGENTA(1, 0, 1, 1);
+const Vec4f WHITE(1, 1, 1, 1);
 
 enum PathFinderType {
 	pfBasic,

@@ -29,7 +29,7 @@ namespace Glest{ namespace Game{
 //	class ServerInterface
 // =====================================================
 
-class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface {
+class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface, public SimpleTaskCallbackInterface {
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
@@ -41,6 +41,10 @@ private:
 	int currentFrameCount;
 
 	time_t gameStartTime;
+
+	SimpleTaskThread *publishToMasterserverThread;
+	Mutex masterServerThreadAccessor;
+	time_t lastMasterserverHeartbeatTime;
 
 public:
 	ServerInterface();
@@ -103,6 +107,8 @@ public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
 
+	virtual void simpleTask();
+
 private:
 
 	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
@@ -110,6 +116,8 @@ private:
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
 	void updateSlot(ConnectionSlotEvent *event);
 	void validateConnectedClients();
+
+	std::map<string,string> publishToMasterserver();
 };
 
 }}//end namespace
