@@ -269,7 +269,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
 	//if arrived
-	/*
 	if(finalPos == unit->getPos()) {
 		Command *command= unit->getCurrCommand();
 		if(command == NULL || command->getPos() != unit->getPos()) {
@@ -286,7 +285,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			return tsArrived;
 		}
 	}
-	*/
 
 	//path find algorithm
 

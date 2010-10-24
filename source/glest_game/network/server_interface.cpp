@@ -104,9 +104,12 @@ ServerInterface::~ServerInterface() {
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 	safeMutex.ReleaseLock();
+
 	// This triggers a gameOver message to be sent to the masterserver
 	lastMasterserverHeartbeatTime = 0;
-	simpleTask();
+	if(needToRepublishToMasterserver == true) {
+		simpleTask();
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1079,9 +1082,11 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings) {
     	publishToMasterserverThread = NULL;
 
     	lastMasterserverHeartbeatTime = 0;
-    	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
-    	publishToMasterserverThread->setUniqueID(__FILE__);
-    	publishToMasterserverThread->start();
+    	if(needToRepublishToMasterserver == true) {
+			publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+			publishToMasterserverThread->setUniqueID(__FILE__);
+			publishToMasterserverThread->start();
+    	}
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
