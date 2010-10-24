@@ -85,6 +85,7 @@ private:
 
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
+	time_t lastResourceTargettListPurge;
 
 public:
 	Faction();
@@ -156,6 +157,7 @@ public:
 	std::vector<Vec2i> findCachedPath(const Vec2i &target, Unit *unit);
 	void addCachedPath(const Vec2i &target, Unit *unit);
 
+	bool isResourceTargetInCache(const Vec2i &pos,bool incrementUseCounter=false);
 	void addResourceTargetToCache(const Vec2i &pos);
 	void removeResourceTargetFromCache(const Vec2i &pos);
 	void addCloseResourceTargetToCache(const Vec2i &pos);

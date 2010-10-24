@@ -300,7 +300,9 @@ private:
 	// constantly getting blocked from getting to the resource so this
 	// list may be used to tell areas of the game to ignore those cells for a
 	// period of time
-	std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
+	//std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
+	std::map<Vec2i,Chrono> badHarvestPosList;
+	time_t lastBadHarvestListPurge;
 	std::pair<Vec2i,Chrono> lastHarvestResourceTarget;
 
 	std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
@@ -449,8 +451,8 @@ public:
 	bool getInBailOutAttempt() const { return inBailOutAttempt; }
 	void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }
 
-	std::vector<std::pair<Vec2i,Chrono> > getBadHarvestPosList() const { return badHarvestPosList; }
-	void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
+	//std::vector<std::pair<Vec2i,Chrono> > getBadHarvestPosList() const { return badHarvestPosList; }
+	//void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
 	void addBadHarvestPos(const Vec2i &value);
 	void removeBadHarvestPos(const Vec2i &value);
 	bool isBadHarvestPos(const Vec2i &value,bool checkPeerUnits=true) const;
