@@ -184,6 +184,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->screenPos = Vec3f(0.0);
 	this->inBailOutAttempt = false;
 	this->lastHarvestResourceTarget.first = Vec2i(0);
+	this->lastBadHarvestListPurge = 0;
 
 	level= NULL;
 	loadType= NULL;
@@ -1686,11 +1687,19 @@ void Unit::logSynchData(string source) {
 void Unit::addBadHarvestPos(const Vec2i &value) {
 	Chrono chron;
 	chron.start();
-	badHarvestPosList.push_back(std::pair<Vec2i,Chrono>(value,chron));
+	//badHarvestPosList.push_back(std::pair<Vec2i,Chrono>(value,chron));
+	badHarvestPosList[value] = chron;
 	cleanupOldBadHarvestPos();
 }
 
 void Unit::removeBadHarvestPos(const Vec2i &value) {
+	std::map<Vec2i,Chrono>::iterator iter = badHarvestPosList.find(value);
+	if(iter != badHarvestPosList.end()) {
+		badHarvestPosList.erase(value);
+	}
+	cleanupOldBadHarvestPos();
+
+/*
 	for(int i = 0; i < badHarvestPosList.size(); ++i) {
 		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
 		if(item.first == value) {
@@ -1699,12 +1708,21 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 		}
 	}
 	cleanupOldBadHarvestPos();
+*/
+
 }
 
 bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 	//cleanupOldBadHarvestPos();
 
 	bool result = false;
+
+	std::map<Vec2i,Chrono>::const_iterator iter = badHarvestPosList.find(value);
+	if(iter != badHarvestPosList.end()) {
+		result = true;
+	}
+
+/*
 	for(int i = 0; i < badHarvestPosList.size(); ++i) {
 		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
 		if(item.first == value) {
@@ -1712,7 +1730,7 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 			break;
 		}
 	}
-
+*/
 	if(result == false && checkPeerUnits == true) {
 		// Check if any other units of similar type have this position tagged
 		// as bad?
@@ -1732,6 +1750,21 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 }
 
 void Unit::cleanupOldBadHarvestPos() {
+	if(difftime(time(NULL),lastBadHarvestListPurge) >= 240) {
+		lastBadHarvestListPurge = time(NULL);
+		std::vector<Vec2i> purgeList;
+		for(std::map<Vec2i,Chrono>::iterator iter = badHarvestPosList.begin(); iter != badHarvestPosList.end(); iter++) {
+			if(iter->second.getMillis() >= 2400000) {
+				purgeList.push_back(iter->first);
+			}
+		}
+		for(int i = 0; i < purgeList.size(); ++i) {
+			const Vec2i &item = purgeList[i];
+			badHarvestPosList.erase(item);
+		}
+	}
+
+/*
 	for(int i = badHarvestPosList.size() - 1; i >= 0; --i) {
 		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
 
@@ -1741,6 +1774,7 @@ void Unit::cleanupOldBadHarvestPos() {
 			badHarvestPosList.erase(badHarvestPosList.begin() + i);
 		}
 	}
+*/
 }
 
 void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {

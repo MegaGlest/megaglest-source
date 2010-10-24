@@ -33,6 +33,7 @@ namespace Glest{ namespace Game{
 
 Faction::Faction() {
 	texture = NULL;
+	lastResourceTargettListPurge = 0;
 }
 
 Faction::~Faction() {
@@ -669,15 +670,21 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 	assert(false);
 }
 
-void Faction::addResourceTargetToCache(const Vec2i &pos) {
-	bool duplicateEntry = false;
+bool Faction::isResourceTargetInCache(const Vec2i &pos, bool incrementUseCounter) {
+	bool result = false;
 	if(cacheResourceTargetList.size() > 0) {
 		std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
-		if(iter != cacheResourceTargetList.end()) {
+		result = (iter != cacheResourceTargetList.end());
+		if(result == true && incrementUseCounter == true) {
 			iter->second++;
-			duplicateEntry = true;
 		}
 	}
+
+	return result;
+}
+
+void Faction::addResourceTargetToCache(const Vec2i &pos) {
+	bool duplicateEntry = isResourceTargetInCache(pos,true);
 	if(duplicateEntry == false) {
 		cacheResourceTargetList[pos] = 1;
 	}
@@ -698,10 +705,12 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 	for(int j = -harvestDistance; j <= harvestDistance; ++j) {
 		for(int k = -harvestDistance; k <= harvestDistance; ++k) {
 			Vec2i newPos = pos + Vec2i(j,k);
-			if(map->isInside(newPos.x, newPos.y)) {
-				Resource *r= map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
-				if(r != NULL) {
-					addResourceTargetToCache(newPos);
+			if(isResourceTargetInCache(newPos) == false) {
+				if(map->isInside(newPos.x, newPos.y)) {
+					Resource *r= map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+					if(r != NULL) {
+						addResourceTargetToCache(newPos);
+					}
 				}
 			}
 		}
@@ -744,29 +753,33 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 
 void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
 	if(cacheResourceTargetList.size() > 0) {
-		std::vector<Vec2i> deleteList;
-		if(deleteListPtr != NULL) {
-			deleteList = *deleteListPtr;
-		}
-		else {
-			for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
-										  iter != cacheResourceTargetList.end(); ++iter) {
-				const Vec2i &cache = iter->first;
+		if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
+			lastResourceTargettListPurge = time(NULL);
+			std::vector<Vec2i> deleteList;
 
-				if(world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache)) != NULL) {
-					Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache))->getResource();
-					if(resource == NULL) {
+			if(deleteListPtr != NULL) {
+				deleteList = *deleteListPtr;
+			}
+			else {
+				for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
+											  iter != cacheResourceTargetList.end(); ++iter) {
+					const Vec2i &cache = iter->first;
+
+					if(world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache)) != NULL) {
+						Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache))->getResource();
+						if(resource == NULL) {
+							deleteList.push_back(cache);
+						}
+					}
+					else {
 						deleteList.push_back(cache);
 					}
 				}
-				else {
-					deleteList.push_back(cache);
-				}
 			}
-		}
-		for(int i = 0; i < deleteList.size(); ++i) {
-			Vec2i &cache = deleteList[i];
-			cacheResourceTargetList.erase(cache);
+			for(int i = 0; i < deleteList.size(); ++i) {
+				Vec2i &cache = deleteList[i];
+				cacheResourceTargetList.erase(cache);
+			}
 		}
 	}
 }
