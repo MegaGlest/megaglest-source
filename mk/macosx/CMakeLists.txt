@@ -32,7 +32,8 @@ ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 #extracting the current version...
 EXECUTE_PROCESS(
 	COMMAND /usr/bin/sed 
-	-n -e "s/.*glestVersionString= \"v\\\(.*\\\)\";.*/\\1/p" 
+	-n -e "s/.*glestVersionString = \"v\\\(.*\\\)\";.*/\\1/p" 
+
 	game_util.cpp 
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/source/glest_game/facilities"
 	OUTPUT_VARIABLE MEGAGLEST_VERSION )
