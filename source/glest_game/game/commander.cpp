@@ -331,7 +331,7 @@ void Commander::updateNetwork() {
 		for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
 			giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
 		}
-		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis());
+		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
 		gameNetworkInterface->clearPendingCommands();
 	}
 }
@@ -387,11 +387,11 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
-        //exec ute command, if unit is still alive
-        if(unit!=NULL) {
-            switch(networkCommand->getNetworkCommandType()){
+        //execute command, if unit is still alive
+        if(unit != NULL) {
+            switch(networkCommand->getNetworkCommandType()) {
                 case nctGiveCommand:{
-                    assert(networkCommand->getCommandTypeId()!=CommandType::invalidId);
+                    assert(networkCommand->getCommandTypeId() != CommandType::invalidId);
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 
