@@ -96,7 +96,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
-		unit->getFaction()->addCachedPath(finalPos,unit);
+		//unit->getFaction()->addCachedPath(finalPos,unit);
 		return tsArrived;
 	}
 	else {
@@ -131,6 +131,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	//route cache miss
 	ts = aStar(unit, finalPos, false);
 
+/*
 	if(ts == tsBlocked) {
 		std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
 		if(cachedPath.size() > 0) {
@@ -144,15 +145,17 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->addCurrentTargetPathTakenCell(Vec2i(-1),Vec2i(-1));
 		}
 	}
+*/
 
 	//post actions
 	switch(ts) {
 	case tsBlocked:
 	case tsArrived:
 
-		if(ts == tsArrived) {
-			unit->getFaction()->addCachedPath(finalPos,unit);
-		}
+		//if(ts == tsArrived) {
+		//	unit->getFaction()->addCachedPath(finalPos,unit);
+		//}
+
 		// The unit is stuck (not only blocked but unable to go anywhere for a while)
 		// We will try to bail out of the immediate area
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
@@ -269,6 +272,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
 	//if arrived
+	/*
 	if(finalPos == unit->getPos()) {
 		Command *command= unit->getCurrCommand();
 		if(command == NULL || command->getPos() != unit->getPos()) {
@@ -285,6 +289,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			return tsArrived;
 		}
 	}
+	*/
 
 	//path find algorithm
 

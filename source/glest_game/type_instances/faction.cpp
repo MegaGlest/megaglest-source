@@ -707,9 +707,10 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 			Vec2i newPos = pos + Vec2i(j,k);
 			if(isResourceTargetInCache(newPos) == false) {
 				if(map->isInside(newPos.x, newPos.y)) {
-					Resource *r= map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+					Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
 					if(r != NULL) {
-						addResourceTargetToCache(newPos);
+						//addResourceTargetToCache(newPos);
+						cacheResourceTargetList[newPos] = 1;
 					}
 				}
 			}
@@ -717,35 +718,71 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 	}
 }
 
-
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
 	if(cacheResourceTargetList.size() > 0) {
 		std::vector<Vec2i> deleteList;
+
+		const int harvestDistance = 5;
 		const Map *map = world->getMap();
-		for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
-									  iter != cacheResourceTargetList.end(); ++iter) {
-			const Vec2i &cache = iter->first;
-			const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
-			if( sc != NULL && sc->getResource() != NULL) {
-				const Resource *resource = sc->getResource();
-				if(resource->getType() != NULL && resource->getType() == type) {
-					if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
-						if(unit->isBadHarvestPos(cache) == false) {
-							result = cache;
-							// Close enough to our position, no more looking
-							if(unit->getPos().dist(result) <= 5) {
-								break;
+		Vec2i pos = unit->getPos();
+
+		bool foundCloseResource = false;
+		// First look immediately around the unit's position
+		for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
+			for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
+				Vec2i newPos = pos + Vec2i(j,k);
+				if(isResourceTargetInCache(newPos) == false) {
+					const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+					if( sc != NULL && sc->getResource() != NULL) {
+						const Resource *resource = sc->getResource();
+						if(resource->getType() != NULL && resource->getType() == type) {
+							if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
+								if(unit->isBadHarvestPos(newPos) == false) {
+									result = newPos;
+									foundCloseResource = true;
+									break;
+								}
+							}
+						}
+					}
+					else {
+						deleteList.push_back(newPos);
+					}
+				}
+			}
+		}
+
+		if(foundCloseResource == false) {
+			// Now check the whole cache
+			for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
+										  iter != cacheResourceTargetList.end() && foundCloseResource == false;
+										  ++iter) {
+				const Vec2i &cache = iter->first;
+				const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
+				if( sc != NULL && sc->getResource() != NULL) {
+					const Resource *resource = sc->getResource();
+					if(resource->getType() != NULL && resource->getType() == type) {
+						if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
+							if(unit->isBadHarvestPos(cache) == false) {
+								result = cache;
+								// Close enough to our position, no more looking
+								if(unit->getPos().dist(result) <= (harvestDistance * 2)) {
+									foundCloseResource = true;
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
-			else {
-				deleteList.push_back(cache);
+				else {
+					deleteList.push_back(cache);
+				}
 			}
 		}
-		cleanupResourceTypeTargetCache(&deleteList);
+		if(deleteList.size() > 0) {
+			cleanupResourceTypeTargetCache(&deleteList);
+		}
 	}
 
 	return result;
