@@ -62,7 +62,7 @@
 	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
 	header( 'Content-Type: text/plain; charset=utf-8' );
 
-	if ( ($glestVersion <= "3.3.7.2" && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
+	if ( (version_compare($glestVersion,"v3.4.0-dev","<") && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
 	{ // delete server; no checks are performed
 		mysql_db_query( MYSQL_DATABASE, 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
 		echo 'OK' ;	
