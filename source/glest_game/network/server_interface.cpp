@@ -275,7 +275,7 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		bool checkForNewClients = true;
 
 		// Safety check since we can experience a disconnect and the slot is NULL
-		if(slots[event->triggerId] == connectionSlot) {
+		if(event->triggerId >= 0 && slots[event->triggerId] == connectionSlot) {
 			if(connectionSlot != NULL &&
 			   (gameHasBeenInitiated == false || (connectionSlot->getSocket() != NULL && socketTriggered == true))) {
 				if(connectionSlot->isConnected() == false || socketTriggered == true) {
@@ -309,7 +309,12 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			event->connectionSlot = slots[event->triggerId];
+			if(event->triggerId >= 0) {
+				event->connectionSlot = slots[event->triggerId];
+			}
+			else {
+				event->connectionSlot = NULL;
+			}
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
