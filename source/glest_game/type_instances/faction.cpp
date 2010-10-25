@@ -700,21 +700,25 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 }
 
 void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
-	const Map *map = world->getMap();
-	const int harvestDistance = 5;
-	for(int j = -harvestDistance; j <= harvestDistance; ++j) {
-		for(int k = -harvestDistance; k <= harvestDistance; ++k) {
-			Vec2i newPos = pos + Vec2i(j,k);
-			if(isResourceTargetInCache(newPos) == false) {
-				if(map->isInside(newPos.x, newPos.y)) {
-					Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
-					if(r != NULL) {
-						//addResourceTargetToCache(newPos);
-						cacheResourceTargetList[newPos] = 1;
+	if(cachedCloseResourceTargetLookupList.find(pos) == cachedCloseResourceTargetLookupList.end()) {
+		const Map *map = world->getMap();
+		const int harvestDistance = 5;
+		for(int j = -harvestDistance; j <= harvestDistance; ++j) {
+			for(int k = -harvestDistance; k <= harvestDistance; ++k) {
+				Vec2i newPos = pos + Vec2i(j,k);
+				if(isResourceTargetInCache(newPos) == false) {
+					if(map->isInside(newPos.x, newPos.y)) {
+						Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+						if(r != NULL) {
+							//addResourceTargetToCache(newPos);
+							cacheResourceTargetList[newPos] = 1;
+						}
 					}
 				}
 			}
 		}
+
+		cachedCloseResourceTargetLookupList[pos] = true;
 	}
 }
 
