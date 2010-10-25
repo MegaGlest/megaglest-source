@@ -85,6 +85,7 @@ private:
 
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
+	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
 	time_t lastResourceTargettListPurge;
 
 public:
