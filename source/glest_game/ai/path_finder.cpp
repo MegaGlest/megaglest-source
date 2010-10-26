@@ -38,43 +38,34 @@ namespace Glest{ namespace Game{
 
 const int PathFinder::maxFreeSearchRadius= 10;	
 //const int PathFinder::pathFindNodesMax= 400;
-const int PathFinder::pathFindNodesMax= 500;
-//const int PathFinder::pathFindRefresh= 10;
-const int PathFinder::pathFindRefresh= 5;
+const int PathFinder::pathFindNodesMax= 300;
+const int PathFinder::pathFindRefresh= 10;
 
 
 PathFinder::PathFinder() {
-	//nodePool= NULL;
 	nodePool.clear();
 	map=NULL;
 }
 
 PathFinder::PathFinder(const Map *map) {
-	//nodePool= NULL;
 	nodePool.clear();
 	map=NULL;
 	init(map);
 }
 
 void PathFinder::init(const Map *map) {
-	//if(nodePool != NULL) {
-	//	delete [] nodePool;
-	//	nodePool = NULL;
-	//}
-	//nodePool= new Node[pathFindNodesMax];
 	nodePool.resize(pathFindNodesMax);
-
 	this->map= map;
 }
 
 PathFinder::~PathFinder(){
-	//delete [] nodePool;
-	//nodePool = NULL;
 	nodePool.clear();
 	map=NULL;
 }
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck) {
+	Chrono chrono;
+	chrono.start();
 	
 	if(map == NULL) {
 		throw runtime_error("map == NULL");
@@ -84,6 +75,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	if(finalPos == unit->getPos()) {
 		//if arrived
 		unit->setCurrSkill(scStop);
+
+		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
 			string commandDesc = "none";
@@ -96,7 +89,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
-		//unit->getFaction()->addCachedPath(finalPos,unit);
+		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
+		unit->getFaction()->addCachedPath(finalPos,unit);
+
+		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 		return tsArrived;
 	}
 	else {
@@ -105,9 +103,18 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				//route cache
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 				Vec2i pos= basicPath->pop();
+
+				if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
+
+					if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 					unit->addCurrentTargetPathTakenCell(finalPos,pos);
+
+					if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 					return tsMoving;
 				}
 			}
@@ -128,12 +135,31 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	}
 		
 	TravelState ts = tsImpossible;
-	//route cache miss
-	ts = aStar(unit, finalPos, false);
 
-/*
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
+	std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
+
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
+	if(cachedPath.size() > 0) {
+
+	}
+	else {
+		//route cache miss
+		ts = aStar(unit, finalPos, false);
+	}
+
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
 	if(ts == tsBlocked) {
-		std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
+
+		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
+		//std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
+
+		//if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
 		if(cachedPath.size() > 0) {
 			path->clear();
 
@@ -142,19 +168,26 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			}
 			ts = tsMoving;
 
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
+
 			unit->addCurrentTargetPathTakenCell(Vec2i(-1),Vec2i(-1));
+
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
 		}
 	}
-*/
 
 	//post actions
 	switch(ts) {
 	case tsBlocked:
 	case tsArrived:
 
-		//if(ts == tsArrived) {
-		//	unit->getFaction()->addCachedPath(finalPos,unit);
-		//}
+		if(ts == tsArrived) {
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
+			unit->getFaction()->addCachedPath(finalPos,unit);
+
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+		}
 
 		// The unit is stuck (not only blocked but unable to go anywhere for a while)
 		// We will try to bail out of the immediate area
@@ -164,6 +197,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				*wasStuck = true;
 			}
 			unit->setInBailOutAttempt(true);
+
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
 
 			// Try to bail out up to 20 cells away
 			for(int bailoutX = -20; bailoutX <= 20 && ts == tsBlocked; ++bailoutX) {
@@ -213,6 +248,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 			}
 			unit->setInBailOutAttempt(false);
+			if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
 
 			//if(ts == tsArrived) {
 			//	ts = tsBlocked;
@@ -227,9 +263,17 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 				Vec2i pos= basicPath->pop();
+
+				if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
+
+					if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
+
 					unit->addCurrentTargetPathTakenCell(finalPos,pos);
+
+					if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),unit->getFullName().c_str(),unit->getType()->getSize());
 				}
 				else {
 					unit->setCurrSkill(scStop);
@@ -269,6 +313,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	nodePoolCount= 0;
+	openNodesList.clear();
+	//closedNodes.clear();
+	openPosList.clear();
+	closedNodesList.clear();
+
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
 	//if arrived
@@ -306,7 +355,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	firstNode->pos= unitPos;
 	firstNode->heuristic= heuristic(unitPos, finalPos);
 	firstNode->exploredCell= true;
-	openNodes.push_back(firstNode);
+	//openNodes.push_back(firstNode);
+	openNodesList[firstNode->heuristic].push_back(firstNode);
+	openPosList[firstNode->pos] = true;
 
 	//b) loop
 	bool pathFound= true;
@@ -315,17 +366,23 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	// This cache stores the units free cell movement calcs during the looping below
+	std::map<Vec2i,std::map<Vec2i, bool> > localCacheForUnitCellMovement;
+	int whileLoopCount = 0;
 	while(nodeLimitReached == false) {
+		whileLoopCount++;
 		
 		//b1) is open nodes is empty => failed to find the path
-		if(openNodes.empty() == true) {
+		//if(openNodes.empty() == true) {
+		if(openNodesList.empty() == true) {
 			pathFound= false;
 			break;
 		}
 
 		//b2) get the minimum heuristic node
-		Nodes::iterator it = minHeuristic();
-		node= *it;
+		//Nodes::iterator it = minHeuristic();
+		//node= *it;
+		node = minHeuristicFastLookup();
 
 		//b3) if minHeuristic is the finalNode, or the path is no more explored => path was found
 		if(node->pos == finalPos || node->exploredCell == false) {
@@ -335,12 +392,27 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		//b4) move this node from closedNodes to openNodes
 		//add all succesors that are not in closedNodes or openNodes to openNodes
-		closedNodes.push_back(node);
-		openNodes.erase(it);
+		//closedNodes.push_back(node);
+		closedNodesList[node->heuristic].push_back(node);
+		openPosList[node->pos] = true;
+		//openNodes.erase(it);
+
 		for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
 			for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
 				Vec2i sucPos= node->pos + Vec2i(i, j);
-				if(openPos(sucPos) == false && map->aproxCanMove(unit, node->pos, sucPos)) {
+
+				bool canUnitMoveToCell = false;
+				std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind = localCacheForUnitCellMovement.find(node->pos);
+				if(iterFind != localCacheForUnitCellMovement.end() &&
+				   iterFind->second.find(sucPos) != iterFind->second.end()) {
+					canUnitMoveToCell = iterFind->second.find(sucPos)->second;
+				}
+				else {
+					canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
+					localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
+				}
+
+				if(openPos(sucPos) == false && canUnitMoveToCell == true) {
 					//if node is not open and canMove then generate another node
 					Node *sucNode= newNode();
 					if(sucNode != NULL) {
@@ -349,7 +421,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						sucNode->prev= node;
 						sucNode->next= NULL;
 						sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-						openNodes.push_back(sucNode);
+						//openNodes.push_back(sucNode);
+						openNodesList[sucNode->heuristic].push_back(sucNode);
+						openPosList[sucNode->pos] = true;
 					}
 					else {
 						nodeLimitReached= true;
@@ -357,19 +431,30 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				}
 			}
 		}
-	}//while
+	} //while
 
-	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodes.size() = %d, pathFound = %d, nodeLimitReached = %d, unit = %s\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodes.size(),pathFound,nodeLimitReached,unit->getFullName().c_str());
+	//if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodes.size() = %d, closedNodes.size() = %d, pathFound = %d, nodeLimitReached = %d, whileLoopCount = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodes.size(),closedNodes.size(),pathFound,nodeLimitReached,whileLoopCount,unit->getFullName().c_str(),unit->getType()->getSize());
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, openNodesList.size() = %d, closedNodesList.size() = %d, pathFound = %d, nodeLimitReached = %d, whileLoopCount = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),openNodesList.size(),closedNodesList.size(),pathFound,nodeLimitReached,whileLoopCount,unit->getFullName().c_str(),unit->getType()->getSize());
 
 	Node *lastNode= node;
 
 	//if consumed all nodes find best node (to avoid strange behaviour)
 	if(nodeLimitReached == true) {
+		if(closedNodesList.size() > 0) {
+			float bestHeuristic = closedNodesList.begin()->first;
+			if(bestHeuristic < lastNode->heuristic) {
+				lastNode= closedNodesList.begin()->second[0];
+			}
+		}
+
+		/*
 		for(Nodes::iterator it= closedNodes.begin(); it != closedNodes.end(); ++it) {
 			if((*it)->heuristic < lastNode->heuristic) {
 				lastNode= *it;
 			}
 		}
+		*/
+
 	}
 
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -430,8 +515,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(chrono.getMillis() > 2) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//clean nodes
-	openNodes.clear();
-	closedNodes.clear();
+	//openNodes.clear();
+	openNodesList.clear();
+	//closedNodes.clear();
+	openPosList.clear();
+	closedNodesList.clear();
 
 	return ts;
 }
@@ -491,7 +579,23 @@ float PathFinder::heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 	return pos.dist(finalPos);
 }
 
+PathFinder::Node * PathFinder::minHeuristicFastLookup() {
+	assert(openNodesList.empty() == false);
+	if(openNodesList.empty() == true) {
+		throw runtime_error("openNodesList.empty() == true");
+	}
+
+	Node *result = openNodesList.begin()->second[0];
+	openNodesList.begin()->second.erase(openNodesList.begin()->second.begin());
+	if(openNodesList.begin()->second.size() == 0) {
+		openNodesList.erase(openNodesList.begin());
+	}
+	return result;
+}
+
 //returns an iterator to the lowest heuristic node
+
+/*
 PathFinder::Nodes::iterator PathFinder::minHeuristic() {
 
 	assert(openNodes.empty() == false);
@@ -509,9 +613,15 @@ PathFinder::Nodes::iterator PathFinder::minHeuristic() {
 
 	return minNodeIt;
 }
+*/
 
 bool PathFinder::openPos(const Vec2i &sucPos) {
+	if(openPosList.find(sucPos) == openPosList.end()) {
+		return false;
+	}
+	return true;
 
+/*
 	for(Nodes::reverse_iterator it= closedNodes.rbegin(); it != closedNodes.rend(); ++it) {
 		if(sucPos == (*it)->pos) {
 			return true;
@@ -526,6 +636,7 @@ bool PathFinder::openPos(const Vec2i &sucPos) {
 	}
 
 	return false;
+*/
 }
 
 }} //end namespace

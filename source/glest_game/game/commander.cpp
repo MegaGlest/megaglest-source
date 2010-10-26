@@ -376,8 +376,13 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
 */
 
 void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
+	Chrono chrono;
+	chrono.start();
 
     networkCommand->preprocessNetworkCommand(this->world);
+
+    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
+
     /*
     if(networkCommand->getNetworkCommandType() == nctNetworkCommand) {
         giveNetworkCommandSpecial(networkCommand);
@@ -386,6 +391,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     */
     {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
+
+        if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
 
         //execute command, if unit is still alive
         if(unit != NULL) {
@@ -397,22 +404,32 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     Command* command= buildCommand(networkCommand);
 
+                    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
 
                     unit->giveCommand(command, (networkCommand->getWantQueue() != 0));
 
+                    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }
                     break;
                 case nctCancelCommand: {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
-                    unit->cancelCommand();
+                	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
+                	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
+
+                	unit->cancelCommand();
+
+                	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
                 case nctSetMeetingPoint: {
+                	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+
                     unit->setMeetingPos(networkCommand->getPosition());
+
+                    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkCommand->toString().c_str());
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;

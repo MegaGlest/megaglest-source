@@ -15,6 +15,7 @@
 #include "vec.h"
 
 #include <vector>
+#include <map>
 #include "game_constants.h"
 #include "leak_dumper.h"
 
@@ -56,8 +57,12 @@ public:
 	static const int pathFindRefresh;
 
 private:
-	Nodes openNodes;
-	Nodes closedNodes;
+	//Nodes openNodes;
+	//Nodes closedNodes;
+	std::map<Vec2i, bool> openPosList;
+	std::map<float, Nodes> openNodesList;
+	std::map<float, Nodes> closedNodesList;
+
 	//Node *nodePool;
 	std::vector<Node> nodePool;
 	int nodePoolCount;
@@ -75,8 +80,10 @@ private:
 	Node *newNode();
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	float heuristic(const Vec2i &pos, const Vec2i &finalPos);
-	Nodes::iterator minHeuristic();
+	//Nodes::iterator minHeuristic();
 	bool openPos(const Vec2i &sucPos);
+
+	Node * minHeuristicFastLookup();
 };
 
 }}//end namespace
