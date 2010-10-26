@@ -143,7 +143,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld, ts = %d, unit = %s [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ts, unit->getFullName().c_str(),unit->getType()->getSize());
 
 	if(cachedPath.size() > 0) {
-
+		path->clear();
+		for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
+			path->add(cachedPath[i]);
+		}
+		ts = tsMoving;
 	}
 	else {
 		//route cache miss
