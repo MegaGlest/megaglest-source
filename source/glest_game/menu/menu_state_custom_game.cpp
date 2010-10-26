@@ -309,19 +309,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		listBoxPublishServer.setSelectedItemIndex(1);
 
 	// Network Frame Period
-	labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
-	labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
-	labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
+	//labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
+	//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
 
-	listBoxNetworkFramePeriod.registerGraphicComponent(containerName,"listBoxNetworkFramePeriod");
-	listBoxNetworkFramePeriod.init(xoffset+230, networkPos, 80);
-	listBoxNetworkFramePeriod.pushBackItem("10");
-	listBoxNetworkFramePeriod.pushBackItem("20");
-	listBoxNetworkFramePeriod.pushBackItem("30");
-	listBoxNetworkFramePeriod.pushBackItem("40");
-	listBoxNetworkFramePeriod.setSelectedItem("20");
+	//listBoxNetworkFramePeriod.registerGraphicComponent(containerName,"listBoxNetworkFramePeriod");
+	//listBoxNetworkFramePeriod.init(xoffset+230, networkPos, 80);
+	//listBoxNetworkFramePeriod.pushBackItem("10");
+	//listBoxNetworkFramePeriod.pushBackItem("20");
+	//listBoxNetworkFramePeriod.pushBackItem("30");
+	//listBoxNetworkFramePeriod.pushBackItem("40");
+	//listBoxNetworkFramePeriod.setSelectedItem("20");
 
-	// Network Frame Period
+	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
 	labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
@@ -334,15 +334,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 
 	// Enable Server Controlled AI
-	labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
-	labelEnableServerControlledAI.init(xoffset+550, networkHeadPos, 80);
-	labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
+	//labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
+	//labelEnableServerControlledAI.init(xoffset+550, networkHeadPos, 80);
+	//labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
 
-	listBoxEnableServerControlledAI.registerGraphicComponent(containerName,"listBoxEnableServerControlledAI");
-	listBoxEnableServerControlledAI.init(xoffset+550, networkPos, 80);
-	listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
-	listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
-	listBoxEnableServerControlledAI.setSelectedItemIndex(0);
+	//listBoxEnableServerControlledAI.registerGraphicComponent(containerName,"listBoxEnableServerControlledAI");
+	//listBoxEnableServerControlledAI.init(xoffset+550, networkPos, 80);
+	//listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
+	//listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
+	//listBoxEnableServerControlledAI.setSelectedItemIndex(0);
 
 	//list boxes
 	xoffset=120;
@@ -641,6 +641,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if (listBoxAdvanced.mouseClick(x, y)) {
 		//TODO
 	}
+/*
 	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableServerControlledAI.mouseClick(x, y) && listBoxEnableServerControlledAI.getEditable()) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -651,6 +652,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             lastSetChangedGameSettings   = time(NULL);
         }
 	}
+*/
 	else if(listBoxTileset.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		
@@ -695,6 +697,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = true;
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
+/*
 	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkFramePeriod.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -706,6 +709,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		soundRenderer.playFx(coreData.getClickSoundC());
 	}
+*/
 	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needToRepublishToMasterserver = true;
@@ -1023,9 +1027,9 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		listBoxFogOfWar.mouseMove(x, y);
 		listBoxAllowObservers.mouseMove(x, y);
 		listBoxEnableObserverMode.mouseMove(x, y);
-		listBoxEnableServerControlledAI.mouseMove(x, y);
-		labelNetworkFramePeriod.mouseMove(x, y);
-		listBoxNetworkFramePeriod.mouseMove(x, y);
+		//listBoxEnableServerControlledAI.mouseMove(x, y);
+		//labelNetworkFramePeriod.mouseMove(x, y);
+		//listBoxNetworkFramePeriod.mouseMove(x, y);
 
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
 		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
@@ -1123,10 +1127,10 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelPublishServer);
 
 				if(listBoxAdvanced.getSelectedItemIndex() == 1) {
-					renderer.renderListBox(&listBoxEnableServerControlledAI);
-					renderer.renderLabel(&labelEnableServerControlledAI);
-					renderer.renderLabel(&labelNetworkFramePeriod);
-					renderer.renderListBox(&listBoxNetworkFramePeriod);
+					//renderer.renderListBox(&listBoxEnableServerControlledAI);
+					//renderer.renderLabel(&labelEnableServerControlledAI);
+					//renderer.renderLabel(&labelNetworkFramePeriod);
+					//renderer.renderListBox(&listBoxNetworkFramePeriod);
 					renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
 					renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 				}
@@ -1482,13 +1486,13 @@ void MenuStateCustomGame::update() {
 		if(hasOneNetworkSlotOpen) {
 			//listBoxPublishServer.setSelectedItemIndex(0);
 			listBoxPublishServer.setEditable(true);
-			listBoxEnableServerControlledAI.setEditable(true);
+			//listBoxEnableServerControlledAI.setEditable(true);
 		}
 		else
 		{
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
-			listBoxEnableServerControlledAI.setEditable(false);
+			//listBoxEnableServerControlledAI.setEditable(false);
 		}
 		
 		bool republishToMaster = (difftime(time(NULL),lastMasterserverPublishing) >= 5);
@@ -1859,8 +1863,14 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     }
 
 	gameSettings->setFactionCount(factionCount);
-	gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
-	gameSettings->setNetworkFramePeriod((listBoxNetworkFramePeriod.getSelectedItemIndex()+1)*10);
+
+	Config &config = Config::getInstance();
+	//gameSettings->setEnableServerControlledAI(listBoxEnableServerControlledAI.getSelectedItemIndex() == 0);
+	gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
+
+	//gameSettings->setNetworkFramePeriod((listBoxNetworkFramePeriod.getSelectedItemIndex()+1)*10);
+	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
+
 	gameSettings->setNetworkPauseGameForLaggedClients(((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex() != 0)));
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTileset() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTileset().c_str());
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] gameSettings->getTech() = [%s]\n",__FILE__,__FUNCTION__,gameSettings->getTech().c_str());
@@ -1958,8 +1968,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 		gameSettings.setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
-		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","false"));
-		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str())/10*10);
+		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
+		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str()));
 		gameSettings.setNetworkPauseGameForLaggedClients(properties.getBool("NetworkPauseGameForLaggedClients","false"));
 
 		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
@@ -2017,11 +2027,11 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
-		listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
+		//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
-		labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+		//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
 
-		listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
+		//listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 

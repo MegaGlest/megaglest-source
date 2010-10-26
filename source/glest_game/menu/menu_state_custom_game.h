@@ -40,7 +40,7 @@ private:
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelEnableObserverMode;
-	GraphicLabel labelEnableServerControlledAI;
+	//GraphicLabel labelEnableServerControlledAI;
 	GraphicLabel labelLocalIP;
 	
 
@@ -49,7 +49,7 @@ private:
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
 	GraphicListBox listBoxEnableObserverMode;
-	GraphicListBox listBoxEnableServerControlledAI;
+	//GraphicListBox listBoxEnableServerControlledAI;
 
 	vector<string> mapFiles;
 	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
@@ -71,8 +71,8 @@ private:
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	
-	GraphicListBox listBoxNetworkFramePeriod;
-	GraphicLabel labelNetworkFramePeriod;
+	//GraphicListBox listBoxNetworkFramePeriod;
+	//GraphicLabel labelNetworkFramePeriod;
 	
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicListBox listBoxNetworkPauseGameForLaggedClients;

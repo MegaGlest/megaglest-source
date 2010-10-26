@@ -3350,6 +3350,7 @@ void Renderer::checkGlOptionalCaps() {
 	if(shadows == sShadowMapping) {
 		checkExtension("GL_ARB_shadow", "Shadow Mapping");
 		checkExtension("GL_ARB_shadow_ambient", "Shadow Mapping");
+		//checkExtension("GL_ARB_depth_texture", "Shadow Mapping");
 	}
 }
 
