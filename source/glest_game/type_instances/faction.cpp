@@ -736,7 +736,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 		for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
 			for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
 				Vec2i newPos = pos + Vec2i(j,k);
-				if(isResourceTargetInCache(newPos) == false) {
+				if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
 					const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
 					if( sc != NULL && sc->getResource() != NULL) {
 						const Resource *resource = sc->getResource();
@@ -763,20 +763,25 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 										  iter != cacheResourceTargetList.end() && foundCloseResource == false;
 										  ++iter) {
 				const Vec2i &cache = iter->first;
-				const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
-				if( sc != NULL && sc->getResource() != NULL) {
-					const Resource *resource = sc->getResource();
-					if(resource->getType() != NULL && resource->getType() == type) {
-						if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
-							if(unit->isBadHarvestPos(cache) == false) {
-								result = cache;
-								// Close enough to our position, no more looking
-								if(unit->getPos().dist(result) <= (harvestDistance * 2)) {
-									foundCloseResource = true;
-									break;
+				if(map->isInside(cache) == true) {
+					const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
+					if( sc != NULL && sc->getResource() != NULL) {
+						const Resource *resource = sc->getResource();
+						if(resource->getType() != NULL && resource->getType() == type) {
+							if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
+								if(unit->isBadHarvestPos(cache) == false) {
+									result = cache;
+									// Close enough to our position, no more looking
+									if(unit->getPos().dist(result) <= (harvestDistance * 2)) {
+										foundCloseResource = true;
+										break;
+									}
 								}
 							}
 						}
+					}
+					else {
+						deleteList.push_back(cache);
 					}
 				}
 				else {
