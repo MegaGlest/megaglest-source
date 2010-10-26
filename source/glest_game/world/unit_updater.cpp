@@ -610,6 +610,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
+	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 				if (canHarvestDestPos == true) {
 					unit->setLastHarvestResourceTarget(NULL);
 
@@ -633,8 +635,12 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								throw runtime_error("detected unsupported pathfinder type!");
 						}
 					}
+
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 				if(canHarvestDestPos == false) {
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 					unit->setLastHarvestResourceTarget(&targetPos);
 
 					//if not continue walking
@@ -657,6 +663,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
 
+		    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		    		// If the unit is blocked or Even worse 'stuck' then try to
 		    		// find the same resource type elsewhere, but close by
 		    		if((wasStuck == true || tsValue == tsBlocked) && unit->isAlive() == true) {
@@ -677,6 +685,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 							default:
 								throw runtime_error("detected unsupported pathfinder type!");
 						}
+
+		    			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 						if (canHarvestDestPos == true) {
 							unit->setLastHarvestResourceTarget(NULL);
@@ -702,6 +712,9 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								}
 							}
 						}
+
+						if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 						if(canHarvestDestPos == false) {
 							unit->setLastHarvestResourceTarget(&targetPos);
 
@@ -728,6 +741,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 										throw runtime_error("detected unsupported pathfinder type!");
 								}
 							}
+
+							if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				    		if(wasStuck == true) {
 								//if can't harvest, search for another resource
