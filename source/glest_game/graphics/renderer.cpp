@@ -299,9 +299,10 @@ void Renderer::initGame(const Game *game){
 
 			//shadow mapping
 			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FAIL_VALUE_ARB, 1.0f-shadowAlpha);
+			//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FAIL_VALUE_ARB, 1.0f-shadowAlpha);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
 				shadowTextureSize, shadowTextureSize,
@@ -1355,6 +1356,12 @@ void Renderer::renderSurface(const int renderFps) {
 	glActiveTexture(fowTexUnit);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+
+	//glCompressedTexSubImage2D(
+	//		GL_TEXTURE_2D, 0, 0, 0,
+	//		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
+	//		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
+
 	glTexSubImage2D(
 		GL_TEXTURE_2D, 0, 0, 0,
 		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
@@ -2872,7 +2879,8 @@ void Renderer::autoConfig(){
 	Config &config= Config::getInstance();
 	bool nvidiaCard= toLower(getGlVendor()).find("nvidia")!=string::npos;
 	bool atiCard= toLower(getGlVendor()).find("ati")!=string::npos;
-	bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow") && isGlExtensionSupported("GL_ARB_shadow_ambient");
+	//bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow") && isGlExtensionSupported("GL_ARB_shadow_ambient");
+	bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow");
 
 	//3D textures
 	config.setBool("Textures3D", isGlExtensionSupported("GL_EXT_texture3D"));
@@ -3349,7 +3357,7 @@ void Renderer::checkGlOptionalCaps() {
 	//shadow mapping
 	if(shadows == sShadowMapping) {
 		checkExtension("GL_ARB_shadow", "Shadow Mapping");
-		checkExtension("GL_ARB_shadow_ambient", "Shadow Mapping");
+		//checkExtension("GL_ARB_shadow_ambient", "Shadow Mapping");
 		//checkExtension("GL_ARB_depth_texture", "Shadow Mapping");
 	}
 }

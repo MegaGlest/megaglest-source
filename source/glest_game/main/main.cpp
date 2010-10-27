@@ -768,6 +768,7 @@ int glestMain(int argc, char** argv){
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
 			//Renderer &renderer= Renderer::getInstance();
 			printf("%s",renderer.getGlInfo().c_str());
+			printf("%s",renderer.getGlMoreInfo().c_str());
 
 			delete mainWindow;
 			return -1;

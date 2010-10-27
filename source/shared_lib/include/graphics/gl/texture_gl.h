@@ -22,12 +22,14 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 //	class TextureGl
 // =====================================================
 
-class TextureGl{
+class TextureGl {
 protected:
 	GLuint handle;	
 
 public:
 	GLuint getHandle() const	{return handle;}
+
+	void OutputTextureDebugInfo(const Pixmap2D *pixmap,Texture::Format format, int components, const string path);
 };
 
 // =====================================================

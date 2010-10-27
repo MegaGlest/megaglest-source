@@ -434,29 +434,29 @@ void Pixmap1D::loadTga(const string &path){
 
 // ===================== PUBLIC ========================
 
-Pixmap2D::Pixmap2D(){
+Pixmap2D::Pixmap2D() {
     h= -1;
     w= -1;
 	components= -1;
     pixels= NULL;
 }
 
-Pixmap2D::Pixmap2D(int components){
+Pixmap2D::Pixmap2D(int components) {
 	init(components);
 }
 
-Pixmap2D::Pixmap2D(int w, int h, int components){
+Pixmap2D::Pixmap2D(int w, int h, int components) {
 	init(w, h, components);
 }
 
-void Pixmap2D::init(int components){
+void Pixmap2D::init(int components) {
 	this->w= -1;
 	this->h= -1;
 	this->components= components;
 	pixels= NULL;
 }
 
-void Pixmap2D::init(int w, int h, int components){
+void Pixmap2D::init(int w, int h, int components) {
 	this->w= w;
 	this->h= h;
 	this->components= components;
@@ -468,6 +468,8 @@ Pixmap2D::~Pixmap2D(){
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
+	printf("Loading Pixmap2D [%s]\n",path.c_str());
+
 	Pixmap2D *pixmap = FileReader<Pixmap2D>::readPath(path);
 	if(pixmap != NULL) {
 		pixmap->path = path;
@@ -475,13 +477,14 @@ Pixmap2D* Pixmap2D::loadPath(const string& path) {
 	return pixmap;
 }
 
-void Pixmap2D::load(const string &path){
+void Pixmap2D::load(const string &path) {
+	//printf("Loading Pixmap2D [%s]\n",path.c_str());
+
 	FileReader<Pixmap2D>::readPath(path,this);
 	this->path = path;
 }
 
-
-void Pixmap2D::save(const string &path){
+void Pixmap2D::save(const string &path) {
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="bmp"){
 		saveBmp(path);
@@ -494,13 +497,13 @@ void Pixmap2D::save(const string &path){
 	}
 }
 
-void Pixmap2D::saveBmp(const string &path){
+void Pixmap2D::saveBmp(const string &path) {
 	PixmapIoBmp psb;
 	psb.openWrite(path, w, h, components);
 	psb.write(pixels);
 }
 
-void Pixmap2D::saveTga(const string &path){
+void Pixmap2D::saveTga(const string &path) {
 	PixmapIoTga pst;
 	pst.openWrite(path, w, h, components);
 	pst.write(pixels);
