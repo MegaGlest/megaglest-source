@@ -1072,7 +1072,7 @@ void MenuStateCustomGame::render() {
 					renderer.renderLabel(&labelPlayers[i],&playerColor);
 
 					// Blend the color with white so make it more readable
-					Vec4f newColor(1.f, 1.f, 1.f, 0.57);
+					Vec4f newColor(1.f, 1.f, 1.f, 0.57f);
 					renderer.renderLabel(&labelPlayers[i],&newColor);
 
 					//int quadWidth = labelPlayerNames[i].getX() - labelPlayers[i].getX() - 5;

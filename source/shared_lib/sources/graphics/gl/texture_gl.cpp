@@ -441,6 +441,7 @@ void TextureCubeGl::end(){
 
 void TextureGl::OutputTextureDebugInfo(const Pixmap2D *pixmap,Texture::Format format, int components,const string path) {
 
+/*
 	GLint glFormat= toFormatGl(format, components);
 
 	printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d, path [%s]\n",pixmap->getPath().c_str(),format,components,glFormat,path.c_str());
@@ -460,6 +461,7 @@ void TextureGl::OutputTextureDebugInfo(const Pixmap2D *pixmap,Texture::Format fo
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
 	error = glGetError();
 	printf("**** Texture image compression format used: %d, error [%d]\n",compressed,error);
+*/
 }
 
 }}}//end namespace
