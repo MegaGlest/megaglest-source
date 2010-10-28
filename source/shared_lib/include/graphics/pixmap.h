@@ -122,6 +122,7 @@ public:
 	int getW() const			{return w;}
 	int getComponents() const	{return components;}
 	uint8 *getPixels() const	{return pixels;}
+	void deletePixels();
 	string getPath() const		{ return path;}
 };
 
@@ -161,6 +162,7 @@ public:
 	int getH() const			{return h;}
 	int getComponents() const	{return components;}
 	uint8 *getPixels() const	{return pixels;}
+	void deletePixels();
 		
 	//get data
 	void getPixel(int x, int y, uint8 *value) const;
@@ -236,6 +238,7 @@ public:
 	int getD() const			{return d;}
 	int getComponents() const	{return components;}
 	uint8 *getPixels() const	{return pixels;}
+	void deletePixels();
 	string getPath() const		{ return path;}
 };
 
@@ -271,6 +274,7 @@ public:
 	//get 
 	Pixmap2D *getFace(int face)				{return &faces[face];}
 	const Pixmap2D *getFace(int face) const	{return &faces[face];}
+	void deletePixels();
 	string getPath(int face) const		{ return path[face];}
 };
 

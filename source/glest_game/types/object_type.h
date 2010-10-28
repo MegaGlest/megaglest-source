@@ -56,6 +56,7 @@ public:
 	int getClass() const			{return objectClass;}
 	bool getWalkable() const		{return walkable;}
 	bool isATree() const			{return objectClass==tree1 || objectClass==tree2;}
+	void deletePixels();
 };
 
 }}//end namespace

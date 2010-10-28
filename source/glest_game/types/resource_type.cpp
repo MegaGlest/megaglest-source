@@ -152,4 +152,10 @@ ResourceClass ResourceType::strToRc(const string &s){
 	throw runtime_error("Error converting from string ro resourceClass, found: " + s);
 }
 
+void ResourceType::deletePixels() {
+	if(model != NULL) {
+		model->deletePixels();
+	}
+}
+
 }}//end namespace

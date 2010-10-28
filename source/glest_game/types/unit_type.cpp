@@ -54,6 +54,7 @@ const char *UnitType::propertyNames[]= {"burnable", "rotated_climb"};
 
 UnitType::UnitType(){
 
+	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
     light= false;
     multiSelect= false;

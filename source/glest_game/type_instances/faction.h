@@ -75,7 +75,7 @@ private:
     ControlType control;
 
 	Texture2D *texture;
-	const FactionType *factionType;
+	FactionType *factionType;
 
 	int index;
 	int teamIndex;
@@ -97,7 +97,7 @@ public:
 	~Faction();
 
     void init(
-		const FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
+		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 		int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources);
 	void end();
 
@@ -168,6 +168,8 @@ public:
 	void addCloseResourceTargetToCache(const Vec2i &pos);
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
+
+	void deletePixels();
 
 	std::string toString() const;
 

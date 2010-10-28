@@ -578,6 +578,13 @@ void Game::init(bool initForPreviewOnly)
 	logger.add("Initializing renderer", true);
 	renderer.initGame(this);
 
+	for(int i=0; i < world.getFactionCount(); ++i) {
+		Faction *faction= world.getFaction(i);
+		if(faction != NULL) {
+			faction->deletePixels();
+		}
+	}
+
 	if(initForPreviewOnly == false) {
 		//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 

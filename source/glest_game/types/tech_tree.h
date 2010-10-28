@@ -55,6 +55,7 @@ public:
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
     const string &getDesc() const								{return desc;}
 	const FactionType *getType(const string &name) const;
+	FactionType *getTypeByName(const string &name);
 	const ResourceType *getResourceType(const string &name) const;
     const ResourceType *getTechResourceType(int i) const;
     const ResourceType *getFirstTechResourceType() const;

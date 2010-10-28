@@ -160,6 +160,11 @@ void Tileset::load(const string &dir, Checksum *checksum){
 			}
 		}
 
+		// Now free up the pixmap memory
+		for(int i=0; i<objCount; ++i){
+			objectTypes[i].deletePixels();
+		}
+
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//ambient sounds

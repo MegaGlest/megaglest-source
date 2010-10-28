@@ -53,7 +53,7 @@ Faction::~Faction() {
 }
 
 void Faction::init(
-	const FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
+	FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -926,6 +926,12 @@ void Faction::addCachedPath(const Vec2i &target, Unit *unit) {
 				}
 			}
 		}
+	}
+}
+
+void Faction::deletePixels() {
+	if(factionType != NULL) {
+		factionType->deletePixels();
 	}
 }
 

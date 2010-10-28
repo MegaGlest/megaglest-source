@@ -62,6 +62,11 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
             resourceTypes[i].load(str, checksum);
 			SDL_PumpEvents();
         }
+
+        // Cleanup pixmap memory
+        for(int i=0; i<filenames.size(); ++i) {
+        	resourceTypes[i].deletePixels();
+        }
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
@@ -186,15 +191,26 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 
 // ==================== get ====================
 
-const FactionType *TechTree::getType(const string &name) const{
+FactionType *TechTree::getTypeByName(const string &name) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-     for(int i=0; i<factionTypes.size(); ++i){
-          if(factionTypes[i].getName()==name){
+    for(int i=0; i < factionTypes.size(); ++i) {
+          if(factionTypes[i].getName() == name) {
         	   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                return &factionTypes[i];
           }
-     }
-	 throw runtime_error("Faction not found: "+name);
+    }
+    throw runtime_error("Faction not found: "+name);
+}
+
+const FactionType *TechTree::getType(const string &name) const {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    for(int i=0; i < factionTypes.size(); ++i) {
+          if(factionTypes[i].getName() == name) {
+        	   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+               return &factionTypes[i];
+          }
+    }
+    throw runtime_error("Faction not found: "+name);
 }
 
 const ResourceType *TechTree::getTechResourceType(int i) const{

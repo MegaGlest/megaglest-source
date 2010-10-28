@@ -60,6 +60,7 @@ public:
 	bool getRecoup_cost() const     { return recoup_cost;}
 
 	static ResourceClass strToRc(const string &s);
+	void deletePixels();
 };
 
 }} //end namespace

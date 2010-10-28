@@ -72,6 +72,8 @@ public:
 	std::vector<std::string> validateFactionType();
 	std::vector<std::string> validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes);
 	std::vector<std::string> validateFactionTypeUpgradeTypes();
+
+	void deletePixels();
 };
 
 }}//end namespace

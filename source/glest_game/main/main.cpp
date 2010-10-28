@@ -656,6 +656,8 @@ int glestMain(int argc, char** argv){
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
 		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
 
+		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
+
 		// 256 for English
 		// 30000 for Chinese
 		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());

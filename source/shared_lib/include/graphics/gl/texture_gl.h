@@ -29,7 +29,7 @@ protected:
 public:
 	GLuint getHandle() const	{return handle;}
 
-	void OutputTextureDebugInfo(const Pixmap2D *pixmap,Texture::Format format, int components, const string path);
+	void OutputTextureDebugInfo(Texture::Format format, int components, const string path);
 };
 
 // =====================================================
