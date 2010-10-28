@@ -385,6 +385,8 @@ public:
 	void removeObjectFromQuadCache(const Object *o);
 	void removeUnitFromQuadCache(const Unit *unit);
 
+	uint64 getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
+
 private:
 	//private misc
 	float computeSunAngle(float time);

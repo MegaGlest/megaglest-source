@@ -4214,5 +4214,20 @@ void Renderer::setLastRenderFps(int value) {
 		}
 }
 
+uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
+	uint64 result = 0;
+	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
+		const Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
+		for(int j = 0; j < textures.size(); ++j) {
+			const Texture *texture = textures[j];
+			result += texture->getPixelByteCount();
+		}
+		if(rs != rsCount) {
+			break;
+		}
+	}
+
+	return result;
+}
 
 }}//end namespace
