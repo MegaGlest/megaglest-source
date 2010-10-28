@@ -61,6 +61,7 @@ protected:
 	Format format;
 
 	bool inited;
+	bool forceCompressionDisabled;
 
 public:
 	Texture();
@@ -82,6 +83,10 @@ public:
 	virtual void deletePixels() = 0;
 
 	virtual void reseInitState() { inited = false; }
+
+	virtual void setForceCompressionDisabled(bool value) { forceCompressionDisabled = value;}
+	virtual bool getForceCompressionDisabled() const {return forceCompressionDisabled;}
+
 };
 
 // =====================================================
@@ -105,7 +110,7 @@ public:
 //	class Texture2D
 // =====================================================
 
-class Texture2D: public Texture{
+class Texture2D: public Texture {
 protected:
 	Pixmap2D pixmap;
 

@@ -22,17 +22,18 @@ namespace Shared{ namespace Graphics{
 //	class Texture
 // =====================================================
 
-const int Texture::defaultSize= 256;
+const int Texture::defaultSize       = 256;
 const int Texture::defaultComponents = 4;
-bool Texture::useTextureCompression = false;
+bool Texture::useTextureCompression  = false;
 
-Texture::Texture(){
+Texture::Texture() {
 	mipmap= true;
 	pixmapInit= true;
 	wrapMode= wmRepeat;
 	format= fAuto;
 
 	inited= false;
+	forceCompressionDisabled=false;
 }
 
 // =====================================================
@@ -55,7 +56,7 @@ string Texture1D::getPath() const {
 }
 
 void Texture1D::deletePixels() {
-	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	//printf("+++> Texture1D pixmap deletion for [%s]\n",getPath().c_str());
 	pixmap.deletePixels();
 }
 
@@ -79,7 +80,7 @@ string Texture2D::getPath() const {
 }
 
 void Texture2D::deletePixels() {
-	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	//printf("+++> Texture2D pixmap deletion for [%s]\n",getPath().c_str());
 	pixmap.deletePixels();
 }
 
@@ -103,7 +104,7 @@ string Texture3D::getPath() const {
 }
 
 void Texture3D::deletePixels() {
-	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	//printf("+++> Texture3D pixmap deletion for [%s]\n",getPath().c_str());
 	pixmap.deletePixels();
 }
 
@@ -139,7 +140,7 @@ string TextureCube::getPath() const {
 }
 
 void TextureCube::deletePixels() {
-	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	//printf("+++> TextureCube pixmap deletion for [%s]\n",getPath().c_str());
 	pixmap.deletePixels();
 }
 

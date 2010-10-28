@@ -84,19 +84,20 @@ const int tgaUncompressedBw= 3;
 //	class PixmapIoTga
 // =====================================================
 
-PixmapIoTga::PixmapIoTga(){
+PixmapIoTga::PixmapIoTga() {
 	file= NULL;
 }
 
-PixmapIoTga::~PixmapIoTga(){
-	if(file!=NULL){
+PixmapIoTga::~PixmapIoTga() {
+	if(file != NULL) {
 		fclose(file);
+		file=NULL;
 	}
 }
 
-void PixmapIoTga::openRead(const string &path){
+void PixmapIoTga::openRead(const string &path) {
 	file= fopen(path.c_str(),"rb");
-	if (file==NULL){
+	if (file == NULL) {
 		throw runtime_error("Can't open TGA file: "+ path);
 	}
 
@@ -105,53 +106,53 @@ void PixmapIoTga::openRead(const string &path){
 	size_t readBytes = fread(&fileHeader, sizeof(TargaFileHeader), 1, file);
 
 	//check that we can load this tga file
-	if(fileHeader.idLength!=0){
+	if(fileHeader.idLength != 0) {
 		throw runtime_error(path + ": id field is not 0");
 	}
 
-	if(fileHeader.dataTypeCode!=tgaUncompressedRgb && fileHeader.dataTypeCode!=tgaUncompressedBw){
+	if(fileHeader.dataTypeCode != tgaUncompressedRgb && fileHeader.dataTypeCode != tgaUncompressedBw) {
 		throw runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
 	}
 
 	//check bits per pixel
-	if(fileHeader.bitsPerPixel!=8 && fileHeader.bitsPerPixel!=24 && fileHeader.bitsPerPixel!=32){
+	if(fileHeader.bitsPerPixel != 8 && fileHeader.bitsPerPixel != 24 && fileHeader.bitsPerPixel !=32) {
 		throw runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
 	}
 
 	h= fileHeader.height;
     w= fileHeader.width;
-	components= fileHeader.bitsPerPixel/8;
+	components= fileHeader.bitsPerPixel / 8;
 }
 
-void PixmapIoTga::read(uint8 *pixels){
+void PixmapIoTga::read(uint8 *pixels) {
 	read(pixels, components);
 }
 
-void PixmapIoTga::read(uint8 *pixels, int components){
-	for(int i=0; i<h*w*components; i+=components){
-		uint8 r, g, b, a, l;
+void PixmapIoTga::read(uint8 *pixels, int components) {
+	for(int i=0; i<h*w*components; i+=components) {
+		uint8 r=0, g=0, b=0, a=0, l=0;
 
-		if(this->components==1){
+		if(this->components == 1) {
 			size_t readBytes = fread(&l, 1, 1, file);
 			r= l;
 			g= l;
 			b= l;
 			a= 255;
 		}
-		else{
+		else {
 			size_t readBytes = fread(&b, 1, 1, file);
 			readBytes = fread(&g, 1, 1, file);
 			readBytes = fread(&r, 1, 1, file);
-			if(this->components==4){
+			if(this->components == 4) {
 				readBytes = fread(&a, 1, 1, file);
 			}
-			else{
+			else {
 				a= 255;
 			}
 			l= (r+g+b)/3;
 		}
 
-		switch(components){
+		switch(components) {
 		case 1:
 			pixels[i]= l;
 			break;
@@ -170,13 +171,13 @@ void PixmapIoTga::read(uint8 *pixels, int components){
 	}
 }
 
-void PixmapIoTga::openWrite(const string &path, int w, int h, int components){
+void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
     this->w= w;
 	this->h= h;
 	this->components= components;
 
     file= fopen(path.c_str(),"wb");
-	if (file==NULL){
+	if (file == NULL) {
 		throw runtime_error("Can't open TGA file: "+ path);
 	}
 
@@ -191,12 +192,12 @@ void PixmapIoTga::openWrite(const string &path, int w, int h, int components){
 	fwrite(&fileHeader, sizeof(TargaFileHeader), 1, file);
 }
 
-void PixmapIoTga::write(uint8 *pixels){
-	if(components==1){
+void PixmapIoTga::write(uint8 *pixels) {
+	if(components == 1) {
 		fwrite(pixels, h*w, 1, file);
 	}
-	else{
-		for(int i=0; i<h*w*components; i+=components){
+	else {
+		for(int i=0; i<h*w*components; i+=components) {
 			fwrite(&pixels[i+2], 1, 1, file);
 			fwrite(&pixels[i+1], 1, 1, file);
 			fwrite(&pixels[i], 1, 1, file);
@@ -211,13 +212,14 @@ void PixmapIoTga::write(uint8 *pixels){
 //	class PixmapIoBmp
 // =====================================================
 
-PixmapIoBmp::PixmapIoBmp(){
+PixmapIoBmp::PixmapIoBmp() {
 	file= NULL;
 }
 
-PixmapIoBmp::~PixmapIoBmp(){
+PixmapIoBmp::~PixmapIoBmp() {
 	if(file!=NULL){
 		fclose(file);
+		file=NULL;
 	}
 }
 
@@ -246,12 +248,12 @@ void PixmapIoBmp::openRead(const string &path){
 	components= 3;
 }
 
-void PixmapIoBmp::read(uint8 *pixels){
+void PixmapIoBmp::read(uint8 *pixels) {
 	read(pixels, 3);
 }
 
-void PixmapIoBmp::read(uint8 *pixels, int components){
-    for(int i=0; i<h*w*components; i+=components){
+void PixmapIoBmp::read(uint8 *pixels, int components) {
+    for(int i=0; i<h*w*components; i+=components) {
 		uint8 r, g, b;
 		size_t readBytes = fread(&b, 1, 1, file);
 		readBytes = fread(&g, 1, 1, file);
@@ -276,13 +278,13 @@ void PixmapIoBmp::read(uint8 *pixels, int components){
     }
 }
 
-void PixmapIoBmp::openWrite(const string &path, int w, int h, int components){
+void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
     this->w= w;
 	this->h= h;
 	this->components= components;
 
 	file= fopen(path.c_str(),"wb");
-	if (file==NULL){
+	if (file == NULL) {
 		throw runtime_error("Can't open BMP file for writting: "+ path);
 	}
 
@@ -311,7 +313,7 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components){
 	fwrite(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
 }
 
-void PixmapIoBmp::write(uint8 *pixels){
+void PixmapIoBmp::write(uint8 *pixels) {
     for (int i=0; i<h*w*components; i+=components){
         fwrite(&pixels[i+2], 1, 1, file);
 		fwrite(&pixels[i+1], 1, 1, file);
@@ -349,7 +351,11 @@ void Pixmap1D::init(int components){
 void Pixmap1D::init(int w, int components){
 	this->w= w;
 	this->components= components;
-	pixels= new uint8[w*components];
+	pixels= new uint8[getPixelByteCount()];
+}
+
+uint64 Pixmap1D::getPixelByteCount() const {
+	return (w * components);
 }
 
 void Pixmap1D::deletePixels() {
@@ -361,72 +367,72 @@ Pixmap1D::~Pixmap1D(){
 	deletePixels();
 }
 
-void Pixmap1D::load(const string &path){
+void Pixmap1D::load(const string &path) {
 	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="bmp"){
+	if(extension=="bmp") {
 		loadBmp(path);
 	}
-	else if(extension=="tga"){
+	else if(extension=="tga") {
 		loadTga(path);
 	}
-	else{
-		throw runtime_error("Unknown pixmap extension: "+extension);
+	else {
+		throw runtime_error("Unknown pixmap extension: " + extension);
 	}
 	this->path = path;
 }
 
-void Pixmap1D::loadBmp(const string &path){
+void Pixmap1D::loadBmp(const string &path) {
     this->path = path;
 
 	PixmapIoBmp plb;
 	plb.openRead(path);
 
 	//init
-	if(plb.getH()==1){
+	if(plb.getH()==1) {
 		w= plb.getW();
 	}
-	else if(plb.getW()==1){
+	else if(plb.getW()==1) {
 		w= plb.getH();
 	}
-	else{
+	else {
 		throw runtime_error("One of the texture dimensions must be 1");
 	}
 
-	if(components==-1){
+	if(components == -1) {
 		components= 3;
 	}
-	if(pixels==NULL){
-		pixels= new uint8[w*components];
+	if(pixels == NULL) {
+		pixels= new uint8[getPixelByteCount()];
 	}
 
 	//data
 	plb.read(pixels, components);
 }
 
-void Pixmap1D::loadTga(const string &path){
+void Pixmap1D::loadTga(const string &path) {
     this->path = path;
 
 	PixmapIoTga plt;
 	plt.openRead(path);
 
 	//init
-	if(plt.getH()==1){
+	if(plt.getH()==1) {
 		w= plt.getW();
 	}
-	else if(plt.getW()==1){
+	else if(plt.getW()==1) {
 		w= plt.getH();
 	}
-	else{
+	else {
 		throw runtime_error("One of the texture dimensions must be 1");
 	}
 
 	int fileComponents= plt.getComponents();
 
-	if(components==-1){
+	if(components == -1) {
 		components= fileComponents;
 	}
-	if(pixels==NULL){
-		pixels= new uint8[w*components];
+	if(pixels == NULL) {
+		pixels= new uint8[getPixelByteCount()];
 	}
 
 	//read data
@@ -465,7 +471,11 @@ void Pixmap2D::init(int w, int h, int components) {
 	this->w= w;
 	this->h= h;
 	this->components= components;
-	pixels= new uint8[h*w*components];
+	pixels= new uint8[getPixelByteCount()];
+}
+
+uint64 Pixmap2D::getPixelByteCount() const {
+	return (h * w * components);
 }
 
 void Pixmap2D::deletePixels() {
@@ -473,7 +483,7 @@ void Pixmap2D::deletePixels() {
 	pixels = NULL;
 }
 
-Pixmap2D::~Pixmap2D(){
+Pixmap2D::~Pixmap2D() {
 	deletePixels();
 }
 
@@ -496,14 +506,14 @@ void Pixmap2D::load(const string &path) {
 
 void Pixmap2D::save(const string &path) {
 	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="bmp"){
+	if(extension == "bmp") {
 		saveBmp(path);
 	}
-	else if(extension=="tga"){
+	else if(extension == "tga") {
 		saveTga(path);
 	}
-	else{
-		throw runtime_error("Unknown pixmap extension: "+extension);
+	else {
+		throw runtime_error("Unknown pixmap extension: " + extension);
 	}
 }
 
@@ -519,28 +529,28 @@ void Pixmap2D::saveTga(const string &path) {
 	pst.write(pixels);
 }
 
-void Pixmap2D::getPixel(int x, int y, uint8 *value) const{
+void Pixmap2D::getPixel(int x, int y, uint8 *value) const {
 	for(int i=0; i<components; ++i){
 		value[i]= pixels[(w*y+x)*components+i];
 	}
 }
 
-void Pixmap2D::getPixel(int x, int y, float32 *value) const{
-	for(int i=0; i<components; ++i){
+void Pixmap2D::getPixel(int x, int y, float32 *value) const {
+	for(int i=0; i<components; ++i) {
 		value[i]= pixels[(w*y+x)*components+i]/255.f;
 	}
 }
 
-void Pixmap2D::getComponent(int x, int y, int component, uint8 &value) const{
+void Pixmap2D::getComponent(int x, int y, int component, uint8 &value) const {
 	value= pixels[(w*y+x)*components+component];
 }
 
-void Pixmap2D::getComponent(int x, int y, int component, float32 &value) const{
+void Pixmap2D::getComponent(int x, int y, int component, float32 &value) const {
 	value= pixels[(w*y+x)*components+component]/255.f;
 }
 
 //vector get
-Vec4f Pixmap2D::getPixel4f(int x, int y) const{
+Vec4f Pixmap2D::getPixel4f(int x, int y) const {
 	Vec4f v(0.f);
 	for(int i=0; i<components && i<4; ++i){
 		v.ptr()[i]= pixels[(w*y+x)*components+i]/255.f;
@@ -548,7 +558,7 @@ Vec4f Pixmap2D::getPixel4f(int x, int y) const{
 	return v;
 }
 
-Vec3f Pixmap2D::getPixel3f(int x, int y) const{
+Vec3f Pixmap2D::getPixel3f(int x, int y) const {
 	Vec3f v(0.f);
 	for(int i=0; i<components && i<3; ++i){
 		v.ptr()[i]= pixels[(w*y+x)*components+i]/255.f;
@@ -556,29 +566,29 @@ Vec3f Pixmap2D::getPixel3f(int x, int y) const{
 	return v;
 }
 
-float Pixmap2D::getPixelf(int x, int y) const{
+float Pixmap2D::getPixelf(int x, int y) const {
 	return pixels[(w*y+x)*components]/255.f;
 }
 
-float Pixmap2D::getComponentf(int x, int y, int component) const{
+float Pixmap2D::getComponentf(int x, int y, int component) const {
 	float c;
 	getComponent(x, y, component, c);
 	return c;
 }
 
-void Pixmap2D::setPixel(int x, int y, const uint8 *value){
-	for(int i=0; i<components; ++i){
+void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
+	for(int i=0; i<components; ++i) {
 		pixels[(w*y+x)*components+i]= value[i];
 	}
 }
 
-void Pixmap2D::setPixel(int x, int y, const float32 *value){
-	for(int i=0; i<components; ++i){
+void Pixmap2D::setPixel(int x, int y, const float32 *value) {
+	for(int i=0; i<components; ++i) {
 		pixels[(w*y+x)*components+i]= static_cast<uint8>(value[i]*255.f);
 	}
 }
 
-void Pixmap2D::setComponent(int x, int y, int component, uint8 value){
+void Pixmap2D::setComponent(int x, int y, int component, uint8 value) {
 	pixels[(w*y+x)*components+component]= value;
 }
 
@@ -769,7 +779,11 @@ void Pixmap3D::init(int w, int h, int d, int components){
 	this->h= h;
 	this->d= d;
 	this->components= components;
-	pixels= new uint8[h*w*d*components];;
+	pixels= new uint8[getPixelByteCount()];
+}
+
+uint64 Pixmap3D::getPixelByteCount() const {
+	return (h * w * d * components);
 }
 
 void Pixmap3D::init(int d, int components){
@@ -780,7 +794,7 @@ void Pixmap3D::init(int d, int components){
 	pixels= NULL;
 }
 
-void Pixmap3D::init(int components){
+void Pixmap3D::init(int components) {
 	this->w= -1;
 	this->h= -1;
 	this->d= -1;
@@ -793,19 +807,19 @@ void Pixmap3D::deletePixels() {
 	pixels = NULL;
 }
 
-Pixmap3D::~Pixmap3D(){
+Pixmap3D::~Pixmap3D() {
 	deletePixels();
 }
 
-void Pixmap3D::loadSlice(const string &path, int slice){
-	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="bmp"){
+void Pixmap3D::loadSlice(const string &path, int slice) {
+	string extension= path.substr(path.find_last_of('.') + 1);
+	if(extension == "bmp") {
 		loadSliceBmp(path, slice);
 	}
-	else if(extension=="tga"){
+	else if(extension == "tga") {
 		loadSliceTga(path, slice);
 	}
-	else{
+	else {
 		throw runtime_error("Unknown pixmap extension: "+extension);
 	}
 	this->path = path;
@@ -824,7 +838,7 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 		components= 3;
 	}
 	if(pixels==NULL){
-		pixels= new uint8[w*h*d*components];
+		pixels= new uint8[getPixelByteCount()];
 	}
 
 	//data
@@ -847,7 +861,7 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 		components= fileComponents;
 	}
 	if(pixels==NULL){
-		pixels= new uint8[w*h*d*components];
+		pixels= new uint8[getPixelByteCount()];
 	}
 
 	//read data
@@ -858,20 +872,29 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 //	class PixmapCube
 // =====================================================
 
-void PixmapCube::init(int w, int h, int components){
-	for(int i=0; i<6; ++i){
+void PixmapCube::init(int w, int h, int components) {
+	for(int i=0; i<6; ++i) {
 		faces[i].init(w, h, components);
 	}
 }
 
-void PixmapCube::init(int components){
-	for(int i=0; i<6; ++i){
+void PixmapCube::init(int components) {
+	for(int i=0; i<6; ++i) {
 		faces[i].init(components);
 	}
 }
 
-	//load & save
-void PixmapCube::loadFace(const string &path, int face){
+uint64 PixmapCube::getPixelByteCount() const {
+	uint64 result = 0;
+	for(int i=0; i<6; ++i) {
+		result += faces[i].getPixelByteCount();
+	}
+
+	return result;
+}
+
+//load & save
+void PixmapCube::loadFace(const string &path, int face) {
 	this->path[face] = path;
 
 	faces[face].load(path);
