@@ -23,6 +23,8 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 using namespace Platform;
 
+const uint64 MIN_BYTES_TO_COMPRESS = 12;
+
 GLint toCompressionFormatGl(GLint format) {
 	if(Texture::useTextureCompression == false) {
 		return format;
@@ -134,20 +136,31 @@ GLint toInternalFormatGl(Texture::Format format, int components){
 	}
 }
 
+TextureGl::TextureGl() {
+	handle=0;
+}
+
 // =====================================================
 //	class Texture1DGl
 // =====================================================
+Texture1DGl::Texture1DGl() {}
 
-void Texture1DGl::init(Filter filter, int maxAnisotropy){
+Texture1DGl::~Texture1DGl() {
+	end();
+}
+
+void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 
-	if(!inited) {
-
+	if(inited == false) {
 		//params
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
 		GLint glInternalFormat= toInternalFormatGl(format, pixmap.getComponents());
 		GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
+		if(forceCompressionDisabled == true || (pixmap.getPixelByteCount() > 0 && pixmap.getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
+			glCompressionFormat = glInternalFormat;
+		}
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -164,7 +177,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 			glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 		}
 
-		if(mipmap){
+		if(mipmap) {
 			GLuint glFilter= filter==fTrilinear? GL_LINEAR_MIPMAP_LINEAR: GL_LINEAR_MIPMAP_NEAREST;
 
 			//build mipmaps
@@ -175,14 +188,14 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 				GL_TEXTURE_1D, glCompressionFormat, pixmap.getW(),
 				glFormat, GL_UNSIGNED_BYTE, pixels);
 
-			if(error!=0){
+			if(error != 0) {
 				//throw runtime_error("Error building texture 1D mipmaps");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error building texture 1D mipmaps, returned: %d [%s] w = %d",error,pixmap.getPath().c_str(),pixmap.getW());
 				throw runtime_error(szBuf);
 			}
 		}
-		else{
+		else {
 			//build single texture
 			glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -200,17 +213,20 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 			}
 		}
 		inited= true;
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
 	}
 
 	assertGl();
 }
 
-void Texture1DGl::end(){
-	if(inited){
+void Texture1DGl::end() {
+	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
+		handle=0;
+		inited=false;
+		deletePixels();
 	}
 }
 
@@ -218,16 +234,24 @@ void Texture1DGl::end(){
 //	class Texture2DGl
 // =====================================================
 
-void Texture2DGl::init(Filter filter, int maxAnisotropy){
+Texture2DGl::Texture2DGl() {}
+
+Texture2DGl::~Texture2DGl() {
+	end();
+}
+
+void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 
-	if(!inited) {
-
+	if(inited == false) {
 		//params
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
 		GLint glInternalFormat= toInternalFormatGl(format, pixmap.getComponents());
 		GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
+		if(forceCompressionDisabled == true || (pixmap.getPixelByteCount() > 0 && pixmap.getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
+			glCompressionFormat = glInternalFormat;
+		}
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -241,11 +265,11 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
 		//maxAnisotropy
-		if(isGlExtensionSupported("GL_EXT_texture_filter_anisotropic")){
+		if(isGlExtensionSupported("GL_EXT_texture_filter_anisotropic")) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 		}
 
-		if(mipmap){
+		if(mipmap) {
 			GLuint glFilter= filter==fTrilinear? GL_LINEAR_MIPMAP_LINEAR: GL_LINEAR_MIPMAP_NEAREST;
 
 			//build mipmaps
@@ -257,14 +281,14 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 				pixmap.getW(), pixmap.getH(),
 				glFormat, GL_UNSIGNED_BYTE, pixels);
 
-			if(error!=0){
+			if(error != 0) {
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH());
 				throw runtime_error(szBuf);
 			}
 		}
-		else{
+		else {
 			//build single texture
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -277,25 +301,28 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 
 			//throw runtime_error("TEST!");
 
-			if(error!=GL_NO_ERROR){
+			if(error != GL_NO_ERROR) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat);
 				throw runtime_error(szBuf);
 			}
 		}
 		inited= true;
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
 	}
 
 	assertGl();
 }
 
-void Texture2DGl::end(){
-	if(inited) {
+void Texture2DGl::end() {
+	if(inited == true) {
 		//printf("==> Deleting GL Texture [%s] handle = %d\n",getPath().c_str(),handle);
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
+		handle=0;
+		inited=false;
+		deletePixels();
 	}
 }
 
@@ -303,16 +330,24 @@ void Texture2DGl::end(){
 //	class Texture3DGl
 // =====================================================
 
-void Texture3DGl::init(Filter filter, int maxAnisotropy){
+Texture3DGl::Texture3DGl() {}
+
+Texture3DGl::~Texture3DGl() {
+	end();
+}
+
+void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 
-	if(!inited){
-
+	if(inited == false) {
 		//params
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
 		GLint glInternalFormat= toInternalFormatGl(format, pixmap.getComponents());
 		GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
+		if(forceCompressionDisabled == true || (pixmap.getPixelByteCount() > 0 && pixmap.getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
+			glCompressionFormat = glInternalFormat;
+		}
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -336,7 +371,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy){
 			0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 		GLint error= glGetError();
-		if(error!=GL_NO_ERROR){
+		if(error != GL_NO_ERROR) {
 			//throw runtime_error("Error creating texture 3D");
 			char szBuf[1024]="";
 			sprintf(szBuf,"Error creating texture 3D, returned: %d [%s] w = %d, h = %d, d = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD());
@@ -344,17 +379,21 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy){
 		}
 		inited= true;
 
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
 	}
 
 	assertGl();
 }
 
-void Texture3DGl::end(){
-	if(inited){
+void Texture3DGl::end() {
+	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
+
+		handle=0;
+		inited=false;
+		deletePixels();
 	}
 }
 
@@ -362,11 +401,16 @@ void Texture3DGl::end(){
 //	class TextureCubeGl
 // =====================================================
 
-void TextureCubeGl::init(Filter filter, int maxAnisotropy){
+TextureCubeGl::TextureCubeGl() {}
+
+TextureCubeGl::~TextureCubeGl() {
+	end();
+}
+
+void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 
-	if(!inited){
-
+	if(inited == false) {
 		//gen texture
 		glGenTextures(1, &handle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
@@ -377,42 +421,45 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy){
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrap);
 
 		//filter
-		if(mipmap){
+		if(mipmap) {
 			GLuint glFilter= filter==fTrilinear? GL_LINEAR_MIPMAP_LINEAR: GL_LINEAR_MIPMAP_NEAREST;
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, glFilter);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
-		else{
+		else {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
 
-		for(int i=0; i<6; ++i){
+		for(int i = 0; i < 6; ++i) {
 			//params
 			const Pixmap2D *currentPixmap= pixmap.getFace(i);
 
 			GLint glFormat= toFormatGl(format, currentPixmap->getComponents());
 			GLint glInternalFormat= toInternalFormatGl(format, currentPixmap->getComponents());
 			GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
+			if(forceCompressionDisabled == true || (currentPixmap->getPixelByteCount() > 0 && currentPixmap->getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
+				glCompressionFormat = glInternalFormat;
+			}
 
 			//pixel init var
 			const uint8* pixels= pixmapInit? currentPixmap->getPixels(): NULL;
 			GLenum target= GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
 
-			if(mipmap){
+			if(mipmap) {
 				int error= gluBuild2DMipmaps(
 					target, glCompressionFormat,
 					currentPixmap->getW(), currentPixmap->getH(),
 					glFormat, GL_UNSIGNED_BYTE, pixels);
 
-				if(error!=0){
+				if(error != 0) {
 					//throw runtime_error("Error building texture cube mipmaps");
 					char szBuf[1024]="";
 					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH());
 					throw runtime_error(szBuf);
 				}
 			}
-			else{
+			else {
 				glTexImage2D(
 					target, 0, glCompressionFormat,
 					currentPixmap->getW(), currentPixmap->getH(),
@@ -420,14 +467,14 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy){
 			}
 
 			int error = glGetError();
-			if(error!=GL_NO_ERROR){
+			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error creating texture cube");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error creating texture cube, returned: %d [%s] w = %d, h = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH());
 				throw runtime_error(szBuf);
 			}
 
-			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath());
+			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath(),currentPixmap->getPixelByteCount());
 		}
 		inited= true;
 
@@ -436,19 +483,23 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy){
 	assertGl();
 }
 
-void TextureCubeGl::end(){
-	if(inited){
+void TextureCubeGl::end() {
+	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
+
+		handle=0;
+		inited=false;
+		deletePixels();
 	}
 }
 
-void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path) {
+void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path,uint64 rawSize) {
 	if(Texture::useTextureCompression == true) {
 		GLint glFormat= toFormatGl(format, components);
 
-		printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d\n",path.c_str(),format,components,glFormat);
+		printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d, rawSize = %llu\n",path.c_str(),format,components,glFormat,(long long unsigned int)rawSize);
 
 		GLint compressed=0;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed);
@@ -456,10 +507,17 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 
 		printf("**** Texture compressed status: %d, error [%d]\n",compressed,error);
 
+		bool isCompressed = (compressed == 1);
 		compressed=0;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed);
 		error = glGetError();
-		printf("**** Texture image size in video RAM: %d, error [%d]\n",compressed,error);
+
+		double percent = 0;
+		if(isCompressed == true) {
+			percent = ((double)compressed / (double)rawSize) * (double)100.0;
+		}
+
+		printf("**** Texture image size in video RAM: %d [%.2f%%], error [%d]\n",compressed,percent,error);
 
 		compressed=0;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);

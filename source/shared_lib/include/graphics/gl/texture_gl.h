@@ -24,20 +24,24 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 class TextureGl {
 protected:
-	GLuint handle;	
+	GLuint handle;
 
 public:
+	TextureGl();
 	GLuint getHandle() const	{return handle;}
 
-	void OutputTextureDebugInfo(Texture::Format format, int components, const string path);
+	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,uint64 rawSize);
 };
 
 // =====================================================
 //	class Texture1DGl
 // =====================================================
 
-class Texture1DGl: public Texture1D, public TextureGl{
+class Texture1DGl: public Texture1D, public TextureGl {
 public:
+	Texture1DGl();
+	virtual ~Texture1DGl();
+
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end();
 };
@@ -48,6 +52,9 @@ public:
 
 class Texture2DGl: public Texture2D, public TextureGl{
 public:
+	Texture2DGl();
+	virtual ~Texture2DGl();
+
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end();
 };
@@ -58,6 +65,10 @@ public:
 
 class Texture3DGl: public Texture3D, public TextureGl{
 public:
+
+	Texture3DGl();
+	virtual ~Texture3DGl();
+
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end();
 };
@@ -68,6 +79,10 @@ public:
 
 class TextureCubeGl: public TextureCube, public TextureGl{
 public:
+
+	TextureCubeGl();
+	virtual ~TextureCubeGl();
+
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end();
 };

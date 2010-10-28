@@ -89,9 +89,11 @@ void CoreData::load(){
 	waterSplashTexture->getPixmap()->load(dir+"/misc_textures/water_splash.tga");
 
 	buttonSmallTexture= renderer.newTexture2D(rsGlobal);
+	buttonSmallTexture->setForceCompressionDisabled(true);
 	buttonSmallTexture->getPixmap()->load(dir+"/menu/textures/button_small.tga");
 
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
+	buttonBigTexture->setForceCompressionDisabled(true);
 	buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
 	
 	//display font

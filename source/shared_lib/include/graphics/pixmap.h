@@ -24,6 +24,7 @@ using Shared::Platform::int16;
 using Shared::Platform::uint16;
 using Shared::Platform::int32;
 using Shared::Platform::uint32;
+using Shared::Platform::uint64;
 using Shared::Platform::float32;
 
 namespace Shared{ namespace Graphics{
@@ -97,7 +98,7 @@ public:
 //	class Pixmap1D
 // =====================================================
 
-class Pixmap1D{
+class Pixmap1D {
 protected:
 	int w;
 	int components;
@@ -124,13 +125,14 @@ public:
 	uint8 *getPixels() const	{return pixels;}
 	void deletePixels();
 	string getPath() const		{ return path;}
+	uint64 getPixelByteCount() const;
 };
 
 // =====================================================
 //	class Pixmap2D
 // =====================================================
 
-class Pixmap2D{
+class Pixmap2D {
 protected:
 	int h;
 	int w;
@@ -199,6 +201,7 @@ public:
 	void copy(const Pixmap2D *sourcePixmap);
 	void subCopy(int x, int y, const Pixmap2D *sourcePixmap);
 	string getPath() const		{ return path;}
+	uint64 getPixelByteCount() const;
 
 private:
 	bool doDimensionsAgree(const Pixmap2D *pixmap);
@@ -208,7 +211,7 @@ private:
 //	class Pixmap3D
 // =====================================================
 
-class Pixmap3D{
+class Pixmap3D {
 protected:
 	int h;
 	int w;
@@ -240,13 +243,14 @@ public:
 	uint8 *getPixels() const	{return pixels;}
 	void deletePixels();
 	string getPath() const		{ return path;}
+	uint64 getPixelByteCount() const;
 };
 
 // =====================================================
 //	class PixmapCube
 // =====================================================
 
-class PixmapCube{
+class PixmapCube {
 public:
 	enum Face{
 		fPositiveX,
@@ -276,6 +280,7 @@ public:
 	const Pixmap2D *getFace(int face) const	{return &faces[face];}
 	void deletePixels();
 	string getPath(int face) const		{ return path[face];}
+	uint64 getPixelByteCount() const;
 };
 
 }}//end namespace
