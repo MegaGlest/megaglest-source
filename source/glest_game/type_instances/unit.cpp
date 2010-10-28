@@ -673,8 +673,22 @@ Vec3f Unit::getCurrVectorFlat() const{
 // =================== Command list related ===================
 
 //any command
-bool Unit::anyCommand() const{
-	return !commands.empty();
+bool Unit::anyCommand(bool validateCommandtype) const {
+	bool result = false;
+	if(validateCommandtype == false) {
+		result = (commands.empty() == false);
+	}
+	else {
+		for(Commands::const_iterator it= commands.begin(); it != commands.end(); ++it) {
+			const CommandType *ct = (*it)->getCommandType();
+			if(ct != NULL && ct->getClass() != ccStop) {
+				result = true;
+				break;
+			}
+		}
+	}
+
+	return result;
 }
 
 //return current command, assert that there is always one command

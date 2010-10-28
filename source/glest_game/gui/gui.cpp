@@ -672,7 +672,9 @@ void Gui::computeInfoString(int posDisplay){
 	}
 }
 
-void Gui::computeDisplay(){
+void Gui::computeDisplay() {
+
+	//printf("Start ===> computeDisplay()\n");
 
 	//init
 	display.clear();
@@ -693,35 +695,49 @@ void Gui::computeDisplay(){
 
     // ================ PART 2 ================
 
-	if(selectingPos || selectingMeetingPoint){
+	if(selectingPos || selectingMeetingPoint) {
+		//printf("selectingPos || selectingMeetingPoint\n");
 		display.setDownSelectedPos(activePos);
 	}
 
-	if(selection.isComandable()){
-		if(!selectingBuilding){
+	if(selection.isComandable()) {
+		//printf("selection.isComandable()\n");
+
+		if(selectingBuilding == false) {
 
 			//cancel button
 			const Unit *u= selection.getFrontUnit();
 			const UnitType *ut= u->getType();
-			if(selection.isCancelable()){
+			if(selection.isCancelable()) {
+				//printf("selection.isCancelable() commandcount = %d\n",selection.getUnit(0)->getCommandSize());
+				if(selection.getUnit(0)->getCommandSize() > 0) {
+					//printf("Current Command [%s]\n",selection.getUnit(0)->getCurrCommand()->toString().c_str());
+				}
+
 				display.setDownImage(cancelPos, ut->getCancelImage());
 				display.setDownLighted(cancelPos, true);
 			}
 
 			//meeting point
-			if(selection.isMeetable()){
+			if(selection.isMeetable()) {
+				//printf("selection.isMeetable()\n");
+
 				display.setDownImage(meetingPointPos, ut->getMeetingPointImage());
 				display.setDownLighted(meetingPointPos, true);
 			}
 
-			if(selection.isUniform()){
+			if(selection.isUniform()) {
+				//printf("selection.isUniform()\n");
+
 				//uniform selection
-				if(u->isBuilt()){
+				if(u->isBuilt()) {
+					//printf("u->isBuilt()\n");
+
 					int morphPos= 8;
-					for(int i=0; i<ut->getCommandTypeCount(); ++i){
+					for(int i=0; i<ut->getCommandTypeCount(); ++i) {
 						int displayPos= i;
 						const CommandType *ct= ut->getCommandType(i);
-						if(ct->getClass()==ccMorph){
+						if(ct->getClass()==ccMorph) {
 							displayPos= morphPos++;
 						}
 						display.setDownImage(displayPos, ct->getImage());
@@ -730,13 +746,14 @@ void Gui::computeDisplay(){
 					}
 				}
 			}
+			else {
+				//printf("selection.isUniform() == FALSE\n");
 
-			else{
 				//non uniform selection
 				int lastCommand= 0;
-				for(int i=0; i<ccCount; ++i){
+				for(int i=0; i<ccCount; ++i) {
 					CommandClass cc= static_cast<CommandClass>(i);
-					if(isSharedCommandClass(cc) && cc!=ccBuild){
+					if(isSharedCommandClass(cc) && cc!=ccBuild) {
 						display.setDownLighted(lastCommand, true);
 						display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
 						display.setCommandClass(lastCommand, cc);
@@ -745,7 +762,7 @@ void Gui::computeDisplay(){
 				}
 			}
 		}
-		else{
+		else {
 
 			//selecting building
 			const Unit *unit= selection.getFrontUnit();
