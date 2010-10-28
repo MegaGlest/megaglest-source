@@ -48,6 +48,9 @@ public:
 	void endLastTexture(bool mustExistInList=false);
 	void reinitTextures();
 
+	Texture::Filter getTextureFilter() const {return textureFilter;}
+	int getMaxAnisotropy() const {return maxAnisotropy;}
+
 	Texture *getTexture(const string &path);
 	Texture1D *newTexture1D();
 	Texture2D *newTexture2D();

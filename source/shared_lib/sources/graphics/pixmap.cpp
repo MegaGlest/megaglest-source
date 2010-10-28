@@ -352,8 +352,13 @@ void Pixmap1D::init(int w, int components){
 	pixels= new uint8[w*components];
 }
 
-Pixmap1D::~Pixmap1D(){
+void Pixmap1D::deletePixels() {
 	delete [] pixels;
+	pixels = NULL;
+}
+
+Pixmap1D::~Pixmap1D(){
+	deletePixels();
 }
 
 void Pixmap1D::load(const string &path){
@@ -463,8 +468,13 @@ void Pixmap2D::init(int w, int h, int components) {
 	pixels= new uint8[h*w*components];
 }
 
-Pixmap2D::~Pixmap2D(){
+void Pixmap2D::deletePixels() {
 	delete [] pixels;
+	pixels = NULL;
+}
+
+Pixmap2D::~Pixmap2D(){
+	deletePixels();
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
@@ -778,8 +788,13 @@ void Pixmap3D::init(int components){
 	pixels= NULL;
 }
 
-Pixmap3D::~Pixmap3D(){
+void Pixmap3D::deletePixels() {
 	delete [] pixels;
+	pixels = NULL;
+}
+
+Pixmap3D::~Pixmap3D(){
+	deletePixels();
 }
 
 void Pixmap3D::loadSlice(const string &path, int slice){
@@ -860,6 +875,12 @@ void PixmapCube::loadFace(const string &path, int face){
 	this->path[face] = path;
 
 	faces[face].load(path);
+}
+
+void PixmapCube::deletePixels() {
+	for(int i=0; i<6; ++i){
+		faces[i].deletePixels();
+	}
 }
 
 

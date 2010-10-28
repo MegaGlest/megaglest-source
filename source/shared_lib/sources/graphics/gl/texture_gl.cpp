@@ -23,6 +23,44 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 using namespace Platform;
 
+GLint toCompressionFormatGl(GLint format) {
+	if(Texture::useTextureCompression == false) {
+		return format;
+	}
+
+	//GL_COMPRESSED_ALPHA             <- white things but tile ok!
+	//GL_COMPRESSED_LUMINANCE         <- black tiles
+	//GL_COMPRESSED_LUMINANCE_ALPHA   <- black tiles
+	//GL_COMPRESSED_INTENSITY         <- black tiles
+	//GL_COMPRESSED_RGB               <- black tiles
+	//GL_COMPRESSED_RGBA              <- black tiles
+
+	// With the following extension (GL_EXT_texture_compression_s3tc)
+	//GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+	//GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+	//GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+	//GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+
+	switch(format) {
+		case GL_LUMINANCE:
+		case GL_LUMINANCE8:
+				return GL_COMPRESSED_LUMINANCE;
+		case GL_RGB:
+		case GL_RGB8:
+				//return GL_COMPRESSED_RGB;
+			return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+		case GL_RGBA:
+		case GL_RGBA8:
+				//return GL_COMPRESSED_RGBA;
+			return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		case GL_ALPHA:
+		case GL_ALPHA8:
+			return GL_COMPRESSED_ALPHA;
+		default:
+			return format;
+	}
+}
+
 GLint toWrapModeGl(Texture::WrapMode wrapMode){
 	switch(wrapMode){
 	case Texture::wmClamp:
@@ -96,44 +134,6 @@ GLint toInternalFormatGl(Texture::Format format, int components){
 	}
 }
 
-GLint toCompressionFormatGl(GLint format) {
-	return format;
-
-	//GL_COMPRESSED_ALPHA             <- white things but tile ok!
-	//GL_COMPRESSED_LUMINANCE         <- black tiles
-	//GL_COMPRESSED_LUMINANCE_ALPHA   <- black tiles
-	//GL_COMPRESSED_INTENSITY         <- black tiles
-	//GL_COMPRESSED_RGB               <- black tiles
-	//GL_COMPRESSED_RGBA              <- black tiles
-
-	// With the following extension (GL_EXT_texture_compression_s3tc)
-	//GL_COMPRESSED_RGB_S3TC_DXT1_EXT
-	//GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-	//GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
-	//GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-
-/*
-	switch(format) {
-		case GL_LUMINANCE:
-		case GL_LUMINANCE8:
-				return GL_COMPRESSED_LUMINANCE;
-		case GL_RGB:
-		case GL_RGB8:
-				//return GL_COMPRESSED_RGB;
-			return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-		case GL_RGBA:
-		case GL_RGBA8:
-				//return GL_COMPRESSED_RGBA;
-			return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		case GL_ALPHA:
-		case GL_ALPHA8:
-			return GL_COMPRESSED_ALPHA;
-		default:
-			return format;
-	}
-*/
-}
-
 // =====================================================
 //	class Texture1DGl
 // =====================================================
@@ -147,6 +147,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
 		GLint glInternalFormat= toInternalFormatGl(format, pixmap.getComponents());
+		GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -171,7 +172,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 			glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			int error= gluBuild1DMipmaps(
-				GL_TEXTURE_1D, glInternalFormat, pixmap.getW(),
+				GL_TEXTURE_1D, glCompressionFormat, pixmap.getW(),
 				glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			if(error!=0){
@@ -187,7 +188,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 			glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			glTexImage1D(
-				GL_TEXTURE_1D, 0, glInternalFormat, pixmap.getW(),
+				GL_TEXTURE_1D, 0, glCompressionFormat, pixmap.getW(),
 				0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			GLint error= glGetError();
@@ -199,6 +200,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy){
 			}
 		}
 		inited= true;
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
 	}
 
 	assertGl();
@@ -280,17 +282,17 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy){
 				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat);
 				throw runtime_error(szBuf);
 			}
-
-			OutputTextureDebugInfo(&pixmap,format, pixmap.getComponents(),getPath());
 		}
 		inited= true;
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
 	}
 
 	assertGl();
 }
 
 void Texture2DGl::end(){
-	if(inited){
+	if(inited) {
+		//printf("==> Deleting GL Texture [%s] handle = %d\n",getPath().c_str(),handle);
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
@@ -310,6 +312,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy){
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
 		GLint glInternalFormat= toInternalFormatGl(format, pixmap.getComponents());
+		GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -328,7 +331,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy){
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTexImage3D(
-			GL_TEXTURE_3D, 0, glInternalFormat,
+			GL_TEXTURE_3D, 0, glCompressionFormat,
 			pixmap.getW(), pixmap.getH(), pixmap.getD(),
 			0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
@@ -340,6 +343,8 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy){
 			throw runtime_error(szBuf);
 		}
 		inited= true;
+
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath());
 	}
 
 	assertGl();
@@ -422,7 +427,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy){
 				throw runtime_error(szBuf);
 			}
 
-			OutputTextureDebugInfo(currentPixmap,format, currentPixmap->getComponents(),getPath());
+			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath());
 		}
 		inited= true;
 
@@ -439,29 +444,28 @@ void TextureCubeGl::end(){
 	}
 }
 
-void TextureGl::OutputTextureDebugInfo(const Pixmap2D *pixmap,Texture::Format format, int components,const string path) {
+void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path) {
+	if(Texture::useTextureCompression == true) {
+		GLint glFormat= toFormatGl(format, components);
 
-/*
-	GLint glFormat= toFormatGl(format, components);
+		printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d\n",path.c_str(),format,components,glFormat);
 
-	printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d, path [%s]\n",pixmap->getPath().c_str(),format,components,glFormat,path.c_str());
+		GLint compressed=0;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed);
+		int error = glGetError();
 
-	GLint compressed=0;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed);
-	int error = glGetError();
+		printf("**** Texture compressed status: %d, error [%d]\n",compressed,error);
 
-	printf("**** Texture compressed status: %d, error [%d]\n",compressed,error);
+		compressed=0;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed);
+		error = glGetError();
+		printf("**** Texture image size in video RAM: %d, error [%d]\n",compressed,error);
 
-	compressed=0;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed);
-	error = glGetError();
-	printf("**** Texture image size in video RAM: %d, error [%d]\n",compressed,error);
-
-	compressed=0;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
-	error = glGetError();
-	printf("**** Texture image compression format used: %d, error [%d]\n",compressed,error);
-*/
+		compressed=0;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
+		error = glGetError();
+		printf("**** Texture image compression format used: %d, error [%d]\n",compressed,error);
+	}
 }
 
 }}}//end namespace

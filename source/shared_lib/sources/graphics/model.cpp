@@ -34,7 +34,8 @@ using namespace Util;
 
 // ==================== constructor & destructor ====================
 
-Mesh::Mesh(){
+Mesh::Mesh() {
+	textureManager = NULL;
 	frameCount= 0;
 	vertexCount= 0;
 	indexCount= 0;
@@ -48,24 +49,25 @@ Mesh::Mesh(){
 
 	for(int i=0; i<meshTextureCount; ++i){
 		textures[i]= NULL;
+		texturesOwned[i]=false;
 	}
 
 	twoSided= false;
 	customColor= false;
 }
 
-Mesh::~Mesh(){
+Mesh::~Mesh() {
 	end();
 }
 
-void Mesh::init(){
+void Mesh::init() {
 	vertices= new Vec3f[frameCount*vertexCount];
 	normals= new Vec3f[frameCount*vertexCount];
 	texCoords= new Vec2f[vertexCount];
 	indices= new uint32[indexCount];
 }
 
-void Mesh::end(){
+void Mesh::end() {
 	delete [] vertices;
 	delete [] normals;
 	delete [] texCoords;
@@ -73,6 +75,16 @@ void Mesh::end(){
 	delete [] indices;
 
 	delete interpolationData;
+
+	if(textureManager != NULL) {
+		for(int i = 0; i < meshTextureCount; ++i) {
+			if(texturesOwned[i] == true && textures[i] != NULL) {
+				//printf("Deleting Texture [%s] i = %d\n",textures[i]->getPath().c_str(),i);
+				textureManager->endTexture(textures[i]);
+			}
+		}
+	}
+	textureManager = NULL;
 }
 
 // ========================== shadows & interpolation =========================
@@ -91,7 +103,8 @@ void Mesh::updateInterpolationVertices(float t, bool cycle) const{
 
 // ==================== load ====================
 
-void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager){
+void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+	this->textureManager = textureManager;
 	//read header
 	MeshHeaderV2 meshHeader;
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV2), 1, f);
@@ -125,6 +138,12 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager){
 		if(textures[mtDiffuse]==NULL){
 			textures[mtDiffuse]= textureManager->newTexture2D();
 			textures[mtDiffuse]->load(texPath);
+			texturesOwned[mtDiffuse]=true;
+			// M.V. Test
+			textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+			if(deletePixMapAfterLoad == true) {
+				textures[mtDiffuse]->deletePixels();
+			}
 		}
 	}
 
@@ -140,7 +159,9 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager){
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager){
+void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+	this->textureManager = textureManager;
+
 	//read header
 	MeshHeaderV3 meshHeader;
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV3), 1, f);
@@ -170,6 +191,12 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager){
 		if(textures[mtDiffuse]==NULL){
 			textures[mtDiffuse]= textureManager->newTexture2D();
 			textures[mtDiffuse]->load(texPath);
+			texturesOwned[mtDiffuse]=true;
+			// M.V. Test
+			textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+			if(deletePixMapAfterLoad == true) {
+				textures[mtDiffuse]->deletePixels();
+			}
 		}
 	}
 
@@ -187,7 +214,9 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager){
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager){
+void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+	this->textureManager = textureManager;
+
 	//read header
 	MeshHeader meshHeader;
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeader), 1, f);
@@ -222,10 +251,15 @@ void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager){
 			textures[i]= static_cast<Texture2D*>(textureManager->getTexture(mapFullPath));
 			if(textures[i]==NULL){
 				textures[i]= textureManager->newTexture2D();
-				if(meshTextureChannelCount[i]!=-1){
+				if(meshTextureChannelCount[i] != -1){
 					textures[i]->getPixmap()->init(meshTextureChannelCount[i]);
 				}
 				textures[i]->load(mapFullPath);
+				texturesOwned[i]=true;
+				textures[i]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+				if(deletePixMapAfterLoad == true) {
+					textures[i]->deletePixels();
+				}
 			}
 		}
 		flag*= 2;
@@ -313,6 +347,14 @@ void Mesh::computeTangents(){
 	}
 }
 
+void Mesh::deletePixels() {
+	for(int i = 0; i < meshTextureCount; ++i) {
+		if(textures[i] != NULL) {
+			textures[i]->deletePixels();
+		}
+	}
+}
+
 // ===============================================
 //	class Model
 // ===============================================
@@ -359,7 +401,7 @@ uint32 Model::getTriangleCount() const{
 	return triangleCount;
 }
 
-uint32 Model::getVertexCount() const{
+uint32 Model::getVertexCount() const {
 	uint32 vertexCount= 0;
 	for(uint32 i=0; i<meshCount; ++i){
 		vertexCount+= meshes[i].getVertexCount();
@@ -369,17 +411,17 @@ uint32 Model::getVertexCount() const{
 
 // ==================== io ====================
 
-void Model::load(const string &path){
+void Model::load(const string &path, bool deletePixMapAfterLoad) {
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="g3d" || extension=="G3D"){
-		loadG3d(path);
+		loadG3d(path,deletePixMapAfterLoad);
 	}
 	else{
 		throw runtime_error("Unknown model format: " + extension);
 	}
 }
 
-void Model::save(const string &path){
+void Model::save(const string &path) {
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="g3d" ||extension=="G3D" || extension=="s3d" || extension=="S3D"){
 		saveS3d(path);
@@ -428,7 +470,7 @@ void Model::save(const string &path){
 }*/
 
 //load a model from a g3d file
-void Model::loadG3d(const string &path){
+void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
     try{
 		FILE *f=fopen(path.c_str(),"rb");
@@ -462,7 +504,7 @@ void Model::loadG3d(const string &path){
 			//load meshes
 			meshes= new Mesh[meshCount];
 			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].load(dir, f, textureManager);
+				meshes[i].load(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -472,7 +514,7 @@ void Model::loadG3d(const string &path){
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 			meshes= new Mesh[meshCount];
 			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].loadV3(dir, f, textureManager);
+				meshes[i].loadV3(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -482,7 +524,7 @@ void Model::loadG3d(const string &path){
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 			meshes= new Mesh[meshCount];
 			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].loadV2(dir, f, textureManager);
+				meshes[i].loadV2(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -521,6 +563,12 @@ void Model::saveS3d(const string &path){
 	}
 
 	fclose(f);*/
+}
+
+void Model::deletePixels() {
+	for(uint32 i = 0; i < meshCount; ++i) {
+		meshes[i].deletePixels();
+	}
 }
 
 }}//end namespace

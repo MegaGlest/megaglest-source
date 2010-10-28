@@ -535,6 +535,16 @@ int FactionType::getStartingResourceAmount(const ResourceType *resourceType) con
 	return 0;
 }
 
+void FactionType::deletePixels() {
+	for(int i = 0; i <unitTypes.size(); ++i) {
+		UnitType &unitType = unitTypes[i];
+		Texture2D *texture = unitType.getMeetingPointImage();
+		if(texture != NULL) {
+			texture->deletePixels();
+		}
+	}
+}
+
 std::string FactionType::toString() const {
 	std::string result = "";
 

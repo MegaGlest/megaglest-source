@@ -24,6 +24,7 @@ namespace Shared{ namespace Graphics{
 
 const int Texture::defaultSize= 256;
 const int Texture::defaultComponents = 4;
+bool Texture::useTextureCompression = false;
 
 Texture::Texture(){
 	mipmap= true;
@@ -49,6 +50,15 @@ void Texture1D::load(const string &path){
 	this->path= path;
 }
 
+string Texture1D::getPath() const {
+	return (pixmap.getPath() != "" ? pixmap.getPath() : path);
+}
+
+void Texture1D::deletePixels() {
+	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	pixmap.deletePixels();
+}
+
 // =====================================================
 //	class Texture2D
 // =====================================================
@@ -62,6 +72,15 @@ void Texture2D::load(const string &path){
 	}
 	pixmap.load(path);
 	this->path= path;
+}
+
+string Texture2D::getPath() const {
+	return (pixmap.getPath() != "" ? pixmap.getPath() : path);
+}
+
+void Texture2D::deletePixels() {
+	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	pixmap.deletePixels();
 }
 
 // =====================================================
@@ -79,6 +98,15 @@ void Texture3D::loadSlice(const string &path, int slice){
 	this->path= path;
 }
 
+string Texture3D::getPath() const {
+	return (pixmap.getPath() != "" ? pixmap.getPath() : path);
+}
+
+void Texture3D::deletePixels() {
+	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	pixmap.deletePixels();
+}
+
 // =====================================================
 //	class TextureCube
 // =====================================================
@@ -92,6 +120,27 @@ void TextureCube::loadFace(const string &path, int face){
 	}
 	pixmap.loadFace(path, face);
 	this->path= path;
+}
+
+string TextureCube::getPath() const {
+	string result = "";
+	for(int i = 0; i < 6; ++i) {
+		if(pixmap.getPath(i) != "") {
+			if(result != "") {
+				result += ",";
+			}
+			result += pixmap.getPath(i);
+		}
+	}
+	if(result == "") {
+		result = path;
+	}
+	return result;
+}
+
+void TextureCube::deletePixels() {
+	//printf("+++> Texture pixmap deletion for [%s]\n",getPath().c_str());
+	pixmap.deletePixels();
 }
 
 }}//end namespace

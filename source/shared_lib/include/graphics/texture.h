@@ -28,10 +28,11 @@ class TextureParams;
 //	class Texture
 // =====================================================
 
-class Texture{
+class Texture {
 public:
 	static const int defaultSize;
 	static const int defaultComponents;
+	static bool useTextureCompression;
 
 	enum WrapMode{
 		wmRepeat,
@@ -69,7 +70,6 @@ public:
 	WrapMode getWrapMode() const	{return wrapMode;}
 	bool getPixmapInit() const		{return pixmapInit;}
 	Format getFormat() const		{return format;}
-	const string getPath() const	{return path;}
 
 	void setMipmap(bool mipmap)			{this->mipmap= mipmap;}
 	void setWrapMode(WrapMode wrapMode)	{this->wrapMode= wrapMode;}
@@ -78,6 +78,8 @@ public:
 
 	virtual void init(Filter filter= fBilinear, int maxAnisotropy= 1)=0;
 	virtual void end()=0;
+	virtual string getPath() const = 0;
+	virtual void deletePixels() = 0;
 
 	virtual void reseInitState() { inited = false; }
 };
@@ -95,6 +97,8 @@ public:
 
 	Pixmap1D *getPixmap()				{return &pixmap;}
 	const Pixmap1D *getPixmap() const	{return &pixmap;}
+	virtual string getPath() const;
+	virtual void deletePixels();
 };
 
 // =====================================================
@@ -110,6 +114,8 @@ public:
 
 	Pixmap2D *getPixmap()				{return &pixmap;}
 	const Pixmap2D *getPixmap() const	{return &pixmap;}
+	virtual string getPath() const;
+	virtual void deletePixels();
 };
 
 // =====================================================
@@ -125,6 +131,8 @@ public:
 
 	Pixmap3D *getPixmap()				{return &pixmap;}
 	const Pixmap3D *getPixmap() const	{return &pixmap;}
+	virtual string getPath() const;
+	virtual void deletePixels();
 };
 
 // =====================================================
@@ -140,6 +148,8 @@ public:
 
 	PixmapCube *getPixmap()				{return &pixmap;}
 	const PixmapCube *getPixmap() const	{return &pixmap;}
+	virtual string getPath() const;
+	virtual void deletePixels();
 };
 
 }}//end namespace
