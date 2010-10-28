@@ -19,6 +19,7 @@
 
 using std::string;
 using Shared::Platform::uint8;
+using Shared::Platform::uint64;
 
 namespace Shared{ namespace Graphics{
 
@@ -81,6 +82,7 @@ public:
 	virtual void end()=0;
 	virtual string getPath() const = 0;
 	virtual void deletePixels() = 0;
+	virtual uint64 getPixelByteCount() const = 0;
 
 	virtual void reseInitState() { inited = false; }
 
@@ -104,6 +106,7 @@ public:
 	const Pixmap1D *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
+	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
 };
 
 // =====================================================
@@ -121,6 +124,7 @@ public:
 	const Pixmap2D *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
+	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
 };
 
 // =====================================================
@@ -138,6 +142,7 @@ public:
 	const Pixmap3D *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
+	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
 };
 
 // =====================================================
@@ -155,6 +160,7 @@ public:
 	const PixmapCube *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
+	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
 };
 
 }}//end namespace

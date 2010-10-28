@@ -135,7 +135,7 @@ Game::~Game() {
 
 	Unit::setGame(NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 }
 
 bool Game::quitTriggered() {
@@ -640,7 +640,7 @@ void Game::init(bool initForPreviewOnly)
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 }
 
 // ==================== update ====================

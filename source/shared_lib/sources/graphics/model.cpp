@@ -81,6 +81,7 @@ void Mesh::end() {
 			if(texturesOwned[i] == true && textures[i] != NULL) {
 				//printf("Deleting Texture [%s] i = %d\n",textures[i]->getPath().c_str(),i);
 				textureManager->endTexture(textures[i]);
+				textures[i] = NULL;
 			}
 		}
 	}

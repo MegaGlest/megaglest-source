@@ -23,11 +23,10 @@ namespace Shared{ namespace Graphics{
 // =====================================================
 //	class TextureManager
 // =====================================================
+typedef vector<Texture*> TextureContainer;
 
 //manages textures, creation on request and deletion on destruction
 class TextureManager{
-protected:
-	typedef vector<Texture*> TextureContainer;
 	
 protected:
 	TextureContainer textures;
@@ -56,6 +55,8 @@ public:
 	Texture2D *newTexture2D();
 	Texture3D *newTexture3D();
 	TextureCube *newTextureCube();
+
+	const TextureContainer &getTextures() const {return textures;}
 };
 
 
