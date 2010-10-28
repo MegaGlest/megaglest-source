@@ -392,7 +392,7 @@ public:
 	Vec3f getCurrVectorFlat() const;
 
     //command related
-	bool anyCommand() const;
+	bool anyCommand(bool validateCommandtype=false) const;
 	Command *getCurrCommand() const;
 	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnits(const UnitType *ut) const;

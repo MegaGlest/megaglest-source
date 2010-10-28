@@ -141,8 +141,8 @@ bool Selection::isComandable() const{
 
 bool Selection::isCancelable() const{
 	return
-		selectedUnits.size()>1 ||
-		(selectedUnits.size()==1 && selectedUnits[0]->anyCommand());
+		selectedUnits.size() > 1 ||
+		(selectedUnits.size() == 1 && selectedUnits[0]->anyCommand(true));
 }
 
 bool Selection::isMeetable() const{

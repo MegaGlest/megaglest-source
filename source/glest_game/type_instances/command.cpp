@@ -103,7 +103,7 @@ std::string Command::toString() const {
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
-	result = ", stateType = " + intToStr(stateType) + ", stateValue = " + intToStr(stateValue);
+	result += ", stateType = " + intToStr(stateType) + ", stateValue = " + intToStr(stateValue);
 
 	return result;
 }
