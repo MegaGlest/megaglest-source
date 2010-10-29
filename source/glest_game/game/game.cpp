@@ -1196,9 +1196,12 @@ void Game::keyDown(char key) {
 			else if(key == configKeys.getCharKey("Screenshot")) {
 				string path = GameConstants::folder_path_screenshots;
 				if(isdir(path.c_str()) == true) {
-					for(int i=0; i<100; ++i){
+					Config &config= Config::getInstance();
+					string fileFormat = config.getString("ScreenShotFileType","bmp");
+
+					for(int i=0; i<250; ++i){
 						path = GameConstants::folder_path_screenshots;
-						path += "screen" + intToStr(i) + ".tga";
+						path += "screen" + intToStr(i) + "." + fileFormat;
 						FILE *f= fopen(path.c_str(), "rb");
 						if(f==NULL) {
 							Renderer::getInstance().saveScreen(path);

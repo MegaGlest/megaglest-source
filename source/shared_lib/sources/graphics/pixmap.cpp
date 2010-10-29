@@ -506,10 +506,10 @@ void Pixmap2D::load(const string &path) {
 
 void Pixmap2D::save(const string &path) {
 	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension == "bmp") {
+	if(toLower(extension) == "bmp") {
 		saveBmp(path);
 	}
-	else if(extension == "tga") {
+	else if(toLower(extension) == "tga") {
 		saveTga(path);
 	}
 	else {
