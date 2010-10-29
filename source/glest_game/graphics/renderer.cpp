@@ -2720,7 +2720,9 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glPushMatrix();
 				glLoadIdentity();
 				if(game->getGameCamera()->getState()==GameCamera::sGame){
-					glOrtho(-35, 5, -15, 15, -1000, 1000);
+					//glOrtho(-35, 5, -15, 15, -1000, 1000);
+					//glOrtho(-30, 30, -20, 20, -1000, 1000);
+					glOrtho(-30, 5, -20, 20, -1000, 1000);
 				}
 				else{
 					glOrtho(-30, 30, -20, 20, -1000, 1000);
@@ -2738,7 +2740,6 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				const Vec3f &pos= game->getGameCamera()->getPos();
 
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
-
 			}
 			else{
 				//non directional light
@@ -2747,7 +2748,10 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
 				glLoadIdentity();
-				gluPerspective(150, 1.f, perspNearPlane, perspFarPlane);
+				gluPerspective(perspFov, 1.f, perspNearPlane, perspFarPlane);
+				//const Metrics &metrics= Metrics::getInstance();
+				//gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+
 
 				//push modelview
 				glMatrixMode(GL_MODELVIEW);
