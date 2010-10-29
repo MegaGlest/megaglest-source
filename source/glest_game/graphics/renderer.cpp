@@ -2969,7 +2969,7 @@ void Renderer::saveScreen(const string &path){
 				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	pixmapScreenShot->saveTga(path);
+	pixmapScreenShot->save(path);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
