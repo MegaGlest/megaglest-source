@@ -10,12 +10,12 @@
 // ==============================================================
 
 #include "texture_gl.h"
-
 #include <stdexcept>
-
 #include "opengl.h"
-#include "leak_dumper.h"
 #include <iostream>
+#include <vector>
+
+#include "leak_dumper.h"
 
 using namespace std;
 
@@ -25,8 +25,80 @@ using namespace Platform;
 
 const uint64 MIN_BYTES_TO_COMPRESS = 12;
 
+static std::string getSupportCompressedTextureFormatString(int format) {
+	std::string result = intToStr(format);
+	switch(format) {
+		case GL_COMPRESSED_ALPHA:
+			result = "GL_COMPRESSED_ALPHA";
+			break;
+		case GL_COMPRESSED_LUMINANCE:
+			result = "GL_COMPRESSED_LUMINANCE";
+			break;
+		case GL_COMPRESSED_LUMINANCE_ALPHA:
+			result = "GL_COMPRESSED_LUMINANCE_ALPHA";
+			break;
+		case GL_COMPRESSED_INTENSITY:
+			result = "GL_COMPRESSED_INTENSITY";
+			break;
+		case GL_COMPRESSED_RGB:
+			result = "GL_COMPRESSED_RGB";
+			break;
+		case GL_COMPRESSED_RGBA:
+			result = "GL_COMPRESSED_RGBA";
+			break;
+		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+			result = "GL_COMPRESSED_RGB_S3TC_DXT1_EXT";
+			break;
+		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+			result = "GL_COMPRESSED_RGBA_S3TC_DXT1_EXT";
+			break;
+		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+			result = "GL_COMPRESSED_RGBA_S3TC_DXT3_EXT";
+			break;
+		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+			result = "GL_COMPRESSED_RGBA_S3TC_DXT5_EXT";
+			break;
+	}
+	return result;
+}
+
+static int getNumCompressedTextureFormats() {
+    int numCompressedTextureFormats = 0;
+    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numCompressedTextureFormats);
+    return numCompressedTextureFormats;
+}
+
+static std::vector<int> getSupportCompressedTextureFormats() {
+	std::vector<int> result;
+	int count = getNumCompressedTextureFormats();
+	if(count > 0) {
+		int *formats = new int[count];
+		glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS,&formats[0]);
+
+		for(int i = 0; i < count; ++i) {
+			result.push_back(formats[i]);
+		}
+		delete [] formats;
+	}
+
+	if(Texture::useTextureCompression == true) {
+		printf("------------------------------------------------\n");
+		printf("**** getSupportCompressedTextureFormats() result.size() = %d, count = %d\n",(int)result.size(),count);
+		for(int i = 0; i < result.size(); ++i) {
+			printf("Texture Compression #i = %d, result[i] = %d [%s]\n",i,result[i],getSupportCompressedTextureFormatString(result[i]).c_str());
+		}
+		printf("------------------------------------------------\n");
+	}
+	return result;
+}
+
 GLint toCompressionFormatGl(GLint format) {
 	if(Texture::useTextureCompression == false) {
+		return format;
+	}
+
+	static std::vector<int> supportedCompressionFormats = getSupportCompressedTextureFormats();
+	if(supportedCompressionFormats.size() <= 0) {
 		return format;
 	}
 
