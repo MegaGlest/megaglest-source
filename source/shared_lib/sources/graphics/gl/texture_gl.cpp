@@ -324,6 +324,7 @@ GLint toCompressionFormatGl(GLint format) {
 			//else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB_FXT1_3DFX) != supportedCompressionFormats.end()) {
 			//	return GL_COMPRESSED_RGB_FXT1_3DFX;
 			//}
+			break;
 
 		case GL_RGBA:
 		case GL_RGBA8:
@@ -343,6 +344,7 @@ GLint toCompressionFormatGl(GLint format) {
 			//else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGBA_FXT1_3DFX) != supportedCompressionFormats.end()) {
 			//	return GL_COMPRESSED_RGBA_FXT1_3DFX;
 			//}
+			break;
 
 		case GL_ALPHA:
 		case GL_ALPHA8:
