@@ -461,7 +461,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 			if(error != 0) {
 				//throw runtime_error("Error building texture 1D mipmaps");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 1D mipmaps, returned: %d [%s] w = %d",error,pixmap.getPath().c_str(),pixmap.getW());
+				sprintf(szBuf,"Error building texture 1D mipmaps, returned: %d [%s] w = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -478,7 +478,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 			if(error!=GL_NO_ERROR){
 				//throw runtime_error("Error creating texture 1D");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 1D, returned: %d [%s] w = %d",error,pixmap.getPath().c_str(),pixmap.getW());
+				sprintf(szBuf,"Error creating texture 1D, returned: %d [%s] w = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -556,7 +556,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			if(error != 0) {
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH());
+				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -575,7 +575,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 
 			if(error != GL_NO_ERROR) {
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat);
+				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -648,7 +648,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 		if(error != GL_NO_ERROR) {
 			//throw runtime_error("Error creating texture 3D");
 			char szBuf[1024]="";
-			sprintf(szBuf,"Error creating texture 3D, returned: %d [%s] w = %d, h = %d, d = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD());
+			sprintf(szBuf,"Error creating texture 3D, returned: %d [%s] w = %d, h = %d, d = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD(),glCompressionFormat);
 			throw runtime_error(szBuf);
 		}
 		inited= true;
@@ -730,7 +730,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 				if(error != 0) {
 					//throw runtime_error("Error building texture cube mipmaps");
 					char szBuf[1024]="";
-					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH());
+					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 					throw runtime_error(szBuf);
 				}
 			}
@@ -745,7 +745,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error creating texture cube");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture cube, returned: %d [%s] w = %d, h = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH());
+				sprintf(szBuf,"Error creating texture cube, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 
