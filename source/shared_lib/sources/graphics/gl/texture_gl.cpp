@@ -27,11 +27,6 @@ using namespace Shared::Util;
 
 const uint64 MIN_BYTES_TO_COMPRESS = 12;
 
-#define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT  0x8C4C
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT 0x8C4D
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT 0x8C4E
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT 0x8C4F
-
 static std::string getSupportCompressedTextureFormatString(int format) {
 	std::string result = intToStr(format) + "[" + intToHex(format) + "]";
 	switch(format) {
@@ -147,7 +142,7 @@ static std::string getSupportCompressedTextureFormatString(int format) {
 		case GL_COMPRESSED_SLUMINANCE_ALPHA_EXT:
 			result = "GL_COMPRESSED_SLUMINANCE_ALPHA_EXT";
 			break;
-*/
+
 		case GL_COMPRESSED_SRGB_S3TC_DXT1_EXT:
 			result = "GL_COMPRESSED_SRGB_S3TC_DXT1_EXT";
 			break;
@@ -163,7 +158,6 @@ static std::string getSupportCompressedTextureFormatString(int format) {
 		case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
 			result = "GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT";
 			break;
-/*
 
 		case GL_COMPRESSED_LUMINANCE_LATC1_EXT:
 			result = "GL_COMPRESSED_LUMINANCE_LATC1_EXT";
@@ -300,11 +294,6 @@ GLint toCompressionFormatGl(GLint format) {
 
 	//#define GL_COMPRESSED_RGB_FXT1_3DFX       0x86B0
 	//#define GL_COMPRESSED_RGBA_FXT1_3DFX      0x86B1
-
-#define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT  0x8C4C
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT 0x8C4D
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT 0x8C4E
-#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT 0x8C4F
 
 	switch(format) {
 		case GL_LUMINANCE:
