@@ -43,7 +43,7 @@ public:
 	virtual ~Texture1DGl();
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end();
+	virtual void end(bool deletePixelBuffer=true);
 };
 
 // =====================================================
@@ -56,7 +56,7 @@ public:
 	virtual ~Texture2DGl();
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end();
+	virtual void end(bool deletePixelBuffer=true);
 };
 
 // =====================================================
@@ -70,7 +70,7 @@ public:
 	virtual ~Texture3DGl();
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end();
+	virtual void end(bool deletePixelBuffer=true);
 };
 
 // =====================================================
@@ -84,7 +84,7 @@ public:
 	virtual ~TextureCubeGl();
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end();
+	virtual void end(bool deletePixelBuffer=true);
 };
 
 }}}//end namespace

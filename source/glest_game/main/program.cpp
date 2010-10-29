@@ -661,5 +661,10 @@ void Program::showMessage(const char *msg) {
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-
+void Program::reInitGl() {
+	if(window != NULL) {
+		Config &config= Config::getInstance();
+		window->initGl(config.getInt("ColorBits"), config.getInt("DepthBits"), config.getInt("StencilBits"),config.getBool("HardwareAcceleration","false"),config.getBool("FullScreenAntiAliasing","false"));
+	}
+}
 }}//end namespace

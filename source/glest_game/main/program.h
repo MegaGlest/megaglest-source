@@ -161,6 +161,8 @@ public:
 	void renderProgramMsgBox();
 	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
 
+	void reInitGl();
+
 private:
 	
 	void setDisplaySettings();

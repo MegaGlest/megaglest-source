@@ -347,7 +347,7 @@ void MainWindow::eventKeyDown(char key){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// This stupidity only required in win32.
-			// We reload the textures so that 
+			// We reload the textures so that the canvas paints textures properly
 #ifdef WIN32
 			if(Window::getAllowAltEnterFullscreenToggle() == true) {
 				Renderer &renderer= Renderer::getInstance();
