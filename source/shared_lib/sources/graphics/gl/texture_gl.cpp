@@ -352,6 +352,7 @@ GLint toCompressionFormatGl(GLint format) {
 		default:
 			return format;
 	}
+	return format;
 }
 
 GLint toWrapModeGl(Texture::WrapMode wrapMode){
