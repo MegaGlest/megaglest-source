@@ -739,6 +739,10 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 				glCompressionFormat = glInternalFormat;
 			}
 
+			if(glCompressionFormat == GL_COMPRESSED_RGBA_FXT1_3DFX) {
+				glCompressionFormat = glInternalFormat;
+			}
+
 			//pixel init var
 			const uint8* pixels= pixmapInit? currentPixmap->getPixels(): NULL;
 			GLenum target= GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
