@@ -644,6 +644,9 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 		if(forceCompressionDisabled == true || (pixmap.getPixelByteCount() > 0 && pixmap.getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
 			glCompressionFormat = glInternalFormat;
 		}
+		if(glCompressionFormat == GL_COMPRESSED_RGBA_FXT1_3DFX) {
+			glCompressionFormat = glInternalFormat;
+		}
 
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
@@ -736,10 +739,6 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 			GLint glInternalFormat= toInternalFormatGl(format, currentPixmap->getComponents());
 			GLint glCompressionFormat = toCompressionFormatGl(glInternalFormat);
 			if(forceCompressionDisabled == true || (currentPixmap->getPixelByteCount() > 0 && currentPixmap->getPixelByteCount() <= MIN_BYTES_TO_COMPRESS)) {
-				glCompressionFormat = glInternalFormat;
-			}
-
-			if(glCompressionFormat == GL_COMPRESSED_RGBA_FXT1_3DFX) {
 				glCompressionFormat = glInternalFormat;
 			}
 
