@@ -318,9 +318,9 @@ GLint toCompressionFormatGl(GLint format) {
 			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB) != supportedCompressionFormats.end()) {
 				return GL_COMPRESSED_RGB;
 			}
-			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_SRGB_S3TC_DXT1_EXT) != supportedCompressionFormats.end()) {
-				return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-			}
+			//else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_SRGB_S3TC_DXT1_EXT) != supportedCompressionFormats.end()) {
+			//	return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+			//}
 			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB_FXT1_3DFX) != supportedCompressionFormats.end()) {
 				return GL_COMPRESSED_RGB_FXT1_3DFX;
 			}
