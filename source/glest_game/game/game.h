@@ -109,6 +109,7 @@ private:
 	int renderFpsAvgTest;
 
 	bool photoModeEnabled;
+	Program *program;
 
 public:
     Game(Program *program, const GameSettings *gameSettings);

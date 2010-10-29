@@ -79,7 +79,7 @@ public:
 	void setFormat(Format format)		{this->format= format;}
 
 	virtual void init(Filter filter= fBilinear, int maxAnisotropy= 1)=0;
-	virtual void end()=0;
+	virtual void end(bool deletePixelBuffer=true)=0;
 	virtual string getPath() const = 0;
 	virtual void deletePixels() = 0;
 	virtual uint64 getPixelByteCount() const = 0;

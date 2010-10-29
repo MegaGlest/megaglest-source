@@ -84,6 +84,9 @@ void TextureManager::init(bool forceInit) {
 		if(forceInit == true) {
 			texture->reseInitState();
 		}
+		if(forceInit == true) {
+			texture->end(false);
+		}
 		texture->init(textureFilter, maxAnisotropy);
 	}
 }

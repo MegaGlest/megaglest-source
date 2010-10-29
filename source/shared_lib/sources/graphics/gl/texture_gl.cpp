@@ -14,7 +14,8 @@
 #include "opengl.h"
 #include <iostream>
 #include <vector>
-
+#include "conversion.h"
+#include <algorithm>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -22,11 +23,12 @@ using namespace std;
 namespace Shared{ namespace Graphics{ namespace Gl{
 
 using namespace Platform;
+using namespace Shared::Util;
 
 const uint64 MIN_BYTES_TO_COMPRESS = 12;
 
 static std::string getSupportCompressedTextureFormatString(int format) {
-	std::string result = intToStr(format);
+	std::string result = intToStr(format) + "[" + intToHex(format) + "]";
 	switch(format) {
 		case GL_COMPRESSED_ALPHA:
 			result = "GL_COMPRESSED_ALPHA";
@@ -58,6 +60,182 @@ static std::string getSupportCompressedTextureFormatString(int format) {
 		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
 			result = "GL_COMPRESSED_RGBA_S3TC_DXT5_EXT";
 			break;
+
+/*
+		case GL_COMPRESSED_SRGB:
+			result = "GL_COMPRESSED_SRGB";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA:
+			result = "GL_COMPRESSED_SRGB_ALPHA";
+			break;
+
+		case GL_COMPRESSED_SLUMINANCE:
+			result = "GL_COMPRESSED_SLUMINANCE";
+			break;
+
+		case GL_COMPRESSED_SLUMINANCE_ALPHA:
+			result = "GL_COMPRESSED_SLUMINANCE_ALPHA";
+			break;
+
+		case GL_COMPRESSED_RED:
+			result = "GL_COMPRESSED_RED";
+			break;
+
+		case GL_COMPRESSED_RG:
+			result = "GL_COMPRESSED_RG";
+			break;
+
+		case GL_COMPRESSED_RED_RGTC1:
+			result = "GL_COMPRESSED_RED_RGTC1";
+			break;
+
+		case GL_COMPRESSED_SIGNED_RED_RGTC1:
+			result = "GL_COMPRESSED_SIGNED_RED_RGTC1";
+			break;
+
+		case GL_COMPRESSED_RG_RGTC2:
+			result = "GL_COMPRESSED_RG_RGTC2";
+			break;
+
+		case GL_COMPRESSED_SIGNED_RG_RGTC2:
+			result = "GL_COMPRESSED_SIGNED_RG_RGTC2";
+			break;
+
+		case GL_COMPRESSED_RGBA_BPTC_UNORM_ARB:
+			result = "GL_COMPRESSED_RGBA_BPTC_UNORM_ARB";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB:
+			result = "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB";
+			break;
+
+		case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB:
+			result = "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB";
+			break;
+
+		case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB:
+			result = "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB";
+			break;
+*/
+		case GL_COMPRESSED_RGB_FXT1_3DFX:
+			result = "GL_COMPRESSED_RGB_FXT1_3DFX";
+			break;
+
+		case GL_COMPRESSED_RGBA_FXT1_3DFX:
+			result = "GL_COMPRESSED_RGBA_FXT1_3DFX";
+			break;
+
+/*
+		case GL_COMPRESSED_SRGB_EXT:
+			result = "GL_COMPRESSED_SRGB_EXT";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA_EXT:
+			result = "GL_COMPRESSED_SRGB_ALPHA_EXT";
+			break;
+
+		case GL_COMPRESSED_SLUMINANCE_EXT:
+			result = "GL_COMPRESSED_SLUMINANCE_EXT";
+			break;
+
+		case GL_COMPRESSED_SLUMINANCE_ALPHA_EXT:
+			result = "GL_COMPRESSED_SLUMINANCE_ALPHA_EXT";
+			break;
+
+		case GL_COMPRESSED_SRGB_S3TC_DXT1_EXT:
+			result = "GL_COMPRESSED_SRGB_S3TC_DXT1_EXT";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+			result = "GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+			result = "GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT";
+			break;
+
+		case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+			result = "GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT";
+			break;
+
+
+		case GL_COMPRESSED_LUMINANCE_LATC1_EXT:
+			result = "GL_COMPRESSED_LUMINANCE_LATC1_EXT";
+			break;
+
+		case GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT:
+			result = "GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT";
+			break;
+
+		case GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT:
+			result = "GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT";
+			break;
+
+		case GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT:
+			result = "GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT";
+			break;
+
+		case GL_COMPRESSED_RED_RGTC1_EXT:
+			result = "GL_COMPRESSED_RED_RGTC1_EXT";
+			break;
+
+		case GL_COMPRESSED_SIGNED_RED_RGTC1_EXT:
+			result = "GL_COMPRESSED_SIGNED_RED_RGTC1_EXT";
+			break;
+
+		case GL_COMPRESSED_RED_GREEN_RGTC2_EXT:
+			result = "GL_COMPRESSED_RED_GREEN_RGTC2_EXT";
+			break;
+
+		case GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT:
+			result = "GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT";
+			break;
+*/
+
+/*
+#define GL_COMPRESSED_SRGB                0x8C48
+#define GL_COMPRESSED_SRGB_ALPHA          0x8C49
+
+#define GL_COMPRESSED_SLUMINANCE          0x8C4A
+#define GL_COMPRESSED_SLUMINANCE_ALPHA    0x8C4B
+
+#define GL_COMPRESSED_RED                 0x8225
+#define GL_COMPRESSED_RG                  0x8226
+
+#define GL_COMPRESSED_RED_RGTC1           0x8DBB
+#define GL_COMPRESSED_SIGNED_RED_RGTC1    0x8DBC
+#define GL_COMPRESSED_RG_RGTC2            0x8DBD
+#define GL_COMPRESSED_SIGNED_RG_RGTC2     0x8DBE
+
+#define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB 0x8E8C
+#define GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB 0x8E8D
+#define GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB 0x8E8E
+#define GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB 0x8E8F
+
+#define GL_COMPRESSED_RGB_FXT1_3DFX       0x86B0
+#define GL_COMPRESSED_RGBA_FXT1_3DFX      0x86B1
+
+#define GL_COMPRESSED_SRGB_EXT            0x8C48
+#define GL_COMPRESSED_SRGB_ALPHA_EXT      0x8C49
+#define GL_COMPRESSED_SLUMINANCE_EXT      0x8C4A
+#define GL_COMPRESSED_SLUMINANCE_ALPHA_EXT 0x8C4B
+#define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT  0x8C4C
+#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT 0x8C4D
+#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT 0x8C4E
+#define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT 0x8C4F
+
+#define GL_COMPRESSED_LUMINANCE_LATC1_EXT 0x8C70
+#define GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT 0x8C71
+#define GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT 0x8C72
+#define GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT 0x8C73
+
+#define GL_COMPRESSED_RED_RGTC1_EXT       0x8DBB
+#define GL_COMPRESSED_SIGNED_RED_RGTC1_EXT 0x8DBC
+#define GL_COMPRESSED_RED_GREEN_RGTC2_EXT 0x8DBD
+#define GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT 0x8DBE
+*/
+
 	}
 	return result;
 }
@@ -115,18 +293,38 @@ GLint toCompressionFormatGl(GLint format) {
 	//GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
 	//GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
 
+#define GL_COMPRESSED_RGB_FXT1_3DFX       0x86B0
+#define GL_COMPRESSED_RGBA_FXT1_3DFX      0x86B1
+
 	switch(format) {
 		case GL_LUMINANCE:
 		case GL_LUMINANCE8:
 				return GL_COMPRESSED_LUMINANCE;
 		case GL_RGB:
 		case GL_RGB8:
-			return GL_COMPRESSED_RGB;
-			//return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB_S3TC_DXT1_EXT) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			}
+			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGB;
+			}
+			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGB_FXT1_3DFX) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGB_FXT1_3DFX;
+			}
+
 		case GL_RGBA:
 		case GL_RGBA8:
-			return GL_COMPRESSED_RGBA;
-			//return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+
+			if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGBA_S3TC_DXT5_EXT) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			}
+			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGBA) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGBA;
+			}
+			else if(std::find(supportedCompressionFormats.begin(),supportedCompressionFormats.end(),GL_COMPRESSED_RGBA_FXT1_3DFX) != supportedCompressionFormats.end()) {
+				return GL_COMPRESSED_RGBA_FXT1_3DFX;
+			}
+
 		case GL_ALPHA:
 		case GL_ALPHA8:
 			return GL_COMPRESSED_ALPHA;
@@ -291,14 +489,16 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 }
 
-void Texture1DGl::end() {
+void Texture1DGl::end(bool deletePixelBuffer) {
 	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
 		handle=0;
 		inited=false;
-		deletePixels();
+		if(deletePixelBuffer == true) {
+			deletePixels();
+		}
 	}
 }
 
@@ -386,7 +586,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 }
 
-void Texture2DGl::end() {
+void Texture2DGl::end(bool deletePixelBuffer) {
 	if(inited == true) {
 		//printf("==> Deleting GL Texture [%s] handle = %d\n",getPath().c_str(),handle);
 		assertGl();
@@ -394,7 +594,9 @@ void Texture2DGl::end() {
 		assertGl();
 		handle=0;
 		inited=false;
-		deletePixels();
+		if(deletePixelBuffer == true) {
+			deletePixels();
+		}
 	}
 }
 
@@ -457,15 +659,16 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 }
 
-void Texture3DGl::end() {
+void Texture3DGl::end(bool deletePixelBuffer) {
 	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
-
 		handle=0;
 		inited=false;
-		deletePixels();
+		if(deletePixelBuffer == true) {
+			deletePixels();
+		}
 	}
 }
 
@@ -555,15 +758,16 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 }
 
-void TextureCubeGl::end() {
+void TextureCubeGl::end(bool deletePixelBuffer) {
 	if(inited == true) {
 		assertGl();
 		glDeleteTextures(1, &handle);
 		assertGl();
-
 		handle=0;
 		inited=false;
-		deletePixels();
+		if(deletePixelBuffer == true) {
+			deletePixels();
+		}
 	}
 }
 

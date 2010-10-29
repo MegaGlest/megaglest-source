@@ -45,6 +45,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->program = program;
 	Unit::setGame(this);
 
 	original_updateFps = GameConstants::updateFps;
@@ -136,6 +137,8 @@ Game::~Game() {
 	Unit::setGame(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	//this->program->reInitGl();
+	//renderer.reinitAll();
 }
 
 bool Game::quitTriggered() {
