@@ -30,7 +30,7 @@ public:
 	TextureGl();
 	GLuint getHandle() const	{return handle;}
 
-	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,uint64 rawSize);
+	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,uint64 rawSize,GLenum texType);
 };
 
 // =====================================================

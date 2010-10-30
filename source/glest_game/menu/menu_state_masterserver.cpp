@@ -340,6 +340,9 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+
+	MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+	masterServerThreadInDeletion = false;
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
 	updateFromMasterserverThread->setUniqueID(__FILE__);
@@ -351,16 +354,25 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 MenuStateMasterserver::~MenuStateMasterserver() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(updateFromMasterserverThread != NULL) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needUpdateFromServer = false;
-		safeMutex.ReleaseLock();
+	if(masterServerThreadInDeletion == false) {
+		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+		if(updateFromMasterserverThread != NULL) {
+			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+			needUpdateFromServer = false;
+			safeMutex.ReleaseLock();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
-		delete updateFromMasterserverThread;
-		updateFromMasterserverThread = NULL;
+			//BaseThread::shutdownAndWait(updateFromMasterserverThread);
+			masterServerThreadInDeletion = true;
+			delete updateFromMasterserverThread;
+			updateFromMasterserverThread = NULL;
+			masterServerThreadInDeletion = false;
+			safeMutexPtr.ReleaseLock();
+		}
+		else {
+			safeMutexPtr.ReleaseLock();
+		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -411,8 +423,12 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+		masterServerThreadInDeletion = true;
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
+		masterServerThreadInDeletion = false;
+		safeMutexPtr.ReleaseLock();
 
 		safeMutex.ReleaseLock();
 
@@ -433,8 +449,12 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
+		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+		masterServerThreadInDeletion = true;
 		delete updateFromMasterserverThread;
 		updateFromMasterserverThread = NULL;
+		masterServerThreadInDeletion = false;
+		safeMutexPtr.ReleaseLock();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -459,9 +479,13 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	    		safeMutex.ReleaseLock();
 
+	    		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+	    		masterServerThreadInDeletion = true;
 	    		BaseThread::shutdownAndWait(updateFromMasterserverThread);
 	    		delete updateFromMasterserverThread;
 	    		updateFromMasterserverThread = NULL;
+	    		masterServerThreadInDeletion = false;
+	    		safeMutexPtr.ReleaseLock();
 
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	    		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
@@ -589,10 +613,17 @@ void MenuStateMasterserver::simpleTask() {
 void MenuStateMasterserver::updateServerInfo() {
 	try {
 
-		if( updateFromMasterserverThread == NULL ||
-			updateFromMasterserverThread->getQuitStatus() == true) {
+		if(masterServerThreadInDeletion == true) {
 			return;
 		}
+
+		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+		if( updateFromMasterserverThread == NULL ||
+			updateFromMasterserverThread->getQuitStatus() == true) {
+			safeMutexPtr.ReleaseLock();
+			return;
+		}
+		safeMutexPtr.ReleaseLock(true);
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needUpdateFromServer = false;
@@ -668,10 +699,14 @@ void MenuStateMasterserver::updateServerInfo() {
 						sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
 						masterServerInfo->setServerTitle(szBuf);
 
-						if( updateFromMasterserverThread == NULL ||
+						safeMutexPtr.Lock();
+						if( masterServerThreadInDeletion == true ||
+							updateFromMasterserverThread == NULL ||
 							updateFromMasterserverThread->getQuitStatus() == true) {
+							safeMutexPtr.ReleaseLock();
 							return;
 						}
+						safeMutexPtr.ReleaseLock(true);
 
 						safeMutex.Lock();
 						serverLines.push_back(new ServerLine( masterServerInfo, i, containerName));
@@ -685,16 +720,19 @@ void MenuStateMasterserver::updateServerInfo() {
 			}
 		}
 
+		safeMutexPtr.Lock();
 		if( updateFromMasterserverThread == NULL ||
 			updateFromMasterserverThread->getQuitStatus() == true) {
+			safeMutexPtr.ReleaseLock();
 			return;
 		}
+		safeMutexPtr.ReleaseLock();
 		
 		safeMutex.Lock();
 		if(serverLines.size()>numberOfOldServerLines) {
 			playServerFoundSound=true;
 		}
-		safeMutex.ReleaseLock(true);
+		safeMutex.ReleaseLock();
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
