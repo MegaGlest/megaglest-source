@@ -728,10 +728,10 @@ int glestMain(int argc, char** argv){
 
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
-			program->initServer(mainWindow);
+			program->initServer(mainWindow,false,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
-			program->initServer(mainWindow,true);
+			program->initServer(mainWindow,true,false);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
 			int foundParamIndIndex = -1;

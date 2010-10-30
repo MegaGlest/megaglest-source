@@ -590,7 +590,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -600,7 +603,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -610,7 +616,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
 		reloadFactions(true);
 
@@ -622,7 +631,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -632,7 +644,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -658,7 +673,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(listBoxTileset.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		
-		needToRepublishToMasterserver = true;
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
         if(hasNetworkGameSettings() == true)
         {
             needToSetChangedGameSettings = true;
@@ -674,7 +691,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		labelMapInfo.setText(mapInfo.desc);
 		updateControlers();
 		updateNetworkSlots();
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -686,7 +706,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		reloadFactions(false);
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
 
         if(hasNetworkGameSettings() == true)
         {
@@ -714,7 +737,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 */
 	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
         if(hasNetworkGameSettings() == true)
         {
             needToSetChangedGameSettings = true;
@@ -771,14 +797,20 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 				updateNetworkSlots();
 
-				needToRepublishToMasterserver = true;
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
                 if(hasNetworkGameSettings() == true) {
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);
                 }
 			}
 			else if(listBoxFactions[i].mouseClick(x, y)) {
-				needToRepublishToMasterserver = true;
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
 
                 if(hasNetworkGameSettings() == true)
                 {
@@ -797,7 +829,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 				else {
 					lastSelectedTeamIndex[i] = -1;
 				}
-				needToRepublishToMasterserver = true;
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
 
                 if(hasNetworkGameSettings() == true)
                 {
@@ -837,7 +872,10 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 	serverInterface->setGameSettings(&gameSettings,false);
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-	needToRepublishToMasterserver = true;
+
+	if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+		needToRepublishToMasterserver = true;
+	}
 
 	if(hasNetworkGameSettings() == true)
 	{
@@ -1500,8 +1538,10 @@ void MenuStateCustomGame::update() {
 		bool republishToMaster = (difftime(time(NULL),lastMasterserverPublishing) >= 5);
 
 		if(republishToMaster == true) {
-			needToRepublishToMasterserver = true;
-			lastMasterserverPublishing = time(NULL);
+			if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				needToRepublishToMasterserver = true;
+				lastMasterserverPublishing = time(NULL);
+			}
 		}
 
 		bool callPublishNow = (listBoxPublishServer.getEditable() &&
@@ -2075,7 +2115,10 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		updateControlers();
 		updateNetworkSlots();
-		needToRepublishToMasterserver = true;
+
+		//if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+		//	needToRepublishToMasterserver = true;
+		//}
 
         if(hasNetworkGameSettings() == true)
         {
