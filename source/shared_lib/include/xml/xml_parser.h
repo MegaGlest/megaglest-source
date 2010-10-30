@@ -106,7 +106,7 @@ public:
 	const string &getText() const	{return text;}
 
 	XmlAttribute *getAttribute(unsigned int i) const;
-	XmlAttribute *getAttribute(const string &name) const;
+	XmlAttribute *getAttribute(const string &name,bool mustExist=true) const;
 	XmlNode *getChild(unsigned int i) const;
 	XmlNode *getChild(const string &childName, unsigned int childIndex=0) const;
 	bool hasChildAtIndex(const string &childName, int childIndex=0) const;

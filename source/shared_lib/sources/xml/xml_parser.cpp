@@ -241,13 +241,17 @@ XmlAttribute *XmlNode::getAttribute(unsigned int i) const{
 	return attributes[i];
 }
 
-XmlAttribute *XmlNode::getAttribute(const string &name) const{
+XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 	for(unsigned int i=0; i<attributes.size(); ++i){
 		if(attributes[i]->getName()==name){
 			return attributes[i];
 		}
 	}
-	throw runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
+	if(mustExist == true) {
+		throw runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
+	}
+
+	return NULL;
 }
 
 XmlNode *XmlNode::getChild(unsigned int i) const {

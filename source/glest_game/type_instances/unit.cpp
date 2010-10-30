@@ -1345,8 +1345,21 @@ bool Unit::morph(const MorphCommandType *mct){
 float Unit::computeHeight(const Vec2i &pos) const{
 	float height= map->getCell(pos)->getHeight();
 
-	if(currField==fAir){
-		height+= World::airHeight;
+	if(currField == fAir) {
+		height += World::airHeight;
+
+		Unit *unit = map->getCell(pos)->getUnit(fLand);
+		if(unit != NULL && unit->getType()->getHeight() > World::airHeight) {
+			height += (std::min((float)unit->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+		}
+		else {
+			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
+			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
+				if(sc->getObject()->getType()->getHeight() > World::airHeight) {
+					height += (std::min((float)sc->getObject()->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+				}
+			}
+		}
 	}
 
 	return height;
