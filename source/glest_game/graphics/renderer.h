@@ -31,6 +31,7 @@
 #include "model.h"
 #include "graphics_interface.h"
 #include "base_renderer.h"
+#include "simple_threads.h"
 
 #ifdef DEBUG_RENDERING_ENABLED
 #	define IF_DEBUG_EDITION(x) x
@@ -44,6 +45,7 @@
 namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;
+using namespace Shared::PlatformCommon;
 
 // =====================================================
 // 	class MeshCallbackTeamColor
@@ -131,7 +133,7 @@ public:
 };
 
 
-class Renderer : public RendererInterface, public BaseRenderer {
+class Renderer : public RendererInterface, public BaseRenderer, public SimpleTaskCallbackInterface {
 public:
 	//progress bar
 	static const int maxProgressBar;
@@ -242,7 +244,9 @@ private:
 
 	bool useQuadCache;
 
-	Pixmap2D *pixmapScreenShot;
+	SimpleTaskThread *saveScreenShotThread;
+	Mutex saveScreenShotThreadAccessor;
+	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
 private:
 	Renderer();
@@ -386,6 +390,7 @@ public:
 	void removeUnitFromQuadCache(const Unit *unit);
 
 	uint64 getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
+	unsigned int getSaveScreenQueueSize();
 
 private:
 	//private misc
@@ -420,6 +425,8 @@ private:
 	void renderProgressBar(int size, int x, int y, Font2D *font);
 	void renderTile(const Vec2i &pos);
 	void renderQuad(int x, int y, int w, int h, const Texture2D *texture);
+
+	void simpleTask();
 
 	//static
     static Texture2D::Filter strToTextureFilter(const string &s);

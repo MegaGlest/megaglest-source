@@ -152,11 +152,10 @@ Renderer::Renderer() {
 	modelRenderer = NULL;
 	textRenderer = NULL;
 	particleRenderer = NULL;
+	saveScreenShotThread = NULL;
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
-
-	pixmapScreenShot = NULL;;
 
 	//resources
 	for(int i=0; i < rsCount; ++i) {
@@ -189,9 +188,13 @@ Renderer::Renderer() {
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
+
+	saveScreenShotThread = new SimpleTaskThread(this,0,25);
+	saveScreenShotThread->setUniqueID(__FILE__);
+	saveScreenShotThread->start();
 }
 
-Renderer::~Renderer(){
+Renderer::~Renderer() {
 	delete modelRenderer;
 	modelRenderer = NULL;
 	delete textRenderer;
@@ -211,10 +214,48 @@ Renderer::~Renderer(){
 		fontManager[i] = NULL;
 	}
 
-	delete pixmapScreenShot;
+	// Wait for the queue to become empty or timeout the thread at 7 seconds
+	for(time_t elapsed = time(NULL);
+		getSaveScreenQueueSize() > 0 && difftime(time(NULL),elapsed) <= 7;) {
+		sleep(10);
+	}
+	delete saveScreenShotThread;
+	saveScreenShotThread = NULL;
+
+	if(getSaveScreenQueueSize() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
+
+		for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
+			iter != saveScreenQueue.end(); ++iter) {
+			delete iter->second;
+		}
+	}
 
 	this->menu = NULL;
 	this->game = NULL;
+}
+
+void Renderer::simpleTask() {
+	// This code reads pixmaps from a queue and saves them to disk
+	Pixmap2D *savePixMapBuffer=NULL;
+	string path="";
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	if(saveScreenQueue.size() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
+
+		savePixMapBuffer = saveScreenQueue.front().second;
+		path = saveScreenQueue.front().first;
+
+		saveScreenQueue.pop_front();
+	}
+	safeMutex.ReleaseLock();
+
+	if(savePixMapBuffer != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] about to save [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+		savePixMapBuffer->save(path);
+		delete savePixMapBuffer;
+	}
 }
 
 Renderer &Renderer::getInstance(){
@@ -2945,21 +2986,13 @@ void Renderer::loadConfig(){
 	}
 }
 
-void Renderer::saveScreen(const string &path){
-
+void Renderer::saveScreen(const string &path) {
 	const Metrics &sm= Metrics::getInstance();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
-	if( pixmapScreenShot == NULL ||
-		pixmapScreenShot->getW() != sm.getScreenW() ||
-		pixmapScreenShot->getH() != sm.getScreenH()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		delete pixmapScreenShot;
-		pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
-	}
+	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	glFinish();
@@ -2969,9 +3002,21 @@ void Renderer::saveScreen(const string &path){
 				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	pixmapScreenShot->save(path);
+
+	// Signal the threads queue to add a screenshot save request
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	saveScreenQueue.push_back(make_pair(path,pixmapScreenShot));
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+unsigned int Renderer::getSaveScreenQueueSize() {
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	int queueSize = saveScreenQueue.size();
+	safeMutex.ReleaseLock();
+
+	return queueSize;
 }
 
 // ==================== PRIVATE ====================

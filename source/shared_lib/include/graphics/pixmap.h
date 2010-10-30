@@ -33,7 +33,7 @@ namespace Shared{ namespace Graphics{
 //	class PixmapIo
 // =====================================================
 
-class PixmapIo{
+class PixmapIo {
 protected:
 	int w;
 	int h;
@@ -58,7 +58,7 @@ public:
 //	class PixmapIoTga
 // =====================================================
 
-class PixmapIoTga: public PixmapIo{
+class PixmapIoTga: public PixmapIo {
 private:
 	FILE *file;
 
@@ -78,7 +78,7 @@ public:
 //	class PixmapIoBmp
 // =====================================================
 
-class PixmapIoBmp: public PixmapIo{
+class PixmapIoBmp: public PixmapIo {
 private:
 	FILE *file;
 
@@ -86,6 +86,27 @@ public:
 	PixmapIoBmp();
 	virtual ~PixmapIoBmp();
 	
+	virtual void openRead(const string &path);
+	virtual void read(uint8 *pixels);
+	virtual void read(uint8 *pixels, int components);
+
+	virtual void openWrite(const string &path, int w, int h, int components);
+	virtual void write(uint8 *pixels);
+};
+
+// =====================================================
+//	class PixmapIoBmp
+// =====================================================
+
+class PixmapIoPng: public PixmapIo {
+private:
+	FILE *file;
+	string path;
+
+public:
+	PixmapIoPng();
+	virtual ~PixmapIoPng();
+
 	virtual void openRead(const string &path);
 	virtual void read(uint8 *pixels);
 	virtual void read(uint8 *pixels, int components);
@@ -157,7 +178,7 @@ public:
 	void save(const string &path);
 	void saveBmp(const string &path);
 	void saveTga(const string &path);
-
+	void savePng(const string &path);
 
 	//get 
 	int getW() const			{return w;}
