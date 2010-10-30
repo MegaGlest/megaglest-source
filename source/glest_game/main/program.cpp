@@ -141,13 +141,13 @@ void Program::initNormal(WindowGl *window){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Program::initServer(WindowGl *window, bool autostart) {
+void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots) {
 	MainMenu* mainMenu= NULL;
 
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, true, false, autostart));
+	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, false, autostart));
 }
 
 void Program::initClient(WindowGl *window, const Ip &serverIp) {
