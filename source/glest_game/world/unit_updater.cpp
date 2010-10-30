@@ -472,32 +472,49 @@ void UnitUpdater::updateBuild(Unit *unit) {
 						throw runtime_error("detected unsupported pathfinder type!");
 			    }
 
-				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, command->getPos(), builtUnitType, unit->getFaction(), world->getMap(), facing);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				Vec2i buildPos = command->getPos();
+				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, buildPos, builtUnitType, unit->getFaction(), world->getMap(), facing);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				builtUnit->create();
 
-				if(!builtUnitType->hasSkillClass(scBeBuilt)){
+				if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
 					throw runtime_error("Unit " + builtUnitType->getName() + "has no be_built skill");
 				}
 
 				builtUnit->setCurrSkill(scBeBuilt);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				unit->setCurrSkill(bct->getBuildSkillType());
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				unit->setTarget(builtUnit);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				map->prepareTerrain(builtUnit);
 
-	    		switch(this->game->getGameSettings()->getPathFinderType()) {
-	    			case pfBasic:
-	    				break;
-	    			case pfRoutePlanner:
-	    				world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
-	    				break;
-	    			default:
-	    				throw runtime_error("detected unsupported pathfinder type!");
-	    	    }
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				switch(this->game->getGameSettings()->getPathFinderType()) {
+					case pfBasic:
+						break;
+					case pfRoutePlanner:
+						world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
+						break;
+					default:
+						throw runtime_error("detected unsupported pathfinder type!");
+				}
 
 				command->setUnit(builtUnit);
 
 				//play start sound
-				if(unit->getFactionIndex()==world->getThisFactionIndex()){
+				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
 					SoundRenderer::getInstance().playFx(
 						bct->getStartSound(),
 						unit->getCurrVector(),
@@ -511,7 +528,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				unit->cancelCommand();
                 unit->setCurrSkill(scStop);
 
-				if(unit->getFactionIndex()==world->getThisFactionIndex()){
+				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
                      console->addStdMessage("BuildingNoPlace");
 				}
 
@@ -530,12 +547,19 @@ void UnitUpdater::updateBuild(Unit *unit) {
         }
     }
     else {
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
         //if building
         Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
+        if(builtUnit == NULL) {
+        	builtUnit = map->getCell(unit->getTargetPos())->getUnitWithEmptyCellMap(fLand);
+        }
 
-        //if u is killed while building then u==NULL;
+        if(builtUnit != NULL) {
+        	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builtUnit = %s\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
+        }
+
+        //if unit is killed while building then u==NULL;
 		if(builtUnit != NULL && builtUnit != command->getUnit()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->setCurrSkill(scStop);
@@ -547,7 +571,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
             unit->setCurrSkill(scStop);
 
         }
-        else if(builtUnit->repair()) {
+        else if(builtUnit == NULL || builtUnit->repair()) {
         	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             //building finished
@@ -982,7 +1006,10 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
-	Unit *repaired = map->getCell(command->getPos())->getUnit(fLand);
+	Unit *repaired = map->getCell(command->getPos())->getUnitWithEmptyCellMap(fLand);
+	if(repaired == NULL) {
+		repaired = map->getCell(command->getPos())->getUnit(fLand);
+	}
 
 	if(repaired != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit to repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str(),repaired->getId());
@@ -1054,17 +1081,18 @@ void UnitUpdater::updateRepair(Unit *unit) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit to repair[%s]\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str());
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] repaired = %p, nextToRepaired = %d\n",__FILE__,__FUNCTION__,__LINE__,repaired,nextToRepaired);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] repaired = %p, nextToRepaired = %d, unit->getCurrSkill()->getClass() = %d\n",__FILE__,__FUNCTION__,__LINE__,repaired,nextToRepaired,unit->getCurrSkill()->getClass());
 
 	UnitPathInterface *path= unit->getPath();
 
 	if(unit->getCurrSkill()->getClass() != scRepair ||
 		(nextToRepaired == false && peerUnitBuilder == NULL)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Vec2i repairPos = command->getPos();
-
 		bool startRepairing = (repaired != NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged());
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] repairPos = %s, startRepairing = %d\n",__FILE__,__FUNCTION__,__LINE__,repairPos.getString().c_str(),startRepairing);
+
 		if(startRepairing == false && peerUnitBuilder != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			startRepairing = true;
@@ -1108,6 +1136,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 	    			default:
 	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
+
+	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ts = %d\n",__FILE__,__FUNCTION__,__LINE__,ts);
 
 				switch(ts) {
 				case tsMoving:

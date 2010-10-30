@@ -78,6 +78,7 @@ UnitType::UnitType(){
 	}
 
 	cellMap= NULL;
+	allowEmptyCellMap=false;
 	hpRegeneration= 0;
 	epRegeneration= 0;
 	maxUnitCount= 0;
@@ -163,9 +164,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		multiSelect= parametersNode->getChild("multi-selection")->getAttribute("value")->getBoolValue();
 
 		//cellmap
+		allowEmptyCellMap = false;
 		const XmlNode *cellMapNode= parametersNode->getChild("cellmap");
 		bool hasCellMap= cellMapNode->getAttribute("value")->getBoolValue();
-		if(hasCellMap){
+		if(hasCellMap == true) {
+			if(cellMapNode->getAttribute("allowEmpty",false) != NULL) {
+				allowEmptyCellMap = cellMapNode->getAttribute("allowEmpty")->getBoolValue();
+			}
+
 			cellMap= new bool[size*size];
 			for(int i=0; i<size; ++i){
 				const XmlNode *rowNode= cellMapNode->getChild("row", i);
@@ -478,8 +484,26 @@ const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaire
 	return NULL;
 }
 
+bool UnitType::hasEmptyCellMap() const {
+	bool result = (size > 0);
+
+	for(int i = 0; i < size; ++i) {
+		for(int j = 0; j < size; ++j){
+			if(cellMap[i*size+j] == true) {
+				result = false;
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
 bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 	assert(cellMap);
+	if(cellMap == NULL) {
+		throw runtime_error("cellMap == NULL");
+	}
 	int tmp;
 	switch (facing) {
 		case CardinalDir::EAST:

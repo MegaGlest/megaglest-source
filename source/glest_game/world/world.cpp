@@ -482,7 +482,7 @@ const UnitType* World::findUnitTypeById(const FactionType* factionType, int id){
 
 //looks for a place for a unit around a start lociacion, returns true if succeded
 bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated){
-    bool freeSpace;
+    bool freeSpace=false;
 	int size= unit->getType()->getSize();
 	Field currField= unit->getCurrField();
 

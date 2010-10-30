@@ -38,10 +38,11 @@ namespace Glest{ namespace Game{
 // 	class Cell
 // =====================================================
 
-Cell::Cell(){
+Cell::Cell() {
 	//game data
-    for(int i=0; i<fieldCount; ++i){
+    for(int i = 0; i < fieldCount; ++i) {
         units[i]= NULL;
+        unitsWithEmptyCellMap[i]=NULL;
     }
 	height= 0;
 }
@@ -326,7 +327,12 @@ bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) c
 						return false;
 					}
 					else if(field == fLand) {
-						return sc->isFree();
+						if(sc->isFree() == false) {
+							return false;
+						}
+						else if(c->getUnit(field) != NULL) {
+							return false;
+						}
 					}
 				}
 			}
@@ -658,18 +664,27 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 }
 
 //put a units into the cells
-void Map::putUnitCells(Unit *unit, const Vec2i &pos){
+void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
 	assert(unit!=NULL);
 	const UnitType *ut= unit->getType();
 
-	for(int i=0; i<ut->getSize(); ++i){
-		for(int j=0; j<ut->getSize(); ++j){
+	for(int i = 0; i < ut->getSize(); ++i) {
+		for(int j = 0; j < ut->getSize(); ++j) {
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || ut->getCellMapCell(i, j, unit->getModelFacing())){
-				assert(getCell(currPos)->getUnit(unit->getCurrField())==NULL);
+			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
+				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
+			}
+			else if(ut->hasCellMap() == true &&
+					ut->hasEmptyCellMap() == true &&
+					ut->getAllowEmptyCellMap() == true) {
+				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), unit);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 		}
 	}
@@ -677,8 +692,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos){
 }
 
 //removes a unit from cells
-void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
-
+void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 	assert(unit!=NULL);
 	const UnitType *ut= unit->getType();
 
@@ -686,9 +700,18 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
-			if(!ut->hasCellMap() || ut->getCellMapCell(i, j, unit->getModelFacing())){
+			if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
+			}
+			else if(ut->hasCellMap() == true &&
+					ut->hasEmptyCellMap() == true &&
+					ut->getAllowEmptyCellMap() == true) {
+				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), NULL);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 		}
 	}
@@ -697,12 +720,15 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos){
 // ==================== misc ====================
 
 //return if unit is next to pos
-bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const{
+bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const {
 
-	for(int i=-1; i<=1; ++i){
-		for(int j=-1; j<=1; ++j){
+	for(int i=-1; i<=1; ++i) {
+		for(int j=-1; j<=1; ++j) {
 			if(isInside(pos.x+i, pos.y+j)) {
-				if(getCell(pos.x+i, pos.y+j)->getUnit(fLand)==unit){
+				if(getCell(pos.x+i, pos.y+j)->getUnit(fLand) == unit) {
+					return true;
+				}
+				else if(getCell(pos.x+i, pos.y+j)->getUnitWithEmptyCellMap(fLand) == unit) {
 					return true;
 				}
 			}
