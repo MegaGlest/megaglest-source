@@ -21,6 +21,8 @@
 #include "randomgen.h"
 #include "FileReader.h"
 #include "ImageReaders.h"
+#include <png.h>
+#include <setjmp.h>
 
 #include "leak_dumper.h"
 
@@ -285,7 +287,7 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 
 	file= fopen(path.c_str(),"wb");
 	if (file == NULL) {
-		throw runtime_error("Can't open BMP file for writting: "+ path);
+		throw runtime_error("Can't open BMP file for writing: "+ path);
 	}
 
 	BitmapFileHeader fileHeader;
@@ -319,6 +321,210 @@ void PixmapIoBmp::write(uint8 *pixels) {
 		fwrite(&pixels[i+1], 1, 1, file);
 		fwrite(&pixels[i], 1, 1, file);
     }
+}
+
+// =====================================================
+//	class PixmapIoPng
+// =====================================================
+
+PixmapIoPng::PixmapIoPng() {
+	file= NULL;
+}
+
+PixmapIoPng::~PixmapIoPng() {
+	if(file!=NULL){
+		fclose(file);
+		file=NULL;
+	}
+}
+
+void PixmapIoPng::openRead(const string &path) {
+
+	throw runtime_error("PixmapIoPng::openRead not implemented!");
+
+/*
+    file= fopen(path.c_str(),"rb");
+	if (file==NULL){
+		throw runtime_error("Can't open BMP file: "+ path);
+	}
+
+	//read file header
+    BitmapFileHeader fileHeader;
+    size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
+	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
+		throw runtime_error(path +" is not a bitmap");
+	}
+
+	//read info header
+	BitmapInfoHeader infoHeader;
+	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
+	if(infoHeader.bitCount!=24){
+        throw runtime_error(path+" is not a 24 bit bitmap");
+	}
+
+    h= infoHeader.height;
+    w= infoHeader.width;
+	components= 3;
+*/
+}
+
+void PixmapIoPng::read(uint8 *pixels) {
+	throw runtime_error("PixmapIoPng::read not implemented!");
+	//read(pixels, 3);
+}
+
+void PixmapIoPng::read(uint8 *pixels, int components) {
+
+	throw runtime_error("PixmapIoPng::read #2 not implemented!");
+
+/*
+    for(int i=0; i<h*w*components; i+=components) {
+		uint8 r, g, b;
+		size_t readBytes = fread(&b, 1, 1, file);
+		readBytes = fread(&g, 1, 1, file);
+		readBytes = fread(&r, 1, 1, file);
+
+		switch(components){
+		case 1:
+			pixels[i]= (r+g+b)/3;
+			break;
+		case 3:
+			pixels[i]= r;
+			pixels[i+1]= g;
+			pixels[i+2]= b;
+			break;
+		case 4:
+			pixels[i]= r;
+			pixels[i+1]= g;
+			pixels[i+2]= b;
+			pixels[i+3]= 255;
+			break;
+		}
+    }
+*/
+}
+
+void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
+    this->path = path;
+	this->w= w;
+	this->h= h;
+	this->components= components;
+
+	file= fopen(path.c_str(),"wb");
+	if (file == NULL) {
+		throw runtime_error("Can't open PNG file for writing: "+ path);
+	}
+}
+
+void PixmapIoPng::write(uint8 *pixels) {
+	// Allocate write & info structures
+   png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+   if(!png_ptr) {
+	 fclose(file);
+	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - out of memory creating write structure");
+   }
+
+   png_infop info_ptr = png_create_info_struct(png_ptr);
+   if(!info_ptr) {
+	 png_destroy_write_struct(&png_ptr,
+							  (png_infopp)NULL);
+	 fclose(file);
+	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - out of memery creating info structure");
+   }
+
+   // setjmp() must be called in every function that calls a PNG-writing
+   // libpng function, unless an alternate error handler was installed--
+   // but compatible error handlers must either use longjmp() themselves
+   // (as in this program) or exit immediately, so here we go: */
+
+   if(setjmp(png_jmpbuf(png_ptr))) {
+	 png_destroy_write_struct(&png_ptr, &info_ptr);
+	 fclose(file);
+	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - setjmp problem");
+   }
+
+   // make sure outfile is (re)opened in BINARY mode
+   png_init_io(png_ptr, file);
+
+   // set the compression levels--in general, always want to leave filtering
+   // turned on (except for palette images) and allow all of the filters,
+   // which is the default; want 32K zlib window, unless entire image buffer
+   // is 16K or smaller (unknown here)--also the default; usually want max
+   // compression (NOT the default); and remaining compression flags should
+   // be left alone
+
+   //png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+   png_set_compression_level(png_ptr, Z_DEFAULT_COMPRESSION);
+
+   //
+   // this is default for no filtering; Z_FILTERED is default otherwise:
+   // png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
+   //  these are all defaults:
+   //   png_set_compression_mem_level(png_ptr, 8);
+   //   png_set_compression_window_bits(png_ptr, 15);
+   //   png_set_compression_method(png_ptr, 8);
+
+
+   // Set some options: color_type, interlace_type
+   int color_type=0, interlace_type=0, numChannels=0;
+
+   //  color_type = PNG_COLOR_TYPE_GRAY;
+   //  color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
+   color_type = PNG_COLOR_TYPE_RGB;
+   numChannels = 3;
+   // color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+
+   interlace_type =  PNG_INTERLACE_NONE;
+   // interlace_type = PNG_INTERLACE_ADAM7;
+
+   int bit_depth = 8;
+   png_set_IHDR(png_ptr, info_ptr, this->w, this->h, bit_depth,
+				color_type,
+				interlace_type,
+				PNG_COMPRESSION_TYPE_BASE,
+				PNG_FILTER_TYPE_BASE);
+
+   // Optional gamma chunk is strongly suggested if you have any guess
+   // as to the correct gamma of the image. (we don't have a guess)
+   //
+   // png_set_gAMA(png_ptr, info_ptr, image_gamma);
+
+   // write all chunks up to (but not including) first IDAT
+   png_write_info(png_ptr, info_ptr);
+
+   // set up the row pointers for the image so we can use png_write_image
+
+   png_bytep* row_pointers = new png_bytep[this->h];
+   if (row_pointers == 0) {
+	 png_destroy_write_struct(&png_ptr, &info_ptr);
+	 fclose(file);
+	 throw runtime_error("OpenGlDevice::failed to allocate memory for row pointers");
+   }
+
+   unsigned int row_stride = this->w * numChannels;
+   unsigned char *rowptr = (unsigned char*) pixels;
+   for (int row = this->h-1; row >=0 ; row--) {
+	 row_pointers[row] = rowptr;
+	 rowptr += row_stride;
+   }
+
+   // now we just write the whole image; libpng takes care of interlacing for us
+   png_write_image(png_ptr, row_pointers);
+
+   // since that's it, we also close out the end of the PNG file now--if we
+   // had any text or time info to write after the IDATs, second argument
+   // would be info_ptr, but we optimize slightly by sending NULL pointer: */
+
+   png_write_end(png_ptr, info_ptr);
+
+   //
+   // clean up after the write
+   //    free any memory allocated & close the file
+   //
+   png_destroy_write_struct(&png_ptr, &info_ptr);
+
+   delete [] row_pointers;
+	//fclose(file);
 }
 
 // =====================================================
@@ -512,6 +718,9 @@ void Pixmap2D::save(const string &path) {
 	else if(toLower(extension) == "tga") {
 		saveTga(path);
 	}
+	else if(toLower(extension) == "png") {
+		savePng(path);
+	}
 	else {
 		throw runtime_error("Unknown pixmap extension: " + extension);
 	}
@@ -528,7 +737,12 @@ void Pixmap2D::saveTga(const string &path) {
 	pst.openWrite(path, w, h, components);
 	pst.write(pixels);
 }
+void Pixmap2D::savePng(const string &path) {
+	PixmapIoPng pst;
+	pst.openWrite(path, w, h, components);
+	pst.write(pixels);
 
+}
 void Pixmap2D::getPixel(int x, int y, uint8 *value) const {
 	for(int i=0; i<components; ++i){
 		value[i]= pixels[(w*y+x)*components+i];
