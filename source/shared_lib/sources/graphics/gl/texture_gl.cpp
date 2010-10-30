@@ -261,7 +261,7 @@ static std::vector<int> getSupportCompressedTextureFormats() {
 	if(Texture::useTextureCompression == true) {
 		printf("------------------------------------------------\n");
 		printf("**** getSupportCompressedTextureFormats() result.size() = %d, count = %d\n",(int)result.size(),count);
-		for(int i = 0; i < result.size(); ++i) {
+		for(unsigned int i = 0; i < result.size(); ++i) {
 			printf("Texture Compression #i = %d, result[i] = %d [%s]\n",i,result[i],getSupportCompressedTextureFormatString(result[i]).c_str());
 		}
 		printf("------------------------------------------------\n");

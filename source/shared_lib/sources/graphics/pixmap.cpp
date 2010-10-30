@@ -351,7 +351,7 @@ void Pixmap1D::init(int components){
 void Pixmap1D::init(int w, int components){
 	this->w= w;
 	this->components= components;
-	pixels= new uint8[getPixelByteCount()];
+	pixels= new uint8[(std::size_t)getPixelByteCount()];
 }
 
 uint64 Pixmap1D::getPixelByteCount() const {
@@ -402,7 +402,7 @@ void Pixmap1D::loadBmp(const string &path) {
 		components= 3;
 	}
 	if(pixels == NULL) {
-		pixels= new uint8[getPixelByteCount()];
+		pixels= new uint8[(std::size_t)getPixelByteCount()];
 	}
 
 	//data
@@ -432,7 +432,7 @@ void Pixmap1D::loadTga(const string &path) {
 		components= fileComponents;
 	}
 	if(pixels == NULL) {
-		pixels= new uint8[getPixelByteCount()];
+		pixels= new uint8[(std::size_t)getPixelByteCount()];
 	}
 
 	//read data
@@ -471,7 +471,7 @@ void Pixmap2D::init(int w, int h, int components) {
 	this->w= w;
 	this->h= h;
 	this->components= components;
-	pixels= new uint8[getPixelByteCount()];
+	pixels= new uint8[(std::size_t)getPixelByteCount()];
 }
 
 uint64 Pixmap2D::getPixelByteCount() const {
@@ -779,7 +779,7 @@ void Pixmap3D::init(int w, int h, int d, int components){
 	this->h= h;
 	this->d= d;
 	this->components= components;
-	pixels= new uint8[getPixelByteCount()];
+	pixels= new uint8[(std::size_t)getPixelByteCount()];
 }
 
 uint64 Pixmap3D::getPixelByteCount() const {
@@ -838,7 +838,7 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 		components= 3;
 	}
 	if(pixels==NULL){
-		pixels= new uint8[getPixelByteCount()];
+		pixels= new uint8[(std::size_t)getPixelByteCount()];
 	}
 
 	//data
@@ -861,7 +861,7 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 		components= fileComponents;
 	}
 	if(pixels==NULL){
-		pixels= new uint8[getPixelByteCount()];
+		pixels= new uint8[(std::size_t)getPixelByteCount()];
 	}
 
 	//read data
