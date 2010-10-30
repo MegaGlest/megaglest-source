@@ -1193,28 +1193,6 @@ void Game::keyDown(char key) {
 					}
 				}
 			}
-			else if(key == configKeys.getCharKey("Screenshot")) {
-				string path = GameConstants::folder_path_screenshots;
-				if(isdir(path.c_str()) == true) {
-					Config &config= Config::getInstance();
-					string fileFormat = config.getString("ScreenShotFileType","png");
-
-					unsigned int queueSize = Renderer::getInstance().getSaveScreenQueueSize();
-
-					for(int i=0; i < 250; ++i) {
-						path = GameConstants::folder_path_screenshots;
-						path += "screen" + intToStr(i + queueSize) + "." + fileFormat;
-						FILE *f= fopen(path.c_str(), "rb");
-						if(f == NULL) {
-							Renderer::getInstance().saveScreen(path);
-							break;
-						}
-						else {
-							fclose(f);
-						}
-					}
-				}
-			}
 			//move camera left
 			else if(key == configKeys.getCharKey("CameraModeLeft")) {
 				gameCamera.setMoveX(-1);
