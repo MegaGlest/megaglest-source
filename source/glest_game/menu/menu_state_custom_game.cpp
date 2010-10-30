@@ -57,6 +57,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	generalErrorToShow = "---";
 	currentFactionLogo = "";
 	factionTexture=NULL;
+	currentTechName_factionPreview="";
+	currentFactionName_factionPreview="";
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -1554,13 +1556,21 @@ void MenuStateCustomGame::update() {
 		if(chrono.getMillis() > 0) chrono.start();
 
 		if(enableFactionTexturePreview == true) {
-			string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
-			if(factionLogo == "") {
-				factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
-			}
-			if(currentFactionLogo != factionLogo) {
-				currentFactionLogo = factionLogo;
-				loadFactionTexture(currentFactionLogo);
+
+			if( currentTechName_factionPreview != gameSettings.getTech() ||
+				currentFactionName_factionPreview != gameSettings.getFactionTypeName(gameSettings.getThisFactionIndex())) {
+
+				currentTechName_factionPreview=gameSettings.getTech();
+				currentFactionName_factionPreview=gameSettings.getFactionTypeName(gameSettings.getThisFactionIndex());
+
+				string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
+				if(factionLogo == "") {
+					factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
+				}
+				if(currentFactionLogo != factionLogo) {
+					currentFactionLogo = factionLogo;
+					loadFactionTexture(currentFactionLogo);
+				}
 			}
 		}
 

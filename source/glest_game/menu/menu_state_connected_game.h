@@ -116,6 +116,9 @@ private:
 
 	bool enableFactionTexturePreview;
 	bool enableMapPreview;
+
+	string currentTechName_factionPreview;
+	string currentFactionName_factionPreview;
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 
