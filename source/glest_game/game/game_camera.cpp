@@ -76,6 +76,15 @@ GameCamera::~GameCamera() {
 	cacheVisibleQuad.clear();
 }
 
+void GameCamera::setMaxHeight(float value) {
+	if(value < 0) {
+		maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
+	}
+	else {
+		maxHeight = value;
+	}
+}
+
 void GameCamera::init(int limitX, int limitY){
 	this->limitX= limitX;
 	this->limitY= limitY;

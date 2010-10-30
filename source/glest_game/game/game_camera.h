@@ -129,7 +129,7 @@ public:
 	void save(XmlNode *node) const;
 
 	void setClampBounds(bool value) { clampBounds = value; }
-	void setMaxHeight(float value) { maxHeight = value; }
+	void setMaxHeight(float value);
 	void setFov(float value) { fov = value; }
 	void setMinVAng(float value) { minVAng = value; }
 	void setMaxVAng(float value) { maxVAng = value; }
