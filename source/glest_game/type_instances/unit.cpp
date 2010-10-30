@@ -233,6 +233,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
 	//starting skill
 	this->currSkill = getType()->getFirstStOfClass(scStop);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -344,25 +345,28 @@ Vec2i Unit::getCellPos() const {
 	}
 
 	if(type->hasCellMap()) {
+		if( type->hasEmptyCellMap() == false ||
+			type->getAllowEmptyCellMap() == true) {
 
-		//find nearest pos to center that is free
-		Vec2i centeredPos= getCenteredPos();
-		float nearestDist= -1.f;
-		Vec2i nearestPos= pos;
+			//find nearest pos to center that is free
+			Vec2i centeredPos= getCenteredPos();
+			float nearestDist= -1.f;
+			Vec2i nearestPos= pos;
 
-		for(int i=0; i<type->getSize(); ++i){
-			for(int j=0; j<type->getSize(); ++j){
-				if(type->getCellMapCell(i, j, modelFacing)){
-					Vec2i currPos= pos + Vec2i(i, j);
-					float dist= currPos.dist(centeredPos);
-					if(nearestDist==-1.f || dist<nearestDist){
-						nearestDist= dist;
-						nearestPos= currPos;
+			for(int i=0; i<type->getSize(); ++i){
+				for(int j=0; j<type->getSize(); ++j){
+					if(type->getCellMapCell(i, j, modelFacing)){
+						Vec2i currPos= pos + Vec2i(i, j);
+						float dist= currPos.dist(centeredPos);
+						if(nearestDist==-1.f || dist<nearestDist){
+							nearestDist= dist;
+							nearestPos= currPos;
+						}
 					}
 				}
 			}
+			return nearestPos;
 		}
-		return nearestPos;
 	}
 	return pos;
 }
@@ -533,6 +537,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		throw runtime_error(szBuf);
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(), this->getFullName().c_str(), this->currSkill->toString().c_str(),currSkill->toString().c_str());
+
 	if(currSkill->getClass() != this->currSkill->getClass()) {
 		animProgress= 0;
 		lastAnimProgress= 0;
@@ -557,7 +563,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	this->currSkill= currSkill;
 }
 
-void Unit::setCurrSkill(SkillClass sc){
+void Unit::setCurrSkill(SkillClass sc) {
 	if(getType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -654,7 +660,7 @@ Vec3f Unit::getCurrVectorFlat() const{
 	float y1= computeHeight(lastPos);
 	float y2= computeHeight(pos);
 
-    if(currSkill->getClass()==scMove){
+    if(currSkill->getClass() == scMove) {
         v.x= lastPos.x + progress * (pos.x-lastPos.x);
         v.z= lastPos.y + progress * (pos.y-lastPos.y);
 		v.y= y1+progress*(y2-y1);
@@ -869,12 +875,14 @@ void Unit::create(bool startingUnit){
 	}
 }
 
-void Unit::born(){
+void Unit::born() {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
 	faction->addStore(type);
 	faction->applyStaticProduction(type);
@@ -883,19 +891,20 @@ void Unit::born(){
 	hp= type->getMaxHp();
 }
 
-void Unit::kill(){
+void Unit::kill() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
 	//no longer needs static resources
-	if(isBeingBuilt()){
+	if(isBeingBuilt()) {
 		faction->deApplyStaticConsumption(type);
 	}
-	else{
+	else {
 		faction->deApplyStaticCosts(type);
 	}
 
 	//do the cleaning
 	map->clearUnitCells(this, pos);
-	if(!isBeingBuilt()){
+	if(isBeingBuilt() == false) {
 		faction->removeStore(type);
 	}
     setCurrSkill(scDie);
@@ -995,11 +1004,11 @@ bool Unit::update() {
 	//speed modifier
 	float diagonalFactor= 1.f;
 	float heightFactor= 1.f;
-	if(currSkill->getClass()==scMove){
+	if(currSkill->getClass() == scMove) {
 
 		//if moving in diagonal move slower
 		Vec2i dest= pos-lastPos;
-		if(abs(dest.x)+abs(dest.y) == 2){
+		if(abs(dest.x)+abs(dest.y) == 2) {
 			diagonalFactor= 0.71f;
 		}
 
@@ -1019,7 +1028,7 @@ bool Unit::update() {
 	updateTarget();
 
 	//rotation
-	if(currSkill->getClass()!=scStop){
+	if(currSkill->getClass() != scStop) {
 		const int rotFactor= 2;
 		if(progress<1.f/rotFactor){
 			if(type->getFirstStOfClass(scMove)){
@@ -1057,7 +1066,7 @@ bool Unit::update() {
 	//checks
 	if(progress>=1.f) {
 		lastRotation= targetRotation;
-		if(currSkill->getClass()!=scDie) {
+		if(currSkill->getClass() != scDie) {
 			progress= 0.f;
 			return_value = true;
 		}
@@ -1105,7 +1114,7 @@ int Unit::update2(){
      return progress2;
 }
 
-bool Unit::computeEp(){
+bool Unit::computeEp() {
 
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
@@ -1114,7 +1123,7 @@ bool Unit::computeEp(){
 	}
 
 	//if not enough ep
-    if(ep-currSkill->getEpCost() < 0){
+    if(ep-currSkill->getEpCost() < 0) {
         return true;
     }
 
@@ -1536,7 +1545,7 @@ CommandResult Unit::undoCommand(Command *command){
 
 	//return building cost if not already building it or dead
 	if(command->getCommandType()->getClass() == ccBuild){
-		if(currSkill->getClass()!=scBuild && currSkill->getClass()!=scDie){
+		if(currSkill->getClass() != scBuild && currSkill->getClass() != scDie) {
 			faction->deApplyCosts(command->getUnitType());
 		}
 	}

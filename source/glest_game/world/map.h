@@ -48,6 +48,7 @@ class GameSettings;
 class Cell{
 private:
     Unit *units[fieldCount];	//units on this cell
+    Unit *unitsWithEmptyCellMap[fieldCount];	//units with an empty cellmap on this cell
 	float height;
 
 private:
@@ -59,9 +60,11 @@ public:
 
 	//get
 	Unit *getUnit(int field) const		{return units[field];}
+	Unit *getUnitWithEmptyCellMap(int field) const		{return unitsWithEmptyCellMap[field];}
 	float getHeight() const				{return height;}
 
 	void setUnit(int field, Unit *unit)	{units[field]= unit;}
+	void setUnitWithEmptyCellMap(int field, Unit *unit)	{unitsWithEmptyCellMap[field]= unit;}
 	void setHeight(float height)		{this->height= height;}
 
 	bool isFree(Field field) const;

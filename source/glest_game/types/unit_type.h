@@ -109,6 +109,7 @@ private:
 
 	//cellmap
 	bool *cellMap;
+	bool allowEmptyCellMap;
 
 	//sounds
     SoundContainer selectionSounds;
@@ -189,6 +190,8 @@ public:
     bool hasSkillType(const SkillType *skillType) const;
     bool hasSkillClass(SkillClass skillClass) const;
 	bool hasCellMap() const										{return cellMap!=NULL;}
+	bool getAllowEmptyCellMap() const {return allowEmptyCellMap;}
+	bool hasEmptyCellMap() const;
 
 	//is
 	bool isOfClass(UnitClass uc) const;
