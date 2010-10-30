@@ -65,8 +65,6 @@ public:
 	
 };
 
-
-
 // ===============================
 // 	class MenuStateMasterserver  
 // ===============================
@@ -108,8 +106,6 @@ private:
 	GraphicLabel externalConnectPort;
 
 	GraphicLabel selectButton;
-
-
 	
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
@@ -126,6 +122,8 @@ private:
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;
 	Mutex masterServerThreadAccessor;
+	Mutex masterServerThreadPtrChangeAccessor;
+	bool masterServerThreadInDeletion;
 
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);

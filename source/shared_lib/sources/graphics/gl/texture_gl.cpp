@@ -337,7 +337,10 @@ GLint toCompressionFormatGl(GLint format) {
 
 		case GL_ALPHA:
 		case GL_ALPHA8:
+			//return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			//return GL_COMPRESSED_ALPHA_ARB;
 			return GL_COMPRESSED_ALPHA;
+			//return GL_COMPRESSED_RGBA;
 		default:
 			return format;
 	}
@@ -494,7 +497,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 			}
 		}
 		inited= true;
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount(),GL_TEXTURE_1D);
 	}
 
 	assertGl();
@@ -591,7 +594,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			}
 		}
 		inited= true;
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount(),GL_TEXTURE_2D);
 	}
 
 	assertGl();
@@ -667,7 +670,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 		}
 		inited= true;
 
-		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount());
+		OutputTextureDebugInfo(format, pixmap.getComponents(),getPath(),pixmap.getPixelByteCount(),GL_TEXTURE_3D);
 	}
 
 	assertGl();
@@ -763,7 +766,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 				throw runtime_error(szBuf);
 			}
 
-			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath(),currentPixmap->getPixelByteCount());
+			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath(),currentPixmap->getPixelByteCount(),target);
 		}
 		inited= true;
 
@@ -785,21 +788,21 @@ void TextureCubeGl::end(bool deletePixelBuffer) {
 	}
 }
 
-void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path,uint64 rawSize) {
+void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path,uint64 rawSize,GLenum texType) {
 	if(Texture::useTextureCompression == true) {
 		GLint glFormat= toFormatGl(format, components);
 
 		printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d, rawSize = %llu\n",path.c_str(),format,components,glFormat,(long long unsigned int)rawSize);
 
 		GLint compressed=0;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed);
+		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_COMPRESSED, &compressed);
 		int error = glGetError();
 
 		printf("**** Texture compressed status: %d, error [%d]\n",compressed,error);
 
 		bool isCompressed = (compressed == 1);
 		compressed=0;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed);
+		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed);
 		error = glGetError();
 
 		double percent = 0;
@@ -810,7 +813,7 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 		printf("**** Texture image size in video RAM: %d [%.2f%%], error [%d]\n",compressed,percent,error);
 
 		compressed=0;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
+		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
 		error = glGetError();
 		printf("**** Texture image compression format used: %d, error [%d]\n",compressed,error);
 	}
