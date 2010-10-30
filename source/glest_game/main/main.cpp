@@ -372,6 +372,28 @@ void MainWindow::eventKeyDown(char key){
 			Config &config = Config::getInstance();
 			config.reload();
 		}
+		else if(key == configKeys.getCharKey("Screenshot")) {
+			string path = GameConstants::folder_path_screenshots;
+			if(isdir(path.c_str()) == true) {
+				Config &config= Config::getInstance();
+				string fileFormat = config.getString("ScreenShotFileType","png");
+
+				unsigned int queueSize = Renderer::getInstance().getSaveScreenQueueSize();
+
+				for(int i=0; i < 250; ++i) {
+					path = GameConstants::folder_path_screenshots;
+					path += "screen" + intToStr(i + queueSize) + "." + fileFormat;
+					FILE *f= fopen(path.c_str(), "rb");
+					if(f == NULL) {
+						Renderer::getInstance().saveScreen(path);
+						break;
+					}
+					else {
+						fclose(f);
+					}
+				}
+			}
+		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
