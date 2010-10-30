@@ -20,10 +20,11 @@ namespace Glest{ namespace Game{
 // 	class ObjectType
 // =====================================================
 
-void ObjectType::init(int modelCount, int objectClass, bool walkable){
+void ObjectType::init(int modelCount, int objectClass, bool walkable, int height) {
 	models.reserve(modelCount);
 	this->objectClass= objectClass;
 	this->walkable= walkable;
+	this->height = height;
 }
 
 void ObjectType::loadModel(const string &path){

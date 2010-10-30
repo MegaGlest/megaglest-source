@@ -44,9 +44,10 @@ private:
 	Vec3f color;
 	int objectClass;
 	bool walkable;
+	int height;
 
 public:
-	void init(int modelCount, int objectClass, bool walkable);
+	void init(int modelCount, int objectClass, bool walkable, int height);
 
 	void loadModel(const string &path);
 
@@ -55,6 +56,7 @@ public:
 	const Vec3f &getColor() const	{return color;} 
 	int getClass() const			{return objectClass;}
 	bool getWalkable() const		{return walkable;}
+	int getHeight() const			{return height;}
 	bool isATree() const			{return objectClass==tree1 || objectClass==tree2;}
 	void deletePixels();
 };

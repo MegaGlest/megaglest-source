@@ -152,8 +152,18 @@ void Tileset::load(const string &dir, Checksum *checksum){
 		for(int i=0; i<objCount; ++i){
 			const XmlNode *objectNode= objectsNode->getChild("object", i);
 			int childCount= objectNode->getChildCount();
-			objectTypes[i].init(childCount, i, objectNode->getAttribute("walkable")->getBoolValue());
-			for(int j=0; j<childCount; ++j){
+
+			int objectHeight = 0;
+			bool walkable = objectNode->getAttribute("walkable")->getBoolValue();
+			if(walkable == false) {
+				const XmlAttribute *heightAttribute = objectNode->getAttribute("height",false);
+				if(heightAttribute != NULL) {
+					objectHeight = heightAttribute->getIntValue();
+				}
+			}
+
+			objectTypes[i].init(childCount, i, walkable,objectHeight);
+			for(int j=0; j<childCount; ++j) {
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
 				objectTypes[i].loadModel(dir +"/"+ pathAttribute->getRestrictedValue());
