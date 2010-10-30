@@ -40,6 +40,8 @@ Game *thisGamePtr = NULL;
 
 // ===================== PUBLIC ========================
 
+const float PHOTO_MODE_MAXHEIGHT = 500.0;
+
 Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
@@ -1174,6 +1176,14 @@ void Game::keyDown(char key) {
 			}
 			else if(key == configKeys.getCharKey("TogglePhotoMode")) {
 				photoModeEnabled = !photoModeEnabled;
+				if(	photoModeEnabled == true &&
+					this->gameSettings.isNetworkGame() == false) {
+					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
+				}
+				else if(photoModeEnabled == false) {
+					gameCamera.setMaxHeight(-1);
+				}
+
 			}
 			//Toggle music
 			else if(key == configKeys.getCharKey("ToggleMusic")) {
@@ -1740,7 +1750,7 @@ void Game::checkWinnerStandard(){
 				// This caused too much LAG for network games
 				if(this->gameSettings.isNetworkGame() == false) {
 					Renderer::getInstance().setPhotoMode(true);
-					gameCamera.setMaxHeight(500);
+					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 				}
 				// END
 			}
@@ -1770,7 +1780,7 @@ void Game::checkWinnerStandard(){
 				// This caused too much LAG for network games
 				if(this->gameSettings.isNetworkGame() == false) {
 					Renderer::getInstance().setPhotoMode(true);
-					gameCamera.setMaxHeight(500);
+					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 				}
 				// END
 
@@ -1814,7 +1824,7 @@ void Game::checkWinnerStandard(){
 					// This caused too much LAG for network games
 					if(this->gameSettings.isNetworkGame() == false) {
 						Renderer::getInstance().setPhotoMode(true);
-						gameCamera.setMaxHeight(500);
+						gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 					}
 					// END
 				}
@@ -1844,7 +1854,7 @@ void Game::checkWinnerScripted() {
 			// This caused too much LAG for network games
 			if(this->gameSettings.isNetworkGame() == false) {
 				Renderer::getInstance().setPhotoMode(true);
-				gameCamera.setMaxHeight(500);
+				gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 			}
 			// END
 		}
