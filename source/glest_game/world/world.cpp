@@ -246,9 +246,21 @@ void World::loadScenario(const string &path, Checksum *checksum){
 void World::updateAllFactionUnits() {
 	scriptManager->onTimerTriggerEvent();
 	//units
-	for(int i=0; i<getFactionCount(); ++i) {
-		for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
-			unitUpdater.updateUnit(getFaction(i)->getUnit(j));
+	int factionCount = getFactionCount();
+	for(int i = 0; i < factionCount; ++i) {
+		Faction *faction = getFaction(i);
+		if(faction == NULL) {
+			throw runtime_error("faction == NULL");
+		}
+
+		int unitCount = faction->getUnitCount();
+		for(int j = 0; j < unitCount; ++j) {
+			Unit *unit = faction->getUnit(j);
+			if(unit == NULL) {
+				throw runtime_error("unit == NULL");
+			}
+
+			unitUpdater.updateUnit(unit);
 		}
 	}
 }
@@ -262,17 +274,27 @@ void World::underTakeDeadFactionUnits() {
 		}
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
+	int factionCount = getFactionCount();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, factionCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,factionCount);
 
 	//undertake the dead
-	for(int i=0; i<getFactionCount(); ++i){
+	for(int i = 0; i< factionCount; ++i) {
 		if(factionIdxToTick == -1 || factionIdxToTick == i) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i);
+			Faction *faction = getFaction(i);
+			if(faction == NULL) {
+				throw runtime_error("faction == NULL");
+			}
+			int unitCount = faction->getUnitCount();
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d, unitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i,unitCount);
 
-			int unitCount = getFaction(i)->getUnitCount();
-			for(int j= unitCount - 1; j >= 0; j--){
-				Unit *unit= getFaction(i)->getUnit(j);
-				if(unit->getToBeUndertaken()) {
+			for(int j= unitCount - 1; j >= 0; j--) {
+				Unit *unit= faction->getUnit(j);
+
+				if(unit == NULL) {
+					throw runtime_error("unit == NULL");
+				}
+
+				if(unit->getToBeUndertaken() == true) {
 					unit->undertake();
 					delete unit;
 					//j--;
@@ -284,11 +306,18 @@ void World::underTakeDeadFactionUnits() {
 
 void World::updateAllFactionConsumableCosts() {
 	//food costs
-	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-		const ResourceType *rt= techTree->getResourceType(i);
-		if(rt->getClass() == rcConsumable && frameCount % (rt->getInterval() * GameConstants::updateFps)==0){
-			for(int i=0; i<getFactionCount(); ++i){
-				getFaction(i)->applyCostsOnInterval(rt);
+	int resourceTypeCount = techTree->getResourceTypeCount();
+	int factionCount = getFactionCount();
+	for(int i = 0; i < resourceTypeCount; ++i) {
+		const ResourceType *rt = techTree->getResourceType(i);
+		if(rt != NULL && rt->getClass() == rcConsumable && frameCount % (rt->getInterval() * GameConstants::updateFps) == 0) {
+			for(int j = 0; j < factionCount; ++j) {
+				Faction *faction = getFaction(j);
+				if(faction == NULL) {
+					throw runtime_error("faction == NULL");
+				}
+
+				faction->applyCostsOnInterval(rt);
 			}
 		}
 	}
@@ -415,35 +444,51 @@ void World::tick() {
 
 	//increase hp
 	//int i = factionIdxToTick;
-	for(int i=0; i<getFactionCount(); ++i) {
+	int factionCount = getFactionCount();
+	for(int i = 0; i < factionCount; ++i) {
 		if(factionIdxToTick == -1 || i == factionIdxToTick) {
-			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
-				getFaction(i)->getUnit(j)->tick();
+			Faction *faction = getFaction(i);
+			if(faction == NULL) {
+				throw runtime_error("faction == NULL");
+			}
+			int unitCount = faction->getUnitCount();
+
+			for(int j = 0; j < unitCount; ++j) {
+				Unit *unit = faction->getUnit(j);
+				if(unit == NULL) {
+					throw runtime_error("unit == NULL");
+				}
+
+				unit->tick();
 			}
 		}
 	}
 
 	//compute resources balance
 	//int k = factionIdxToTick;
-	for(int k=0; k<getFactionCount(); ++k) {
+	factionCount = getFactionCount();
+	for(int k = 0; k < factionCount; ++k) {
 		if(factionIdxToTick == -1 || k == factionIdxToTick) {
 			Faction *faction= getFaction(k);
+			if(faction == NULL) {
+				throw runtime_error("faction == NULL");
+			}
 
 			//for each resource
-			for(int i=0; i<techTree->getResourceTypeCount(); ++i) {
+			for(int i = 0; i < techTree->getResourceTypeCount(); ++i) {
 				const ResourceType *rt= techTree->getResourceType(i);
 
 				//if consumable
-				if(rt->getClass()==rcConsumable) {
+				if(rt != NULL && rt->getClass()==rcConsumable) {
 					int balance= 0;
-					for(int j=0; j<faction->getUnitCount(); ++j) {
+					for(int j = 0; j < faction->getUnitCount(); ++j) {
 
 						//if unit operative and has this cost
 						const Unit *u=  faction->getUnit(j);
-						if(u->isOperative()) {
+						if(u != NULL && u->isOperative()) {
 							const Resource *r= u->getType()->getCost(rt);
-							if(r!=NULL) {
-								balance-= u->getType()->getCost(rt)->getAmount();
+							if(r != NULL) {
+								balance -= u->getType()->getCost(rt)->getAmount();
 							}
 						}
 					}
@@ -459,7 +504,7 @@ void World::tick() {
 }
 
 Unit* World::findUnitById(int id) const {
-	for(int i= 0; i<getFactionCount(); ++i){
+	for(int i= 0; i<getFactionCount(); ++i) {
 		const Faction* faction= getFaction(i);
 		Unit* unit = faction->findUnit(id);
 		if(unit != NULL) {
@@ -469,36 +514,42 @@ Unit* World::findUnitById(int id) const {
 	return NULL;
 }
 
-const UnitType* World::findUnitTypeById(const FactionType* factionType, int id){
-	for(int i= 0; i<factionType->getUnitTypeCount(); ++i){
-		const UnitType* unitType= factionType->getUnitType(i);
-
-		if(unitType->getId()==id){
+const UnitType* World::findUnitTypeById(const FactionType* factionType, int id) {
+	if(factionType == NULL) {
+		throw runtime_error("factionType == NULL");
+	}
+	for(int i= 0; i < factionType->getUnitTypeCount(); ++i) {
+		const UnitType *unitType = factionType->getUnitType(i);
+		if(unitType != NULL && unitType->getId() == id) {
 			return unitType;
 		}
 	}
 	return NULL;
 }
 
-//looks for a place for a unit around a start lociacion, returns true if succeded
-bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated){
-    bool freeSpace=false;
+//looks for a place for a unit around a start location, returns true if succeded
+bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated) {
+    if(unit == NULL) {
+    	throw runtime_error("unit == NULL");
+    }
+
+	bool freeSpace=false;
 	int size= unit->getType()->getSize();
 	Field currField= unit->getCurrField();
 
-    for(int r=1; r<radius; r++){
-        for(int i=-r; i<r; ++i){
-            for(int j=-r; j<r; ++j){
-                Vec2i pos= Vec2i(i,j)+startLoc;
-				if(spaciated){
-                    const int spacing= 2;
+    for(int r = 1; r < radius; r++) {
+        for(int i = -r; i < r; ++i) {
+            for(int j = -r; j < r; ++j) {
+                Vec2i pos= Vec2i(i,j) + startLoc;
+				if(spaciated) {
+                    const int spacing = 2;
 					freeSpace= map.isFreeCells(pos-Vec2i(spacing), size+spacing*2, currField);
 				}
-				else{
+				else {
                     freeSpace= map.isFreeCells(pos, size, currField);
 				}
 
-                if(freeSpace){
+                if(freeSpace) {
                     unit->setPos(pos);
 					unit->setMeetingPos(pos-Vec2i(1));
                     return true;
@@ -510,12 +561,16 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 }
 
 //clears a unit old position from map and places new position
-void World::moveUnitCells(Unit *unit){
+void World::moveUnitCells(Unit *unit) {
+    if(unit == NULL) {
+    	throw runtime_error("unit == NULL");
+    }
+
 	Vec2i newPos= unit->getTargetPos();
 
 	//newPos must be free or the same pos as current
 	assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
-	// Only change cell plaement in map if the new position is different
+	// Only change cell placement in map if the new position is different
 	// from the old one
 	if(newPos != unit->getPos()) {
 		map.clearUnitCells(unit, unit->getPos());
@@ -525,10 +580,10 @@ void World::moveUnitCells(Unit *unit){
 	unit->getFaction()->addCloseResourceTargetToCache(newPos);
 
 	//water splash
-	if(tileset.getWaterEffects() && unit->getCurrField()==fLand){
-		if(map.getSubmerged(map.getCell(unit->getLastPos()))){
-			int unitSize=unit->getType()->getSize();
-			for(int i=0; i<3; ++i){
+	if(tileset.getWaterEffects() && unit->getCurrField() == fLand) {
+		if(map.getSubmerged(map.getCell(unit->getLastPos()))) {
+			int unitSize= unit->getType()->getSize();
+			for(int i = 0; i < 3; ++i) {
 				waterEffects.addWaterSplash(
 					Vec2f(unit->getLastPos().x+(float)unitSize/2.0f+random.randRange(-0.9f, -0.1f), unit->getLastPos().y+random.randRange(-0.9f, -0.1f)+(float)unitSize/2.0f), unit->getType()->getSize());
 			}
@@ -539,29 +594,40 @@ void World::moveUnitCells(Unit *unit){
 }
 
 //returns the nearest unit that can store a type of resource given a position and a faction
-Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType *rt){
+Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType *rt) {
     float currDist= infinity;
     Unit *currUnit= NULL;
 
-    for(int i=0; i<getFaction(factionIndex)->getUnitCount(); ++i){
+    if(factionIndex >= getFactionCount()) {
+    	throw runtime_error("factionIndex >= getFactionCount()");
+    }
+
+    for(int i=0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
 		Unit *u= getFaction(factionIndex)->getUnit(i);
-		float tmpDist= u->getPos().dist(pos);
-        if(tmpDist<currDist && u->getType()->getStore(rt)>0 && u->isOperative()){
-            currDist= tmpDist;
-            currUnit= u;
-        }
+		if(u != NULL) {
+			float tmpDist= u->getPos().dist(pos);
+			if(tmpDist < currDist && u->getType()->getStore(rt) > 0 && u->isOperative()) {
+				currDist= tmpDist;
+				currUnit= u;
+			}
+		}
     }
     return currUnit;
 }
 
-bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const{
-    //a unit is rendered if it is in a visible cell or is attacking a unit in a visible cell
-    return
-		visibleQuad.isInside(unit->getPos()) &&
-		toRenderUnit(unit);
+bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const {
+    if(unit == NULL) {
+    	throw runtime_error("unit == NULL");
+    }
+
+	//a unit is rendered if it is in a visible cell or is attacking a unit in a visible cell
+    return visibleQuad.isInside(unit->getPos()) && toRenderUnit(unit);
 }
 
-bool World::toRenderUnit(const Unit *unit) const{
+bool World::toRenderUnit(const Unit *unit) const {
+    if(unit == NULL) {
+    	throw runtime_error("unit == NULL");
+    }
 
 	return
         (map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isVisible(thisTeamIndex) &&
@@ -571,10 +637,10 @@ bool World::toRenderUnit(const Unit *unit) const{
          map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isExplored(thisTeamIndex));
 }
 
-void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos){
+void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 
-	if(factionIndex<factions.size()){
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 
 		if(faction->getIndex() != factionIndex) {
@@ -600,49 +666,47 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
-		if(placeUnit(pos, generationArea, unit, true)){
+		if(placeUnit(pos, generationArea, unit, true)) {
 			unit->create(true);
 			unit->born();
 			scriptManager->onUnitCreated(unit);
 		}
-		else{
+		else {
 			throw runtime_error("Unit cant be placed");
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 	}
-	else
-	{
+	else {
 		throw runtime_error("Invalid faction index in createUnitAtPosition: " + intToStr(factionIndex));
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void World::giveResource(const string &resourceName, int factionIndex, int amount){
-	if(factionIndex<factions.size()){
+void World::giveResource(const string &resourceName, int factionIndex, int amount) {
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		faction->incResourceAmount(rt, amount);
 	}
-	else
-	{
+	else {
 		throw runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex));
 	}
 }
 
-void World::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos){
+void World::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos) {
 	Unit* unit= findUnitById(unitId);
-	if(unit!=NULL){
+	if(unit != NULL) {
 		CommandClass cc;
 
-		if(commandName=="move"){
+		if(commandName=="move") {
 			cc= ccMove;
 		}
-		else if(commandName=="attack"){
+		else if(commandName=="attack") {
 			cc= ccAttack;
 		}
-		else{
+		else {
 			throw runtime_error("Invalid position commmand: " + commandName);
 		}
 
@@ -650,140 +714,158 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+	else {
+		throw runtime_error("Invalid unitId index in givePositionCommand: " + intToStr(unitId) + " commandName = " + commandName);
+	}
 }
 
 
 void World::giveAttackCommand(int unitId, int unitToAttackId) {
 	Unit* unit= findUnitById(unitId);
-	if(unit != NULL){
+	if(unit != NULL) {
 		Unit* targetUnit = findUnitById(unitToAttackId);
 		if(targetUnit != NULL) {
-			const CommandType *ct= unit->getType()->getFirstAttackCommand(targetUnit->getCurrField());
+			const CommandType *ct = unit->getType()->getFirstAttackCommand(targetUnit->getCurrField());
 			if(ct != NULL) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit [%s] is attacking [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(),targetUnit->getFullName().c_str());
 				unit->giveCommand(new Command(ct,targetUnit));
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
+			else {
+				throw runtime_error("Invalid ct in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
+			}
 		}
+		else {
+			throw runtime_error("Invalid unitToAttackId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
+		}
+	}
+	else {
+		throw runtime_error("Invalid unitId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
 	}
 }
 
-void World::giveProductionCommand(int unitId, const string &producedName){
+void World::giveProductionCommand(int unitId, const string &producedName) {
 	Unit *unit= findUnitById(unitId);
-	if(unit!=NULL){
+	if(unit != NULL) {
 		const UnitType *ut= unit->getType();
 
 		//Search for a command that can produce the unit
-		for(int i= 0; i<ut->getCommandTypeCount(); ++i){
+		for(int i= 0; i< ut->getCommandTypeCount(); ++i) {
 			const CommandType* ct= ut->getCommandType(i);
-			if(ct->getClass()==ccProduce){
+			if(ct != NULL && ct->getClass() == ccProduce) {
 				const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
-				if(pct->getProducedUnit()->getName()==producedName){
+				if(pct != NULL && pct->getProducedUnit()->getName() == producedName) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 					unit->giveCommand(new Command(pct));
+
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
 			}
 		}
 	}
+	else {
+		throw runtime_error("Invalid unitId index in giveProductionCommand: " + intToStr(unitId) + " producedName = " + producedName);
+	}
 }
 
-void World::giveUpgradeCommand(int unitId, const string &upgradeName){
+void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);
-	if(unit!=NULL){
+	if(unit != NULL) {
 		const UnitType *ut= unit->getType();
 
 		//Search for a command that can produce the unit
-		for(int i= 0; i<ut->getCommandTypeCount(); ++i){
+		for(int i= 0; i < ut->getCommandTypeCount(); ++i) {
 			const CommandType* ct= ut->getCommandType(i);
-			if(ct->getClass()==ccUpgrade){
+			if(ct != NULL && ct->getClass() == ccUpgrade) {
 				const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
-				if(uct->getProducedUpgrade()->getName()==upgradeName){
+				if(uct != NULL && uct->getProducedUpgrade()->getName() == upgradeName) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 					unit->giveCommand(new Command(uct));
+
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
 			}
 		}
 	}
+	else {
+		throw runtime_error("Invalid unitId index in giveUpgradeCommand: " + intToStr(unitId) + " upgradeName = " + upgradeName);
+	}
 }
 
 
-int World::getResourceAmount(const string &resourceName, int factionIndex){
-	if(factionIndex<factions.size()){
+int World::getResourceAmount(const string &resourceName, int factionIndex) {
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		return faction->getResource(rt)->getAmount();
 	}
-	else
-	{
-		throw runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex));
+	else {
+		throw runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex) + " resourceName = " + resourceName);
 	}
 }
 
-Vec2i World::getStartLocation(int factionIndex){
-	if(factionIndex<factions.size()){
+Vec2i World::getStartLocation(int factionIndex) {
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 		return map.getStartLocation(faction->getStartLocationIndex());
 	}
-	else
-	{
+	else {
 		throw runtime_error("Invalid faction index in getStartLocation: " + intToStr(factionIndex));
 	}
 }
 
-Vec2i World::getUnitPosition(int unitId){
+Vec2i World::getUnitPosition(int unitId) {
 	Unit* unit= findUnitById(unitId);
-	if(unit==NULL){
-		throw runtime_error("Can not find unit to get position");
+	if(unit == NULL) {
+		throw runtime_error("Can not find unit to get position unitId = " + intToStr(unitId));
 	}
 	return unit->getPos();
 }
 
-int World::getUnitFactionIndex(int unitId){
+int World::getUnitFactionIndex(int unitId) {
 	Unit* unit= findUnitById(unitId);
-	if(unit==NULL){
-		throw runtime_error("Can not find unit to get position");
+	if(unit == NULL) {
+		throw runtime_error("Can not find Faction unit to get position unitId = " + intToStr(unitId));
 	}
 	return unit->getFactionIndex();
 }
 
-int World::getUnitCount(int factionIndex){
-	if(factionIndex<factions.size()){
+int World::getUnitCount(int factionIndex) {
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 		int count= 0;
 
-		for(int i= 0; i<faction->getUnitCount(); ++i){
+		for(int i= 0; i < faction->getUnitCount(); ++i) {
 			const Unit* unit= faction->getUnit(i);
-			if(unit->isAlive()){
+			if(unit != NULL && unit->isAlive()) {
 				++count;
 			}
 		}
 		return count;
 	}
-	else
-	{
+	else {
 		throw runtime_error("Invalid faction index in getUnitCount: " + intToStr(factionIndex));
 	}
 }
 
-int World::getUnitCountOfType(int factionIndex, const string &typeName){
-	if(factionIndex<factions.size()){
+int World::getUnitCountOfType(int factionIndex, const string &typeName) {
+	if(factionIndex < factions.size()) {
 		Faction* faction= &factions[factionIndex];
 		int count= 0;
 
-		for(int i= 0; i< faction->getUnitCount(); ++i){
+		for(int i= 0; i< faction->getUnitCount(); ++i) {
 			const Unit* unit= faction->getUnit(i);
-			if(unit->isAlive() && unit->getType()->getName()==typeName){
+			if(unit != NULL && unit->isAlive() && unit->getType()->getName() == typeName) {
 				++count;
 			}
 		}
 		return count;
 	}
-	else
-	{
+	else {
 		throw runtime_error("Invalid faction index in getUnitCountOfType: " + intToStr(factionIndex));
 	}
 }
@@ -793,7 +875,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName){
 // ==================== private init ====================
 
 //init basic cell state
-void World::initCells(bool fogOfWar){
+void World::initCells(bool fogOfWar) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Logger::getInstance().add("State cells", true);
@@ -801,6 +883,9 @@ void World::initCells(bool fogOfWar){
         for(int j=0; j< map.getSurfaceH(); ++j) {
 
 			SurfaceCell *sc= map.getSurfaceCell(i, j);
+			if(sc == NULL) {
+				throw runtime_error("sc == NULL");
+			}
 
 			sc->setFowTexCoord(Vec2f(
 				i/(next2Power(map.getSurfaceW())-1.f),
@@ -820,22 +905,35 @@ void World::initCells(bool fogOfWar){
 }
 
 //init surface textures
-void World::initSplattedTextures(){
+void World::initSplattedTextures() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	for(int i=0; i<map.getSurfaceW()-1; ++i){
-        for(int j=0; j<map.getSurfaceH()-1; ++j){
+	for(int i = 0; i < map.getSurfaceW() - 1; ++i) {
+        for(int j = 0; j < map.getSurfaceH() - 1; ++j) {
 			Vec2f coord;
 			const Texture2D *texture=NULL;
 			SurfaceCell *sc00= map.getSurfaceCell(i, j);
 			SurfaceCell *sc10= map.getSurfaceCell(i+1, j);
 			SurfaceCell *sc01= map.getSurfaceCell(i, j+1);
 			SurfaceCell *sc11= map.getSurfaceCell(i+1, j+1);
-			tileset.addSurfTex(
-				sc00->getSurfaceType(),
-				sc10->getSurfaceType(),
-				sc01->getSurfaceType(),
-				sc11->getSurfaceType(),
-				coord, texture);
+
+			if(sc00 == NULL) {
+				throw runtime_error("sc00 == NULL");
+			}
+			if(sc10 == NULL) {
+				throw runtime_error("sc10 == NULL");
+			}
+			if(sc01 == NULL) {
+				throw runtime_error("sc01 == NULL");
+			}
+			if(sc11 == NULL) {
+				throw runtime_error("sc11 == NULL");
+			}
+
+			tileset.addSurfTex( sc00->getSurfaceType(),
+								sc10->getSurfaceType(),
+								sc01->getSurfaceType(),
+								sc11->getSurfaceType(),
+								coord, texture);
 			sc00->setSurfTexCoord(coord);
 			sc00->setSurfaceTexture(texture);
 		}
@@ -844,11 +942,15 @@ void World::initSplattedTextures(){
 }
 
 //creates each faction looking at each faction name contained in GameSettings
-void World::initFactionTypes(GameSettings *gs){
+void World::initFactionTypes(GameSettings *gs) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Faction types", true);
 
-	if(gs->getFactionCount() > map.getMaxPlayers()){
+	if(gs == NULL) {
+		throw runtime_error("gs == NULL");
+	}
+
+	if(gs->getFactionCount() > map.getMaxPlayers()) {
 		throw runtime_error("This map only supports "+intToStr(map.getMaxPlayers())+" players");
 	}
 
@@ -865,9 +967,11 @@ void World::initFactionTypes(GameSettings *gs){
 
 	for(int i=0; i < factions.size(); ++i) {
 		FactionType *ft= techTree->getTypeByName(gs->getFactionTypeName(i));
-		factions[i].init(
-			ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
-			gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
+		if(ft == NULL) {
+			throw runtime_error("ft == NULL");
+		}
+		factions[i].init(ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
+						 gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
 
 		stats.setTeam(i, gs->getTeam(i));
 		stats.setFactionTypeName(i, formatString(gs->getFactionTypeName(i)));
@@ -885,26 +989,30 @@ void World::initFactionTypes(GameSettings *gs){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void World::initMinimap(){
+void World::initMinimap() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
+
+	minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
 	Logger::getInstance().add("Compute minimap surface", true);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 //place units randomly aroud start location
-void World::initUnits(){
+void World::initUnits() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Generate elements", true);
 
 	//put starting units
-	for(int i=0; i<getFactionCount(); ++i){
+	for(int i = 0; i < getFactionCount(); ++i) {
 		Faction *f= &factions[i];
 		const FactionType *ft= f->getType();
-		for(int j=0; j<ft->getStartingUnitCount(); ++j){
+
+		for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
 			const UnitType *ut= ft->getStartingUnit(j);
 			int initNumber= ft->getStartingUnitAmount(j);
-			for(int l=0; l<initNumber; l++){
+
+			for(int l = 0; l < initNumber; l++) {
 
 				UnitPathInterface *newpath = NULL;
 				switch(game->getGameSettings()->getPathFinderType()) {
@@ -922,11 +1030,11 @@ void World::initUnits(){
 
 				int startLocationIndex= f->getStartLocationIndex();
 
-				if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)){
+				if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
 					unit->create(true);
 					unit->born();
 				}
-				else{
+				else {
 					throw runtime_error("Unit cant be placed, this error is caused because there is no enough place to put the units near its start location, make a better map: "+unit->getType()->getName() + " Faction: "+intToStr(i));
 				}
 				if (unit->getType()->hasSkillClass(scBeBuilt)) {
@@ -944,7 +1052,7 @@ void World::initUnits(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void World::initMap(){
+void World::initMap() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	map.init();
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -952,7 +1060,7 @@ void World::initMap(){
 
 // ==================== exploration ====================
 
-void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex){
+void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 	Chrono chrono;
 	chrono.start();
 

@@ -59,6 +59,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	factionTexture=NULL;
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
+	mapPreviewTexture=NULL;
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -487,6 +488,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+	MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
+	publishToMasterserverThreadInDeletion = false;
+
 	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
 	publishToMasterserverThread->setUniqueID(__FILE__);
 	publishToMasterserverThread->start();
@@ -497,22 +501,37 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 MenuStateCustomGame::~MenuStateCustomGame() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	needToBroadcastServerSettings = false;
-	needToRepublishToMasterserver = false;
+	if(publishToMasterserverThreadInDeletion == false) {
+		MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
 
-	//BaseThread::shutdownAndWait(publishToMasterserverThread);
-	delete publishToMasterserverThread;
-	publishToMasterserverThread = NULL;
+		if(publishToMasterserverThread != NULL) {
+			needToBroadcastServerSettings = false;
+			needToRepublishToMasterserver = false;
+
+			//BaseThread::shutdownAndWait(publishToMasterserverThread);
+			delete publishToMasterserverThread;
+			publishToMasterserverThread = NULL;
+			publishToMasterserverThreadInDeletion = false;
+			safeMutexPtr.ReleaseLock();
+		}
+		else {
+			safeMutexPtr.ReleaseLock();
+		}
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	cleanupFactionTexture();
+	cleanupMapPreviewTexture();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::returnToParentMenu(){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
+	publishToMasterserverThreadInDeletion = true;
 
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
@@ -521,6 +540,8 @@ void MenuStateCustomGame::returnToParentMenu(){
 	//BaseThread::shutdownAndWait(publishToMasterserverThread);
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
+	publishToMasterserverThreadInDeletion = false;
+	safeMutexPtr.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -563,9 +584,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		needToRepublishToMasterserver = false;
 		safeMutex.ReleaseLock();
 
+		MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
+		publishToMasterserverThreadInDeletion = true;
 		//BaseThread::shutdownAndWait(publishToMasterserverThread);
 		delete publishToMasterserverThread;
 		publishToMasterserverThread = NULL;
+		publishToMasterserverThreadInDeletion = false;
+		safeMutexPtr.ReleaseLock();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1024,8 +1049,13 @@ void MenuStateCustomGame::PlayNow() {
 			needToRepublishToMasterserver = false;
 			safeMutex.ReleaseLock();
 
+			MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
+			publishToMasterserverThreadInDeletion = true;
+			//BaseThread::shutdownAndWait(publishToMasterserverThread);
 			delete publishToMasterserverThread;
 			publishToMasterserverThread = NULL;
+			publishToMasterserverThreadInDeletion = false;
+			safeMutexPtr.ReleaseLock();
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1090,7 +1120,12 @@ void MenuStateCustomGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
-			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
+			renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7);
+		}
+		if(mapPreviewTexture != NULL) {
+			//renderer.renderTextureQuad(10,350,-1,-1,mapPreviewTexture,0.7);
+			renderer.renderTextureQuad(800,300,200,150,mapPreviewTexture,0.7);
+			//printf("=================> Rendering map preview texture\n");
 		}
 
 		if(mainMessageBox.getEnabled()){
@@ -1179,7 +1214,8 @@ void MenuStateCustomGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
-		if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
+		if( enableMapPreview == true &&
+			mapPreview.hasFileLoaded() == true) {
 
 			int mouseX = mainMenu->getMouseX();
 			int mouseY = mainMenu->getMouseY();
@@ -1187,7 +1223,15 @@ void MenuStateCustomGame::render() {
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
-		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
+
+		    if(mapPreviewTexture == NULL) {
+		    	//printf("=================> Rendering map preview into a texture BEFORE (%p)\n", mapPreviewTexture);
+		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,&mapPreviewTexture);
+		    	//printf("=================> Rendering map preview into a texture AFTER (%p)\n", mapPreviewTexture);
+		    }
+		    else {
+		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
+		    }
 		}
 		
 		renderer.renderChatManager(&chatManager);
@@ -2214,6 +2258,9 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 	    if(loadMapPreview == true) {
 	    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	    	mapPreview.loadFromFile(file.c_str());
+
+	    	//printf("Loading map preview MAP\n");
+	    	cleanupMapPreviewTexture();
 	    }
 	}
 	catch(exception &e) {
@@ -2622,6 +2669,23 @@ void MenuStateCustomGame::cleanupFactionTexture() {
 		factionTexture=NULL;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateCustomGame::cleanupMapPreviewTexture() {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//printf("CLEANUP map preview texture\n");
+
+	if(mapPreviewTexture != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		mapPreviewTexture->end();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		delete mapPreviewTexture;
+		mapPreviewTexture = NULL;
+	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

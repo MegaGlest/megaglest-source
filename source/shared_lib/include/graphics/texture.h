@@ -95,7 +95,7 @@ public:
 //	class Texture1D
 // =====================================================
 
-class Texture1D: public Texture{
+class Texture1D: public Texture {
 protected:
 	Pixmap1D pixmap;
 
@@ -107,6 +107,10 @@ public:
 	virtual string getPath() const;
 	virtual void deletePixels();
 	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+
+	virtual int getTextureWidth() const {return pixmap.getW();}
+	virtual int getTextureHeight() const {return -1;}
+
 };
 
 // =====================================================
@@ -125,13 +129,16 @@ public:
 	virtual string getPath() const;
 	virtual void deletePixels();
 	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+
+	virtual int getTextureWidth() const {return pixmap.getW();}
+	virtual int getTextureHeight() const {return pixmap.getH();}
 };
 
 // =====================================================
 //	class Texture3D
 // =====================================================
 
-class Texture3D: public Texture{
+class Texture3D: public Texture {
 protected:
 	Pixmap3D pixmap;
 
@@ -143,6 +150,9 @@ public:
 	virtual string getPath() const;
 	virtual void deletePixels();
 	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+
+	virtual int getTextureWidth() const {return pixmap.getW();}
+	virtual int getTextureHeight() const {return pixmap.getH();}
 };
 
 // =====================================================
@@ -161,6 +171,9 @@ public:
 	virtual string getPath() const;
 	virtual void deletePixels();
 	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+
+	virtual int getTextureWidth() const {return -1;}
+	virtual int getTextureHeight() const {return -1;}
 };
 
 }}//end namespace

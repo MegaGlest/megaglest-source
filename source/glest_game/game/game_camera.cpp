@@ -50,6 +50,9 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 
     cacheVisibleQuad.clear();
     MaxVisibleQuadItemCache = config.getInt("MaxVisibleQuadItemCache",intToStr(-1).c_str());
+    if(Config::getInstance().getBool("DisableCaching","false") == true) {
+    	MaxVisibleQuadItemCache = 0;
+    }
 
 	//config
 	speed= 15.f / GameConstants::cameraFps;

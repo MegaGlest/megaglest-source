@@ -339,7 +339,7 @@ public:
 	void renderMinimap();
     void renderDisplay();
 	void renderMenuBackground(const MenuBackground *menuBackground);
-	void renderMapPreview(const MapPreview *map, bool renderAll, int screenX, int screenY);
+	void renderMapPreview(const MapPreview *map, bool renderAll, int screenX, int screenY,Texture2D **renderToTexture=NULL);
 
 	//computing
     bool computePosition(const Vec2i &screenPos, Vec2i &worldPos);
@@ -391,6 +391,8 @@ public:
 
 	uint64 getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
 	unsigned int getSaveScreenQueueSize();
+
+	Texture2D *saveScreenToTexture(int x, int y, int width, int height);
 
 private:
 	//private misc

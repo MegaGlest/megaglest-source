@@ -106,8 +106,53 @@ Map::~Map(){
 	Logger::getInstance().add("Cells", true);
 
 	delete [] cells;
+	cells = NULL;
 	delete [] surfaceCells;
+	surfaceCells = NULL;
 	delete [] startLocations;
+	startLocations = NULL;
+}
+
+int Map::getSurfaceCellArraySize() const {
+	return (surfaceW * surfaceH);
+}
+
+SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
+	int arrayIndex = sy * surfaceW + sx;
+	if(arrayIndex >= getSurfaceCellArraySize()) {
+		throw runtime_error("arrayIndex >= getSurfaceCellArraySize()");
+	}
+	else if(surfaceCells == NULL) {
+		throw runtime_error("surfaceCells == NULL");
+	}
+	return &surfaceCells[arrayIndex];
+}
+
+int Map::getCellArraySize() const {
+	return (w * h);
+}
+
+Cell *Map::getCell(int x, int y) const {
+	int arrayIndex = y * w + x;
+	if(arrayIndex >= getCellArraySize()) {
+		throw runtime_error("arrayIndex >= getCellArraySize()");
+	}
+	else if(cells == NULL) {
+		throw runtime_error("cells == NULL");
+	}
+
+	return &cells[arrayIndex];
+}
+
+Vec2i Map::getStartLocation(int locationIndex) const {
+	if(locationIndex >= maxPlayers) {
+		throw runtime_error("locationIndex >= maxPlayers");
+	}
+	else if(startLocations == NULL) {
+		throw runtime_error("startLocations == NULL");
+	}
+
+	return startLocations[locationIndex];
 }
 
 void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
@@ -152,7 +197,7 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 
 			//start locations
 			startLocations= new Vec2i[maxPlayers];
-			for(int i=0; i<maxPlayers; ++i){
+			for(int i=0; i<maxPlayers; ++i) {
 				int x, y;
 				readBytes = fread(&x, sizeof(int32), 1, f);
 				readBytes = fread(&y, sizeof(int32), 1, f);
@@ -161,8 +206,8 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 
 
 			//cells
-			cells= new Cell[w*h];
-			surfaceCells= new SurfaceCell[surfaceW*surfaceH];
+			cells= new Cell[getCellArraySize()];
+			surfaceCells= new SurfaceCell[getSurfaceCellArraySize()];
 
 			//read heightmap
 			for(int j=0; j<surfaceH; ++j){
@@ -847,9 +892,9 @@ void Map::computeInterpolatedHeights(){
 
 void Map::smoothSurface(){
 
-	float *oldHeights= new float[surfaceW*surfaceH];
+	float *oldHeights= new float[getSurfaceCellArraySize()];
 
-	for(int i=0; i<surfaceW*surfaceH; ++i){
+	for(int i=0; i < getSurfaceCellArraySize(); ++i) {
 		oldHeights[i]= surfaceCells[i].getHeight();
 	}
 
