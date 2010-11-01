@@ -177,9 +177,11 @@ public:
 	void load(const string &path, TechTree *techTree, Tileset *tileset);
 
 	//get
-	Cell *getCell(int x, int y) const							{return &cells[y*w+x];}
+	Cell *getCell(int x, int y) const;
+	int getCellArraySize() const;
 	Cell *getCell(const Vec2i &pos) const						{return getCell(pos.x, pos.y);}
-	SurfaceCell *getSurfaceCell(int sx, int sy) const			{return &surfaceCells[sy*surfaceW+sx];}
+	int getSurfaceCellArraySize() const;
+	SurfaceCell *getSurfaceCell(int sx, int sy) const;
 	SurfaceCell *getSurfaceCell(const Vec2i &sPos) const		{return getSurfaceCell(sPos.x, sPos.y);}
 	int getW() const											{return w;}
 	int getH() const											{return h;}
@@ -188,7 +190,7 @@ public:
 	int getMaxPlayers() const									{return maxPlayers;}
 	float getHeightFactor() const								{return heightFactor;}
 	float getWaterLevel() const									{return waterLevel;}
-	Vec2i getStartLocation(int loactionIndex) const				{return startLocations[loactionIndex];}
+	Vec2i getStartLocation(int locationIndex) const;
 	bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
 	bool getDeepSubmerged(const SurfaceCell *sc) const			{return sc->getHeight()<waterLevel-(1.5f/heightFactor);}

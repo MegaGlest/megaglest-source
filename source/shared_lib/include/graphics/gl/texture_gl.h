@@ -25,10 +25,29 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 class TextureGl {
 protected:
 	GLuint handle;
+	GLuint renderBufferId;
+	GLuint frameBufferId;
 
 public:
 	TextureGl();
-	GLuint getHandle() const	{return handle;}
+	virtual ~TextureGl();
+
+	GLuint getHandle() const				{return handle;}
+	GLuint getRenderBufferHandle() const	{return renderBufferId;}
+	GLuint getFrameBufferHandle() const		{return frameBufferId;}
+
+	void initRenderBuffer();
+	void initFrameBuffer();
+	void attachRenderBuffer();
+	void attachFrameBufferToTexture();
+	bool checkFrameBufferStatus();
+	void dettachFrameBufferFromTexture();
+
+	void setup_FBO_RBO();
+	void teardown_FBO_RBO();
+
+	virtual int getTextureWidth() const  = 0;
+	virtual int getTextureHeight() const = 0;
 
 	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,uint64 rawSize,GLenum texType);
 };
@@ -44,6 +63,9 @@ public:
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end(bool deletePixelBuffer=true);
+
+	virtual int getTextureWidth() const  { return Texture1D::getTextureWidth();}
+	virtual int getTextureHeight() const { return Texture1D::getTextureHeight();}
 };
 
 // =====================================================
@@ -57,6 +79,9 @@ public:
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end(bool deletePixelBuffer=true);
+
+	virtual int getTextureWidth() const  { return Texture2D::getTextureWidth();}
+	virtual int getTextureHeight() const { return Texture2D::getTextureHeight();}
 };
 
 // =====================================================
@@ -71,6 +96,9 @@ public:
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end(bool deletePixelBuffer=true);
+
+	virtual int getTextureWidth() const  { return Texture3D::getTextureWidth();}
+	virtual int getTextureHeight() const { return Texture3D::getTextureHeight();}
 };
 
 // =====================================================
@@ -85,6 +113,10 @@ public:
 
 	virtual void init(Filter filter, int maxAnisotropy= 1);
 	virtual void end(bool deletePixelBuffer=true);
+
+	virtual int getTextureWidth() const  { return TextureCube::getTextureWidth();}
+	virtual int getTextureHeight() const { return TextureCube::getTextureHeight();}
+
 };
 
 }}}//end namespace

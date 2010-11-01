@@ -413,7 +413,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				}
 				else {
 					canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-					localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
+					if(Config::getInstance().getBool("DisableCaching","false") == false) {
+						localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
+					}
 				}
 
 				if(openPos(sucPos) == false && canUnitMoveToCell == true) {

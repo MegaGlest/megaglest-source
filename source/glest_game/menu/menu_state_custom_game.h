@@ -101,6 +101,8 @@ private:
 	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
 	Mutex masterServerThreadAccessor;
+	Mutex publishToMasterserverThreadPtrChangeAccessor;
+	bool publishToMasterserverThreadInDeletion;
 	
 	bool parentMenuIsMs;
 	int soundConnectionCount;
@@ -132,6 +134,8 @@ private:
 	Texture2D *factionTexture;
 
 	MapPreview mapPreview;
+	Texture2D *mapPreviewTexture;
+
 	bool autostart;
 	std::map<int,int> lastSelectedTeamIndex;
 
@@ -157,6 +161,8 @@ private:
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
+	void cleanupMapPreviewTexture();
+
 	void reloadFactions(bool keepExistingSelectedItem);
 	void updateControlers();
 	void closeUnusedSlots();

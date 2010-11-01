@@ -20,8 +20,9 @@
 #include "sound_renderer.h"
 #include "renderer.h"
 #include "tech_tree.h"
-#include "leak_dumper.h"
 #include "game.h"
+#include "config.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Util;
 
@@ -672,148 +673,123 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 
 bool Faction::isResourceTargetInCache(const Vec2i &pos, bool incrementUseCounter) {
 	bool result = false;
-	if(cacheResourceTargetList.size() > 0) {
-		std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
-		result = (iter != cacheResourceTargetList.end());
-		if(result == true && incrementUseCounter == true) {
-			iter->second++;
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cacheResourceTargetList.size() > 0) {
+			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
+			result = (iter != cacheResourceTargetList.end());
+			if(result == true && incrementUseCounter == true) {
+				iter->second++;
+			}
 		}
 	}
-
 	return result;
 }
 
 void Faction::addResourceTargetToCache(const Vec2i &pos) {
-	bool duplicateEntry = isResourceTargetInCache(pos,true);
-	if(duplicateEntry == false) {
-		cacheResourceTargetList[pos] = 1;
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		bool duplicateEntry = isResourceTargetInCache(pos,true);
+		if(duplicateEntry == false) {
+			cacheResourceTargetList[pos] = 1;
+		}
 	}
 }
 
 void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
-	if(cacheResourceTargetList.size() > 0) {
-		std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
-		if(iter != cacheResourceTargetList.end()) {
-			cacheResourceTargetList.erase(pos);
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cacheResourceTargetList.size() > 0) {
+			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
+			if(iter != cacheResourceTargetList.end()) {
+				cacheResourceTargetList.erase(pos);
+			}
 		}
 	}
 }
 
 void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
-	if(cachedCloseResourceTargetLookupList.find(pos) == cachedCloseResourceTargetLookupList.end()) {
-		const Map *map = world->getMap();
-		const int harvestDistance = 5;
-		for(int j = -harvestDistance; j <= harvestDistance; ++j) {
-			for(int k = -harvestDistance; k <= harvestDistance; ++k) {
-				Vec2i newPos = pos + Vec2i(j,k);
-				if(isResourceTargetInCache(newPos) == false) {
-					if(map->isInside(newPos.x, newPos.y)) {
-						Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
-						if(r != NULL) {
-							//addResourceTargetToCache(newPos);
-							cacheResourceTargetList[newPos] = 1;
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cachedCloseResourceTargetLookupList.find(pos) == cachedCloseResourceTargetLookupList.end()) {
+			const Map *map = world->getMap();
+			const int harvestDistance = 5;
+			for(int j = -harvestDistance; j <= harvestDistance; ++j) {
+				for(int k = -harvestDistance; k <= harvestDistance; ++k) {
+					Vec2i newPos = pos + Vec2i(j,k);
+					if(isResourceTargetInCache(newPos) == false) {
+						if(map->isInside(newPos.x, newPos.y)) {
+							Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
+							if(r != NULL) {
+								//addResourceTargetToCache(newPos);
+								cacheResourceTargetList[newPos] = 1;
+							}
 						}
 					}
 				}
 			}
-		}
 
-		cachedCloseResourceTargetLookupList[pos] = true;
+			cachedCloseResourceTargetLookupList[pos] = true;
+		}
 	}
 }
 
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
-	if(cacheResourceTargetList.size() > 0) {
-		std::vector<Vec2i> deleteList;
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cacheResourceTargetList.size() > 0) {
+			std::vector<Vec2i> deleteList;
 
-		const int harvestDistance = 5;
-		const Map *map = world->getMap();
-		Vec2i pos = unit->getPos();
+			const int harvestDistance = 5;
+			const Map *map = world->getMap();
+			Vec2i pos = unit->getPos();
 
-		bool foundCloseResource = false;
-		// First look immediately around the unit's position
-		for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
-			for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
-				Vec2i newPos = pos + Vec2i(j,k);
-				if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
-					const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
-					if( sc != NULL && sc->getResource() != NULL) {
-						const Resource *resource = sc->getResource();
-						if(resource->getType() != NULL && resource->getType() == type) {
-							if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
-								if(unit->isBadHarvestPos(newPos) == false) {
-									result = newPos;
-									foundCloseResource = true;
-									break;
-								}
-							}
-						}
-					}
-					else {
-						deleteList.push_back(newPos);
-					}
-				}
-			}
-		}
-
-		if(foundCloseResource == false) {
-			// Now check the whole cache
-			for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
-										  iter != cacheResourceTargetList.end() && foundCloseResource == false;
-										  ++iter) {
-				const Vec2i &cache = iter->first;
-				if(map->isInside(cache) == true) {
-					const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
-					if( sc != NULL && sc->getResource() != NULL) {
-						const Resource *resource = sc->getResource();
-						if(resource->getType() != NULL && resource->getType() == type) {
-							if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
-								if(unit->isBadHarvestPos(cache) == false) {
-									result = cache;
-									// Close enough to our position, no more looking
-									if(unit->getPos().dist(result) <= (harvestDistance * 2)) {
+			bool foundCloseResource = false;
+			// First look immediately around the unit's position
+			for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
+				for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
+					Vec2i newPos = pos + Vec2i(j,k);
+					if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+						if( sc != NULL && sc->getResource() != NULL) {
+							const Resource *resource = sc->getResource();
+							if(resource->getType() != NULL && resource->getType() == type) {
+								if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
+									if(unit->isBadHarvestPos(newPos) == false) {
+										result = newPos;
 										foundCloseResource = true;
 										break;
 									}
 								}
 							}
 						}
-					}
-					else {
-						deleteList.push_back(cache);
+						else {
+							deleteList.push_back(newPos);
+						}
 					}
 				}
-				else {
-					deleteList.push_back(cache);
-				}
 			}
-		}
-		if(deleteList.size() > 0) {
-			cleanupResourceTypeTargetCache(&deleteList);
-		}
-	}
 
-	return result;
-}
-
-void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
-	if(cacheResourceTargetList.size() > 0) {
-		if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
-			lastResourceTargettListPurge = time(NULL);
-			std::vector<Vec2i> deleteList;
-
-			if(deleteListPtr != NULL) {
-				deleteList = *deleteListPtr;
-			}
-			else {
+			if(foundCloseResource == false) {
+				// Now check the whole cache
 				for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
-											  iter != cacheResourceTargetList.end(); ++iter) {
+											  iter != cacheResourceTargetList.end() && foundCloseResource == false;
+											  ++iter) {
 					const Vec2i &cache = iter->first;
-
-					if(world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache)) != NULL) {
-						Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache))->getResource();
-						if(resource == NULL) {
+					if(map->isInside(cache) == true) {
+						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
+						if( sc != NULL && sc->getResource() != NULL) {
+							const Resource *resource = sc->getResource();
+							if(resource->getType() != NULL && resource->getType() == type) {
+								if(result.x < 0 || unit->getPos().dist(cache) < unit->getPos().dist(result)) {
+									if(unit->isBadHarvestPos(cache) == false) {
+										result = cache;
+										// Close enough to our position, no more looking
+										if(unit->getPos().dist(result) <= (harvestDistance * 2)) {
+											foundCloseResource = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+						else {
 							deleteList.push_back(cache);
 						}
 					}
@@ -822,9 +798,44 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 					}
 				}
 			}
-			for(int i = 0; i < deleteList.size(); ++i) {
-				Vec2i &cache = deleteList[i];
-				cacheResourceTargetList.erase(cache);
+			if(deleteList.size() > 0) {
+				cleanupResourceTypeTargetCache(&deleteList);
+			}
+		}
+	}
+	return result;
+}
+
+void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cacheResourceTargetList.size() > 0) {
+			if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
+				lastResourceTargettListPurge = time(NULL);
+				std::vector<Vec2i> deleteList;
+
+				if(deleteListPtr != NULL) {
+					deleteList = *deleteListPtr;
+				}
+				else {
+					for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
+												  iter != cacheResourceTargetList.end(); ++iter) {
+						const Vec2i &cache = iter->first;
+
+						if(world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache)) != NULL) {
+							Resource *resource = world->getMap()->getSurfaceCell(world->getMap()->toSurfCoords(cache))->getResource();
+							if(resource == NULL) {
+								deleteList.push_back(cache);
+							}
+						}
+						else {
+							deleteList.push_back(cache);
+						}
+					}
+				}
+				for(int i = 0; i < deleteList.size(); ++i) {
+					Vec2i &cache = deleteList[i];
+					cacheResourceTargetList.erase(cache);
+				}
 			}
 		}
 	}
@@ -832,40 +843,42 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 
 std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 	std::vector<Vec2i> result;
-	if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
-		// Lets find the shortest and most successful path already taken by a
-		// similar sized unit
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
+			// Lets find the shortest and most successful path already taken by a
+			// similar sized unit
 
-		bool foundCachedPath = false;
+			bool foundCachedPath = false;
 
-		std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
-		int unitSize = unit->getType()->getSize();
-		for(int i = 0; i < cacheList.size(); ++i) {
-			FactionPathSuccessCache &cache = cacheList[i];
-			if(cache.unitSize <= unitSize) {
-				vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
+			std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
+			int unitSize = unit->getType()->getSize();
+			for(int i = 0; i < cacheList.size(); ++i) {
+				FactionPathSuccessCache &cache = cacheList[i];
+				if(cache.unitSize <= unitSize) {
+					vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
 
-				for(int j = 0; j < pathQueue.size(); ++j) {
-					// Now start at the end of the path and see how many nodes
-					// until we reach a cell near the unit's current position
-					std::pair<vector<Vec2i>, int> &path = pathQueue[j];
+					for(int j = 0; j < pathQueue.size(); ++j) {
+						// Now start at the end of the path and see how many nodes
+						// until we reach a cell near the unit's current position
+						std::pair<vector<Vec2i>, int> &path = pathQueue[j];
 
-					for(int k = path.first.size() - 1; k >= 0; --k) {
-						if(world->getMap()->canMove(unit, unit->getPos(), path.first[k]) == true) {
-							if(foundCachedPath == false) {
-								for(int l = k; l < path.first.size(); ++l) {
-									result.push_back(path.first[l]);
-								}
-							}
-							else {
-								if(result.size() > (path.first.size() - k)) {
+						for(int k = path.first.size() - 1; k >= 0; --k) {
+							if(world->getMap()->canMove(unit, unit->getPos(), path.first[k]) == true) {
+								if(foundCachedPath == false) {
 									for(int l = k; l < path.first.size(); ++l) {
 										result.push_back(path.first[l]);
 									}
 								}
+								else {
+									if(result.size() > (path.first.size() - k)) {
+										for(int l = k; l < path.first.size(); ++l) {
+											result.push_back(path.first[l]);
+										}
+									}
+								}
+								foundCachedPath = true;
+								break;
 							}
-							foundCachedPath = true;
-							break;
 						}
 					}
 				}
@@ -876,53 +889,55 @@ std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 }
 
 void Faction::addCachedPath(const Vec2i &target, Unit *unit) {
-	if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
-		FactionPathSuccessCache cache;
-		cache.unitSize = unit->getType()->getSize();
-		cache.pathQueue.push_back(make_pair<vector<Vec2i>, int>(unit->getCurrentTargetPathTaken().second,1));
-		successfulPathFinderTargetList[target].push_back(cache);
-	}
-	else {
-		bool finishedAdd = false;
-		std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken = unit->getCurrentTargetPathTaken();
-		std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
-		int unitSize = unit->getType()->getSize();
-		for(int i = 0; i < cacheList.size() && finishedAdd == false; ++i) {
-			FactionPathSuccessCache &cache = cacheList[i];
-			if(cache.unitSize <= unitSize) {
-				vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
+			FactionPathSuccessCache cache;
+			cache.unitSize = unit->getType()->getSize();
+			cache.pathQueue.push_back(make_pair<vector<Vec2i>, int>(unit->getCurrentTargetPathTaken().second,1));
+			successfulPathFinderTargetList[target].push_back(cache);
+		}
+		else {
+			bool finishedAdd = false;
+			std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken = unit->getCurrentTargetPathTaken();
+			std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
+			int unitSize = unit->getType()->getSize();
+			for(int i = 0; i < cacheList.size() && finishedAdd == false; ++i) {
+				FactionPathSuccessCache &cache = cacheList[i];
+				if(cache.unitSize <= unitSize) {
+					vector<std::pair<vector<Vec2i>, int> > &pathQueue = cache.pathQueue;
 
-				for(int j = 0; j < pathQueue.size() && finishedAdd == false; ++j) {
-					// Now start at the end of the path and see how many nodes are the same
-					std::pair<vector<Vec2i>, int> &path = pathQueue[j];
-					int minPathSize = std::min(path.first.size(),currentTargetPathTaken.second.size());
-					int intersectIndex = -1;
+					for(int j = 0; j < pathQueue.size() && finishedAdd == false; ++j) {
+						// Now start at the end of the path and see how many nodes are the same
+						std::pair<vector<Vec2i>, int> &path = pathQueue[j];
+						int minPathSize = std::min(path.first.size(),currentTargetPathTaken.second.size());
+						int intersectIndex = -1;
 
-					for(int k = 0; k < minPathSize; ++k) {
-						if(path.first[path.first.size() - k - 1] != currentTargetPathTaken.second[currentTargetPathTaken.second.size() - k - 1]) {
-							intersectIndex = k;
-							break;
+						for(int k = 0; k < minPathSize; ++k) {
+							if(path.first[path.first.size() - k - 1] != currentTargetPathTaken.second[currentTargetPathTaken.second.size() - k - 1]) {
+								intersectIndex = k;
+								break;
+							}
+						}
+
+						// New path is same or longer than old path so replace
+						// old path with new
+						if(intersectIndex + 1 == path.first.size()) {
+							path.first = currentTargetPathTaken.second;
+							path.second++;
+							finishedAdd = true;
+						}
+						// Old path is same or longer than new path so
+						// do nothing
+						else if(intersectIndex + 1 == currentTargetPathTaken.second.size()) {
+							path.second++;
+							finishedAdd = true;
 						}
 					}
 
-					// New path is same or longer than old path so replace
-					// old path with new
-					if(intersectIndex + 1 == path.first.size()) {
-						path.first = currentTargetPathTaken.second;
-						path.second++;
-						finishedAdd = true;
+					// If new path is >= 10 cells add it
+					if(finishedAdd == false && currentTargetPathTaken.second.size() >= 10) {
+						pathQueue.push_back(make_pair<vector<Vec2i>, int>(currentTargetPathTaken.second,1));
 					}
-					// Old path is same or longer than new path so
-					// do nothing
-					else if(intersectIndex + 1 == currentTargetPathTaken.second.size()) {
-						path.second++;
-						finishedAdd = true;
-					}
-				}
-
-				// If new path is >= 10 cells add it
-				if(finishedAdd == false && currentTargetPathTaken.second.size() >= 10) {
-					pathQueue.push_back(make_pair<vector<Vec2i>, int>(currentTargetPathTaken.second,1));
 				}
 			}
 		}

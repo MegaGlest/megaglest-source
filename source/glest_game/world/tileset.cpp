@@ -113,7 +113,7 @@ void Tileset::load(const string &dir, Checksum *checksum){
 
 	checksum->addFile(path);
 
-	try{
+	try {
 		Logger::getInstance().add("Tileset: "+formatString(name), true);
 		Renderer &renderer= Renderer::getInstance();
 
@@ -242,13 +242,13 @@ void Tileset::load(const string &dir, Checksum *checksum){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(rnd<sunnyProb){
+		if(rnd < sunnyProb) {
 			weather= wSunny;
 		}
-		else if(rnd<rainyProb){
+		else if(rnd < rainyProb) {
 			weather= wRainy;
 		}
-		else{
+		else {
 			weather= wSnowy;
 		}
 
@@ -256,7 +256,7 @@ void Tileset::load(const string &dir, Checksum *checksum){
 
 	}
 	//Exception handling (conversions and so on);
-	catch(const exception &e){
+	catch(const exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error: " + path + "\n" + e.what());
 	}
@@ -271,18 +271,16 @@ const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{
 	return &surfPixmaps[type][var % vars];
 }
 
-void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture){
-
+void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture) {
 	//center textures
-	if(leftUp==rightUp && leftUp==leftDown && leftUp==rightDown){
-
+	if(leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
 		//texture variation according to probability
 		float r= random.randRange(0.f, 1.f);
 		int var= 0;
 		float max= 0.f;
-		for(int i=0; i<surfProbs[leftUp].size(); ++i){
+		for(int i=0; i < surfProbs[leftUp].size(); ++i) {
 			max+= surfProbs[leftUp][i];
-			if(r<=max){
+			if(r <= max) {
 				var= i;
 				break;
 			}
@@ -292,21 +290,18 @@ void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, V
 		coord= si.getCoord();
 		texture= si.getTexture();
 	}
-
 	//spatted textures
-	else{
+	else {
 		int var= random.randRange(0, transitionVars);
 
-		SurfaceInfo si(
-			getSurfPixmap(leftUp, var),
-			getSurfPixmap(rightUp, var),
-			getSurfPixmap(leftDown, var),
-			getSurfPixmap(rightDown, var));
+		SurfaceInfo si( getSurfPixmap(leftUp, var),
+						getSurfPixmap(rightUp, var),
+						getSurfPixmap(leftDown, var),
+						getSurfPixmap(rightDown, var));
 		surfaceAtlas.addSurface(&si);
 		coord= si.getCoord();
 		texture= si.getTexture();
 	}
-
 }
 
 }}// end namespace

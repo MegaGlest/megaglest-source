@@ -421,7 +421,130 @@ GLint toInternalFormatGl(Texture::Format format, int components){
 }
 
 TextureGl::TextureGl() {
-	handle=0;
+	handle 			= 0;
+	renderBufferId 	= 0;
+	frameBufferId  	= 0;
+}
+
+void TextureGl::setup_FBO_RBO() {
+	if(getTextureWidth() < 0 || getTextureHeight() < 0) {
+		throw runtime_error("getTextureWidth() < 0 || getTextureHeight() < 0");
+	}
+
+	printf("getTextureWidth() = %d, getTextureHeight() = %d\n",getTextureWidth(),getTextureHeight());
+
+	GLint width=0;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
+	GLint height=0;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
+
+	printf("width = %d, height = %d\n",width,height);
+
+	//RGBA8 2D texture, 24 bit depth texture, 256x256
+	//glGenTextures(1, &color_tex);
+	//glBindTexture(GL_TEXTURE_2D, color_tex);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//NULL means reserve texture memory, but texels are undefined
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+	//-------------------------
+	glGenFramebuffersEXT(1, &frameBufferId);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+	//Attach 2D texture to this FBO
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, handle, 0);
+	//-------------------------
+	glGenRenderbuffersEXT(1, &renderBufferId);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, getTextureWidth(), getTextureHeight());
+	//-------------------------
+	//Attach depth buffer to FBO
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderBufferId);
+	//-------------------------
+	//Does the GPU support current FBO configuration?
+	GLenum status;
+	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	switch(status)
+	{
+	 case GL_FRAMEBUFFER_COMPLETE_EXT:
+		 printf("FBO attachment OK!\n");
+		 break;
+	 default:
+		printf("FBO attachment BAD!\n");
+		break;
+	}
+	//-------------------------
+	//and now you can render to GL_TEXTURE_2D
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void TextureGl::teardown_FBO_RBO() {
+	//----------------
+	//Bind 0, which means render to back buffer
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	//And in the end, cleanup
+	//Delete resources
+	//glDeleteTextures(1, &handle);
+	glDeleteRenderbuffersEXT(1, &frameBufferId);
+	//Bind 0, which means render to back buffer, as a result, fb is unbound
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glDeleteFramebuffersEXT(1, &frameBufferId);
+}
+
+void TextureGl::initRenderBuffer() {
+	// create a renderbuffer object to store depth info
+	glGenRenderbuffersEXT(1, &renderBufferId);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT,getTextureWidth(), getTextureHeight());
+	//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+}
+
+void TextureGl::initFrameBuffer() {
+	// create a framebuffer object
+	glGenFramebuffersEXT(1, &frameBufferId);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+}
+
+void TextureGl::attachRenderBuffer() {
+	// attach the renderbuffer to depth attachment point
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT, renderBufferId);
+}
+
+void TextureGl::attachFrameBufferToTexture() {
+	// attach the texture to FBO color attachment point
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D, handle, 0);
+}
+
+bool TextureGl::checkFrameBufferStatus() {
+	// check FBO status
+	// Does the GPU support current FBO configuration?
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if(status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+		printf("checkFrameBufferStatus() status = %d [%X]\n",status,status);
+	    return false;
+	}
+	return true;
+}
+
+void TextureGl::dettachFrameBufferFromTexture() {
+	// switch back to window-system-provided framebuffer
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+TextureGl::~TextureGl() {
+	if(renderBufferId != 0) {
+		glDeleteRenderbuffersEXT(1, &renderBufferId);
+		renderBufferId = 0;
+	}
+	if(frameBufferId != 0) {
+		glDeleteFramebuffersEXT(1, &frameBufferId);
+		frameBufferId = 0;
+	}
+
+	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 // =====================================================
@@ -492,7 +615,7 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 			if(error!=GL_NO_ERROR){
 				//throw runtime_error("Error creating texture 1D");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 1D, returned: %d [%s] w = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
+				sprintf(szBuf,"Error creating texture 1D, returned: %d (%X) [%s] w = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -579,17 +702,15 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			glTexImage2D(
-				GL_TEXTURE_2D, 0, glCompressionFormat,
-				pixmap.getW(), pixmap.getH(),
-				0, glFormat, GL_UNSIGNED_BYTE, pixels);
-			GLint error= glGetError();
+			glTexImage2D(GL_TEXTURE_2D, 0, glCompressionFormat,pixmap.getW(),
+					     pixmap.getH(),0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
+			GLint error= glGetError();
 			//throw runtime_error("TEST!");
 
 			if(error != GL_NO_ERROR) {
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 2D, returned: %d [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
+				sprintf(szBuf,"Error creating texture 2D, returned: %d (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -665,7 +786,7 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 		if(error != GL_NO_ERROR) {
 			//throw runtime_error("Error creating texture 3D");
 			char szBuf[1024]="";
-			sprintf(szBuf,"Error creating texture 3D, returned: %d [%s] w = %d, h = %d, d = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD(),glCompressionFormat);
+			sprintf(szBuf,"Error creating texture 3D, returned: %d (%X) [%s] w = %d, h = %d, d = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD(),glCompressionFormat);
 			throw runtime_error(szBuf);
 		}
 		inited= true;
@@ -762,7 +883,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error creating texture cube");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture cube, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
+				sprintf(szBuf,"Error creating texture cube, returned: %d (%X) [%s] w = %d, h = %d, glCompressionFormat = %d",error,error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 
@@ -798,7 +919,7 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_COMPRESSED, &compressed);
 		int error = glGetError();
 
-		printf("**** Texture compressed status: %d, error [%d]\n",compressed,error);
+		printf("**** Texture compressed status: %d, error [%d] (%X)\n",compressed,error,error);
 
 		bool isCompressed = (compressed == 1);
 		compressed=0;
@@ -810,12 +931,12 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 			percent = ((double)compressed / (double)rawSize) * (double)100.0;
 		}
 
-		printf("**** Texture image size in video RAM: %d [%.2f%%], error [%d]\n",compressed,percent,error);
+		printf("**** Texture image size in video RAM: %d [%.2f%%], error [%d] (%X)\n",compressed,percent,error,error);
 
 		compressed=0;
 		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
 		error = glGetError();
-		printf("**** Texture image compression format used: %d, error [%d]\n",compressed,error);
+		printf("**** Texture image compression format used: %d, error [%d] (%X)\n",compressed,error,error);
 	}
 }
 
