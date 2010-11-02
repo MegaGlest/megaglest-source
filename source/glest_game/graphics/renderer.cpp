@@ -313,6 +313,7 @@ void Renderer::initGame(const Game *game){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->game= game;
+	worldToScreenPosCache.clear();
 
 	//check gl caps
 	checkGlOptionalCaps();
@@ -433,7 +434,7 @@ void Renderer::end(){
 	glDeleteLists(list2d, 1);
 }
 
-void Renderer::endGame(){
+void Renderer::endGame() {
 	game= NULL;
 
 	//delete resources
@@ -447,6 +448,8 @@ void Renderer::endGame(){
 	}
 
 	glDeleteLists(list3d, 1);
+
+	worldToScreenPosCache.clear();
 }
 
 void Renderer::endMenu(){
@@ -1933,10 +1936,10 @@ void Renderer::renderUnits(const int renderFps) {
 				unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
 				visibleFrameUnitList.push_back(unit);
 
-				if(allowRenderUnitTitles == true) {
+				//if(allowRenderUnitTitles == true) {
 					// Add to the pending render unit title list
-					renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
-				}
+					//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+				//}
 			}
 
 			if(modelRenderStarted == true) {
@@ -2016,10 +2019,10 @@ void Renderer::renderUnits(const int renderFps) {
 					unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
 					visibleFrameUnitList.push_back(unit);
 
-					if(allowRenderUnitTitles == true) {
+					//if(allowRenderUnitTitles == true) {
 						// Add to the pending render unit title list
-						renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
-					}
+						//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+					//}
 				}
 				else
 				{
@@ -2640,6 +2643,9 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
 
 // This method takes world co-ordinates and translates them to screen co-ords
 Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
+	if(worldToScreenPosCache.find(worldPos) != worldToScreenPosCache.end()) {
+		return worldToScreenPosCache[worldPos];
+	}
 	assertGl();
 
 	const Metrics &metrics= Metrics::getInstance();
@@ -2667,6 +2673,8 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 		&screenX, &screenY, &screenZ);
 
 	Vec3f screenPos(screenX,screenY,screenZ);
+	worldToScreenPosCache[worldPos]=screenPos;
+
 	return screenPos;
 }
 
@@ -3923,9 +3931,9 @@ Texture2D::Filter Renderer::strToTextureFilter(const string &s){
 
 void Renderer::setAllowRenderUnitTitles(bool value) {
 	allowRenderUnitTitles = value;
-	if(allowRenderUnitTitles == false) {
-		renderUnitTitleList.clear();
-	}
+	//if(allowRenderUnitTitles == false) {
+		//renderUnitTitleList.clear();
+	//}
 }
 
 // This method renders titles for units
@@ -3943,10 +3951,16 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 
 				unitRenderedList[unit->getId()] = true;
 			}
+			else {
+				string str = unit->getFullName() + " - " + intToStr(unit->getId());
+				Vec3f screenPos = unit->getScreenPos();
+				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+			}
 		}
 		visibleFrameUnitList.clear();
 	}
 
+	/*
 	if(renderUnitTitleList.size() > 0) {
 		for(int idx = 0; idx < renderUnitTitleList.size(); idx++) {
 			std::pair<Unit *,Vec3f> &unitInfo = renderUnitTitleList[idx];
@@ -3965,6 +3979,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 		}
 		renderUnitTitleList.clear();
 	}
+	*/
 }
 
 void Renderer::setQuadCacheDirty(bool value) {
