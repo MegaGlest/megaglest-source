@@ -248,6 +248,8 @@ private:
 	Mutex saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
+	std::map<Vec3f,Vec3f> worldToScreenPosCache;
+
 private:
 	Renderer();
 	~Renderer();

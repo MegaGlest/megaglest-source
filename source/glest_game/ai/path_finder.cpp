@@ -371,7 +371,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	// This cache stores the units free cell movement calcs during the looping below
-	std::map<Vec2i,std::map<Vec2i, bool> > localCacheForUnitCellMovement;
+	//std::map<Vec2i,std::map<Vec2i, bool> > localCacheForUnitCellMovement;
 	int whileLoopCount = 0;
 	while(nodeLimitReached == false) {
 		whileLoopCount++;
@@ -406,17 +406,17 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				Vec2i sucPos= node->pos + Vec2i(i, j);
 
 				bool canUnitMoveToCell = false;
-				std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind = localCacheForUnitCellMovement.find(node->pos);
-				if(iterFind != localCacheForUnitCellMovement.end() &&
-				   iterFind->second.find(sucPos) != iterFind->second.end()) {
-					canUnitMoveToCell = iterFind->second.find(sucPos)->second;
-				}
-				else {
+				//std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind = localCacheForUnitCellMovement.find(node->pos);
+				//if(iterFind != localCacheForUnitCellMovement.end() &&
+				//   iterFind->second.find(sucPos) != iterFind->second.end()) {
+				//	canUnitMoveToCell = iterFind->second.find(sucPos)->second;
+				//}
+				//else {
 					canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-					if(Config::getInstance().getBool("DisableCaching","false") == false) {
-						localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
-					}
-				}
+					//if(Config::getInstance().getBool("DisableCaching","false") == false) {
+					//	localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
+					//}
+				//}
 
 				if(openPos(sucPos) == false && canUnitMoveToCell == true) {
 					//if node is not open and canMove then generate another node
