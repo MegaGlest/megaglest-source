@@ -861,7 +861,8 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 			}
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
-			string headerLine = "*" + playerName + ":";
+			//string headerLine = "*" + playerName + ":";
+			string headerLine = playerName + ":";
 
 			renderTextShadow(
 						headerLine,
@@ -870,7 +871,7 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 					xPosition, lineIndex * 20 + 20);
 
 			fontColor = defaultFontColor;
-			xPosition += (7 * (playerName.length() + 2));
+			xPosition += (8 * (playerName.length() + 2));
 		}
 	}
 	else {
