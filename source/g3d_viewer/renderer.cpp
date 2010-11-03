@@ -176,15 +176,35 @@ void Renderer::init(){
 	customTextureBlue->getPixmap()->init(1, 1, 3);
 	customTextureBlue->getPixmap()->setPixel(0, 0, Vec3f(0.f, 0.f, 1.f));
 
+	//green tex
+	customTextureGreen= textureManager->newTexture2D();
+	customTextureGreen->getPixmap()->init(1, 1, 3);
+	customTextureGreen->getPixmap()->setPixel(0, 0, Vec3f(0.f, 0.5f, 0.f));
+
 	//yellow tex
 	customTextureYellow= textureManager->newTexture2D();
 	customTextureYellow->getPixmap()->init(1, 1, 3);
 	customTextureYellow->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 0.f));
 
-	//green
-	customTextureGreen= textureManager->newTexture2D();
-	customTextureGreen->getPixmap()->init(1, 1, 3);
-	customTextureGreen->getPixmap()->setPixel(0, 0, Vec3f(0.f, 0.5f, 0.f));
+	//white tex 
+	customTextureWhite= textureManager->newTexture2D();
+	customTextureWhite->getPixmap()->init(1, 1, 3);
+	customTextureWhite->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 1.f));
+
+	//cyan tex
+	customTextureCyan= textureManager->newTexture2D();
+	customTextureCyan->getPixmap()->init(1, 1, 3);
+	customTextureCyan->getPixmap()->setPixel(0, 0, Vec3f(0.f, 1.f, 0.8f));
+
+	//orange tex
+	customTextureOrange= textureManager->newTexture2D();
+	customTextureOrange->getPixmap()->init(1, 1, 3);
+	customTextureOrange->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 0.f));
+
+	//magenta tex
+	customTextureMagenta= textureManager->newTexture2D();
+	customTextureMagenta->getPixmap()->init(1, 1, 3);
+	customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
 
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
@@ -230,11 +250,23 @@ void Renderer::reset(int w, int h, PlayerColor playerColor){
 	case pcBlue:
 		customTexture= customTextureBlue;
 		break;
+	case pcGreen:
+		customTexture= customTextureGreen;
+		break;
 	case pcYellow:
 		customTexture= customTextureYellow;
 		break;
-	case pcGreen:
-		customTexture= customTextureGreen;
+	case pcWhite:
+		customTexture= customTextureWhite;
+		break;
+	case pcCyan:
+		customTexture= customTextureCyan;
+		break;
+	case pcOrange:
+		customTexture= customTextureOrange;
+		break;
+	case pcMagenta:
+		customTexture= customTextureMagenta;
 		break;
 	default:
 		assert(false);
@@ -348,11 +380,23 @@ Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
 	case pcBlue:
 		customTexture= customTextureBlue;
 		break;
+	case pcGreen:
+		customTexture= customTextureGreen;
+		break;
 	case pcYellow:
 		customTexture= customTextureYellow;
 		break;
-	case pcGreen:
-		customTexture= customTextureGreen;
+	case pcWhite:
+		customTexture= customTextureWhite;
+		break;
+	case pcCyan:
+		customTexture= customTextureCyan;
+		break;
+	case pcOrange:
+		customTexture= customTextureOrange;
+		break;
+	case pcMagenta:
+		customTexture= customTextureMagenta;
 		break;
 	default:
 		assert(false);

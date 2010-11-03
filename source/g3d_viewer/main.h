@@ -34,16 +34,22 @@ public:
 		miFileLoad,
 		miFileLoadParticleXML,
 		miFileLoadProjectileParticleXML,
+		miFileLoadSplashParticleXML,
 		miFileClearAll,
 		miModeWireframe,
 		miModeNormals,
 		miModeGrid,
 		miSpeedSlower,
 		miSpeedFaster,
+		miRestart,
 		miColorRed,
 		miColorBlue,
+		miColorGreen,
 		miColorYellow,
-		miColorGreen
+		miColorWhite,
+		miColorCyan,
+		miColorOrange,
+		miColorMagenta
 	};
 
 private:
@@ -63,6 +69,7 @@ private:
 	std::vector<string> modelPathList;
 	std::vector<string> particlePathList;
 	std::vector<string> particleProjectilePathList;
+	std::vector<string> particleSplashPathList; // as above
 
 	float speed;
 	float anim;
@@ -75,11 +82,14 @@ private:
 
 	std::vector<ParticleSystemTypeProjectile *> projectileParticleSystemTypes;
 	std::vector<ProjectileParticleSystem *> projectileParticleSystems;
+	std::vector<ParticleSystemTypeSplash *> splashParticleSystemTypes; // as above
+	std::vector<SplashParticleSystem *> splashParticleSystems;
 
 	bool isControlKeyPressed;
 	void loadModel(string path);
 	void loadParticle(string path);
 	void loadProjectileParticle(string path);
+	void loadSplashParticle(string path);
 
 public:
 	MainWindow(const string &modelPath);
@@ -93,16 +103,25 @@ public:
 	void onMenuFileLoad(wxCommandEvent &event);
 	void onMenuFileLoadParticleXML(wxCommandEvent &event);
 	void onMenuFileLoadProjectileParticleXML(wxCommandEvent &event);
+	void onMenuFileLoadSplashParticleXML(wxCommandEvent &event);
 	void onMenuFileClearAll(wxCommandEvent &event);
+	void onMenuFileExit(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);
 	void onMenuModeWireframe(wxCommandEvent &event);
 	void onMenuModeGrid(wxCommandEvent &event);
 	void onMenuSpeedSlower(wxCommandEvent &event);
 	void onMenuSpeedFaster(wxCommandEvent &event);
+	void onMenuRestart(wxCommandEvent &event);
 	void onMenuColorRed(wxCommandEvent &event);
 	void onMenuColorBlue(wxCommandEvent &event);
-	void onMenuColorYellow(wxCommandEvent &event);
 	void onMenuColorGreen(wxCommandEvent &event);
+	void onMenuColorYellow(wxCommandEvent &event);
+	void onMenuColorWhite(wxCommandEvent &event);
+	void onMenuColorCyan(wxCommandEvent &event);
+	void onMenuColorOrange(wxCommandEvent &event);
+	void onMenuColorMagenta(wxCommandEvent &event);
+	void onMouseWheelDown(wxMouseEvent &event);
+	void onMouseWheelUp(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);
 	void onTimer(wxTimerEvent &event);
 
@@ -122,6 +141,8 @@ private:
 public:
 	GlCanvas(MainWindow *mainWindow);
 
+
+	void onMouseWheel(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &event);
