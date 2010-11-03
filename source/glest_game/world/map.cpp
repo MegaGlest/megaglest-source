@@ -120,7 +120,7 @@ int Map::getSurfaceCellArraySize() const {
 SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
 	int arrayIndex = sy * surfaceW + sx;
 	if(arrayIndex >= getSurfaceCellArraySize()) {
-		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " surfaceW = " + surfaceW + " surfaceH = " + surfaceH);
+		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH));
 	}
 	else if(surfaceCells == NULL) {
 		throw runtime_error("surfaceCells == NULL");
@@ -135,8 +135,7 @@ int Map::getCellArraySize() const {
 Cell *Map::getCell(int x, int y) const {
 	int arrayIndex = y * w + x;
 	if(arrayIndex >= getCellArraySize()) {
-		throw runtime_error("arrayIndex >= getCellArraySize()");
-		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + w + " h = " + h);
+		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 	}
 	else if(cells == NULL) {
 		throw runtime_error("cells == NULL");
