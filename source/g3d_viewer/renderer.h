@@ -66,8 +66,12 @@ public:
 	enum PlayerColor{
 		pcRed,
 		pcBlue,
+		pcGreen,
 		pcYellow,
-		pcGreen
+		pcWhite,
+		pcCyan,
+		pcOrange,
+		pcMagenta
 	};
 
 private:
@@ -84,8 +88,12 @@ private:
 
 	Texture2D *customTextureRed;
 	Texture2D *customTextureBlue;
-	Texture2D *customTextureYellow;
 	Texture2D *customTextureGreen;
+	Texture2D *customTextureYellow;
+	Texture2D *customTextureWhite;
+	Texture2D *customTextureCyan;
+	Texture2D *customTextureOrange;
+	Texture2D *customTextureMagenta;
 	MeshCallbackTeamColor meshCallbackTeamColor;
 
 	Renderer();

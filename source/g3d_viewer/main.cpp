@@ -49,8 +49,8 @@ wxString ToUnicode(const string& str) {
 // 	class MainWindow
 // ===============================================
 
-const string MainWindow::versionString= "v1.3.5";
-const string MainWindow::winHeader= "G3D viewer " + versionString + " - Built: " + __DATE__;
+const string g3dviewerVersionString= "v1.3.6";
+const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString + " - Built: " + __DATE__;
 
 MainWindow::MainWindow(const string &modelPath)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),wxPoint(Renderer::windowX, Renderer::windowY),
@@ -77,32 +77,41 @@ MainWindow::MainWindow(const string &modelPath)
 
 	//menu
 	menuFile= new wxMenu();
-	menuFile->Append(miFileLoad, wxT("Load"));
-	menuFile->Append(miFileLoadParticleXML, wxT("Load Particle XML"));
-	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load Projectile Particle XML"));
-	menuFile->Append(miFileClearAll, wxT("Clear All"));
-	menu->Append(menuFile, wxT("File"));
+	menuFile->Append(miFileLoad, wxT("&Load G3d model"), wxT("Load 3D model"));
+	menuFile->Append(miFileLoadParticleXML, wxT("Load &Particle XML"), wxT("Press ctrl before menu for keeping current particles"));
+	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load P&rojectile Particle XML"), wxT("Press ctrl before menu for keeping current projectile particles"));
+	menuFile->Append(miFileLoadSplashParticleXML, wxT("Load &Splash Particle XML"), wxT("Press ctrl before menu for keeping current splash particles"));
+	menuFile->Append(miFileClearAll, wxT("&Clear All"));
+	menuFile->AppendSeparator();
+	menuFile->Append(wxID_EXIT);
+	menu->Append(menuFile, wxT("&File"));
 
 	//mode
 	menuMode= new wxMenu();
-	menuMode->AppendCheckItem(miModeNormals, wxT("Normals"));
-	menuMode->AppendCheckItem(miModeWireframe, wxT("Wireframe"));
-	menuMode->AppendCheckItem(miModeGrid, wxT("Grid"));
-	menu->Append(menuMode, wxT("Mode"));
+	menuMode->AppendCheckItem(miModeNormals, wxT("&Normals"));
+	menuMode->AppendCheckItem(miModeWireframe, wxT("&Wireframe"));
+	menuMode->AppendCheckItem(miModeGrid, wxT("&Grid"));
+	menu->Append(menuMode, wxT("&Mode"));
 
 	//mode
 	menuSpeed= new wxMenu();
-	menuSpeed->Append(miSpeedSlower, wxT("Slower"));
-	menuSpeed->Append(miSpeedFaster, wxT("Faster"));
-	menu->Append(menuSpeed, wxT("Speed"));
+	menuSpeed->Append(miSpeedSlower, wxT("&Slower\t-"));
+	menuSpeed->Append(miSpeedFaster, wxT("&Faster\t+"));
+	menuSpeed->AppendSeparator();
+	menuSpeed->Append(miRestart, wxT("&Restart particles\tR"));
+	menu->Append(menuSpeed, wxT("&Speed"));
 
 	//custom color
 	menuCustomColor= new wxMenu();
-	menuCustomColor->AppendCheckItem(miColorRed, wxT("Red"));
-	menuCustomColor->AppendCheckItem(miColorBlue, wxT("Blue"));
-	menuCustomColor->AppendCheckItem(miColorYellow, wxT("Yellow"));
-	menuCustomColor->AppendCheckItem(miColorGreen, wxT("Green"));
-	menu->Append(menuCustomColor, wxT("Custom Color"));
+	menuCustomColor->AppendCheckItem(miColorRed, wxT("&Red\t0"));
+	menuCustomColor->AppendCheckItem(miColorBlue, wxT("&Blue\t1"));
+	menuCustomColor->AppendCheckItem(miColorGreen, wxT("&Green\t2"));
+	menuCustomColor->AppendCheckItem(miColorYellow, wxT("&Yellow\t3"));
+	menuCustomColor->AppendCheckItem(miColorWhite, wxT("&White\t4"));
+	menuCustomColor->AppendCheckItem(miColorCyan, wxT("&Cyan\t5"));
+	menuCustomColor->AppendCheckItem(miColorOrange, wxT("&Orange\t6"));
+	menuCustomColor->AppendCheckItem(miColorMagenta, wxT("&Magenta\t7"));
+	menu->Append(menuCustomColor, wxT("&Custom Color"));
 
 	menuMode->Check(miModeGrid, true);
 	menuCustomColor->Check(miColorRed, true);
@@ -180,8 +189,45 @@ void MainWindow::onPaint(wxPaintEvent &event){
 }
 
 void MainWindow::onClose(wxCloseEvent &event){
+	// release memory first (from onMenuFileClearAll)
+
+	modelPathList.clear();
+	particlePathList.clear();
+	particleProjectilePathList.clear();
+	particleSplashPathList.clear(); // as above
+
+	timer->Stop();
+	renderer->end();
+
+	unitParticleSystems.clear();
+	unitParticleSystemTypes.clear();
+	
+	projectileParticleSystems.clear();
+	projectileParticleSystemTypes.clear();
+	splashParticleSystems.clear(); // as above
+	splashParticleSystemTypes.clear();
+
+	delete model;
+	model = NULL;
+
 	delete this;
 }
+
+// for the mouseweel
+void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
+	wxPaintEvent paintEvent;
+	zoom*= 1.1f;
+	zoom= clamp(zoom, 0.1f, 10.0f);
+	onPaint(paintEvent);
+}
+
+void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
+	wxPaintEvent paintEvent;
+	zoom*= 0.90909f;
+	zoom= clamp(zoom, 0.1f, 10.0f);
+	onPaint(paintEvent);
+}
+
 
 void MainWindow::onMouseMove(wxMouseEvent &event){
 	int x= event.GetX();
@@ -252,10 +298,30 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 	}
 }
 
+void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
+	string fileName;
+	wxFileDialog fileDialog(this);
+	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+
+	if(isControlKeyPressed == true) {
+		fileDialog.SetMessage(wxT("Adding Mega-Glest splash particle to current view."));
+	}
+	else {
+		fileDialog.SetMessage(wxT("Selecting Mega-Glest splash particle for current view."));
+	}
+
+	if(fileDialog.ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+		loadSplashParticle(path);
+	}
+}  // is it possible to join loadParticle(), loadProjectileParticle() and loadSplashParticle() to one method?  
+
+
 void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 	modelPathList.clear();
 	particlePathList.clear();
 	particleProjectilePathList.clear();
+	particleSplashPathList.clear(); // as above
 
 	timer->Stop();
 	renderer->end();
@@ -265,6 +331,8 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 	
 	projectileParticleSystems.clear();
 	projectileParticleSystemTypes.clear();
+	splashParticleSystems.clear(); // as above
+	splashParticleSystemTypes.clear();
 
 	delete model;
 	model = NULL;
@@ -272,8 +340,14 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 	loadModel("");
 	loadParticle("");
 	loadProjectileParticle("");
+	loadSplashParticle(""); // as above
 
+	GetStatusBar()->SetStatusText(ToUnicode(""));
 	timer->Start(100);
+}
+
+void MainWindow::onMenuFileExit(wxCommandEvent &event) {
+	Close();
 }
 
 void MainWindow::loadModel(string path) {
@@ -312,6 +386,7 @@ void MainWindow::loadParticle(string path) {
 		}
 	}
 
+	try{
 	if(this->particlePathList.size() > 0) {
 		for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
 			string particlePath = this->particlePathList[idx];
@@ -368,7 +443,11 @@ void MainWindow::loadParticle(string path) {
 			}
 		}
 	}
-
+	}
+	catch(std::runtime_error e) {		
+		std::cout << e.what() << std::endl;
+		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest particle XML file, or broken"), wxICON_ERROR);
+	}
 	timer->Start(100);
 }
 
@@ -390,6 +469,7 @@ void MainWindow::loadProjectileParticle(string path) {
 		}
 	}
 
+	try {
 	if(this->particleProjectilePathList.size() > 0) {
 
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
@@ -467,6 +547,108 @@ void MainWindow::loadProjectileParticle(string path) {
 			renderer->initTextureManager();
 		}
 	}
+	}
+	catch(std::runtime_error e) {		
+		std::cout << e.what() << std::endl;
+		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest projectile particle XML file, or broken"), wxICON_ERROR);
+	}
+	timer->Start(100);
+}
+
+void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
+	timer->Stop();
+	if(path != "" && fileExists(path) == true) {
+		renderer->end();
+		splashParticleSystems.clear();
+		splashParticleSystemTypes.clear(); 
+
+		if(isControlKeyPressed == true) {
+			std::cout << "Adding to list..." << std::endl;
+			this->particleSplashPathList.push_back(path);
+		}
+		else {
+			std::cout << "Clearing list..." << std::endl;
+			this->particleSplashPathList.clear();
+			this->particleSplashPathList.push_back(path);
+		}
+	}
+
+	try {
+	if(this->particleSplashPathList.size() > 0) {
+
+		for(unsigned int idx = 0; idx < this->particleSplashPathList.size(); idx++) {
+			string particlePath = this->particleSplashPathList[idx];
+			string dir= extractDirectoryPathFromFile(particlePath);
+
+			size_t pos = dir.find_last_of(folderDelimiter);
+			if(pos == dir.length()-1) {
+				dir.erase(dir.length() -1);
+			}
+
+			particlePath= extractFileFromDirectoryPath(particlePath);
+
+			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
+
+			int size   = -1;
+			int height = -1;
+
+			if(fileExists(unitXML) == true) {
+				XmlTree xmlTree;
+				xmlTree.load(unitXML);
+				const XmlNode *unitNode= xmlTree.getRootNode();
+				const XmlNode *parametersNode= unitNode->getChild("parameters");
+				//size
+				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+				//height
+				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+			}
+
+			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+
+			XmlTree xmlTree;
+			xmlTree.load(dir + folderDelimiter + particlePath);
+			const XmlNode *particleSystemNode= xmlTree.getRootNode();
+
+			std::cout << "Loaded successfully, loading values..." << std::endl;
+
+			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash(); 
+			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer); // <---- only that must be splash...
+
+			std::cout << "Values loaded, about to read..." << std::endl;
+
+			splashParticleSystemTypes.push_back(splashParticleSystemType);
+
+                                      //ParticleSystemTypeSplash
+			for(std::vector<ParticleSystemTypeSplash *>::const_iterator it= splashParticleSystemTypes.begin(); it != splashParticleSystemTypes.end(); ++it) {
+
+				SplashParticleSystem *ps = (*it)->create();
+
+				if(size > 0) {
+					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+					//ps->setPos(vec);
+
+					//Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);   // <------- removed relative projectile
+					//ps->setPath(vec, vec2);                                       // <------- removed relative projectile
+				}
+				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+
+				splashParticleSystems.push_back(ps);
+
+				ps->setVisible(true);
+				renderer->manageParticleSystem(ps);
+			}
+		}
+
+		if(path != "" && fileExists(path) == true) {
+			renderer->initModelManager();
+			renderer->initTextureManager();
+		}
+	}
+	}
+	catch(std::runtime_error e) {		
+		std::cout << e.what() << std::endl;
+		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest splash particle XML file, or broken"), wxICON_ERROR);
+	}
 	timer->Start(100);
 }
 
@@ -493,37 +675,103 @@ void MainWindow::onMenuSpeedFaster(wxCommandEvent &event){
 	speed*= 1.5f;
 }
 
+// set menu checkboxes to what player color is used
 void MainWindow::onMenuColorRed(wxCommandEvent &event){
 	playerColor= Renderer::pcRed;
 	menuCustomColor->Check(miColorRed, true);
 	menuCustomColor->Check(miColorBlue, false);
-	menuCustomColor->Check(miColorYellow, false);
 	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
 }
 
 void MainWindow::onMenuColorBlue(wxCommandEvent &event){
 	playerColor= Renderer::pcBlue;
 	menuCustomColor->Check(miColorRed, false);
 	menuCustomColor->Check(miColorBlue, true);
+	menuCustomColor->Check(miColorGreen, false);
 	menuCustomColor->Check(miColorYellow, false);
-	menuCustomColor->Check(miColorGreen, false);
-}
-
-void MainWindow::onMenuColorYellow(wxCommandEvent &event){
-	playerColor= Renderer::pcYellow;
-	menuCustomColor->Check(miColorRed, false);
-	menuCustomColor->Check(miColorBlue, false);
-	menuCustomColor->Check(miColorYellow, true);
-	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
 }
 
 void MainWindow::onMenuColorGreen(wxCommandEvent &event){
 	playerColor= Renderer::pcGreen;
 	menuCustomColor->Check(miColorRed, false);
 	menuCustomColor->Check(miColorBlue, false);
-	menuCustomColor->Check(miColorYellow, false);
 	menuCustomColor->Check(miColorGreen, true);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
 }
+
+void MainWindow::onMenuColorYellow(wxCommandEvent &event){
+	playerColor= Renderer::pcYellow;
+	menuCustomColor->Check(miColorRed, false);
+	menuCustomColor->Check(miColorBlue, false);
+	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, true);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
+}
+
+void MainWindow::onMenuColorWhite(wxCommandEvent &event){
+	playerColor= Renderer::pcWhite;
+	menuCustomColor->Check(miColorRed, false);
+	menuCustomColor->Check(miColorBlue, false);
+	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, true);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
+}
+
+void MainWindow::onMenuColorCyan(wxCommandEvent &event){
+	playerColor= Renderer::pcCyan;
+	menuCustomColor->Check(miColorRed, false);
+	menuCustomColor->Check(miColorBlue, false);
+	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, true);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, false);
+}
+
+void MainWindow::onMenuColorOrange(wxCommandEvent &event){
+	playerColor= Renderer::pcOrange;
+	menuCustomColor->Check(miColorRed, false);
+	menuCustomColor->Check(miColorBlue, false);
+	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, true);
+	menuCustomColor->Check(miColorMagenta, false);
+}
+
+void MainWindow::onMenuColorMagenta(wxCommandEvent &event){
+	playerColor= Renderer::pcMagenta;
+	menuCustomColor->Check(miColorRed, false);
+	menuCustomColor->Check(miColorBlue, false);
+	menuCustomColor->Check(miColorGreen, false);
+	menuCustomColor->Check(miColorYellow, false);
+	menuCustomColor->Check(miColorWhite, false);
+	menuCustomColor->Check(miColorCyan, false);
+	menuCustomColor->Check(miColorOrange, false);
+	menuCustomColor->Check(miColorMagenta, true);
+}
+
 
 void MainWindow::onTimer(wxTimerEvent &event){
 	wxPaintEvent paintEvent;
@@ -561,117 +809,30 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 
 	std::cout << "isControlKeyPressed = " << isControlKeyPressed << std::endl;
 
-	/*
-	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
- 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
- 			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
- 			if (e.GetModifiers() == wxMOD_CONTROL) { // Ctrl means negative
- 				height  = -height ;
- 			}
- 			int id_offset = heightCount / 2 + height + 1;
- 			if (currentBrush == btHeight) {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushHeight + id_offset);
- 				onMenuBrushHeight(evt);
- 			} else {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushGradient + id_offset);
- 				onMenuBrushGradient(evt);
- 			}
- 			return;
- 		}
- 	}
- 	if (currentBrush == btSurface) { // surface texture
- 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '5') {
- 			surface = e.GetKeyCode() - 48; // '1'-'5' == 1-5
- 			wxCommandEvent evt(wxEVT_NULL, miBrushSurface + surface);
- 			onMenuBrushSurface(evt);
- 			return;
- 		}
- 	}
- 	if (currentBrush == btObject) {
- 		bool valid = true;
- 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '9') {
- 			object = e.GetKeyCode() - 48; // '1'-'9' == 1-9
- 		} else if (e.GetKeyCode() == '0') { // '0' == 10
- 			object = 10;
- 		} else if (e.GetKeyCode() == '-') {	// '-' == 0
- 			object = 0;
- 		} else {
- 			valid = false;
- 		}
- 		if (valid) {
- 			wxCommandEvent evt(wxEVT_NULL, miBrushObject + object + 1);
- 			onMenuBrushObject(evt);
- 			return;
- 		}
- 	}
- 	if (currentBrush == btResource) {
- 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
- 			resource = e.GetKeyCode() - 48;	// '0'-'5' == 0-5
- 			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resource + 1);
- 			onMenuBrushResource(evt);
- 			return;
- 		}
- 	}
- 	if (currentBrush == btStartLocation) {
- 		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '8') {
- 			startLocation = e.GetKeyCode() - 48; // '1'-'8' == 0-7
- 			wxCommandEvent evt(wxEVT_NULL, miBrushStartLocation + startLocation);
- 			onMenuBrushStartLocation(evt);
- 			return;
- 		}
- 	}
- 	if (e.GetKeyCode() == 'H') {
- 		wxCommandEvent evt(wxEVT_NULL, miBrushHeight + height + heightCount / 2 + 1);
- 		onMenuBrushHeight(evt);
- 	} else if (e.GetKeyCode() == ' ') {
-		if (resourceUnderMouse != 0) {
-			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resourceUnderMouse + 1);
- 			onMenuBrushResource(evt);
-		} else {
-			wxCommandEvent evt(wxEVT_NULL, miBrushObject + objectUnderMouse + 1);
- 			onMenuBrushObject(evt);
-		}
- 	} else if (e.GetKeyCode() == 'G') {
- 		wxCommandEvent evt(wxEVT_NULL, miBrushGradient + height + heightCount / 2 + 1);
- 		onMenuBrushGradient(evt);
- 	} else if (e.GetKeyCode() == 'S') {
-		wxCommandEvent evt(wxEVT_NULL, miBrushSurface + surface);
-		onMenuBrushSurface(evt);
- 	} else if (e.GetKeyCode() == 'O') {
- 		wxCommandEvent evt(wxEVT_NULL, miBrushObject + object + 1);
- 		onMenuBrushObject(evt);
- 	} else if (e.GetKeyCode() == 'R') {
- 		wxCommandEvent evt(wxEVT_NULL, miBrushResource + resource + 1);
- 		onMenuBrushResource(evt);
- 	} else if (e.GetKeyCode() == 'L') {
- 		wxCommandEvent evt(wxEVT_NULL, miBrushStartLocation + startLocation + 1);
- 		onMenuBrushStartLocation(evt);
- 	} else {
- 		e.Skip();
-	}
-*/
 
-	if (e.GetKeyCode() == 'R') {
+	// here also becuase + and - hotkeys don't work for numpad automaticly
+	if (e.GetKeyCode() == 388) speed*= 1.5f; //numpad+
+	else if (e.GetKeyCode() == 390) speed/= 1.5f; //numpad-
+}
 
-		std::cout << "pressed R..." << std::endl;
+void MainWindow::onMenuRestart(wxCommandEvent &event){
+	std::cout << "pressed R (restart particle animation)" << std::endl;
+	renderer->end();
 
-		renderer->end();
+	unitParticleSystems.clear();
+	unitParticleSystemTypes.clear();
+	projectileParticleSystems.clear();
+	projectileParticleSystemTypes.clear();
+	splashParticleSystems.clear(); // as above
+	splashParticleSystemTypes.clear();
 
-		//renderer->end();
+	loadModel("");
+	loadParticle("");
+	loadProjectileParticle("");
+	loadSplashParticle(""); // as above
 
-		unitParticleSystems.clear();
-		unitParticleSystemTypes.clear();
-		
-		projectileParticleSystems.clear();
-		projectileParticleSystemTypes.clear();
-
-		loadModel("");
-		loadParticle("");
-		loadProjectileParticle("");
-
-		renderer->initModelManager();
-		renderer->initTextureManager();
-	}
+	renderer->initModelManager();
+	renderer->initTextureManager();
 }
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
@@ -680,7 +841,9 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miFileLoad, MainWindow::onMenuFileLoad)
 	EVT_MENU(miFileLoadParticleXML, MainWindow::onMenuFileLoadParticleXML)
 	EVT_MENU(miFileLoadProjectileParticleXML, MainWindow::onMenuFileLoadProjectileParticleXML)
+	EVT_MENU(miFileLoadSplashParticleXML, MainWindow::onMenuFileLoadSplashParticleXML)
 	EVT_MENU(miFileClearAll, MainWindow::onMenuFileClearAll)
+	EVT_MENU(wxID_EXIT, MainWindow::onMenuFileExit)
 
 	EVT_MENU(miModeWireframe, MainWindow::onMenuModeWireframe)
 	EVT_MENU(miModeNormals, MainWindow::onMenuModeNormals)
@@ -688,11 +851,16 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miSpeedFaster, MainWindow::onMenuSpeedFaster)
 	EVT_MENU(miSpeedSlower, MainWindow::onMenuSpeedSlower)
+	EVT_MENU(miRestart, MainWindow::onMenuRestart)
 
 	EVT_MENU(miColorRed, MainWindow::onMenuColorRed)
 	EVT_MENU(miColorBlue, MainWindow::onMenuColorBlue)
-	EVT_MENU(miColorYellow, MainWindow::onMenuColorYellow)
 	EVT_MENU(miColorGreen, MainWindow::onMenuColorGreen)
+	EVT_MENU(miColorYellow, MainWindow::onMenuColorYellow)
+	EVT_MENU(miColorWhite, MainWindow::onMenuColorWhite)
+	EVT_MENU(miColorCyan, MainWindow::onMenuColorCyan)
+	EVT_MENU(miColorOrange, MainWindow::onMenuColorOrange)
+	EVT_MENU(miColorMagenta, MainWindow::onMenuColorMagenta)
 END_EVENT_TABLE()
 
 // =====================================================
@@ -714,6 +882,12 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow):
     this->mainWindow = mainWindow;
 }
 
+// for the mousewheel
+void GlCanvas::onMouseWheel(wxMouseEvent &event) {
+	if(event.GetWheelRotation()>0) mainWindow->onMouseWheelDown(event);
+	else mainWindow->onMouseWheelUp(event);
+}
+
 void GlCanvas::onMouseMove(wxMouseEvent &event){
     mainWindow->onMouseMove(event);
 }
@@ -725,7 +899,13 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+//    EVT_SPIN_DOWN(GlCanvas::onMouseDown)
+//    EVT_SPIN_UP(GlCanvas::onMouseDown)
+//    EVT_MIDDLE_DOWN(GlCanvas::onMouseWheel)
+//    EVT_MIDDLE_UP(GlCanvas::onMouseWheel)
+
 BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
+    EVT_MOUSEWHEEL(GlCanvas::onMouseWheel)
     EVT_MOTION(GlCanvas::onMouseMove)
     EVT_KEY_DOWN(GlCanvas::onKeyDown)
 END_EVENT_TABLE()
@@ -737,6 +917,14 @@ END_EVENT_TABLE()
 bool App::OnInit(){
 	std::string modelPath;
 	if(argc==2){
+		if(argv[1][0]=='-') {   // any flag gives help and exits program.
+			std::cout << "G3D viewer " << g3dviewerVersionString << std::endl << std::endl; 
+			std::cout << "glest_g3dviewer [G3D 3D-MODEL FILE]" << std::endl << std::endl; 
+			std::cout << "Displays glest 3D-models and unit/projectile/splash particle systems."  << std::endl;
+			std::cout << "rotate with left mouse button, zoom with right mouse button or mousewheel."  << std::endl; 
+			std::cout << "Use ctrl to load more than one particle system. Press R to restart particles."  << std::endl << std::endl;
+			exit (0);
+		}
 		modelPath= wxFNCONV(argv[1]);
 	}
 
