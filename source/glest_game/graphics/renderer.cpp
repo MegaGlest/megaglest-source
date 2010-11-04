@@ -862,7 +862,14 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
 			//string headerLine = "*" + playerName + ":";
-			string headerLine = playerName + ":";
+			string headerLine = playerName + ": ";
+
+			const Metrics &metrics= Metrics::getInstance();
+			const FontMetrics *fontMetrics= CoreData::getInstance().getConsoleFont()->getMetrics();
+
+			if(fontMetrics == NULL) {
+				throw runtime_error("fontMetrics == NULL");
+			}
 
 			renderTextShadow(
 						headerLine,
@@ -871,7 +878,9 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 					xPosition, lineIndex * 20 + 20);
 
 			fontColor = defaultFontColor;
-			xPosition += (8 * (playerName.length() + 2));
+			//xPosition += (8 * (playerName.length() + 2));
+			// Proper font spacing after username portion of chat text rendering
+			xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
 		}
 	}
 	else {
