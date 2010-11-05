@@ -98,18 +98,21 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_FACTIONS
 };
 
+string runtimeErrorMsg = "";
+
 #if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
 void fatal(const char *s, ...)    // failure exit
 {
     static int errors = 0;
     errors++;
 
-	if(errors <= 3) { // print up to two extra recursive errors
+	if(errors <= 5) { // print up to two extra recursive errors
         defvformatstring(msg,s,s);
+		string errText = string(msg) + " [" + runtimeErrorMsg + "]";
         //puts(msg);
 	    string sErr = string(GameConstants::application_name) + " fatal error";
-		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",errText.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",errText.c_str());
 
 		if(errors <= 1) { // avoid recursion
             if(SDL_WasInit(SDL_INIT_VIDEO)) {
@@ -118,7 +121,7 @@ void fatal(const char *s, ...)    // failure exit
                 SDL_SetGamma(1, 1, 1);
             }
             #ifdef WIN32
-                MessageBox(NULL, msg, sErr.c_str(), MB_OK|MB_SYSTEMMODAL);
+                MessageBox(NULL, errText.c_str(), sErr.c_str(), MB_OK|MB_SYSTEMMODAL);
             #endif
             //SDL_Quit();
         }
@@ -161,9 +164,9 @@ class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle() {
 		string msg = "#1 An error ocurred and " + string(GameConstants::application_name) + " will close.\nPlease report this bug to "+mailString;
-//#ifdef WIN32
-//		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
-//#endif
+#ifdef WIN32
+		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
+#endif
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
@@ -195,6 +198,15 @@ public:
         }
         showCursor(true);
         restoreVideoMode(true);
+
+#ifdef WIN32
+
+		runtimeErrorMsg = "";
+		if(msg != NULL) {
+			runtimeErrorMsg = msg;
+		}
+		throw runtimeErrorMsg;
+#endif
 		//SystemFlags::Close();
         exit(0);
 	}
@@ -668,9 +680,7 @@ int glestMain(int argc, char** argv) {
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
-#ifndef WIN32_STACK_TRACE
 	try {
-#endif
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
@@ -1073,7 +1083,6 @@ int glestMain(int argc, char** argv) {
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-#ifndef WIN32_STACK_TRACE
 	}
 	catch(const exception &e){
 		ExceptionHandler::handleRuntimeError(e.what());
@@ -1087,7 +1096,6 @@ int glestMain(int argc, char** argv) {
 	catch(...){
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
-#endif
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
