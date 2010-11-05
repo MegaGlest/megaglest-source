@@ -107,6 +107,8 @@ public:
 	static const char *RANDOMFACTION_SLOTNAME;
 
 	static const char *playerTextureCacheLookupKey;
+
+	static const char *application_name;
 };
 
 enum PathType {

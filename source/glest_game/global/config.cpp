@@ -45,7 +45,8 @@ const char *GameConstants::folder_path_screenshots	= "screens/";
 const char *GameConstants::OBSERVER_SLOTNAME		= "*Observer*";
 const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
 
-const char *GameConstants::playerTextureCacheLookupKey = "playerTextureCache";
+const char *GameConstants::playerTextureCacheLookupKey  = "playerTextureCache";
+const char *GameConstants::application_name				= "MegaGlest";
 
 // =====================================================
 // 	class Config

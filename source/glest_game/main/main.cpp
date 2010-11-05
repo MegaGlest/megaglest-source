@@ -35,12 +35,28 @@
 #include "sound_renderer.h"
 #include "font_gl.h"
 #include "cache_manager.h"
+
+#ifdef WIN32
+#include <eh.h>
+#include <DbgHelp.h>
+#endif
+
 #include "leak_dumper.h"
 
 #ifndef WIN32 
   #define stricmp strcasecmp 
   #define strnicmp strncasecmp 
   #define _strnicmp strncasecmp
+#endif
+
+#ifdef WIN32
+#ifndef _DEBUG
+#ifndef __GNUC__
+
+#define WIN32_STACK_TRACE
+
+#endif
+#endif
 #endif
 
 using namespace std;
@@ -82,6 +98,60 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_FACTIONS
 };
 
+#if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
+void fatal(const char *s, ...)    // failure exit
+{
+    static int errors = 0;
+    errors++;
+
+	if(errors <= 3) { // print up to two extra recursive errors
+        defvformatstring(msg,s,s);
+        //puts(msg);
+	    string sErr = string(GameConstants::application_name) + " fatal error";
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg);
+
+		if(errors <= 1) { // avoid recursion
+            if(SDL_WasInit(SDL_INIT_VIDEO)) {
+                SDL_ShowCursor(1);
+                SDL_WM_GrabInput(SDL_GRAB_OFF);
+                SDL_SetGamma(1, 1, 1);
+            }
+            #ifdef WIN32
+                MessageBox(NULL, msg, sErr.c_str(), MB_OK|MB_SYSTEMMODAL);
+            #endif
+            //SDL_Quit();
+        }
+    }
+
+    exit(EXIT_FAILURE);
+}
+
+void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
+    if(!ep) fatal("unknown type");
+    EXCEPTION_RECORD *er = ep->ExceptionRecord;
+    CONTEXT *context = ep->ContextRecord;
+    stringType out, t;
+    formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", GameConstants::application_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
+    STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
+    SymInitialize(GetCurrentProcess(), NULL, TRUE);
+
+    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL)) {
+        struct { IMAGEHLP_SYMBOL sym; stringType n; } 
+		si = { { sizeof( IMAGEHLP_SYMBOL ), 0, 0, 0, sizeof(stringType) } };
+        IMAGEHLP_LINE li = { sizeof( IMAGEHLP_LINE ) };
+        DWORD off=0;
+		DWORD dwDisp=0;
+        if( SymGetSymFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &off, &si.sym) && 
+			SymGetLineFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &dwDisp, &li)) {
+            char *del = strrchr(li.FileName, '\\');
+            formatstring(t)("%s - %s [%d]\n", si.sym.Name, del ? del + 1 : li.FileName, li.LineNumber+dwDisp);
+            concatstring(out, t);
+        }
+    }
+    fatal(out);
+}
+#endif
+
 // =====================================================
 // 	class ExceptionHandler
 // =====================================================
@@ -89,10 +159,10 @@ enum GAME_ARG_TYPE {
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle() {
-		string msg = "#1 An error ocurred and Glest will close.\nPlease report this bug to "+mailString;
-#ifdef WIN32
-		msg += ", attaching the generated "+getCrashDumpFileName()+" file.";
-#endif
+		string msg = "#1 An error ocurred and " + string(GameConstants::application_name) + " will close.\nPlease report this bug to "+mailString;
+//#ifdef WIN32
+//		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
+//#endif
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
@@ -116,7 +186,7 @@ public:
             program->showMessage(msg);
         }
         else {
-            string err = "#2 An error ocurred and Glest will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString;
+            string err = "#2 An error ocurred and " + string(GameConstants::application_name) + " will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString;
 #ifdef WIN32
             err += string(", attaching the generated ") + getCrashDumpFileName() + string(" file.");
 #endif
@@ -382,7 +452,7 @@ void MainWindow::eventKeyDown(char key){
 
 				for(int i=0; i < 250; ++i) {
 					path = GameConstants::folder_path_screenshots;
-					path += "screen" + intToStr(i + queueSize) + "." + fileFormat;
+					path += string("screen") + intToStr(i + queueSize) + string(".") + fileFormat;
 					FILE *f= fopen(path.c_str(), "rb");
 					if(f == NULL) {
 						Renderer::getInstance().saveScreen(path);
@@ -520,8 +590,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n\n");
 }
-int glestMain(int argc, char** argv){
 
+int glestMain(int argc, char** argv) {
 #ifdef SL_LEAK_DUMP
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
@@ -597,7 +667,9 @@ int glestMain(int argc, char** argv){
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
-	try{
+#ifndef WIN32_STACK_TRACE
+	try {
+#endif
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
@@ -901,7 +973,7 @@ int glestMain(int argc, char** argv){
 										if(i > 0) {
 											errorText += "\n";
 										}
-										errorText += resultErrors[i];
+										errorText = errorText + resultErrors[i];
 									}
 									errorText += "\n=====================\n";
 									//throw runtime_error(errorText);
@@ -924,7 +996,7 @@ int glestMain(int argc, char** argv){
 										if(i > 0) {
 											errorText += "\n";
 										}
-										errorText += resultErrors[i];
+										errorText = errorText + resultErrors[i];
 									}
 									errorText += "\n=====================\n";
 									//throw runtime_error(errorText);
@@ -975,6 +1047,8 @@ int glestMain(int argc, char** argv){
         }
         // Cache Player textures - END
 
+		//throw "BLAH!";
+
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
@@ -998,6 +1072,7 @@ int glestMain(int argc, char** argv){
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+#ifndef WIN32_STACK_TRACE
 	}
 	catch(const exception &e){
 		ExceptionHandler::handleRuntimeError(e.what());
@@ -1011,6 +1086,7 @@ int glestMain(int argc, char** argv){
 	catch(...){
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
+#endif
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1027,6 +1103,18 @@ int glestMain(int argc, char** argv){
 	return 0;
 }
 
+int glestMainWrapper(int argc, char** argv) {
+#ifdef WIN32_STACK_TRACE
+__try {
+#endif
+
+	return glestMain(argc, argv);
+
+#ifdef WIN32_STACK_TRACE
+} __except(stackdumper(0, GetExceptionInformation()), EXCEPTION_CONTINUE_SEARCH) { return 0; }
+#endif
+}
+
 }}//end namespace
 
-MAIN_FUNCTION(Glest::Game::glestMain)
+MAIN_FUNCTION(Glest::Game::glestMainWrapper)
