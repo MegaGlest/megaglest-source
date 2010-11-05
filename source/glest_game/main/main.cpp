@@ -109,6 +109,7 @@ void fatal(const char *s, ...)    // failure exit
         //puts(msg);
 	    string sErr = string(GameConstants::application_name) + " fatal error";
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 
 		if(errors <= 1) { // avoid recursion
             if(SDL_WasInit(SDL_INIT_VIDEO)) {
