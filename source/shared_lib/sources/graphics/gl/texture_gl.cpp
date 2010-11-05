@@ -16,11 +16,12 @@
 #include <vector>
 #include "conversion.h"
 #include <algorithm>
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
 
 using namespace Platform;
 using namespace Shared::Util;
@@ -259,12 +260,12 @@ static std::vector<int> getSupportCompressedTextureFormats() {
 	}
 
 	if(Texture::useTextureCompression == true) {
-		printf("------------------------------------------------\n");
-		printf("**** getSupportCompressedTextureFormats() result.size() = %d, count = %d\n",(int)result.size(),count);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"------------------------------------------------\n");
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"**** getSupportCompressedTextureFormats() result.size() = %d, count = %d\n",(int)result.size(),count);
 		for(unsigned int i = 0; i < result.size(); ++i) {
-			printf("Texture Compression #i = %d, result[i] = %d [%s]\n",i,result[i],getSupportCompressedTextureFormatString(result[i]).c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"Texture Compression #i = %d, result[i] = %d [%s]\n",i,result[i],getSupportCompressedTextureFormatString(result[i]).c_str());
 		}
-		printf("------------------------------------------------\n");
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"------------------------------------------------\n");
 	}
 	return result;
 }
@@ -431,7 +432,7 @@ void TextureGl::setup_FBO_RBO() {
 		throw runtime_error("getTextureWidth() < 0 || getTextureHeight() < 0");
 	}
 
-	printf("getTextureWidth() = %d, getTextureHeight() = %d\n",getTextureWidth(),getTextureHeight());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"getTextureWidth() = %d, getTextureHeight() = %d\n",getTextureWidth(),getTextureHeight());
 
 // Need some work to get extensions properly working in Windows (use Glew lib)
 #ifndef WIN32
@@ -441,7 +442,7 @@ void TextureGl::setup_FBO_RBO() {
 	GLint height=0;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
 
-	printf("width = %d, height = %d\n",width,height);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"width = %d, height = %d\n",width,height);
 
 	//RGBA8 2D texture, 24 bit depth texture, 256x256
 	//glGenTextures(1, &color_tex);
@@ -471,10 +472,10 @@ void TextureGl::setup_FBO_RBO() {
 	switch(status)
 	{
 	 case GL_FRAMEBUFFER_COMPLETE_EXT:
-		 printf("FBO attachment OK!\n");
+		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment OK!\n");
 		 break;
 	 default:
-		printf("FBO attachment BAD!\n");
+		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment BAD!\n");
 		break;
 	}
 	//-------------------------
@@ -548,7 +549,7 @@ bool TextureGl::checkFrameBufferStatus() {
 	// Does the GPU support current FBO configuration?
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	if(status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-		printf("checkFrameBufferStatus() status = %d [%X]\n",status,status);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"checkFrameBufferStatus() status = %d [%X]\n",status,status);
 	    return false;
 	}
 	return true;
@@ -951,13 +952,13 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 	if(Texture::useTextureCompression == true) {
 		GLint glFormat= toFormatGl(format, components);
 
-		printf("**** Texture filename: [%s] format = %d components = %d, glFormat = %d, rawSize = %llu\n",path.c_str(),format,components,glFormat,(long long unsigned int)rawSize);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"**** Texture filename: [%s] format = %d components = %d, glFormat = %d, rawSize = %llu\n",path.c_str(),format,components,glFormat,(long long unsigned int)rawSize);
 
 		GLint compressed=0;
 		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_COMPRESSED, &compressed);
 		int error = glGetError();
 
-		printf("**** Texture compressed status: %d, error [%d] (%X)\n",compressed,error,error);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"**** Texture compressed status: %d, error [%d] (%X)\n",compressed,error,error);
 
 		bool isCompressed = (compressed == 1);
 		compressed=0;
@@ -969,12 +970,12 @@ void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,co
 			percent = ((double)compressed / (double)rawSize) * (double)100.0;
 		}
 
-		printf("**** Texture image size in video RAM: %d [%.2f%%], error [%d] (%X)\n",compressed,percent,error,error);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"**** Texture image size in video RAM: %d [%.2f%%], error [%d] (%X)\n",compressed,percent,error,error);
 
 		compressed=0;
 		glGetTexLevelParameteriv(texType, 0, GL_TEXTURE_INTERNAL_FORMAT, &compressed);
 		error = glGetError();
-		printf("**** Texture image compression format used: %d, error [%d] (%X)\n",compressed,error,error);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"**** Texture image compression format used: %d, error [%d] (%X)\n",compressed,error,error);
 	}
 }
 
