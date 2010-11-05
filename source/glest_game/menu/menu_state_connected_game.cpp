@@ -543,6 +543,28 @@ void MenuStateConnectedGame::render() {
 		// Get a reference to the player texture cache
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 
+		// START - this code ensure player title and player names don't overlap
+		int offsetPosition=0;
+	    for(int i=0; i < GameConstants::maxPlayers; ++i) {
+	    	//labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
+			//labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
+
+			const Metrics &metrics= Metrics::getInstance();
+			const FontMetrics *fontMetrics= CoreData::getInstance().getMenuFontNormal()->getMetrics();
+			if(fontMetrics == NULL) {
+				throw runtime_error("fontMetrics == NULL");
+			}
+			int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
+
+			if(labelPlayers[i].getX() + curWidth >= labelPlayerNames[i].getX()) {
+				int newOffsetPosition = labelPlayers[i].getX() + curWidth + 2;
+				if(offsetPosition < newOffsetPosition) {
+					offsetPosition = newOffsetPosition;
+				}
+			}
+	    }
+	    // END
+
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			if(crcPlayerTextureCache[i] != NULL) {
 				// Render the player # label the player's color
@@ -558,6 +580,10 @@ void MenuStateConnectedGame::render() {
 			}
 			else {
 				renderer.renderLabel(&labelPlayers[i]);
+			}
+
+			if(offsetPosition > 0) {
+				labelPlayerNames[i].setX(offsetPosition);
 			}
 
 			renderer.renderListBox(&listBoxControls[i]);
