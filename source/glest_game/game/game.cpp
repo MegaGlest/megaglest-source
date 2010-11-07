@@ -697,6 +697,8 @@ void Game::update() {
 					scriptManager.getPlayerModifiers(i)->getAiEnabled() == true) {
 
 					aiInterfaces[i]->update();
+
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] i = %d, world.getFactionCount() = %d, took msecs: %lld [AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,world.getFactionCount(),chrono.getMillis());
 				}
 			}
 

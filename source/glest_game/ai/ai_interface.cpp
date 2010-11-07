@@ -371,6 +371,42 @@ const TechTree *AiInterface::getTechTree(){
 	return world->getTechTree();
 }
 
+//returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
+bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const {
+	const Map *map= world->getMap();
+	int size = 1;
+	for(int i = -1; i <= size; ++i) {
+		for(int j = -1; j <= size; ++j) {
+			if(map->isInside(pos.x + i, pos.y + j)) {
+				Resource *r= map->getSurfaceCell(map->toSurfCoords(Vec2i(pos.x + i, pos.y + j)))->getResource();
+				if(r != NULL) {
+					if(r->getType() == rt) {
+						resourcePos= pos + Vec2i(i,j);
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	if(fallbackToPeersHarvestingSameResource == true && faction != NULL) {
+		// Look for another unit that is currently harvesting the same resource
+		// type right now
+
+		// Check the faction cache for a known position where we can harvest
+		// this resource type
+		Vec2i result = faction->getClosestResourceTypeTargetFromCache(pos, rt);
+		if(result.x >= 0) {
+			resourcePos = result;
+			if(pos.dist(resourcePos) <= size) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i &pos,
 											Vec2i &resultPos, bool usableResourceTypeOnly) {
 	float tmpDist=0;
@@ -381,7 +417,8 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 	bool canUseResourceType = (usableResourceTypeOnly == false);
 	if(usableResourceTypeOnly == true) {
 		// can any unit harvest this resource yet?
-		for(int i = 0; i < getMyUnitCount(); ++i) {
+		int unitCount = getMyUnitCount();
+		for(int i = 0; i < unitCount; ++i) {
 			const Unit *unit = getMyUnit(i);
 			const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
 			if(hct != NULL) {
@@ -392,23 +429,28 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 	}
 
 	if(canUseResourceType == true) {
-		const Map *map= world->getMap();
+		Faction *faction = world->getFaction(factionIndex);
+		if(isResourceNear(pos, rt, resultPos, faction, true) == true) {
+			anyResource= true;
+		}
+		else {
+			const Map *map= world->getMap();
+			for(int i = 0; i < map->getW(); ++i) {
+				for(int j = 0; j < map->getH(); ++j) {
+					Vec2i surfPos= Map::toSurfCoords(Vec2i(i, j));
 
-		for(int i=0; i<map->getW(); ++i){
-			for(int j=0; j<map->getH(); ++j){
-				Vec2i surfPos= Map::toSurfCoords(Vec2i(i, j));
-				
-				//if explored cell
-				if(map->getSurfaceCell(surfPos)->isExplored(teamIndex)){
-					Resource *r= map->getSurfaceCell(surfPos)->getResource();
+					//if explored cell
+					if(map->getSurfaceCell(surfPos)->isExplored(teamIndex)) {
+						Resource *r= map->getSurfaceCell(surfPos)->getResource();
 
-					//if resource cell
-					if(r != NULL && r->getType() == rt) {
-						tmpDist= pos.dist(Vec2i(i, j));
-						if(tmpDist < nearestDist) {
-							anyResource= true;
-							nearestDist= tmpDist;
-							resultPos= Vec2i(i, j);
+						//if resource cell
+						if(r != NULL && r->getType() == rt) {
+							tmpDist= pos.dist(Vec2i(i, j));
+							if(tmpDist < nearestDist) {
+								anyResource= true;
+								nearestDist= tmpDist;
+								resultPos= Vec2i(i, j);
+							}
 						}
 					}
 				}

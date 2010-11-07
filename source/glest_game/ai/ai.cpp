@@ -141,6 +141,9 @@ Ai::~Ai() {
 }
 
 void Ai::update() {
+	Chrono chrono;
+	chrono.start();
+
 	//process ai rules
 	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
 		AiRule *rule = aiRules[ruleIdx];
@@ -148,12 +151,23 @@ void Ai::update() {
 			throw runtime_error("rule == NULL");
 		}
 		if((aiInterface->getTimer() % (rule->getTestInterval() * GameConstants::updateFps / 1000)) == 0){
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
+
 			if(rule->test()) {
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
+
 				aiInterface->printLog(3, intToStr(1000 * aiInterface->getTimer() / GameConstants::updateFps) + ": Executing rule: " + rule->getName() + '\n');
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
+
 				rule->execute();
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 

@@ -806,6 +806,77 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 	return result;
 }
 
+Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type) {
+	Vec2i result(-1);
+	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+		if(cacheResourceTargetList.size() > 0) {
+			std::vector<Vec2i> deleteList;
+
+			const int harvestDistance = 5;
+			const Map *map = world->getMap();
+
+			bool foundCloseResource = false;
+			// First look immediately around the given position
+			for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
+				for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
+					Vec2i newPos = pos + Vec2i(j,k);
+					if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+						if( sc != NULL && sc->getResource() != NULL) {
+							const Resource *resource = sc->getResource();
+							if(resource->getType() != NULL && resource->getType() == type) {
+								if(result.x < 0 || pos.dist(newPos) < pos.dist(result)) {
+									result = newPos;
+									foundCloseResource = true;
+									break;
+								}
+							}
+						}
+						else {
+							deleteList.push_back(newPos);
+						}
+					}
+				}
+			}
+
+			if(foundCloseResource == false) {
+				// Now check the whole cache
+				for(std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.begin();
+											  iter != cacheResourceTargetList.end() && foundCloseResource == false;
+											  ++iter) {
+					const Vec2i &cache = iter->first;
+					if(map->isInside(cache) == true) {
+						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(cache));
+						if( sc != NULL && sc->getResource() != NULL) {
+							const Resource *resource = sc->getResource();
+							if(resource->getType() != NULL && resource->getType() == type) {
+								if(result.x < 0 || pos.dist(cache) < pos.dist(result)) {
+									result = cache;
+									// Close enough to our position, no more looking
+									if(pos.dist(result) <= (harvestDistance * 2)) {
+										foundCloseResource = true;
+										break;
+									}
+								}
+							}
+						}
+						else {
+							deleteList.push_back(cache);
+						}
+					}
+					else {
+						deleteList.push_back(cache);
+					}
+				}
+			}
+			if(deleteList.size() > 0) {
+				cleanupResourceTypeTargetCache(&deleteList);
+			}
+		}
+	}
+	return result;
+}
+
 void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
 	if(Config::getInstance().getBool("DisableCaching","false") == false) {
 		if(cacheResourceTargetList.size() > 0) {

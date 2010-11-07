@@ -167,6 +167,7 @@ public:
 	void removeResourceTargetFromCache(const Vec2i &pos);
 	void addCloseResourceTargetToCache(const Vec2i &pos);
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
+	Vec2i getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
 
 	void deletePixels();

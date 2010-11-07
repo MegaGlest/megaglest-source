@@ -429,6 +429,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		switch (tsValue) {
         case tsMoving:
         	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
@@ -456,6 +458,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
     				throw runtime_error("detected unsupported pathfinder type!");
     	    }
 
+    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 			if (canOccupyCell == true) {
 				const UnitType *builtUnitType= command->getUnitType();
 				CardinalDir facing = command->getFacing();
@@ -473,6 +477,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 			    }
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				Vec2i buildPos = command->getPos();
 				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, buildPos, builtUnitType, unit->getFaction(), world->getMap(), facing);
@@ -500,6 +506,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				map->prepareTerrain(builtUnit);
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				switch(this->game->getGameSettings()->getPathFinderType()) {
 					case pfBasic:
@@ -533,6 +541,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
             }
         	}
             break;
@@ -545,9 +554,13 @@ void UnitUpdater::updateBuild(Unit *unit) {
 			}
             break;
         }
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
     else {
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+
+    	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
         //if building
         Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
@@ -574,6 +587,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
         else if(builtUnit == NULL || builtUnit->repair()) {
         	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+        	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
             //building finished
             unit->finishCommand();
             unit->setCurrSkill(scStop);
@@ -586,6 +601,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 					unit->getCurrVector(),
 					gameCamera->getPos());
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
         }
     }
 

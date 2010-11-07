@@ -1092,24 +1092,24 @@ AiRuleExpand::AiRuleExpand(Ai *ai):
 bool AiRuleExpand::test() {
 	AiInterface *aiInterface = ai->getAiInterface();
 
-	for(int i= 0; i<aiInterface->getTechTree()->getResourceTypeCount(); ++i){
+	int unitCount = aiInterface->getMyUnitCount();
+	for(int i = 0; i < aiInterface->getTechTree()->getResourceTypeCount(); ++i) {
 		const ResourceType *rt = aiInterface->getTechTree()->getResourceType(i);
-		if(rt->getClass() == rcTech){
+		if(rt->getClass() == rcTech) {
 			// If any resource sighted
 			if(aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), expandPos, true)) {
 				int minDistance= INT_MAX;
 				storeType= NULL;
 
 				//If there is no close store
-				for(int j=0; j < aiInterface->getMyUnitCount(); ++j) {
+				for(int j=0; j < unitCount; ++j) {
 					const Unit *u= aiInterface->getMyUnit(j);
-					const UnitType *ut= aiInterface->getMyUnit(j)->getType();
+					const UnitType *ut= u->getType();
 
 					// If this building is a store
 					if(ut->getStore(rt) > 0) {
 						storeType = ut;
 						int distance= static_cast<int> (u->getPos().dist(expandPos));
-
 						if(distance < minDistance) {
 							minDistance = distance;
 						}

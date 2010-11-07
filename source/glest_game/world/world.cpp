@@ -244,6 +244,9 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::updateAllFactionUnits() {
+	Chrono chrono;
+	chrono.start();
+
 	scriptManager->onTimerTriggerEvent();
 	//units
 	int factionCount = getFactionCount();
@@ -254,6 +257,9 @@ void World::updateAllFactionUnits() {
 		}
 
 		int unitCount = faction->getUnitCount();
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] i = %d, unitCount = %d,  took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,i,unitCount,chrono.getMillis());
+
 		for(int j = 0; j < unitCount; ++j) {
 			Unit *unit = faction->getUnit(j);
 			if(unit == NULL) {
@@ -263,6 +269,8 @@ void World::updateAllFactionUnits() {
 			unitUpdater.updateUnit(unit);
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void World::underTakeDeadFactionUnits() {
