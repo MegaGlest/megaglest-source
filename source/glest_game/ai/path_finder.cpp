@@ -370,6 +370,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > moveLookupCache;
+
 	// This cache stores the units free cell movement calcs during the looping below
 	//std::map<Vec2i,std::map<Vec2i, bool> > localCacheForUnitCellMovement;
 	int whileLoopCount = 0;
@@ -412,7 +414,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				//	canUnitMoveToCell = iterFind->second.find(sucPos)->second;
 				//}
 				//else {
-					canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
+
+
+				canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos,&moveLookupCache);
 					//if(Config::getInstance().getBool("DisableCaching","false") == false) {
 					//	localCacheForUnitCellMovement[node->pos][sucPos] = canUnitMoveToCell;
 					//}

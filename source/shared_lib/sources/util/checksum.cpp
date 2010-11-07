@@ -22,9 +22,11 @@
 #include <sys/stat.h> // for open()
 
 #include "util.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Util{
 
@@ -115,13 +117,14 @@ void Checksum::addFileToSum(const string &path){
 
 
 	FILE* file= fopen(path.c_str(), "rb");
-	if(file!=NULL){
+	if(file!=NULL) {
 
 		addString(lastFile(path));
 
+		bool isXMLFile = (EndsWith(path, ".xml") == true);
 		char buf[4096]="";  /* Should be large enough. */
 		int bufSize = sizeof buf;
-		while(!feof(file)){
+		while(!feof(file)) {
 			//int8 byte= 0;
 
 			//size_t readBytes = fread(&byte, 1, 1, file);
@@ -129,6 +132,12 @@ void Checksum::addFileToSum(const string &path){
 			if(fgets(buf, bufSize, file) != NULL) {
 				//addByte(byte);
 			    for(int i = 0; buf[i] != 0 && i < bufSize; i++) {
+			    	// Ignore Spaces in XML files as they are
+			    	// ONLY for formatting
+			    	if(isXMLFile == true &&
+			    	   (buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r')) {
+			    		continue;
+			    	}
 			 		addByte(buf[i]);
 			    }
 			}
