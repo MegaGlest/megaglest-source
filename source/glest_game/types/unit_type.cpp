@@ -487,7 +487,7 @@ const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaire
 bool UnitType::hasEmptyCellMap() const {
 	bool result = (size > 0);
 
-	for(int i = 0; i < size; ++i) {
+	for(int i = 0; result == true && i < size; ++i) {
 		for(int j = 0; j < size; ++j){
 			if(cellMap[i*size+j] == true) {
 				result = false;
