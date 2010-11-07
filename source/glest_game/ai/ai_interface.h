@@ -80,6 +80,7 @@ public:
     const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
     const TechTree *getTechTree(); 
+    bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const;
     bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos, bool usableResourceTypeOnly);
     bool isAlly(const Unit *unit) const;
 	bool isAlly(int factionIndex) const;
