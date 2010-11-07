@@ -233,9 +233,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
 	//starting skill
 	this->currSkill = getType()->getFirstStOfClass(scStop);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	livingUnits.insert(id);
@@ -245,7 +245,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-Unit::~Unit(){
+Unit::~Unit() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,id);
 
 	badHarvestPosList.clear();
@@ -536,7 +536,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		throw runtime_error(szBuf);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(), this->getFullName().c_str(), this->currSkill->toString().c_str(),currSkill->toString().c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(), this->getFullName().c_str(), this->currSkill->toString().c_str(),currSkill->toString().c_str());
 
 	if(currSkill->getClass() != this->currSkill->getClass()) {
 		animProgress= 0;
@@ -753,8 +753,8 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
     assert(command->getCommandType() != NULL);
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
-    		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
+    //		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -881,7 +881,7 @@ void Unit::born() {
 		throw runtime_error(szBuf);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
 	faction->addStore(type);
 	faction->applyStaticProduction(type);
@@ -891,7 +891,7 @@ void Unit::born() {
 }
 
 void Unit::kill() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
 
 	//no longer needs static resources
 	if(isBeingBuilt()) {
