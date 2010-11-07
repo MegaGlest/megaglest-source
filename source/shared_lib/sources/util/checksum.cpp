@@ -139,14 +139,21 @@ void Checksum::addFileToSum(const string &path){
 			    		if(inCommentTag == true) {
 			    			if(buf[i] == '>' && i >= 3 && buf[i-1] == '-' && buf[i-2] == '-') {
 			    				inCommentTag = false;
+			    				//printf("TURNING OFF comment TAG, i = %d [%c]",i,buf[i]);
+			    			}
+			    			else {
+			    				//printf("SKIPPING XML comment character, i = %d [%c]",i,buf[i]);
 			    			}
 			    			continue;
 			    		}
-			    		else if(buf[i] == '-' && i >= 4 && buf[i-1] == '-' && buf[i-2] == '!' && buf[i-3] == '<') {
+			    		//else if(buf[i] == '-' && i >= 4 && buf[i-1] == '-' && buf[i-2] == '!' && buf[i-3] == '<') {
+			    		else if(buf[i] == '<' && i+4 < bufSize && buf[i+1] == '!' && buf[i+2] == '-' && buf[i+3] == '-') {
 		    				inCommentTag = true;
+		    				//printf("TURNING ON comment TAG, i = %d [%c]",i,buf[i]);
 		    				continue;
 			    		}
 			    		else if(buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r') {
+			    			//printf("SKIPPING special character, i = %d [%c]",i,buf[i]);
 			    			continue;
 			    	    }
 			    	}
