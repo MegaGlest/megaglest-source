@@ -488,51 +488,106 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const 
 }
 
 //checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
-bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const{
+bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache) const {
 	int size= unit->getType()->getSize();
 	int teamIndex= unit->getTeam();
 	Field field= unit->getCurrField();
 
+	if(lookupCache != NULL) {
+		std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > >::const_iterator iterFind1 = lookupCache->find(pos1);
+		if(iterFind1 != lookupCache->end()) {
+			std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > >::const_iterator iterFind2 = iterFind1->second.find(pos2);
+			if(iterFind2 != iterFind1->second.end()) {
+				std::map<int, std::map<int, std::map<Field,bool> > >::const_iterator iterFind3 = iterFind2->second.find(teamIndex);
+				if(iterFind3 != iterFind2->second.end()) {
+					std::map<int, std::map<Field,bool> >::const_iterator iterFind4 = iterFind3->second.find(size);
+					if(iterFind4 != iterFind3->second.end()) {
+						std::map<Field,bool>::const_iterator iterFind5 = iterFind4->second.find(field);
+						if(iterFind5 != iterFind4->second.end()) {
+							// Found this result in the cache
+							return iterFind5->second;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	//single cell units
-	if(size==1) {
-		if(isAproxFreeCell(pos2, field, teamIndex) == false){
+	if(size == 1) {
+		if(isAproxFreeCell(pos2, field, teamIndex) == false) {
+			if(lookupCache != NULL) {
+				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+			}
 			return false;
 		}
-		if(pos1.x != pos2.x && pos1.y != pos2.y){
+		if(pos1.x != pos2.x && pos1.y != pos2.y) {
 			if(isAproxFreeCell(Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
+				if(lookupCache != NULL) {
+					(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+				}
+
 				return false;
 			}
 			if(isAproxFreeCell(Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
+				if(lookupCache != NULL) {
+					(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+				}
+
 				return false;
 			}
 		}
 
 		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+			if(lookupCache != NULL) {
+				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+			}
+
 			return false;
+		}
+
+		if(lookupCache != NULL) {
+			(*lookupCache)[pos1][pos2][teamIndex][size][field]=true;
 		}
 
 		return true;
 	}
-
 	//multi cell units
 	else {
-		for(int i=pos2.x; i<pos2.x+size; ++i) {
-			for(int j=pos2.y; j<pos2.y+size; ++j) {
-				if(isInside(i, j)){
-					if(getCell(i, j)->getUnit(unit->getCurrField())!=unit) {
+		for(int i = pos2.x; i < pos2.x + size; ++i) {
+			for(int j = pos2.y; j < pos2.y + size; ++j) {
+				if(isInside(i, j)) {
+					if(getCell(i, j)->getUnit(unit->getCurrField()) != unit) {
 						if(isAproxFreeCell(Vec2i(i, j), field, teamIndex) == false) {
+							if(lookupCache != NULL) {
+								(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+							}
+
 							return false;
 						}
 					}
 				}
 				else {
+
+					if(lookupCache != NULL) {
+						(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+					}
+
 					return false;
 				}
 			}
 		}
 
 		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+			if(lookupCache != NULL) {
+				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
+			}
+
 			return false;
+		}
+
+		if(lookupCache != NULL) {
+			(*lookupCache)[pos1][pos2][teamIndex][size][field]=true;
 		}
 
 		return true;
