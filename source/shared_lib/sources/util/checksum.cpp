@@ -122,6 +122,7 @@ void Checksum::addFileToSum(const string &path){
 		addString(lastFile(path));
 
 		bool isXMLFile = (EndsWith(path, ".xml") == true);
+		bool inCommentTag=false;
 		char buf[4096]="";  /* Should be large enough. */
 		int bufSize = sizeof buf;
 		while(!feof(file)) {
@@ -134,9 +135,20 @@ void Checksum::addFileToSum(const string &path){
 			    for(int i = 0; buf[i] != 0 && i < bufSize; i++) {
 			    	// Ignore Spaces in XML files as they are
 			    	// ONLY for formatting
-			    	if(isXMLFile == true &&
-			    	   (buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r')) {
-			    		continue;
+			    	if(isXMLFile == true) {
+			    		if(inCommentTag == true) {
+			    			if(buf[i] == '>' && i >= 3 && buf[i-1] == '-' && buf[i-2] == '-') {
+			    				inCommentTag = false;
+			    			}
+			    			continue;
+			    		}
+			    		else if(buf[i] == '-' && i >= 4 && buf[i-1] == '-' && buf[i-2] == '!' && buf[i-3] == '<') {
+		    				inCommentTag = true;
+		    				continue;
+			    		}
+			    		else if(buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r') {
+			    			continue;
+			    	    }
 			    	}
 			 		addByte(buf[i]);
 			    }
