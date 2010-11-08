@@ -36,6 +36,7 @@ private:
 	string networkPlayerNames[GameConstants::maxPlayers];
 
 	ControlType factionControls[GameConstants::maxPlayers];
+	float resourceMultiplier[GameConstants::maxPlayers];
 
 	int thisFactionIndex;
 	int factionCount;
@@ -73,6 +74,7 @@ public:
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
     		factionControls[i] = ctClosed;
+    		resourceMultiplier[i] = 1.0f;
     		teams[i] = 0;
     		startLocationIndex[i] = i;
     	}
@@ -100,6 +102,7 @@ public:
 		return result;
 	}
 	ControlType getFactionControl(int factionIndex) const		{return factionControls[factionIndex];}
+	float getResourceMultiplier(int factionIndex) const		{return resourceMultiplier[factionIndex];}
 
 	bool isNetworkGame() const {
 		bool result = false;
@@ -140,6 +143,8 @@ public:
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
+	void setResourceMultiplier(int factionIndex, float multiplier)		{this->resourceMultiplier[factionIndex]= multiplier;}
+	
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)								{this->teams[factionIndex]= team;}
@@ -175,6 +180,7 @@ public:
 			result += "networkPlayerName = " + networkPlayerNames[idx] + "\n";
 
 			result += "factionControl = " + intToStr(factionControls[idx]) + "\n";
+			result += "resourceMultiplier = " + intToStr(resourceMultiplier[idx]) + "\n";
 			result += "team = " + intToStr(teams[idx]) + "\n";
 			result += "startLocationIndex = " + intToStr(startLocationIndex[idx]) + "\n";
 		}

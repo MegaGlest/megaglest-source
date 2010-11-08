@@ -195,6 +195,7 @@ private:
 		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
 
 		int8 factionControls[GameConstants::maxPlayers];
+		int8 resourceMultiplier[GameConstants::maxPlayers];
 
 		int8 thisFactionIndex;
 		int8 factionCount;

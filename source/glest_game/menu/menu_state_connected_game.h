@@ -36,6 +36,7 @@ private:
 	GraphicButton buttonDisconnect;
 	GraphicButton buttonPlayNow;
 	GraphicLabel labelControl;
+	GraphicLabel labelRMultiplier;
 	GraphicLabel labelFaction;
 	GraphicLabel labelTeam;
 	GraphicLabel labelMap;
@@ -79,6 +80,7 @@ private:
 	GraphicLabel labelPlayers[GameConstants::maxPlayers];
 	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	GraphicListBox listBoxControls[GameConstants::maxPlayers];
+	GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
@@ -133,6 +135,7 @@ private:
 	
 	std::vector<std::string> tileSets;
 
+	float rMultiplierOffset;
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);

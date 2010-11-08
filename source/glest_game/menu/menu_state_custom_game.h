@@ -32,6 +32,7 @@ private:
 	GraphicButton buttonPlayNow;
 	GraphicButton buttonRestoreLastSettings;
 	GraphicLabel labelControl;
+	GraphicLabel labelRMultiplier;
 	GraphicLabel labelFaction;
 	GraphicLabel labelTeam;
 	GraphicLabel labelMap;
@@ -60,6 +61,7 @@ private:
 	GraphicLabel labelPlayers[GameConstants::maxPlayers];
 	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	GraphicListBox listBoxControls[GameConstants::maxPlayers];
+	GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
@@ -138,6 +140,7 @@ private:
 
 	bool autostart;
 	std::map<int,int> lastSelectedTeamIndex;
+	float rMultiplierOffset;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
