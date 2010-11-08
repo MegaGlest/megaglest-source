@@ -68,6 +68,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	lastSetChangedGameSettings   = time(NULL);
 	showFullConsole=false;
 
+	rMultiplierOffset=0.5f;
+
 	currentFactionName="";
 	currentMap="";
 	settingsReceivedFromServer=false;
@@ -87,7 +89,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     enableFactionTexturePreview = config.getBool("FactionPreview","true");
     enableMapPreview = config.getBool("MapPreview","true");
 
-	vector<string> teamItems, controlItems, results;
+	vector<string> teamItems, controlItems, results, rMultiplier;
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
@@ -252,46 +254,54 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
-	xoffset=120;
+	xoffset=100;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset+0, setupPos-30-i*rowHeight);
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+100,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+50,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+200, setupPos-30-i*rowHeight);
+        listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
         listBoxControls[i].setEditable(false);
 
+        listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
+        listBoxRMultiplier[i].init(xoffset+350, setupPos-30-i*rowHeight,70);
+		listBoxRMultiplier[i].setEditable(false);
+
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+350, setupPos-30-i*rowHeight);
+        listBoxFactions[i].init(xoffset+430, setupPos-30-i*rowHeight);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+520, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+590, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+600, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+670, setupPos-30-i*rowHeight, 60);
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+600, setupPos-30-i*rowHeight, 30);
+		grabSlotButton[i].init(xoffset+670, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
     labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+200, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+210, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
 	
+	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
+	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	//labelRMultiplier.setText(lang.get("RMultiplier"));
+	
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
     
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+520, setupPos, 60, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+590, setupPos, 60, GraphicListBox::defH, true);
 	labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -309,6 +319,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     controlItems.push_back(lang.get("CpuMega"));
 	controlItems.push_back(lang.get("Network"));
 	controlItems.push_back(lang.get("Human"));
+
+	for(int i=0; i<45; ++i){
+		rMultiplier.push_back(floatToStr(rMultiplierOffset+0.1f*i));
+	}
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
 		controlItems.push_back(lang.get("NetworkCpuEasy"));
@@ -331,6 +345,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
 		listBoxControls[i].setItems(controlItems);
+		listBoxRMultiplier[i].setItems(rMultiplier);
+		listBoxRMultiplier[i].setSelectedItemIndex(5);
+		
 		labelNetStatus[i].setText("V");
     }
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -588,6 +605,7 @@ void MenuStateConnectedGame::render() {
 
 			renderer.renderListBox(&listBoxControls[i]);
 			if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
+				renderer.renderListBox(&listBoxRMultiplier[i]);
 				renderer.renderListBox(&listBoxFactions[i]);
 				renderer.renderListBox(&listBoxTeams[i]);
 				//renderer.renderLabel(&labelNetStatus[i]);
@@ -619,6 +637,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelTileset);
 		renderer.renderLabel(&labelTechTree);
 		renderer.renderLabel(&labelControl);
+		//renderer.renderLabel(&labelRMultiplier);
 		renderer.renderLabel(&labelFaction);
 		renderer.renderLabel(&labelTeam);
 		renderer.renderLabel(&labelMapInfo);
@@ -987,6 +1006,7 @@ void MenuStateConnectedGame::update() {
 					for(int i=0; i<gameSettings->getFactionCount(); ++i){
 						int slot=gameSettings->getStartLocationIndex(i);
 						listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
+						listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplier(i)-rMultiplierOffset)*10);
 						listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 						//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
 						listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
