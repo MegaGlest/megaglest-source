@@ -2125,7 +2125,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
-			gameSettings.setResourceMultiplier(i,properties.getFloat(string("ResourceMultiplier") + intToStr(i)));
+			gameSettings.setResourceMultiplier(i,properties.getFloat(string("ResourceMultiplier") + intToStr(i),"1.0"));
 			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
 			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
 			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
