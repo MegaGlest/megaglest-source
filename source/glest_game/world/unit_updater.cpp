@@ -734,12 +734,12 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 					//update resources
 					int resourceAmount= unit->getLoadCount();
-					if(unit->getFaction()->getCpuUltraControl()){
-						resourceAmount*= ultraResourceFactor;
-					}
-					if(unit->getFaction()->getCpuMegaControl()){
-						resourceAmount*= megaResourceFactor;
-					}
+//					if(unit->getFaction()->getCpuUltraControl()){
+//						resourceAmount*= ultraResourceFactor;
+//					}
+//					if(unit->getFaction()->getCpuMegaControl()){
+//						resourceAmount*= megaResourceFactor;
+//					}
 					resourceAmount*=game->getGameSettings()->getResourceMultiplier(unit->getFaction()->getIndex());
 					unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
 					world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);
