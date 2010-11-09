@@ -32,7 +32,7 @@ void ObjectType::loadModel(const string &path){
 	model->load(path);
 	color= Vec3f(0.f);
 	if(model->getMeshCount()>0 && model->getMesh(0)->getTexture(0) != NULL) {
-		const Pixmap2D *p= model->getMesh(0)->getTexture(0)->getPixmap();
+		const Pixmap2D *p= model->getMesh(0)->getTexture(0)->getPixmapConst();
 		color= p->getPixel3f(p->getW()/2, p->getH()/2);
 	}
 	models.push_back(model);

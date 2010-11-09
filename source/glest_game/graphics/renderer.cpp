@@ -1419,8 +1419,8 @@ void Renderer::renderSurface(const int renderFps) {
 
 	glTexSubImage2D(
 		GL_TEXTURE_2D, 0, 0, 0,
-		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
-		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
+		fowTex->getPixmapConst()->getW(), fowTex->getPixmapConst()->getH(),
+		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmapConst()->getPixels());
 
 	if(!shadowsOffDueToMinRender) {
 		//shadow texture
@@ -1634,7 +1634,8 @@ void Renderer::renderObjects(const int renderFps) {
 			}
 			//ambient and diffuse color is taken from cell color
 
-			float fowFactor= fowTex->getPixmap()->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
+			const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
+			float fowFactor= fowTexPixmap->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
 			Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
 			glColor4fv(color.ptr());
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
@@ -1704,7 +1705,7 @@ void Renderer::renderObjects(const int renderFps) {
 					}
 					//ambient and diffuse color is taken from cell color
 
-					float fowFactor= fowTex->getPixmap()->getPixelf(pos.x / Map::cellScale, pos.y / Map::cellScale);
+					float fowFactor= fowTex->getPixmapConst()->getPixelf(pos.x / Map::cellScale, pos.y / Map::cellScale);
 					Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
 					glColor4fv(color.ptr());
 					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
@@ -2231,7 +2232,7 @@ void Renderer::renderMinimap(){
     const World *world= game->getWorld();
 	const Minimap *minimap= world->getMinimap();
 	const GameCamera *gameCamera= game->getGameCamera();
-	const Pixmap2D *pixmap= minimap->getTexture()->getPixmap();
+	const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
 	const Metrics &metrics= Metrics::getInstance();
 
 	int mx= metrics.getMinimapX();
@@ -2304,7 +2305,7 @@ void Renderer::renderMinimap(){
 
 				Vec2i pos= unit->getPos() / Map::cellScale;
 				int size= unit->getType()->getSize();
-				Vec3f color=  unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0, 0);
+				Vec3f color=  unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 				glColor3fv(color.ptr());
 
 				glBegin(GL_QUADS);
@@ -2329,7 +2330,7 @@ void Renderer::renderMinimap(){
 					}
 					Vec2i pos= unit->getPos()/Map::cellScale;
 					int size= unit->getType()->getSize();
-					Vec3f color=  world->getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
+					Vec3f color=  world->getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 					glColor3fv(color.ptr());
 					glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
 					glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
@@ -3885,10 +3886,10 @@ void Renderer::renderTile(const Vec2i &pos) {
 void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) {
 
 	if(w < 0) {
-		w = texture->getPixmap()->getW();
+		w = texture->getPixmapConst()->getW();
 	}
 	if(h < 0) {
-		h = texture->getPixmap()->getH();
+		h = texture->getPixmapConst()->getH();
 	}
 
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());

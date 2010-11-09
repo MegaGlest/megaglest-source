@@ -217,7 +217,7 @@ public:
 
 	//unit placement
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache=NULL) const;
-	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
+	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2,std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > *lookupCache=NULL) const;
     void putUnitCells(Unit *unit, const Vec2i &pos);
 	void clearUnitCells(Unit *unit, const Vec2i &pos);
 

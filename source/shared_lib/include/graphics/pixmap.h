@@ -15,6 +15,7 @@
 #include <string>
 #include "vec.h"
 #include "types.h"
+#include <map>
 #include "leak_dumper.h"
 
 using std::string;
@@ -160,7 +161,6 @@ protected:
 	int components;
 	uint8 *pixels;
 	string path;
-
 public:
 	//constructor & destructor
 	Pixmap2D();

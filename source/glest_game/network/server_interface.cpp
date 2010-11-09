@@ -1077,20 +1077,31 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings) {
     }
 
     if(bOkToStart == true) {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+
    		serverSocket.stopBroadCastThread();
+
+   		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
         NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtLaunch);
         broadcastMessage(&networkMessageLaunch);
 
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+
         MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
     	delete publishToMasterserverThread;
     	publishToMasterserverThread = NULL;
-
     	lastMasterserverHeartbeatTime = 0;
+
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+
     	if(needToRepublishToMasterserver == true) {
-			publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+			//publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+    		publishToMasterserverThread = new SimpleTaskThread(this,0,125);
 			publishToMasterserverThread->setUniqueID(__FILE__);
 			publishToMasterserverThread->start();
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
     	}
     }
 

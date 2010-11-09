@@ -28,7 +28,7 @@ namespace Glest{ namespace Game{
 // 	class Upgrade
 // =====================================================
 
-Upgrade::Upgrade(const UpgradeType *type, int factionIndex){
+Upgrade::Upgrade(const UpgradeType *type, int factionIndex) {
 	state= usUpgrading;
 	this->factionIndex= factionIndex;
 	this->type= type;
@@ -36,21 +36,21 @@ Upgrade::Upgrade(const UpgradeType *type, int factionIndex){
 
 // ============== get ==============
 
-UpgradeState Upgrade::getState() const{
+UpgradeState Upgrade::getState() const {
 	return state;
 }
 
-int Upgrade::getFactionIndex() const{
+int Upgrade::getFactionIndex() const {
 	return factionIndex;
 }
 
-const UpgradeType * Upgrade::getType() const{
+const UpgradeType * Upgrade::getType() const {
 	return type;
 }
 
 // ============== set ==============
 
-void Upgrade::setState(UpgradeState state){
+void Upgrade::setState(UpgradeState state) {
      this->state= state;
 }
 
@@ -70,15 +70,28 @@ std::string Upgrade::toString() const {
 // 	class UpgradeManager
 // =====================================================
 
-UpgradeManager::~UpgradeManager(){
+UpgradeManager::~UpgradeManager() {
+	upgradesLookup.clear();
 	deleteValues(upgrades.begin(), upgrades.end());
 }
 
-void UpgradeManager::startUpgrade(const UpgradeType *upgradeType, int factionIndex){
-	upgrades.push_back(new Upgrade(upgradeType, factionIndex));
+void UpgradeManager::startUpgrade(const UpgradeType *upgradeType, int factionIndex) {
+	Upgrade *upgrade = new Upgrade(upgradeType, factionIndex);
+	upgrades.push_back(upgrade);
+	upgradesLookup[upgradeType] = upgrades.size()-1;
 }
 
-void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType){
+void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
+	map<const UpgradeType *,int>::iterator iterFind = upgradesLookup.find(upgradeType);
+	if(iterFind != upgradesLookup.end()) {
+		upgrades.erase(upgrades.begin() + iterFind->second);
+		upgradesLookup.erase(upgradeType);
+	}
+	else {
+		throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
+	}
+
+/*
 	Upgrades::iterator it;
 
 	for(it=upgrades.begin(); it!=upgrades.end(); it++){
@@ -93,9 +106,20 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType){
 	else{
 		throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
 	}
+*/
 }
 
-void UpgradeManager::finishUpgrade(const UpgradeType *upgradeType){
+void UpgradeManager::finishUpgrade(const UpgradeType *upgradeType) {
+	map<const UpgradeType *,int>::iterator iterFind = upgradesLookup.find(upgradeType);
+	if(iterFind != upgradesLookup.end()) {
+		upgrades[iterFind->second]->setState(usUpgraded);
+	}
+	else {
+		throw runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
+	}
+
+
+/*
 	Upgrades::iterator it;
 
 	for(it=upgrades.begin(); it!=upgrades.end(); it++){
@@ -110,9 +134,17 @@ void UpgradeManager::finishUpgrade(const UpgradeType *upgradeType){
 	else{
 		throw runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
 	}
+*/
 }
 
-bool UpgradeManager::isUpgradingOrUpgraded(const UpgradeType *upgradeType) const{
+bool UpgradeManager::isUpgradingOrUpgraded(const UpgradeType *upgradeType) const {
+	if(upgradesLookup.find(upgradeType) != upgradesLookup.end()) {
+		return true;
+	}
+
+	return false;
+
+/*
 	Upgrades::const_iterator it;
 	
 	for(it= upgrades.begin(); it!=upgrades.end(); it++){
@@ -122,30 +154,47 @@ bool UpgradeManager::isUpgradingOrUpgraded(const UpgradeType *upgradeType) const
 	}
 
 	return false;
+*/
 }
 
-bool UpgradeManager::isUpgraded(const UpgradeType *upgradeType) const{
+bool UpgradeManager::isUpgraded(const UpgradeType *upgradeType) const {
+	map<const UpgradeType *,int>::const_iterator iterFind = upgradesLookup.find(upgradeType);
+	if(iterFind != upgradesLookup.end()) {
+		return (upgrades[iterFind->second]->getState() == usUpgraded);
+	}
+	return false;
+
+/*
 	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); it++){
 		if((*it)->getType()==upgradeType && (*it)->getState()==usUpgraded){
 			return true;
 		}
 	}
 	return false;
+*/
 }
 
-bool UpgradeManager::isUpgrading(const UpgradeType *upgradeType) const{
+bool UpgradeManager::isUpgrading(const UpgradeType *upgradeType) const {
+	map<const UpgradeType *,int>::const_iterator iterFind = upgradesLookup.find(upgradeType);
+	if(iterFind != upgradesLookup.end()) {
+		return (upgrades[iterFind->second]->getState() == usUpgrading);
+	}
+	return false;
+
+/*
 	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); it++){
 		if((*it)->getType()==upgradeType && (*it)->getState()==usUpgrading){
 			return true;
 		}
 	}
 	return false;
+*/
 }
 
-void UpgradeManager::computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUpgrade) const{
+void UpgradeManager::computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUpgrade) const {
 	totalUpgrade->reset();
-	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); it++){
-		if((*it)->getFactionIndex()==unit->getFactionIndex()
+	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); it++) {
+		if((*it)->getFactionIndex() == unit->getFactionIndex()
 			&& (*it)->getType()->isAffected(unit->getType())
 			&& (*it)->getState()==usUpgraded)
 			totalUpgrade->sum((*it)->getType());	

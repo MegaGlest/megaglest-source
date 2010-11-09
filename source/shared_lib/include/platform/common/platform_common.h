@@ -68,19 +68,25 @@ private:
 	Uint32 freq;
 	bool stopped;
 
+	Uint32 lastStartCount;
+	Uint32 lastTickCount;
+	int64  lastResult;
+	int lastMultiplier;
+	bool lastStopped;
+
 public:
 	Chrono();
 	void start();
 	void stop();
-	int64 getMicros() const;
-	int64 getMillis() const;
-	int64 getSeconds() const;
+	int64 getMicros();
+	int64 getMillis();
+	int64 getSeconds();
 
     static int64 getCurTicks();
     static int64 getCurMillis();
 
 private:
-	int64 queryCounter(int multiplier) const;
+	int64 queryCounter(int multiplier);
 };
 
 // =====================================================

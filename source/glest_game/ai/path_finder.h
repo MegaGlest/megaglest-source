@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 #include "game_constants.h"
+#include "skill_type.h"
 #include "leak_dumper.h"
 
 using std::vector;
@@ -57,30 +58,29 @@ public:
 	static const int pathFindRefresh;
 
 private:
-	//Nodes openNodes;
-	//Nodes closedNodes;
 	std::map<Vec2i, bool> openPosList;
 	std::map<float, Nodes> openNodesList;
 	std::map<float, Nodes> closedNodesList;
 
-	//Node *nodePool;
 	std::vector<Node> nodePool;
 	int nodePoolCount;
 	const Map *map;
+
+	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > lookupCacheCanMove;
+	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > moveLookupCacheApproxCanMove;
 
 public:
 	PathFinder();
 	PathFinder(const Map *map);
 	~PathFinder();
 	void init(const Map *map);
-	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL);
+	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,bool clearLookupCache=true);
 
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout);
 	Node *newNode();
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	float heuristic(const Vec2i &pos, const Vec2i &finalPos);
-	//Nodes::iterator minHeuristic();
 	bool openPos(const Vec2i &sucPos);
 
 	Node * minHeuristicFastLookup();

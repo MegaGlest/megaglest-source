@@ -108,6 +108,12 @@ Chrono::Chrono() {
 	freq = 1000;
 	stopped= true;
 	accumCount= 0;
+
+	lastStartCount = 0;
+	lastTickCount = 0;
+	lastResult = 0;
+	lastMultiplier = 0;
+	lastStopped = false;
 }
 
 void Chrono::start() {
@@ -122,26 +128,51 @@ void Chrono::stop() {
 	stopped= true;
 }
 
-int64 Chrono::getMicros() const {
+int64 Chrono::getMicros() {
 	return queryCounter(1000000);
 }
 
-int64 Chrono::getMillis() const {
+int64 Chrono::getMillis()  {
 	return queryCounter(1000);
 }
 
-int64 Chrono::getSeconds() const {
+int64 Chrono::getSeconds() {
 	return queryCounter(1);
 }
 
-int64 Chrono::queryCounter(int multiplier) const {
-	if(stopped) {
-		return multiplier*accumCount/freq;
-	} else {
-		Uint32 endCount;
-		endCount = SDL_GetTicks();
-		return multiplier*(accumCount+endCount-startCount)/freq;
+int64 Chrono::queryCounter(int multiplier) {
+
+	if(	multiplier == lastMultiplier &&
+		stopped == lastStopped &&
+		lastStartCount == startCount) {
+
+		if(stopped) {
+			return lastResult;
+		}
+		else {
+			Uint32 endCount = SDL_GetTicks();
+			if(lastTickCount == endCount) {
+				return lastResult;
+			}
+		}
 	}
+
+	int64 result = 0;
+	if(stopped) {
+		result = multiplier*accumCount/freq;
+	}
+	else {
+		Uint32 endCount = SDL_GetTicks();
+		result = multiplier*(accumCount+endCount-startCount)/freq;
+		lastTickCount = endCount;
+	}
+
+	lastStartCount = startCount;
+	lastResult = result;
+	lastMultiplier = multiplier;
+	lastStopped = stopped;
+
+	return result;
 }
 
 int64 Chrono::getCurMillis() {

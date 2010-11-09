@@ -14,16 +14,18 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "leak_dumper.h"
 
 using std::vector;
+using std::map;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 class Unit;
 class UpgradeType;
 
-enum UpgradeState{
+enum UpgradeState {
 	usUpgrading, 
 	usUpgraded,
 
@@ -39,7 +41,7 @@ class TotalUpgrade;
 /// A bonus to an UnitType
 // =====================================================
 
-class Upgrade{
+class Upgrade {
 private:
 	UpgradeState state;
 	int factionIndex;
@@ -70,7 +72,9 @@ private:
 class UpgradeManager{
 private:	
 	typedef vector<Upgrade*> Upgrades;
+	typedef map<const UpgradeType *,int> UgradesLookup;
 	Upgrades upgrades;
+	UgradesLookup upgradesLookup;
 public:
 	~UpgradeManager();
 
