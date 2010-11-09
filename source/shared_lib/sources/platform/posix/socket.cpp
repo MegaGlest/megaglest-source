@@ -1164,7 +1164,14 @@ void Socket::setBlock(bool block){
 
 void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
 #ifndef WIN32
-	int err= fcntl(socket, F_SETFL, block ? 0 : O_NONBLOCK);
+	int currentFlags = fcntl(socket, F_GETFL);
+	if(block == true) {
+		currentFlags |= O_NONBLOCK;
+	}
+	else {
+		currentFlags &= (~O_NONBLOCK);
+	}
+	int err= fcntl(socket, F_SETFL, currentFlags);
 #else
 	u_long iMode= !block;
 	int err= ioctlsocket(socket, FIONBIO, &iMode);
