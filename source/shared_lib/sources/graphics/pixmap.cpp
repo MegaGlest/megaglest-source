@@ -781,50 +781,58 @@ Vec3f Pixmap2D::getPixel3f(int x, int y) const {
 }
 
 float Pixmap2D::getPixelf(int x, int y) const {
-	return pixels[(w*y+x)*components]/255.f;
+	int index = (w*y+x)*components;
+	return pixels[index]/255.f;
 }
 
 float Pixmap2D::getComponentf(int x, int y, int component) const {
-	float c;
+	float c=0;
 	getComponent(x, y, component, c);
 	return c;
 }
 
 void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
 	for(int i=0; i<components; ++i) {
-		pixels[(w*y+x)*components+i]= value[i];
+		int index = (w*y+x)*components+i;
+		pixels[index]= value[i];
 	}
 }
 
 void Pixmap2D::setPixel(int x, int y, const float32 *value) {
 	for(int i=0; i<components; ++i) {
-		pixels[(w*y+x)*components+i]= static_cast<uint8>(value[i]*255.f);
+		int index = (w*y+x)*components+i;
+		pixels[index]= static_cast<uint8>(value[i]*255.f);
 	}
 }
 
 void Pixmap2D::setComponent(int x, int y, int component, uint8 value) {
-	pixels[(w*y+x)*components+component]= value;
+	int index = (w*y+x)*components+component;
+	pixels[index] = value;
 }
 
-void Pixmap2D::setComponent(int x, int y, int component, float32 value){
-	pixels[(w*y+x)*components+component]= static_cast<uint8>(value*255.f);
+void Pixmap2D::setComponent(int x, int y, int component, float32 value) {
+	int index = (w*y+x)*components+component;
+	pixels[index]= static_cast<uint8>(value*255.f);
 }
 
 //vector set
-void Pixmap2D::setPixel(int x, int y, const Vec3f &p){
-	for(int i=0; i<components  && i<3; ++i){
-		pixels[(w*y+x)*components+i]= static_cast<uint8>(p.ptr()[i]*255.f);
+void Pixmap2D::setPixel(int x, int y, const Vec3f &p) {
+	for(int i = 0; i < components  && i < 3; ++i) {
+		int index = (w*y+x)*components+i;
+		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
 }
 
-void Pixmap2D::setPixel(int x, int y, const Vec4f &p){
-	for(int i=0; i<components && i<4; ++i){
-		pixels[(w*y+x)*components+i]= static_cast<uint8>(p.ptr()[i]*255.f);
+void Pixmap2D::setPixel(int x, int y, const Vec4f &p) {
+	for(int i = 0; i < components && i < 4; ++i) {
+		int index = (w*y+x)*components+i;
+		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
 }
 
-void Pixmap2D::setPixel(int x, int y, float p){
-	pixels[(w*y+x)*components]= static_cast<uint8>(p*255.f);
+void Pixmap2D::setPixel(int x, int y, float p) {
+	int index = (w*y+x)*components;
+	pixels[index]= static_cast<uint8>(p*255.f);
 }
 
 void Pixmap2D::setPixels(const uint8 *value){

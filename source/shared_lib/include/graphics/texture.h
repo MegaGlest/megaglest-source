@@ -124,8 +124,8 @@ protected:
 public:
 	void load(const string &path);
 
-	Pixmap2D *getPixmap()				{return &pixmap;}
-	const Pixmap2D *getPixmap() const	{return &pixmap;}
+	Pixmap2D *getPixmap()			{return &pixmap;}
+	const Pixmap2D *getPixmapConst() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
 	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}

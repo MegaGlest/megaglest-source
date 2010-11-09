@@ -141,33 +141,19 @@ Ai::~Ai() {
 }
 
 void Ai::update() {
-	Chrono chrono;
-	chrono.start();
-
 	//process ai rules
 	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
 		AiRule *rule = aiRules[ruleIdx];
 		if(rule == NULL) {
 			throw runtime_error("rule == NULL");
 		}
-		if((aiInterface->getTimer() % (rule->getTestInterval() * GameConstants::updateFps / 1000)) == 0){
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
-
+		if((aiInterface->getTimer() % (rule->getTestInterval() * GameConstants::updateFps / 1000)) == 0) {
 			if(rule->test()) {
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
-
 				aiInterface->printLog(3, intToStr(1000 * aiInterface->getTimer() / GameConstants::updateFps) + ": Executing rule: " + rule->getName() + '\n');
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
-
 				rule->execute();
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ruleIdx = %d, aiRules.size() = %d, took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,ruleIdx,aiRules.size(),chrono.getMillis());
 			}
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
@@ -203,22 +189,23 @@ float Ai::getRatioOfClass(UnitClass uc){
 }
 
 const ResourceType *Ai::getNeededResource(int unitIndex) {
-    
-	//int amount = numeric_limits<int>::max();
 	int amount = INT_MAX;
 	const ResourceType *neededResource= NULL;
     const TechTree *tt= aiInterface->getTechTree();
+    const Unit *unit = aiInterface->getMyUnit(unitIndex);
 
     for(int i = 0; i < tt->getResourceTypeCount(); ++i) {
         const ResourceType *rt= tt->getResourceType(i);
         const Resource *r= aiInterface->getResource(rt);
+
 		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable &&
 			r->getAmount() < amount) {
 
 			// Now MAKE SURE the unit has a harvest command for this resource
 			// AND that the resource is within eye-sight to avoid units
 			// standing around doing nothing.
-			const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt,aiInterface->getMyUnit(unitIndex)->getFaction());
+			const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
+
 			Vec2i resPos;
 			if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
 				amount= r->getAmount();
@@ -226,7 +213,6 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
 			}
         }
     }
-
     return neededResource;
 }
 
@@ -414,20 +400,20 @@ void Ai::sendScoutPatrol(){
 void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 	int producerWarriorCount=0;
 	int maxProducerWarriors=random.randRange(1,11);
-    for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-    	bool isWarrior;
+	int unitCount = aiInterface->getMyUnitCount();
+
+    for(int i = 0; i < unitCount; ++i) {
+    	bool isWarrior=false;
         const Unit *unit= aiInterface->getMyUnit(i);
 		const AttackCommandType *act= unit->getType()->getFirstAttackCommand(field);
-		if(act!=NULL && unit->getType()->hasCommandClass(ccProduce))
-		{
+
+		if(act != NULL && unit->getType()->hasCommandClass(ccProduce)) {
 			producerWarriorCount++;
 		}
 		
 		if(	aiInterface->getControlType() == ctCpuMega ||
-			aiInterface->getControlType() == ctNetworkCpuMega)
-		{
-			if(producerWarriorCount>maxProducerWarriors)
-			{
+			aiInterface->getControlType() == ctNetworkCpuMega) {
+			if(producerWarriorCount > maxProducerWarriors) {
 				if(
 					unit->getCommandSize()>0 &&
 					unit->getCurrCommand()->getCommandType()!=NULL && (
@@ -435,55 +421,49 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 					unit->getCurrCommand()->getCommandType()->getClass()==ccMorph || 
 					unit->getCurrCommand()->getCommandType()->getClass()==ccProduce
 					)
-				)
-				{
+				 ) {
 					isWarrior=false;
 				}
-				else
-				{
-					isWarrior=!unit->getType()->hasCommandClass(ccHarvest);
+				else {
+					isWarrior =! unit->getType()->hasCommandClass(ccHarvest);
 				}
+
 			}
-			else
-			{
-				isWarrior= !unit->getType()->hasCommandClass(ccHarvest) && !unit->getType()->hasCommandClass(ccProduce);  
+			else {
+				isWarrior= !unit->getType()->hasCommandClass(ccHarvest) && !unit->getType()->hasCommandClass(ccProduce);
 			}
 		}
-		else
-		{
+		else {
 			isWarrior= !unit->getType()->hasCommandClass(ccHarvest) && !unit->getType()->hasCommandClass(ccProduce);
 		}
 		
-		
-		bool alreadyAttacking= unit->getCurrSkill()->getClass()==scAttack; 
-		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)){
+		bool alreadyAttacking= (unit->getCurrSkill()->getClass() == scAttack);
+		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			aiInterface->giveCommand(i, act, pos);
 		}
     }
 
     if(	aiInterface->getControlType() == ctCpuEasy ||
-    	aiInterface->getControlType() == ctNetworkCpuEasy)
-	{
+    	aiInterface->getControlType() == ctNetworkCpuEasy) {
 		minWarriors+= 1;
 	}
 	else if(aiInterface->getControlType() == ctCpuMega ||
-			aiInterface->getControlType() == ctNetworkCpuMega)
-	{
+			aiInterface->getControlType() == ctNetworkCpuMega) {
 		minWarriors+= 3;
-		if(minWarriors>maxMinWarriors-1 || randomMinWarriorsReached)
-		{
+		if(minWarriors>maxMinWarriors-1 || randomMinWarriorsReached) {
 			randomMinWarriorsReached=true;
 			minWarriors=random.randRange(maxMinWarriors-10, maxMinWarriors*2);
 		}
 	}
-	else if(minWarriors<maxMinWarriors){
+	else if(minWarriors<maxMinWarriors) {
 		minWarriors+= 3;
 	}
 	aiInterface->printLog(2, "Massive attack to pos: "+ intToStr(pos.x)+", "+intToStr(pos.y)+"\n");
 }
 
-void Ai::returnBase(int unitIndex){
+void Ai::returnBase(int unitIndex) {
     Vec2i pos;
     CommandResult r;
     int fi;
@@ -500,11 +480,10 @@ void Ai::returnBase(int unitIndex){
 }
 
 void Ai::harvest(int unitIndex) {
-	
 	const ResourceType *rt= getNeededResource(unitIndex);
-
 	if(rt != NULL) {
 		const HarvestCommandType *hct= aiInterface->getMyUnit(unitIndex)->getType()->getFirstHarvestCommand(rt,aiInterface->getMyUnit(unitIndex)->getFaction());
+
 		Vec2i resPos;
 		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
 			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2)); 

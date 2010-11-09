@@ -464,26 +464,61 @@ bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalD
 // ==================== unit placement ====================
 
 //checks if a unit can move from between 2 cells
-bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
+bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > *lookupCache) const {
 	int size= unit->getType()->getSize();
+	Field field= unit->getCurrField();
+
+	if(lookupCache != NULL) {
+		std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > >::const_iterator iterFind1 = lookupCache->find(pos1);
+		if(iterFind1 != lookupCache->end()) {
+			std::map<Vec2i, std::map<int, std::map<Field,bool> > >::const_iterator iterFind2 = iterFind1->second.find(pos2);
+			if(iterFind2 != iterFind1->second.end()) {
+				std::map<int, std::map<Field,bool> >::const_iterator iterFind3 = iterFind2->second.find(size);
+				if(iterFind3 != iterFind2->second.end()) {
+					std::map<Field,bool>::const_iterator iterFind4 = iterFind3->second.find(field);
+					if(iterFind4 != iterFind3->second.end()) {
+						// Found this result in the cache
+						return iterFind4->second;
+					}
+				}
+			}
+		}
+	}
 
 	for(int i=pos2.x; i<pos2.x+size; ++i) {
 		for(int j=pos2.y; j<pos2.y+size; ++j) {
 			if(isInside(i, j)) {
-				if(getCell(i, j)->getUnit(unit->getCurrField()) != unit) {
-					if(isFreeCell(Vec2i(i, j), unit->getCurrField()) == false) {
+				if(getCell(i, j)->getUnit(field) != unit) {
+					if(isFreeCell(Vec2i(i, j), field) == false) {
+						if(lookupCache != NULL) {
+							(*lookupCache)[pos1][pos2][size][field]=false;
+						}
+
 						return false;
 					}
 				}
 			}
 			else {
+				if(lookupCache != NULL) {
+					(*lookupCache)[pos1][pos2][size][field]=false;
+				}
+
 				return false;
 			}
 		}
 	}
 	if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+		if(lookupCache != NULL) {
+			(*lookupCache)[pos1][pos2][size][field]=false;
+		}
+
 		return false;
 	}
+
+	if(lookupCache != NULL) {
+		(*lookupCache)[pos1][pos2][size][field]=true;
+	}
+
     return true;
 }
 
@@ -780,8 +815,8 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 			else if(ut->hasCellMap() == true &&
-					ut->hasEmptyCellMap() == true &&
-					ut->getAllowEmptyCellMap() == true) {
+					ut->getAllowEmptyCellMap() == true &&
+					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), unit);
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
@@ -807,8 +842,8 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 			else if(ut->hasCellMap() == true &&
-					ut->hasEmptyCellMap() == true &&
-					ut->getAllowEmptyCellMap() == true) {
+					ut->getAllowEmptyCellMap() == true &&
+					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), NULL);
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
@@ -867,10 +902,21 @@ void Map::clampPos(Vec2i &pos) const{
 	}
 }
 
-void Map::prepareTerrain(const Unit *unit){
+void Map::prepareTerrain(const Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
 	flatternTerrain(unit);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
     computeNormals();
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	computeInterpolatedHeights();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== PRIVATE ====================

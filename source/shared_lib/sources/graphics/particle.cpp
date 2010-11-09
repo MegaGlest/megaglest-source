@@ -180,8 +180,10 @@ void ParticleSystem::setVisible(bool visible){
 }
 
 // =============== MISC =========================
-void ParticleSystem::fade(){
-	assert(state==sPlay);
+void ParticleSystem::fade() {
+	if(particleObserver != NULL) {
+		assert(state == sPlay);
+	}
 	state= sFade;
 	if(particleObserver!=NULL){
 		particleObserver->update(this);

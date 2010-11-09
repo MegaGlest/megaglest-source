@@ -83,6 +83,7 @@ private:
 
 	bool thisFaction;
 
+	bool cachingDisabled;
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
 	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
@@ -163,7 +164,7 @@ public:
 	void addCachedPath(const Vec2i &target, Unit *unit);
 
 	bool isResourceTargetInCache(const Vec2i &pos,bool incrementUseCounter=false);
-	void addResourceTargetToCache(const Vec2i &pos);
+	void addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter=true);
 	void removeResourceTargetFromCache(const Vec2i &pos);
 	void addCloseResourceTargetToCache(const Vec2i &pos);
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);

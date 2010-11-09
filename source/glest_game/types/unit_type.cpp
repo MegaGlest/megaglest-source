@@ -504,7 +504,7 @@ bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 	if(cellMap == NULL) {
 		throw runtime_error("cellMap == NULL");
 	}
-	int tmp;
+	int tmp=0;
 	switch (facing) {
 		case CardinalDir::EAST:
 			tmp = y;

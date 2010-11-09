@@ -1656,7 +1656,7 @@ void Game::render2d(){
 
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			string factionInfo = factionDebugInfo[i];
-			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0);
+			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 			//renderer.renderTextShadow(factionInfo, coreData.getMenuFontNormal(),
 			//		Vec4f(playerColor.x,playerColor.y,playerColor.z,fontColor.w),
 			//		10, metrics.getVirtualH() - mh - 60 - 210 - (i * 12), false);

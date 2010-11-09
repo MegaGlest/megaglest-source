@@ -244,9 +244,6 @@ void World::loadScenario(const string &path, Checksum *checksum){
 // ==================== misc ====================
 
 void World::updateAllFactionUnits() {
-	Chrono chrono;
-	chrono.start();
-
 	scriptManager->onTimerTriggerEvent();
 	//units
 	int factionCount = getFactionCount();
@@ -258,8 +255,6 @@ void World::updateAllFactionUnits() {
 
 		int unitCount = faction->getUnitCount();
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] i = %d, unitCount = %d,  took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,i,unitCount,chrono.getMillis());
-
 		for(int j = 0; j < unitCount; ++j) {
 			Unit *unit = faction->getUnit(j);
 			if(unit == NULL) {
@@ -269,8 +264,6 @@ void World::updateAllFactionUnits() {
 			unitUpdater.updateUnit(unit);
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void World::underTakeDeadFactionUnits() {
@@ -332,61 +325,43 @@ void World::updateAllFactionConsumableCosts() {
 }
 
 void World::update(){
-	Chrono chrono;
-	chrono.start();
-
 	++frameCount;
 
 	//time
 	timeFlow.update();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//water effects
 	waterEffects.update();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//bool needToUpdateUnits = true;
 	//if(staggeredFactionUpdates == true) {
 	//	needToUpdateUnits = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
 	//}
 
-	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
 	//if(needToUpdateUnits == true) {
 	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] needToUpdateUnits = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,needToUpdateUnits,frameCount);
 
 	//units
 	updateAllFactionUnits();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [updateAllFactionUnits()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//undertake the dead
 	underTakeDeadFactionUnits();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 	//}
 
 	//food costs
 	updateAllFactionConsumableCosts();
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//fow smoothing
 	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
 		float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
 		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//tick
 	bool needToTick = canTickWorld();
 	if(needToTick == true) {
 		tick();
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world tick]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 bool World::canTickWorld() const {
@@ -570,7 +545,7 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 
 //clears a unit old position from map and places new position
 void World::moveUnitCells(Unit *unit) {
-    if(unit == NULL) {
+	if(unit == NULL) {
     	throw runtime_error("unit == NULL");
     }
 
@@ -578,6 +553,7 @@ void World::moveUnitCells(Unit *unit) {
 
 	//newPos must be free or the same pos as current
 	assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
+
 	// Only change cell placement in map if the new position is different
 	// from the old one
 	if(newPos != unit->getPos()) {
@@ -986,7 +962,7 @@ void World::initFactionTypes(GameSettings *gs) {
 		stats.setPersonalityType(i, getFaction(i)->getType()->getPersonalityType());
 		stats.setControl(i, gs->getFactionControl(i));
 		stats.setPlayerName(i,gs->getNetworkPlayerName(i));
-		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmap()->getPixel3f(0, 0));
+		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1069,9 +1045,6 @@ void World::initMap() {
 // ==================== exploration ====================
 
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
-	Chrono chrono;
-	chrono.start();
-
 	bool cacheLookupPosResult 	= false;
 	bool cacheLookupSightResult = false;
 
@@ -1138,16 +1111,10 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 					ExploredCellsLookupItemCacheTimer[iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 				}
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [CACHE lookup found]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-				chrono.start();
-
 				return;
 			}
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [CACHE lookup not found] cacheLookupPosResult = %d, cacheLookupSightResult = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult);
-	chrono.start();
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
 	int surfSightRange= sightRange/Map::cellScale+1;
@@ -1181,9 +1148,6 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
         }
     }
 
-	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [RAW explore cells logic] cacheLookupPosResult = %d, cacheLookupSightResult = %d, loopCount = %d, MaxExploredCellsLookupItemCache = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),cacheLookupPosResult,cacheLookupSightResult,loopCount,MaxExploredCellsLookupItemCache);
-	chrono.start();
-
     // Ok update our caches with the latest info for this position, sight and team
     if(MaxExploredCellsLookupItemCache > 0) {
 		if(item.exploredCellList.size() > 0 || item.visibleCellList.size() > 0) {
@@ -1198,23 +1162,16 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 			ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 		}
     }
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [add explorecells result to CACHE]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(int factionIdxToTick) {
-	Chrono chrono;
-	chrono.start();
-
 	//reset texture
 	//if(factionIdxToTick == -1 || factionIdxToTick == 0) {
 	//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
 	//if(frameCount % (GameConstants::updateFps) == 0) {
 	minimap.resetFowTex();
 	//}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -1287,9 +1244,6 @@ void World::computeFow(int factionIdxToTick) {
 		}
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
-
 	//compute cells
 	for(int i=0; i<getFactionCount(); ++i) {
 		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -1301,9 +1255,6 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [exploreCells]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//fire
 	for(int i=0; i<getFactionCount(); ++i) {
@@ -1319,9 +1270,6 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [activate Fire Particles]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
 
 	//compute texture
 	if(fogOfWar) {
@@ -1390,8 +1338,6 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [increment Fog of War Texture]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // WARNING! This id is critical! Make sure it fits inside the network packet

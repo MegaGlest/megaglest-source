@@ -553,7 +553,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 			UnitParticleSystem *ups = new UnitParticleSystem(200);
 			(*it)->setValues(ups);
 			ups->setPos(getCurrVector());
-			ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+			ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 			unitParticleSystems.push_back(ups);
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
@@ -761,6 +761,8 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
     const int command_priority = command->getCommandType()->getPriority();
 
 	if(command->getCommandType()->isQueuable(tryQueue) && (commands.empty() || (command_priority >= commands.back()->getCommandType()->getPriority()))){
+
+
 		//Delete all lower-prioirty commands
 		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
 			if ((*i)->getCommandType()->getPriority() < command_priority) {
@@ -771,12 +773,14 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 				++i;
 			}
 		}
+
 		//cancel current command if it is not queuable
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(!commands.empty() && !commands.back()->getCommandType()->isQueueAppendable()){
 		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			cancelCommand();
+
+		    cancelCommand();
 		}
 	}
 	else {
@@ -791,6 +795,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	//check command
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
+
 	if(result == crSuccess) {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		applyCommand(command);
@@ -1406,7 +1411,6 @@ void Unit::clearCommands() {
 }
 
 CommandResult Unit::checkCommand(Command *command) const {
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(command == NULL) {
@@ -1414,6 +1418,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
+
 	//if not operative or has not command type => fail
 	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())|| !this->getFaction()->reqsOk(command->getCommandType())){
         return crFailUndefined;
@@ -1422,7 +1427,8 @@ CommandResult Unit::checkCommand(Command *command) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
-	if(!map->isInside(command->getPos())){
+	if(!map->isInside(command->getPos())) {
+
         return crFailUndefined;
 	}
 
@@ -1436,11 +1442,12 @@ CommandResult Unit::checkCommand(Command *command) const {
 	}
 
 	const ProducibleType *produced= command->getCommandType()->getProduced();
-	if(produced!=NULL){
-		if(!faction->reqsOk(produced)){
+	if(produced!=NULL) {
+		if(faction->reqsOk(produced) == false) {
             return crFailReqs;
 		}
-		if(!faction->checkCosts(produced)){
+
+		if(faction->checkCosts(produced) == false) {
 			return crFailRes;
 		}
 	}
@@ -1448,7 +1455,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //build command specific, check resources and requirements for building
-    if(command->getCommandType()->getClass()==ccBuild){
+    if(command->getCommandType()->getClass()==ccBuild) {
 		const UnitType *builtUnit= command->getUnitType();
 
 		if(builtUnit == NULL) {
@@ -1457,16 +1464,15 @@ CommandResult Unit::checkCommand(Command *command) const {
 			throw runtime_error(szBuf);
 		}
 
-		if(!faction->reqsOk(builtUnit)){
+		if(faction->reqsOk(builtUnit) == false) {
             return crFailReqs;
 		}
-		if(!faction->checkCosts(builtUnit)){
+		if(faction->checkCosts(builtUnit) == false) {
 			return crFailRes;
-		}		
+		}
     }
-
     //upgrade command specific, check that upgrade is not upgraded
-    else if(command->getCommandType()->getClass()==ccUpgrade){
+    else if(command->getCommandType()->getClass()==ccUpgrade) {
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
 		if(uct == NULL) {
@@ -1486,7 +1492,6 @@ CommandResult Unit::checkCommand(Command *command) const {
 }
 
 void Unit::applyCommand(Command *command){
-
 	if(command == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -1500,7 +1505,7 @@ void Unit::applyCommand(Command *command){
 
 	//check produced
 	const ProducibleType *produced= command->getCommandType()->getProduced();
-	if(produced!=NULL){
+	if(produced!=NULL) {
 		faction->applyCosts(produced);
 	}
 
@@ -1508,7 +1513,6 @@ void Unit::applyCommand(Command *command){
     if(command->getCommandType()->getClass()==ccBuild){
 		faction->applyCosts(command->getUnitType());
     }
-
     //upgrade command specific
     else if(command->getCommandType()->getClass()==ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
@@ -1597,7 +1601,7 @@ void Unit::startDamageParticles(){
 			ups= new UnitParticleSystem(200);
 			(*it)->setValues(ups);
 			ups->setPos(getCurrVector());
-			ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+			ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 			damageParticleSystems.push_back(ups);
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
@@ -1670,9 +1674,6 @@ void Unit::exploreCells() {
 		int sightRange = this->getType()->getSight();
 		int teamIndex = this->getTeam();
 
-		Chrono chrono;
-		chrono.start();
-
 		if(game == NULL) {
 			throw runtime_error("game == NULL");
 		}
@@ -1681,8 +1682,6 @@ void Unit::exploreCells() {
 		}
 
 		game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
-
-		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 }
 
@@ -1722,7 +1721,6 @@ void Unit::logSynchData(string source) {
 void Unit::addBadHarvestPos(const Vec2i &value) {
 	Chrono chron;
 	chron.start();
-	//badHarvestPosList.push_back(std::pair<Vec2i,Chrono>(value,chron));
 	badHarvestPosList[value] = chron;
 	cleanupOldBadHarvestPos();
 }
@@ -1733,40 +1731,16 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 		badHarvestPosList.erase(value);
 	}
 	cleanupOldBadHarvestPos();
-
-/*
-	for(int i = 0; i < badHarvestPosList.size(); ++i) {
-		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
-		if(item.first == value) {
-			badHarvestPosList.erase(badHarvestPosList.begin() + i);
-			break;
-		}
-	}
-	cleanupOldBadHarvestPos();
-*/
-
 }
 
 bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
-	//cleanupOldBadHarvestPos();
-
 	bool result = false;
 
 	std::map<Vec2i,Chrono>::const_iterator iter = badHarvestPosList.find(value);
 	if(iter != badHarvestPosList.end()) {
 		result = true;
 	}
-
-/*
-	for(int i = 0; i < badHarvestPosList.size(); ++i) {
-		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
-		if(item.first == value) {
-			result = true;
-			break;
-		}
-	}
-*/
-	if(result == false && checkPeerUnits == true) {
+	else if(checkPeerUnits == true) {
 		// Check if any other units of similar type have this position tagged
 		// as bad?
 		for(int i = 0; i < this->getFaction()->getUnitCount(); ++i) {
@@ -1798,18 +1772,6 @@ void Unit::cleanupOldBadHarvestPos() {
 			badHarvestPosList.erase(item);
 		}
 	}
-
-/*
-	for(int i = badHarvestPosList.size() - 1; i >= 0; --i) {
-		const std::pair<Vec2i,Chrono> &item = badHarvestPosList[i];
-
-		// If this position has been is the list for longer than 240
-		// seconds remove it so the unit could potentially try it again
-		if(item.second.getMillis() >= 2400000) {
-			badHarvestPosList.erase(badHarvestPosList.begin() + i);
-		}
-	}
-*/
 }
 
 void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {

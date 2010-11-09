@@ -18,6 +18,7 @@
 #include "conversion.h"
 #include "ai.h"
 #include "game_settings.h"
+#include <map>
 #include "leak_dumper.h"
 
 using Shared::Util::intToStr;
@@ -46,6 +47,7 @@ private:
 	//config
 	bool redir;
     int logLevel;
+    std::map<const ResourceType *,int> cacheUnitHarvestResourceLookup;
 
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation=-1);

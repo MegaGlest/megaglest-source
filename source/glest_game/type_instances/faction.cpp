@@ -35,6 +35,7 @@ namespace Glest{ namespace Game{
 Faction::Faction() {
 	texture = NULL;
 	lastResourceTargettListPurge = 0;
+	cachingDisabled=false;
 }
 
 Faction::~Faction() {
@@ -67,7 +68,7 @@ void Faction::init(
 	this->thisFaction= thisFaction;
 	this->world= game->getWorld();
 	this->scriptManager= game->getScriptManager();
-	
+	cachingDisabled = (Config::getInstance().getBool("DisableCaching","false") == true);
 
 	resources.resize(techTree->getResourceTypeCount());
 	store.resize(techTree->getResourceTypeCount());
@@ -209,15 +210,15 @@ int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
 }
 
 
-bool Faction::reqsOk(const CommandType *ct) const{
+bool Faction::reqsOk(const CommandType *ct) const {
 	assert(ct != NULL);
-	if(ct->getProduced()!=NULL && !reqsOk(ct->getProduced())){
+	if(ct->getProduced() != NULL && reqsOk(ct->getProduced()) == false) {
 		return false;
 	}
 
-	if(ct->getClass()==ccUpgrade){
+	if(ct->getClass() == ccUpgrade) {
 		const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
-		if(upgradeManager.isUpgradingOrUpgraded(uct->getProducedUpgrade())){
+		if(upgradeManager.isUpgradingOrUpgraded(uct->getProducedUpgrade())) {
 			return false;
 		}
 	}
@@ -450,66 +451,6 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			}
 		}
 	}
-
-/*
-	//increment consumables
-	for(int j=0; j<getUnitCount(); ++j){
-		Unit *unit= getUnit(j);
-		if(unit->isOperative()){
-			for(int k=0; k<unit->getType()->getCostCount(); ++k){
-				const Resource *resource= unit->getType()->getCost(k);
-				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() < 0) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
-
-					incResourceAmount(resource->getType(), -resource->getAmount());
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
-				}
-			}
-		}
-	}
-	
-	//decrement consumables
-	for(int j=0; j<getUnitCount(); ++j){
-		Unit *unit= getUnit(j);
-		assert(unit != NULL);
-		if(unit->isOperative()) {
-			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
-				const Resource *resource= unit->getType()->getCost(k);
-				if(resource->getType()->getClass() == rcConsumable && resource->getAmount() > 0){
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
-
-					incResourceAmount(resource->getType(), -resource->getAmount());
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(resource->getType())->getAmount());
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(resource->getType())->getAmount(),unit->getFullName().c_str(),unit->getId());
-
-					//decrease unit hp
-					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true &&
-						getResource(resource->getType())->getAmount() < 0) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-						resetResourceAmount(resource->getType());
-						bool decHpResult=unit->decHp(unit->getType()->getMaxHp()/3);
-
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
-
-						if(decHpResult) {
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-							world->getStats()->die(unit->getFactionIndex());
-							scriptManager->onUnitDied(unit);
-						}
-						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
-						if(sound!=NULL && thisFaction){
-							SoundRenderer::getInstance().playFx(sound);
-						}
-					}
-				}
-			}
-		}
-	}
-*/
 }
 
 bool Faction::checkCosts(const ProducibleType *pt){
@@ -531,23 +472,19 @@ bool Faction::checkCosts(const ProducibleType *pt){
 
 // ================== diplomacy ==================
 
-bool Faction::isAlly(const Faction *faction){
+bool Faction::isAlly(const Faction *faction) {
 	assert(faction != NULL);
 	return teamIndex==faction->getTeam();
 }
 
 // ================== misc ==================
 
-void Faction::incResourceAmount(const ResourceType *rt, int amount)
-{
-	for(int i=0; i<resources.size(); ++i)
-	{
+void Faction::incResourceAmount(const ResourceType *rt, int amount) {
+	for(int i=0; i<resources.size(); ++i) {
 		Resource *r= &resources[i];
-		if(r->getType()==rt)
-		{
+		if(r->getType()==rt) {
 			r->setAmount(r->getAmount()+amount);
-			if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt))
-			{
+			if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt)) {
 				r->setAmount(getStoreAmount(rt));
 			}
 			return;
@@ -673,21 +610,27 @@ void Faction::resetResourceAmount(const ResourceType *rt){
 
 bool Faction::isResourceTargetInCache(const Vec2i &pos, bool incrementUseCounter) {
 	bool result = false;
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+
+	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
 			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
+
 			result = (iter != cacheResourceTargetList.end());
 			if(result == true && incrementUseCounter == true) {
 				iter->second++;
 			}
 		}
 	}
+
 	return result;
 }
 
-void Faction::addResourceTargetToCache(const Vec2i &pos) {
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
-		bool duplicateEntry = isResourceTargetInCache(pos,true);
+void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter) {
+	if(cachingDisabled == false) {
+
+		bool duplicateEntry = isResourceTargetInCache(pos,incrementUseCounter);
+		//bool duplicateEntry = false;
+
 		if(duplicateEntry == false) {
 			cacheResourceTargetList[pos] = 1;
 		}
@@ -695,9 +638,10 @@ void Faction::addResourceTargetToCache(const Vec2i &pos) {
 }
 
 void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
 			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
+
 			if(iter != cacheResourceTargetList.end()) {
 				cacheResourceTargetList.erase(pos);
 			}
@@ -706,10 +650,11 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 }
 
 void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(cachedCloseResourceTargetLookupList.find(pos) == cachedCloseResourceTargetLookupList.end()) {
 			const Map *map = world->getMap();
 			const int harvestDistance = 5;
+
 			for(int j = -harvestDistance; j <= harvestDistance; ++j) {
 				for(int k = -harvestDistance; k <= harvestDistance; ++k) {
 					Vec2i newPos = pos + Vec2i(j,k);
@@ -717,8 +662,8 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 						if(map->isInside(newPos.x, newPos.y)) {
 							Resource *r = map->getSurfaceCell(map->toSurfCoords(newPos))->getResource();
 							if(r != NULL) {
-								//addResourceTargetToCache(newPos);
-								cacheResourceTargetList[newPos] = 1;
+								addResourceTargetToCache(newPos);
+								//cacheResourceTargetList[newPos] = 1;
 							}
 						}
 					}
@@ -732,7 +677,8 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 
 Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
 	Vec2i result(-1);
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+
+	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
 			std::vector<Vec2i> deleteList;
 
@@ -798,17 +744,19 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 					}
 				}
 			}
+
 			if(deleteList.size() > 0) {
 				cleanupResourceTypeTargetCache(&deleteList);
 			}
 		}
 	}
+
 	return result;
 }
 
 Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type) {
 	Vec2i result(-1);
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
 			std::vector<Vec2i> deleteList;
 
@@ -869,16 +817,18 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 					}
 				}
 			}
+
 			if(deleteList.size() > 0) {
 				cleanupResourceTypeTargetCache(&deleteList);
 			}
 		}
 	}
+
 	return result;
 }
 
 void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
 			if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
 				lastResourceTargettListPurge = time(NULL);
@@ -903,6 +853,7 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 						}
 					}
 				}
+
 				for(int i = 0; i < deleteList.size(); ++i) {
 					Vec2i &cache = deleteList[i];
 					cacheResourceTargetList.erase(cache);
@@ -914,13 +865,12 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 
 std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 	std::vector<Vec2i> result;
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
 			// Lets find the shortest and most successful path already taken by a
 			// similar sized unit
 
 			bool foundCachedPath = false;
-
 			std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
 			int unitSize = unit->getType()->getSize();
 			for(int i = 0; i < cacheList.size(); ++i) {
@@ -948,6 +898,7 @@ std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 									}
 								}
 								foundCachedPath = true;
+
 								break;
 							}
 						}
@@ -956,11 +907,12 @@ std::vector<Vec2i> Faction::findCachedPath(const Vec2i &target, Unit *unit) {
 			}
 		}
 	}
+
 	return result;
 }
 
 void Faction::addCachedPath(const Vec2i &target, Unit *unit) {
-	if(Config::getInstance().getBool("DisableCaching","false") == false) {
+	if(cachingDisabled == false) {
 		if(successfulPathFinderTargetList.find(target) == successfulPathFinderTargetList.end()) {
 			FactionPathSuccessCache cache;
 			cache.unitSize = unit->getType()->getSize();
@@ -972,6 +924,7 @@ void Faction::addCachedPath(const Vec2i &target, Unit *unit) {
 			std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken = unit->getCurrentTargetPathTaken();
 			std::vector<FactionPathSuccessCache> &cacheList = successfulPathFinderTargetList[target];
 			int unitSize = unit->getType()->getSize();
+
 			for(int i = 0; i < cacheList.size() && finishedAdd == false; ++i) {
 				FactionPathSuccessCache &cache = cacheList[i];
 				if(cache.unitSize <= unitSize) {

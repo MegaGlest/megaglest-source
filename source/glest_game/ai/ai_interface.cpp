@@ -104,7 +104,6 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 	assert(this->gameSettings != NULL);
 
 	if(executeCommandOverNetwork() == true) {
-		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
 		const Unit *unit = getMyUnit(unitIndex);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandClass = [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandClass);
 
@@ -156,15 +155,12 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	}
 
 	if(executeCommandOverNetwork() == true) {
-
-		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
 		const Unit *unit = getMyUnit(unitIndex);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nCommand Type List:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str());
 
 		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		return result;
 	}
 	else {
@@ -173,7 +169,6 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		return result;
 	}
 }
@@ -209,7 +204,6 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	}
 
 	if(executeCommandOverNetwork() == true) {
-		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
 		const Unit *unit = getMyUnit(unitIndex);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nut = %p\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),ut);
 
@@ -263,7 +257,6 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	if(executeCommandOverNetwork() == true) {
 		Unit *targetUnit = u;
-		//Unit *unit = world->getFaction(factionIndex)->getUnit(unitIndex);
 		const Unit *unit = getMyUnit(unitIndex);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nTarget Unit Id= %d\nUnit Commands:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),(commandType != NULL ? commandType->getId() : -1),(commandType != NULL ? commandType->toString().c_str() : "null"),(targetUnit != NULL ? targetUnit->getId() : -1),unit->getType()->getCommandTypeListDesc().c_str());
 
@@ -409,48 +402,70 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 
 bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i &pos,
 											Vec2i &resultPos, bool usableResourceTypeOnly) {
+	Faction *faction = world->getFaction(factionIndex);
 	float tmpDist=0;
-
 	float nearestDist= infinity;
 	bool anyResource= false;
+	resultPos.x = -1;
+	resultPos.y = -1;
 
 	bool canUseResourceType = (usableResourceTypeOnly == false);
 	if(usableResourceTypeOnly == true) {
 		// can any unit harvest this resource yet?
-		int unitCount = getMyUnitCount();
-		for(int i = 0; i < unitCount; ++i) {
-			const Unit *unit = getMyUnit(i);
-			const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
-			if(hct != NULL) {
-				canUseResourceType = true;
-				break;
+		std::map<const ResourceType *,int>::iterator iterFind = cacheUnitHarvestResourceLookup.find(rt);
+
+		if(	iterFind != cacheUnitHarvestResourceLookup.end() &&
+			faction->findUnit(iterFind->second) != NULL) {
+			canUseResourceType = true;
+		}
+		else {
+			int unitCount = getMyUnitCount();
+			for(int i = 0; i < unitCount; ++i) {
+				const Unit *unit = getMyUnit(i);
+				const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
+				if(hct != NULL) {
+					canUseResourceType = true;
+					cacheUnitHarvestResourceLookup[rt] = unit->getId();
+					break;
+				}
 			}
 		}
 	}
 
 	if(canUseResourceType == true) {
-		Faction *faction = world->getFaction(factionIndex);
-		if(isResourceNear(pos, rt, resultPos, faction, true) == true) {
+		bool isResourceClose = isResourceNear(pos, rt, resultPos, faction, true);
+		//bool isResourceClose = false;
+
+		// Found a resource
+		if(isResourceClose == true || resultPos.x >= 0) {
 			anyResource= true;
 		}
 		else {
-			const Map *map= world->getMap();
+			const Map *map		= world->getMap();
+			Faction *faction 	= world->getFaction(factionIndex);
+
 			for(int i = 0; i < map->getW(); ++i) {
 				for(int j = 0; j < map->getH(); ++j) {
-					Vec2i surfPos= Map::toSurfCoords(Vec2i(i, j));
+					Vec2i resPos = Vec2i(i, j);
+					Vec2i surfPos= Map::toSurfCoords(resPos);
+					SurfaceCell *sc = map->getSurfaceCell(surfPos);
 
 					//if explored cell
-					if(map->getSurfaceCell(surfPos)->isExplored(teamIndex)) {
-						Resource *r= map->getSurfaceCell(surfPos)->getResource();
+					if(sc != NULL && sc->isExplored(teamIndex)) {
+						Resource *r= sc->getResource();
 
 						//if resource cell
-						if(r != NULL && r->getType() == rt) {
-							tmpDist= pos.dist(Vec2i(i, j));
-							if(tmpDist < nearestDist) {
-								anyResource= true;
-								nearestDist= tmpDist;
-								resultPos= Vec2i(i, j);
+						if(r != NULL) {
+							if(r->getType() == rt) {
+								tmpDist= pos.dist(resPos);
+								if(tmpDist < nearestDist) {
+									anyResource= true;
+									nearestDist= tmpDist;
+									resultPos= resPos;
+								}
 							}
+
+							faction->addResourceTargetToCache(resPos,false);
 						}
 					}
 				}
