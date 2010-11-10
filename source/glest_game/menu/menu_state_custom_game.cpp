@@ -1143,11 +1143,11 @@ void MenuStateCustomGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
-			renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7);
+			renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
 		}
 		if(mapPreviewTexture != NULL) {
 			//renderer.renderTextureQuad(10,350,-1,-1,mapPreviewTexture,0.7);
-			renderer.renderTextureQuad(800,300,200,150,mapPreviewTexture,0.7);
+			renderer.renderTextureQuad(800,300,200,150,mapPreviewTexture,0.7f);
 			//printf("=================> Rendering map preview texture\n");
 		}
 
