@@ -137,6 +137,10 @@ void BattleEnd::render(){
 				assert(false);
 			};
 		}
+		
+		if(stats.getControl(i)!=ctHuman && stats.getControl(i)!=ctNetwork ){
+			controlString+=" x "+floatToStr(stats.getResourceMultiplier(i),1);
+		}
 
 		Vec3f color = stats.getPlayerColor(i);
 

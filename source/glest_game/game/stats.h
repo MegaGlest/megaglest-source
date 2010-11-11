@@ -29,6 +29,7 @@ class PlayerStats {
 public:
 	PlayerStats() {
 		control = ctClosed;
+		resourceMultiplier=1.0f;
 		factionTypeName = "";
 		personalityType = fpt_Normal;
 		teamIndex = 0;
@@ -42,6 +43,7 @@ public:
 	}
 
 	ControlType control;
+	float resourceMultiplier;
 	string factionTypeName;
 	FactionPersonalityType personalityType;
 	int teamIndex;
@@ -83,6 +85,7 @@ public:
 	const string &getFactionTypeName(int factionIndex) const	{return playerStats[factionIndex].factionTypeName;}
 	FactionPersonalityType getPersonalityType(int factionIndex) const { return playerStats[factionIndex].personalityType;}
 	ControlType getControl(int factionIndex) const				{return playerStats[factionIndex].control;}
+	float getResourceMultiplier(int factionIndex) const				{return playerStats[factionIndex].resourceMultiplier;}
 	bool getVictory(int factionIndex) const						{return playerStats[factionIndex].victory;}
 	int getTeam(int factionIndex) const							{return playerStats[factionIndex].teamIndex;}
 	int getKills(int factionIndex) const						{return playerStats[factionIndex].kills;}
@@ -96,6 +99,7 @@ public:
 	void setFactionTypeName(int playerIndex, const string& factionTypeName)	{playerStats[playerIndex].factionTypeName= factionTypeName;}
 	void setPersonalityType(int playerIndex, FactionPersonalityType value)  { playerStats[playerIndex].personalityType = value;}
 	void setControl(int playerIndex, ControlType control)					{playerStats[playerIndex].control= control;}
+	void setResourceMultiplier(int playerIndex, float resourceMultiplier)	{playerStats[playerIndex].resourceMultiplier= resourceMultiplier;}
 	void setTeam(int playerIndex, int teamIndex)							{playerStats[playerIndex].teamIndex= teamIndex;}
 	void setVictorious(int playerIndex);
 	void kill(int killerFactionIndex, int killedFactionIndex);
