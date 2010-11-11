@@ -740,7 +740,10 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 //					if(unit->getFaction()->getCpuMegaControl()){
 //						resourceAmount*= megaResourceFactor;
 //					}
-					resourceAmount*=game->getGameSettings()->getResourceMultiplier(unit->getFaction()->getIndex());
+					if(unit->getFaction()->getCpuControl())
+					{
+						resourceAmount*=game->getGameSettings()->getResourceMultiplier(unit->getFaction()->getIndex());
+					}
 					unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
 					world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);
 					scriptManager->onResourceHarvested();

@@ -495,6 +495,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	updateAllResourceMultiplier();
+
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 				
@@ -852,6 +854,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     needToSetChangedGameSettings = true;
                     lastSetChangedGameSettings   = time(NULL);
                 }
+                updateResourceMultiplier(i);
 			}
 			else if(listBoxFactions[i].mouseClick(x, y)) {
 
@@ -896,6 +899,43 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuStateCustomGame::updateAllResourceMultiplier() {
+	for(int j=0; j<GameConstants::maxPlayers; ++j) {
+		updateResourceMultiplier(j);
+	}
+}
+
+void MenuStateCustomGame::updateResourceMultiplier(const int index) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
+		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset));
+			listBoxRMultiplier[index].setEnabled(false);
+		}
+		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
+		{
+			listBoxRMultiplier[index].setSelectedItemIndex(3);
+			listBoxRMultiplier[index].setEnabled(true);
+		}
+		else if(ct == ctCpu || ct == ctNetworkCpu) {
+			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset));
+			listBoxRMultiplier[index].setEnabled(true);
+		}
+		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
+		{
+			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset)+10);
+			listBoxRMultiplier[index].setEnabled(true);
+		}
+		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
+		{
+			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset)+30);
+			listBoxRMultiplier[index].setEnabled(true);
+		}
+		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
+}
+
+
+
+
 void MenuStateCustomGame::SetActivePlayerNameEditor() {
 	for(int i = 0; i < mapInfo.players; ++i) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
@@ -914,7 +954,7 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 
 		loadGameSettings(&gameSettings);
 	}
-
+	
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	serverInterface->setGameSettings(&gameSettings,false);
 
@@ -1210,7 +1250,9 @@ void MenuStateCustomGame::render() {
 				renderer.renderListBox(&listBoxControls[i]);
 				
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-					renderer.renderListBox(&listBoxRMultiplier[i]);			
+					if(listBoxRMultiplier[i].getEnabled() && (listBoxAdvanced.getSelectedItemIndex() == 1)){
+						renderer.renderListBox(&listBoxRMultiplier[i]);
+					}		
 					renderer.renderListBox(&listBoxFactions[i]);
 					renderer.renderListBox(&listBoxTeams[i]);
 					renderer.renderLabel(&labelNetStatus[i]);
@@ -2053,6 +2095,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "DefaultResources=" << gameSettings.getDefaultResources() << std::endl;
 	saveGameFile << "DefaultVictoryConditions=" << gameSettings.getDefaultVictoryConditions() << std::endl;
 	saveGameFile << "FogOfWar=" << gameSettings.getFogOfWar() << std::endl;
+	saveGameFile << "AdvancedIndex=" << listBoxAdvanced.getSelectedItemIndex() << std::endl;
 
 	saveGameFile << "AllowObservers=" << gameSettings.getAllowObservers() << std::endl;
 
@@ -2110,7 +2153,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		gameSettings.setDefaultResources(properties.getBool("DefaultResources"));
 		gameSettings.setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
 		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
-
+		listBoxAdvanced.setSelectedItemIndex(properties.getInt("AdvancedIndex","0"));
+		
 		gameSettings.setAllowObservers(properties.getBool("AllowObservers","false"));
 
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
@@ -2194,6 +2238,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+			updateResourceMultiplier(i);
 			listBoxRMultiplier[i].setSelectedItemIndex((gameSettings.getResourceMultiplier(i)-rMultiplierOffset)*10);
 			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
 			lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();

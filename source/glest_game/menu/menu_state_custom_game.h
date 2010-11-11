@@ -176,6 +176,8 @@ private:
 
 	void saveGameSettingsToFile(std::string fileName);
 	void switchToNextMapGroup(const int direction);
+	void updateAllResourceMultiplier();
+	void updateResourceMultiplier(const int index);
 	string getCurrentMapFile();
 	GameSettings loadGameSettingsFromFile(std::string fileName);
 	void setActiveInputLabel(GraphicLabel *newLable);
