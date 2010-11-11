@@ -411,7 +411,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	controlItems.push_back(lang.get("Human"));
 	
 	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(rMultiplierOffset+0.1f*i));
+		rMultiplier.push_back(floatToStr(rMultiplierOffset+0.1f*i,1));
 	}
 	
 	if(config.getBool("EnableNetworkCpu","false") == true) {
@@ -797,8 +797,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		for(int i=0; i<mapInfo.players; ++i) {
 			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 			
-			// set multiplier 
-			if(listBoxRMultiplier[i].mouseClick(x, y)) {
+			if (listBoxAdvanced.getSelectedItemIndex() == 1) {
+				// set multiplier 
+				if(listBoxRMultiplier[i].mouseClick(x, y)) {
+				}
 			}
 			
 			//ensure thet only 1 human player is present
