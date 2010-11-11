@@ -67,6 +67,7 @@ public:
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, Unit *u= NULL);
+    CommandResult giveCommand(Unit *unit, const CommandType *commandType, const Vec2i &pos);
     
     //get data
     const ControlType getControlType();
@@ -81,6 +82,7 @@ public:
     const Unit *getMyUnit(int unitIndex);
     const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
+    Faction *getMyFaction();
     const TechTree *getTechTree(); 
     bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const;
     bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos, bool usableResourceTypeOnly);

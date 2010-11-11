@@ -974,6 +974,82 @@ void Faction::deletePixels() {
 	}
 }
 
+Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandClass &cmdClass,
+												const std::vector<SkillClass> &skillClassList,
+												const UnitType *unitType) {
+	Unit *result = NULL;
+
+	std::map<CommandClass,std::map<int,int> >::iterator iterFind = cacheUnitCommandClassList.find(cmdClass);
+	if(iterFind != cacheUnitCommandClassList.end()) {
+		for(std::map<int,int>::iterator iter = iterFind->second.begin();
+				iter != iterFind->second.end(); ++iter) {
+			Unit *curUnit = findUnit(iter->second);
+			if(curUnit != NULL) {
+
+				bool isUnitPossibleCandidate = true;
+				if(skillClassList.size() > 0) {
+					isUnitPossibleCandidate = false;
+
+					for(int j = 0; j < skillClassList.size(); ++j) {
+						SkillClass skValue = skillClassList[j];
+						if(curUnit->getCurrSkill()->getClass() == skValue) {
+							isUnitPossibleCandidate = true;
+							break;
+						}
+					}
+				}
+
+				if(isUnitPossibleCandidate == true) {
+					if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
+						result = curUnit;
+					}
+				}
+			}
+		}
+	}
+
+	if(result == NULL) {
+		for(int i = 0; i < getUnitCount(); ++i) {
+			Unit *curUnit = getUnit(i);
+
+			bool isUnitPossibleCandidate = false;
+
+			const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
+			if(cmdType != NULL) {
+				const RepairCommandType *rct = dynamic_cast<const RepairCommandType *>(cmdType);
+				if(rct != NULL && rct->isRepairableUnitType(unitType)) {
+					isUnitPossibleCandidate = true;
+				}
+			}
+			else {
+				isUnitPossibleCandidate = false;
+			}
+
+			if(isUnitPossibleCandidate == true && skillClassList.size() > 0) {
+				isUnitPossibleCandidate = false;
+
+				for(int j = 0; j < skillClassList.size(); ++j) {
+					SkillClass skValue = skillClassList[j];
+					if(curUnit->getCurrSkill()->getClass() == skValue) {
+						isUnitPossibleCandidate = true;
+						break;
+					}
+				}
+			}
+
+
+			if(isUnitPossibleCandidate == true) {
+				cacheUnitCommandClassList[cmdClass][curUnit->getId()] = curUnit->getId();
+
+				if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
+					result = curUnit;
+				}
+			}
+		}
+	}
+	return result;
+}
+
 std::string Faction::toString() const {
 	std::string result = "";
 

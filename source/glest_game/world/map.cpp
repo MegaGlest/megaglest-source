@@ -782,6 +782,9 @@ bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 							const Vec2i &testPos) const {
 	assert(ut!=NULL);
+	if(ut == NULL) {
+		throw runtime_error("ut == NULL");
+	}
 
 	Cell *testCell = getCell(testPos);
 	for(int i=0; i < ut->getSize(); ++i){
@@ -802,14 +805,26 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
 	assert(unit!=NULL);
+	if(unit == NULL) {
+		throw runtime_error("ut == NULL");
+	}
+
 	const UnitType *ut= unit->getType();
 
 	for(int i = 0; i < ut->getSize(); ++i) {
 		for(int j = 0; j < ut->getSize(); ++j) {
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
+			if(isInside(currPos) == false) {
+				throw runtime_error("isInside(currPos) == false");
+			}
+
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
 				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
+				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
+					throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+				}
+
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
@@ -829,14 +844,26 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 //removes a unit from cells
 void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 	assert(unit!=NULL);
+	if(unit == NULL) {
+		throw runtime_error("unit == NULL");
+	}
+
 	const UnitType *ut= unit->getType();
 
 	for(int i=0; i<ut->getSize(); ++i){
 		for(int j=0; j<ut->getSize(); ++j){
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
+			if(isInside(currPos) == false) {
+				throw runtime_error("isInside(currPos) == false");
+			}
+
 			if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
 				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
+				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
+					throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
+				}
+
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
