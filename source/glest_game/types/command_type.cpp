@@ -547,11 +547,11 @@ string RepairCommandType::toString() const{
 
 //get
 bool RepairCommandType::isRepairableUnitType(const UnitType *unitType) const {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType [%s] repairableUnits.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitType->toString().c_str(),repairableUnits.size());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType [%s] repairableUnits.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitType->toString().c_str(),repairableUnits.size());
 
 	for(int i = 0; i < repairableUnits.size(); ++i) {
 		const UnitType *curUnitType = static_cast<const UnitType*>(repairableUnits[i]);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] curUnitType [%s] i = %d\n",__FILE__,__FUNCTION__,__LINE__,curUnitType->toString().c_str(),i);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] curUnitType [%s] i = %d\n",__FILE__,__FUNCTION__,__LINE__,curUnitType->toString().c_str(),i);
 
 		if(curUnitType == unitType) {
             return true;

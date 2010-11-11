@@ -105,11 +105,34 @@ bool AiRuleRepair::test(){
 	return false;
 }
 
-void AiRuleRepair::execute(){
+void AiRuleRepair::execute() {
 	AiInterface *aiInterface= ai->getAiInterface();
 	const Unit *damagedUnit= aiInterface->getMyUnit(damagedUnitIndex);
 	
 	//find a repairer and issue command
+
+	if(damagedUnit != NULL) {
+		static std::vector<SkillClass> skillClassList;
+		if(skillClassList.size() == 0) {
+			skillClassList.push_back(scStop);
+			skillClassList.push_back(scMove);
+		}
+		Faction *faction = aiInterface->getMyFaction();
+		Unit *repairer = faction->findClosestUnitWithSkillClass( damagedUnit->getPos(),
+														ccRepair,
+														skillClassList,
+														damagedUnit->getType());
+		if(repairer != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			const RepairCommandType *rct= static_cast<const RepairCommandType *>(repairer->getType()->getFirstCtOfClass(ccRepair));
+			aiInterface->giveCommand(repairer, rct, damagedUnit->getPos());
+			aiInterface->printLog(3, "Repairing order issued");
+			return;
+		}
+	}
+
+/*
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *u= aiInterface->getMyUnit(i);
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
@@ -123,6 +146,7 @@ void AiRuleRepair::execute(){
 			}
 		}
 	}
+*/
 }
 
 // =====================================================

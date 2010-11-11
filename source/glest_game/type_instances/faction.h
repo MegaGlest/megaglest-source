@@ -19,6 +19,7 @@
 #include "texture.h"
 #include "resource.h"
 #include "game_constants.h"
+#include "command_type.h"
 #include "leak_dumper.h"
 
 using std::map;
@@ -89,6 +90,7 @@ private:
 	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
 	time_t lastResourceTargettListPurge;
 
+	std::map<CommandClass,std::map<int,int> > cacheUnitCommandClassList;
 	// This cache stores the units free cell movement calcs during a world
 	// update of the faction
 	//std::map<int,std::map<Field, std::map<Vec2i,std::map<Vec2i, > > > localCacheForUnitCellMovement;
@@ -170,6 +172,10 @@ public:
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
 	Vec2i getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
+
+	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
+										const std::vector<SkillClass> &skillClassList,
+										const UnitType *unitType);
 
 	void deletePixels();
 

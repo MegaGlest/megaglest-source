@@ -93,6 +93,11 @@ UnitUpdater::~UnitUpdater() {
 
 //skill dependent actions
 void UnitUpdater::updateUnit(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [START OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	//play skill sound
@@ -106,6 +111,8 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after playsound]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	//start attack particle system
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
@@ -115,11 +122,19 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after attack particle system]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	bool update = unit->update();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after unit->update()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	//update unit
-	if(unit->update()) {
+	if(update == true) {
         //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		updateUnitCommand(unit);
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after updateUnitCommand()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if unit is out of EP, it stops
 		if(unit->computeEp()) {
@@ -131,21 +146,29 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		if(unit->getCurrSkill()->getClass() == scMove) {
 			world->moveUnitCells(unit);
 
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after world->moveUnitCells()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 			//play water sound
-			if(map->getCell(unit->getPos())->getHeight()<map->getWaterLevel() && unit->getCurrField()==fLand){
+			if(map->getCell(unit->getPos())->getHeight() < map->getWaterLevel() && unit->getCurrField() == fLand) {
 				soundRenderer.playFx(
 					CoreData::getInstance().getWaterSound(),
 					unit->getCurrVector(),
 					gameCamera->getPos()
 				);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after soundFx()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//unit death
 	if(unit->isDead() && unit->getCurrSkill()->getClass() != scDie) {
 		unit->kill();
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== progress commands ====================
@@ -380,6 +403,9 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
         	//if arrived destination
             assert(ut);
+			if(ut == NULL) {
+				throw runtime_error("ut == NULL");
+			}
 
             bool canOccupyCell = false;
     		switch(this->game->getGameSettings()->getPathFinderType()) {

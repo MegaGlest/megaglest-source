@@ -64,7 +64,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 
 // ==================== main ==================== 
 
-void AiInterface::update(){
+void AiInterface::update() {
 	timer++;
 	ai.update();
 }
@@ -91,6 +91,10 @@ void AiInterface::printLog(int logLevel, const string &s){
 }
 
 // ==================== interaction ==================== 
+
+Faction *AiInterface::getMyFaction() {
+	return world->getFaction(factionIndex);
+}
 
 bool AiInterface::executeCommandOverNetwork() {
 	bool enableServerControlledAI 	= gameSettings->getEnableServerControlledAI();
@@ -120,6 +124,53 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(c);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		return result;
+	}
+}
+
+CommandResult AiInterface::giveCommand(Unit *unit, const CommandType *commandType, const Vec2i &pos) {
+	assert(this->gameSettings != NULL);
+
+	if(unit == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unit in AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,factionIndex);
+		throw runtime_error(szBuf);
+	}
+    const UnitType* unitType= unit->getType();
+	if(unitType == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
+		throw runtime_error(szBuf);
+	}
+    const CommandType* ct= unit->getType()->findCommandTypeById(commandType->getId());
+	if(ct == NULL) {
+	    char szBuf[4096]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,
+            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
+            unit->getFaction()->getIndex());
+
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+
+	    std::string worldLog = world->DumpWorldToLog();
+	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+		throw runtime_error(sError);
+	}
+
+	if(executeCommandOverNetwork() == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d\nunit = [%s]\ncommandType = %d - [%s]\nCommand Type List:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(),unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str());
+
+		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		return result;
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		CommandResult result = unit->giveCommand(new Command(commandType, pos));
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }

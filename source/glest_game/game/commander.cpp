@@ -114,6 +114,9 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	Chrono chrono;
+	chrono.start();
+
 	assert(this->world != NULL);
 	assert(unit != NULL);
 	assert(commandType != NULL);
@@ -121,14 +124,22 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
 								commandType->getId(), pos, unitType->getId(),
 								(targetUnit != NULL ? targetUnit->getId() : -1),
 								facing, tryQueue);
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	return pushNetworkCommand(&networkCommand);
+	CommandResult result = pushNetworkCommand(&networkCommand);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	return result;
 }
 
 CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
@@ -376,7 +387,15 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
 */
 
 void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
+
+	Chrono chrono;
+	chrono.start();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
     networkCommand->preprocessNetworkCommand(this->world);
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after networkCommand->preprocessNetworkCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
     /*
     if(networkCommand->getNetworkCommandType() == nctNetworkCommand) {
@@ -386,6 +405,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     */
     {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
+
+        if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after world->findUnitById]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
         //execute command, if unit is still alive
         if(unit != NULL) {
@@ -397,9 +418,13 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     Command* command= buildCommand(networkCommand);
 
+                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after buildCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
 
                     unit->giveCommand(command, (networkCommand->getWantQueue() != 0));
+
+                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->giveCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }
@@ -409,6 +434,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                 	unit->cancelCommand();
 
+                	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->cancelCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
@@ -416,6 +443,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
 
                     unit->setMeetingPos(networkCommand->getPosition());
+
+                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
                     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                 }
@@ -428,6 +457,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NULL Unit for id = %d, networkCommand->getNetworkCommandType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId(),networkCommand->getNetworkCommandType());
         }
     }
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [END]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
