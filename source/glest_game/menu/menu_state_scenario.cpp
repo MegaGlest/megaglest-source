@@ -208,6 +208,28 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     	if(playersNode->hasChildAtIndex("player",i)){
         	playerNode = playersNode->getChild("player", i);
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
+        	
+        	if(playerNode->getAttribute("resource_multiplier",false)!=NULL)
+			{// if a multiplier exists use it
+				scenarioInfo->resourceMultipliers[i]=playerNode->getAttribute("resource_multiplier")->getFloatValue();
+			}
+			else
+			{// if no multiplier exists use defaults 
+				scenarioInfo->resourceMultipliers[i]=1.0f;
+				if(factionControl==ctCpuEasy)
+				{
+					scenarioInfo->resourceMultipliers[i]=0.8f;
+				}
+				if(factionControl==ctCpuUltra)
+				{
+					scenarioInfo->resourceMultipliers[i]=2.0f;
+				}
+				else if(factionControl==ctCpuMega)
+				{
+					scenarioInfo->resourceMultipliers[i]=4.0f;
+				}
+			}
+		
     	}
         else{
         	factionControl=ctClosed;
@@ -284,6 +306,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 				gameSettings->setThisFactionIndex(factionCount);
 			}
 			gameSettings->setFactionControl(factionCount, ct);
+			gameSettings->setResourceMultiplier(factionCount, scenarioInfo->resourceMultipliers[i]);
             gameSettings->setTeam(factionCount, scenarioInfo->teams[i]-1);
 			gameSettings->setStartLocationIndex(factionCount, i);
             gameSettings->setFactionTypeName(factionCount, scenarioInfo->factionTypeNames[i]);

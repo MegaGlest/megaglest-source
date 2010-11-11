@@ -45,6 +45,7 @@ struct ScenarioInfo
     ControlType factionControls[GameConstants::maxPlayers];
     int teams[GameConstants::maxPlayers];
     string factionTypeNames[GameConstants::maxPlayers];
+    float resourceMultipliers[GameConstants::maxPlayers];
 
     string mapName;
     string tilesetName;
