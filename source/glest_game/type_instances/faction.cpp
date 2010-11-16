@@ -986,7 +986,8 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 			Unit *curUnit = findUnit(iter->second);
 			if(curUnit != NULL) {
 
-				bool isUnitPossibleCandidate = true;
+				const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
+				bool isUnitPossibleCandidate = (cmdType != NULL);
 				if(skillClassList.size() > 0) {
 					isUnitPossibleCandidate = false;
 
