@@ -68,7 +68,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	lastSetChangedGameSettings   = time(NULL);
 	showFullConsole=false;
 
-	rMultiplierOffset=0.5f;
 
 	currentFactionName="";
 	currentMap="";
@@ -321,7 +320,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	controlItems.push_back(lang.get("Human"));
 
 	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(rMultiplierOffset+0.1f*i));
+		rMultiplier.push_back(intToStr(0.5f+0.1f*i));
 	}
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
@@ -1006,7 +1005,7 @@ void MenuStateConnectedGame::update() {
 					for(int i=0; i<gameSettings->getFactionCount(); ++i){
 						int slot=gameSettings->getStartLocationIndex(i);
 						listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
-						listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplier(i)-rMultiplierOffset)*10);
+						listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplierIndex(i)));
 						listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 						//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
 						listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);

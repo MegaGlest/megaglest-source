@@ -226,7 +226,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 				}
 				else if(factionControl==ctCpuMega)
 				{
-					scenarioInfo->resourceMultipliers[i]=4.0f;
+					scenarioInfo->resourceMultipliers[i]=3.5f;
 				}
 			}
 		
@@ -306,7 +306,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 				gameSettings->setThisFactionIndex(factionCount);
 			}
 			gameSettings->setFactionControl(factionCount, ct);
-			gameSettings->setResourceMultiplier(factionCount, scenarioInfo->resourceMultipliers[i]);
+			gameSettings->setResourceMultiplierIndex(factionCount, (scenarioInfo->resourceMultipliers[i]-0.5f)/0.1f);
             gameSettings->setTeam(factionCount, scenarioInfo->teams[i]-1);
 			gameSettings->setStartLocationIndex(factionCount, i);
             gameSettings->setFactionTypeName(factionCount, scenarioInfo->factionTypeNames[i]);
