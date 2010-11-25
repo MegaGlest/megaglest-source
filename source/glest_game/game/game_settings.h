@@ -36,7 +36,7 @@ private:
 	string networkPlayerNames[GameConstants::maxPlayers];
 
 	ControlType factionControls[GameConstants::maxPlayers];
-	float resourceMultiplier[GameConstants::maxPlayers];
+	int resourceMultiplierIndex[GameConstants::maxPlayers];
 
 	int thisFactionIndex;
 	int factionCount;
@@ -74,7 +74,7 @@ public:
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
     		factionControls[i] = ctClosed;
-    		resourceMultiplier[i] = 1.0f;
+    		resourceMultiplierIndex[i] = 1.0f;
     		teams[i] = 0;
     		startLocationIndex[i] = i;
     	}
@@ -102,7 +102,7 @@ public:
 		return result;
 	}
 	ControlType getFactionControl(int factionIndex) const		{return factionControls[factionIndex];}
-	float getResourceMultiplier(int factionIndex) const		{return resourceMultiplier[factionIndex];}
+	int getResourceMultiplierIndex(int factionIndex) const		{return resourceMultiplierIndex[factionIndex];}
 
 	bool isNetworkGame() const {
 		bool result = false;
@@ -143,7 +143,7 @@ public:
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
-	void setResourceMultiplier(int factionIndex, float multiplier)		{this->resourceMultiplier[factionIndex]= multiplier;}
+	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)		{this->resourceMultiplierIndex[factionIndex]= multiplierIndex;}
 	
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
@@ -180,7 +180,7 @@ public:
 			result += "networkPlayerName = " + networkPlayerNames[idx] + "\n";
 
 			result += "factionControl = " + intToStr(factionControls[idx]) + "\n";
-			result += "resourceMultiplier = " + intToStr(resourceMultiplier[idx]) + "\n";
+			result += "resourceMultiplierIndex = " + intToStr(resourceMultiplierIndex[idx]) + "\n";
 			result += "team = " + intToStr(teams[idx]) + "\n";
 			result += "startLocationIndex = " + intToStr(startLocationIndex[idx]) + "\n";
 		}

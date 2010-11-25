@@ -61,7 +61,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	currentFactionName_factionPreview="";
 	mapPreviewTexture=NULL;
 	
-	rMultiplierOffset=0.5f;
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -411,7 +410,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	controlItems.push_back(lang.get("Human"));
 	
 	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(rMultiplierOffset+0.1f*i,1));
+		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
 	
 	if(config.getBool("EnableNetworkCpu","false") == true) {
@@ -910,7 +909,7 @@ void MenuStateCustomGame::updateAllResourceMultiplier() {
 void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset));
+			listBoxRMultiplier[index].setSelectedItemIndex(5);
 			listBoxRMultiplier[index].setEnabled(false);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
@@ -919,17 +918,17 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpu || ct == ctNetworkCpu) {
-			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset));
+			listBoxRMultiplier[index].setSelectedItemIndex(5);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset)+10);
+			listBoxRMultiplier[index].setSelectedItemIndex(25);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex(10*(1.0f-rMultiplierOffset)+30);
+			listBoxRMultiplier[index].setSelectedItemIndex(35);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
@@ -1975,7 +1974,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				//labelPlayerNames[i].setText(getHumanPlayerName(i));
 				//SetActivePlayerNameEditor();
 			}
-			gameSettings->setResourceMultiplier(slotIndex, rMultiplierOffset+listBoxRMultiplier[i].getSelectedItemIndex()*0.1f);
+			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
@@ -2042,7 +2041,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 			gameSettings->setFactionControl(slotIndex, ct);
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
-			gameSettings->setResourceMultiplier(slotIndex, 1.0f);
+			gameSettings->setResourceMultiplierIndex(slotIndex, 10);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
@@ -2115,7 +2114,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 		int slotIndex = gameSettings.getStartLocationIndex(i);
 
 		saveGameFile << "FactionControlForIndex" 		<< slotIndex << "=" << gameSettings.getFactionControl(i) << std::endl;
-		saveGameFile << "ResourceMultiplier" 			<< slotIndex << "=" << gameSettings.getResourceMultiplier(i) << std::endl;
+		saveGameFile << "ResourceMultiplierIndex" 			<< slotIndex << "=" << gameSettings.getResourceMultiplierIndex(i) << std::endl;
 		saveGameFile << "FactionTeamForIndex" 			<< slotIndex << "=" << gameSettings.getTeam(i) << std::endl;
 		saveGameFile << "FactionStartLocationForIndex" 	<< slotIndex << "=" << gameSettings.getStartLocationIndex(i) << std::endl;
 		saveGameFile << "FactionTypeNameForIndex" 		<< slotIndex << "=" << gameSettings.getFactionTypeName(i) << std::endl;
@@ -2171,7 +2170,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
-			gameSettings.setResourceMultiplier(i,properties.getFloat(string("ResourceMultiplier") + intToStr(i),"1.0"));
+			gameSettings.setResourceMultiplierIndex(i,properties.getInt(string("ResourceMultiplierIndex") + intToStr(i),"5"));
 			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
 			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
 			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
@@ -2241,7 +2240,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
 			updateResourceMultiplier(i);
-			listBoxRMultiplier[i].setSelectedItemIndex((gameSettings.getResourceMultiplier(i)-rMultiplierOffset)*10);
+			listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
 			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
 			lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 

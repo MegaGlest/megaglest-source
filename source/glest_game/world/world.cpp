@@ -961,7 +961,7 @@ void World::initFactionTypes(GameSettings *gs) {
 		stats.setFactionTypeName(i, formatString(gs->getFactionTypeName(i)));
 		stats.setPersonalityType(i, getFaction(i)->getType()->getPersonalityType());
 		stats.setControl(i, gs->getFactionControl(i));
-		stats.setResourceMultiplier(i,gs->getResourceMultiplier(i));
+		stats.setResourceMultiplier(i,(gs->getResourceMultiplierIndex(i)+5)*0.1f);
 		stats.setPlayerName(i,gs->getNetworkPlayerName(i));
 		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 	}

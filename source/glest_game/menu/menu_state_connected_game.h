@@ -135,7 +135,6 @@ private:
 	
 	std::vector<std::string> tileSets;
 
-	float rMultiplierOffset;
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);

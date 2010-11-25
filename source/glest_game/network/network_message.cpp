@@ -237,7 +237,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
 		data.factionControls[i]= gameSettings->getFactionControl(i);
-		data.resourceMultiplier[i]= 10*(gameSettings->getResourceMultiplier(i));
+		data.resourceMultiplierIndex[i]= gameSettings->getResourceMultiplierIndex(i);
 		data.teams[i]= gameSettings->getTeam(i);
 		data.startLocationIndex[i]= gameSettings->getStartLocationIndex(i);
 	}
@@ -266,7 +266,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
 		gameSettings->setFactionControl(i, static_cast<ControlType>(data.factionControls[i]));
-		gameSettings->setResourceMultiplier(i,data.resourceMultiplier[i]*0.1f);
+		gameSettings->setResourceMultiplierIndex(i,data.resourceMultiplierIndex[i]);
 		gameSettings->setTeam(i, data.teams[i]);
 		gameSettings->setStartLocationIndex(i, data.startLocationIndex[i]);
 	}
