@@ -979,6 +979,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 												const UnitType *unitType) {
 	Unit *result = NULL;
 
+/*
 	std::map<CommandClass,std::map<int,int> >::iterator iterFind = cacheUnitCommandClassList.find(cmdClass);
 	if(iterFind != cacheUnitCommandClassList.end()) {
 		for(std::map<int,int>::iterator iter = iterFind->second.begin();
@@ -1008,6 +1009,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 			}
 		}
 	}
+*/
 
 	if(result == NULL) {
 		for(int i = 0; i < getUnitCount(); ++i) {
@@ -1040,7 +1042,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 
 
 			if(isUnitPossibleCandidate == true) {
-				cacheUnitCommandClassList[cmdClass][curUnit->getId()] = curUnit->getId();
+				//cacheUnitCommandClassList[cmdClass][curUnit->getId()] = curUnit->getId();
 
 				if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
 					result = curUnit;
