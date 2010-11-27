@@ -859,10 +859,13 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 			}
 
 			if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
-				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
-					throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
-				}
+				// This seems to be a bad assert since you can clear the cell
+				// for many reasons including a unit dieing.
+
+				//assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
+				//if(getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
+				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
+				//}
 
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
 
