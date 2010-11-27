@@ -820,10 +820,12 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 			}
 
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
-				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
-					throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
-				}
+				// NOT SURE UNDER WHAT CONDITIONS THIS COULD HAPPEN?
+
+				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
+				//if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
+				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+				//}
 
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
 
