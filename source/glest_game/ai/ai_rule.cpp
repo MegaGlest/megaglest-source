@@ -110,7 +110,7 @@ void AiRuleRepair::execute() {
 	const Unit *damagedUnit= aiInterface->getMyUnit(damagedUnitIndex);
 	
 	//find a repairer and issue command
-
+/*
 	if(damagedUnit != NULL) {
 		static std::vector<SkillClass> skillClassList;
 		if(skillClassList.size() == 0) {
@@ -131,8 +131,8 @@ void AiRuleRepair::execute() {
 			return;
 		}
 	}
+*/
 
-/*
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *u= aiInterface->getMyUnit(i);
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
@@ -146,7 +146,6 @@ void AiRuleRepair::execute() {
 			}
 		}
 	}
-*/
 }
 
 // =====================================================
