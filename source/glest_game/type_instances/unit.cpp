@@ -1712,10 +1712,11 @@ void Unit::logSynchData(string source) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf,
 	    		//"Unit = %d [%s] [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%f]\n",
-	    		"FrameCount [%d] Unit = %d [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\n",
+	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
 				getFullName().c_str(),
+				faction->getType()->getName().c_str(),
 				//getDesc().c_str(),
 				pos.getString().c_str(),
 				lastPos.getString().c_str(),
@@ -1726,7 +1727,8 @@ void Unit::logSynchData(string source) {
 				targetRotation,
 				rotation,
 				progress,
-				progress2);
+				progress2,
+				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
 
 	    if(lastSynchDataString != string(szBuf)) {
 	    	lastSynchDataString = string(szBuf);
