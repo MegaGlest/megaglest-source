@@ -102,7 +102,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
-		unit->getFaction()->addCachedPath(finalPos,unit);
+		//unit->getFaction()->addCachedPath(finalPos,unit);
 		return tsArrived;
 	}
 	else {
@@ -169,7 +169,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	case tsArrived:
 
 		if(ts == tsArrived) {
-			unit->getFaction()->addCachedPath(finalPos,unit);
+			//unit->getFaction()->addCachedPath(finalPos,unit);
 		}
 
 		// The unit is stuck (not only blocked but unable to go anywhere for a while)
