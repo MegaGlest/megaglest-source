@@ -90,7 +90,7 @@ private:
 	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
 	time_t lastResourceTargettListPurge;
 
-	std::map<CommandClass,std::map<int,int> > cacheUnitCommandClassList;
+	//std::map<CommandClass,std::map<int,int> > cacheUnitCommandClassList;
 	// This cache stores the units free cell movement calcs during a world
 	// update of the faction
 	//std::map<int,std::map<Field, std::map<Vec2i,std::map<Vec2i, > > > localCacheForUnitCellMovement;

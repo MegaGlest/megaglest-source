@@ -12,7 +12,7 @@
 #include "platform_util.h"
 
 #include <io.h>
-#include <DbgHelp.h>
+#include <dbghelp.h>
 
 #include <cassert>
 #include <algorithm>
