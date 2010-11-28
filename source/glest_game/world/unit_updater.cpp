@@ -53,7 +53,7 @@ UnitUpdater::UnitUpdater() {
 	this->scriptManager= NULL;
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
-	UnitRangeCellsLookupItemCacheTimerCount = 0;
+	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 }
 
 void UnitUpdater::init(Game *game){
@@ -67,7 +67,7 @@ void UnitUpdater::init(Game *game){
 	this->scriptManager= game->getScriptManager();
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
-	UnitRangeCellsLookupItemCacheTimerCount = 0;
+	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
@@ -83,7 +83,7 @@ void UnitUpdater::init(Game *game){
 }
 
 UnitUpdater::~UnitUpdater() {
-	UnitRangeCellsLookupItemCache.clear();
+	//UnitRangeCellsLookupItemCache.clear();
 
 	delete pathFinder;
 	pathFinder = NULL;
@@ -1464,6 +1464,7 @@ bool UnitUpdater::attackableOnRange(const Unit *unit, Unit **rangedPtr, const At
 	return unitOnRange(unit, range, rangedPtr, ast);
 }
 
+/*
 bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vector<Unit*> &enemies,
 										 const AttackSkillType *ast, const Unit *unit,
 										 const Unit *commandTarget) {
@@ -1490,6 +1491,7 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 
 	return result;
 }
+*/
 
 void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, const Unit *unit,
 									 const Unit *commandTarget,vector<Unit*> &enemies) {
@@ -1534,12 +1536,12 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	bool foundInCache = true;
-	if(findCachedCellsEnemies(center,range,size,enemies,ast,
-							  unit,commandTarget) == false) {
+	//if(findCachedCellsEnemies(center,range,size,enemies,ast,
+	//						  unit,commandTarget) == false) {
 		foundInCache = false;
 
 		//nearby cells
-		UnitRangeCellsLookupItem cacheItem;
+		//UnitRangeCellsLookupItem cacheItem;
 		for(int i=center.x-range; i<center.x+range+size; ++i){
 			for(int j=center.y-range; j<center.y+range+size; ++j){
 
@@ -1552,17 +1554,17 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
 
-					cacheItem.rangeCellList.push_back(cell);
+					//cacheItem.rangeCellList.push_back(cell);
 				}
 			}
 		}
 
 		// Ok update our caches with the latest info
-		if(cacheItem.rangeCellList.size() > 0) {
-			cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
-			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
-		}
-	}
+		//if(cacheItem.rangeCellList.size() > 0) {
+		//	cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
+		//	UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
+		//}
+	//}
 
 	//attack enemies that can attack first
     for(int i = 0; i< enemies.size(); ++i) {
