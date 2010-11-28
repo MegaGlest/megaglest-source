@@ -49,7 +49,7 @@ void Logger::cleanupLoadingTexture() {
 	if(loadingTexture!=NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		Renderer &renderer= Renderer::getInstance();
+		//Renderer &renderer= Renderer::getInstance();
 		//renderer.endTexture(rsGlobal,loadingTexture);
 		loadingTexture->end();
 		delete loadingTexture;
