@@ -38,7 +38,7 @@ namespace Glest{ namespace Game{
 
 const int PathFinder::maxFreeSearchRadius= 10;	
 //const int PathFinder::pathFindNodesMax= 400;
-const int PathFinder::pathFindNodesMax= 150;
+const int PathFinder::pathFindNodesMax= 200;
 const int PathFinder::pathFindRefresh= 10;
 
 
@@ -112,7 +112,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 				Vec2i pos= basicPath->pop();
 
-				if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				//if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
 					unit->addCurrentTargetPathTakenCell(finalPos,pos);
 					return tsMoving;
@@ -122,7 +123,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 				//route cache
 				Vec2i pos= advPath->peek();
-				if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				//if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				if(map->canMove(unit, unit->getPos(), pos)) {
 					advPath->pop();
 					unit->setTargetPos(pos);
 					return tsMoving;
@@ -182,7 +184,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			for(int bailoutX = -20; bailoutX <= 20 && ts == tsBlocked; ++bailoutX) {
 				for(int bailoutY = -20; bailoutY <= 20 && ts == tsBlocked; ++bailoutY) {
 					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
-					if(map->canMove(unit, unit->getPos(), newFinalPos, &lookupCacheCanMove)) {
+					//if(map->canMove(unit, unit->getPos(), newFinalPos, &lookupCacheCanMove)) {
+					if(map->canMove(unit, unit->getPos(), newFinalPos)) {
 						ts= aStar(unit, newFinalPos, true);
 					}
 				}
@@ -199,7 +202,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 				Vec2i pos= basicPath->pop();
 
-				if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				//if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				if(map->canMove(unit, unit->getPos(), pos)) {
 					unit->setTargetPos(pos);
 					unit->addCurrentTargetPathTakenCell(finalPos,pos);
 				}
@@ -211,7 +215,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			else if(dynamic_cast<UnitPath *>(path) != NULL) {
 				UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 				Vec2i pos= advPath->peek();
-				if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				//if(map->canMove(unit, unit->getPos(), pos, &lookupCacheCanMove)) {
+				if(map->canMove(unit, unit->getPos(), pos)) {
 					advPath->pop();
 					unit->setTargetPos(pos);
 				}

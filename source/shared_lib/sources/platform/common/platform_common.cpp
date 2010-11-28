@@ -12,7 +12,7 @@
 #ifdef WIN32
 
 #include <io.h>
-#include <DbgHelp.h>
+#include <dbghelp.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <direct.h>
@@ -305,7 +305,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		}
 	}
 }
-	
+
 bool isdir(const char *path)
 {
   string friendly_path = path;
@@ -322,12 +322,12 @@ bool isdir(const char *path)
   bool ret = (result == 0);
   if(ret == true) {
 	  ret = S_ISDIR(stats.st_mode); // #define S_ISDIR(mode) ((mode) & _S_IFDIR)
-	
+
 	  if(ret == false) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret);
 	  }
   }
-  else { 
+  else {
 	  //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] ret = %d, result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,friendly_path.c_str(),ret,result,errno);
   }
   //if(ret == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NOT a path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path);
@@ -461,7 +461,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
     // Look recursively for sub-folders
 #if defined(__APPLE__) || defined(__FreeBSD__)
 	res = glob(mypath.c_str(), 0, 0, &globbuf);
-#else 
+#else
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
 #endif
 	if(res < 0) {

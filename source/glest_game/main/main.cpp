@@ -37,15 +37,17 @@
 #include "cache_manager.h"
 
 #ifdef WIN32
+#if defined(__WIN32__) && !defined(__GNUC__)
 #include <eh.h>
-#include <DbgHelp.h>
+#endif
+#include <dbghelp.h>
 #endif
 
 #include "leak_dumper.h"
 
-#ifndef WIN32 
-  #define stricmp strcasecmp 
-  #define strnicmp strncasecmp 
+#ifndef WIN32
+  #define stricmp strcasecmp
+  #define strnicmp strncasecmp
   #define _strnicmp strncasecmp
 #endif
 
@@ -140,12 +142,12 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
     SymInitialize(GetCurrentProcess(), NULL, TRUE);
 
     while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL)) {
-        struct { IMAGEHLP_SYMBOL sym; stringType n; } 
+        struct { IMAGEHLP_SYMBOL sym; stringType n; }
 		si = { { sizeof( IMAGEHLP_SYMBOL ), 0, 0, 0, sizeof(stringType) } };
         IMAGEHLP_LINE li = { sizeof( IMAGEHLP_LINE ) };
         DWORD off=0;
 		DWORD dwDisp=0;
-        if( SymGetSymFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &off, &si.sym) && 
+        if( SymGetSymFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &off, &si.sym) &&
 			SymGetLineFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &dwDisp, &li)) {
             char *del = strrchr(li.FileName, '\\');
             formatstring(t)("%s - %s [%d]\n", si.sym.Name, del ? del + 1 : li.FileName, li.LineNumber+dwDisp);
@@ -648,11 +650,11 @@ int glestMain(int argc, char** argv) {
 
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) == true) {
 		SDL_version ver;
-    
+
         // Prints the compile time version
         SDL_VERSION(&ver);
 		print_SDL_version("SDL compile-time version", &ver);
-   
+
         // Prints the run-time version
         ver = *SDL_Linked_Version();
         print_SDL_version("SDL runtime version", &ver);
