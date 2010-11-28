@@ -137,30 +137,30 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	}
 		
 	TravelState ts = tsImpossible;
-	std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
-	if(cachedPath.size() > 0) {
-		path->clear();
-		for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
-			path->add(cachedPath[i]);
-		}
-		ts = tsMoving;
-	}
-	else {
+	//std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
+	//if(cachedPath.size() > 0) {
+	//	path->clear();
+	//	for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
+	//		path->add(cachedPath[i]);
+	//	}
+	//	ts = tsMoving;
+	//}
+	//else {
 		//route cache miss
 		ts = aStar(unit, finalPos, false);
-	}
+	//}
 
 	if(ts == tsBlocked) {
 		//std::vector<Vec2i> cachedPath = unit->getFaction()->findCachedPath(finalPos, unit);
-		if(cachedPath.size() > 0) {
-			path->clear();
-
-			for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
-				path->add(cachedPath[i]);
-			}
-			ts = tsMoving;
-			unit->addCurrentTargetPathTakenCell(Vec2i(-1),Vec2i(-1));
-		}
+		//if(cachedPath.size() > 0) {
+		//	path->clear();
+        //
+		//	for(int i=0; i < cachedPath.size() && i < pathFindRefresh; ++i) {
+		//		path->add(cachedPath[i]);
+		//	}
+		//	ts = tsMoving;
+		//	unit->addCurrentTargetPathTakenCell(Vec2i(-1),Vec2i(-1));
+		//}
 	}
 
 	//post actions
