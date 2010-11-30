@@ -426,6 +426,16 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 				if(r != NULL) {
 					if(r->getType() == rt) {
 						resourcePos= pos + Vec2i(i,j);
+
+						//if(faction != NULL) {
+						//	char szBuf[4096]="";
+						//				sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s]",
+						//						__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str());
+
+						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
+						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
+						//}
 						return true;
 					}
 				}
@@ -442,11 +452,30 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 		Vec2i result = faction->getClosestResourceTypeTargetFromCache(pos, rt);
 		if(result.x >= 0) {
 			resourcePos = result;
+
+		  	//char szBuf[4096]="";
+			//	    	sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s]",
+			//	    			__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str());
+
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
+
 			if(pos.dist(resourcePos) <= size) {
 				return true;
 			}
 		}
 	}
+
+	//if(faction != NULL) {
+	//	char szBuf[4096]="";
+	//				sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s] getCacheResourceTargetListSize() [%d]",
+	//						__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str(),faction->getCacheResourceTargetListSize());
+
+	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
+	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
+	//}
 
 	return false;
 }
@@ -516,7 +545,7 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 								}
 							}
 
-							faction->addResourceTargetToCache(resPos,false);
+							//faction->addResourceTargetToCache(resPos,false);
 						}
 					}
 				}

@@ -1712,8 +1712,8 @@ void Game::render2d(){
 	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
 		
-		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"In [%s::%s] Line: %d Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
+		//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"In [%s::%s Line: %d] Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
 	}
 }
 

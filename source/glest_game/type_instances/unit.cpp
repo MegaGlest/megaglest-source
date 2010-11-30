@@ -184,7 +184,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->screenPos = Vec3f(0.0);
 	this->inBailOutAttempt = false;
 	this->lastHarvestResourceTarget.first = Vec2i(0);
-	this->lastBadHarvestListPurge = 0;
+	//this->lastBadHarvestListPurge = 0;
 
 	level= NULL;
 	loadType= NULL;
@@ -1730,26 +1730,26 @@ void Unit::logSynchData(string source) {
 				progress2,
 				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
 
-	    if(lastSynchDataString != string(szBuf)) {
+	    if(lastSynchDataString != string(szBuf) || lastSource != source) {
 	    	lastSynchDataString = string(szBuf);
+	    	lastSource = source;
 
-			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,
-					"%s %s",
-					source.c_str(),
-					szBuf);
+	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s %s",source.c_str(),szBuf);
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 	    }
 	}
 }
 
 void Unit::addBadHarvestPos(const Vec2i &value) {
-	Chrono chron;
-	chron.start();
-	badHarvestPosList[value] = chron;
+	//Chrono chron;
+	//chron.start();
+	badHarvestPosList[value] = getFrameCount();
 	cleanupOldBadHarvestPos();
 }
 
 void Unit::removeBadHarvestPos(const Vec2i &value) {
-	std::map<Vec2i,Chrono>::iterator iter = badHarvestPosList.find(value);
+	std::map<Vec2i,int>::iterator iter = badHarvestPosList.find(value);
 	if(iter != badHarvestPosList.end()) {
 		badHarvestPosList.erase(value);
 	}
@@ -1759,7 +1759,7 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 	bool result = false;
 
-	std::map<Vec2i,Chrono>::const_iterator iter = badHarvestPosList.find(value);
+	std::map<Vec2i,int>::const_iterator iter = badHarvestPosList.find(value);
 	if(iter != badHarvestPosList.end()) {
 		result = true;
 	}
@@ -1782,17 +1782,31 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 }
 
 void Unit::cleanupOldBadHarvestPos() {
-	if(difftime(time(NULL),lastBadHarvestListPurge) >= 240) {
-		lastBadHarvestListPurge = time(NULL);
+	//if(difftime(time(NULL),lastBadHarvestListPurge) >= 240) {
+		//lastBadHarvestListPurge = time(NULL);
+	const int cleanupInterval = (GameConstants::updateFps * 5);
+	bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
+	if(needToCleanup == true) {
+		//printf("========================> cleanupOldBadHarvestPos() [%d] badHarvestPosList.size [%ld]\n",getFrameCount(),badHarvestPosList.size());
+
 		std::vector<Vec2i> purgeList;
-		for(std::map<Vec2i,Chrono>::iterator iter = badHarvestPosList.begin(); iter != badHarvestPosList.end(); iter++) {
-			if(iter->second.getMillis() >= 2400000) {
+		for(std::map<Vec2i,int>::iterator iter = badHarvestPosList.begin(); iter != badHarvestPosList.end(); iter++) {
+			if(getFrameCount() - iter->second >= cleanupInterval) {
+				//printf("cleanupOldBadHarvestPos() [%d][%d]\n",getFrameCount(),iter->second);
 				purgeList.push_back(iter->first);
 			}
 		}
-		for(int i = 0; i < purgeList.size(); ++i) {
-			const Vec2i &item = purgeList[i];
-			badHarvestPosList.erase(item);
+
+		if(purgeList.size() > 0) {
+			char szBuf[4096]="";
+						sprintf(szBuf,"[%s::%s Line: %d] [cleaning old bad harvest targets] purgeList.size() [%ld]",
+								__FILE__,__FUNCTION__,__LINE__,purgeList.size());
+			logSynchData(szBuf);
+
+			for(int i = 0; i < purgeList.size(); ++i) {
+				const Vec2i &item = purgeList[i];
+				badHarvestPosList.erase(item);
+			}
 		}
 	}
 }
@@ -1807,14 +1821,16 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 		if(resourceLocation != lastHarvestResourceTarget.first) {
 			lastHarvestResourceTarget.first = resourceLocation;
 
-			Chrono chron;
-			chron.start();
-			lastHarvestResourceTarget.second = chron;
+			//Chrono chron;
+			//chron.start();
+			lastHarvestResourceTarget.second = getFrameCount();
 		}
 		else {
 			// If we cannot harvest for > 10 seconds tag the position
 			// as a bad one
-			if(lastHarvestResourceTarget.second.getMillis() > 10000) {
+			const int addInterval = (GameConstants::updateFps * 5);
+			if(lastHarvestResourceTarget.second - getFrameCount() >= addInterval) {
+				printf("-----------------------> setLastHarvestResourceTarget() [%d][%d]\n",getFrameCount(),lastHarvestResourceTarget.second);
 				addBadHarvestPos(resourceLocation);
 			}
 		}

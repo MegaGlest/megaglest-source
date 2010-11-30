@@ -44,16 +44,16 @@ const int PathFinder::pathFindRefresh= 10;
 
 PathFinder::PathFinder() {
 	nodePool.clear();
-	lookupCacheCanMove.clear();
-	moveLookupCacheApproxCanMove.clear();
+	//lookupCacheCanMove.clear();
+	//moveLookupCacheApproxCanMove.clear();
 
 	map=NULL;
 }
 
 PathFinder::PathFinder(const Map *map) {
 	nodePool.clear();
-	lookupCacheCanMove.clear();
-	moveLookupCacheApproxCanMove.clear();
+	//lookupCacheCanMove.clear();
+	//moveLookupCacheApproxCanMove.clear();
 
 	map=NULL;
 	init(map);
@@ -61,16 +61,16 @@ PathFinder::PathFinder(const Map *map) {
 
 void PathFinder::init(const Map *map) {
 	nodePool.resize(pathFindNodesMax);
-	lookupCacheCanMove.clear();
-	moveLookupCacheApproxCanMove.clear();
+	//lookupCacheCanMove.clear();
+	//moveLookupCacheApproxCanMove.clear();
 
 	this->map= map;
 }
 
 PathFinder::~PathFinder(){
 	nodePool.clear();
-	lookupCacheCanMove.clear();
-	moveLookupCacheApproxCanMove.clear();
+	//lookupCacheCanMove.clear();
+	//moveLookupCacheApproxCanMove.clear();
 
 	map=NULL;
 }
@@ -81,8 +81,15 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	}
 
 	if(clearLookupCache == true) {
-		lookupCacheCanMove.clear();
-		moveLookupCacheApproxCanMove.clear();
+		//lookupCacheCanMove.clear();
+		//moveLookupCacheApproxCanMove.clear();
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"[%s::%s Line: %d] [findPath] unit->getPos() [%s] finalPos [%s]",
+				__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),finalPos.getString().c_str());
+		unit->logSynchData(szBuf);
 	}
 
 	//route cache
@@ -176,6 +183,14 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		// We will try to bail out of the immediate area
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
 			path->isStuck() == true) {
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[4096]="";
+				sprintf(szBuf,"[%s::%s Line: %d] [attempting to BAIL OUT] finalPos [%s] ts [%d]",
+						__FILE__,__FUNCTION__,__LINE__,finalPos.getString().c_str(),ts);
+				unit->logSynchData(szBuf);
+			}
+
 			if(wasStuck != NULL) {
 				*wasStuck = true;
 			}
@@ -185,7 +200,16 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				for(int bailoutY = -20; bailoutY <= 20 && ts == tsBlocked; ++bailoutY) {
 					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 					//if(map->canMove(unit, unit->getPos(), newFinalPos, &lookupCacheCanMove)) {
-					if(map->canMove(unit, unit->getPos(), newFinalPos)) {
+					bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[4096]="";
+						sprintf(szBuf,"[%s::%s Line: %d] [attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+								__FILE__,__FUNCTION__,__LINE__,finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
+						unit->logSynchData(szBuf);
+					}
+
+					if(canUnitMove) {
 						ts= aStar(unit, newFinalPos, true);
 					}
 				}
@@ -302,7 +326,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
 				Vec2i sucPos= node->pos + Vec2i(i, j);
 
-				bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos, &moveLookupCacheApproxCanMove);
+				//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos, &moveLookupCacheApproxCanMove);
+				bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
 
 				if(openPos(sucPos) == false && canUnitMoveToCell == true) {
 					//if node is not open and canMove then generate another node
@@ -348,15 +373,22 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				commandDesc = command->getCommandType()->toString();
 			}
 
-			std::pair<Vec2i,Chrono> lastHarvest = unit->getLastHarvestResourceTarget();
+			std::pair<Vec2i,int> lastHarvest = unit->getLastHarvestResourceTarget();
 
 			char szBuf[1024]="";
-			sprintf(szBuf,"State: blocked, cmd [%s] pos: [%s], dest pos: [%s], lastHarvest = [%s - %lld], reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),lastHarvest.first.getString().c_str(),(long long int)lastHarvest.second.getMillis(), pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
+			sprintf(szBuf,"State: blocked, cmd [%s] pos: [%s], dest pos: [%s], lastHarvest = [%s - %d], reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),lastHarvest.first.getString().c_str(),lastHarvest.second, pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
 		ts= tsBlocked;
 		path->incBlockCount();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"[%s::%s Line: %d] [path for unit BLOCKED] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+					__FILE__,__FUNCTION__,__LINE__,openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
+			unit->logSynchData(szBuf);
+		}
 	}
 	else {
 		//on the way
@@ -374,6 +406,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		currNode= firstNode;
 		for(int i=0; currNode->next != NULL && i < pathFindRefresh; currNode= currNode->next, i++) {
 			path->add(currNode->next->pos);
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"[%s::%s Line: %d] [Setting new path for unit] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+					__FILE__,__FUNCTION__,__LINE__,openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
+			unit->logSynchData(szBuf);
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {

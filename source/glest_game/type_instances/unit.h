@@ -286,6 +286,7 @@ private:
 	CardinalDir modelFacing;
 
 	std::string lastSynchDataString;
+	std::string lastSource;
 	int lastRenderFrame;
 	bool visible;
 
@@ -301,9 +302,9 @@ private:
 	// list may be used to tell areas of the game to ignore those cells for a
 	// period of time
 	//std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
-	std::map<Vec2i,Chrono> badHarvestPosList;
-	time_t lastBadHarvestListPurge;
-	std::pair<Vec2i,Chrono> lastHarvestResourceTarget;
+	std::map<Vec2i,int> badHarvestPosList;
+	//time_t lastBadHarvestListPurge;
+	std::pair<Vec2i,int> lastHarvestResourceTarget;
 
 	std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
 
@@ -459,11 +460,12 @@ public:
 	void cleanupOldBadHarvestPos();
 
 	void setLastHarvestResourceTarget(const Vec2i *pos);
-	std::pair<Vec2i,Chrono> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
+	std::pair<Vec2i,int> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
 
 	std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
 	void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
 
+	void logSynchData(string source="");
 	std::string toString() const;
 
 private:
@@ -474,7 +476,6 @@ private:
 	void stopDamageParticles();
 	void startDamageParticles();
 
-	void logSynchData(string source="");
 	int getFrameCount();
 };
 

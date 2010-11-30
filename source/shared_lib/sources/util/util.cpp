@@ -366,7 +366,8 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
         if(currentDebugLog.fileStream->is_open() == true) {
 			MutexSafeWrapper safeMutex(currentDebugLog.mutex);
 
-			if (type != debugPathFinder && type != debugError) {
+			// All items in the if clause we don't want timestamps
+			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
 				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
 			}
 			else if (type == debugError) {
