@@ -66,7 +66,7 @@ private:
 	int nodePoolCount;
 	const Map *map;
 
-	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > lookupCacheCanMove;
+	//std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > lookupCacheCanMove;
 	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > moveLookupCacheApproxCanMove;
 
 public:

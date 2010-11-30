@@ -92,6 +92,9 @@ std::string Command::toString() const {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 		result += ", unitRef.getUnit() id = " + intToStr(unitRef.getUnitId());
+		if(unitRef.getUnit() != NULL) {
+			result += ", unitRef.getUnit() = " + unitRef.getUnit()->toString();
+		}
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);

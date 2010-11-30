@@ -34,7 +34,7 @@ namespace Glest{ namespace Game{
 
 Faction::Faction() {
 	texture = NULL;
-	lastResourceTargettListPurge = 0;
+	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
 }
 
@@ -633,6 +633,17 @@ void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter
 
 		if(duplicateEntry == false) {
 			cacheResourceTargetList[pos] = 1;
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[4096]="";
+				sprintf(szBuf,"[%s::%s Line: %d] [addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+									__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),cacheResourceTargetList.size());
+
+				//unit->logSynchData(szBuf);
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+			}
 		}
 	}
 }
@@ -644,6 +655,17 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 
 			if(iter != cacheResourceTargetList.end()) {
 				cacheResourceTargetList.erase(pos);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"[%s::%s Line: %d] [removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+										__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),cacheResourceTargetList.size());
+
+					//unit->logSynchData(szBuf);
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+				}
 			}
 		}
 	}
@@ -746,6 +768,14 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 			}
 
 			if(deleteList.size() > 0) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+								sprintf(szBuf,"[%s::%s Line: %d] [cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
+										__FILE__,__FUNCTION__,__LINE__,deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
+
+					unit->logSynchData(szBuf);
+				}
+
 				cleanupResourceTypeTargetCache(&deleteList);
 			}
 		}
@@ -754,11 +784,14 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 	return result;
 }
 
+// CANNOT MODIFY the cache here since the AI calls this method and the AI is only controlled
+// by the server for network games and it would cause out of synch since clients do not call
+// this method so DO NOT modify the cache here!
 Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type) {
 	Vec2i result(-1);
 	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
-			std::vector<Vec2i> deleteList;
+			//std::vector<Vec2i> deleteList;
 
 			const int harvestDistance = 5;
 			const Map *map = world->getMap();
@@ -780,9 +813,9 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 								}
 							}
 						}
-						else {
-							deleteList.push_back(newPos);
-						}
+						//else {
+						//	deleteList.push_back(newPos);
+						//}
 					}
 				}
 			}
@@ -808,19 +841,28 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 								}
 							}
 						}
-						else {
-							deleteList.push_back(cache);
-						}
+						//else {
+						//	deleteList.push_back(cache);
+						//}
 					}
-					else {
-						deleteList.push_back(cache);
-					}
+					//else {
+					//	deleteList.push_back(cache);
+					//}
 				}
 			}
 
-			if(deleteList.size() > 0) {
-				cleanupResourceTypeTargetCache(&deleteList);
-			}
+		  	//char szBuf[4096]="";
+		  	//sprintf(szBuf,"[%s::%s Line: %d] [looking for resource targets] result [%s] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] foundCloseResource [%d]",
+			//	    			__FILE__,__FUNCTION__,__LINE__,result.getString().c_str(),deleteList.size(),cacheResourceTargetList.size(),foundCloseResource);
+
+		    //unit->logSynchData(szBuf);
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+
+			//if(deleteList.size() > 0) {
+			//	cleanupResourceTypeTargetCache(&deleteList);
+			//}
 		}
 	}
 
@@ -830,8 +872,12 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
 	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.size() > 0) {
-			if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
-				lastResourceTargettListPurge = time(NULL);
+			const int cleanupInterval = (GameConstants::updateFps * 5);
+			bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
+
+			//if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
+			if(deleteListPtr != NULL || needToCleanup == true) {
+				//lastResourceTargettListPurge = time(NULL);
 				std::vector<Vec2i> deleteList;
 
 				if(deleteListPtr != NULL) {
@@ -854,9 +900,21 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 					}
 				}
 
-				for(int i = 0; i < deleteList.size(); ++i) {
-					Vec2i &cache = deleteList[i];
-					cacheResourceTargetList.erase(cache);
+				if(deleteList.size() > 0) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[4096]="";
+									sprintf(szBuf,"[%s::%s Line: %d] [cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
+											__FILE__,__FUNCTION__,__LINE__,deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
+						//unit->logSynchData(szBuf);
+						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+					}
+
+					for(int i = 0; i < deleteList.size(); ++i) {
+						Vec2i &cache = deleteList[i];
+						cacheResourceTargetList.erase(cache);
+					}
 				}
 			}
 		}
@@ -1051,6 +1109,16 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 		}
 	}
 	return result;
+}
+
+int Faction::getFrameCount() {
+	int frameCount = 0;
+	const Game *game = Renderer::getInstance().getGame();
+	if(game != NULL && game->getWorld() != NULL) {
+		frameCount = game->getWorld()->getFrameCount();
+	}
+
+	return frameCount;
 }
 
 std::string Faction::toString() const {

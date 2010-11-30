@@ -248,6 +248,12 @@ void UnitUpdater::updateMove(Unit *unit) {
 
 	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"[%s::%s Line: %d] [updateMove] pos [%s] cmd [%s]",__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),command->toString().c_str());
+		unit->logSynchData(szBuf);
+	}
+
 	TravelState tsValue = tsImpossible;
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
@@ -280,7 +286,7 @@ void UnitUpdater::updateMove(Unit *unit) {
 
 // ==================== updateAttack ====================
 
-void UnitUpdater::updateAttack(Unit *unit){
+void UnitUpdater::updateAttack(Unit *unit) {
 	Command *command= unit->getCurrCommand();
     const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
 	Unit *target= NULL;
@@ -306,6 +312,13 @@ void UnitUpdater::updateAttack(Unit *unit){
 		}
 		else {
 			pos= command->getPos();
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"[%s::%s Line: %d] [updateAttack] pos [%s] unit->getPos() [%s]",__FILE__,__FUNCTION__,__LINE__,
+					pos.getString().c_str(),unit->getPos().getString().c_str());
+			unit->logSynchData(szBuf);
 		}
 
 		TravelState tsValue = tsImpossible;
@@ -378,6 +391,14 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				//Vec2i buildPos = (command->getPos()-Vec2i(1));
 				Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), ut);
 				//Vec2i buildPos = (command->getPos() + Vec2i(ut->getSize() / 2));
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"[%s::%s Line: %d] [updateBuild] unit->getPos() [%s] command->getPos() [%s] buildPos [%s]",
+							__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
+					unit->logSynchData(szBuf);
+				}
+
 				tsValue = pathFinder->findPath(unit, buildPos);
 				}
 				break;
@@ -619,6 +640,13 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				if(canHarvestDestPos == false) {
 					unit->setLastHarvestResourceTarget(&targetPos);
 
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[4096]="";
+						sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
+								__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str());
+						unit->logSynchData(szBuf);
+					}
+
 					//if not continue walking
 					bool wasStuck = false;
 					TravelState tsValue = tsImpossible;
@@ -690,6 +718,14 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 							if(targetPos.x >= 0) {
 								//if not continue walking
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+									char szBuf[4096]="";
+									sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
+											__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
+									unit->logSynchData(szBuf);
+								}
+
 								wasStuck = false;
 								TravelState tsValue = tsImpossible;
 								switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -735,6 +771,14 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
 			if(store!=NULL) {
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest #3] unit->getPos() [%s] store->getCenteredPos() [%s]",
+							__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),store->getCenteredPos().getString().c_str());
+					unit->logSynchData(szBuf);
+				}
+
 				TravelState tsValue = tsImpossible;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
@@ -1072,6 +1116,12 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			}
 			else {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"[%s::%s Line: %d] [updateRepair] unit->getPos() [%s] command->getPos()() [%s] repairPos [%s]",__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),repairPos.getString().c_str());
+					unit->logSynchData(szBuf);
+				}
 
 				TravelState ts;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -1464,7 +1514,6 @@ bool UnitUpdater::attackableOnRange(const Unit *unit, Unit **rangedPtr, const At
 	return unitOnRange(unit, range, rangedPtr, ast);
 }
 
-/*
 bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vector<Unit*> &enemies,
 										 const AttackSkillType *ast, const Unit *unit,
 										 const Unit *commandTarget) {
@@ -1491,7 +1540,6 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 
 	return result;
 }
-*/
 
 void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, const Unit *unit,
 									 const Unit *commandTarget,vector<Unit*> &enemies) {
@@ -1536,12 +1584,12 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	bool foundInCache = true;
-	//if(findCachedCellsEnemies(center,range,size,enemies,ast,
-	//						  unit,commandTarget) == false) {
+	if(findCachedCellsEnemies(center,range,size,enemies,ast,
+							  unit,commandTarget) == false) {
 		foundInCache = false;
 
 		//nearby cells
-		//UnitRangeCellsLookupItem cacheItem;
+		UnitRangeCellsLookupItem cacheItem;
 		for(int i=center.x-range; i<center.x+range+size; ++i){
 			for(int j=center.y-range; j<center.y+range+size; ++j){
 
@@ -1554,17 +1602,17 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
 
-					//cacheItem.rangeCellList.push_back(cell);
+					cacheItem.rangeCellList.push_back(cell);
 				}
 			}
 		}
 
 		// Ok update our caches with the latest info
-		//if(cacheItem.rangeCellList.size() > 0) {
-		//	cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
-		//	UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
-		//}
-	//}
+		if(cacheItem.rangeCellList.size() > 0) {
+			cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
+			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
+		}
+	}
 
 	//attack enemies that can attack first
     for(int i = 0; i< enemies.size(); ++i) {

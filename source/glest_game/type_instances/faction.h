@@ -88,7 +88,8 @@ private:
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
 	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
-	time_t lastResourceTargettListPurge;
+	//time_t lastResourceTargettListPurge;
+	//int lastResourceTargettListPurge;
 
 	//std::map<CommandClass,std::map<int,int> > cacheUnitCommandClassList;
 	// This cache stores the units free cell movement calcs during a world
@@ -172,6 +173,7 @@ public:
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
 	Vec2i getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
+	int getCacheResourceTargetListSize() const { return cacheResourceTargetList.size(); }
 
 	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
 										const std::vector<SkillClass> &skillClassList,
@@ -179,6 +181,7 @@ public:
 
 	void deletePixels();
 
+	int getFrameCount();
 	std::string toString() const;
 
 private:
