@@ -327,9 +327,9 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 				char szBuf[4096]="";
-							sprintf(szBuf,"[%s::%s Line: %d] [found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
-									__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
-				unit->logSynchData(szBuf);
+							sprintf(szBuf,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
+									pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
+				unit->logSynchData(__FILE__,__LINE__,szBuf);
 			}
 
 			if(unit->getPos().dist(resourcePos) <= size) {

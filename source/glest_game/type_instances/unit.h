@@ -286,6 +286,8 @@ private:
 	CardinalDir modelFacing;
 
 	std::string lastSynchDataString;
+	std::string lastFile;
+	int lastLine;
 	std::string lastSource;
 	int lastRenderFrame;
 	bool visible;
@@ -465,7 +467,7 @@ public:
 	std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
 	void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
 
-	void logSynchData(string source="");
+	void logSynchData(string file,int line,string source="");
 	std::string toString() const;
 
 private:

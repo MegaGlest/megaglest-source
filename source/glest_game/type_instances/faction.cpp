@@ -636,12 +636,13 @@ void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 				char szBuf[4096]="";
-				sprintf(szBuf,"[%s::%s Line: %d] [addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%ld]",
-									__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),cacheResourceTargetList.size());
+				sprintf(szBuf,"[addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+								pos.getString().c_str(),cacheResourceTargetList.size());
 
 				//unit->logSynchData(szBuf);
 				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
 				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 			}
 		}
@@ -658,12 +659,13 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
-					sprintf(szBuf,"[%s::%s Line: %d] [removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%ld]",
-										__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),cacheResourceTargetList.size());
+					sprintf(szBuf,"[removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+									pos.getString().c_str(),cacheResourceTargetList.size());
 
 					//unit->logSynchData(szBuf);
 					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
 					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 				}
 			}
@@ -770,10 +772,10 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 			if(deleteList.size() > 0) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
-								sprintf(szBuf,"[%s::%s Line: %d] [cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
-										__FILE__,__FUNCTION__,__LINE__,deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
+								sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
+										deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
 
-					unit->logSynchData(szBuf);
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
 				cleanupResourceTypeTargetCache(&deleteList);
@@ -903,11 +905,12 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 				if(deleteList.size() > 0) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 						char szBuf[4096]="";
-									sprintf(szBuf,"[%s::%s Line: %d] [cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
-											__FILE__,__FUNCTION__,__LINE__,deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
+									sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
+											deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
 						//unit->logSynchData(szBuf);
 						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
+						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
 						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 					}
 

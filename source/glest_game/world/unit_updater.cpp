@@ -250,8 +250,8 @@ void UnitUpdater::updateMove(Unit *unit) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"[%s::%s Line: %d] [updateMove] pos [%s] cmd [%s]",__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),command->toString().c_str());
-		unit->logSynchData(szBuf);
+		sprintf(szBuf,"[updateMove] pos [%s] cmd [%s]",pos.getString().c_str(),command->toString().c_str());
+		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
 
 	TravelState tsValue = tsImpossible;
@@ -316,9 +316,9 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 			char szBuf[4096]="";
-			sprintf(szBuf,"[%s::%s Line: %d] [updateAttack] pos [%s] unit->getPos() [%s]",__FILE__,__FUNCTION__,__LINE__,
+			sprintf(szBuf,"[updateAttack] pos [%s] unit->getPos() [%s]",
 					pos.getString().c_str(),unit->getPos().getString().c_str());
-			unit->logSynchData(szBuf);
+			unit->logSynchData(__FILE__,__LINE__,szBuf);
 		}
 
 		TravelState tsValue = tsImpossible;
@@ -394,9 +394,9 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
-					sprintf(szBuf,"[%s::%s Line: %d] [updateBuild] unit->getPos() [%s] command->getPos() [%s] buildPos [%s]",
-							__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
-					unit->logSynchData(szBuf);
+					sprintf(szBuf,"[updateBuild] unit->getPos() [%s] command->getPos() [%s] buildPos [%s]",
+							unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
 				tsValue = pathFinder->findPath(unit, buildPos);
@@ -642,9 +642,9 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 						char szBuf[4096]="";
-						sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
-								__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str());
-						unit->logSynchData(szBuf);
+						sprintf(szBuf,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
+								unit->getPos().getString().c_str(),command->getPos().getString().c_str());
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
 					}
 
 					//if not continue walking
@@ -721,9 +721,9 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 									char szBuf[4096]="";
-									sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
-											__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
-									unit->logSynchData(szBuf);
+									sprintf(szBuf,"[updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
+											unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
+									unit->logSynchData(__FILE__,__LINE__,szBuf);
 								}
 
 								wasStuck = false;
@@ -774,9 +774,9 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
-					sprintf(szBuf,"[%s::%s Line: %d] [updateHarvest #3] unit->getPos() [%s] store->getCenteredPos() [%s]",
-							__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),store->getCenteredPos().getString().c_str());
-					unit->logSynchData(szBuf);
+					sprintf(szBuf,"[updateHarvest #3] unit->getPos() [%s] store->getCenteredPos() [%s]",
+							unit->getPos().getString().c_str(),store->getCenteredPos().getString().c_str());
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
 				TravelState tsValue = tsImpossible;
@@ -1102,8 +1102,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
-					sprintf(szBuf,"[%s::%s Line: %d] [updateRepair] unit->getPos() [%s] command->getPos()() [%s] repairPos [%s]",__FILE__,__FUNCTION__,__LINE__,unit->getPos().getString().c_str(),command->getPos().getString().c_str(),repairPos.getString().c_str());
-					unit->logSynchData(szBuf);
+					sprintf(szBuf,"[updateRepair] unit->getPos() [%s] command->getPos()() [%s] repairPos [%s]",unit->getPos().getString().c_str(),command->getPos().getString().c_str(),repairPos.getString().c_str());
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
 				TravelState ts;
