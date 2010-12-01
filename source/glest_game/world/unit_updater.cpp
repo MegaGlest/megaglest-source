@@ -804,27 +804,10 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 					//update resources
 					int resourceAmount= unit->getLoadCount();
-//					if(unit->getFaction()->getCpuUltraControl()){
-//						resourceAmount*= ultraResourceFactor;
-//					}
-//					if(unit->getFaction()->getCpuMegaControl()){
-//						resourceAmount*= megaResourceFactor;
-//					}
 					if(unit->getFaction()->getCpuControl())
 					{
-						/* Get the current time.  */
-//    time_t curtime = time (NULL);
-//    /* Convert it to local time representation.  */
-//    struct tm *loctime = localtime (&curtime);
-//    char szBuf2[100]="";
-//    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
-//							printf("%s:  org. resourceamount :%d  ",szBuf2,resourceAmount);
-						
-						printf("org. resourceamount :%d  ",resourceAmount);
 						int resourceMultiplierIndex=game->getGameSettings()->getResourceMultiplierIndex(unit->getFaction()->getIndex());
 						resourceAmount=(resourceAmount* (resourceMultiplierIndex +5))/10;
-						printf("calc. resourceamount :%d  ",resourceAmount);
-						printf("index+5 :%d  \n",resourceMultiplierIndex+5);
 					}
 					unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
 					world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);

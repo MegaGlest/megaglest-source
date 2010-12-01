@@ -320,7 +320,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	controlItems.push_back(lang.get("Human"));
 
 	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(intToStr(0.5f+0.1f*i));
+		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
