@@ -241,7 +241,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
 
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(__FILE__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -597,7 +597,7 @@ void Unit::setPos(const Vec2i &pos){
 	// Attempt to improve performance
 	this->exploreCells();
 
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(__FILE__,__LINE__);
 }
 
 void Unit::setTargetPos(const Vec2i &targetPos){
@@ -617,7 +617,7 @@ void Unit::setTargetPos(const Vec2i &targetPos){
 
 	this->targetPos= targetPos;
 
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(__FILE__,__LINE__);
 }
 
 void Unit::setVisible(const bool visible) {
@@ -1667,12 +1667,12 @@ void Unit::startDamageParticles(){
 
 void Unit::setTargetVec(const Vec3f &targetVec)	{
 	this->targetVec= targetVec;
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(__FILE__,__LINE__);
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	this->meetingPos= meetingPos;
-	logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
+	logSynchData(__FILE__,__LINE__);
 }
 
 bool Unit::isMeetingPointSettable() const {
@@ -1706,12 +1706,11 @@ void Unit::exploreCells() {
 	}
 }
 
-void Unit::logSynchData(string source) {
+void Unit::logSynchData(string file,int line,string source) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 
 	    char szBuf[1024]="";
 	    sprintf(szBuf,
-	    		//"Unit = %d [%s] [%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%f]\n",
 	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
@@ -1730,12 +1729,20 @@ void Unit::logSynchData(string source) {
 				progress2,
 				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
 
-	    if(lastSynchDataString != string(szBuf) || lastSource != source) {
+	    if( lastSynchDataString != string(szBuf) ||
+	    	lastFile != file ||
+	    	lastLine != line ||
+	    	lastSource != source) {
 	    	lastSynchDataString = string(szBuf);
+	    	lastFile = file;
 	    	lastSource = source;
 
 	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s %s",source.c_str(),szBuf);
+	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
+			if(source != "") {
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s ",source.c_str());
+			}
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 	    }
 	}
@@ -1799,9 +1806,8 @@ void Unit::cleanupOldBadHarvestPos() {
 
 		if(purgeList.size() > 0) {
 			char szBuf[4096]="";
-						sprintf(szBuf,"[%s::%s Line: %d] [cleaning old bad harvest targets] purgeList.size() [%ld]",
-								__FILE__,__FUNCTION__,__LINE__,purgeList.size());
-			logSynchData(szBuf);
+			sprintf(szBuf,"[cleaning old bad harvest targets] purgeList.size() [%ld]",purgeList.size());
+			logSynchData(__FILE__,__LINE__,szBuf);
 
 			for(int i = 0; i < purgeList.size(); ++i) {
 				const Vec2i &item = purgeList[i];
