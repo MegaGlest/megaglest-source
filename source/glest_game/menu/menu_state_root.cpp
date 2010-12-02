@@ -59,7 +59,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonExit.registerGraphicComponent(containerName,"buttonExit");
     buttonExit.init(425, i, 150);
     labelVersion.registerGraphicComponent(containerName,"labelVersion");
-	labelVersion.init(525, 420);
+	labelVersion.init(435, 420);
 
 	buttonNewGame.setText(lang.get("NewGame"));
 	buttonJoinGame.setText(lang.get("JoinGame"));
@@ -67,7 +67,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About")); 
 	buttonExit.setText(lang.get("Exit"));
-	labelVersion.setText(glestVersionString);
+	labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + "]");
 
 	//mesage box
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
