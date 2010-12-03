@@ -14,6 +14,7 @@
 
 #include "util.h"
 
+#include <iostream>
 using namespace Shared::Util;
 
 namespace MapEditor {
@@ -24,7 +25,7 @@ namespace MapEditor {
 int UndoPoint::w = 0;
 int UndoPoint::h = 0;
 
-UndoPoint::UndoPoint() 
+UndoPoint::UndoPoint()
 		: change(ctNone)
 		, surface(0)
 		, object(0)
@@ -251,6 +252,124 @@ void Program::flipX() {
 void Program::flipY() {
 	map->flipY();
 }
+
+void Program::mirrorX() { // copy left to right
+    int w=map->getW();
+    int h=map->getH();
+	for (int i = 0; i < w/2; i++) {
+		for (int j = 0; j < h; j++) {
+			map->copyXY(w-i-1,j  ,  i,j);
+		}
+	}
+}
+
+void Program::mirrorY() { // copy top to bottom
+    int w=map->getW();
+    int h=map->getH();
+	for (int i = 0; i < w; i++) {
+		for (int j = 0; j < h/2; j++) {
+			map->copyXY(i,h-j-1  ,  i,j);
+		}
+	}
+}
+
+void Program::mirrorXY() { // copy leftbottom to topright, can handle non-sqaure maps
+    int w=map->getW();
+    int h=map->getH();
+    if (h==w) {
+        for (int i = 0; i < w-1; i++) {
+            for (int j = i+1; j < h; j++) {
+                map->copyXY(j,i  ,  i,j);
+            }
+        }
+    }
+    // Non-sqaure maps:
+    else if (h < w) { // copy horizontal strips
+        int s=w/h; // 2 if twice as wide as heigh
+        for (int i = 0; i < w/s-1; i++) {
+            for (int j = i+1; j < h; j++) {
+                for (int p = 0; p < s; p++) map->copyXY(j*s+p,i  ,  i*s+p,j);
+            }
+        }
+    }
+    else { // copy vertical strips
+        int s=h/w; // 2 if twice as heigh as wide
+        for (int i = 0; i < w-1; i++) {
+            for (int j = i+1; j < h/s; j++) {
+                for (int p = 0; p < s; p++) map->copyXY(j,i*s+p  ,  i,j*s+p);
+            }
+        }
+    }
+}
+
+void Program::rotatecopyX() {
+    int w=map->getW();
+    int h=map->getH();
+	for (int i = 0; i < w/2; i++) {
+		for (int j = 0; j < h; j++) {
+			map->copyXY(w-i-1,h-j-1  ,  i,j);
+		}
+	}
+}
+
+void Program::rotatecopyY() {
+    int w=map->getW();
+    int h=map->getH();
+	for (int i = 0; i < w; i++) {
+		for (int j = 0; j < h/2; j++) {
+			map->copyXY(w-i-1,h-j-1  ,  i,j);
+		}
+	}
+}
+
+void Program::rotatecopyXY() {
+    int w=map->getW();
+    int h=map->getH();
+    int sw=w/h; if(sw<1) sw=1; // x-squares per y
+    int sh=h/w; if(sh<1) sh=1; // y-squares per x
+    if (sh==1)
+        for (int j = 0; j < h-1; j++) { // row by row!
+            for (int i = j*sw; i < w; i++) {
+                map->copyXY(i,j  ,  w-i-1,h-j-1);
+            }
+        }
+    else
+        for (int i = 0; i <w; i++) { // column for colum!
+            for (int j = h-1-i*sh; j >= 0; j--) {
+                map->copyXY(w-i-1,j  ,  i,h-j-1);
+            }
+        }
+}
+
+void Program::rotatecopyCorner() { // rotate top left 1/4 to top right 1/4
+    int w=map->getW();
+    int h=map->getH();
+    if (h==w) {
+        for (int i = 0; i < w/2; i++) {
+            for (int j = 0; j < h/2; j++) {
+                map->copyXY(w-j-1,i  ,  i,j);
+            }
+        }
+    }
+    // Non-sqaure maps:
+    else if (h < w) { // copy horizontal strips
+        int s=w/h; // 2 if twice as wide as heigh
+        for (int i = 0; i < w/s/2; i++) {
+            for (int j = 0; j < h/2; j++) {
+                for (int p = 0; p < s; p++) map->copyXY(w-j*s-1-p,i  ,  i*s+p,j);
+            }
+        }
+    }
+    else { // copy vertical strips
+        int s=h/w; // 2 if twice as heigh as wide
+        for (int i = 0; i < w/2; i++) {
+            for (int j = 0; j < h/s/2; j++) {
+                for (int p = 0; p < s; p++) map->copyXY(w-j-1,i*s+p  ,  i,j*s+p);
+            }
+        }
+    }
+}
+
 
 void Program::randomizeMapHeights() {
 	map->randomizeHeights();

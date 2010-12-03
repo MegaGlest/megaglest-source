@@ -344,6 +344,14 @@ void MapPreview::flipY() {
 	//delete [] oldCells;
 }
 
+// Copy a cell in the map from one cell to another, used by MirrorXY etc
+void MapPreview::copyXY(int x, int y, int sx, int sy) {
+		cells[x][y].height   = cells[sx][sy].height;
+		cells[x][y].object   = cells[sx][sy].object;
+		cells[x][y].resource = cells[sx][sy].resource;
+		cells[x][y].surface  = cells[sx][sy].surface;
+}
+
 void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius) {
 	int i, j;
 	int dist;

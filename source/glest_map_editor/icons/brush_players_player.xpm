@@ -1,9 +1,10 @@
 /* XPM */
 static const char *brush_players_player[] = {
 /* columns rows colors chars-per-pixel */
-"16 16 3 1",
+"16 16 4 1",
 "  c #FFFF00",
 ". c #008080",
+"@ c #000000",
 "X c None",
 /* pixels */
 "XXXXX......XXXXX",
@@ -18,8 +19,8 @@ static const char *brush_players_player[] = {
 "......  ........",
 "......  ........",
 "X.....  .......X",
-"X....    ......X",
-"XX............XX",
-"XXX..........XXX",
-"XXXXX......XXXXX"
+"X....    @@@@@@@",
+"XX........@@@@@X",
+"XXX........@@@XX",
+"XXXXX......X@XXX"
 };

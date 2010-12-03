@@ -50,7 +50,7 @@ wxString ToUnicode(const string& str) {
 // ===============================================
 
 const string g3dviewerVersionString= "v1.3.6";
-const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString + " - Built: " + __DATE__;
+const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
 MainWindow::MainWindow(const string &modelPath)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),wxPoint(Renderer::windowX, Renderer::windowY),
@@ -66,7 +66,8 @@ MainWindow::MainWindow(const string &modelPath)
 
 	speed= 0.025f;
 
-	glCanvas = new GlCanvas(this);
+	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER }; // to prevent flicker
+	glCanvas = new GlCanvas(this, args);
 
     //getGlPlatformExtensions();
 
@@ -110,7 +111,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuCustomColor->AppendCheckItem(miColorWhite, wxT("&White\t4"));
 	menuCustomColor->AppendCheckItem(miColorCyan, wxT("&Cyan\t5"));
 	menuCustomColor->AppendCheckItem(miColorOrange, wxT("&Orange\t6"));
-	menuCustomColor->AppendCheckItem(miColorMagenta, wxT("&Magenta\t7"));
+	menuCustomColor->AppendCheckItem(miColorMagenta, wxT("&Pink\t7")); // it is called Pink everywhere else so...
 	menu->Append(menuCustomColor, wxT("&Custom Color"));
 
 	menuMode->Check(miModeGrid, true);
@@ -123,19 +124,19 @@ MainWindow::MainWindow(const string &modelPath)
 	rotX= 0.0f;
 	rotY= 0.0f;
 	zoom= 1.0f;
+	backBrightness= 0.3f;
+	gridBrightness= 1.0f;
+	lightBrightness= 0.3f;
 	lastX= 0;
 	lastY= 0;
 	anim= 0.0f;
 
 	CreateStatusBar();
 
-	//std::cout << "A" << std::endl;
 	wxInitAllImageHandlers();
 #ifdef WIN32
-	//std::cout << "B" << std::endl;
 	wxIcon icon("IDI_ICON1");
 #else
-	//std::cout << "B" << std::endl;
 	wxIcon icon;
 	std::ifstream testFile("g3dviewer.ico");
 	if(testFile.good())	{
@@ -143,7 +144,6 @@ MainWindow::MainWindow(const string &modelPath)
 		icon.LoadFile(wxT("g3dviewer.ico"),wxBITMAP_TYPE_ICO);
 	}
 #endif
-	//std::cout << "C" << std::endl;
 	SetIcon(icon);
 
 	timer = new wxTimer(this);
@@ -165,8 +165,6 @@ void MainWindow::init(){
 	renderer->init();
 
 	loadModel("");
-
-    //SetTitle(ToUnicode(winHeader + "; " + modelPath));
 }
 
 void MainWindow::onPaint(wxPaintEvent &event){
@@ -201,7 +199,7 @@ void MainWindow::onClose(wxCloseEvent &event){
 
 	unitParticleSystems.clear();
 	unitParticleSystemTypes.clear();
-	
+
 	projectileParticleSystems.clear();
 	projectileParticleSystemTypes.clear();
 	splashParticleSystems.clear(); // as above
@@ -213,7 +211,7 @@ void MainWindow::onClose(wxCloseEvent &event){
 	delete this;
 }
 
-// for the mouseweel
+// for the mousewheel
 void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 	wxPaintEvent paintEvent;
 	zoom*= 1.1f;
@@ -260,6 +258,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 		modelPathList.clear();
 		loadModel((const char*)wxFNCONV(fileDialog.GetPath().c_str()));
 	}
+	isControlKeyPressed = false;
 }
 
 void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
@@ -278,6 +277,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
 		loadParticle(path);
 	}
+	isControlKeyPressed = false;
 }
 
 void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
@@ -296,6 +296,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
 		loadProjectileParticle(path);
 	}
+	isControlKeyPressed = false;
 }
 
 void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
@@ -314,7 +315,8 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
 		loadSplashParticle(path);
 	}
-}  // is it possible to join loadParticle(), loadProjectileParticle() and loadSplashParticle() to one method?  
+	isControlKeyPressed = false;
+}  // is it possible to join loadParticle(), loadProjectileParticle() and loadSplashParticle() to one method?
 
 
 void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
@@ -328,7 +330,7 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 
 	unitParticleSystems.clear();
 	unitParticleSystemTypes.clear();
-	
+
 	projectileParticleSystems.clear();
 	projectileParticleSystemTypes.clear();
 	splashParticleSystems.clear(); // as above
@@ -344,6 +346,7 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 
 	GetStatusBar()->SetStatusText(ToUnicode(""));
 	timer->Start(100);
+	isControlKeyPressed = false;
 }
 
 void MainWindow::onMenuFileExit(wxCommandEvent &event) {
@@ -355,6 +358,7 @@ void MainWindow::loadModel(string path) {
 		this->modelPathList.push_back(path);
 	}
 
+    string titlestring=winHeader;
 	for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
 		string modelPath = this->modelPathList[idx];
 
@@ -365,7 +369,9 @@ void MainWindow::loadModel(string path) {
 		model= tmpModel;
 		GetStatusBar()->SetStatusText(ToUnicode(getModelInfo().c_str()));
 		timer->Start(100);
+		titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
 	}
+	SetTitle(ToUnicode(titlestring));
 }
 
 void MainWindow::loadParticle(string path) {
@@ -376,11 +382,11 @@ void MainWindow::loadParticle(string path) {
 		unitParticleSystemTypes.clear();
 
 		if(isControlKeyPressed == true) {
-			std::cout << "Adding to list..." << std::endl;
+			// std::cout << "Adding to list..." << std::endl;
 			this->particlePathList.push_back(path);
 		}
 		else {
-			std::cout << "Clearing list..." << std::endl;
+			// std::cout << "Clearing list..." << std::endl;
 			this->particlePathList.clear();
 			this->particlePathList.push_back(path);
 		}
@@ -388,6 +394,7 @@ void MainWindow::loadParticle(string path) {
 
 	try{
 	if(this->particlePathList.size() > 0) {
+        string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
 			string particlePath = this->particlePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
@@ -398,6 +405,7 @@ void MainWindow::loadParticle(string path) {
 			}
 
 			particlePath= extractFileFromDirectoryPath(particlePath);
+			titlestring = particlePath  + " - "+ titlestring;
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
@@ -415,7 +423,7 @@ void MainWindow::loadParticle(string path) {
 				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 			}
 
-			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 			unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
@@ -442,9 +450,10 @@ void MainWindow::loadParticle(string path) {
 				renderer->initTextureManager();
 			}
 		}
+		SetTitle(ToUnicode(titlestring));
 	}
 	}
-	catch(std::runtime_error e) {		
+	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
 		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest particle XML file, or broken"), wxICON_ERROR);
 	}
@@ -459,11 +468,11 @@ void MainWindow::loadProjectileParticle(string path) {
 		projectileParticleSystemTypes.clear();
 
 		if(isControlKeyPressed == true) {
-			std::cout << "Adding to list..." << std::endl;
+			// std::cout << "Adding to list..." << std::endl;
 			this->particleProjectilePathList.push_back(path);
 		}
 		else {
-			std::cout << "Clearing list..." << std::endl;
+			// std::cout << "Clearing list..." << std::endl;
 			this->particleProjectilePathList.clear();
 			this->particleProjectilePathList.push_back(path);
 		}
@@ -471,7 +480,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 	try {
 	if(this->particleProjectilePathList.size() > 0) {
-
+        string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
 			string particlePath = this->particleProjectilePathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
@@ -482,6 +491,7 @@ void MainWindow::loadProjectileParticle(string path) {
 			}
 
 			particlePath= extractFileFromDirectoryPath(particlePath);
+			titlestring = particlePath  + " - "+ titlestring;
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
@@ -499,18 +509,18 @@ void MainWindow::loadProjectileParticle(string path) {
 				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 			}
 
-			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			XmlTree xmlTree;
 			xmlTree.load(dir + folderDelimiter + particlePath);
 			const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
-			std::cout << "Loaded successfully, loading values..." << std::endl;
+			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer);
 
-			std::cout << "Values loaded, about to read..." << std::endl;
+			// std::cout << "Values loaded, about to read..." << std::endl;
 
 			projectileParticleSystemTypes.push_back(projectileParticleSystemType);
 
@@ -541,6 +551,7 @@ void MainWindow::loadProjectileParticle(string path) {
 				//renderer.manageParticleSystem(psProj, rsGame);
 			}
 		}
+		SetTitle(ToUnicode(titlestring));
 
 		if(path != "" && fileExists(path) == true) {
 			renderer->initModelManager();
@@ -548,7 +559,7 @@ void MainWindow::loadProjectileParticle(string path) {
 		}
 	}
 	}
-	catch(std::runtime_error e) {		
+	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
 		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest projectile particle XML file, or broken"), wxICON_ERROR);
 	}
@@ -560,14 +571,14 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		splashParticleSystems.clear();
-		splashParticleSystemTypes.clear(); 
+		splashParticleSystemTypes.clear();
 
 		if(isControlKeyPressed == true) {
-			std::cout << "Adding to list..." << std::endl;
+			// std::cout << "Adding to list..." << std::endl;
 			this->particleSplashPathList.push_back(path);
 		}
 		else {
-			std::cout << "Clearing list..." << std::endl;
+			// std::cout << "Clearing list..." << std::endl;
 			this->particleSplashPathList.clear();
 			this->particleSplashPathList.push_back(path);
 		}
@@ -575,7 +586,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 	try {
 	if(this->particleSplashPathList.size() > 0) {
-
+        string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleSplashPathList.size(); idx++) {
 			string particlePath = this->particleSplashPathList[idx];
 			string dir= extractDirectoryPathFromFile(particlePath);
@@ -586,6 +597,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 			}
 
 			particlePath= extractFileFromDirectoryPath(particlePath);
+			titlestring = particlePath  + " - "+ titlestring;
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
@@ -603,18 +615,18 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 			}
 
-			std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
+			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			XmlTree xmlTree;
 			xmlTree.load(dir + folderDelimiter + particlePath);
 			const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
-			std::cout << "Loaded successfully, loading values..." << std::endl;
+			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
-			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash(); 
+			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer); // <---- only that must be splash...
 
-			std::cout << "Values loaded, about to read..." << std::endl;
+			// std::cout << "Values loaded, about to read..." << std::endl;
 
 			splashParticleSystemTypes.push_back(splashParticleSystemType);
 
@@ -638,6 +650,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 				renderer->manageParticleSystem(ps);
 			}
 		}
+		SetTitle(ToUnicode(titlestring));
 
 		if(path != "" && fileExists(path) == true) {
 			renderer->initModelManager();
@@ -645,7 +658,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 		}
 	}
 	}
-	catch(std::runtime_error e) {		
+	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
 		wxMessageBox( ToUnicode(e.what()), wxT("Not a Mega-Glest splash particle XML file, or broken"), wxICON_ERROR);
 	}
@@ -798,8 +811,9 @@ string MainWindow::getModelInfo(){
 
 void MainWindow::onKeyDown(wxKeyEvent &e) {
 
-	std::cout << "e.ControlDown() = " << e.ControlDown() << " e.GetKeyCode() = " << e.GetKeyCode() << " isCtrl = " << (e.GetKeyCode() == WXK_CONTROL) << std::endl;
+	// std::cout << "e.ControlDown() = " << e.ControlDown() << " e.GetKeyCode() = " << e.GetKeyCode() << " isCtrl = " << (e.GetKeyCode() == WXK_CONTROL) << std::endl;
 
+    // Note: This ctrl-key handling is buggy since it never resests when ctrl is released later, so I reset it at end of loadcommands for now.
 	if(e.ControlDown() == true || e.GetKeyCode() == WXK_CONTROL) {
 		isControlKeyPressed = true;
 	}
@@ -807,16 +821,48 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 		isControlKeyPressed = false;
 	}
 
-	std::cout << "isControlKeyPressed = " << isControlKeyPressed << std::endl;
+	// std::cout << "isControlKeyPressed = " << isControlKeyPressed << std::endl;
 
 
-	// here also becuase + and - hotkeys don't work for numpad automaticly
+	// here also because + and - hotkeys don't work for numpad automaticly
 	if (e.GetKeyCode() == 388) speed*= 1.5f; //numpad+
 	else if (e.GetKeyCode() == 390) speed/= 1.5f; //numpad-
+	else if (e.GetKeyCode() == 87) {
+	    glClearColor(0.6f, 0.6f, 0.6f, 1.0f); //w  key //backgroundcolor constant 0.3 -> 0.6
+
+	}
+
+	// some posibility to adjust brightness:
+    /*
+    else if (e.GetKeyCode() == 322) { // Ins  - Grid
+		gridBrightness += 0.1f; if (gridBrightness >1.0) gridBrightness =1.0;
+	}
+	else if (e.GetKeyCode() == 127) { // Del
+		gridBrightness -= 0.1f; if (gridBrightness <0) gridBrightness =0;
+	}
+	*/
+	else if (e.GetKeyCode() == 313) { // Home  - Background
+		backBrightness += 0.1f; if (backBrightness >1.0) backBrightness=1.0;
+		glClearColor(backBrightness, backBrightness, backBrightness, 1.0f);
+	}
+	else if (e.GetKeyCode() == 312) { // End
+		backBrightness -= 0.1f; if (backBrightness<0) backBrightness=0;
+		glClearColor(backBrightness, backBrightness, backBrightness, 1.0f);
+	}
+	else if (e.GetKeyCode() == 366) { // PgUp  - Lightning of model
+		lightBrightness += 0.1f; if (lightBrightness >1.0) lightBrightness =1.0;
+		Vec4f ambientNEW= Vec4f(lightBrightness, lightBrightness, lightBrightness, 1.0f);
+		glLightfv(GL_LIGHT0,GL_AMBIENT, ambientNEW.ptr());
+	}
+	else if (e.GetKeyCode() == 367) { // pgDn
+		lightBrightness -= 0.1f; if (lightBrightness <0) lightBrightness =0;
+		Vec4f ambientNEW= Vec4f(lightBrightness, lightBrightness, lightBrightness, 1.0f);
+		glLightfv(GL_LIGHT0,GL_AMBIENT, ambientNEW.ptr());
+	}
 }
 
 void MainWindow::onMenuRestart(wxCommandEvent &event){
-	std::cout << "pressed R (restart particle animation)" << std::endl;
+	// std::cout << "pressed R (restart particle animation)" << std::endl;
 	renderer->end();
 
 	unitParticleSystems.clear();
@@ -882,6 +928,12 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow):
     this->mainWindow = mainWindow;
 }
 
+// to prevent flicker
+GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
+		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
+	this->mainWindow = mainWindow;
+}
+
 // for the mousewheel
 void GlCanvas::onMouseWheel(wxMouseEvent &event) {
 	if(event.GetWheelRotation()>0) mainWindow->onMouseWheelDown(event);
@@ -918,10 +970,10 @@ bool App::OnInit(){
 	std::string modelPath;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
-			std::cout << "G3D viewer " << g3dviewerVersionString << std::endl << std::endl; 
-			std::cout << "glest_g3dviewer [G3D 3D-MODEL FILE]" << std::endl << std::endl; 
+			std::cout << "G3D viewer " << g3dviewerVersionString << std::endl << std::endl;
+			std::cout << "glest_g3dviewer [G3D 3D-MODEL FILE]" << std::endl << std::endl;
 			std::cout << "Displays glest 3D-models and unit/projectile/splash particle systems."  << std::endl;
-			std::cout << "rotate with left mouse button, zoom with right mouse button or mousewheel."  << std::endl; 
+			std::cout << "rotate with left mouse button, zoom with right mouse button or mousewheel."  << std::endl;
 			std::cout << "Use ctrl to load more than one particle system. Press R to restart particles."  << std::endl << std::endl;
 			exit (0);
 		}
