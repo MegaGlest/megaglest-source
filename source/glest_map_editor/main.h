@@ -54,24 +54,24 @@ enum StatusItems {
 const char *object_descs[] = {
 	"None (Erase)",
 	"Tree",
-	"Dead Tree",
-	"Stone",
+	"Dead tree",
+	"Stone (non harvest)",
 	"Bush",
-	"Water Object",
-	"Big/Dead Tree",
-	"Trophy Corpse",
+	"Water object",
+	"Big tree",
+	"Hanged/Impaled",
 	"Statues",
-	"Big Rock",
-	"Invisible Blocking"
+	"Mountain",
+	"Invisible blocking"
 };
 
 const char *resource_descs[] = {
-	"None (Erase)", "Gold", "Stone", "Custom", "Custom", "Custom"
+	"None (Erase)", "Gold", "Stone", "Custom 4", "Custom 5", "Custom 6"
 };
 
 
 const char *surface_descs[] = {
-	"Grass", "Alt. Grass", "Road", "Stone", "Ground"
+	"Grass", "Sec. grass", "Road", "Stone", "Ground"
 };
 
 // =====================================================
@@ -106,15 +106,25 @@ private:
 		miEditResize,
 		miEditFlipX,
 		miEditFlipY,
+
+		miEditMirrorX,
+		miEditMirrorY,
+		miEditMirrorXY,
+		miEditRotatecopyX,
+		miEditRotatecopyY,
+		miEditRotatecopyXY,
+		miEditRotatecopyCorner,
+		miEditMirror,
+
 		miEditRandomizeHeights,
 		miEditRandomize,
 		miEditSwitchSurfaces,
 		miEditInfo,
 		miEditAdvanced,
 
-		miMiscResetZoomAndPos,
-		miMiscAbout,
-		miMiscHelp,
+		miViewResetZoomAndPos,
+		miViewAbout,
+		miViewHelp,
 
 		toolPlayer,
 
@@ -134,11 +144,12 @@ private:
 	int lastX, lastY;
 
 	wxPanel *panel;
-	
+
 	wxMenuBar *menuBar;
 	wxMenu *menuFile;
 	wxMenu *menuEdit;
-	wxMenu *menuMisc;
+	wxMenu *menuEditMirror;
+	wxMenu *menuView;
 	wxMenu *menuBrush;
 	wxMenu *menuBrushHeight;
 	wxMenu *menuBrushGradient;
@@ -160,7 +171,7 @@ private:
 	int startLocation;
 	int resourceUnderMouse;
 	int objectUnderMouse;
-	
+
 	ChangeType enabledGroup;
 
 	string fileName;
@@ -177,6 +188,8 @@ public:
 
 	void onMouseDown(wxMouseEvent &event, int x, int y);
 	void onMouseMove(wxMouseEvent &event, int x, int y);
+	void onMouseWheelDown(wxMouseEvent &event);
+	void onMouseWheelUp(wxMouseEvent &event);
 
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &e);
@@ -193,15 +206,24 @@ public:
 	void onMenuEditResize(wxCommandEvent &event);
 	void onMenuEditFlipX(wxCommandEvent &event);
 	void onMenuEditFlipY(wxCommandEvent &event);
+
+	void onMenuEditMirrorX(wxCommandEvent &event); // copy left to right
+	void onMenuEditMirrorY(wxCommandEvent &event); // copy top to bottom
+	void onMenuEditMirrorXY(wxCommandEvent &event); // copy bottomleft to topright
+	void onMenuEditRotatecopyX(wxCommandEvent &event); // copy left to right, rotated
+	void onMenuEditRotatecopyY(wxCommandEvent &event); // copy top to bottom, rotated
+	void onMenuEditRotatecopyXY(wxCommandEvent &event);  // copy bottomleft to topright, rotated
+	void onMenuEditRotatecopyCorner(wxCommandEvent &event); // copy top left 1/4 to top right 1/4, rotated
+
 	void onMenuEditRandomizeHeights(wxCommandEvent &event);
 	void onMenuEditRandomize(wxCommandEvent &event);
 	void onMenuEditSwitchSurfaces(wxCommandEvent &event);
 	void onMenuEditInfo(wxCommandEvent &event);
 	void onMenuEditAdvanced(wxCommandEvent &event);
 
-	void onMenuMiscResetZoomAndPos(wxCommandEvent &event);
-	void onMenuMiscAbout(wxCommandEvent &event);
-	void onMenuMiscHelp(wxCommandEvent &event);
+	void onMenuViewResetZoomAndPos(wxCommandEvent &event);
+	void onMenuViewAbout(wxCommandEvent &event);
+	void onMenuViewHelp(wxCommandEvent &event);
 
 	void onMenuBrushHeight(wxCommandEvent &event);
 	void onMenuBrushGradient(wxCommandEvent &event);
@@ -210,7 +232,7 @@ public:
 	void onMenuBrushResource(wxCommandEvent &event);
 	void onMenuBrushStartLocation(wxCommandEvent &event);
 	void onMenuRadius(wxCommandEvent &event);
-	
+
 	void onToolPlayer(wxCommandEvent &event);
 
 	void change(int x, int y);
@@ -237,8 +259,9 @@ public:
 
 	void onMouseDown(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);
+	void onMouseWheel(wxMouseEvent &event);
 	void onKeyDown(wxKeyEvent &event);
-
+    void onPaint(wxPaintEvent &event);
 private:
 	MainWindow *mainWindow;
 };
@@ -255,10 +278,10 @@ private:
 	Values values;
 
 public:
-	void addValue(const string &key, const string &value);
+	void addValue(const string &key, const string &value, const string &help="");
 	string getValue(const string &key);
 
-	void show();
+	bool show(const string &title="Edit values", bool wide=false);
 };
 
 // =====================================================

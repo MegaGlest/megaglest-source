@@ -22,8 +22,10 @@ using namespace std;
 
 namespace MapEditor {
 
-const string MainWindow::versionString = "v1.5.0";
-const string MainWindow::winHeader = "Glest Map Editor " + versionString + " - Built: " + __DATE__;
+
+
+const string mapeditorVersionString = "v1.5.1";
+const string MainWindow::winHeader = "Glest Map Editor " + mapeditorVersionString;
 
 // ===============================================
 //	class Global functions
@@ -69,6 +71,7 @@ MainWindow::MainWindow()
 
 	//file
 	menuFile = new wxMenu();
+	menuFile->Append(wxID_NEW);
 	menuFile->Append(wxID_OPEN);
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_SAVE);
@@ -81,115 +84,133 @@ MainWindow::MainWindow()
 	menuEdit = new wxMenu();
 	menuEdit->Append(miEditUndo, wxT("&Undo\tCTRL+Z"));
 	menuEdit->Append(miEditRedo, wxT("&Redo\tCTRL+Y"));
-	menuEdit->Append(miEditReset, wxT("Rese&t"));
-	menuEdit->Append(miEditResetPlayers, wxT("Reset &Players"));
-	menuEdit->Append(miEditResize, wxT("Re&size"));
+	menuEdit->AppendSeparator();
+//	menuEdit->Append(miEditReset, wxT("Rese&t..."));
+	menuEdit->Append(miEditResetPlayers, wxT("Reset &Players..."));
+	menuEdit->Append(miEditResize, wxT("Re&size..."));
 	menuEdit->Append(miEditFlipX, wxT("Flip &X"));
 	menuEdit->Append(miEditFlipY, wxT("Flip &Y"));
+
+    // Mirror submenu-------------------------------------------
+	menuEditMirror = new wxMenu();
+	menuEditMirror->Append(miEditMirrorX, wxT("Copy &Left to Right"));
+	menuEditMirror->Append(miEditMirrorY, wxT("Copy &Top to Bottom"));
+	menuEditMirror->Append(miEditMirrorXY, wxT("Copy &BottomLeft to TopRight"));
+	menuEditMirror->AppendSeparator();
+	menuEditMirror->Append(miEditRotatecopyX, wxT("&Rotate Left to Right"));
+	menuEditMirror->Append(miEditRotatecopyY, wxT("Rotate T&op to Bottom"));
+	menuEditMirror->Append(miEditRotatecopyXY, wxT("Rotate Botto&mLeft to TopRight"));
+	menuEditMirror->Append(miEditRotatecopyCorner, wxT("Rotate TopLeft &corner to TopRight"));
+    menuEdit->Append(miEditMirror, wxT("&Mirror"), menuEditMirror);
+    // ---------------------------------------------------------
+
 	menuEdit->Append(miEditRandomizeHeights, wxT("Randomize &Heights"));
-	menuEdit->Append(miEditRandomize, wxT("Randomi&ze"));
-	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Su&rfaces"));
-	menuEdit->Append(miEditInfo, wxT("&Info"));
-	menuEdit->Append(miEditAdvanced, wxT("&Advanced"));
+	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Heights/Players"));
+	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Sur&faces..."));
+	menuEdit->Append(miEditInfo, wxT("&Info..."));
+	menuEdit->Append(miEditAdvanced, wxT("&Advanced..."));
 	menuBar->Append(menuEdit, wxT("&Edit"));
 
-	//misc
-	menuMisc = new wxMenu();
-	menuMisc->Append(miMiscResetZoomAndPos, wxT("&Reset zoom and pos"));
-	menuMisc->Append(miMiscAbout, wxT("&About"));
-	menuMisc->Append(miMiscHelp, wxT("&Help"));
-	menuBar->Append(menuMisc, wxT("&Misc"));
+	//view
+	menuView = new wxMenu();
+	menuView->Append(miViewResetZoomAndPos, wxT("&Reset zoom and pos"));
+	menuView->AppendSeparator();
+	menuView->Append(miViewHelp, wxT("&Help..."));
+	menuView->Append(miViewAbout, wxT("&About..."));
+	menuBar->Append(menuView, wxT("&View"));
 
 	//brush
-	menuBrush = new wxMenu();
+	// menuBrush = new wxMenu();
 
-	// Glest height brush
-	menuBrushHeight = new wxMenu();
-	for (int i = 0; i < heightCount; ++i) {
-		menuBrushHeight->AppendCheckItem(miBrushHeight + i + 1, ToUnicode(intToStr(i - heightCount / 2)));
-	}
-	menuBrushHeight->Check(miBrushHeight + (heightCount + 1) / 2, true);
-	menuBrush->Append(miBrushHeight, wxT("&Height"), menuBrushHeight);
+	//surface
+	menuBrushSurface = new wxMenu();
+	menuBrushSurface->AppendCheckItem(miBrushSurface + 1, wxT("&Grass"));
+	menuBrushSurface->AppendCheckItem(miBrushSurface + 2, wxT("S&econdary grass"));
+	menuBrushSurface->AppendCheckItem(miBrushSurface + 3, wxT("&Road"));
+	menuBrushSurface->AppendCheckItem(miBrushSurface + 4, wxT("&Stone"));
+	menuBrushSurface->AppendCheckItem(miBrushSurface + 5, wxT("Gr&ound"));
+	menuBar->Append(menuBrushSurface, wxT("&Surface"));
 
-	enabledGroup = ctHeight;
+	//resources
+	menuBrushResource = new wxMenu();
+	//menuBrushResource->AppendCheckItem(miBrushResource + 1, wxT("&0 - None"));
+	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("&Gold  (unwalkable)"));
+	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("&Stone (unwalkable)"));
+	menuBrushResource->AppendCheckItem(miBrushResource+4, wxT("&3 - custom"));
+	menuBrushResource->AppendCheckItem(miBrushResource+5, wxT("&4 - custom"));
+	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("&5 - custom"));
+	menuBar->Append(menuBrushResource, wxT("&Resource"));
+
+	//objects
+	menuBrushObject = new wxMenu();
+	menuBrushObject->AppendCheckItem(miBrushObject+1, wxT("&None (erase)\tALT+0"));
+	menuBrushObject->AppendSeparator();
+	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("&Tree (harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("&Dead tree/Cactuses/Thornbush"));
+	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&Stone"));
+	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("&Bush/Grass/Fern (walkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("&Water object/Reed/Papyrus (walkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("Big tree/&Old palm"));
+	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("&Hanged/Impaled "));
+	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("St&atues"));
+	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("&Mountain"));
+	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("&Invisible blocking object"));
+	menuBar->Append(menuBrushObject, wxT("&Object"));
 
 	// ZombiePirate height brush
 	menuBrushGradient = new wxMenu();
 	for (int i = 0; i < heightCount; ++i) {
-		menuBrushGradient->AppendCheckItem(miBrushGradient + i + 1, ToUnicode(intToStr(i - heightCount / 2)));
+		menuBrushGradient->AppendCheckItem(miBrushGradient + i + 1, ToUnicode((i>4?"&":"") +intToStr(i - heightCount / 2)));
 	}
-	menuBrush->Append(miBrushGradient, wxT("&Gradient"), menuBrushGradient);
+	menuBar->Append(menuBrushGradient, wxT("&Gradient"));
 
-	//surface
-	menuBrushSurface = new wxMenu();
-	menuBrushSurface->AppendCheckItem(miBrushSurface + 1, wxT("&1 - Grass"));
-	menuBrushSurface->AppendCheckItem(miBrushSurface + 2, wxT("&2 - Secondary Grass"));
-	menuBrushSurface->AppendCheckItem(miBrushSurface + 3, wxT("&3 - Road"));
-	menuBrushSurface->AppendCheckItem(miBrushSurface + 4, wxT("&4 - Stone"));
-	menuBrushSurface->AppendCheckItem(miBrushSurface + 5, wxT("&5 - Ground"));
-	menuBrush->Append(miBrushSurface, wxT("&Surface"), menuBrushSurface);
+	// Glest height brush
+	menuBrushHeight = new wxMenu();
+	for (int i = 0; i < heightCount; ++i) {
+		menuBrushHeight->AppendCheckItem(miBrushHeight + i + 1, ToUnicode((i>4?"&":"") +intToStr(i - heightCount / 2)));
+	}
+	menuBrushHeight->Check(miBrushHeight + (heightCount + 1) / 2, true);
+	menuBar->Append(menuBrushHeight, wxT("&Height"));
 
-	//objects
-	menuBrushObject = new wxMenu();
-	menuBrushObject->AppendCheckItem(miBrushObject + 1, wxT("&0 - None (erase)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("&1 - Tree (unwalkable/harvestable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("&2 - DeadTree/Cactuses/Thornbush (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&3 - Stone (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("&4 - Bush/Grass/Fern (walkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("&5 - Water Object/Reed/Papyrus (walkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("&6 - C1 BigTree/DeadTree/OldPalm (unwalkable/not harvestable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("&7 - C2 Hanged/Impaled (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("&8 - C3 Statues (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("&9 - C4 Big Rock (Mountain) (unwalkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("10 &- C5 Invisible Blocking Object (unwalkable)"));
-	menuBrush->Append(miBrushObject, wxT("&Object"), menuBrushObject);
-
-	//resources
-	menuBrushResource = new wxMenu();
-	menuBrushResource->AppendCheckItem(miBrushResource + 1, wxT("&0 - None"));
-	menuBrushResource->AppendCheckItem(miBrushResource+2, wxT("&1 - gold  (unwalkable)"));
-	menuBrushResource->AppendCheckItem(miBrushResource+3, wxT("&2 - stone (unwalkable)"));
-	menuBrushResource->AppendCheckItem(miBrushResource+4, wxT("&3 - custom"));
-	menuBrushResource->AppendCheckItem(miBrushResource+5, wxT("&4 - custom"));
-	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("&5 - custom"));
-	menuBrush->Append(miBrushResource, wxT("&Resource"), menuBrushResource);
-
-	//players
-	menuBrushStartLocation = new wxMenu();
-	wxMenuItem *pmi1 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 1, wxT("&1 - Player 1"));
-	pmi1->SetBitmap(wxBitmap(brush_players_red));
-	menuBrushStartLocation->Append(pmi1);
-	wxMenuItem *pmi2 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 2, wxT("&2 - Player 2"));
-	pmi2->SetBitmap(wxBitmap(brush_players_blue));
-	menuBrushStartLocation->Append(pmi2);
-	wxMenuItem *pmi3 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 3, wxT("&3 - Player 3"));
-	pmi3->SetBitmap(wxBitmap(brush_players_green));
-	menuBrushStartLocation->Append(pmi3);
-	wxMenuItem *pmi4 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 4, wxT("&4 - Player 4"));
-	pmi4->SetBitmap(wxBitmap(brush_players_yellow));
-	menuBrushStartLocation->Append(pmi4);
-	wxMenuItem *pmi5 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 5, wxT("&5 - Player 5"));
-	pmi5->SetBitmap(wxBitmap(brush_players_white));
-	menuBrushStartLocation->Append(pmi5);
-	wxMenuItem *pmi6 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 6, wxT("&6 - Player 6"));
-	pmi6->SetBitmap(wxBitmap(brush_players_cyan));
-	menuBrushStartLocation->Append(pmi6);
-	wxMenuItem *pmi7 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 7, wxT("&7 - Player 7"));
-	pmi7->SetBitmap(wxBitmap(brush_players_orange));
-	menuBrushStartLocation->Append(pmi7);
-	wxMenuItem *pmi8 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 8, wxT("&8 - Player 8"));
-	pmi8->SetBitmap(wxBitmap(brush_players_pink));
-	menuBrushStartLocation->Append(pmi8);
-	menuBrush->Append(miBrushStartLocation, wxT("&Player"), menuBrushStartLocation);
-	menuBar->Append(menuBrush, wxT("&Brush"));
+	enabledGroup = ctHeight;
 
 	//radius
 	menuRadius = new wxMenu();
 	for (int i = 1; i <= radiusCount; ++i) {
-		menuRadius->AppendCheckItem(miRadius + i, ToUnicode("&" + intToStr(i) + "\tALT+" + intToStr(i)));
+		menuRadius->AppendCheckItem(miRadius + i, ToUnicode("&" + intToStr(i) + " (diameter "+intToStr(i*2-1)+ ")"+ "\tALT+" + intToStr(i)));
 	}
 	menuRadius->Check(miRadius + 1, true);
-	menuBar->Append(menuRadius, wxT("&Radius"));
+	menuBar->Append(menuRadius, wxT("R&adius"));
+
+	//players
+	menuBrushStartLocation = new wxMenu();
+	wxMenuItem *pmi1 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 1, wxT("Player &1 Red"));
+	pmi1->SetBitmap(wxBitmap(brush_players_red));
+	menuBrushStartLocation->Append(pmi1);
+	wxMenuItem *pmi2 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 2, wxT("Player &2 Blue"));
+	pmi2->SetBitmap(wxBitmap(brush_players_blue));
+	menuBrushStartLocation->Append(pmi2);
+	wxMenuItem *pmi3 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 3, wxT("Player &3 Green"));
+	pmi3->SetBitmap(wxBitmap(brush_players_green));
+	menuBrushStartLocation->Append(pmi3);
+	wxMenuItem *pmi4 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 4, wxT("Player &4 Yellow"));
+	pmi4->SetBitmap(wxBitmap(brush_players_yellow));
+	menuBrushStartLocation->Append(pmi4);
+	wxMenuItem *pmi5 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 5, wxT("Player &5 White"));
+	pmi5->SetBitmap(wxBitmap(brush_players_white));
+	menuBrushStartLocation->Append(pmi5);
+	wxMenuItem *pmi6 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 6, wxT("Player &6 Cyan"));
+	pmi6->SetBitmap(wxBitmap(brush_players_cyan));
+	menuBrushStartLocation->Append(pmi6);
+	wxMenuItem *pmi7 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 7, wxT("Player &7 Orange"));
+	pmi7->SetBitmap(wxBitmap(brush_players_orange));
+	menuBrushStartLocation->Append(pmi7);
+	wxMenuItem *pmi8 = new wxMenuItem(menuBrushStartLocation, miBrushStartLocation + 8, wxT("Player &8 Pink")); // = Light Magenta :-)
+	pmi8->SetBitmap(wxBitmap(brush_players_pink));
+	menuBrushStartLocation->Append(pmi8);
+	menuBar->Append(menuBrushStartLocation, wxT("&Player"));
+	//menuBar->Append(menuBrush, wxT("&Brush"));
+
 
 	SetMenuBar(menuBar);
 
@@ -217,34 +238,34 @@ MainWindow::MainWindow()
 	toolbar->AddTool(miEditUndo, _("undo"), wxBitmap(edit_undo), _("Undo"));
 	toolbar->AddTool(miEditRedo, _("redo"), wxBitmap(edit_redo), _("Redo"));
 	toolbar->AddTool(miEditRandomizeHeights, _("randomizeHeights"), wxBitmap(edit_randomize_heights), _("Randomize Heights"));
-	toolbar->AddTool(miEditRandomize, _("randomize"), wxBitmap(edit_randomize), _("Randomize"));
+//	toolbar->AddTool(miEditRandomize, _("randomize"), wxBitmap(edit_randomize), _("Randomize"));
 	toolbar->AddTool(miEditSwitchSurfaces, _("switch"), wxBitmap(edit_switch_surfaces), _("Switch Surfaces"));
 	toolbar->AddSeparator();
 	toolbar->AddTool(miBrushSurface + 1, _("brush_grass1"), wxBitmap(brush_surface_grass1), _("Grass"));
-	toolbar->AddTool(miBrushSurface + 2, _("brush_grass2"), wxBitmap(brush_surface_grass2), _("Secondary Grass"));
+	toolbar->AddTool(miBrushSurface + 2, _("brush_grass2"), wxBitmap(brush_surface_grass2), _("Secondary grass"));
 	toolbar->AddTool(miBrushSurface + 3, _("brush_road"), wxBitmap(brush_surface_road), _("Road"));
 	toolbar->AddTool(miBrushSurface + 4, _("brush_stone"), wxBitmap(brush_surface_stone), _("Stone"));
 	toolbar->AddTool(miBrushSurface + 5, _("brush_custom"), wxBitmap(brush_surface_custom), _("Ground"));
 	toolbar->AddSeparator();
 	toolbar->AddTool(miBrushResource + 2, _("resource1"), wxBitmap(brush_resource_1_gold), _("gold  (unwalkable)"));
 	toolbar->AddTool(miBrushResource + 3, _("resource2"), wxBitmap(brush_resource_2_stone), _("stone (unwalkable)"));
-	toolbar->AddTool(miBrushResource + 4, _("resource3"), wxBitmap(brush_resource_3), _("custom"));
-	toolbar->AddTool(miBrushResource + 5, _("resource4"), wxBitmap(brush_resource_4), _("custom"));
-	toolbar->AddTool(miBrushResource + 6, _("resource5"), wxBitmap(brush_resource_5), _("custom"));
+	toolbar->AddTool(miBrushResource + 4, _("resource3"), wxBitmap(brush_resource_3), _("custom3"));
+	toolbar->AddTool(miBrushResource + 5, _("resource4"), wxBitmap(brush_resource_4), _("custom4"));
+	toolbar->AddTool(miBrushResource + 6, _("resource5"), wxBitmap(brush_resource_5), _("custom5"));
 	toolbar->AddSeparator();
 	toolbar->AddTool(miBrushObject + 1, _("brush_none"), wxBitmap(brush_none), _("None (erase)"));
 	toolbar->AddTool(miBrushObject + 2, _("brush_tree"), wxBitmap(brush_object_tree), _("Tree (unwalkable/harvestable)"));
-	toolbar->AddTool(miBrushObject + 3, _("brush_dead_tree"), wxBitmap(brush_object_dead_tree), _("DeadTree/Cactuses/Thornbush (unwalkable)"));
-	toolbar->AddTool(miBrushObject + 4, _("brush_stone"), wxBitmap(brush_object_stone), _("Stone (unwalkable)"));
+	toolbar->AddTool(miBrushObject + 3, _("brush_dead_tree"), wxBitmap(brush_object_dead_tree), _("Dead tree/Cactuses/Thornbush (unwalkable)"));
+	toolbar->AddTool(miBrushObject + 4, _("brush_stone"), wxBitmap(brush_object_stone), _("Stone (unwalkable/not harvestable)"));
 	toolbar->AddTool(miBrushObject + 5, _("brush_bush"), wxBitmap(brush_object_bush), _("Bush/Grass/Fern (walkable)"));
-	toolbar->AddTool(miBrushObject + 6, _("brush_water"), wxBitmap(brush_object_water_object), _("Water Object/Reed/Papyrus (walkable)"));
-	toolbar->AddTool(miBrushObject + 7, _("brush_c1_bigtree"), wxBitmap(brush_object_c1_bigtree), _("C1 BigTree/DeadTree/OldPalm (unwalkable/not harvestable)"));
-	toolbar->AddTool(miBrushObject + 8, _("brush_c2_hanged"), wxBitmap(brush_object_c2_hanged), _("C2 Hanged/Impaled (unwalkable)"));
-	toolbar->AddTool(miBrushObject + 9, _("brush_c3_statue"), wxBitmap(brush_object_c3_statue), _("C3, Statues (unwalkable))"));
-	toolbar->AddTool(miBrushObject +10, _("brush_c4_bigrock"), wxBitmap(brush_object_c4_bigrock), _("Big Rock (Mountain) (unwalkable)"));
-	toolbar->AddTool(miBrushObject +11, _("brush_c5_blocking"), wxBitmap(brush_object_c5_blocking), _("Invisible Blocking Object (unwalkable)"));
+	toolbar->AddTool(miBrushObject + 6, _("brush_water"), wxBitmap(brush_object_water_object), _("Water object/Reed/Papyrus (walkable)"));
+	toolbar->AddTool(miBrushObject + 7, _("brush_c1_bigtree"), wxBitmap(brush_object_c1_bigtree), _("Big tree/Old palm (unwalkable/not harvestable)"));
+	toolbar->AddTool(miBrushObject + 8, _("brush_c2_hanged"), wxBitmap(brush_object_c2_hanged), _("Hanged/Impaled (unwalkable)"));
+	toolbar->AddTool(miBrushObject + 9, _("brush_c3_statue"), wxBitmap(brush_object_c3_statue), _("Statues (unwalkable)"));
+	toolbar->AddTool(miBrushObject +10, _("brush_c4_bigrock"), wxBitmap(brush_object_c4_bigrock), _("Mountain (unwalkable)"));
+	toolbar->AddTool(miBrushObject +11, _("brush_c5_blocking"), wxBitmap(brush_object_c5_blocking), _("Invisible blocking object (unwalkable)"));
 	toolbar->AddSeparator();
-	toolbar->AddTool(toolPlayer, _("brush_player"), wxBitmap(brush_players_player));
+	toolbar->AddTool(toolPlayer, _("brush_player"), wxBitmap(brush_players_player),  _("Player start position"));
 	toolbar->Realize();
 
 	wxToolBar *toolbar2 = new wxToolBar(this->panel, wxID_ANY);
@@ -282,12 +303,12 @@ MainWindow::MainWindow()
 	toolbar2->AddTool(miRadius + 8, _("radius8"), wxBitmap(radius_8));
 	toolbar2->AddTool(miRadius + 9, _("radius9"), wxBitmap(radius_9));
 	toolbar2->Realize();
-	
+
 	wxBoxSizer *boxsizer = new wxBoxSizer(wxVERTICAL);
 	boxsizer->Add(toolbar, 0, wxEXPAND);
 	boxsizer->Add(toolbar2, 0, wxEXPAND);
 	boxsizer->Add(glCanvas, 1, wxEXPAND);
-	
+
 	this->panel->SetSizer(boxsizer);
 	this->Layout();
 
@@ -328,7 +349,7 @@ void MainWindow::init(string fname) {
 		currentFile = fname;
 		fileName = cutLastExt(extractFileFromDirectoryPath(fname.c_str()));
 	}
-	SetTitle(ToUnicode(winHeader + "; " + currentFile));
+	SetTitle(ToUnicode(currentFile + " - " + winHeader));
 	setDirty(false);
 	setExtension();
 }
@@ -390,6 +411,19 @@ void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
 	event.Skip();
 }
 
+// for the mousewheel
+void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
+	wxPaintEvent ev;
+	program->incCellSize(1);
+	onPaint(ev);
+}
+
+void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
+	wxPaintEvent ev;
+	program->incCellSize(-1);
+	onPaint(ev);
+}
+
 void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	bool repaint = false;
 	int dif;
@@ -415,7 +449,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 			int currObject = program->getObject(x, y);
 			SetStatusText(wxT("Object: ") + ToUnicode(object_descs[currObject]), siCURR_OBJECT);
 			resourceUnderMouse = 0;
-			objectUnderMouse = currObject;				
+			objectUnderMouse = currObject;
 		}
 	}
 	lastX = x;
@@ -433,6 +467,11 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		sleep(1);
 		return;
 	}
+
+	wxPaintDC dc(this); // "In a paint event handler must always create a wxPaintDC object even if you do not use it.  (?)
+	                    //  Otherwise, under MS Windows, refreshing for this and other windows will go wrong"
+                        //  http://docs.wxwidgets.org/2.6/wx_wxpaintevent.html
+
 	lastPaintEvent.start();
 
 	if(panel) panel->Update();
@@ -445,7 +484,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
+	fileDialog.SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
 	if (fileDialog.ShowModal() == wxID_OK) {
 		currentFile = fileDialog.GetPath().ToAscii();
 		program->loadMap(currentFile);
@@ -485,7 +524,7 @@ void MainWindow::onMenuFileExit(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditUndo(wxCommandEvent &event) {
-	std::cout << "Undo Pressed" << std::endl;
+	// std::cout << "Undo Pressed" << std::endl;
 	if (program->undo()) {
 		wxPaintEvent e;
 		onPaint(e);
@@ -494,7 +533,7 @@ void MainWindow::onMenuEditUndo(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditRedo(wxCommandEvent &event) {
-	std::cout << "Redo Pressed" << std::endl;
+	// std::cout << "Redo Pressed" << std::endl;
 	if (program->redo()) {
 		wxPaintEvent e;
 		onPaint(e);
@@ -505,11 +544,12 @@ void MainWindow::onMenuEditRedo(wxCommandEvent &event) {
 void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 	program->setUndoPoint(ctAll);
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Altitude", "10");
-	simpleDialog.addValue("Surface", "1");
-	simpleDialog.addValue("Width", "128");
-	simpleDialog.addValue("Height", "128");
-	simpleDialog.show();
+	simpleDialog.addValue("Width", "128","(must be 16,32,64,128,256,512...)"); // must be an exponent of two
+	simpleDialog.addValue("Height", "128","(must be 16,32,64,128,256,512...)");
+	simpleDialog.addValue("Surface", "1","(Default surface material)");
+	simpleDialog.addValue("Altitude", "10","(Default surface height)");
+	simpleDialog.addValue("Number of players", "8");
+	if (!simpleDialog.show()) return;
 
 	try {
 		program->reset(
@@ -517,7 +557,8 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 			strToInt(simpleDialog.getValue("Height")),
 			strToInt(simpleDialog.getValue("Altitude")),
 			strToInt(simpleDialog.getValue("Surface")));
-	} 
+			program->resetFactions(strToInt(simpleDialog.getValue("Number of players")));
+	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -527,12 +568,12 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 
 void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Factions", intToStr(program->getMap()->getMaxFactions()));
-	simpleDialog.show();
+	simpleDialog.addValue("Number of players", intToStr(program->getMap()->getMaxFactions()));
+	if (!simpleDialog.show("Reset players")) return;
 
 	try {
-		program->resetFactions(strToInt(simpleDialog.getValue("Factions")));
-	} 
+		program->resetFactions(strToInt(simpleDialog.getValue("Number of players")));
+	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -542,19 +583,19 @@ void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
 
 void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Altitude", "10");
-	simpleDialog.addValue("Surface", "1");
-	simpleDialog.addValue("Height", "128");
-	simpleDialog.addValue("Width", "128");
-	simpleDialog.show();
+	simpleDialog.addValue("Width", intToStr(program->getMap()->getW()),"(must be 16,32,64,128,256,512...)");
+	simpleDialog.addValue("Height", intToStr(program->getMap()->getH()),"(must be 16,32,64,128,256,512...)");
+	simpleDialog.addValue("Surface", "1","(surface material for new area around map)");
+	simpleDialog.addValue("Altitude", "10","(surface height for new area around map)");
+	if (!simpleDialog.show("Resze - expand around, shrink to topleft")) return;
 
 	try {
 		program->resize(
-			strToInt(simpleDialog.getValue("Height")),
 			strToInt(simpleDialog.getValue("Width")),
+			strToInt(simpleDialog.getValue("Height")),
 			strToInt(simpleDialog.getValue("Altitude")),
 			strToInt(simpleDialog.getValue("Surface")));
-	} 
+	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -562,36 +603,84 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditFlipX(wxCommandEvent &event) {
+    program->setUndoPoint(ctAll);
 	program->flipX();
 	setDirty();
 }
 
 void MainWindow::onMenuEditFlipY(wxCommandEvent &event) {
+    program->setUndoPoint(ctAll);
 	program->flipY();
 	setDirty();
 }
 
+void MainWindow::onMenuEditMirrorX(wxCommandEvent &event) { // copy left to right
+    program->setUndoPoint(ctAll);
+	program->mirrorX();
+	setDirty();
+}
+
+void MainWindow::onMenuEditMirrorY(wxCommandEvent &event) { // copy top to bottom
+    program->setUndoPoint(ctAll);
+	program->mirrorY();
+	setDirty();
+}
+
+void MainWindow::onMenuEditMirrorXY(wxCommandEvent &event) { // copy bottomleft tp topright
+    program->setUndoPoint(ctAll);
+	program->mirrorXY();
+	setDirty();
+}
+
+void MainWindow::onMenuEditRotatecopyX(wxCommandEvent &event) { // copy left to right, rotated
+    program->setUndoPoint(ctAll);
+	program->rotatecopyX();
+	setDirty();
+}
+
+void MainWindow::onMenuEditRotatecopyY(wxCommandEvent &event) { // copy top to bottom, rotated
+    program->setUndoPoint(ctAll);
+	program->rotatecopyY();
+	setDirty();
+}
+
+void MainWindow::onMenuEditRotatecopyXY(wxCommandEvent &event) { // copy bottomleft to topright, rotated
+    program->setUndoPoint(ctAll);
+	program->rotatecopyXY();
+	setDirty();
+}
+
+void MainWindow::onMenuEditRotatecopyCorner(wxCommandEvent &event) { // copy top left 1/4 to top right 1/4, rotated
+    program->setUndoPoint(ctAll);
+	program->rotatecopyCorner();
+	setDirty();
+}
+
+
 void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
+    program->setUndoPoint(ctAll);
 	program->randomizeMapHeights();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
+    program->setUndoPoint(ctAll);
 	program->randomizeMap();
 	setDirty();
 }
 
 void MainWindow::onMenuEditSwitchSurfaces(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Surface1", "1");
-	simpleDialog.addValue("Surface2", "2");
-	simpleDialog.show();
+	simpleDialog.addValue("Surface1", "1","replace this surface with...");
+	simpleDialog.addValue("Surface2", "2","...this and vice versa");
+	if (!simpleDialog.show("Switch surfaces")) return;
 
 	try {
+        program->setUndoPoint(ctSurface);
 		program->switchMapSurfaces(
 			strToInt(simpleDialog.getValue("Surface1")),
 			strToInt(simpleDialog.getValue("Surface2")));
-	} 
+	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -601,54 +690,59 @@ void MainWindow::onMenuEditSwitchSurfaces(wxCommandEvent &event) {
 void MainWindow::onMenuEditInfo(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Title", program->getMap()->getTitle());
-	simpleDialog.addValue("Desc", program->getMap()->getDesc());
+	simpleDialog.addValue("Description", program->getMap()->getDesc());
 	simpleDialog.addValue("Author", program->getMap()->getAuthor());
+	if (!simpleDialog.show("Info",true)) return;
 
-	simpleDialog.show();
-
-	if (program->setMapTitle(simpleDialog.getValue("Title"))
-	|| program->setMapDesc(simpleDialog.getValue("Desc"))
-	|| program->setMapAuthor(simpleDialog.getValue("Author"))) {
+    bool ischanged = false;
+	ischanged = program->setMapTitle(simpleDialog.getValue("Title"));
+	ischanged = (program->setMapDesc(simpleDialog.getValue("Description")) || ischanged);
+	ischanged = (program->setMapAuthor(simpleDialog.getValue("Author")) || ischanged);
+	if (ischanged)
 		if (!isDirty()) {
 			setDirty(true);
 		}
-	}
+
 }
 
 void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()));
-	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()));
-
-	simpleDialog.show();
+	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"(lower means map is more more zoomed in)");
+	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(which level water is visible but still walkable)");
+	if (!simpleDialog.show("Advanced")) return;
 
 	try {
 		program->setMapAdvanced(
 			strToInt(simpleDialog.getValue("Height Factor")),
 			strToInt(simpleDialog.getValue("Water Level")));
-	} 
+	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	setDirty();
 }
 
-void MainWindow::onMenuMiscResetZoomAndPos(wxCommandEvent &event) {
+void MainWindow::onMenuViewResetZoomAndPos(wxCommandEvent &event) {
 	program->resetOfset();
+	wxPaintEvent e;
+	onPaint(e);
 }
 
-void MainWindow::onMenuMiscAbout(wxCommandEvent &event) {
+void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
 		wxT("Glest Map Editor - Copyright 2004 The Glest Team\n(with improvements by others, 2010)."),
 		wxT("About")).ShowModal();
 }
 
-void MainWindow::onMenuMiscHelp(wxCommandEvent &event) {
-	MsgDialog(
-		this,
-		wxT("Left mouse click: draw\nRight mouse drag: move\nCenter mouse drag: zoom"),
+void MainWindow::onMenuViewHelp(wxCommandEvent &event) {
+	MsgDialog(this,
+		wxT("Draw with left mouse\nMove viewport with right mouse drag\nZoom with center mouse drag, or mousewheel\n\
+You can change brush in the same category with key 1-9\n\
+A good idea is to put some stone, gold and tree near starting position\n\
+Starting position needs an open area for the tower and at starting units\n"),
 		wxT("Help")).ShowModal();
+		/* 5 away and 10x10 empty area? */
 }
 
 void MainWindow::onMenuBrushHeight(wxCommandEvent &e) {
@@ -837,7 +931,7 @@ void MainWindow::uncheckRadius() {
  	if (e.GetKeyCode() == 'H') {
  		wxCommandEvent evt(wxEVT_NULL, miBrushHeight + height + heightCount / 2 + 1);
  		onMenuBrushHeight(evt);
- 	} else if (e.GetKeyCode() == ' ') {	
+ 	} else if (e.GetKeyCode() == ' ') {
 		if (resourceUnderMouse != 0) {
 			wxCommandEvent evt(wxEVT_NULL, miBrushResource + resourceUnderMouse + 1);
  			onMenuBrushResource(evt);
@@ -869,11 +963,12 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_CLOSE(MainWindow::onClose)
 
-	// these are 'handled' by GlCanvas and funneled to these handlers
+	// these are 'handled' by GlCanvas and funneled to these handlers. See BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas) below.
 	//EVT_LEFT_DOWN(MainWindow::onMouseDown)
 	//EVT_MOTION(MainWindow::onMouseMove)
 	//EVT_KEY_DOWN(MainWindow::onKeyDown)
 
+	EVT_MENU(wxID_NEW, MainWindow::onMenuEditReset)
 	EVT_MENU(wxID_OPEN, MainWindow::onMenuFileLoad)
 	EVT_MENU(wxID_SAVE, MainWindow::onMenuFileSave)
 	EVT_MENU(wxID_SAVEAS, MainWindow::onMenuFileSaveAs)
@@ -881,20 +976,28 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miEditUndo, MainWindow::onMenuEditUndo)
 	EVT_MENU(miEditRedo, MainWindow::onMenuEditRedo)
-	EVT_MENU(miEditReset, MainWindow::onMenuEditReset)
 	EVT_MENU(miEditResetPlayers, MainWindow::onMenuEditResetPlayers)
 	EVT_MENU(miEditResize, MainWindow::onMenuEditResize)
 	EVT_MENU(miEditFlipX, MainWindow::onMenuEditFlipX)
 	EVT_MENU(miEditFlipY, MainWindow::onMenuEditFlipY)
+
+    EVT_MENU(miEditMirrorX, MainWindow::onMenuEditMirrorX)
+	EVT_MENU(miEditMirrorY, MainWindow::onMenuEditMirrorY)
+	EVT_MENU(miEditMirrorXY, MainWindow::onMenuEditMirrorXY)
+	EVT_MENU(miEditRotatecopyX, MainWindow::onMenuEditRotatecopyX)
+	EVT_MENU(miEditRotatecopyY, MainWindow::onMenuEditRotatecopyY)
+	EVT_MENU(miEditRotatecopyXY, MainWindow::onMenuEditRotatecopyXY)
+	EVT_MENU(miEditRotatecopyCorner, MainWindow::onMenuEditRotatecopyCorner)
+
 	EVT_MENU(miEditRandomizeHeights, MainWindow::onMenuEditRandomizeHeights)
 	EVT_MENU(miEditRandomize, MainWindow::onMenuEditRandomize)
 	EVT_MENU(miEditSwitchSurfaces, MainWindow::onMenuEditSwitchSurfaces)
 	EVT_MENU(miEditInfo, MainWindow::onMenuEditInfo)
 	EVT_MENU(miEditAdvanced, MainWindow::onMenuEditAdvanced)
 
-	EVT_MENU(miMiscResetZoomAndPos, MainWindow::onMenuMiscResetZoomAndPos)
-	EVT_MENU(miMiscAbout, MainWindow::onMenuMiscAbout)
-	EVT_MENU(miMiscHelp, MainWindow::onMenuMiscHelp)
+	EVT_MENU(miViewResetZoomAndPos, MainWindow::onMenuViewResetZoomAndPos)
+	EVT_MENU(miViewAbout, MainWindow::onMenuViewAbout)
+	EVT_MENU(miViewHelp, MainWindow::onMenuViewHelp)
 
 	EVT_MENU_RANGE(miBrushHeight + 1, miBrushHeight + heightCount, MainWindow::onMenuBrushHeight)
 	EVT_MENU_RANGE(miBrushGradient + 1, miBrushGradient + heightCount, MainWindow::onMenuBrushGradient)
@@ -903,9 +1006,9 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU_RANGE(miBrushResource + 1, miBrushResource + resourceCount, MainWindow::onMenuBrushResource)
 	EVT_MENU_RANGE(miBrushStartLocation + 1, miBrushStartLocation + startLocationCount, MainWindow::onMenuBrushStartLocation)
 	EVT_MENU_RANGE(miRadius, miRadius + radiusCount, MainWindow::onMenuRadius)
-	
+
 	EVT_PAINT(MainWindow::onPaint)
-	
+
 	EVT_TOOL(toolPlayer, MainWindow::onToolPlayer)
 END_EVENT_TABLE()
 
@@ -929,6 +1032,12 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 	*/
 }
 
+// for the mousewheel
+void GlCanvas::onMouseWheel(wxMouseEvent &event) {
+	if(event.GetWheelRotation()>0) mainWindow->onMouseWheelDown(event);
+	else mainWindow->onMouseWheelUp(event);
+}
+
 void GlCanvas::onMouseDown(wxMouseEvent &event) {
 	int x, y;
 	event.GetPosition(&x, &y);
@@ -950,20 +1059,28 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+void GlCanvas::onPaint(wxPaintEvent &event) {
+//	wxPaintDC dc(this); //N "In a paint event handler must always create a wxPaintDC object even if you do not use it.  (?)
+//    mainWindow->program->renderMap(GetClientSize().x, GetClientSize().y);
+//	SwapBuffers();
+//	event.Skip();
+  mainWindow->onPaint(event);
+}
 
 BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
 	EVT_KEY_DOWN(GlCanvas::onKeyDown)
-
+    EVT_MOUSEWHEEL(GlCanvas::onMouseWheel)
 	EVT_LEFT_DOWN(GlCanvas::onMouseDown)
 	EVT_MOTION(GlCanvas::onMouseMove)
+	EVT_PAINT(GlCanvas::onPaint)  // Because the drawing area needs to be repainted too.
 END_EVENT_TABLE()
 
 // ===============================================
 //  class SimpleDialog
 // ===============================================
 
-void SimpleDialog::addValue(const string &key, const string &value) {
-	values.push_back(pair<string, string>(key, value));
+void SimpleDialog::addValue(const string &key, const string &value, const string &help) {
+	values.push_back(pair<string, string>(key, value+"|"+help)); // I guess I need map<,> instead but I don't know how to do it
 }
 
 string SimpleDialog::getValue(const string &key) {
@@ -975,27 +1092,32 @@ string SimpleDialog::getValue(const string &key) {
 	return "";
 }
 
-void SimpleDialog::show() {
-
-	Create(NULL, -1, wxT("Edit Values"));
-
-	wxSizer *sizer = new wxFlexGridSizer(2);
+bool SimpleDialog::show(const string &title, bool wide) {
+	Create(NULL, -1, ToUnicode(title));
+	wxSizer *sizer2 = new wxBoxSizer(wxVERTICAL);
+	wxSizer *sizer = new wxFlexGridSizer(3);
 
 	vector<wxTextCtrl*> texts;
-
 	for (Values::iterator it = values.begin(); it != values.end(); ++it) {
+	    int helptextpos = it->second.find_first_of('|');
 		sizer->Add(new wxStaticText(this, -1, ToUnicode(it->first)), 0, wxALL, 5);
-		wxTextCtrl *text = new wxTextCtrl(this, -1, ToUnicode(it->second));
+		wxTextCtrl *text = new wxTextCtrl(this, -1, ToUnicode(it->second.substr(0,helptextpos)));
+		if(wide) text->SetMinSize( wxSize((text->GetSize().GetWidth())*4, text->GetSize().GetHeight()));  // 4 time as wide as default
 		sizer->Add(text, 0, wxALL, 5);
 		texts.push_back(text);
+	    sizer->Add(new wxStaticText(this, -1, ToUnicode(it->second.substr(helptextpos+1))), 0, wxALL, 5);
 	}
-	SetSizerAndFit(sizer);
+	sizer2->Add(sizer);
+    sizer2->Add(CreateButtonSizer(wxOK|wxCANCEL),0,wxALIGN_RIGHT); // enable Cancel button
+	SetSizerAndFit(sizer2);
 
 	ShowModal();
+	if(m_returnCode==wxID_CANCEL) return false; // don't change values if canceled
 
 	for (unsigned int i = 0; i < texts.size(); ++i) {
 		values[i].second = texts[i]->GetValue().ToAscii();
 	}
+	return true;
 }
 
 
@@ -1006,6 +1128,17 @@ void SimpleDialog::show() {
 bool App::OnInit() {
 	string fileparam;
 	if(argc==2){
+		if(argv[1][0]=='-') {   // any flag gives help and exits program.
+			std::cout << "Glest map editor " << mapeditorVersionString << std::endl << std::endl;
+			std::cout << "glest_map_editor [GBM OR MGM FILE]" << std::endl << std::endl;
+			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
+			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;
+			std::cout << "Pan trough the map with right mouse button"  << std::endl;
+			std::cout << "Zoom with middle mouse button or mousewheel"  << std::endl;
+//			std::cout << " ~ more helps should be written here ~"  << std::endl;
+			std::cout << std::endl;
+			exit (0);
+		}
 		fileparam = wxFNCONV(argv[1]);
 	}
 
@@ -1013,7 +1146,7 @@ bool App::OnInit() {
 	mainWindow->Show();
 	mainWindow->init(fileparam);
 	mainWindow->Update();
-	
+
 #ifdef WIN32
 	wxPoint pos = mainWindow->GetScreenPosition();
 	wxSize size = mainWindow->GetSize();
@@ -1028,7 +1161,7 @@ int App::MainLoop() {
 	try {
 		//throw runtime_error("test");
 		return wxApp::MainLoop();
-	} 
+	}
 	catch (const exception &e) {
 		MsgDialog(NULL, ToUnicode(e.what()), wxT("Exception")).ShowModal();
 	}
@@ -1044,11 +1177,11 @@ MsgDialog::MsgDialog(wxWindow *parent,
                      const wxString& caption,
                      long style,
 					 const wxPoint& pos) {
-    
+
 	m_sizerText = NULL;
 	// TODO: should we use main frame as parent by default here?
     if ( !wxDialog::Create(parent, wxID_ANY, caption,
-                           pos, wxDefaultSize, 
+                           pos, wxDefaultSize,
 						   style) ) {
         return;
 	}

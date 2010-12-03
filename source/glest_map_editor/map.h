@@ -9,6 +9,8 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+// This file is not used anoymore
+
 #ifndef _MAPEDITOR_MAP_H_
 #define _MAPEDITOR_MAP_H_
 
@@ -112,6 +114,13 @@ public:
 
 	void flipX();
 	void flipY();
+	void mirrorX();
+	void mirrorY();
+	void mirrorXY();
+	void rotatecopyX();
+	void rotatecopyY();
+	void rotatecopyXY();
+	void rotatecopyCorner();
 	void reset(int w, int h, float alt, int surf);
 	void resize(int w, int h, float alt, int surf);
 	void resetFactions(int maxFactions);

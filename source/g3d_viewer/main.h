@@ -74,6 +74,7 @@ private:
 	float speed;
 	float anim;
 	float rotX, rotY, zoom;
+	float backBrightness, gridBrightness, lightBrightness;
 	int lastX, lastY;
 	Renderer::PlayerColor playerColor;
 
@@ -140,7 +141,7 @@ private:
 
 public:
 	GlCanvas(MainWindow *mainWindow);
-
+	GlCanvas(MainWindow *mainWindow, int *args);
 
 	void onMouseWheel(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);

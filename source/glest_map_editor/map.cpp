@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+// This file is not used anoymore
 
 #include "map.h"
 
@@ -192,7 +193,7 @@ void Map::pirateChangeHeight(int x, int y, int height, int radius) {
 							normI[1] = 2;
 						} else if (normIf < 0) {
 							normI[1] = 0;
-						} else /*(normIf == 0)*/ {
+						} else { // (normIf == 0)
 							normI[1] = 1;
 						}
 					} else {
@@ -217,7 +218,7 @@ void Map::pirateChangeHeight(int x, int y, int height, int radius) {
 							normJ[1] = 2;
 						} else if (normJf < 0) {
 							normJ[1] = 0;
-						} else /*(normJf == 0)*/ {
+						} else { // (normJf == 0)
 							normJ[1] = 1;
 						}
 					} else {
@@ -315,6 +316,45 @@ void Map::flipY() {
 	}
 	delete [] oldCells;
 }
+
+void Map::mirrorX() { // copy left to right
+	for (int i = 0; i < w/2; i++) {
+		for (int j = 0; j < h; j++) {
+			cells[w-i-1][j].height   = cells[i][j].height;
+			cells[w-i-1][j].object   = cells[i][j].object;
+			cells[w-i-1][j].resource = cells[i][j].resource;
+			cells[w-i-1][j].surface  = cells[i][j].surface;
+		}
+	}
+}
+
+void Map::mirrorY() { // copy top to bottom
+	for (int i = 0; i < w; i++) {
+		for (int j = 0; j < h/2; j++) {
+			cells[i][h-j-1].height   = cells[i][j].height;
+			cells[i][h-j-1].object   = cells[i][j].object;
+			cells[i][h-j-1].resource = cells[i][j].resource;
+			cells[i][h-j-1].surface  = cells[i][j].surface;
+		}
+	}
+}
+
+void Map::mirrorXY() { // copy leftbottom to topright
+	for (int i = 0; i < w-1; i++) {
+		for (int j = i+1; j < h; j++) {
+			cells[i][j].height   = cells[j][i].height;
+			cells[i][j].object   = cells[j][i].object;
+			cells[i][j].resource = cells[j][i].resource;
+			cells[i][j].surface  = cells[j][i].surface;
+		}
+	}
+}
+/*
+void Map::rotatecopyX();
+void Map::rotatecopyY();
+void Map::rotatecopyXY();
+void Map::rotatecopyCorner();
+*/
 
 void Map::changeSurface(int x, int y, int surface, int radius) {
 	int i, j;
@@ -506,6 +546,7 @@ void Map::resetFactions(int maxPlayers) {
 		throw runtime_error("Max Players must be in the range 1-8");
 	}
 
+    // perhaps we should NOT remove current starting posititons, since the user just want to change number of players....
 	if (startLocations != NULL) {
 		delete [] startLocations;
 		startLocations = NULL;
@@ -762,3 +803,5 @@ void Map::applyNewHeight(float newHeight, int x, int y, int strenght) {
 }
 
 }// end namespace
+
+

@@ -125,6 +125,15 @@ public:
 	void setRefAlt(int x, int y);
 	void flipX();
 	void flipY();
+	void mirrorX();
+	void mirrorY();
+	void mirrorXY();
+	void rotatecopyX();
+	void rotatecopyY();
+	void rotatecopyXY();
+	void rotatecopyCorner();
+
+
 	void randomizeMapHeights();
 	void randomizeMap();
 	void switchMapSurfaces(int surf1, int surf2);

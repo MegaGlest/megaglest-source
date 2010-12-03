@@ -186,7 +186,7 @@ void Renderer::init(){
 	customTextureYellow->getPixmap()->init(1, 1, 3);
 	customTextureYellow->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 0.f));
 
-	//white tex 
+	//white tex
 	customTextureWhite= textureManager->newTexture2D();
 	customTextureWhite->getPixmap()->init(1, 1, 3);
 	customTextureWhite->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 1.f));
@@ -206,7 +206,7 @@ void Renderer::init(){
 	customTextureMagenta->getPixmap()->init(1, 1, 3);
 	customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
 
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);  //backgroundcolor constant 0.3
 	glEnable(GL_TEXTURE_2D);
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
@@ -301,7 +301,7 @@ void Renderer::renderGrid(){
 		glDisable(GL_LIGHTING);
 
 		glBegin(GL_LINES);
-		glColor3f(1.0f, 1.0f, 1.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);  // gridcolor constant
 		for(i=-10.0f; i<=10.0f; i+=1.0f){
 			glVertex3f(i, 0.0f, 10.0f);
 			glVertex3f(i, 0.0f, -10.0f);
@@ -347,7 +347,7 @@ void Renderer::renderTheModel(Model *model, float f){
 			glPushAttrib(GL_ENABLE_BIT);
 			glDisable(GL_LIGHTING);
 			glDisable(GL_TEXTURE_2D);
-			glColor3f(1.0f, 1.0f, 1.0f);
+			glColor3f(1.0f, 1.0f, 1.0f);  //normalscolor constant
 			modelRenderer->renderNormalsOnly(model);
 			glPopAttrib();
 		}
