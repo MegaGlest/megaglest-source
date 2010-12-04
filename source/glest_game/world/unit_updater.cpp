@@ -175,10 +175,15 @@ void UnitUpdater::updateUnit(Unit *unit) {
 
 //VERY IMPORTANT: compute next state depending on the first order of the list
 void UnitUpdater::updateUnitCommand(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
 	//if unit has command process it
     if(unit->anyCommand()) {
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//if no commands stop and add stop command
 	if(unit->anyCommand() == false && unit->isOperative()) {
@@ -190,16 +195,23 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== updateStop ====================
 
 void UnitUpdater::updateStop(Unit *unit) {
-    Command *command= unit->getCurrCommand();
+	Chrono chrono;
+	chrono.start();
+
+	Command *command= unit->getCurrCommand();
     const StopCommandType *sct = static_cast<const StopCommandType*>(command->getCommandType());
     Unit *sighted;
 
     unit->setCurrSkill(sct->getStopSkillType());
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//we can attack any unit => attack it
    	if(unit->getType()->hasSkillClass(scAttack)) {
@@ -228,21 +240,34 @@ void UnitUpdater::updateStop(Unit *unit) {
 				}
 			}
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	//see any unit and cant attack it => run
 	else if(unit->getType()->hasCommandClass(ccMove)) {
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		if(attackerOnSight(unit, &sighted)) {
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			Vec2i escapePos= unit->getPos()*2-sighted->getPos();
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccMove), escapePos));
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
+
+   	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateMove ====================
 void UnitUpdater::updateMove(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
     Command *command= unit->getCurrCommand();
     const MoveCommandType *mct= static_cast<const MoveCommandType*>(command->getCommandType());
 
@@ -253,6 +278,8 @@ void UnitUpdater::updateMove(Unit *unit) {
 		sprintf(szBuf,"[updateMove] pos [%s] cmd [%s]",pos.getString().c_str(),command->toString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	TravelState tsValue = tsImpossible;
 	switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -265,6 +292,8 @@ void UnitUpdater::updateMove(Unit *unit) {
 		default:
 			throw runtime_error("detected unsupported pathfinder type!");
     }
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	switch (tsValue) {
 	case tsMoving:
@@ -281,15 +310,22 @@ void UnitUpdater::updateMove(Unit *unit) {
     default:
         unit->finishCommand();
     }
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateAttack ====================
 
 void UnitUpdater::updateAttack(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
 	Command *command= unit->getCurrCommand();
     const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
 	Unit *target= NULL;
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//if found
     if(attackableOnRange(unit, &target, act->getAttackSkillType())) {
@@ -300,6 +336,8 @@ void UnitUpdater::updateAttack(Unit *unit) {
 		else {
 			unit->setCurrSkill(scStop);
 		}
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
     else {
 		//compute target pos
@@ -321,6 +359,8 @@ void UnitUpdater::updateAttack(Unit *unit) {
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 		}
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
@@ -332,6 +372,8 @@ void UnitUpdater::updateAttack(Unit *unit) {
 			default:
 				throw runtime_error("detected unsupported pathfinder type!");
 	    }
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if unit arrives destPos order has ended
         switch (tsValue){
@@ -346,14 +388,21 @@ void UnitUpdater::updateAttack(Unit *unit) {
 		default:
 			unit->finishCommand();
 		}
+
+        if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateAttackStopped ====================
 
-void UnitUpdater::updateAttackStopped(Unit *unit){
-    Command *command= unit->getCurrCommand();
+void UnitUpdater::updateAttackStopped(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
+	Command *command= unit->getCurrCommand();
     const AttackStoppedCommandType *asct= static_cast<const AttackStoppedCommandType*>(command->getCommandType());
     Unit *enemy;
 
@@ -361,15 +410,20 @@ void UnitUpdater::updateAttackStopped(Unit *unit){
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(enemy);
     }
-    else{
+    else {
         unit->setCurrSkill(asct->getStopSkillType());
     }
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateBuild ====================
 
 void UnitUpdater::updateBuild(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Command *command= unit->getCurrCommand();
@@ -383,6 +437,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
         //if not building
         const UnitType *ut= command->getUnitType();
+
+        if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -530,6 +586,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
 			}
             break;
         }
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
     else {
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
@@ -572,19 +630,28 @@ void UnitUpdater::updateBuild(Unit *unit) {
 					gameCamera->getPos());
 			}
         }
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateHarvest ====================
 
 void UnitUpdater::updateHarvest(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
 	Command *command= unit->getCurrCommand();
     const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(command->getCommandType());
 	Vec2i targetPos(-1);
 
 	TravelState tsValue = tsImpossible;
 	UnitPathInterface *path= unit->getPath();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	if(unit->getCurrSkill()->getClass() != scHarvest) {
 		//if not working
@@ -594,6 +661,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 			if(r != NULL && hct->canHarvest(r->getType())) {
 				//if can harvest dest. pos
 				bool canHarvestDestPos = false;
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
@@ -612,6 +681,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 	    			default:
 	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
+
+	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				if (canHarvestDestPos == true) {
 					unit->setLastHarvestResourceTarget(NULL);
@@ -635,10 +706,14 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 							default:
 								throw runtime_error("detected unsupported pathfinder type!");
 						}
+
+						if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 					}
 				}
 				if(canHarvestDestPos == false) {
 					unit->setLastHarvestResourceTarget(&targetPos);
+
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 						char szBuf[4096]="";
@@ -666,6 +741,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		    			default:
 		    				throw runtime_error("detected unsupported pathfinder type!");
 		    	    }
+
+		    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		    		// If the unit is blocked or Even worse 'stuck' then try to
 		    		// find the same resource type elsewhere, but close by
@@ -711,6 +788,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 										throw runtime_error("detected unsupported pathfinder type!");
 								}
 							}
+
+							if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 						}
 
 						if(canHarvestDestPos == false) {
@@ -748,6 +827,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								}
 							}
 
+							if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 				    		if(wasStuck == true) {
 								//if can't harvest, search for another resource
 								unit->setCurrSkill(scStop);
@@ -765,9 +846,16 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				if(searchForResource(unit, hct) == false) {
 					unit->finishCommand();
 				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else {
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
 			if(store!=NULL) {
@@ -790,6 +878,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 	    			default:
 	    				throw runtime_error("detected unsupported pathfinder type!");
 	    	    }
+
+	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				switch(tsValue) {
 				case tsMoving:
@@ -818,6 +908,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 					unit->setCurrSkill(scStop);
 					unit->setLoadCount(0);
 				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else {
 				unit->finishCommand();
@@ -828,6 +920,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 		//if working
 		//unit->setLastHarvestResourceTarget(NULL);
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		const Vec2i unitTargetPos = unit->getTargetPos();
 		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
 		Resource *r= sc->getResource();
@@ -837,6 +931,8 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				// hct has changed to a different harvest command.
 				unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
 				unit->getPath()->clear();
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else {
 
@@ -873,14 +969,17 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						unit->getPath()->clear();
 					}
 				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 		}
 		else {
 			//if there is no resource, just stop
 			unit->setCurrSkill(hct->getStopLoadedSkillType());
 		}
-
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void UnitUpdater::SwapActiveCommand(Unit *unitSrc, Unit *unitDest) {
@@ -978,6 +1077,8 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 // ==================== updateRepair ====================
 
 void UnitUpdater::updateRepair(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = %p\n",__FILE__,__FUNCTION__,__LINE__,unit);
 
@@ -999,12 +1100,16 @@ void UnitUpdater::updateRepair(Unit *unit) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit to repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str(),repaired->getId());
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	// Check if the 'repaired' unit is actually the peer unit in a multi-build?
 	Unit *peerUnitBuilder = findPeerUnitBuilder(unit);
 
 	if(peerUnitBuilder != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit peer [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getFullName().c_str(),peerUnitBuilder->getId());
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	// Esnure we have the right unit to repair
 	if(peerUnitBuilder != NULL) {
@@ -1018,6 +1123,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 	}
 
 	bool nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	peerUnitBuilder = NULL;
 	if(repaired == NULL) {
@@ -1059,6 +1166,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 					return;
 				}
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 	}
 	else {
@@ -1106,6 +1215,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 				TravelState ts;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
@@ -1128,6 +1239,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 	    	    }
 
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ts = %d\n",__FILE__,__FUNCTION__,__LINE__,ts);
+
+	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				switch(ts) {
 				case tsMoving:
@@ -1162,6 +1275,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
             unit->setCurrSkill(scStop);
             unit->finishCommand();
+
+            if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
         }
     }
     else {
@@ -1192,14 +1307,20 @@ void UnitUpdater::updateRepair(Unit *unit) {
 				repaired->born();
 				scriptManager->onUnitCreated(repaired);
 			}
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
         }
     }
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateProduce ====================
 
-void UnitUpdater::updateProduce(Unit *unit){
+void UnitUpdater::updateProduce(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
     Command *command= unit->getCurrCommand();
     const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(command->getCommandType());
     Unit *produced;
@@ -1208,8 +1329,11 @@ void UnitUpdater::updateProduce(Unit *unit){
         //if not producing
         unit->setCurrSkill(pct->getProduceSkillType());
     }
-    else{
+    else {
 		unit->update2();
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
         if(unit->getProgress2()>pct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
@@ -1230,6 +1354,8 @@ void UnitUpdater::updateProduce(Unit *unit){
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,produced->toString().c_str());
 
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 			//place unit creates the unit
 			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,produced->getId());
@@ -1246,15 +1372,23 @@ void UnitUpdater::updateProduce(Unit *unit){
 					produced->giveCommand(new Command(ct, unit->getMeetingPos()));
 				}
 				scriptManager->onUnitCreated(produced);
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
         }
     }
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateUpgrade ====================
 
-void UnitUpdater::updateUpgrade(Unit *unit){
+void UnitUpdater::updateUpgrade(Unit *unit) {
+	Chrono chrono;
+	chrono.start();
+
+
     Command *command= unit->getCurrCommand();
     const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
@@ -1271,12 +1405,17 @@ void UnitUpdater::updateUpgrade(Unit *unit){
 			unit->getFaction()->finishUpgrade(uct->getProducedUpgrade());
         }
     }
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== updateMorph ====================
 
 void UnitUpdater::updateMorph(Unit *unit){
-    Command *command= unit->getCurrCommand();
+	Chrono chrono;
+	chrono.start();
+
+	Command *command= unit->getCurrCommand();
     const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
 
     if(unit->getCurrSkill()->getClass()!=scMorph){
@@ -1339,6 +1478,8 @@ void UnitUpdater::updateMorph(Unit *unit){
 
         }
     }
+
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== PRIVATE ====================
