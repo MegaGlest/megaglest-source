@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Release Win32" />
+	<File name="../../source/shared_lib/include/graphics/graphics_interface.h" open="0" top="0" tabpos="0">
+		<Cursor position="566" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/include/platform/common/platform_common.h" open="0" top="0" tabpos="0">
+		<Cursor position="747" topLine="8" />
+	</File>
+	<File name="../../source/shared_lib/include/platform/posix/socket.h" open="0" top="0" tabpos="0">
+		<Cursor position="773" topLine="6" />
+	</File>
+	<File name="../../source/shared_lib/include/platform/sdl/gl_wrap.h" open="0" top="0" tabpos="0">
+		<Cursor position="621" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/include/platform/win32/types.h" open="0" top="0" tabpos="0">
+		<Cursor position="542" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/include/streflop/streflop.h" open="0" top="0" tabpos="0">
+		<Cursor position="1089" topLine="3" />
+	</File>
+	<File name="../../source/shared_lib/include/util/util.h" open="0" top="0" tabpos="0">
+		<Cursor position="601" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/include/xml/xml_parser.h" open="1" top="0" tabpos="2">
+		<Cursor position="576" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/sources/graphics/gl/base_renderer.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="901" topLine="1" />
+	</File>
+	<File name="../../source/shared_lib/sources/platform/common/platform_common.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="507" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/sources/platform/posix/socket.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="360" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/sources/platform/win32/platform_util.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="542" topLine="0" />
+	</File>
+	<File name="../../source/win32_deps/src/glprocs.c" open="1" top="1" tabpos="4">
+		<Cursor position="64" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

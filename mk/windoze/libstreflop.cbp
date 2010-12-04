@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libstreflop" />
+		<Option pch_mode="2" />
+		<Option compiler="mingw32_compiler" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../source/win32_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../source/win32_deps/lib" />
+				<Option object_output="Debug Win32/libstreflop" />
+				<Option type="3" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-D_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DUSE_PCH=1" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../../source/win32_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Release Win32/libstreflop" />
+				<Option type="2" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DUSE_PCH=1" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Debug-MT Win32">
+				<Option output="libstreflop" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../source/win32_deps/lib" />
+				<Option type="2" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_LIB" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/DUSE_PCH=1" />
+					<Add option="/DUSE_STREFLOP" />
+					<Add option="/DSTREFLOP_SSE" />
+					<Add option="/DLIBM_COMPILING_FLT32" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/O2" />
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release_NO_STREFLOP Win32">
+				<Option output="libstreflop" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../source/win32_deps/lib" />
+				<Option type="2" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_LIB" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/DUSE_PCH=1" />
+					<Add option="/DSTREFLOP_SSE" />
+					<Add option="/DLIBM_COMPILING_FLT32" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/O2" />
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
+					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
+				</ResourceCompiler>
+			</Target>
+		</Build>
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/Makefile" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_acosf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_acoshf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_asinf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_atan2f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_atanhf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_coshf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_exp2f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_expf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_fmodf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_gammaf_r.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_hypotf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_j0f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_j1f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_jnf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_lgammaf_r.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_log10f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_log2f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_logf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_powf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_rem_pio2f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_remainderf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_sinhf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/e_sqrtf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/k_cosf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/k_rem_pio2f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/k_sinf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/k_tanf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_asinhf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_atanf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_cbrtf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_ceilf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_copysignf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_cosf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_erff.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_expm1f.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_fabsf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_finitef.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_floorf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_fpclassifyf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_frexpf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_ilogbf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_isinff.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_isnanf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_ldexpf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_llrintf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_llroundf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_log1pf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_logbf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_lrintf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_lroundf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_modff.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_nearbyintf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_nextafterf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_remquof.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_rintf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_roundf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_scalblnf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_scalbnf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_signbitf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_sincosf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_sinf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_tanf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_tanhf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/s_truncf.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/libm/flt-32/w_expf.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

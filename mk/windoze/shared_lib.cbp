@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libglest" />
+		<Option pch_mode="2" />
+		<Option compiler="mingw32_compiler" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../source/win32_deps/lib/libglest.lib" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Debug Win32/shared_lib" />
+				<Option type="2" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DUSE_PCH=1" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add option="-DCURL_STATICLIB" />
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libstreflop" />
+					<Add library="libcurl" />
+					<Add directory="./" />
+					<Add directory="../../source/win32_deps/lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../../source/win32_deps/lib/libglest.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../source/win32_deps/lib" />
+				<Option object_output="Release Win32/shared_lib" />
+				<Option type="3" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-D_WIN32" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DXML_LIBRARY" />
+					<Add option="-D_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DUSE_PCH=1" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add option="-DCURL_STATICLIB" />
+					<Add option="-D_STDCALL_SUPPORTED" />
+					<Add option="-D_M_IX86" />
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/src" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libstreflop" />
+					<Add library="jpeg" />
+					<Add library="lua5.1" />
+					<Add library="liblibpng" />
+					<Add directory="./" />
+					<Add directory="../../source/win32_deps/lib" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
+				</Linker>
+			</Target>
+			<Target title="Release_NO_STREFLOP Win32">
+				<Option output="lib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Release_NO_STREFLOP Win32" />
+				<Option type="2" />
+				<Option compiler="mingw32_compiler" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_LIB" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/DUSE_PCH=1" />
+					<Add option="/DSTREFLOP_SSE" />
+					<Add option="/DSTREFLOP_RANDOM_GEN_SIZE=32" />
+					<Add option="/DLIBM_COMPILING_FLT32" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/O2" />
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add directory="../../../deps/include/lua" />
+					<Add directory="../../../deps/include" />
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../../deps/include/lua" />
+					<Add directory="../../../deps/include" />
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/sound/ds8" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/win32_deps/include" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/lpng141" />
+					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libstreflop" />
+					<Add library="libcurl" />
+					<Add directory="./" />
+					<Add directory="../../source/win32_deps/lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../../source/shared_lib/include/graphics/BMPReader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/FileReader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/ImageReaders.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/JPGReader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/PNGReader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/TGAReader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/buffer.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/camera.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/context.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/font.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/font_manager.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/base_renderer.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/context_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/font_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/graphics_factory_basic_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/graphics_factory_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/graphics_factory_gl2.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/model_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/model_renderer_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/opengl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/particle_renderer_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/shader_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/text_renderer_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/gl/texture_gl.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/graphics_factory.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/graphics_interface.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/interpolation.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/math_util.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/matrix.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/model.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/model_header.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/model_manager.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/model_renderer.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/particle.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/particle_renderer.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/pixmap.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/quaternion.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/shader.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/shader_manager.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/text_renderer.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/texture.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/texture_manager.h" />
+		<Unit filename="../../source/shared_lib/include/graphics/vec.h" />
+		<Unit filename="../../source/shared_lib/include/lua/lua_script.h" />
+		<Unit filename="../../source/shared_lib/include/map/map_preview.h" />
+		<Unit filename="../../source/shared_lib/include/platform/common/base_thread.h" />
+		<Unit filename="../../source/shared_lib/include/platform/common/cache_manager.h" />
+		<Unit filename="../../source/shared_lib/include/platform/common/math_wrapper.h" />
+		<Unit filename="../../source/shared_lib/include/platform/common/platform_common.h" />
+		<Unit filename="../../source/shared_lib/include/platform/common/simple_threads.h" />
+		<Unit filename="../../source/shared_lib/include/platform/posix/socket.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/gl_wrap.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/noimpl.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/platform_main.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/sdl_private.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/thread.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/window.h" />
+		<Unit filename="../../source/shared_lib/include/platform/sdl/window_gl.h" />
+		<Unit filename="../../source/shared_lib/include/platform/win32/glob.h" />
+		<Unit filename="../../source/shared_lib/include/platform/win32/platform_definitions.h" />
+		<Unit filename="../../source/shared_lib/include/platform/win32/platform_util.h" />
+		<Unit filename="../../source/shared_lib/include/platform/win32/types.h" />
+		<Unit filename="../../source/shared_lib/include/sound/ds8/sound_factory_ds8.h" />
+		<Unit filename="../../source/shared_lib/include/sound/ds8/sound_player_ds8.h" />
+		<Unit filename="../../source/shared_lib/include/sound/sound.h" />
+		<Unit filename="../../source/shared_lib/include/sound/sound_factory.h" />
+		<Unit filename="../../source/shared_lib/include/sound/sound_file_loader.h" />
+		<Unit filename="../../source/shared_lib/include/sound/sound_interface.h" />
+		<Unit filename="../../source/shared_lib/include/sound/sound_player.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/FPUSettings.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/IntegerTypes.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/Random.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/SMath.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/System.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/X87DenormalSquasher.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/streflop.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/streflopC.h" />
+		<Unit filename="../../source/shared_lib/include/streflop/streflop_cond.h" />
+		<Unit filename="../../source/shared_lib/include/util/checksum.h" />
+		<Unit filename="../../source/shared_lib/include/util/conversion.h" />
+		<Unit filename="../../source/shared_lib/include/util/factory.h" />
+		<Unit filename="../../source/shared_lib/include/util/heap.h" />
+		<Unit filename="../../source/shared_lib/include/util/leak_dumper.h" />
+		<Unit filename="../../source/shared_lib/include/util/line.h" />
+		<Unit filename="../../source/shared_lib/include/util/profiler.h" />
+		<Unit filename="../../source/shared_lib/include/util/properties.h" />
+		<Unit filename="../../source/shared_lib/include/util/randomgen.h" />
+		<Unit filename="../../source/shared_lib/include/util/util.h" />
+		<Unit filename="../../source/shared_lib/include/xml/xml_parser.h" />
+		<Unit filename="../../source/shared_lib/sources/graphics/BMPReader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/FileReader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/ImageReaders.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/JPGReader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/PNGReader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/TGAReader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/buffer.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/camera.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/context.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/font.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/font_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/base_renderer.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/context_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/font_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/model_renderer_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/opengl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/particle_renderer_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/shader_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/text_renderer_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/gl/texture_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/graphics_interface.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/interpolation.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/model.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/model_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/particle.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/pixmap.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/quaternion.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/shader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/shader_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/texture.cpp" />
+		<Unit filename="../../source/shared_lib/sources/graphics/texture_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/lua/lua_script.cpp" />
+		<Unit filename="../../source/shared_lib/sources/map/map_preview.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/common/base_thread.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/common/cache_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/common/platform_common.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/common/simple_threads.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/posix/socket.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/sdl/gl_wrap.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/sdl/thread.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/sdl/window.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/sdl/window_gl.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/win32/factory_repository.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/win32/gl_wrap_billy.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/win32/glob.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/win32/platform_util.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/ds8/sound_player_ds8.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/openal/sound_player_openal.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/sound.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/sound_file_loader.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/sound_interface.cpp" />
+		<Unit filename="../../source/shared_lib/sources/sound/sound_player.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/Random.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/SMath.cpp" />
+		<Unit filename="../../source/shared_lib/sources/streflop/streflopC.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/checksum.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/conversion.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/leak_dumper.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/profiler.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/properties.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/randomgen.cpp" />
+		<Unit filename="../../source/shared_lib/sources/util/util.cpp" />
+		<Unit filename="../../source/shared_lib/sources/xml/xml_parser.cpp" />
+		<Unit filename="../../source/win32_deps/src/glprocs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
