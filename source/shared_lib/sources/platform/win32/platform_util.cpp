@@ -54,6 +54,7 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 	lExceptionInformation.ExceptionPointers= pointers;
 	lExceptionInformation.ClientPointers= false;
 
+#if defined(__WIN32__) && !defined(__GNUC__)
 	MiniDumpWriteDump(
 		GetCurrentProcess(),
 		GetCurrentProcessId(),
@@ -66,7 +67,7 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	thisPointer->handle();
-
+#endif
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return EXCEPTION_EXECUTE_HANDLER;

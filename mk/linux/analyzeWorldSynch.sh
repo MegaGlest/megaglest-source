@@ -2,7 +2,7 @@
 
 MAX_SPLIT_SIZE_BYTES=75000000
 
-echo 'Max split file size = $MAX_SPLIT_SIZE_BYTES'
+echo 'Max split file size = '"$MAX_SPLIT_SIZE_BYTES"
 
 echo 'Setting up temp folders...'
 

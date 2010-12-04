@@ -781,6 +781,8 @@ int glestMain(int argc, char** argv) {
 				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
 				std::pair<bool,bool>(true,false));
 
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
 		}
@@ -795,11 +797,17 @@ int glestMain(int argc, char** argv) {
 			MeshCallbackTeamColor::noTeamColors = true;
 		}
 
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		// Over-ride default network command framecount
 		//GameConstants::networkFramePeriod = config.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str());
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
+
+        Lang &lang= Lang::getInstance();
+        lang.loadStrings(config.getString("Lang"));
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		program= new Program();
 
@@ -1129,3 +1137,18 @@ __try {
 }}//end namespace
 
 MAIN_FUNCTION(Glest::Game::glestMainWrapper)
+
+/*
+int main(int argc, char *argv[])
+{
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
+        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
+        return 1;
+    }
+	atexit(SDL_Quit);
+	SDL_EnableUNICODE(1);
+    int result = Glest::Game::glestMainWrapper(argc, argv);
+    return result;
+}
+*/
+

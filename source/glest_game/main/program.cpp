@@ -382,7 +382,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			programState->setStartXY(X,Y);
 
 			SDL_PumpEvents();
-			
+
 			showCursor(true);
 			SDL_PumpEvents();
 			sleep(0);
@@ -505,7 +505,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 
 	//lang
 	Lang &lang= Lang::getInstance();
-	lang.loadStrings(config.getString("Lang"));
+	//lang.loadStrings(config.getString("Lang"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
