@@ -123,6 +123,7 @@ private:
 		miEditAdvanced,
 
 		miViewResetZoomAndPos,
+		miViewGrid,
 		miViewAbout,
 		miViewHelp,
 
@@ -222,6 +223,7 @@ public:
 	void onMenuEditAdvanced(wxCommandEvent &event);
 
 	void onMenuViewResetZoomAndPos(wxCommandEvent &event);
+	void onMenuViewGrid(wxCommandEvent &event);
 	void onMenuViewAbout(wxCommandEvent &event);
 	void onMenuViewHelp(wxCommandEvent &event);
 

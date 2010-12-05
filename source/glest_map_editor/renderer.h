@@ -9,6 +9,11 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+
+//this file is not used
+
+/*
+
 #ifndef _MAPEDITOR_RENDERER_H_
 #define _MAPEDITOR_RENDERER_H_
 
@@ -25,9 +30,11 @@ namespace MapEditor {
 class Renderer {
 public:
 	void init(int clientW, int clientH);
-	void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize);
+	void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid=false);
 };
 
 }// end namespace
 
 #endif
+
+*/

@@ -114,6 +114,7 @@ MainWindow::MainWindow()
 	//view
 	menuView = new wxMenu();
 	menuView->Append(miViewResetZoomAndPos, wxT("&Reset zoom and pos"));
+    menuView->AppendCheckItem(miViewGrid, wxT("&Grid"));
 	menuView->AppendSeparator();
 	menuView->Append(miViewHelp, wxT("&Help..."));
 	menuView->Append(miViewAbout, wxT("&About..."));
@@ -293,15 +294,15 @@ MainWindow::MainWindow()
 	toolbar2->AddTool(miBrushHeight +10, _("brush_height_p4"), wxBitmap(brush_height_p4));
 	toolbar2->AddTool(miBrushHeight +11, _("brush_height_p5"), wxBitmap(brush_height_p5));
 	toolbar2->AddSeparator();
-	toolbar2->AddTool(miRadius + 1, _("radius1"), wxBitmap(radius_1));
-	toolbar2->AddTool(miRadius + 2, _("radius2"), wxBitmap(radius_2));
-	toolbar2->AddTool(miRadius + 3, _("radius3"), wxBitmap(radius_3));
-	toolbar2->AddTool(miRadius + 4, _("radius4"), wxBitmap(radius_4));
-	toolbar2->AddTool(miRadius + 5, _("radius5"), wxBitmap(radius_5));
-	toolbar2->AddTool(miRadius + 6, _("radius6"), wxBitmap(radius_6));
-	toolbar2->AddTool(miRadius + 7, _("radius7"), wxBitmap(radius_7));
-	toolbar2->AddTool(miRadius + 8, _("radius8"), wxBitmap(radius_8));
-	toolbar2->AddTool(miRadius + 9, _("radius9"), wxBitmap(radius_9));
+	toolbar2->AddTool(miRadius + 1, _("radius1"), wxBitmap(radius_1), _("1 (1x1)"));
+	toolbar2->AddTool(miRadius + 2, _("radius2"), wxBitmap(radius_2), _("2 (3x3)"));
+	toolbar2->AddTool(miRadius + 3, _("radius3"), wxBitmap(radius_3), _("3 (5x5)"));
+	toolbar2->AddTool(miRadius + 4, _("radius4"), wxBitmap(radius_4), _("4 (7x7)"));
+	toolbar2->AddTool(miRadius + 5, _("radius5"), wxBitmap(radius_5), _("5 (9x9)"));
+	toolbar2->AddTool(miRadius + 6, _("radius6"), wxBitmap(radius_6), _("6 (11x11)"));
+	toolbar2->AddTool(miRadius + 7, _("radius7"), wxBitmap(radius_7), _("7 (13x13)"));
+	toolbar2->AddTool(miRadius + 8, _("radius8"), wxBitmap(radius_8), _("8 (15x15)"));
+	toolbar2->AddTool(miRadius + 9, _("radius9"), wxBitmap(radius_9), _("9 (17x17)"));
 	toolbar2->Realize();
 
 	wxBoxSizer *boxsizer = new wxBoxSizer(wxVERTICAL);
@@ -708,7 +709,7 @@ void MainWindow::onMenuEditInfo(wxCommandEvent &event) {
 void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"(lower means map is more more zoomed in)");
-	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(which level water is visible but still walkable)");
+	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(water is visible below this, and walkable until 1.5 less)");
 	if (!simpleDialog.show("Advanced")) return;
 
 	try {
@@ -728,6 +729,13 @@ void MainWindow::onMenuViewResetZoomAndPos(wxCommandEvent &event) {
 	onPaint(e);
 }
 
+void MainWindow::onMenuViewGrid(wxCommandEvent &event) {
+	menuView->Check(miViewGrid, program->setGridOnOff());    // miViewGrid event.GetId()
+	wxPaintEvent e;
+	onPaint(e);
+}
+
+
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
@@ -739,8 +747,10 @@ void MainWindow::onMenuViewHelp(wxCommandEvent &event) {
 	MsgDialog(this,
 		wxT("Draw with left mouse\nMove viewport with right mouse drag\nZoom with center mouse drag, or mousewheel\n\
 You can change brush in the same category with key 1-9\n\
+Height tool (blue) builds with integer height steps 0-20, \nwhile Gradient tool (red) uses any real number \n\
+Units can go over water as long as it is less than 1.5 deep\n\
 A good idea is to put some stone, gold and tree near starting position\n\
-Starting position needs an open area for the tower and at starting units\n"),
+Starting position needs an open area for the tower and the starting units\n"),
 		wxT("Help")).ShowModal();
 		/* 5 away and 10x10 empty area? */
 }
@@ -996,6 +1006,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miEditAdvanced, MainWindow::onMenuEditAdvanced)
 
 	EVT_MENU(miViewResetZoomAndPos, MainWindow::onMenuViewResetZoomAndPos)
+	EVT_MENU(miViewGrid, MainWindow::onMenuViewGrid)
 	EVT_MENU(miViewAbout, MainWindow::onMenuViewAbout)
 	EVT_MENU(miViewHelp, MainWindow::onMenuViewHelp)
 

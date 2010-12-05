@@ -9,8 +9,9 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-// This file is not used anoymore
+// This file is not used anymore
 
+/*
 #ifndef _MAPEDITOR_MAP_H_
 #define _MAPEDITOR_MAP_H_
 
@@ -141,3 +142,6 @@ public:
 }// end namespace
 
 #endif
+
+*/
+

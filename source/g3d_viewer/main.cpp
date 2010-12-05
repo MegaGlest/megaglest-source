@@ -99,7 +99,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuSpeed->Append(miSpeedSlower, wxT("&Slower\t-"));
 	menuSpeed->Append(miSpeedFaster, wxT("&Faster\t+"));
 	menuSpeed->AppendSeparator();
-	menuSpeed->Append(miRestart, wxT("&Restart particles\tR"));
+	menuSpeed->Append(miRestart, wxT("&Restart particles\tR"), wxT("Restart particle animations, this also reloads model and particle files if they are changed"));
 	menu->Append(menuSpeed, wxT("&Speed"));
 
 	//custom color
@@ -974,7 +974,8 @@ bool App::OnInit(){
 			std::cout << "glest_g3dviewer [G3D 3D-MODEL FILE]" << std::endl << std::endl;
 			std::cout << "Displays glest 3D-models and unit/projectile/splash particle systems."  << std::endl;
 			std::cout << "rotate with left mouse button, zoom with right mouse button or mousewheel."  << std::endl;
-			std::cout << "Use ctrl to load more than one particle system. Press R to restart particles."  << std::endl << std::endl;
+			std::cout << "Use ctrl to load more than one particle system." << std::endl;
+			std::cout << "Press R to restart particles, this also reloads all files if they are changed."  << std::endl << std::endl;
 			exit (0);
 		}
 		modelPath= wxFNCONV(argv[1]);

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -41,11 +41,11 @@ public:
 class RendererMapInterface {
 public:
 	virtual void initMapSurface(int clientW, int clientH) = 0;
-	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize) = 0;
+	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid) = 0;
 };
 
 // =====================================================
-//	class GraphicsInterface  
+//	class GraphicsInterface
 //
 ///	Interface for the graphic engine
 // =====================================================
@@ -68,7 +68,7 @@ public:
 	static GraphicsInterface &getInstance();
 
 	void setFactory(GraphicsFactory *graphicsFactory);
-	void setCurrentContext(Context *context);	
+	void setCurrentContext(Context *context);
 
 	Context *getCurrentContext() const		{return currentContext;}
 	GraphicsFactory *getFactory() const		{return graphicsFactory;}

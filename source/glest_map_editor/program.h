@@ -96,6 +96,7 @@ private:
 	BaseRenderer renderer;
 	int ofsetX, ofsetY;
 	int cellSize;
+	bool grid; // show grid option
 	//static Map *map;
 	static MapPreview *map;
 	friend class UndoPoint;
@@ -151,6 +152,7 @@ public:
 	void setOfset(int x, int y);
 	void incCellSize(int i);
 	void resetOfset();
+	bool setGridOnOff();
 
 	int getObject(int x, int y);
 	int getResource(int x, int y);

@@ -949,13 +949,13 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 			// white shadowed is default ( in the menu for example )
 			fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 		}
-		
+
 		renderTextShadow(
 				text,
 				CoreData::getInstance().getConsoleFont(),
 				fontColor,
 				300, 150);
-						
+
 		//textRenderer->begin(CoreData::getInstance().getConsoleFont());
 		//textRenderer->render(text, 300, 150);
 		//textRenderer->end();
@@ -3172,20 +3172,20 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
 						glEnable(GL_TEXTURE_2D);
 						glAlphaFunc(GL_GREATER, 0.4f);
-				
+
 						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-				
+
 						//set color to the texture alpha
 						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
 						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
 						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-				
+
 						//set alpha to the texture alpha
 						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
 						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 					}
-				
+
 					modelRenderer->begin(false, renderingShadows, false);
 					glInitNames();
 				}
@@ -3236,26 +3236,26 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 						modelRenderStarted = true;
 						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
 						glDisable(GL_LIGHTING);
-						
+
 						if (!renderingShadows) {
 							glDisable(GL_TEXTURE_2D);
 						} else {
 							glEnable(GL_TEXTURE_2D);
 							glAlphaFunc(GL_GREATER, 0.4f);
-					
+
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-					
+
 							//set color to the texture alpha
 							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
 							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
 							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-					
+
 							//set alpha to the texture alpha
 							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
 							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 						}
-					
+
 						modelRenderer->begin(false, renderingShadows, false);
 
 						glInitNames();
@@ -4119,7 +4119,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 	return quadCache;
 }
 
-void Renderer::renderMapPreview( const MapPreview *map, bool renderAll, 
+void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 								 int screenPosX, int screenPosY,
 								 Texture2D **renderToTexture) {
 	float alt=0;
@@ -4130,7 +4130,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	float playerCrossSize=2;
 	float clientW=renderMapWidth*cellSize;
 	float clientH=renderMapHeight*cellSize;;
-	
+
 	const Metrics &metrics= Metrics::getInstance();
 
 	// stretch small maps to 128x128
@@ -4205,7 +4205,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	//glEnable( GL_SCISSOR_TEST );
 	//glScissor(screenPosX, screenPosY,screenPosX-clientW, screenPosY-clientH);
-	
+
 	//int newX = screenPosX - (metrics.getVirtualW() / 2);
 	//int newY = screenPosY - (metrics.getVirtualH() / 2);
 	//int newX = 0;
@@ -4401,21 +4401,21 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	if(renderToTexture != NULL) {
 
-		//*renderToTexture = saveScreenToTexture(screenPosX, screenPosY, metrics.getVirtualW(), metrics.getVirtualH());
-		//*renderToTexture = saveScreenToTexture(0, 0, metrics.getVirtualW(), metrics.getVirtualH());
+		// *renderToTexture = saveScreenToTexture(screenPosX, screenPosY, metrics.getVirtualW(), metrics.getVirtualH());
+		// *renderToTexture = saveScreenToTexture(0, 0, metrics.getVirtualW(), metrics.getVirtualH());
 /*
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
 		if(texture != NULL) {
-			//*renderToTexture = saveScreenToTexture(screenPosX, screenPosY, clientW, clientH);
+			// *renderToTexture = saveScreenToTexture(screenPosX, screenPosY, clientW, clientH);
 			texture->dettachFrameBufferFromTexture();
 
 			// Signal the threads queue to add a screenshot save request
-			//MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
-			//saveScreenQueue.push_back(make_pair("bob.png",texture->getPixmap()));
-			//*renderToTexture=NULL;
-			//safeMutex.ReleaseLock();
+			// MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+			// saveScreenQueue.push_back(make_pair("bob.png",texture->getPixmap()));
+			// *renderToTexture=NULL;
+			// safeMutex.ReleaseLock();
 
-			//texture->teardown_FBO_RBO();
+			// texture->teardown_FBO_RBO();
 		}
 */
 	}
@@ -4424,9 +4424,9 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 // setLastRenderFps and calculate shadowsOffDueToMinRender
 void Renderer::setLastRenderFps(int value) {
-	 	lastRenderFps = value; 
+	 	lastRenderFps = value;
 	 	smoothedRenderFps=(MIN_FPS_NORMAL_RENDERING*smoothedRenderFps+lastRenderFps)/(MIN_FPS_NORMAL_RENDERING+1.0f);
-		
+
 		if(smoothedRenderFps>=MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD){
 			shadowsOffDueToMinRender=false;
 		}
