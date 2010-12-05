@@ -548,6 +548,8 @@ bool fileExists(const string &path){
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	bool compatible = (clientVersionString == serverVersionString);
 	if(compatible == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
+
 		vector<string> tokens;
 		vector<string> tokensServer;
 		Tokenize(clientVersionString,tokens,".");
@@ -555,9 +557,14 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 
 		// only check the first 3 sections with . to compare makor versions #'s
 		compatible = (tokens.size() >= 3 && tokensServer.size() >= 3);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
+
 		for(int i = 0; compatible == true && i < 3; ++i) {
 			if(tokens[i] != tokensServer[i]) {
 				compatible = false;
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
 			}
 		}
 	}
