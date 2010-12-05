@@ -33,8 +33,8 @@ BaseThread::BaseThread() : Thread() {
 
 BaseThread::~BaseThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
-	shutdownAndWait();
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	bool ret = shutdownAndWait();
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 }
 
 void BaseThread::signalQuit() {
@@ -117,32 +117,50 @@ void BaseThread::setRunningStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 }
 
-void BaseThread::shutdownAndWait(BaseThread *pThread) {
+bool BaseThread::shutdownAndWait(BaseThread *pThread) {
+	bool ret = false;
+	if(pThread != NULL) {
+		ret = pThread->shutdownAndWait();
+	}
+
+	return ret;
+}
+
+bool BaseThread::shutdownAndWait() {
+	bool ret = true;
+	BaseThread *pThread = this;
 	string uniqueID = (pThread != NULL ? pThread->getUniqueID() : "?");
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-	if(pThread != NULL && pThread->getRunningStatus() == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	if(pThread != NULL) {
+		if(pThread->getRunningStatus() == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-		pThread->signalQuit();
-		//sleep(0);
+			pThread->signalQuit();
+			//sleep(0);
+			ret = false;
 
-		for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 7; ) {
-			if(pThread->getRunningStatus() == false) {
-				break;
+			int maxWaitSeconds = 7;
+			if(pThread->canShutdown() == false) {
+				maxWaitSeconds = 3;
 			}
-			sleep(1);
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= maxWaitSeconds; ) {
+				if(pThread->getRunningStatus() == false) {
+					ret = true;
+					break;
+				}
+
+				sleep(0);
+				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+			//sleep(0);
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 		}
-		//sleep(0);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	}
 	//sleep(0);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
-}
-
-void BaseThread::shutdownAndWait() {
-	BaseThread::shutdownAndWait(this);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
+	return ret;
 }
 
 }}//end namespace

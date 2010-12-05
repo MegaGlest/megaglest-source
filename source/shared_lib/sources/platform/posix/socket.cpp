@@ -1017,6 +1017,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
+	    	sleep(0);
 	        //if(Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 #ifdef __APPLE__
@@ -1044,6 +1045,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
+	    	sleep(0);
 	        //if(bytesSent > 0 || Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
@@ -1101,7 +1103,8 @@ int Socket::receive(void *data, int dataSize)
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    time_t tStartTimer = time(NULL);
-	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
+	    		(difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
@@ -1137,7 +1140,8 @@ int Socket::peek(void *data, int dataSize){
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    time_t tStartTimer = time(NULL);
-	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) && (difftime(time(NULL),tStartTimer) <= 5)) {
+	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
+	    		(difftime(time(NULL),tStartTimer) <= 5)) {
 	        if(Socket::isReadable() == true) {
 	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
@@ -1220,35 +1224,45 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
 	FD_ZERO(&set);
 	FD_SET(sock, &set);
 
+	time_t maxElapsedCheck = time(NULL);
+	const int MAX_CHECK_WAIT_SECONDS = 5;
+
     bool result = false;
     do {
+    	if(difftime(time(NULL),maxElapsedCheck) >= MAX_CHECK_WAIT_SECONDS) {
+    		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] max timeout waited during writable check\n",__FILE__,__FUNCTION__,__LINE__);
+    		break;
+    	}
+
     	int i = 0;
     	{
     		//MutexSafeWrapper safeMutex(&dataSynchAccessor);
         	i = select((int)sock + 1, NULL, &set, NULL, &tv);
     	}
         if(i < 0 ) {
-            if(difftime(time(NULL),lastDebugEvent) >= 1) {
+            //if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
-            }
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+            //}
             waitOnDelayedResponse = false;
 
             //throwException("Error selecting socket");
         }
         else if(i == 0) {
-            if(difftime(time(NULL),lastDebugEvent) >= 1) {
+            //if(difftime(time(NULL),lastDebugEvent) >= 1) {
                 lastDebugEvent = time(NULL);
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
-            }
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+            //}
 
             if(waitOnDelayedResponse == false) {
                 result = true;
+                break;
             }
         }
         else {
             result = true;
+            break;
         }
     } while(waitOnDelayedResponse == true && result == false);
 

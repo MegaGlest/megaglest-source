@@ -83,6 +83,11 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
 	setTaskSignalled(false);
+	setExecutingTask(false);
+}
+
+bool SimpleTaskThread::canShutdown() {
+	return (getExecutingTask() == false);
 }
 
 void SimpleTaskThread::execute() {
@@ -97,7 +102,6 @@ void SimpleTaskThread::execute() {
 
 		unsigned int idx = 0;
 		for(;this->simpleTaskInterface != NULL;) {
-
 			bool runTask = true;
 			if(needTaskSignal == true) {
 				runTask = getTaskSignalled();
@@ -113,7 +117,15 @@ void SimpleTaskThread::execute() {
 			else if(runTask == true) {
 				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 				if(getQuitStatus() == false) {
-					this->simpleTaskInterface->simpleTask();
+					try {
+						setExecutingTask(true);
+						this->simpleTaskInterface->simpleTask();
+						setExecutingTask(false);
+					}
+					catch(const exception &ex) {
+						setExecutingTask(false);
+						throw runtime_error(ex.what());
+					}
 				}
 				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 			}
@@ -169,6 +181,21 @@ bool SimpleTaskThread::getTaskSignalled() {
 	safeMutex.ReleaseLock();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return retval;
+}
+
+void SimpleTaskThread::setExecutingTask(bool value) {
+	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	executingTask = value;
+	safeMutex.ReleaseLock();
+}
+
+bool SimpleTaskThread::getExecutingTask() {
+	bool retval = false;
+	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	retval = executingTask;
+	safeMutex.ReleaseLock();
 
 	return retval;
 }

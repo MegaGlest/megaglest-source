@@ -527,7 +527,10 @@ MenuStateCustomGame::~MenuStateCustomGame() {
 			needToRepublishToMasterserver = false;
 
 			//BaseThread::shutdownAndWait(publishToMasterserverThread);
-			delete publishToMasterserverThread;
+			if(publishToMasterserverThread != NULL &&
+				publishToMasterserverThread->shutdownAndWait() == true) {
+				delete publishToMasterserverThread;
+			}
 			publishToMasterserverThread = NULL;
 			publishToMasterserverThreadInDeletion = false;
 			safeMutexPtr.ReleaseLock();
@@ -556,7 +559,10 @@ void MenuStateCustomGame::returnToParentMenu(){
 	bool returnToMasterServerMenu = parentMenuIsMs;
 
 	//BaseThread::shutdownAndWait(publishToMasterserverThread);
-	delete publishToMasterserverThread;
+	if(publishToMasterserverThread != NULL &&
+		publishToMasterserverThread->shutdownAndWait() == true) {
+		delete publishToMasterserverThread;
+	}
 	publishToMasterserverThread = NULL;
 	publishToMasterserverThreadInDeletion = false;
 	safeMutexPtr.ReleaseLock();
@@ -605,7 +611,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
 		publishToMasterserverThreadInDeletion = true;
 		//BaseThread::shutdownAndWait(publishToMasterserverThread);
-		delete publishToMasterserverThread;
+		if(publishToMasterserverThread != NULL &&
+			publishToMasterserverThread->shutdownAndWait() == true) {
+			delete publishToMasterserverThread;
+		}
 		publishToMasterserverThread = NULL;
 		publishToMasterserverThreadInDeletion = false;
 		safeMutexPtr.ReleaseLock();
@@ -1115,7 +1124,10 @@ void MenuStateCustomGame::PlayNow() {
 			MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
 			publishToMasterserverThreadInDeletion = true;
 			//BaseThread::shutdownAndWait(publishToMasterserverThread);
-			delete publishToMasterserverThread;
+			if(publishToMasterserverThread != NULL &&
+				publishToMasterserverThread->shutdownAndWait() == true) {
+				delete publishToMasterserverThread;
+			}
 			publishToMasterserverThread = NULL;
 			publishToMasterserverThreadInDeletion = false;
 			safeMutexPtr.ReleaseLock();
@@ -1837,8 +1849,16 @@ void MenuStateCustomGame::publishToMasterserver()
 
 void MenuStateCustomGame::simpleTask() {
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(publishToMasterserverThreadInDeletion == true) {
+		return;
+	}
 
+	if( publishToMasterserverThread == NULL ||
+		publishToMasterserverThread->getQuitStatus() == true) {
+		return;
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 	bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
 	needToRepublishToMasterserver = false;

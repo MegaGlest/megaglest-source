@@ -61,6 +61,9 @@ protected:
 	bool taskSignalled;
 	bool needTaskSignal;
 
+	Mutex mutexExecutingTask;
+	bool executingTask;
+
 public:
 	SimpleTaskThread();
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface, 
@@ -68,8 +71,12 @@ public:
 					 unsigned int millisecsBetweenExecutions=0,
 					 bool needTaskSignal = false);
     virtual void execute();
+    virtual bool canShutdown();
+
     void setTaskSignalled(bool value);
     bool getTaskSignalled();
+    void setExecutingTask(bool value);
+    bool getExecutingTask();
 };
 
 }}//end namespace
