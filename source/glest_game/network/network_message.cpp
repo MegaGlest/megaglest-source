@@ -387,6 +387,8 @@ void NetworkMessageCommandList::send(Socket* socket) const{
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, sent networkCommand [%s]\n",
                         __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
             }
+
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
         }
 	}
 }

@@ -332,7 +332,6 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
-	//updateServerInfo();
 	
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -365,7 +364,10 @@ MenuStateMasterserver::~MenuStateMasterserver() {
 
 			//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 			masterServerThreadInDeletion = true;
-			delete updateFromMasterserverThread;
+			if(updateFromMasterserverThread != NULL &&
+				updateFromMasterserverThread->shutdownAndWait() == true) {
+				delete updateFromMasterserverThread;
+			}
 			updateFromMasterserverThread = NULL;
 			masterServerThreadInDeletion = false;
 			safeMutexPtr.ReleaseLock();
@@ -411,7 +413,6 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
-		//updateServerInfo();
 		needUpdateFromServer = true;
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -425,7 +426,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
 		masterServerThreadInDeletion = true;
-		delete updateFromMasterserverThread;
+		if(updateFromMasterserverThread != NULL &&
+			updateFromMasterserverThread->shutdownAndWait() == true) {
+			delete updateFromMasterserverThread;
+		}
 		updateFromMasterserverThread = NULL;
 		masterServerThreadInDeletion = false;
 		safeMutexPtr.ReleaseLock();
@@ -451,7 +455,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
 		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
 		masterServerThreadInDeletion = true;
-		delete updateFromMasterserverThread;
+		if(updateFromMasterserverThread != NULL &&
+			updateFromMasterserverThread->shutdownAndWait() == true) {
+			delete updateFromMasterserverThread;
+		}
 		updateFromMasterserverThread = NULL;
 		masterServerThreadInDeletion = false;
 		safeMutexPtr.ReleaseLock();
@@ -481,8 +488,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
 	    		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
 	    		masterServerThreadInDeletion = true;
-	    		BaseThread::shutdownAndWait(updateFromMasterserverThread);
-	    		delete updateFromMasterserverThread;
+				if(updateFromMasterserverThread != NULL &&
+					updateFromMasterserverThread->shutdownAndWait() == true) {
+					delete updateFromMasterserverThread;
+				}
 	    		updateFromMasterserverThread = NULL;
 	    		masterServerThreadInDeletion = false;
 	    		safeMutexPtr.ReleaseLock();
@@ -597,6 +606,10 @@ void MenuStateMasterserver::update(){
 }
 
 void MenuStateMasterserver::simpleTask() {
+	if(masterServerThreadInDeletion == true) {
+		return;
+	}
+
 	if( updateFromMasterserverThread == NULL ||
 		updateFromMasterserverThread->getQuitStatus() == true) {
 		return;

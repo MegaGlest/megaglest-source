@@ -51,8 +51,9 @@ public:
 	virtual bool getHasBeginExecution();
 	virtual void setHasBeginExecution(bool value);
 
-    static void shutdownAndWait(BaseThread *ppThread);
-    virtual void shutdownAndWait();
+    static bool shutdownAndWait(BaseThread *ppThread);
+    virtual bool shutdownAndWait();
+    virtual bool canShutdown() { return true; }
 
     void setUniqueID(string value) { uniqueID = value; }
     string getUniqueID() { return uniqueID; }
