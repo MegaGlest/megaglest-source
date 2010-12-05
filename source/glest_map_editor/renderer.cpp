@@ -9,6 +9,9 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+//this file is not used
+
+/*
 
 #include "renderer.h"
 
@@ -37,7 +40,7 @@ void Renderer::init(int clientW, int clientH) {
 	assertGl();
 }
 
-void Renderer::renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize) {
+void Renderer::renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid) {
 	float alt;
 	float showWater;
 
@@ -129,13 +132,13 @@ void Renderer::renderMap(MapPreview *map, int x, int y, int clientW, int clientH
 
 					glColor3fv((surfColor*2.f).ptr());
 					//left
-					if (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j)) {
+					if (grid || (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j))) {
 						glBegin(GL_LINES);
 						glVertex2i(i * cellSize, clientH - (j + 1) * cellSize);
 						glVertex2i(i * cellSize, clientH - j * cellSize);
 						glEnd();
 					}
-					if (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j)) {
+					if (grid || (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j))) {
 						glBegin(GL_LINES);
 						glVertex2i(i * cellSize, clientH - j * cellSize);
 						glVertex2i((i + 1) * cellSize, clientH - j * cellSize);
@@ -191,4 +194,8 @@ void Renderer::renderMap(MapPreview *map, int x, int y, int clientW, int clientH
 	assertGl();
 }
 
+
 }// end namespace
+
+*/
+

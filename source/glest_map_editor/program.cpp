@@ -146,6 +146,7 @@ MapPreview *Program::map = NULL;
 
 Program::Program(int w, int h) {
 	cellSize = 6;
+	grid=false;
 	ofsetX = 0;
 	ofsetY = 0;
 	map = new MapPreview();
@@ -178,6 +179,7 @@ int Program::getResource(int x, int y) {
 	}
 }
 
+// TODO: move editor-specific code from shared_lib to here.
 void Program::glestChangeMapHeight(int x, int y, int Height, int radius) {
 	map->glestChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
 }
@@ -238,7 +240,7 @@ bool Program::redo() {
 }
 
 void Program::renderMap(int w, int h) {
-	renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize);
+	renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid);
 }
 
 void Program::setRefAlt(int x, int y) {
@@ -442,6 +444,11 @@ void Program::resetOfset() {
 	ofsetX = 0;
 	ofsetY = 0;
 	cellSize = 6;
+}
+
+bool Program::setGridOnOff() {
+    grid=!grid;
+    return grid;
 }
 
 void Program::setMapAdvanced(int altFactor, int waterLevel) {

@@ -36,7 +36,7 @@ void BaseRenderer::initMapSurface(int clientW, int clientH) {
 }
 
 void BaseRenderer::renderMap(MapPreview *map, int x, int y,
-							 int clientW, int clientH, int cellSize) {
+							 int clientW, int clientH, int cellSize, bool grid) {
 	float alt=0;
 	float showWater=0;
 
@@ -112,14 +112,14 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 //				if (!found) {
 					glColor3fv((surfColor*0.5f).ptr());
 					//left
-					if (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j)) {
+					if (grid || (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j))) {
 						glBegin(GL_LINES);
 						glVertex2i(i * cellSize, clientH - (j + 1) * cellSize);
 						glVertex2i(i * cellSize, clientH - j * cellSize);
 						glEnd();
 					}
 					//down
-					if (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j)) {
+					if (grid || (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j))) {
 						glBegin(GL_LINES);
 						glVertex2i(i * cellSize, clientH - j * cellSize);
 						glVertex2i((i + 1) * cellSize, clientH - j * cellSize);

@@ -83,8 +83,7 @@ int MapPreview::getStartLocationY(int index) const {
 static int get_dist(int delta_x, int delta_y) {
 	float dx = (float)delta_x;
 	float dy = (float)delta_y;
-
-	return static_cast<int>(sqrtf(dx * dx + dy * dy));
+	return static_cast<int>(sqrtf(dx * dx + dy * dy)+0.5); // round correctly
 }
 
 void MapPreview::glestChangeHeight(int x, int y, int height, int radius) {
@@ -169,8 +168,8 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 	}
 	//std::cout << endl;
 
-	// A brush with radius n cells should have a true radius of n-1 distance
-	radius -= 1;
+	//  // A brush with radius n cells should have a true radius of n-1 distance  // No becasue then "radius" 1==2
+	// radius -= 1;
 	for (int i = x - radius; i <= x + radius; i++) {
 		for (int j = y - radius; j <= y + radius; j++) {
 			int dist = get_dist(i - x, j - y);
@@ -360,7 +359,7 @@ void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius)
 		for (j = y - radius + 1; j < y + radius; j++) {
 			if (inside(i, j)) {
 				dist = get_dist(i - x, j - y);
-				if (radius >= dist) {
+				if (radius > dist) {  // was >=
 					cells[i][j].surface = surface;
 				}
 			}

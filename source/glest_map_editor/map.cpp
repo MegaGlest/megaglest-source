@@ -9,8 +9,9 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-// This file is not used anoymore
+// This file is not used anymore
 
+/*
 #include "map.h"
 
 #include <cmath>
@@ -349,12 +350,12 @@ void Map::mirrorXY() { // copy leftbottom to topright
 		}
 	}
 }
-/*
-void Map::rotatecopyX();
-void Map::rotatecopyY();
-void Map::rotatecopyXY();
-void Map::rotatecopyCorner();
-*/
+
+// void Map::rotatecopyX();
+// void Map::rotatecopyY();
+// void Map::rotatecopyXY();
+// void Map::rotatecopyCorner();
+
 
 void Map::changeSurface(int x, int y, int surface, int radius) {
 	int i, j;
@@ -803,5 +804,7 @@ void Map::applyNewHeight(float newHeight, int x, int y, int strenght) {
 }
 
 }// end namespace
+
+*/
 
 
