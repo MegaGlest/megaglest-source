@@ -133,7 +133,10 @@ public:
 	void rotatecopyY();
 	void rotatecopyXY();
 	void rotatecopyCorner();
-
+	void shiftLeft();
+	void shiftRight();
+	void shiftUp();
+	void shiftDown();
 
 	void randomizeMapHeights();
 	void randomizeMap();
