@@ -747,6 +747,7 @@ void MainWindow::onMenuViewHelp(wxCommandEvent &event) {
 	MsgDialog(this,
 		wxT("Draw with left mouse\nMove viewport with right mouse drag\nZoom with center mouse drag, or mousewheel\n\
 You can change brush in the same category with key 1-9\n\
+To center things in the map shift it with Shift-Up/Down/Left/Right keys\n\
 Height tool (blue) builds with integer height steps 0-20, \nwhile Gradient tool (red) uses any real number \n\
 Units can go over water as long as it is less than 1.5 deep\n\
 A good idea is to put some stone, gold and tree near starting position\n\
@@ -964,6 +965,25 @@ void MainWindow::uncheckRadius() {
  	} else if (e.GetKeyCode() == 'L') {
  		wxCommandEvent evt(wxEVT_NULL, miBrushStartLocation + startLocation + 1);
  		onMenuBrushStartLocation(evt);
+ 	} else if (e.GetKeyCode() == WXK_LEFT && e.GetModifiers() == wxMOD_SHIFT) { // shift-left/right/up/down to shift the map one square
+ 	    program->setUndoPoint(ctAll);
+ 	    program->shiftLeft();
+ 		setDirty();
+ 	} else if (e.GetKeyCode() == WXK_RIGHT && e.GetModifiers() == wxMOD_SHIFT) {
+ 	    program->setUndoPoint(ctAll);
+ 	    program->shiftRight();
+ 		setDirty();
+ 	} else if (e.GetKeyCode() == WXK_UP && e.GetModifiers() == wxMOD_SHIFT) {
+ 	    program->setUndoPoint(ctAll);
+ 	    program->shiftUp();
+ 		setDirty();
+ 	} else if (e.GetKeyCode() == WXK_DOWN && e.GetModifiers() == wxMOD_SHIFT) {
+ 	    program->setUndoPoint(ctAll);
+ 	    program->shiftDown();
+ 		setDirty();
+ 	} else if (e.GetKeyCode() == WXK_BACK && e.GetModifiers() == wxMOD_ALT) { // undo
+ 	    wxCommandEvent evt(wxEVT_NULL, 0);
+        onMenuEditUndo(evt);
  	} else {
  		e.Skip();
 	}
