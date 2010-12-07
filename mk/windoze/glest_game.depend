@@ -874,12 +874,12 @@
 	<netdb.h>
 	"leak_dumper.h"
 
-1283825715 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/base_thread.h
+1291510119 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/base_thread.h
 	"leak_dumper.h"
 	"thread.h"
 	<string>
 
-1283810434 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/simple_threads.h
+1291510227 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/simple_threads.h
 	"base_thread.h"
 	<vector>
 	<string>
@@ -1323,7 +1323,7 @@
 	"sound_container.h"
 	"leak_dumper.h"
 
-1291444912 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
+1291697703 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
 	"game_util.h"
 	"util.h"
 	"lang.h"
@@ -1541,7 +1541,7 @@
 	"graphics_interface.h"
 	"leak_dumper.h"
 
-1289288251 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.cpp
+1291504627 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.cpp
 	"renderer.h"
 	"texture_gl.h"
 	"main_menu.h"
@@ -1961,7 +1961,7 @@
 	"map_preview.h"
 	"leak_dumper.h"
 
-1290828295 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_custom_game.cpp
+1291513400 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_custom_game.cpp
 	"menu_state_custom_game.h"
 	"renderer.h"
 	"sound_renderer.h"
@@ -2013,7 +2013,7 @@
 	"socket.h"
 	"leak_dumper.h"
 
-1288459822 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.cpp
+1291512889 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.cpp
 	"menu_state_masterserver.h"
 	"renderer.h"
 	"sound_renderer.h"
@@ -2131,7 +2131,7 @@
 	"util.h"
 	"leak_dumper.h"
 
-1290828295 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.cpp
+1291510945 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.cpp
 	"network_message.h"
 	<cassert>
 	<stdexcept>
@@ -2649,4 +2649,924 @@
 	<inttypes.h>
 
 1188326643 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp
+
+1278057011 /usr/include/SDL/SDL_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_config.h
+	"SDL_platform.h"
+	<stdarg.h>
+
+1278057011 /usr/include/SDL/SDL_platform.h
+
+1289332244 /usr/include/sys/types.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<stddef.h>
+	<endian.h>
+	<sys/select.h>
+	<sys/sysmacros.h>
+	<bits/pthreadtypes.h>
+
+1289332223 /usr/include/features.h
+	<bits/predefs.h>
+	<sys/cdefs.h>
+	<gnu/stubs.h>
+
+1289332224 /usr/include/bits/predefs.h
+
+1289332245 /usr/include/sys/cdefs.h
+	<features.h>
+	<bits/wordsize.h>
+
+1289332239 /usr/include/bits/wordsize.h
+
+1289332224 /usr/include/gnu/stubs.h
+	<bits/wordsize.h>
+	<gnu/stubs-32.h>
+	<gnu/stubs-64.h>
+
+1289332265 /usr/include/gnu/stubs-64.h
+
+1289332244 /usr/include/bits/types.h
+	<features.h>
+	<bits/wordsize.h>
+	<bits/typesizes.h>
+
+1289332244 /usr/include/bits/typesizes.h
+
+1289332243 /usr/include/time.h
+	<features.h>
+	<stddef.h>
+	<bits/time.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<xlocale.h>
+
+1289332243 /usr/include/bits/time.h
+	<bits/types.h>
+	<bits/types.h>
+
+1289332225 /usr/include/xlocale.h
+
+1289332241 /usr/include/endian.h
+	<features.h>
+	<bits/endian.h>
+	<bits/byteswap.h>
+
+1289332241 /usr/include/bits/endian.h
+
+1289332241 /usr/include/bits/byteswap.h
+	<bits/wordsize.h>
+
+1289332245 /usr/include/sys/select.h
+	<features.h>
+	<bits/types.h>
+	<bits/select.h>
+	<bits/sigset.h>
+	<time.h>
+	<bits/time.h>
+
+1289332245 /usr/include/bits/select.h
+	<bits/wordsize.h>
+
+1289332238 /usr/include/bits/sigset.h
+
+1289332244 /usr/include/sys/sysmacros.h
+	<features.h>
+
+1289332244 /usr/include/bits/pthreadtypes.h
+	<bits/wordsize.h>
+
+1289332240 /usr/include/stdio.h
+	<features.h>
+	<stddef.h>
+	<bits/types.h>
+	<libio.h>
+	<stdarg.h>
+	<bits/stdio_lim.h>
+	<bits/sys_errlist.h>
+	<getopt.h>
+	<bits/stdio.h>
+	<bits/stdio2.h>
+	<bits/stdio-ldbl.h>
+
+1289332240 /usr/include/libio.h
+	<_G_config.h>
+	<stdarg.h>
+	<sys/cdefs.h>
+	<bits/stdio-lock.h>
+	<shlib-compat.h>
+	<bits/libio-ldbl.h>
+
+1289332240 /usr/include/_G_config.h
+	<bits/types.h>
+	<stddef.h>
+	<wchar.h>
+	<gconv.h>
+
+1289332242 /usr/include/wchar.h
+	<features.h>
+	<stdio.h>
+	<stdarg.h>
+	<bits/wchar.h>
+	<stddef.h>
+	<wctype.h>
+	<xlocale.h>
+	<xlocale.h>
+	<xlocale.h>
+	<wctype.h>
+	<bits/wchar2.h>
+	<bits/wchar-ldbl.h>
+
+1289332242 /usr/include/bits/wchar.h
+
+1289332247 /usr/include/wctype.h
+	<features.h>
+	<bits/types.h>
+	<wchar.h>
+	<endian.h>
+	<xlocale.h>
+
+1289332242 /usr/include/bits/wchar2.h
+
+1289332242 /usr/include/bits/wchar-ldbl.h
+
+1289332224 /usr/include/gconv.h
+	<features.h>
+	<wchar.h>
+	<stddef.h>
+
+1289332240 /usr/include/bits/stdio-lock.h
+	<bits/libc-lock.h>
+	<lowlevellock.h>
+
+1289332224 /usr/include/bits/libc-lock.h
+	<pthread.h>
+	<stddef.h>
+	<lowlevellock.h>
+	<tls.h>
+	<pthread-functions.h>
+	<errno.h>
+	<gnu/option-groups.h>
+	<bp-sym.h>
+
+1289332252 /usr/include/pthread.h
+	<features.h>
+	<endian.h>
+	<sched.h>
+	<time.h>
+	<bits/pthreadtypes.h>
+	<bits/setjmp.h>
+	<bits/wordsize.h>
+
+1289332244 /usr/include/sched.h
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<time.h>
+	<bits/sched.h>
+
+1289332244 /usr/include/bits/sched.h
+
+1289332238 /usr/include/bits/setjmp.h
+	<bits/wordsize.h>
+
+1289332239 /usr/include/errno.h
+	<features.h>
+	<bits/errno.h>
+
+1289332239 /usr/include/bits/errno.h
+	<linux/errno.h>
+
+1290606045 /usr/include/linux/errno.h
+	<asm/errno.h>
+
+1290606046 /usr/include/asm/errno.h
+	<asm-generic/errno.h>
+
+1290606044 /usr/include/asm-generic/errno.h
+	<asm-generic/errno-base.h>
+
+1290606044 /usr/include/asm-generic/errno-base.h
+
+1289332261 /usr/include/gnu/option-groups.h
+
+1289332240 /usr/include/bits/libio-ldbl.h
+
+1289332239 /usr/include/bits/stdio_lim.h
+
+1289332240 /usr/include/bits/sys_errlist.h
+
+1289332244 /usr/include/getopt.h
+	<ctype.h>
+
+1289332236 /usr/include/ctype.h
+	<features.h>
+	<bits/types.h>
+	<endian.h>
+	<xlocale.h>
+
+1289332240 /usr/include/bits/stdio.h
+
+1289332240 /usr/include/bits/stdio2.h
+
+1289332240 /usr/include/bits/stdio-ldbl.h
+
+1289332239 /usr/include/stdlib.h
+	<features.h>
+	<stddef.h>
+	<bits/waitflags.h>
+	<bits/waitstatus.h>
+	<xlocale.h>
+	<sys/types.h>
+	<alloca.h>
+	<bits/stdlib.h>
+	<bits/stdlib-ldbl.h>
+
+1289332244 /usr/include/bits/waitflags.h
+
+1289332244 /usr/include/bits/waitstatus.h
+	<endian.h>
+
+1289332239 /usr/include/alloca.h
+	<features.h>
+	<stddef.h>
+
+1289332239 /usr/include/bits/stdlib.h
+
+1289332239 /usr/include/bits/stdlib-ldbl.h
+
+1289332241 /usr/include/malloc.h
+	<features.h>
+	<stddef.h>
+	<stdio.h>
+
+1289332241 /usr/include/memory.h
+	<features.h>
+	<string.h>
+
+1289332241 /usr/include/string.h
+	<features.h>
+	<stddef.h>
+	<xlocale.h>
+	<bits/string.h>
+	<bits/string2.h>
+	<bits/string3.h>
+
+1289332241 /usr/include/bits/string.h
+
+1289332241 /usr/include/bits/string2.h
+	<endian.h>
+	<bits/types.h>
+	<stdlib.h>
+
+1289332241 /usr/include/bits/string3.h
+
+1289332241 /usr/include/strings.h
+	<features.h>
+	<stddef.h>
+	<xlocale.h>
+
+1289332239 /usr/include/inttypes.h
+	<features.h>
+	<stdint.h>
+	<stddef.h>
+
+1289332239 /usr/include/stdint.h
+	<features.h>
+	<bits/wchar.h>
+	<bits/wordsize.h>
+
+1289332224 /usr/include/iconv.h
+	<features.h>
+	<stddef.h>
+
+1278057011 /usr/include/SDL/begin_code.h
+
+1278057011 /usr/include/SDL/close_code.h
+
+1278057011 /usr/include/SDL/SDL_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1277276853 /usr/include/curl/curl.h
+	"curlver.h"
+	"curlbuild.h"
+	"curlrules.h"
+	<stdio.h>
+	<limits.h>
+	<osreldate.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"typecheck-gcc.h"
+
+1277276853 /usr/include/curl/curlver.h
+
+1277276853 /usr/include/curl/curlbuild.h
+	<windows.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/types.h>
+	<stdint.h>
+	<inttypes.h>
+	<sys/socket.h>
+
+1289332246 /usr/include/sys/socket.h
+	<features.h>
+	<sys/uio.h>
+	<stddef.h>
+	<bits/sigset.h>
+	<bits/socket.h>
+	<bits/socket2.h>
+
+1289332245 /usr/include/sys/uio.h
+	<features.h>
+	<sys/types.h>
+	<bits/uio.h>
+
+1289332245 /usr/include/bits/uio.h
+	<sys/types.h>
+
+1289332246 /usr/include/bits/socket.h
+	<stddef.h>
+	<sys/types.h>
+	<bits/sockaddr.h>
+	<asm/socket.h>
+
+1289332246 /usr/include/bits/sockaddr.h
+
+1290606046 /usr/include/asm/socket.h
+	<asm-generic/socket.h>
+
+1290606044 /usr/include/asm-generic/socket.h
+	<asm/sockios.h>
+
+1290606046 /usr/include/asm/sockios.h
+	<asm-generic/sockios.h>
+
+1290606044 /usr/include/asm-generic/sockios.h
+
+1289332246 /usr/include/bits/socket2.h
+
+1277276853 /usr/include/curl/curlrules.h
+
+1289332223 /usr/include/limits.h
+	<features.h>
+	<bits/wordsize.h>
+	<bits/posix1_lim.h>
+	<bits/posix2_lim.h>
+	<bits/xopen_lim.h>
+
+1289332244 /usr/include/bits/posix1_lim.h
+	<bits/local_lim.h>
+
+1289332244 /usr/include/bits/local_lim.h
+	<linux/limits.h>
+
+1290606046 /usr/include/linux/limits.h
+
+1289332244 /usr/include/bits/posix2_lim.h
+
+1289332224 /usr/include/bits/xopen_lim.h
+	<bits/stdio_lim.h>
+	<bits/wordsize.h>
+
+1289332243 /usr/include/sys/time.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<bits/time.h>
+	<sys/select.h>
+
+1277276853 /usr/include/curl/easy.h
+
+1277276853 /usr/include/curl/multi.h
+	"curl.h"
+
+1277276853 /usr/include/curl/typecheck-gcc.h
+
+1278057011 /usr/include/SDL/SDL_types.h
+	"SDL_stdinc.h"
+
+1188326692 /usr/include/xercesc/util/XercesDefs.hpp
+	<xercesc/util/XercesVersion.hpp>
+	<xercesc/util/AutoSense.hpp>
+	<xercesc/util/Platforms/Win32/Win32Defs.hpp>
+	<xercesc/util/Platforms/Cygwin/CygwinDefs.hpp>
+	<xercesc/util/Platforms/AIX/AIXDefs.hpp>
+	<xercesc/util/Platforms/Solaris/SolarisDefs.hpp>
+	<xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp>
+	<xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp>
+	<xercesc/util/Platforms/HPUX/HPUXDefs.hpp>
+	<xercesc/util/Platforms/IRIX/IRIXDefs.hpp>
+	<xercesc/util/Platforms/Interix/InterixDefs.hpp>
+	<xercesc/util/Platforms/Tandem/TandemDefs.hpp>
+	<xercesc/util/Platforms/BeOS/BeOSDefs.hpp>
+	<xercesc/util/Platforms/Linux/LinuxDefs.hpp>
+	<xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp>
+	<xercesc/util/Platforms/OS390/OS390Defs.hpp>
+	<xercesc/util/Platforms/PTX/PTXDefs.hpp>
+	<xercesc/util/Platforms/OS2/OS2Defs.hpp>
+	<xercesc/util/Platforms/MacOS/MacOSDefs.hpp>
+	<xercesc/util/Platforms/OS400/OS400Defs.hpp>
+	<xercesc/util/Platforms/Tru64/Tru64Defs.hpp>
+	<xercesc/util/Platforms/QNX/QNXDefs.hpp>
+	<xercesc/util/Compilers/VCPPDefs.hpp>
+	<xercesc/util/Compilers/CSetDefs.hpp>
+	<xercesc/util/Compilers/BorlandCDefs.hpp>
+	<xercesc/util/Compilers/SunCCDefs.hpp>
+	<xercesc/util/Compilers/SCOCCDefs.hpp>
+	<xercesc/util/Compilers/SunKaiDefs.hpp>
+	<xercesc/util/Compilers/HPCCDefs.hpp>
+	<xercesc/util/Compilers/MIPSproDefs.hpp>
+	<xercesc/util/Compilers/TandemCCDefs.hpp>
+	<xercesc/util/Compilers/GCCDefs.hpp>
+	<xercesc/util/Compilers/MVSCPPDefs.hpp>
+	<xercesc/util/Compilers/IBMVAW32Defs.hpp>
+	<xercesc/util/Compilers/IBMVAOS2Defs.hpp>
+	<xercesc/util/Compilers/CodeWarriorDefs.hpp>
+	<xercesc/util/Compilers/PTXCCDefs.hpp>
+	<xercesc/util/Compilers/OS400SetDefs.hpp>
+	<xercesc/util/Compilers/DECCXXDefs.hpp>
+	<xercesc/util/Compilers/QCCDefs.hpp>
+	<xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp>
+
+1188326692 /usr/include/xercesc/util/XercesVersion.hpp
+
+1263501103 /usr/include/xercesc/util/AutoSense.hpp
+
+1188326645 /usr/include/xercesc/util/Platforms/Linux/LinuxDefs.hpp
+	<endian.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/VCPPDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/CSetDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/BorlandCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/SunCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/SCOCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/SunKaiDefs.hpp
+	<memory.h>
+	<strings.h>
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/HPCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/MIPSproDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/TandemCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/GCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/MVSCPPDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/IBMVAW32Defs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/IBMVAOS2Defs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/CodeWarriorDefs.hpp
+	<wchar.h>
+	<wctype.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/PTXCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/OS400SetDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/DECCXXDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /usr/include/xercesc/util/Compilers/QCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+	<inttypes.h>
+
+1278057011 /usr/include/SDL/SDL.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_endian.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_cpuinfo.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_active.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_keysym.h
+
+1278057011 /usr/include/SDL/SDL_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1278057011 /usr/include/SDL/SDL_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1283810437 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/platform_util.h
+	<string>
+	<stdexcept>
+	"platform_common.h"
+	"leak_dumper.h"
+
+1285867037 /usr/include/GL/gl.h
+	"gl_mangle.h"
+	<stdlib.h>
+	<windows.h>
+	<GL/mesa_wgl.h>
+	<GL/glext.h>
+
+1285867037 /usr/include/GL/gl_mangle.h
+
+1285867037 /usr/include/GL/glext.h
+	<windows.h>
+	<stddef.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+	<stdint.h>
+	<stdint.h>
+	<inttypes.h>
+
+1285867030 /usr/include/GL/glu.h
+	"glu_mangle.h"
+	<GL/gl.h>
+
+1285867030 /usr/include/GL/glu_mangle.h
+
+1278057011 /usr/include/SDL/SDL_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
+
+1289332244 /usr/include/fcntl.h
+	<features.h>
+	<bits/fcntl.h>
+	<bits/types.h>
+	<time.h>
+	<bits/stat.h>
+	<bits/fcntl2.h>
+
+1289332244 /usr/include/bits/fcntl.h
+	<sys/types.h>
+	<bits/wordsize.h>
+	<bits/uio.h>
+
+1289332244 /usr/include/bits/stat.h
+
+1289332244 /usr/include/bits/fcntl2.h
+
+1289332244 /usr/include/unistd.h
+	<features.h>
+	<bits/posix_opt.h>
+	<bits/environments.h>
+	<bits/types.h>
+	<stddef.h>
+	<bits/confname.h>
+	<getopt.h>
+	<bits/unistd.h>
+
+1289332244 /usr/include/bits/posix_opt.h
+
+1289332244 /usr/include/bits/environments.h
+	<bits/wordsize.h>
+
+1289332244 /usr/include/bits/confname.h
+
+1289332244 /usr/include/bits/unistd.h
+
+1289332256 /usr/include/netinet/in.h
+	<features.h>
+	<stdint.h>
+	<sys/socket.h>
+	<bits/types.h>
+	<bits/in.h>
+	<endian.h>
+	<bits/byteswap.h>
+
+1289332257 /usr/include/bits/in.h
+
+1289332256 /usr/include/arpa/inet.h
+	<features.h>
+	<netinet/in.h>
+
+1289332253 /usr/include/netdb.h
+	<features.h>
+	<netinet/in.h>
+	<stdint.h>
+	<rpc/netdb.h>
+	<bits/siginfo.h>
+	<time.h>
+	<bits/netdb.h>
+
+1289332257 /usr/include/rpc/netdb.h
+	<features.h>
+	<stddef.h>
+
+1289332238 /usr/include/bits/siginfo.h
+	<bits/wordsize.h>
+
+1289332253 /usr/include/bits/netdb.h
+
+1103763184 /usr/include/lua5.1/lua.hpp
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+
+1218029412 /usr/include/lua5.1/lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1259004059 /usr/include/lua5.1/luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<stdio.h>
+	<stdio.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1275301503 /usr/include/readline/readline.h
+	"rlstdc.h"
+	"rltypedefs.h"
+	"keymaps.h"
+	"tilde.h"
+	<stdio.h>
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+	<readline/keymaps.h>
+	<readline/tilde.h>
+
+1275301503 /usr/include/readline/rlstdc.h
+
+1275301503 /usr/include/readline/rltypedefs.h
+
+1275301503 /usr/include/readline/keymaps.h
+	"rlstdc.h"
+	"chardefs.h"
+	"rltypedefs.h"
+	<readline/rlstdc.h>
+	<readline/chardefs.h>
+	<readline/rltypedefs.h>
+
+1275301503 /usr/include/readline/chardefs.h
+	<ctype.h>
+	<string.h>
+
+1275301503 /usr/include/readline/tilde.h
+
+1275301503 /usr/include/readline/history.h
+	<time.h>
+	"rlstdc.h"
+	"rltypedefs.h"
+	<stdio.h>
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+
+1289332236 /usr/include/assert.h
+	<features.h>
+
+1289332237 /usr/include/math.h
+	<features.h>
+	<bits/huge_val.h>
+	<bits/huge_valf.h>
+	<bits/huge_vall.h>
+	<bits/inf.h>
+	<bits/nan.h>
+	<bits/mathdef.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathinline.h>
+
+1289332237 /usr/include/bits/huge_val.h
+	<endian.h>
+
+1289332237 /usr/include/bits/huge_valf.h
+
+1289332237 /usr/include/bits/huge_vall.h
+
+1289332237 /usr/include/bits/inf.h
+
+1289332237 /usr/include/bits/nan.h
+	<endian.h>
+
+1289332237 /usr/include/bits/mathdef.h
+	<bits/wordsize.h>
+
+1289332237 /usr/include/bits/mathcalls.h
+
+1289332237 /usr/include/bits/mathinline.h
+	<bits/wordsize.h>
+
+1198760545 /usr/include/lua5.1/lualib.h
+	"lua.h"
+
+1198760545 /usr/include/lua5.1/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1269843832 /usr/include/AL/alc.h
+
+1269843812 /usr/include/AL/al.h
 

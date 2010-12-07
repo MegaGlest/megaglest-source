@@ -7,11 +7,14 @@
 		<Option compiler="mingw32_compiler" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="glest_game" prefix_auto="1" extension_auto="1" />
+				<Option output="../../data/glest_game/glest_game.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../data/glest_game/" />
 				<Option object_output="Debug Win32/glest_game" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="mingw32_compiler" />
+				<Option use_console_runner="0" />
 				<Compiler>
+					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -96,40 +99,43 @@
 					<Add directory="$(NOINHERIT)" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-Wl,-subsystem,console" />
+					<Add option="-mconsole" />
+					<Add library="mingw32" />
+					<Add library="ddraw" />
 					<Add library="dsound" />
 					<Add library="dxguid" />
-					<Add library="ogg_static" />
-					<Add library="vorbis_static" />
-					<Add library="vorbisfile_static" />
+					<Add library="ws2_32" />
+					<Add library="iphlpapi" />
+					<Add library="wsock32" />
+					<Add library="liblibogg" />
+					<Add library="liblibvorbis" />
+					<Add library="liblibvorbisfile" />
+					<Add library="zlib" />
+					<Add library="jpeg" />
+					<Add library="liblibpng" />
+					<Add library="xerces-c" />
+					<Add library="OpenAL32" />
+					<Add library="liblibcurl" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
-					<Add library="wsock32" />
-					<Add library="libglest" />
-					<Add library="mmc" />
+					<Add library="SDL" />
+					<Add library="SDLmain" />
 					<Add library="lua5.1" />
-					<Add library="xerces-c_3" />
-					<Add library="Dbghelp" />
-					<Add library="libpng" />
-					<Add library="jpeg" />
-					<Add library="zlib" />
-					<Add library="sdl" />
-					<Add library="sdlmain" />
-					<Add library="winmm" />
-					<Add library="openal32" />
-					<Add library="iphlpapi" />
-					<Add library="libstreflop" />
-					<Add library="libcurl" />
-					<Add library="ws2_32" />
+					<Add library="streflop" />
+					<Add library="glest" />
 					<Add directory="../../source/win32_deps/lib" />
-					<Add directory="../../build/Debug Win32/libglest" />
-					<Add directory="../../source/shared_lib/sources/streflop/libstreflop" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="glest_game" prefix_auto="1" extension_auto="1" />
+				<Option output="glest_game.exe" prefix_auto="0" extension_auto="0" />
 				<Option object_output="Release Win32/glest_game" />
 				<Option type="1" />
 				<Option compiler="mingw32_compiler" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-D_WIN32" />
 					<Add option="-DWIN32" />
@@ -218,15 +224,18 @@
 					<Add directory="$(NOINHERIT)" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-Wl,-subsystem,console" />
+					<Add option="-mconsole" />
+					<Add library="mingw32" />
 					<Add library="ddraw" />
 					<Add library="dsound" />
 					<Add library="dxguid" />
 					<Add library="ws2_32" />
 					<Add library="iphlpapi" />
 					<Add library="wsock32" />
-					<Add library="ogg_static" />
-					<Add library="vorbis_static" />
-					<Add library="vorbisfile_static" />
+					<Add library="liblibogg" />
+					<Add library="liblibvorbis" />
+					<Add library="liblibvorbisfile" />
 					<Add library="zlib" />
 					<Add library="jpeg" />
 					<Add library="liblibpng" />
