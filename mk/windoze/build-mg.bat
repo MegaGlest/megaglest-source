@@ -17,6 +17,10 @@ ECHO --------------------------------
 Echo Updating Code from SVN to latest Revision...
 svn update ..\..\
 
+ECHO --------------------------------
+Echo Touching the build date/time file so we get proper build stamp
+touch ..\..\source\glest_game\facilities\game_util.cpp
+
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
 Echo Building Mega-Glest...
