@@ -142,7 +142,7 @@ bool BaseThread::shutdownAndWait() {
 
 			int maxWaitSeconds = 7;
 			if(pThread->canShutdown() == false) {
-				maxWaitSeconds = 3;
+				maxWaitSeconds = 2;
 			}
 
 			for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= maxWaitSeconds; ) {
