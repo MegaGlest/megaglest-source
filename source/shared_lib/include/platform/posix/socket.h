@@ -25,7 +25,12 @@
 using std::string;
 
 #ifdef WIN32
-	#include <winsock2.h>
+    #ifdef __MINGW32__
+	   #include <winsock2.h>
+    #else
+       #include <winsock.h>
+    #endif
+
 	typedef SOCKET PLATFORM_SOCKET;
 #else
 	#include <unistd.h>
