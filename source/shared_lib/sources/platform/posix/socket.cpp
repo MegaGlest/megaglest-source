@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <stdexcept>
 
-#if defined(HAVE_SYS_IOCTL_H)
+#if defined(HAVE_SYS_IOCTL_H) || defined(__linux__)
   #define BSD_COMP /* needed for FIONREAD on Solaris2 */
   #include <sys/ioctl.h>
 #endif
@@ -1022,10 +1022,10 @@ int Socket::send(const void *data, int dataSize) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
-#else			
+#else
                 bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
 #endif
-			
+
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
 	        //}
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
@@ -1611,7 +1611,7 @@ void BroadCastClientSocketThread::execute() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
 	setRunningStatus(false);
-	
+
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
