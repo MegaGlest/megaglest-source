@@ -317,7 +317,12 @@ MainWindow::MainWindow()
 	wxInitAllImageHandlers();
 #ifdef WIN32
 	//std::cout << "B" << std::endl;
-	wxIcon icon("IDI_ICON1");
+#if defined(__MINGW32__)
+	wxIcon icon(ToUnicode("IDI_ICON1"));
+#else
+    wxIcon icon("IDI_ICON1");
+#endif
+
 #else
 	//std::cout << "B" << std::endl;
 	wxIcon icon;
@@ -1170,7 +1175,13 @@ bool App::OnInit() {
 			std::cout << std::endl;
 			exit (0);
 		}
-		fileparam = wxFNCONV(argv[1]);
+
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
+		fileparam = tmp_buf;
+#else
+        fileparam = wxFNCONV(argv[1]);
+#endif
 	}
 
 	mainWindow = new MainWindow();

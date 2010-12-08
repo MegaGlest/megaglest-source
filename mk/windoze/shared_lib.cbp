@@ -7,94 +7,17 @@
 		<Option compiler="mingw32_compiler" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="../../source/win32_deps/lib/libglest.lib" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="" />
-				<Option object_output="Debug Win32/shared_lib" />
-				<Option type="2" />
-				<Option compiler="mingw32_compiler" />
-				<Option createDefFile="1" />
-				<Compiler>
-					<Add option="-DWIN32" />
-					<Add option="-D_DEBUG" />
-					<Add option="-D_LIB" />
-					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="-DUSE_PCH=1" />
-					<Add option="-DUSE_STREFLOP" />
-					<Add option="-DSTREFLOP_SSE" />
-					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
-					<Add option="-DLIBM_COMPILING_FLT32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add directory="../../source/shared_lib/include" />
-					<Add directory="../../source/shared_lib/include/graphics" />
-					<Add directory="../../source/shared_lib/include/graphics/gl" />
-					<Add directory="../../source/shared_lib/include/platform" />
-					<Add directory="../../source/shared_lib/include/platform/win32" />
-					<Add directory="../../source/shared_lib/include/sound" />
-					<Add directory="../../source/shared_lib/include/sound/ds8" />
-					<Add directory="../../source/shared_lib/include/util" />
-					<Add directory="../../source/shared_lib/include/lua" />
-					<Add directory="../../source/shared_lib/include/xml" />
-					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
-					<Add directory="../../source/win32_deps/lpng141" />
-					<Add directory="../../source/win32_deps/jpeg-8a" />
-					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
-					<Add directory="../../source/shared_lib/include/platform/sdl" />
-					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
-					<Add directory="../../source/shared_lib/include/sound/openal" />
-					<Add directory="../../source/shared_lib/include/platform/posix" />
-					<Add directory="../../source/shared_lib/include/streflop" />
-					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
-					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
-					<Add directory="../../source/shared_lib/include/map" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory="../../source/shared_lib/include" />
-					<Add directory="../../source/shared_lib/include/graphics" />
-					<Add directory="../../source/shared_lib/include/graphics/gl" />
-					<Add directory="../../source/shared_lib/include/platform" />
-					<Add directory="../../source/shared_lib/include/platform/win32" />
-					<Add directory="../../source/shared_lib/include/sound" />
-					<Add directory="../../source/shared_lib/include/sound/ds8" />
-					<Add directory="../../source/shared_lib/include/util" />
-					<Add directory="../../source/shared_lib/include/lua" />
-					<Add directory="../../source/shared_lib/include/xml" />
-					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
-					<Add directory="../../source/win32_deps/lpng141" />
-					<Add directory="../../source/win32_deps/jpeg-8a" />
-					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
-					<Add directory="../../source/shared_lib/include/platform/sdl" />
-					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
-					<Add directory="../../source/shared_lib/include/sound/openal" />
-					<Add directory="../../source/shared_lib/include/platform/posix" />
-					<Add directory="../../source/shared_lib/include/streflop" />
-					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
-					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
-					<Add directory="../../source/shared_lib/include/map" />
-				</ResourceCompiler>
-				<Linker>
-					<Add library="libstreflop" />
-					<Add library="libcurl" />
-					<Add directory="./" />
-					<Add directory="../../source/win32_deps/lib" />
-				</Linker>
-			</Target>
-			<Target title="Release Win32">
 				<Option output="../../source/win32_deps/lib/libglest.dll" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="../../source/win32_deps/lib" />
-				<Option object_output="Release Win32/shared_lib" />
+				<Option object_output="Debug Win32/shared_lib" />
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-g" />
 					<Add option="-D_WIN32" />
 					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
+					<Add option="-D_DEBUG" />
 					<Add option="-DXML_LIBRARY" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
@@ -120,7 +43,7 @@
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/src" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
 					<Add directory="../../source/win32_deps/lpng141" />
-					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/jpeg-8b" />
 					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
 					<Add directory="../../source/shared_lib/include/platform/sdl" />
 					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
@@ -181,30 +104,28 @@
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 				</Linker>
 			</Target>
-			<Target title="Release_NO_STREFLOP Win32">
-				<Option output="lib" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
-				<Option object_output="Release_NO_STREFLOP Win32" />
-				<Option type="2" />
+			<Target title="Release Win32">
+				<Option output="../../source/win32_deps/lib/libglest.dll" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../source/win32_deps/lib" />
+				<Option object_output="Release Win32/shared_lib" />
+				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="/DWIN32" />
-					<Add option="/DNDEBUG" />
-					<Add option="/D_LIB" />
-					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="/DUSE_PCH=1" />
-					<Add option="/DSTREFLOP_SSE" />
-					<Add option="/DSTREFLOP_RANDOM_GEN_SIZE=32" />
-					<Add option="/DLIBM_COMPILING_FLT32" />
-					<Add option="/DCURL_STATICLIB" />
-					<Add option="/W3" />
-					<Add option="/Zi" />
-					<Add option="/O2" />
-					<Add option="/MT" />
-					<Add option="/arch:SSE2" />
-					<Add directory="../../../deps/include/lua" />
-					<Add directory="../../../deps/include" />
+					<Add option="-D_WIN32" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DXML_LIBRARY" />
+					<Add option="-D_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DUSE_PCH=1" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add option="-DCURL_STATICLIB" />
+					<Add option="-D_STDCALL_SUPPORTED" />
+					<Add option="-D_M_IX86" />
 					<Add directory="../../source/shared_lib/include" />
 					<Add directory="../../source/shared_lib/include/graphics" />
 					<Add directory="../../source/shared_lib/include/graphics/gl" />
@@ -216,10 +137,10 @@
 					<Add directory="../../source/shared_lib/include/lua" />
 					<Add directory="../../source/shared_lib/include/xml" />
 					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/src" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
 					<Add directory="../../source/win32_deps/lpng141" />
-					<Add directory="../../source/win32_deps/jpeg-8a" />
+					<Add directory="../../source/win32_deps/jpeg-8b" />
 					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
 					<Add directory="../../source/shared_lib/include/platform/sdl" />
 					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
@@ -232,8 +153,6 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="../../../deps/include/lua" />
-					<Add directory="../../../deps/include" />
 					<Add directory="../../source/shared_lib/include" />
 					<Add directory="../../source/shared_lib/include/graphics" />
 					<Add directory="../../source/shared_lib/include/graphics/gl" />
@@ -262,9 +181,24 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add library="libstreflop" />
-					<Add library="libcurl" />
+					<Add library="jpeg" />
+					<Add library="lua5.1" />
+					<Add library="liblibpng" />
+					<Add library="SDL" />
+					<Add library="iphlpapi" />
+					<Add library="gdi32" />
+					<Add library="dsound" />
+					<Add library="OpenAL32" />
+					<Add library="liblibcurl" />
+					<Add library="xerces-c" />
+					<Add library="dxguid" />
+					<Add library="liblibogg" />
+					<Add library="liblibvorbis" />
+					<Add library="liblibvorbisfile" />
+					<Add library="liblibvorbisenc" />
 					<Add directory="./" />
 					<Add directory="../../source/win32_deps/lib" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Linux">
@@ -275,18 +209,16 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-fPIC" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DXML_LIBRARY" />
-					<Add option="-D_LIB" />
-					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="-DUSE_PCH=1" />
 					<Add option="-DUSE_STREFLOP" />
 					<Add option="-DSTREFLOP_SSE" />
 					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
 					<Add option="-DLIBM_COMPILING_FLT32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add option="-D_STDCALL_SUPPORTED" />
-					<Add option="-D_M_IX86" />
 					<Add directory="../../source/shared_lib/include" />
 					<Add directory="../../source/shared_lib/include/graphics" />
 					<Add directory="../../source/shared_lib/include/graphics/gl" />
@@ -302,7 +234,6 @@
 					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(THIRDPARTY_INCLUDE_DIR)" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
@@ -324,11 +255,10 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="streflop" />
 					<Add library="jpeg" />
-					<Add library="lua" />
+					<Add library="lua5.1" />
 					<Add library="png" />
-					<Add library="sdl" />
+					<Add library="SDL" />
 					<Add library="openal" />
 					<Add library="curl" />
 					<Add library="xerces-c" />
@@ -336,13 +266,100 @@
 					<Add library="vorbis" />
 					<Add library="vorbisfile" />
 					<Add library="vorbisenc" />
-					<Add directory="$(THIRDPARTY_LIB_DIR)" />
+					<Add library="streflop" />
 					<Add directory="./" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
 					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+				</Environment>
+			</Target>
+			<Target title="Debug Linux">
+				<Option output="../../source/linux_deps/lib/libglest.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Debug Linux/shared_lib" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wshadow" />
+					<Add option="-Winit-self" />
+					<Add option="-Wredundant-decls" />
+					<Add option="-Wcast-align" />
+					<Add option="-Wundef" />
+					<Add option="-Wfloat-equal" />
+					<Add option="-Winline" />
+					<Add option="-Wunreachable-code" />
+					<Add option="-Wmissing-include-dirs" />
+					<Add option="-Weffc++" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-fPIC" />
+					<Add option="-DDEBUG" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DSTREFLOP_RANDOM_GEN_SIZE=32" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/shared_lib/include/map" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="jpeg" />
+					<Add library="lua5.1" />
+					<Add library="png" />
+					<Add library="SDL" />
+					<Add library="openal" />
+					<Add library="curl" />
+					<Add library="xerces-c" />
+					<Add library="ogg" />
+					<Add library="vorbis" />
+					<Add library="vorbisfile" />
+					<Add library="vorbisenc" />
+					<Add library="streflop" />
+					<Add directory="./" />
+					<Add directory="../../source/linux_deps/lib" />
+				</Linker>
+				<Environment>
+					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 				</Environment>
 			</Target>
 		</Build>
@@ -399,17 +416,20 @@
 		<Unit filename="../../source/shared_lib/include/platform/posix/socket.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/factory_repository.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/include/platform/sdl/gl_wrap.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/noimpl.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/platform_main.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/platform_util.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/include/platform/sdl/sdl_private.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/thread.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/types.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/include/platform/sdl/window.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/window_gl.h" />
@@ -478,16 +498,40 @@
 		<Unit filename="../../source/shared_lib/sources/platform/posix/socket.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/factory_repository.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/gl_wrap.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/platform_util.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/thread.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/window.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/window_gl.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/unix/gl_wrap.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/win32/factory_repository.cpp">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/win32/gl_wrap_billy.cpp">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/win32/glob.c">
+			<Option compilerVar="CC" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/win32/platform_util.cpp">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/sound/ds8/sound_player_ds8.cpp">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/sources/sound/openal/sound_player_openal.cpp" />
 		<Unit filename="../../source/shared_lib/sources/sound/sound.cpp" />
@@ -509,7 +553,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Debug Win32" />
 			<Option target="Release Win32" />
-			<Option target="Release_NO_STREFLOP Win32" />
 		</Unit>
 		<Extensions>
 			<code_completion />
