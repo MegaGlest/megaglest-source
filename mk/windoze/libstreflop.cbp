@@ -14,6 +14,10 @@
 				<Option compiler="mingw32_compiler" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Weffc++" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
@@ -53,27 +57,34 @@
 					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
 				</ResourceCompiler>
 			</Target>
-			<Target title="Debug-MT Win32">
-				<Option output="libstreflop" prefix_auto="1" extension_auto="1" />
+			<Target title="Debug Linux">
+				<Option output="../../source/linux_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="../../source/win32_deps/lib" />
+				<Option object_output="Debug Linux/libstreflop" />
 				<Option type="2" />
-				<Option compiler="mingw32_compiler" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="/DWIN32" />
-					<Add option="/DNDEBUG" />
-					<Add option="/D_LIB" />
-					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="/DUSE_PCH=1" />
-					<Add option="/DUSE_STREFLOP" />
-					<Add option="/DSTREFLOP_SSE" />
-					<Add option="/DLIBM_COMPILING_FLT32" />
-					<Add option="/W3" />
-					<Add option="/Zi" />
-					<Add option="/O2" />
-					<Add option="/MT" />
-					<Add option="/arch:SSE2" />
+					<Add option="-Wshadow" />
+					<Add option="-Winit-self" />
+					<Add option="-Wredundant-decls" />
+					<Add option="-Wundef" />
+					<Add option="-Wfloat-equal" />
+					<Add option="-Winline" />
+					<Add option="-Wunreachable-code" />
+					<Add option="-Wmissing-include-dirs" />
+					<Add option="-Weffc++" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-fPIC" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
 					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
 					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
 				</Compiler>
@@ -82,26 +93,22 @@
 					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
 				</ResourceCompiler>
 			</Target>
-			<Target title="Release_NO_STREFLOP Win32">
-				<Option output="libstreflop" prefix_auto="1" extension_auto="1" />
+			<Target title="Release Linux">
+				<Option output="../../source/linux_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="../../source/win32_deps/lib" />
+				<Option object_output="Release Linux/libstreflop" />
 				<Option type="2" />
-				<Option compiler="mingw32_compiler" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="/DWIN32" />
-					<Add option="/DNDEBUG" />
-					<Add option="/D_LIB" />
-					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="/DUSE_PCH=1" />
-					<Add option="/DSTREFLOP_SSE" />
-					<Add option="/DLIBM_COMPILING_FLT32" />
-					<Add option="/W3" />
-					<Add option="/Zi" />
-					<Add option="/O2" />
-					<Add option="/MT" />
-					<Add option="/arch:SSE2" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-fPIC" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
 					<Add directory="../../source/shared_lib/include/streflop/libm/flt-32" />
 					<Add directory="../../source/shared_lib/include/streflop/libm/headers" />
 				</Compiler>

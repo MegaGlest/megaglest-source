@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
-	<ActiveTarget name="Release Win32" />
+	<ActiveTarget name="Debug Win32" />
 	<File name="../../source/shared_lib/include/graphics/graphics_interface.h" open="0" top="0" tabpos="0">
 		<Cursor position="566" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/common/platform_common.h" open="0" top="0" tabpos="0">
-		<Cursor position="747" topLine="8" />
+	<File name="../../source/shared_lib/include/lua/lua_script.h" open="1" top="0" tabpos="26">
+		<Cursor position="558" topLine="0" />
+	</File>
+	<File name="../../source/shared_lib/include/platform/common/platform_common.h" open="1" top="0" tabpos="22">
+		<Cursor position="747" topLine="9" />
 	</File>
 	<File name="../../source/shared_lib/include/platform/posix/socket.h" open="0" top="0" tabpos="0">
 		<Cursor position="773" topLine="6" />
@@ -13,52 +16,61 @@
 	<File name="../../source/shared_lib/include/platform/sdl/gl_wrap.h" open="0" top="0" tabpos="0">
 		<Cursor position="621" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/sdl/platform_main.h" open="1" top="0" tabpos="7">
+	<File name="../../source/shared_lib/include/platform/sdl/platform_main.h" open="1" top="0" tabpos="3">
 		<Cursor position="696" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/win32/platform_definitions.h" open="1" top="0" tabpos="8">
-		<Cursor position="0" topLine="0" />
+	<File name="../../source/shared_lib/include/platform/sdl/thread.h" open="0" top="0" tabpos="0">
+		<Cursor position="557" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/win32/platform_util.h" open="1" top="0" tabpos="9">
-		<Cursor position="0" topLine="5" />
+	<File name="../../source/shared_lib/include/streflop/FPUSettings.h" open="1" top="0" tabpos="18">
+		<Cursor position="6002" topLine="172" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/win32/types.h" open="0" top="0" tabpos="0">
-		<Cursor position="542" topLine="0" />
+	<File name="../../source/shared_lib/include/streflop/Random.h" open="0" top="0" tabpos="0">
+		<Cursor position="10411" topLine="174" />
 	</File>
 	<File name="../../source/shared_lib/include/streflop/streflop.h" open="0" top="0" tabpos="0">
 		<Cursor position="1089" topLine="3" />
 	</File>
-	<File name="../../source/shared_lib/include/util/properties.h" open="1" top="0" tabpos="12">
-		<Cursor position="1476" topLine="44" />
+	<File name="../../source/shared_lib/include/util/properties.h" open="1" top="0" tabpos="5">
+		<Cursor position="1476" topLine="23" />
 	</File>
 	<File name="../../source/shared_lib/include/util/util.h" open="0" top="0" tabpos="0">
 		<Cursor position="601" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/xml/xml_parser.h" open="1" top="0" tabpos="2">
+	<File name="../../source/shared_lib/include/xml/xml_parser.h" open="1" top="0" tabpos="1">
 		<Cursor position="576" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/sources/graphics/gl/base_renderer.cpp" open="1" top="0" tabpos="3">
+	<File name="../../source/shared_lib/sources/graphics/BMPReader.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="6" />
+	</File>
+	<File name="../../source/shared_lib/sources/graphics/gl/base_renderer.cpp" open="1" top="0" tabpos="2">
 		<Cursor position="901" topLine="1" />
+	</File>
+	<File name="../../source/shared_lib/sources/platform/common/base_thread.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5169" topLine="119" />
 	</File>
 	<File name="../../source/shared_lib/sources/platform/common/platform_common.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="507" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/sources/platform/posix/socket.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="360" topLine="0" />
+	<File name="../../source/shared_lib/sources/platform/common/simple_threads.cpp" open="1" top="1" tabpos="30">
+		<Cursor position="3961" topLine="82" />
 	</File>
-	<File name="../../source/shared_lib/sources/platform/win32/platform_util.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="1915" topLine="26" />
+	<File name="../../source/shared_lib/sources/platform/posix/socket.cpp" open="1" top="0" tabpos="27">
+		<Cursor position="686" topLine="14" />
 	</File>
-	<File name="../../source/shared_lib/sources/sound/openal/sound_player_openal.cpp" open="1" top="0" tabpos="18">
+	<File name="../../source/shared_lib/sources/sound/openal/sound_player_openal.cpp" open="1" top="0" tabpos="7">
 		<Cursor position="8638" topLine="291" />
 	</File>
-	<File name="../../source/shared_lib/sources/util/conversion.cpp" open="1" top="0" tabpos="15">
+	<File name="../../source/shared_lib/sources/util/conversion.cpp" open="1" top="0" tabpos="6">
 		<Cursor position="663" topLine="7" />
 	</File>
-	<File name="../../source/shared_lib/sources/util/properties.cpp" open="1" top="0" tabpos="11">
+	<File name="../../source/shared_lib/sources/util/profiler.cpp" open="1" top="0" tabpos="21">
+		<Cursor position="1919" topLine="57" />
+	</File>
+	<File name="../../source/shared_lib/sources/util/properties.cpp" open="1" top="0" tabpos="4">
 		<Cursor position="4900" topLine="115" />
 	</File>
-	<File name="../../source/win32_deps/src/glprocs.c" open="1" top="0" tabpos="4">
-		<Cursor position="64" topLine="0" />
+	<File name="../../source/shared_lib/sources/util/util.cpp" open="1" top="0" tabpos="17">
+		<Cursor position="0" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>

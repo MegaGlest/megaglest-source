@@ -3,6 +3,7 @@
 	<Workspace title="Workspace">
 		<Project filename="libstreflop.cbp" />
 		<Project filename="shared_lib.cbp" />
-		<Project filename="glest_game.cbp" active="1" />
+		<Project filename="glest_game.cbp" />
+		<Project filename="glest_editor.cbp" active="1" />
 	</Workspace>
 </CodeBlocks_workspace_file>

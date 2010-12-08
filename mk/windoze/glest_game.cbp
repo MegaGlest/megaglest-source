@@ -255,34 +255,27 @@
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 				</Linker>
 			</Target>
-			<Target title="Release_NO_STREFLOP Win32">
-				<Option output="glest_game" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Release_NO_STREFLOP Win32" />
+			<Target title="Release Linux">
+				<Option output="../linux/glest.bin" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Release Linux/glest_game" />
 				<Option type="1" />
-				<Option compiler="mingw32_compiler" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
-					<Add option="/DWIN32" />
-					<Add option="/DNDEBUG" />
-					<Add option="/D_WINDOWS" />
-					<Add option="/DXML_LIBRARY" />
-					<Add option="/DUSE_PCH=1" />
-					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="/DSTREFLOP_SSE" />
-					<Add option="/DLIBM_COMPILING_FLT32" />
-					<Add option="/DCURL_STATICLIB" />
-					<Add option="/W2" />
-					<Add option="/Zi" />
-					<Add option="/O2" />
-					<Add option="/MT" />
-					<Add option="/arch:SSE2" />
-					<Add directory="../../../deps/include/lua" />
-					<Add directory="../../../deps/include" />
+					<Add option="-O2" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
 					<Add directory="../../source/shared_lib/include/graphics" />
 					<Add directory="../../source/shared_lib/include/graphics/gl" />
 					<Add directory="../../source/shared_lib/include/platform" />
-					<Add directory="../../source/shared_lib/include/platform/win32" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
 					<Add directory="../../source/shared_lib/include/sound" />
-					<Add directory="../../source/shared_lib/include/sound/ds8" />
 					<Add directory="../../source/shared_lib/include/util" />
 					<Add directory="../../source/shared_lib/include/lua" />
 					<Add directory="../../source/shared_lib/include/xml" />
@@ -300,28 +293,19 @@
 					<Add directory="../../source/glest_game/type_instances" />
 					<Add directory="../../source/glest_game/types" />
 					<Add directory="../../source/glest_game/world" />
-					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
-					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
 					<Add directory="../../source/shared_lib/include/platform/sdl" />
 					<Add directory="../../source/shared_lib/include/sound/openal" />
-					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
-					<Add directory="../../source/shared_lib/include/platform/posix" />
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(NOINHERIT)" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="../../../deps/include/lua" />
-					<Add directory="../../../deps/include" />
 					<Add directory="../../source/shared_lib/include/graphics" />
 					<Add directory="../../source/shared_lib/include/graphics/gl" />
 					<Add directory="../../source/shared_lib/include/platform" />
-					<Add directory="../../source/shared_lib/include/platform/win32" />
 					<Add directory="../../source/shared_lib/include/sound" />
-					<Add directory="../../source/shared_lib/include/sound/ds8" />
 					<Add directory="../../source/shared_lib/include/util" />
 					<Add directory="../../source/shared_lib/include/lua" />
 					<Add directory="../../source/shared_lib/include/xml" />
@@ -339,49 +323,136 @@
 					<Add directory="../../source/glest_game/type_instances" />
 					<Add directory="../../source/glest_game/types" />
 					<Add directory="../../source/glest_game/world" />
-					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
-					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
 					<Add directory="../../source/shared_lib/include/platform/sdl" />
 					<Add directory="../../source/shared_lib/include/sound/openal" />
-					<Add directory="../../source/win32_deps/openal-soft-1.12.854/include" />
 					<Add directory="../../source/shared_lib/include/platform/posix" />
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(NOINHERIT)" />
 				</ResourceCompiler>
 				<Linker>
-					<Add option="/INCREMENTAL:NO" />
-					<Add library="dsound" />
-					<Add library="dxguid" />
-					<Add library="ogg_static" />
-					<Add library="vorbis_static" />
-					<Add library="vorbisfile_static" />
-					<Add library="opengl32" />
-					<Add library="glu32" />
-					<Add library="wsock32" />
-					<Add library="libglest" />
-					<Add library="mmc" />
-					<Add library="lua5.1" />
-					<Add library="xerces-c_3" />
-					<Add library="Dbghelp" />
-					<Add library="libpng" />
+					<Add library="ogg" />
+					<Add library="vorbis" />
+					<Add library="vorbisfile" />
+					<Add library="z" />
 					<Add library="jpeg" />
-					<Add library="zlib" />
-					<Add library="sdl" />
-					<Add library="sdlmain" />
-					<Add library="winmm" />
-					<Add library="openal32" />
-					<Add library="iphlpapi" />
-					<Add library="libstreflop" />
-					<Add library="libcurl" />
-					<Add library="ws2_32" />
-					<Add directory="../../source/win32_deps/lib" />
-					<Add directory="../../build/Release_NO_STREFLOP Win32/libglest" />
-					<Add directory="../../source/shared_lib/sources/streflop/libstreflop" />
+					<Add library="png" />
+					<Add library="xerces-c" />
+					<Add library="openal" />
+					<Add library="curl" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="SDL" />
+					<Add library="SDLmain" />
+					<Add library="lua5.1" />
+					<Add library="glest" />
+					<Add library="streflop" />
+					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
+				<Environment>
+					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
+				</Environment>
+			</Target>
+			<Target title="Debug Linux">
+				<Option output="../linux/glest.bin" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Debug Linux/glest_game" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Weffc++" />
+					<Add option="-g" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-frounding-math" />
+					<Add option="-fsignaling-nans" />
+					<Add option="-mfpmath=sse -msse" />
+					<Add option="-DDEBUG" />
+					<Add option="-DUSE_STREFLOP" />
+					<Add option="-DSTREFLOP_SSE" />
+					<Add option="-DLIBM_COMPILING_FLT32" />
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/shared_lib/include/tinyxml" />
+					<Add directory="../../source/glest_game/ai" />
+					<Add directory="../../source/glest_game/facilities" />
+					<Add directory="../../source/glest_game/game" />
+					<Add directory="../../source/glest_game/global" />
+					<Add directory="../../source/glest_game/graphics" />
+					<Add directory="../../source/glest_game/gui" />
+					<Add directory="../../source/glest_game/main" />
+					<Add directory="../../source/glest_game/menu" />
+					<Add directory="../../source/glest_game/network" />
+					<Add directory="../../source/glest_game/sound" />
+					<Add directory="../../source/glest_game/type_instances" />
+					<Add directory="../../source/glest_game/types" />
+					<Add directory="../../source/glest_game/world" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/shared_lib/include/map" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
+					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../source/shared_lib/include/graphics" />
+					<Add directory="../../source/shared_lib/include/graphics/gl" />
+					<Add directory="../../source/shared_lib/include/platform" />
+					<Add directory="../../source/shared_lib/include/sound" />
+					<Add directory="../../source/shared_lib/include/util" />
+					<Add directory="../../source/shared_lib/include/lua" />
+					<Add directory="../../source/shared_lib/include/xml" />
+					<Add directory="../../source/shared_lib/include/tinyxml" />
+					<Add directory="../../source/glest_game/ai" />
+					<Add directory="../../source/glest_game/facilities" />
+					<Add directory="../../source/glest_game/game" />
+					<Add directory="../../source/glest_game/global" />
+					<Add directory="../../source/glest_game/graphics" />
+					<Add directory="../../source/glest_game/gui" />
+					<Add directory="../../source/glest_game/main" />
+					<Add directory="../../source/glest_game/menu" />
+					<Add directory="../../source/glest_game/network" />
+					<Add directory="../../source/glest_game/sound" />
+					<Add directory="../../source/glest_game/type_instances" />
+					<Add directory="../../source/glest_game/types" />
+					<Add directory="../../source/glest_game/world" />
+					<Add directory="../../source/shared_lib/include/platform/sdl" />
+					<Add directory="../../source/shared_lib/include/sound/openal" />
+					<Add directory="../../source/shared_lib/include/platform/posix" />
+					<Add directory="../../source/shared_lib/include/streflop" />
+					<Add directory="../../source/shared_lib/include/platform/common" />
+					<Add directory="../../source/shared_lib/include/map" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="ogg" />
+					<Add library="vorbis" />
+					<Add library="vorbisfile" />
+					<Add library="z" />
+					<Add library="jpeg" />
+					<Add library="png" />
+					<Add library="xerces-c" />
+					<Add library="openal" />
+					<Add library="curl" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="SDL" />
+					<Add library="SDLmain" />
+					<Add library="lua5.1" />
+					<Add library="glest" />
+					<Add library="streflop" />
+					<Add directory="../../source/linux_deps/lib" />
+				</Linker>
+				<Environment>
+					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
+					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+				</Environment>
 			</Target>
 		</Build>
 		<Linker>
