@@ -218,7 +218,12 @@ void IntField::createControl(wxWindow *parent, wxSizer *sizer){
 }
 
 void IntField::updateValue(){
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+		value = tmp_buf;
+#else
 	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 }
 
 void IntField::updateControl(){
@@ -245,7 +250,13 @@ void FloatField::createControl(wxWindow *parent, wxSizer *sizer){
 }
 
 void FloatField::updateValue(){
+
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+		value = tmp_buf;
+#else
 	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 }
 
 void FloatField::updateControl(){
@@ -273,7 +284,13 @@ void StringField::createControl(wxWindow *parent, wxSizer *sizer){
 }
 
 void StringField::updateValue(){
+
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+		value = tmp_buf;
+#else
 	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 }
 
 void StringField::updateControl(){
@@ -298,7 +315,13 @@ void EnumField::createControl(wxWindow *parent, wxSizer *sizer){
 }
 
 void EnumField::updateValue(){
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(comboBox->GetValue()));
+		value = tmp_buf;
+#else
 	value= (const char*)wxFNCONV(comboBox->GetValue());
+#endif
+
 }
 
 void EnumField::updateControl(){
@@ -366,7 +389,12 @@ void FloatRangeField::createControl(wxWindow *parent, wxSizer *sizer){
 }
 
 void FloatRangeField::updateValue(){
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+		value = tmp_buf;
+#else
 	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 }
 
 void FloatRangeField::updateControl(){
