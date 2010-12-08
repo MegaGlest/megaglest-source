@@ -135,7 +135,13 @@ MainWindow::MainWindow(const string &modelPath)
 
 	wxInitAllImageHandlers();
 #ifdef WIN32
-	wxIcon icon("IDI_ICON1");
+
+#if defined(__MINGW32__)
+	wxIcon icon(ToUnicode("IDI_ICON1"));
+#else
+    wxIcon icon("IDI_ICON1");
+#endif
+
 #else
 	wxIcon icon;
 	std::ifstream testFile("g3dviewer.ico");
@@ -978,7 +984,14 @@ bool App::OnInit(){
 			std::cout << "Press R to restart particles, this also reloads all files if they are changed."  << std::endl << std::endl;
 			exit (0);
 		}
-		modelPath= wxFNCONV(argv[1]);
+
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
+		modelPath = tmp_buf;
+#else
+        modelPath = wxFNCONV(argv[1]);
+#endif
+
 	}
 
 	mainWindow= new MainWindow(modelPath);

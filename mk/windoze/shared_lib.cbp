@@ -214,6 +214,7 @@
 					<Add option="-fsignaling-nans" />
 					<Add option="-mfpmath=sse -msse" />
 					<Add option="-fPIC" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DUSE_STREFLOP" />
 					<Add option="-DSTREFLOP_SSE" />
@@ -234,7 +235,6 @@
 					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
 				<ResourceCompiler>
@@ -255,6 +255,7 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="`sdl-config --libs`" />
 					<Add library="jpeg" />
 					<Add library="lua5.1" />
 					<Add library="png" />
@@ -271,8 +272,8 @@
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
-					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 				</Environment>
 			</Target>
 			<Target title="Debug Linux">
@@ -301,6 +302,7 @@
 					<Add option="-fsignaling-nans" />
 					<Add option="-mfpmath=sse -msse" />
 					<Add option="-fPIC" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-DDEBUG" />
 					<Add option="-DUSE_STREFLOP" />
 					<Add option="-DSTREFLOP_SSE" />
@@ -321,7 +323,6 @@
 					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
 				<ResourceCompiler>
@@ -342,6 +343,7 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="`sdl-config --libs`" />
 					<Add library="jpeg" />
 					<Add library="lua5.1" />
 					<Add library="png" />

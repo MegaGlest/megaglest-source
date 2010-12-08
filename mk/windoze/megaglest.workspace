@@ -4,6 +4,8 @@
 		<Project filename="libstreflop.cbp" />
 		<Project filename="shared_lib.cbp" />
 		<Project filename="glest_game.cbp" />
-		<Project filename="glest_editor.cbp" active="1" />
+		<Project filename="glest_editor.cbp" />
+		<Project filename="g3d_viewer.cbp" active="1" />
+		<Project filename="glest_configurator.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

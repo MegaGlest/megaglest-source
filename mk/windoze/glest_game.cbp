@@ -131,7 +131,8 @@
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="glest_game.exe" prefix_auto="0" extension_auto="0" />
+				<Option output="../../data/glest_game/glest_game.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../data/glest_game/" />
 				<Option object_output="Release Win32/glest_game" />
 				<Option type="1" />
 				<Option compiler="mingw32_compiler" />
@@ -267,6 +268,7 @@
 					<Add option="-frounding-math" />
 					<Add option="-fsignaling-nans" />
 					<Add option="-mfpmath=sse -msse" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DUSE_STREFLOP" />
 					<Add option="-DSTREFLOP_SSE" />
@@ -298,7 +300,6 @@
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
 				<ResourceCompiler>
@@ -331,6 +332,7 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="`sdl-config --libs`" />
 					<Add library="ogg" />
 					<Add library="vorbis" />
 					<Add library="vorbisfile" />
@@ -367,6 +369,7 @@
 					<Add option="-frounding-math" />
 					<Add option="-fsignaling-nans" />
 					<Add option="-mfpmath=sse -msse" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-DDEBUG" />
 					<Add option="-DUSE_STREFLOP" />
 					<Add option="-DSTREFLOP_SSE" />
@@ -398,7 +401,6 @@
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/SDL" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
 				</Compiler>
 				<ResourceCompiler>
@@ -431,6 +433,7 @@
 					<Add directory="../../source/shared_lib/include/map" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="`sdl-config --libs`" />
 					<Add library="ogg" />
 					<Add library="vorbis" />
 					<Add library="vorbisfile" />
@@ -450,8 +453,8 @@
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
-					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 					<Variable name="THIRDPARTY_INCLUDE_DIR" value="/usr/include" />
+					<Variable name="THIRDPARTY_LIB_DIR" value="/usr/lib" />
 				</Environment>
 			</Target>
 		</Build>
