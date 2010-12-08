@@ -37,12 +37,20 @@ string getPlatformNameString() {
 	string platform = "";
 #if defined(WIN32)
 	platform = "Windows";
+	#if defined(__MINGW32__)
+	platform = "W-MINGW";
+	#endif
+
 #elif defined(__FreeBSD__)
 	platform = "FreeBSD";
 #elif defined(__APPLE__)
 	platform = "MacOSX";
 #elif defined(__GNUC__)
 	platform = "GNU";
+	#if defined(__MINGW32__)
+	platform = "L-MINGW";
+	#endif
+
 #else
 	platform = "???";
 #endif
@@ -74,7 +82,13 @@ string getCompilerNameString() {
 								+ __GNUC_MINOR__ * 100)
 	# endif
 	#endif
-	version = "GNUC: " + intToStr(__GNUC_VERSION__);
+	version = "GNUC";
+
+	#if defined(__MINGW32__)
+	version += "-MINGW";
+	#endif
+
+	version += ": " + intToStr(__GNUC_VERSION__);
 
 #else
 	version = "???";
