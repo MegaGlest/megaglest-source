@@ -155,7 +155,7 @@ void World::init(Game *game, bool createUnits){
 	if(fogOfWarOverride == false) {
 		fogOfWar = gs->getFogOfWar();
 	}
-	
+
 	initFactionTypes(gs);
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
@@ -965,7 +965,7 @@ void World::initFactionTypes(GameSettings *gs) {
 		stats.setPlayerName(i,gs->getNetworkPlayerName(i));
 		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 	}
-	
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(factions.size() > 0) {
@@ -1355,10 +1355,10 @@ int World::getNextUnitId(Faction *faction)	{
 }
 
 std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
-	
+
 	string debugWorldLogFile = Config::getInstance().getString("DebugWorldLogFile","debugWorld.log");
-	if(getGameReadWritePath() != "") {
-		debugWorldLogFile = getGameReadWritePath() + debugWorldLogFile;
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		debugWorldLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldLogFile;
 	}
 
 	if(consoleBasicInfoOnly == true) {
@@ -1369,7 +1369,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 		for(int i = 0; i < getFactionCount(); ++i) {
 			std::cout << "Faction detail for index: " << i << std::endl;
 			std::cout << "--------------------------" << std::endl;
-			
+
 			std::cout << "FactionName = " << getFaction(i)->getType()->getName() << std::endl;
 			std::cout << "FactionIndex = " << intToStr(getFaction(i)->getIndex()) << std::endl;
 			std::cout << "teamIndex = " << intToStr(getFaction(i)->getTeam()) << std::endl;

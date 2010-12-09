@@ -52,10 +52,10 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	networkManager.end();
 	networkManager.init(nrClient);
-	
+
 	serversSavedFile = serverFileName;
-    if(getGameReadWritePath() != "") {
-        serversSavedFile = getGameReadWritePath() + serversSavedFile;
+    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+        serversSavedFile = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + serversSavedFile;
     }
 
 	servers.load(serversSavedFile);
@@ -119,7 +119,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	}
 	else{
 		port=port +" ("+lang.get("StandardPort")+")";
-	}	
+	}
 	labelServerPort.setText(port);
 
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
@@ -557,11 +557,11 @@ void MenuStateJoinGame::connectToServer()
 	//save server ip
 	config.setString("ServerIp", serverIp.getString());
 	config.save();
-	
+
 	abortAutoFind = true;
 	clientInterface->stopServerDiscovery();
 	mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
-	
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 

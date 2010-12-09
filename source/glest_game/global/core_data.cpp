@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -17,6 +17,8 @@
 #include "config.h"
 #include "util.h"
 #include "platform_util.h"
+#include "game_constants.h"
+#include "game_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -31,17 +33,19 @@ namespace Glest{ namespace Game{
 
 // ===================== PUBLIC ========================
 
-CoreData &CoreData::getInstance(){
+CoreData &CoreData::getInstance() {
 	static CoreData coreData;
 	return coreData;
 }
 
-CoreData::~CoreData(){
+CoreData::~CoreData() {
 	deleteValues(waterSounds.getSounds().begin(), waterSounds.getSounds().end());
 }
 
-void CoreData::load(){
-	const string dir="data/core";
+void CoreData::load() {
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
+	const string dir = data_path + "data/core";
 	Logger::getInstance().add("Core data");
 
 	Renderer &renderer= Renderer::getInstance();
@@ -49,7 +53,7 @@ void CoreData::load(){
 	//textures
 	backgroundTexture= renderer.newTexture2D(rsGlobal);
 	backgroundTexture->setMipmap(false);
-	backgroundTexture->getPixmap()->load(dir+"/menu/textures/back.tga");   
+	backgroundTexture->getPixmap()->load(dir+"/menu/textures/back.tga");
 
 	fireTexture= renderer.newTexture2D(rsGlobal);
 	fireTexture->setFormat(Texture::fAlpha);
@@ -61,9 +65,9 @@ void CoreData::load(){
 	snowTexture->setFormat(Texture::fAlpha);
 	snowTexture->getPixmap()->init(1);
 	snowTexture->getPixmap()->load(dir+"/misc_textures/snow_particle.tga");
-	
+
 	customTexture= renderer.newTexture2D(rsGlobal);
-	customTexture->getPixmap()->load("data/core/menu/textures/custom_texture.tga");
+	customTexture->getPixmap()->load(dir+"/menu/textures/custom_texture.tga");
 
 	logoTexture= renderer.newTexture2D(rsGlobal);
 	logoTexture->setMipmap(false);
@@ -95,7 +99,7 @@ void CoreData::load(){
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
 	buttonBigTexture->setForceCompressionDisabled(true);
 	buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
-	
+
 	//display font
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
@@ -116,9 +120,9 @@ void CoreData::load(){
 	displayFontSmall= renderer.newFont(rsGlobal);
 	displayFontSmall->setType(displayFontNameSmall);
 	displayFontSmall->setSize(displayFontNameSmallSize);
-	
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
-	
+
 	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
 	int menuFontNameNormalSize=computeFontSize(config.getInt("FontMenuNormalBaseSize"));

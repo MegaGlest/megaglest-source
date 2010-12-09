@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -17,7 +17,8 @@
 #include "metrics.h"
 #include "lang.h"
 #include "graphics_interface.h"
-
+#include "game_constants.h"
+#include "game_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -32,10 +33,12 @@ namespace Glest{ namespace Game{
 
 const int Logger::logLineCount= 15;
 
-// ===================== PUBLIC ======================== 
+// ===================== PUBLIC ========================
 
 Logger::Logger(){
-	fileName= "log.txt";
+	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
+
+	fileName= logs_path + "log.txt";
 	loadingTexture=NULL;
 }
 
@@ -87,7 +90,7 @@ void Logger::clear(){
 	if(f==NULL){
 		throw runtime_error("Error opening log file"+ fileName);
 	}
-    
+
     fprintf(f, "%s", s.c_str());
 	fprintf(f, "\n");
 
@@ -96,14 +99,14 @@ void Logger::clear(){
 
 
 void Logger::loadLoadingScreen(string filepath){
-	
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	cleanupLoadingTexture();
 
 	if(filepath=="")
 	{
-		loadingTexture=NULL;	
+		loadingTexture=NULL;
 	}
 	else
 	{
@@ -124,7 +127,7 @@ void Logger::loadLoadingScreen(string filepath){
 	}
 }
 
-// ==================== PRIVATE ==================== 
+// ==================== PRIVATE ====================
 
 void Logger::renderLoadingScreen(){
 
@@ -139,16 +142,16 @@ void Logger::renderLoadingScreen(){
 	}
 	else{
 		renderer.renderBackground(loadingTexture);
-	}	
+	}
 	renderer.renderText(
-		state, coreData.getMenuFontBig(), Vec3f(1.f), 
+		state, coreData.getMenuFontBig(), Vec3f(1.f),
 		metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
 
 	renderer.renderText(
-		current, coreData.getMenuFontNormal(), 1.0f, 
-		metrics.getVirtualW()/4, 
+		current, coreData.getMenuFontNormal(), 1.0f,
+		metrics.getVirtualW()/4,
 		62*metrics.getVirtualH()/100, false);
-	
+
 	renderer.swapBuffers();
 }
 

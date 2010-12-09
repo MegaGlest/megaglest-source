@@ -73,8 +73,8 @@ Profiler::~Profiler(){
 	rootSection->stop();
 
     string profileLog = "profiler.log";
-    if(getGameReadWritePath() != "") {
-        profileLog = getGameReadWritePath() + profileLog;
+    if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+        profileLog = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + profileLog;
     }
 	FILE *f= fopen(profileLog.c_str(), "w");
 	if(f==NULL)

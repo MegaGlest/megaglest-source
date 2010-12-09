@@ -103,7 +103,7 @@ Game::~Game() {
 
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
-	
+
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
@@ -235,7 +235,8 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 
 				//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,settings->getFactionTypeName(i).c_str());
 				if(settings->getFactionTypeName(i) == formatString(GameConstants::OBSERVER_SLOTNAME)) {
-					const string factionLogo = "data/core/misc_textures/observer.jpg";
+                    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+					const string factionLogo = data_path + "data/core/misc_textures/observer.jpg";
 					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					if(fileExists(factionLogo) == true) {
@@ -249,7 +250,8 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 					}
 				}
 				else if(settings->getFactionTypeName(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-					const string factionLogo = "data/core/misc_textures/random.jpg";
+				    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+					const string factionLogo = data_path + "data/core/misc_textures/random.jpg";
 					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					if(fileExists(factionLogo) == true) {
@@ -1560,7 +1562,7 @@ void Game::render2d(){
     string str="";
     std::map<int,string> factionDebugInfo;
 
-	if( renderer.getShowDebugUI() == true || 
+	if( renderer.getShowDebugUI() == true ||
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
 		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 		str+= "PosObjWord: "     + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
@@ -1711,7 +1713,7 @@ void Game::render2d(){
 
 	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
-		
+
 		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
 		//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"In [%s::%s Line: %d] Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
 	}

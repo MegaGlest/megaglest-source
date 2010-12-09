@@ -2116,8 +2116,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(getGameReadWritePath() != "") {
-    	fileName = getGameReadWritePath() + fileName;
+    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
@@ -2174,8 +2174,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     GameSettings gameSettings;
 
-    if(getGameReadWritePath() != "") {
-    	fileName = getGameReadWritePath() + fileName;
+    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());

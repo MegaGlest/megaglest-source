@@ -495,8 +495,8 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
     //log start
 	Logger &logger= Logger::getInstance();
 	string logFile = "glest.log";
-    if(getGameReadWritePath() != "") {
-        logFile = getGameReadWritePath() + logFile;
+    if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+        logFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + logFile;
     }
 	logger.setFile(logFile);
 	logger.clear();

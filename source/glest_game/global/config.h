@@ -34,7 +34,6 @@ enum ConfigType {
     cfgUserKeys
 };
 
-
 class Config {
 private:
 	std::pair<Properties,Properties> properties;
@@ -43,6 +42,9 @@ private:
 	std::pair<bool,bool> fileLoaded;
 
 	static map<ConfigType,Config> configList;
+
+    static const char *glest_ini_filename;
+    static const char *glestuser_ini_filename;
 
 protected:
 	Config();
@@ -54,7 +56,7 @@ protected:
 
 public:
     static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
-				std::pair<string,string> file = std::make_pair("glest.ini","glestuser.ini") ,
+				std::pair<string,string> file = std::make_pair(glest_ini_filename,glestuser_ini_filename) ,
 				std::pair<bool,bool> fileMustExist = std::make_pair(true,false) );
 	void save(const string &path="");
 	void reload();

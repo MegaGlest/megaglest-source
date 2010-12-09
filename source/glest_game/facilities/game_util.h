@@ -41,7 +41,7 @@ string getCompileDateTime();
 
 string formatString(const string &str);
 
-string getGameReadWritePath();
+string getGameReadWritePath(string lookupKey="");
 
 }}//end namespace
 

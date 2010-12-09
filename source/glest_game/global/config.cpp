@@ -48,6 +48,15 @@ const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
 const char *GameConstants::playerTextureCacheLookupKey  = "playerTextureCache";
 const char *GameConstants::application_name				= "MegaGlest";
 
+const char *GameConstants::pathCacheLookupKey           = "pathCache_";
+const char *GameConstants::path_data_CacheLookupKey     = "data";
+const char *GameConstants::path_ini_CacheLookupKey      = "ini";
+const char *GameConstants::path_logs_CacheLookupKey     = "logs";
+
+const char *Config::glest_ini_filename                  = "glest.ini";
+const char *Config::glestuser_ini_filename              = "glestuser.ini";
+
+
 // =====================================================
 // 	class Config
 // =====================================================
@@ -73,9 +82,9 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 	cfgType = type;
 
 	fileName = file;
-    if(getGameReadWritePath() != "") {
-    	fileName.first = getGameReadWritePath() + fileName.first;
-    	fileName.second = getGameReadWritePath() + fileName.second;
+    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
+    	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
@@ -148,7 +157,7 @@ void Config::reload() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame);
-	Config newconfig(type, std::make_pair("glest.ini","glestuser.ini"), std::make_pair(true,false));
+	Config newconfig(type, std::make_pair(glest_ini_filename,glestuser_ini_filename), std::make_pair(true,false));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -382,46 +391,51 @@ string Config::toString(){
 vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
     vector<string> pathList;
 
+//#include "game_constants.h"
+//#include "game_util.h"
+    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
     string userData = getString("UserData_Root","");
     if(userData != "") {
         if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
             userData += '/';
         }
+        userData=data_path+userData;
         if(isdir(userData.c_str()) == false) {
         	createDirectoryPaths(userData);
         }
     }
     if(scenarioDir != "") {
-        pathList.push_back(scenarioDir);
+        pathList.push_back(data_path+scenarioDir);
     }
 
     switch(type) {
         case ptMaps:
-            pathList.push_back(GameConstants::folder_path_maps);
+            pathList.push_back(data_path+GameConstants::folder_path_maps);
             if(userData != "") {
                 pathList.push_back(userData + string(GameConstants::folder_path_maps));
             }
             break;
         case ptScenarios:
-            pathList.push_back(GameConstants::folder_path_scenarios);
+            pathList.push_back(data_path+GameConstants::folder_path_scenarios);
             if(userData != "") {
                 pathList.push_back(userData + string(GameConstants::folder_path_scenarios));
             }
             break;
         case ptTechs:
-            pathList.push_back(GameConstants::folder_path_techs);
+            pathList.push_back(data_path+GameConstants::folder_path_techs);
             if(userData != "") {
                 pathList.push_back(userData + string(GameConstants::folder_path_techs));
             }
             break;
         case ptTilesets:
-            pathList.push_back(GameConstants::folder_path_tilesets);
+            pathList.push_back(data_path+GameConstants::folder_path_tilesets);
             if(userData != "") {
                 pathList.push_back(userData + string(GameConstants::folder_path_tilesets));
             }
             break;
         case ptTutorials:
-            pathList.push_back(GameConstants::folder_path_tutorials);
+            pathList.push_back(data_path+GameConstants::folder_path_tutorials);
             if(userData != "") {
                 pathList.push_back(userData + string(GameConstants::folder_path_tutorials));
             }
