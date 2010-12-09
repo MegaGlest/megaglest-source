@@ -7,8 +7,8 @@
 		<Option compiler="mingw32_compiler" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="../../source/win32_deps/lib/libglest.dll" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="../../source/win32_deps/lib" />
+				<Option output="../../data/glest_game/libglest.dll" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../data/glest_game/" />
 				<Option object_output="Debug Win32/shared_lib" />
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
@@ -102,11 +102,12 @@
 					<Add directory="./" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
+					<Add directory="../../data/glest_game/" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="../../source/win32_deps/lib/libglest.dll" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="../../source/win32_deps/lib" />
+				<Option output="../../data/glest_game/libglest.dll" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../data/glest_game/" />
 				<Option object_output="Release Win32/shared_lib" />
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
@@ -199,6 +200,7 @@
 					<Add directory="./" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
+					<Add directory="../../data/glest_game/" />
 				</Linker>
 			</Target>
 			<Target title="Release Linux">
