@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include "platform_util.h"
 #include "conversion.h"
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -191,9 +192,24 @@ string formatString(const string &str){
 	return outStr;
 }
 
-string getGameReadWritePath() {
-	string path         = "";
-    if(getenv("GLESTHOME") != NULL) {
+string getGameReadWritePath(string lookupKey) {
+	string path = "";
+
+	if(lookupKey != "") {
+        std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
+        std::map<string,string>::const_iterator iterFind = pathCache.find(lookupKey);
+        if(iterFind != pathCache.end()) {
+            path = iterFind->second;
+
+            if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+                path += "/";
+            }
+
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for [%s] files [%s]\n",__FILE__,__FUNCTION__,__LINE__,lookupKey.c_str(),path.c_str());
+        }
+	}
+
+    if(path == "" && getenv("GLESTHOME") != NULL) {
         path = getenv("GLESTHOME");
         if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
             path += "/";

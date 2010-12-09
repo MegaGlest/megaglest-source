@@ -107,6 +107,10 @@ public:
 	static const char *RANDOMFACTION_SLOTNAME;
 
 	static const char *playerTextureCacheLookupKey;
+	static const char *pathCacheLookupKey;
+	static const char *path_data_CacheLookupKey;
+	static const char *path_ini_CacheLookupKey;
+	static const char *path_logs_CacheLookupKey;
 
 	static const char *application_name;
 };

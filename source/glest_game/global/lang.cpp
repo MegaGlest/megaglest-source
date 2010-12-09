@@ -16,6 +16,8 @@
 #include "logger.h"
 #include "util.h"
 #include "platform_util.h"
+#include "game_constants.h"
+#include "game_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -36,7 +38,8 @@ Lang &Lang::getInstance(){
 void Lang::loadStrings(const string &language){
 	this->language= language;
 	strings.clear();
-	strings.load("data/lang/"+language+".lng");
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	strings.load(data_path + "data/lang/"+language+".lng");
 }
 
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){

@@ -80,7 +80,8 @@ void Faction::init(
 	}
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
-	texture->load("data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	texture->load(data_path + "data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -181,16 +182,16 @@ bool Faction::reqsOk(const RequirableType *rt) const{
 			return false;
 		}
     }
-    
+
     if(dynamic_cast<const UnitType *>(rt) != NULL ) {
-    	const UnitType *producedUnitType=(UnitType *) rt;		
+    	const UnitType *producedUnitType=(UnitType *) rt;
    		if(producedUnitType != NULL && producedUnitType->getMaxUnitCount() > 0) {
 			if(producedUnitType->getMaxUnitCount() <= getCountForMaxUnitCount(producedUnitType)) {
 		        return false;
 			}
    		}
     }
-    
+
 	return true;
 }
 

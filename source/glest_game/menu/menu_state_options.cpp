@@ -37,7 +37,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	//modeinfos=list<ModeInfo> ();
 	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
-	
+
 	int leftline=700;
 	int rightline=700;
 	int leftLabelStart=250;
@@ -46,18 +46,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	int rightColumnStart=rightLabelStart+150;
 	int buttonRowPos=80;
 	int captionOffset=75;
-	
+
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
-	
+
 	labelAudioSection.registerGraphicComponent(containerName,"labelAudioSection");
 	labelAudioSection.init(leftLabelStart+captionOffset, leftline);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelAudioSection.setText(lang.get("Audio"));
 	leftline-=30;
-	
+
 	//soundboxes
 	labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
 	labelSoundFactory.init(leftLabelStart, leftline);
@@ -81,7 +81,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeFx.registerGraphicComponent(containerName,"listBoxVolumeFx");
 	listBoxVolumeFx.init(leftColumnStart, leftline, 80);
 	leftline-=30;
-	
+
 	labelVolumeAmbient.registerGraphicComponent(containerName,"labelVolumeAmbient");
 	labelVolumeAmbient.init(leftLabelStart, leftline);
 
@@ -89,7 +89,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeAmbient.init(leftColumnStart, leftline, 80);
 	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
 	leftline-=30;
-	
+
 	labelVolumeMusic.registerGraphicComponent(containerName,"labelVolumeMusic");
 	labelVolumeMusic.init(leftLabelStart, leftline);
 
@@ -97,7 +97,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeMusic.init(leftColumnStart, leftline, 80);
 	labelVolumeMusic.setText(lang.get("MusicVolume"));
 	leftline-=30;
-	
+
 	for(int i=0; i<=100; i+=5){
 		listBoxVolumeFx.pushBackItem(intToStr(i));
 		listBoxVolumeAmbient.pushBackItem(intToStr(i));
@@ -106,15 +106,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeFx.setSelectedItem(intToStr(config.getInt("SoundVolumeFx")/5*5));
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
-	
-	
+
+
 	//leftline-=30;
 	labelMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 	labelMiscSection.init(leftLabelStart+captionOffset, leftline);
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelMiscSection.setText(lang.get("Misc"));
 	leftline-=30;
-	
+
 	//lang
 	labelLang.registerGraphicComponent(containerName,"labelLang");
 	labelLang.init(leftLabelStart, leftline);
@@ -123,36 +123,38 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
 	listBoxLang.init(leftColumnStart, leftline, 170);
 	vector<string> langResults;
-	findAll("data/lang/*.lng", langResults, true);
+
+    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	findAll(data_path + "data/lang/*.lng", langResults, true);
 	if(langResults.empty()){
         throw runtime_error("There is no lang file");
 	}
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
 	leftline-=30;
-	
+
 	//playerName
 	labelPlayerNameLabel.registerGraphicComponent(containerName,"labelPlayerNameLabel");
 	labelPlayerNameLabel.init(leftLabelStart,leftline);
 	labelPlayerNameLabel.setText(lang.get("Playername"));
-	
+
 	labelPlayerName.registerGraphicComponent(containerName,"labelPlayerName");
 	labelPlayerName.init(leftColumnStart,leftline);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 	leftline-=30;
-	
+
 	//FontSizeAdjustment
 	labelFontSizeAdjustment.registerGraphicComponent(containerName,"labelFontSizeAdjustment");
 	labelFontSizeAdjustment.init(leftLabelStart,leftline);
 	labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
-	
+
 	listFontSizeAdjustment.registerGraphicComponent(containerName,"listFontSizeAdjustment");
 	listFontSizeAdjustment.init(leftColumnStart, leftline, 80);
 	for(int i=-5; i<=5; i+=1){
 		listFontSizeAdjustment.pushBackItem(intToStr(i));
 	}
 	listFontSizeAdjustment.setSelectedItem(intToStr(config.getInt("FontSizeAdjustment")));
-	
+
 	leftline-=30;
 	// server port
 	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
@@ -166,16 +168,16 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	else{
 		port=port +" ("+lang.get("StandardPort")+")";
 	}
-	
+
 	labelServerPort.setText(port);
-	
+
 	// external server port
 	leftline-=30;
-	
+
 	labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
 	labelPublishServerExternalPort.init(leftLabelStart, leftline, 150);
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
-	
+
 	listBoxPublishServerExternalPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
 	listBoxPublishServerExternalPort.init(leftColumnStart, leftline, 170);
 	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
@@ -194,7 +196,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		}
 	}
 	listBoxPublishServerExternalPort.setSelectedItemIndex(masterServerExternalPortSelectionIndex);
-	
+
 	// Video Section
 	leftline-=30;
 	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
@@ -211,7 +213,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxScreenModes.registerGraphicComponent(containerName,"listBoxScreenModes");
 	listBoxScreenModes.init(leftColumnStart, leftline, 170);
 
-	string currentResString = config.getString("ScreenWidth") + "x" + 
+	string currentResString = config.getString("ScreenWidth") + "x" +
 							  config.getString("ScreenHeight") + "-" +
 							  intToStr(config.getInt("ColorBits"));
 	bool currentResolutionFound = false;
@@ -226,8 +228,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	listBoxScreenModes.setSelectedItem(currentResString);
 	leftline-=30;
-	
-	
+
+
 	//FullscreenWindowed
 	labelFullscreenWindowed.registerGraphicComponent(containerName,"labelFullscreenWindowed");
 	labelFullscreenWindowed.init(leftLabelStart, leftline);
@@ -239,7 +241,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxFullscreenWindowed.pushBackItem(lang.get("Yes"));
 	listBoxFullscreenWindowed.setSelectedItemIndex(clamp(config.getBool("Windowed"), false, true));
 	leftline-=30;
-	
+
 	//filter
 	labelFilter.registerGraphicComponent(containerName,"labelFilter");
 	labelFilter.init(leftLabelStart, leftline);
@@ -251,7 +253,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxFilter.pushBackItem("Trilinear");
 	listBoxFilter.setSelectedItem(config.getString("Filter"));
 	leftline-=30;
-	
+
 	//shadows
 	labelShadows.registerGraphicComponent(containerName,"labelShadows");
 	labelShadows.init(leftLabelStart, leftline);
@@ -265,7 +267,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	string str= config.getString("Shadows");
 	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
 	leftline-=30;
-	
+
 	//textures 3d
 	labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
 	labelTextures3D.init(leftLabelStart, leftline);
@@ -277,7 +279,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxTextures3D.pushBackItem(lang.get("Yes"));
 	listBoxTextures3D.setSelectedItemIndex(clamp(config.getBool("Textures3D"), false, true));
 	leftline-=30;
-	
+
 	//lights
 	labelLights.registerGraphicComponent(containerName,"labelLights");
 	labelLights.init(leftLabelStart, leftline);
@@ -290,7 +292,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
 	leftline-=30;
-	
+
 	//unit particles
 	labelUnitParticles.registerGraphicComponent(containerName,"labelUnitParticles");
 	labelUnitParticles.init(leftLabelStart,leftline);
@@ -317,7 +319,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
-	buttonOk.init(200, buttonRowPos, 100);	
+	buttonOk.init(200, buttonRowPos, 100);
 	buttonOk.setText(lang.get("Ok"));
 	buttonAbort.setText(lang.get("Abort"));
 
@@ -378,7 +380,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(buttonOk.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
-		
+
 		string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits"));
 		string selectedResolution=listBoxScreenModes.getSelectedItem();
 		if(currentResolution!=selectedResolution){
@@ -395,7 +397,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			showMessageBox(lang.get("RestartNeeded"), lang.get("FontSizeAdjustmentChanged"), false);
 			return;
 		}
-		
+
 		bool currentFullscreenWindowed=config.getBool("Windowed");
 		bool selectedFullscreenWindowed = (listBoxFullscreenWindowed.getSelectedItemIndex() != 0);
 		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
@@ -404,7 +406,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
 			return;
 		}
-		
+
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
@@ -592,7 +594,7 @@ void MenuStateOptions::saveConfig(){
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 	config.setString("MasterServerExternalPort", listBoxPublishServerExternalPort.getSelectedItem());
-	
+
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
 	if(currentResolution!=selectedResolution){
@@ -605,7 +607,7 @@ void MenuStateOptions::saveConfig(){
 			}
 		}
 	}
-	
+
 	config.save();
 
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();

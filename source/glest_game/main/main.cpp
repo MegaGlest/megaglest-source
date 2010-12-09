@@ -82,7 +82,10 @@ const char  *GAME_ARGS[] = {
 	"--sdl-info",
 	"--lua-info",
 	"--validate-techtrees",
-	"--validate-factions"
+	"--validate-factions",
+	"--data-path",
+	"--ini-path",
+	"--log-path"
 
 };
 
@@ -97,7 +100,10 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SDL_INFO,
 	GAME_ARG_LUA_INFO,
 	GAME_ARG_VALIDATE_TECHTREES,
-	GAME_ARG_VALIDATE_FACTIONS
+	GAME_ARG_VALIDATE_FACTIONS,
+	GAME_ARG_DATA_PATH,
+	GAME_ARG_INI_PATH,
+	GAME_ARG_LOG_PATH
 };
 
 string runtimeErrorMsg = "";
@@ -603,6 +609,12 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
 	printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n%s=x\t\t\tSets the game data path to x",GAME_ARGS[GAME_ARG_DATA_PATH]);
+	printf("\n                     \t\texample: %s %s=/usr/local/game_data/",argv0,GAME_ARGS[GAME_ARG_DATA_PATH]);
+	printf("\n%s=x\t\t\tSets the game ini path to x",GAME_ARGS[GAME_ARG_INI_PATH]);
+	printf("\n                     \t\texample: %s %s=~/game_config/",argv0,GAME_ARGS[GAME_ARG_INI_PATH]);
+	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n                     \t\texample: %s %s=~/game_logs/",argv0,GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n\n");
 }
 
@@ -683,6 +695,79 @@ int glestMain(int argc, char** argv) {
 	exceptionHandler.install( getCrashDumpFileName() );
 
 	try {
+        // Setup path cache for files and folders used in the game
+        std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
+
+        //GAME_ARG_DATA_PATH
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]),&foundParamIndIndex);
+			}
+			string customPath = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(customPath,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string customPathValue = paramPartTokens[1];
+				pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
+				printf("Using custom data path [%s]\n",customPathValue.c_str());
+			}
+			else {
+
+				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				return -1;
+			}
+        }
+
+        //GAME_ARG_INI_PATH
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_INI_PATH]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]),&foundParamIndIndex);
+			}
+			string customPath = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(customPath,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string customPathValue = paramPartTokens[1];
+				pathCache[GameConstants::path_ini_CacheLookupKey]=customPathValue;
+				printf("Using custom ini path [%s]\n",customPathValue.c_str());
+			}
+			else {
+
+				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				return -1;
+			}
+        }
+
+        //GAME_ARG_LOG_PATH
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LOG_PATH]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]),&foundParamIndIndex);
+			}
+			string customPath = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(customPath,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string customPathValue = paramPartTokens[1];
+				pathCache[GameConstants::path_logs_CacheLookupKey]=customPathValue;
+				printf("Using custom logs path [%s]\n",customPathValue.c_str());
+			}
+			else {
+
+				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				return -1;
+			}
+        }
+
+
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
@@ -699,33 +784,57 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
 
 		string debugLogFile 			= config.getString("DebugLogFile","");
-        if(getGameReadWritePath() != "") {
-            debugLogFile = getGameReadWritePath() + debugLogFile;
+        if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+            debugLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLogFile;
         }
 		string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
         if(debugWorldSynchLogFile == "") {
         	debugWorldSynchLogFile = debugLogFile;
         }
+        else {
+            debugWorldSynchLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldSynchLogFile;
+        }
+
 		string debugPerformanceLogFile = config.getString("DebugLogFilePerformance","");
         if(debugPerformanceLogFile == "") {
         	debugPerformanceLogFile = debugLogFile;
         }
+        else {
+            debugPerformanceLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugPerformanceLogFile;
+        }
+
 		string debugNetworkLogFile = config.getString("DebugLogFileNetwork","");
         if(debugNetworkLogFile == "") {
         	debugNetworkLogFile = debugLogFile;
         }
+        else {
+            debugNetworkLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugNetworkLogFile;
+        }
+
 		string debugUnitCommandsLogFile = config.getString("DebugLogFileUnitCommands","");
         if(debugUnitCommandsLogFile == "") {
         	debugUnitCommandsLogFile = debugLogFile;
         }
+        else {
+            debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+        }
+
 		string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
         if(debugUnitCommandsLogFile == "") {
         	debugUnitCommandsLogFile = debugLogFile;
         }
+        else {
+            debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+        }
+
 		string debugLUALogFile = config.getString("DebugLogFileLUA","");
         if(debugLUALogFile == "") {
         	debugLUALogFile = debugLogFile;
         }
+        else {
+            debugLUALogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLUALogFile;
+        }
+
 		string debugErrorLogFile = config.getString("DebugLogFileError","");
 
         SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
@@ -1053,10 +1162,11 @@ int glestMain(int argc, char** argv) {
 			//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         }
 
+        string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
         // Cache Player textures - START
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
         for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-        	string playerTexture = "data/core/faction_textures/faction" + intToStr(index) + ".tga";
+        	string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
         	if(fileExists(playerTexture) == true) {
         		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
         		texture->load(playerTexture);
