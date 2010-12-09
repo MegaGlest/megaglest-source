@@ -128,6 +128,7 @@
 					<Add library="glest" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
+					<Add directory="../../data/glest_game/" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
@@ -254,6 +255,7 @@
 					<Add library="glest" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
+					<Add directory="../../data/glest_game/" />
 				</Linker>
 			</Target>
 			<Target title="Release Linux">

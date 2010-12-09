@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
-	<ActiveTarget name="Release Win32" />
+	<ActiveTarget name="Release Linux" />
 	<File name="../../source/shared_lib/include/graphics/graphics_interface.h" open="0" top="0" tabpos="0">
 		<Cursor position="566" topLine="0" />
 	</File>
@@ -19,7 +19,7 @@
 	<File name="../../source/shared_lib/include/platform/sdl/platform_main.h" open="1" top="0" tabpos="3">
 		<Cursor position="696" topLine="0" />
 	</File>
-	<File name="../../source/shared_lib/include/platform/sdl/thread.h" open="0" top="0" tabpos="0">
+	<File name="../../source/shared_lib/include/platform/sdl/thread.h" open="1" top="1" tabpos="33">
 		<Cursor position="557" topLine="0" />
 	</File>
 	<File name="../../source/shared_lib/include/streflop/FPUSettings.h" open="1" top="0" tabpos="9">

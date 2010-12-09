@@ -7,7 +7,7 @@
 		<Option compiler="mingw32_compiler" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="../../source/win32_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
+				<Option output="../../data/glest_game/libstreflop.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="Debug Win32/libstreflop" />
 				<Option type="2" />
@@ -34,7 +34,7 @@
 				</ResourceCompiler>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="../../source/win32_deps/lib/libstreflop.a" prefix_auto="0" extension_auto="0" />
+				<Option output="../../data/glest_game/libstreflop.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="Release Win32/libstreflop" />
 				<Option type="2" />
