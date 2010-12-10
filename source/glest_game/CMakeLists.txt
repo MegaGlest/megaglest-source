@@ -97,6 +97,30 @@ ENDFOREACH(DIR)
 # [RCL] FIXME: make it compiler-agnostic
 SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DSTREFLOP_SSE")
 
+# The stuff below gets SVN Global Revision # but ONLY when calling cmake!
+# the FindSubversion.cmake module is part of the standard distribution
+include(FindSubversion)
+# extract working copy information for SOURCE_DIR into MY_XXX variables
+Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
+#add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
+SET(SVN_VERSION_CMD -DSVNVERSION="${MG_WC_REVISION}")
+
+IF(UNIX AND NOT APPLE)
+	# We do some funky character escaping to get the right stuff written out to 
+	# the final Makefile so we get the SVN Global Revsion #
+	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
+ENDIF()
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD}")
+
+IF(UNIX AND NOT APPLE)
+	# We do some funky character escaping to get the right stuff written out to 
+	# the final Makefile so we get the SVN Global Revsion #
+	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ENDIF()
+
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+
 SET(TARGET_NAME "glest.bin")
 
 IF(UNIX AND NOT APPLE)
