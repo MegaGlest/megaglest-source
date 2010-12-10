@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -34,7 +34,7 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot
 // =====================================================
 
-MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu): 
+MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "root")
 {
 	containerName = "MainMenu";
@@ -59,15 +59,15 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonExit.registerGraphicComponent(containerName,"buttonExit");
     buttonExit.init(425, i, 150);
     labelVersion.registerGraphicComponent(containerName,"labelVersion");
-	labelVersion.init(435, 420);
+	labelVersion.init(405, 420);
 
 	buttonNewGame.setText(lang.get("NewGame"));
 	buttonJoinGame.setText(lang.get("JoinGame"));
 	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
 	buttonOptions.setText(lang.get("Options"));
-	buttonAbout.setText(lang.get("About")); 
+	buttonAbout.setText(lang.get("About"));
 	buttonExit.setText(lang.get("Exit"));
-	labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + "]");
+	labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
 
 	//mesage box
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
@@ -85,7 +85,7 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	if(buttonNewGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-    }  
+    }
 	else if(buttonJoinGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
@@ -94,11 +94,11 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
     }
-    else if(buttonOptions.mouseClick(x, y)){ 
+    else if(buttonOptions.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
     }
-    else if(buttonAbout.mouseClick(x, y)){ 
+    else if(buttonAbout.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateAbout(program, mainMenu));
     }
@@ -129,7 +129,7 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
     buttonJoinGame.mouseMove(x, y);
     buttonMasterserverGame.mouseMove(x, y);
     buttonOptions.mouseMove(x, y);
-    buttonAbout.mouseMove(x, y); 
+    buttonAbout.mouseMove(x, y);
     buttonExit.mouseMove(x,y);
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
@@ -141,12 +141,12 @@ void MenuStateRoot::render() {
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
-	
+
 	int w= 300;
 	int h= 150;
 
 	renderer.renderTextureQuad(
-		(metrics.getVirtualW()-w)/2, 475-h/2, w, h, 
+		(metrics.getVirtualW()-w)/2, 475-h/2, w, h,
 		coreData.getLogoTexture(), GraphicComponent::getFade());
 
 	int maxLogoWidth=0;

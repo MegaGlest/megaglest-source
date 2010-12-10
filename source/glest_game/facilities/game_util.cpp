@@ -28,7 +28,11 @@ namespace Glest { namespace Game {
 
 const string mailString			= "contact_game@glest.org";
 const string glestVersionString = "v3.4.0-dev";
+#if defined(SVNVERSION)
+const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
+#else
 const string SVN_Rev 			= "$Rev$";
+#endif
 
 string getCrashDumpFileName(){
 	return "glest" + glestVersionString + ".dmp";
