@@ -94,6 +94,13 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 		ENDIF(APPLE)
 ENDFOREACH(DIR)
 
+# Force the version and date/time stamp file to be touched so the compile stamp is always right
+add_custom_command(
+  OUTPUT mg.tmp
+  COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
+add_custom_target(run ALL
+    DEPENDS mg.tmp)
+
 # [RCL] FIXME: make it compiler-agnostic
 SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DSTREFLOP_SSE")
 
