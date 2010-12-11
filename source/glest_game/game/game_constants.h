@@ -113,6 +113,12 @@ public:
 	static const char *path_logs_CacheLookupKey;
 
 	static const char *application_name;
+	
+	static const float normalMultiplier= 1.0f;
+	static const float easyMultiplier= 0.8f;
+	static const float ultraMultiplier= 3.0f;
+	static const float megaMultiplier= 4.0f;
+	
 };
 
 enum PathType {

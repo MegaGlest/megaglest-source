@@ -215,18 +215,18 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 			}
 			else
 			{// if no multiplier exists use defaults 
-				scenarioInfo->resourceMultipliers[i]=1.0f;
+				scenarioInfo->resourceMultipliers[i]=GameConstants::normalMultiplier;
 				if(factionControl==ctCpuEasy)
 				{
-					scenarioInfo->resourceMultipliers[i]=0.8f;
+					scenarioInfo->resourceMultipliers[i]=GameConstants::easyMultiplier;
 				}
 				if(factionControl==ctCpuUltra)
 				{
-					scenarioInfo->resourceMultipliers[i]=2.0f;
+					scenarioInfo->resourceMultipliers[i]=GameConstants::ultraMultiplier;
 				}
 				else if(factionControl==ctCpuMega)
 				{
-					scenarioInfo->resourceMultipliers[i]=3.5f;
+					scenarioInfo->resourceMultipliers[i]=GameConstants::megaMultiplier;
 				}
 			}
 		

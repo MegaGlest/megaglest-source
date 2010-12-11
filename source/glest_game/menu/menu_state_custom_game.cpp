@@ -927,26 +927,26 @@ void MenuStateCustomGame::updateAllResourceMultiplier() {
 void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-			listBoxRMultiplier[index].setSelectedItemIndex(5);
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(false);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex(3);
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpu || ct == ctNetworkCpu) {
-			listBoxRMultiplier[index].setSelectedItemIndex(5);
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex(25);
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex(35);
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
