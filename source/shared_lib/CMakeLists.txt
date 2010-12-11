@@ -10,6 +10,27 @@ ADD_SUBDIRECTORY(sources/streflop)
 SET(EXTERNAL_LIBS "")
 
 IF(WIN32)
+	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
+				${PROJECT_SOURCE_DIR}/source/win32_deps/lib
+				${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+			       
+	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
+	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+ENDIF()
+
+IF(WIN32)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
@@ -76,7 +97,7 @@ ENDIF()
 # glest lib
 
 SET(DIRS_WITH_SRC
-    platform/common
+	platform/common
 	util
 	graphics
 	graphics/gl
@@ -90,7 +111,7 @@ SET(DIRS_WITH_SRC
 	map)
 
 IF(APPLE)
-    SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
+	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/posix)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/macosx)
 ELSEIF(WIN32)
@@ -98,8 +119,8 @@ ELSEIF(WIN32)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} sound/ds8)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} ${PROJECT_SOURCE_DIR}/source/win32_deps/src)
 ELSE()
-    SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
-    SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/posix)
+	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
+	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/posix)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/unix)
 ENDIF()
 	
@@ -108,6 +129,15 @@ SET(MG_SOURCES_ROOT "sources/")
 SET(MG_INCLUDE_FILES "")
 SET(MG_SOURCE_FILES "")
 INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
+
+IF(WIN32)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/gl_wrap.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/thread.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/window.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/window_gl.cpp)
+        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/win32_deps/src/glprocs.c)
+ENDIF()
 	
 FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 	set(INCLUDE_DIR_TO_GLOB ${MG_INCLUDES_ROOT}${DIR})
@@ -149,9 +179,11 @@ ENDFOREACH(DIR)
 # FIXME: hackish, should be tested for
 IF(APPLE)
 	SET(PLATFORM_SPECIFIC_DEFINES "-DHAVE_SYS_IOCTL_H")
-ELSE(APPLE)
+ELSEIF(WIN32)
+	SET(PLATFORM_SPECIFIC_DEFINES "-DX11_AVAILABLE")
+ELSE()
 	SET(PLATFORM_SPECIFIC_DEFINES "-DX11_AVAILABLE -DHAVE_SYS_IOCTL_H")
-ENDIF(APPLE)
+ENDIF()
 
 # FIXME: hackish...
 SET(STREFLOP_PROPERTIES "-DSTREFLOP_SSE -DLIBM_COMPILING_FLT32")
@@ -165,13 +197,20 @@ SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 # [RCL] FIXME: make it compiler-agnostic
 SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse")
 
-# ADD_LIBRARY(glest_lib SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-ADD_LIBRARY(glest_lib STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 IF(WIN32)
-  TARGET_LINK_LIBRARIES(glest_lib mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 winmm gdi32 opengl32 glu32)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -D_LIB  -DUSE_STREFLOP -DSTREFLOP_SSE -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32 -DCURL_STATICLIB")
 ENDIF()
-TARGET_LINK_LIBRARIES(glest_lib streflop)
-TARGET_LINK_LIBRARIES(glest_lib ${EXTERNAL_LIBS})
+
+#MESSAGE(STATUS "Source files: ${MG_SOURCE_FILES}")
+#MESSAGE(STATUS "Include files: ${MG_INCLUDE_FILES}")
+
+#ADD_LIBRARY(libglest SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+ADD_LIBRARY(libglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+IF(WIN32)
+  TARGET_LINK_LIBRARIES(libglest stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop libglest stdc++ moldname mingwex msvcrt user32 kernel32)
+ENDIF()
+TARGET_LINK_LIBRARIES(libglest streflop)
+TARGET_LINK_LIBRARIES(libglest ${EXTERNAL_LIBS})
 
 
 
