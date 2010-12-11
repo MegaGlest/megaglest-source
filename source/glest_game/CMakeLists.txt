@@ -157,7 +157,11 @@ add_custom_target(run ALL
 ENDIF()
 
 # [RCL] FIXME: make it compiler-agnostic
-SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUSE_STREFLOP -DSTREFLOP_SSE -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DCURL_STATICLIB")
+SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUSE_STREFLOP -DSTREFLOP_SSE")
+
+IF(WIN32)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DCURL_STATICLIB")
+ENDIF()
 
 # The stuff below gets SVN Global Revision # but ONLY when calling cmake!
 # the FindSubversion.cmake module is part of the standard distribution
@@ -173,7 +177,12 @@ IF(UNIX AND NOT APPLE)
 	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
 ENDIF()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD} -Wl,-subsystem,console -mconsole")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD}")
+
+IF(WIN32)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
+ENDIF()
+
 
 #IF(UNIX AND NOT APPLE)
 	# We do some funky character escaping to get the right stuff written out to 
