@@ -12,7 +12,8 @@ SET(EXTERNAL_LIBS "")
 IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 				${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-				${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+				${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
+				${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
 
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
@@ -25,16 +26,17 @@ IF(WIN32)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
 			       
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
 ENDIF()
 
 IF(WIN32)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-	#SET(OPENAL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
 ENDIF()
 
 FIND_PACKAGE(SDL REQUIRED)
@@ -219,6 +221,4 @@ IF(WIN32)
 ENDIF()
 TARGET_LINK_LIBRARIES(libglest streflop)
 TARGET_LINK_LIBRARIES(libglest ${EXTERNAL_LIBS})
-
-
 
