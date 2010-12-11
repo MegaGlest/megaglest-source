@@ -3,39 +3,83 @@
 
 SET(EXTERNAL_LIBS "")
 
+IF(WIN32)
+	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+
+	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include
+						   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
+						   )
+	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
+	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+ENDIF()
+
 FIND_PACKAGE(SDL REQUIRED)
 INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(OpenGL REQUIRED)
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(XercesC REQUIRED)
 INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(OpenAL REQUIRED)
 INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENAL_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENAL_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(OGG REQUIRED)
 INCLUDE_DIRECTORIES(${OGG_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OGG_LIBRARY})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_LIBRARY})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_FILE_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OGG_LIBRARY})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_LIBRARY})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_FILE_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(LUA REQUIRED)
 INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES})
+ENDIF()
 
 FIND_PACKAGE(JPEG REQUIRED)
 INCLUDE_DIRECTORIES(${JPEG_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
+ENDIF()
 
 FIND_PACKAGE(PNG REQUIRED)
 INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
+ENDIF()
+
+FIND_PACKAGE(CURL REQUIRED)
+INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
+IF(UNIX)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
+ENDIF()
 
 #########################################################################################
 # glest game
@@ -54,12 +98,10 @@ SET(DIRS_WITH_SRC
 	type_instances
 	types
 	world)
-	
 
 SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
 SET(GLEST_LIB_INCLUDE_DIRS
     ${GLEST_LIB_INCLUDE_ROOT}platform/common
-	${GLEST_LIB_INCLUDE_ROOT}platform/sdl
 	${GLEST_LIB_INCLUDE_ROOT}platform/posix
 	${GLEST_LIB_INCLUDE_ROOT}util
 	${GLEST_LIB_INCLUDE_ROOT}graphics
@@ -73,6 +115,17 @@ SET(GLEST_LIB_INCLUDE_DIRS
 	${GLEST_LIB_INCLUDE_ROOT}streflop/libm_flt32_source
 	${GLEST_LIB_INCLUDE_ROOT}map)
 INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+
+IF(WIN32)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/sound/ds8)
+ELSE()
+	SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/sdl)
+	SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/unix)
+ENDIF()
 
 SET(MG_SOURCE_FILES "")
 	
@@ -95,14 +148,16 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 ENDFOREACH(DIR)
 
 # Force the version and date/time stamp file to be touched so the compile stamp is always right
+IF(UNIX)
 add_custom_command(
   OUTPUT mg.tmp
   COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
 add_custom_target(run ALL
     DEPENDS mg.tmp)
+ENDIF()
 
 # [RCL] FIXME: make it compiler-agnostic
-SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DSTREFLOP_SSE")
+SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUSE_STREFLOP -DSTREFLOP_SSE -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DCURL_STATICLIB")
 
 # The stuff below gets SVN Global Revision # but ONLY when calling cmake!
 # the FindSubversion.cmake module is part of the standard distribution
@@ -110,7 +165,7 @@ include(FindSubversion)
 # extract working copy information for SOURCE_DIR into MY_XXX variables
 Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
 #add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
-SET(SVN_VERSION_CMD -DSVNVERSION="${MG_WC_REVISION}")
+SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
 
 IF(UNIX AND NOT APPLE)
 	# We do some funky character escaping to get the right stuff written out to 
@@ -118,17 +173,21 @@ IF(UNIX AND NOT APPLE)
 	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
 ENDIF()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD} -Wl,-subsystem,console -mconsole")
 
-IF(UNIX AND NOT APPLE)
+#IF(UNIX AND NOT APPLE)
 	# We do some funky character escaping to get the right stuff written out to 
 	# the final Makefile so we get the SVN Global Revsion #
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-ENDIF()
+#ENDIF()
 
 message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
-SET(TARGET_NAME "glest.bin")
+IF(WIN32)
+	SET(TARGET_NAME "glest.exe")
+ELSE()
+	SET(TARGET_NAME "glest.bin")
+ENDIF()
 
 IF(UNIX AND NOT APPLE)
 	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux)
@@ -139,6 +198,9 @@ ENDIF()
 SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop glest stdc++ moldname mingwex msvcrt user32 kernel32)
+ENDIF()
 TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 TARGET_LINK_LIBRARIES(${TARGET_NAME} glest_lib)
 TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})

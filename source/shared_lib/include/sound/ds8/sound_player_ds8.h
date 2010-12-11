@@ -15,6 +15,7 @@
 #include "sound_player.h"
 #include "platform_util.h"
 
+#include <mmsystem.h>
 #include <dsound.h>
 
 #include <vector>
