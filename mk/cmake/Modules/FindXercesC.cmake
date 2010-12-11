@@ -14,7 +14,7 @@ ENDIF (XERCESC_INCLUDE_DIR)
 FIND_PATH(XERCESC_INCLUDE_DIR xercesc
 	PATH_SUFFIXES DOM/dom.hpp)
 
-SET(XERCESC_NAMES xerces-c xerces-c_3 xerces-c_2 Xerces)
+SET(XERCESC_NAMES xerces-c2_8_0 xerces-c xerces-c_3 xerces-c_2 Xerces)
 FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES} )
 
 # Handle the QUIETLY and REQUIRED arguments and set XERCESC_FOUND to
