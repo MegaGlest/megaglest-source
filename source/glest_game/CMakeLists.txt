@@ -5,22 +5,21 @@ SET(EXTERNAL_LIBS "")
 
 IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+			       ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
+			       ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 
-	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
-						   )
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+			       
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 ENDIF()
@@ -85,7 +84,7 @@ ENDIF()
 # glest game
 
 SET(DIRS_WITH_SRC
-    ai
+    	ai
 	facilities
 	game
 	global
@@ -135,8 +134,11 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 	set(SRC_DIR_TO_GLOB ${DIR})
 	FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
+	FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.c)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
         FILE(GLOB INCLUDE_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.h)
 	SET(MG_INCLUDE_FILES ${MG_INCLUDE_FILES} ${INCLUDE_FILES_FROM_THIS_DIR})	
+
 	IF(APPLE)
 		FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.mm)
 		#MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
@@ -144,7 +146,7 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 		FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.m)
 		#MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})	
-		ENDIF(APPLE)
+	ENDIF(APPLE)
 ENDFOREACH(DIR)
 
 # Force the version and date/time stamp file to be touched so the compile stamp is always right
@@ -193,7 +195,7 @@ ENDIF()
 message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 IF(WIN32)
-	SET(TARGET_NAME "glest.exe")
+	SET(TARGET_NAME "glest_game")
 ELSE()
 	SET(TARGET_NAME "glest.bin")
 ENDIF()
@@ -208,8 +210,11 @@ SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 IF(WIN32)
-	TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop glest stdc++ moldname mingwex msvcrt user32 kernel32)
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop libglest stdc++ moldname mingwex msvcrt user32 kernel32)
 ENDIF()
+IF(NOT WIN32)
 TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
-TARGET_LINK_LIBRARIES(${TARGET_NAME} glest_lib)
+TARGET_LINK_LIBRARIES(${TARGET_NAME} libglest)
+ENDIF()
 TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
+
