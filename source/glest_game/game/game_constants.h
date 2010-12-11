@@ -114,10 +114,12 @@ public:
 
 	static const char *application_name;
 	
-	static const float normalMultiplier= 1.0f;
-	static const float easyMultiplier= 0.8f;
-	static const float ultraMultiplier= 3.0f;
-	static const float megaMultiplier= 4.0f;
+	// VC++ Chokes on init of non integral static types
+	static const float normalMultiplier;
+	static const float easyMultiplier;
+	static const float ultraMultiplier;
+	static const float megaMultiplier;
+	//
 	
 };
 
