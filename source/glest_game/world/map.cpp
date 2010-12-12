@@ -833,7 +833,11 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
 				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
 				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str(),getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
+                              __FILE__,__FUNCTION__,__LINE__,
+                              currPos.getString().c_str(),
+                              unit->toString().c_str(),
+                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
 				}
 
 				getCell(currPos)->setUnit(unit->getCurrField(), unit);
