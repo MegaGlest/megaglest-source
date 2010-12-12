@@ -19,8 +19,8 @@ IF(NOT WIN32)
 	#INCLUDE_DIRECTORIES(${WX_INCLUDE_DIR})
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
 ELSE()
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.a)
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.a)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxpng-2.8-i586-mingw32msvc.a)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxjpeg-2.8-i586-mingw32msvc.a)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxtiff-2.8-i586-mingw32msvc.a)
@@ -89,6 +89,10 @@ ENDFOREACH(DIR)
 # [RCL] FIXME: make it compiler-agnostic
 SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DSTREFLOP_SSE")
 
+IF(WIN32)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DMWIN -D__WXMSW__ -DCURL_STATICLIB")
+ENDIF()
+
 SET(TARGET_NAME "glest_editor")
 
 IF(UNIX AND NOT APPLE)
@@ -100,6 +104,10 @@ ENDIF()
 SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop libglest stdc++ moldname mingwex msvcrt user32 kernel32)
+ENDIF()
+
 TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 TARGET_LINK_LIBRARIES(${TARGET_NAME} libglest)
 TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
