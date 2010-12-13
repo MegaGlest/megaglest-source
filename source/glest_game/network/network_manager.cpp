@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -74,18 +74,37 @@ bool NetworkManager::isNetworkGame(){
 
 GameNetworkInterface* NetworkManager::getGameNetworkInterface(){
 	assert(gameNetworkInterface!=NULL);
+	if(gameNetworkInterface==NULL) {
+	    throw runtime_error("gameNetworkInterface==NULL");
+	}
 	return gameNetworkInterface;
 }
 
 ServerInterface* NetworkManager::getServerInterface(){
 	assert(gameNetworkInterface!=NULL);
+	if(gameNetworkInterface==NULL) {
+	    throw runtime_error("gameNetworkInterface==NULL");
+	}
+
 	assert(networkRole==nrServer);
+	if(networkRole!=nrServer) {
+	    throw runtime_error("networkRole!=nrServer");
+	}
+
 	return dynamic_cast<ServerInterface*>(gameNetworkInterface);
 }
 
 ClientInterface* NetworkManager::getClientInterface(){
 	assert(gameNetworkInterface!=NULL);
+	if(gameNetworkInterface==NULL) {
+	    throw runtime_error("gameNetworkInterface==NULL");
+	}
+
 	assert(networkRole==nrClient);
+	if(networkRole!=nrClient) {
+	    throw runtime_error("networkRole!=nrClient");
+	}
+
 	return dynamic_cast<ClientInterface*>(gameNetworkInterface);
 }
 
