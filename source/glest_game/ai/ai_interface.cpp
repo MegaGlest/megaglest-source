@@ -56,7 +56,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 		if(f==NULL){
 			throw runtime_error("Can't open file: "+getLogFilename());
 		}
-		fprintf(f, "%s", "Glest AI log file\n\n");
+		fprintf(f, "%s", "MegaGlest AI log file\n\n");
 		fclose(f);
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -26,7 +26,7 @@ using namespace Shared::Platform;
 
 namespace Glest { namespace Game {
 
-const string mailString			= "contact_game@glest.org";
+const string mailString			= "contact@megaglest.org";
 const string glestVersionString = "v3.4.0-dev";
 #if defined(SVNVERSION)
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
@@ -35,7 +35,7 @@ const string SVN_Rev 			= "$Rev$";
 #endif
 
 string getCrashDumpFileName(){
-	return "glest" + glestVersionString + ".dmp";
+	return "megaglest" + glestVersionString + ".dmp";
 }
 
 string getPlatformNameString() {
@@ -125,16 +125,16 @@ string getNetworkPlatformFreeVersionString() {
 
 string getAboutString1(int i) {
 	switch(i){
-	case 0: return "Glest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
+	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
-	case 2: return "Copyright 2001-2010 The Mega-Glest Team";
+	case 2: return "Copyright 2001-2010 The MegaGlest Team";
 	}
 	return "";
 }
 
 string getAboutString2(int i){
 	switch(i){
-	case 0: return "Web: http://sourceforge.net/projects/megaglest  http://glest.org";
+	case 0: return "Web: http://www.megaglest.org  http://glest.org";
 	case 1: return "Mail: " + mailString;
 	case 2: return "Irc: irc://irc.freenode.net/glest";
 	}
@@ -143,11 +143,11 @@ string getAboutString2(int i){
 
 string getTeammateName(int i) {
 	switch(i) {
-	case 0: return "Martiño Figueroa";
-	case 1: return "José Luis González";
-	case 2: return "Tucho Fernández";
-	case 3: return "José Zanni";
-	case 4: return "Félix Menéndez";
+	case 0: return "Martiï¿½o Figueroa";
+	case 1: return "Josï¿½ Luis Gonzï¿½lez";
+	case 2: return "Tucho Fernï¿½ndez";
+	case 3: return "Josï¿½ Zanni";
+	case 4: return "Fï¿½lix Menï¿½ndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	case 7: return "Titus Tscharntke";

@@ -477,7 +477,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//window
-	window->setText("Glest");
+	window->setText("MegaGlest");
 	window->setStyle(config.getBool("Windowed")? wsWindowedFixed: wsFullscreen);
 	window->setPos(0, 0);
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));

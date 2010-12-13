@@ -189,6 +189,8 @@ Renderer::Renderer() {
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
+	
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 
 	saveScreenShotThread = new SimpleTaskThread(this,0,25);
 	saveScreenShotThread->setUniqueID(__FILE__);
@@ -1626,7 +1628,6 @@ void Renderer::renderObjects(const int renderFps) {
 				}
 
 				glActiveTexture(baseTexUnit);
-
 				glEnable(GL_COLOR_MATERIAL);
 				glAlphaFunc(GL_GREATER, 0.5f);
 
@@ -3432,7 +3433,7 @@ void Renderer::checkGlCaps() {
 
 		message += "Your system supports OpenGL version \"";
  		message += getGlVersion() + string("\"\n");
- 		message += "Glest needs at least version 1.3 to work\n";
+ 		message += "MegaGlest needs at least version 1.3 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
  		throw runtime_error(message.c_str());
@@ -3440,7 +3441,7 @@ void Renderer::checkGlCaps() {
 
 	//opengl 1.4 or extension
 	if(!isGlVersionSupported(1, 4, 0)){
-		checkExtension("GL_ARB_texture_env_crossbar", "Glest");
+		checkExtension("GL_ARB_texture_env_crossbar", "MegaGlest");
 	}
 }
 
