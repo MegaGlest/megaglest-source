@@ -521,8 +521,11 @@ void ServerInterface::update() {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",__FILE__,__FUNCTION__,__LINE__);
 
 				// Step #2 check all connection slot worker threads for completed status
+				time_t waitForThreadElapsed = time(NULL);
+				const int MAX_SLOT_THREAD_WAIT_TIME = 10;
 				std::map<int,bool> slotsCompleted;
-				for(bool threadsDone = false; threadsDone == false;) {
+				for(bool threadsDone = false;
+                    threadsDone == false && difftime(time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
 					threadsDone = true;
 					// Examine all threads for completion of delegation
 					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
@@ -568,10 +571,12 @@ void ServerInterface::update() {
 
 				// Step #3 check clients for any lagging scenarios and try to deal with them
 				time_t waitForClientsElapsed = time(NULL);
+				waitForThreadElapsed = time(NULL);
 				slotsCompleted.clear();
 				//std::map<int,bool> slotsWarnedAndRetried;
 				std::map<int,bool> slotsWarnedList;
-				for(bool threadsDone = false; threadsDone == false;) {
+				for(bool threadsDone = false;
+                    threadsDone == false && difftime(time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
 					threadsDone = true;
 					// Examine all threads for completion of delegation
 					for(int i= 0; i< GameConstants::maxPlayers; ++i) {
@@ -1112,11 +1117,11 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings) {
 
 void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-    
+
     MutexSafeWrapper safeMutex(&serverSynchAccessor);
     NetworkMessageLaunch networkMessageLaunch(gameSettings,nmtBroadCastSetup);
     broadcastMessage(&networkMessageLaunch);
-    
+
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
