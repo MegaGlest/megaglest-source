@@ -25,7 +25,7 @@ namespace MapEditor {
 
 
 const string mapeditorVersionString = "v1.5.1";
-const string MainWindow::winHeader = "Glest Map Editor " + mapeditorVersionString;
+const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
 //	class Global functions
@@ -514,7 +514,7 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 
 void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	wxFileDialog fileDialog(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
-	fileDialog.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
+	fileDialog.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
 	if (fileDialog.ShowModal() == wxID_OK) {
 		currentFile = fileDialog.GetPath().ToAscii();
 		setExtension();
@@ -1165,7 +1165,7 @@ bool App::OnInit() {
 	string fileparam;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
-			std::cout << "Glest map editor " << mapeditorVersionString << std::endl << std::endl;
+			std::cout << "MegaGlest map editor " << mapeditorVersionString << std::endl << std::endl;
 			std::cout << "glest_map_editor [GBM OR MGM FILE]" << std::endl << std::endl;
 			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
 			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;

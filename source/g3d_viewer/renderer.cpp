@@ -118,7 +118,7 @@ void Renderer::checkGlCaps(){
 
 		message += "Your system supports OpenGL version \"";
  		message += getGlVersion() + string("\"\n");
- 		message += "Glest needs at least version 1.3 to work\n";
+ 		message += "MegaGlest needs at least version 1.3 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
  		throw runtime_error(message.c_str());
@@ -126,7 +126,7 @@ void Renderer::checkGlCaps(){
 
 	//opengl 1.4 or extension
 	if(!isGlVersionSupported(1, 4, 0)){
-		checkExtension("GL_ARB_texture_env_crossbar", "Glest");
+		checkExtension("GL_ARB_texture_env_crossbar", "MegaGlest");
 	}
 }
 
