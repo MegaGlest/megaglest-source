@@ -1183,7 +1183,8 @@ void World::computeFow(int factionIdxToTick) {
 						if(	k == thisTeamIndex &&
 							(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer ||
 							 (game->getGameOver() == true && (game->getGameSettings()->isNetworkGame() == false ||
-							  game->getGameSettings()->getEnableObserverModeAtEndGame() == true)))) {
+							  (game->getGameSettings()->getEnableObserverModeAtEndGame() == true &&
+                               getFaction(k)->getUnitCount() <= 0))))) {
 							map.getSurfaceCell(i, j)->setVisible(k, true);
 							map.getSurfaceCell(i, j)->setExplored(k, true);
 
