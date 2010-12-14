@@ -551,7 +551,6 @@ void ServerInterface::update() {
 								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted() : true);
 								if(updateFinished == false) {
 									threadsDone = false;
-									sleep(0);
 									break;
 								}
 								else {
@@ -565,6 +564,9 @@ void ServerInterface::update() {
 							}
 						}
 					}
+					//if(threadsDone == false) {
+                    //    sleep(0);
+                    //}
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",__FILE__,__FUNCTION__,__LINE__);
