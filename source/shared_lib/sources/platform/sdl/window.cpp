@@ -267,10 +267,10 @@ bool Window::handleEvent() {
 						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 						showCursor(willShowCursor);
 					}
-				} 
+				}
 				break;
 			}
-		} 
+		}
 		catch(const char *e){
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] (a1) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e,codeLocation.c_str());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (a1) Couldn't process event: [%s] codeLocation = %s\n",__FILE__,__FUNCTION__,__LINE__,e,codeLocation.c_str());
@@ -370,7 +370,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 
 	if(fullscreen_anti_aliasing == true) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 	}
 	if(hardware_acceleration == true) {
 		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
@@ -388,7 +388,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 static HWND GetSDLWindow()
 {
     SDL_SysWMinfo   info;
- 
+
     SDL_VERSION(&info.version);
     if (SDL_GetWMInfo(&info) == -1)
         return NULL;
@@ -479,7 +479,7 @@ void Window::toggleFullscreen() {
 			//showCursor(true);
 		}
 	}
-	
+
 #else
 	if(Window::allowAltEnterFullscreenToggle == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
