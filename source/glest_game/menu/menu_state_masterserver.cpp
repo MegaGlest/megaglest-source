@@ -59,11 +59,11 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	platformLabel.init(i,startOffset-lineOffset);
 	platformLabel.setText(masterServerInfo.getPlatform());
 
-	i+=50;
-	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
-	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
-	binaryCompileDateLabel.init(i,startOffset-lineOffset);
-	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
+//	i+=50;
+//	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
+//	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
+//	binaryCompileDateLabel.init(i,startOffset-lineOffset);
+//	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
 	
 	//game info:
 	i+=130;
@@ -72,7 +72,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 	
-	i+=160;
+	i+=210;
 	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,startOffset-lineOffset);
@@ -253,10 +253,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	platformLabel.init(i,startOffset-lineOffset);
 	platformLabel.setText(lang.get("MGPlatform"));
 
-	i+=50;
-	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel");
-	binaryCompileDateLabel.init(i,startOffset-lineOffset);
-	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
+//	i+=50;
+//	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel");
+//	binaryCompileDateLabel.init(i,startOffset-lineOffset);
+//	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
 
 	//game info:
 	i+=130;
@@ -264,7 +264,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.get("MGGameTitle"));
 
-	i+=160;
+	i+=210;
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(lang.get("MGGameIP"));
