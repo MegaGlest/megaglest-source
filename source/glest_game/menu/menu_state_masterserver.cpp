@@ -169,7 +169,7 @@ void ServerLine::render() {
 	//general info:
 	renderer.renderLabel(&glestVersionLabel);
 	renderer.renderLabel(&platformLabel);
-	renderer.renderLabel(&binaryCompileDateLabel);
+	//renderer.renderLabel(&binaryCompileDateLabel);
 	
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
