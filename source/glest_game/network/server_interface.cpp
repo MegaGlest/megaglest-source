@@ -604,7 +604,7 @@ void ServerInterface::update() {
 								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted() : true);
 								if(updateFinished == false) {
 									threadsDone = false;
-									sleep(0);
+									//sleep(0);
 									break;
 								}
 								else {
@@ -638,7 +638,7 @@ void ServerInterface::update() {
 												bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
 												ConnectionSlotEvent &event = eventList[i];
 												mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
-												sleep(0);
+												//sleep(0);
 												threadsDone = false;
 											}
 											SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
@@ -1204,7 +1204,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 						}
 					}
 				}
-				sleep(0);
+				//sleep(0);
 			}
     	}
     	else {
