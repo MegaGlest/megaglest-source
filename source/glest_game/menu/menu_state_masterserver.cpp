@@ -547,7 +547,7 @@ void MenuStateMasterserver::render(){
 		//general info:
 		renderer.renderLabel(&glestVersionLabel,&titleLabelColor);
 		renderer.renderLabel(&platformLabel,&titleLabelColor);
-		renderer.renderLabel(&binaryCompileDateLabel,&titleLabelColor);
+		//renderer.renderLabel(&binaryCompileDateLabel,&titleLabelColor);
 
 		//game info:
 		renderer.renderLabel(&serverTitleLabel,&titleLabelColor);

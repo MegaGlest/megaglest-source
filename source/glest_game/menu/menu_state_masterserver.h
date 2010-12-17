@@ -91,7 +91,7 @@ private:
 
 	GraphicLabel glestVersionLabel;
 	GraphicLabel platformLabel;
-	GraphicLabel binaryCompileDateLabel;
+	//GraphicLabel binaryCompileDateLabel;
 
 	//game info:
 	GraphicLabel serverTitleLabel;
