@@ -167,8 +167,8 @@ public:
 	bool mouseValid(int x, int y);
 	void mouseDownLeftDisplay(int x, int y);
 	void mouseMoveDisplay(int x, int y);
-	void mouseDownLeftGraphics(int x, int y);
-	void mouseDownRightGraphics(int x, int y);
+	void mouseDownLeftGraphics(int x, int y, bool prepared);
+	void mouseDownRightGraphics(int x, int y, bool prepared);
 	void mouseUpLeftGraphics(int x, int y);
 	void mouseMoveGraphics(int x, int y);
 	void mouseDoubleClickLeftGraphics(int x, int y);
@@ -183,8 +183,10 @@ private:
 
 	//orders
 	void giveDefaultOrders(int x, int y);
+	void giveDefaultOrders(int x, int y, const Unit *targetUnit);
+	void givePreparedDefaultOrders(int x, int y);
 	void giveOneClickOrders();
-	void giveTwoClickOrders(int x, int y);
+	void giveTwoClickOrders(int x, int y, bool prepared);
 
 	//hotkeys
 	void centerCameraOnSelection();

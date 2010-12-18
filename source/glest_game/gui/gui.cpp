@@ -206,7 +206,7 @@ void Gui::mouseMoveDisplay(int x, int y){
 	computeInfoString(computePosDisplay(x, y));
 }
 
-void Gui::mouseDownLeftGraphics(int x, int y){
+void Gui::mouseDownLeftGraphics(int x, int y, bool prepared){
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
@@ -214,7 +214,7 @@ void Gui::mouseDownLeftGraphics(int x, int y){
 	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingPos == true\n",__FILE__,__FUNCTION__);
 
 		//give standard orders
-		giveTwoClickOrders(x, y);
+		giveTwoClickOrders(x, y, prepared);
 		resetState();
 	}
 	//set meeting point
@@ -246,7 +246,7 @@ void Gui::mouseDownLeftGraphics(int x, int y){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Gui::mouseDownRightGraphics(int x, int y){
+void Gui::mouseDownRightGraphics(int x, int y , bool prepared){
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
@@ -254,7 +254,12 @@ void Gui::mouseDownRightGraphics(int x, int y){
 		resetState();
 	}
 	else if(selection.isComandable()){
-		giveDefaultOrders(x, y);
+		if(prepared){
+			givePreparedDefaultOrders(x, y);
+		}
+		else{
+			giveDefaultOrders(x, y);
+		}
 	}
 	computeDisplay();
 
@@ -399,8 +404,16 @@ void Gui::giveDefaultOrders(int x, int y){
 		console->addStdMessage("InvalidPosition");
 		return;
 	}
+	giveDefaultOrders(targetPos.x,targetPos.y,targetUnit);
+}
 
+void Gui::givePreparedDefaultOrders(int x, int y){
+	giveDefaultOrders(x, y, NULL);
+}
+
+void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit){
 	bool queueKeyDown = isKeyDown(queueCommandKey);
+	Vec2i targetPos=Vec2i(x, y);
 	//give order
 	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
 
@@ -421,16 +434,22 @@ void Gui::giveDefaultOrders(int x, int y){
 	resetState();
 }
 
-void Gui::giveTwoClickOrders(int x, int y){
+void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 
 	CommandResult result;
 
 	//compute target
 	const Unit *targetUnit= NULL;
 	Vec2i targetPos;
-	if(!computeTarget(Vec2i(x, y), targetPos, targetUnit)){
-		console->addStdMessage("InvalidPosition");
-		return;
+	if(prepared){
+		targetPos=Vec2i(x, y);
+	}
+	else
+	{
+		if(!computeTarget(Vec2i(x, y), targetPos, targetUnit)){
+			console->addStdMessage("InvalidPosition");
+			return;
+		}
 	}
 
 	bool queueKeyDown = isKeyDown(queueCommandKey);
