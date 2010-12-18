@@ -1,9 +1,9 @@
 //This file is part of Glest Shared Library (www.glest.org)
 //Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 
-//You can redistribute this code and/or modify it under 
-//the terms of the GNU General Public License as published by the Free Software 
-//Foundation; either version 2 of the License, or (at your option) any later 
+//You can redistribute this code and/or modify it under
+//the terms of the GNU General Public License as published by the Free Software
+//Foundation; either version 2 of the License, or (at your option) any later
 //version.
 
 #include "thread.h"
@@ -23,10 +23,10 @@ using namespace std;
 
 #endif
 
-namespace Shared{ namespace Platform{ 
+namespace Shared{ namespace Platform{
 
 // =====================================
-//          Threads                    
+//          Threads
 // =====================================
 Thread::Thread() {
 	thread = NULL;
@@ -74,10 +74,11 @@ void Thread::resume() {
 }
 
 // =====================================
-//          Mutex                      
+//          Mutex
 // =====================================
 
 Mutex::Mutex() {
+    refCount=0;
 	mutex = SDL_CreateMutex();
 	assert(mutex != NULL);
 	if(mutex == NULL) {
@@ -104,6 +105,7 @@ void Mutex::p() {
 		throw runtime_error(szBuf);
 	}
 	SDL_mutexP(mutex);
+	refCount++;
 }
 
 void Mutex::v() {
@@ -112,6 +114,7 @@ void Mutex::v() {
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
+	refCount--;
 	SDL_mutexV(mutex);
 }
 

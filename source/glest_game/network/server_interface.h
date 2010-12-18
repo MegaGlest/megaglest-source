@@ -33,6 +33,8 @@ class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbac
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
+	Mutex slotAccessorMutexes[GameConstants::maxPlayers];
+
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
 	int gameSettingsUpdateCount;
