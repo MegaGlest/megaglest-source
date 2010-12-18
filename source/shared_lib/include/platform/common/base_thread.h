@@ -37,7 +37,6 @@ protected:
 	string uniqueID;
 	bool hasBeginExecution;
 
-	virtual void setRunningStatus(bool value);
 	virtual void setQuitStatus(bool value);
 
 public:
@@ -57,6 +56,33 @@ public:
 
     void setUniqueID(string value) { uniqueID = value; }
     string getUniqueID() { return uniqueID; }
+
+    virtual void setRunningStatus(bool value);
+};
+
+class RunningStatusSafeWrapper {
+protected:
+	BaseThread *thread;
+public:
+
+	RunningStatusSafeWrapper(BaseThread *thread) {
+		this->thread = thread;
+		Enable();
+	}
+	~RunningStatusSafeWrapper() {
+		Disable();
+	}
+
+	void Enable() {
+		if(this->thread != NULL) {
+			this->thread->setRunningStatus(true);
+		}
+	}
+	void Disable() {
+		if(this->thread != NULL) {
+		    this->thread->setRunningStatus(false);
+		}
+	}
 };
 
 }}//end namespace
