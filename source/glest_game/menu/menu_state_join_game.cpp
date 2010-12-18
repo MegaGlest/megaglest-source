@@ -167,6 +167,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 
 	autoConnectToServer = false;
 	buttonAutoFindServers.setEnabled(true);
+	buttonConnect.setEnabled(true);
 	if(serverList.size() > 0) {
 		string bestIPMatch = "";
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
@@ -270,6 +271,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			buttonAutoFindServers.setEnabled(false);
+			buttonConnect.setEnabled(false);
 			clientInterface->discoverServers(this);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
