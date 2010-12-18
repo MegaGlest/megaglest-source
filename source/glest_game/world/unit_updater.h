@@ -70,6 +70,7 @@ private:
 	RoutePlanner *routePlanner;
 	Game *game;
 	RandomGen random;
+	int lastWarnFrameCount;
 
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
