@@ -243,8 +243,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
     }
 
 	//connect
-	else if(buttonConnect.mouseClick(x, y))
-	{
+	else if(buttonConnect.mouseClick(x, y) && buttonConnect.getEnabled() == true) {
 		ClientInterface* clientInterface= networkManager.getClientInterface();
 
 		soundRenderer.playFx(coreData.getClickSoundA());
