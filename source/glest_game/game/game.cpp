@@ -926,14 +926,18 @@ void Game::mouseDownLeft(int x, int y){
 
 		//minimap panel
 		if(messageBoxClick == false) {
-			if(metrics.isInMinimap(x, y) && !gui.isSelectingPos()){
+			if(metrics.isInMinimap(x, y)){
 				int xm= x - metrics.getMinimapX();
 				int ym= y - metrics.getMinimapY();
 				int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
 				int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
 
 				if(map->isInside(xCell, yCell)){
-					if(!gui.isSelectingPos()){
+					if(gui.isSelectingPos()){
+						gui.mouseDownLeftGraphics(xCell, yCell, true);
+					}
+					else
+					{
 						gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
 					}
 				}
@@ -947,13 +951,13 @@ void Game::mouseDownLeft(int x, int y){
 					gui.mouseDownLeftDisplay(xd, yd);
 				}
 				else{
-					gui.mouseDownLeftGraphics(x, y);
+					gui.mouseDownLeftGraphics(x, y, false);
 				}
 			}
 
 			//graphics panel
 			else{
-				gui.mouseDownLeftGraphics(x, y);
+				gui.mouseDownLeftGraphics(x, y, false);
 			}
 		}
 
@@ -998,7 +1002,21 @@ void Game::mouseDownLeft(int x, int y){
 
 void Game::mouseDownRight(int x, int y){
 	try {
-		gui.mouseDownRightGraphics(x, y);
+		Map *map= world.getMap();
+		const Metrics &metrics= Metrics::getInstance();
+		
+		if(metrics.isInMinimap(x, y) ){
+			int xm= x - metrics.getMinimapX();
+			int ym= y - metrics.getMinimapY();
+			int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
+			int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
+
+			if(map->isInside(xCell, yCell)){
+				gui.mouseDownRightGraphics(xCell, yCell,true);
+			}
+		}
+		else
+			gui.mouseDownRightGraphics(x, y,false);
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
