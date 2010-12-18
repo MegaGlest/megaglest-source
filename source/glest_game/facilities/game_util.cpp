@@ -143,11 +143,11 @@ string getAboutString2(int i){
 
 string getTeammateName(int i) {
 	switch(i) {
-	case 0: return "Martiï¿½o Figueroa";
-	case 1: return "Josï¿½ Luis Gonzï¿½lez";
-	case 2: return "Tucho Fernï¿½ndez";
-	case 3: return "Josï¿½ Zanni";
-	case 4: return "Fï¿½lix Menï¿½ndez";
+	case 0: return "Martiño Figueroa";
+	case 1: return "José Luis González";
+	case 2: return "Tucho Fernández";
+	case 3: return "José Zanni";
+	case 4: return "Félix Menéndez";
 	case 5: return "Marcos Caruncho";
 	case 6: return "Matthias Braun";
 	case 7: return "Titus Tscharntke";
