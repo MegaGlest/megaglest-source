@@ -67,12 +67,12 @@ enum Queueability {
 
 class CommandType: public RequirableType {
 protected:
-    CommandClass commandTypeClass;
     Clicks clicks;
 	int id;
 
 public:
 	static const int invalidId= -1;
+    CommandClass commandTypeClass;
 
 public:
 	CommandType() {

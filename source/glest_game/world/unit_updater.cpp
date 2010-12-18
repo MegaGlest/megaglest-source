@@ -53,6 +53,7 @@ UnitUpdater::UnitUpdater() {
 	this->scriptManager= NULL;
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
+	lastWarnFrameCount=0;
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 }
 
@@ -67,6 +68,7 @@ void UnitUpdater::init(Game *game){
 	this->scriptManager= game->getScriptManager();
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
+	lastWarnFrameCount=0;
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 
 	switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -180,6 +182,12 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 
 	//if unit has command process it
     if(unit->anyCommand()) {
+    	CommandClass cc=unit->getCurrCommand()->getCommandType()->commandTypeClass;
+    	if(unit->isOperative() && (!(cc==ccStop || cc==ccAttack)) )
+    	{//stop and attack already check for themselves
+    		Unit *sighted;
+    		attackerOnSight(unit, &sighted);
+    	}
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
 
@@ -193,6 +201,12 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 		if(unit->getType()->hasCommandClass(ccStop)) {
 		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
+		}
+		else
+		{
+			// buidings have no stop skill but hav to check for attackers too.
+			Unit *sighted;
+			attackerOnSight(unit, &sighted);
 		}
 	}
 
@@ -1692,7 +1706,7 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast){
     vector<Unit*> enemies;
-
+	bool result=false;
 	//we check command target
 	const Unit *commandTarget = NULL;
 	if(unit->anyCommand()) {
@@ -1743,18 +1757,30 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		if(enemies[i]->getType()->hasSkillClass(scAttack)) {
             *rangedPtr= enemies[i];
 
-            return true;
+            result=true;
+            break;
         }
     }
 
 	//any enemy
-    if(enemies.size() > 0) {
+    if(!result && (enemies.size() > 0)) {
         *rangedPtr= enemies.front();
 
         return true;
     }
 
-    return false;
+	if(result)
+	{
+		
+		if(world->getFrameCount()-lastWarnFrameCount>80) //after 100 frames attack break we warn again
+		{
+			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+		}
+		lastWarnFrameCount=world->getFrameCount();
+	}
+
+
+    return result;
 }
 
 // =====================================================
