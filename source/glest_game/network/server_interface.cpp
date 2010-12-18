@@ -1322,10 +1322,10 @@ void ServerInterface::updateListen() {
 		return;
 	}
 
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
+	//MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
 	int openSlotCount= 0;
 	for(int i= 0; i<GameConstants::maxPlayers; ++i)	{
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		//MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
 		bool isSlotOpen = (slots[i] != NULL && slots[i]->isConnected() == false);
 
 		if(isSlotOpen == true) {
@@ -1335,7 +1335,7 @@ void ServerInterface::updateListen() {
 
 	//MutexSafeWrapper safeMutex(&serverSynchAccessor);
 	serverSocket.listen(openSlotCount);
-	safeMutex.ReleaseLock();
+	//safeMutex.ReleaseLock();
 }
 
 int ServerInterface::getOpenSlotCount() {
