@@ -1170,10 +1170,10 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
 #ifndef WIN32
 	int currentFlags = fcntl(socket, F_GETFL);
 	if(block == true) {
-		currentFlags |= O_NONBLOCK;
+		currentFlags &= (~O_NONBLOCK);
 	}
 	else {
-		currentFlags &= (~O_NONBLOCK);
+		currentFlags |= O_NONBLOCK;
 	}
 	int err= fcntl(socket, F_SETFL, currentFlags);
 #else
@@ -1356,6 +1356,7 @@ void ClientSocket::stopBroadCastClientThread() {
 
 	if(broadCastClientThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		broadCastClientThread->shutdownAndWait();
 		delete broadCastClientThread;
 		broadCastClientThread = NULL;
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1392,13 +1393,11 @@ void ClientSocket::connect(const Ip &ip, int port)
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
 
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
-	if(err < 0)
-	{
+	if(err < 0)	{
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d error = %s\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 
         if (getLastSocketError() == PLATFORM_SOCKET_INPROGRESS ||
-        	getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)
-        {
+        	getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) {
             fd_set myset;
             struct timeval tv;
             int valopt;
@@ -1406,8 +1405,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] PLATFORM_SOCKET_INPROGRESS in connect() - selecting\n",__FILE__,__FUNCTION__);
 
-            do
-            {
+            do {
                tv.tv_sec = 10;
                tv.tv_usec = 0;
 
@@ -1501,8 +1499,9 @@ BroadCastClientSocketThread::BroadCastClientSocketThread(DiscoveredServersInterf
 //
 void BroadCastClientSocketThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//setRunningStatus(true);
+	RunningStatusSafeWrapper runningStatus(this);
 
-	setRunningStatus(true);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is running\n");
 
 	std::vector<string> foundServers;
@@ -1545,14 +1544,17 @@ void BroadCastClientSocketThread::execute() {
 
 			Socket::setBlock(false, bcfd);
 
-			try
-			{
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			try	{
 				// Keep getting packets forever.
-				for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; )
-				{
+				for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
-					if( (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) <= 0  )
-					{
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					bool gotData = (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) > 0;
+					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gotData = %d\n",__FILE__,__FUNCTION__,__LINE__,gotData);
+
+					if(gotData == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"recvfrom failed: %s\n", getLastSocketErrorFormattedText().c_str());
 						//exit(-1);
 					}
@@ -1578,6 +1580,10 @@ void BroadCastClientSocketThread::execute() {
 						break;
 					}
 					sleep( 100 ); // send out broadcast every 1 seconds
+					if(getQuitStatus() == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						break;
+					}
 				}
 			}
 			catch(const exception &ex) {
@@ -1605,14 +1611,12 @@ void BroadCastClientSocketThread::execute() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     // Here we callback into the implementer class
-    if(discoveredServersCB != NULL) {
+    if(getQuitStatus() == false && discoveredServersCB != NULL) {
     	discoveredServersCB->DiscoveredServers(foundServers);
     }
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast Client thread is exiting\n");
-	setRunningStatus(false);
-
-
+	//setRunningStatus(false);
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1811,10 +1815,10 @@ BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 //					the current broadcast message is <myhostname:my.ip.address.dotted>
 //
 void BroadCastSocketThread::execute() {
-
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//setRunningStatus(true);
+	RunningStatusSafeWrapper runningStatus(this);
 
-	setRunningStatus(true);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
 
 	const int MAX_NIC_COUNT = 10;
@@ -1951,7 +1955,7 @@ void BroadCastSocketThread::execute() {
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Broadcast thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
-	setRunningStatus(false);
+	//setRunningStatus(false);
 }
 
 double Socket::getAveragePingMS(std::string host, int pingCount) {

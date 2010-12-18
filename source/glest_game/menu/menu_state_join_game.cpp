@@ -223,16 +223,13 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton)
 	}
 
 	//return
-	if(buttonReturn.mouseClick(x, y))
-	{
+	if(buttonReturn.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundA());
 
 		clientInterface->stopServerDiscovery();
 
-		if(clientInterface->getSocket() != NULL)
-		{
-		    if(clientInterface->isConnected() == true)
-		    {
+		if(clientInterface->getSocket() != NULL) {
+		    if(clientInterface->isConnected() == true) {
                 string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
                 clientInterface->sendTextMessage(sQuitText,-1);
 		    }

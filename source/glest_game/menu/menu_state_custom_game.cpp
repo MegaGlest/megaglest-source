@@ -1075,10 +1075,9 @@ void MenuStateCustomGame::PlayNow() {
 		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-			if(	connectionSlot != NULL && connectionSlot->isConnected() &&
-				connectionSlot->getAllowGameDataSynchCheck() == true &&
-				connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
+			if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected() &&
+				serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true &&
+				serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOk() == false) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				dataSynchCheckOk = false;
 				break;
@@ -1515,68 +1514,53 @@ void MenuStateCustomGame::update() {
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-				//assert(connectionSlot!=NULL);
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 				hasOneNetworkSlotOpen=true;
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A - ctNetwork\n",__FILE__,__FUNCTION__);
 
-				if(connectionSlot != NULL && connectionSlot->isConnected()) {
-					connectionSlot->setName(labelPlayerNames[i].getText());
+				if(serverInterface->getSlot(i) != NULL &&
+                   serverInterface->getSlot(i)->isConnected()) {
+					serverInterface->getSlot(i)->setName(labelPlayerNames[i].getText());
 
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
 					haveAtLeastOneNetworkClientConnected = true;
-					if(connectionSlot->getConnectHasHandshaked())
+					if(serverInterface->getSlot(i) != NULL &&
+                       serverInterface->getSlot(i)->getConnectHasHandshaked()) {
 						currentConnectionCount++;
+                    }
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B - ctNetwork\n",__FILE__,__FUNCTION__);
+					string label = (serverInterface->getSlot(i) != NULL ? serverInterface->getSlot(i)->getVersionString() : "");
 
-					//string label = connectionSlot->getName() + ", " + connectionSlot->getVersionString();
-					string label = connectionSlot->getVersionString();
-
-					if(connectionSlot != NULL &&
-					   connectionSlot->getAllowDownloadDataSynch() == true &&
-					   connectionSlot->getAllowGameDataSynchCheck() == true)
-					{
-						if(connectionSlot->getNetworkGameDataSynchCheckOk() == false)
-						{
+					if(serverInterface->getSlot(i) != NULL &&
+					   serverInterface->getSlot(i)->getAllowDownloadDataSynch() == true &&
+					   serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true) {
+						if(serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOk() == false) {
 							label += " -waiting to synch:";
-							if(connectionSlot->getNetworkGameDataSynchCheckOkMap() == false)
-							{
+							if(serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkMap() == false) {
 								label = label + " map";
 							}
-							if(connectionSlot->getNetworkGameDataSynchCheckOkTile() == false)
-							{
+							if(serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkTile() == false) {
 								label = label + " tile";
 							}
-							if(connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
-							{
+							if(serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkTech() == false) {
 								label = label + " techtree";
 							}
 						}
-						else
-						{
+						else {
 							label += " - data synch is ok";
 						}
 					}
-					else
-					{
-						//label = connectionSlot->getName();
-
-						connectionSlot= serverInterface->getSlot(i);
-						if(connectionSlot != NULL &&
-						   connectionSlot->getAllowGameDataSynchCheck() == true &&
-						   connectionSlot->getNetworkGameDataSynchCheckOk() == false)
-						{
+					else {
+						if(serverInterface->getSlot(i) != NULL &&
+						   serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true &&
+						   serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOk() == false) {
 							label += " -synch mismatch:";
-							connectionSlot= serverInterface->getSlot(i);
-							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkMap() == false) {
+
+							if(serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkMap() == false) {
 								label = label + " map";
 
-								if(connectionSlot->getReceivedDataSynchCheck() == true &&
+								if(serverInterface->getSlot(i)->getReceivedDataSynchCheck() == true &&
 									lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
 									lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -1584,11 +1568,11 @@ void MenuStateCustomGame::update() {
 								}
 							}
 
-							connectionSlot= serverInterface->getSlot(i);
-							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkTile() == false) {
+							if(serverInterface->getSlot(i) != NULL &&
+                               serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkTile() == false) {
 								label = label + " tile";
 
-								if(connectionSlot->getReceivedDataSynchCheck() == true &&
+								if(serverInterface->getSlot(i)->getReceivedDataSynchCheck() == true &&
 									lastTileDataSynchError != "tile CRC mismatch, " + listBoxTileset.getSelectedItem()) {
 									lastTileDataSynchError = "tile CRC mismatch, " + listBoxTileset.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -1596,14 +1580,13 @@ void MenuStateCustomGame::update() {
 								}
 							}
 
-							connectionSlot= serverInterface->getSlot(i);
-							if(connectionSlot != NULL && connectionSlot->getNetworkGameDataSynchCheckOkTech() == false)
-							{
+							if(serverInterface->getSlot(i) != NULL &&
+                               serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOkTech() == false) {
 								label = label + " techtree";
 
-								if(connectionSlot->getReceivedDataSynchCheck() == true) {
+								if(serverInterface->getSlot(i)->getReceivedDataSynchCheck() == true) {
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-									string report = connectionSlot->getNetworkGameDataSynchCheckTechMismatchReport();
+									string report = serverInterface->getSlot(i)->getNetworkGameDataSynchCheckTechMismatchReport();
 
 									if(lastTechtreeDataSynchError != "techtree CRC mismatch" + report) {
 										lastTechtreeDataSynchError = "techtree CRC mismatch" + report;
@@ -1620,22 +1603,20 @@ void MenuStateCustomGame::update() {
 								}
 							}
 
-							connectionSlot= serverInterface->getSlot(i);
-							if(connectionSlot != NULL) {
-								connectionSlot->setReceivedDataSynchCheck(false);
+							if(serverInterface->getSlot(i) != NULL) {
+								serverInterface->getSlot(i)->setReceivedDataSynchCheck(false);
 							}
 						}
 					}
 
-					//float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
+					//float pingTime = serverInterface->getSlot(i)->getThreadedPingMS(serverInterface->getSlot(i)->getIpAddress().c_str());
 					char szBuf[1024]="";
 					//sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
 					sprintf(szBuf,"%s",label.c_str());
 
 					labelNetStatus[i].setText(szBuf);
 				}
-				else
-				{
+				else {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] C - ctNetwork\n",__FILE__,__FUNCTION__);
 					string port = intToStr(config.getInt("ServerPort"));
 					if(port != intToStr(GameConstants::serverPort)){
@@ -1821,14 +1802,12 @@ void MenuStateCustomGame::publishToMasterserver()
 		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork)
 		{
 			slotCountHumans++;
-			ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-			if((connectionSlot!=NULL) && (connectionSlot->isConnected()))
-			{
+			if(serverInterface->getSlot(i) != NULL &&
+               serverInterface->getSlot(i)->isConnected()) {
 				slotCountConnectedPlayers++;
 			}
 		}
-		else if(listBoxControls[i].getSelectedItemIndex() == ctHuman)
-		{
+		else if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
 			slotCountHumans++;
 			slotCountConnectedPlayers++;
 		}
@@ -2046,12 +2025,12 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
-				ConnectionSlot* connectionSlot= serverInterface->getSlot(i);
-				if(connectionSlot != NULL && connectionSlot->isConnected()) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, connectionSlot->getName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,connectionSlot->getName().c_str());
+				if(serverInterface->getSlot(i) != NULL &&
+                   serverInterface->getSlot(i)->isConnected()) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, connectionSlot->getName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,serverInterface->getSlot(i)->getName().c_str());
 
-					gameSettings->setNetworkPlayerName(slotIndex, connectionSlot->getName());
-					labelPlayerNames[i].setText(connectionSlot->getName());
+					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i)->getName());
+					labelPlayerNames[i].setText(serverInterface->getSlot(i)->getName());
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername unconnected\n",__FILE__,__FUNCTION__,__LINE__,i);
@@ -2511,8 +2490,9 @@ void MenuStateCustomGame::closeUnusedSlots(){
 	try {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		for(int i= 0; i<mapInfo.players; ++i){
-			if(listBoxControls[i].getSelectedItemIndex()==ctNetwork){
-				if(!serverInterface->getSlot(i)->isConnected()){
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork){
+				if(serverInterface->getSlot(i) == NULL ||
+                   serverInterface->getSlot(i)->isConnected() == false) {
 					listBoxControls[i].setSelectedItemIndex(ctClosed);
 				}
 			}

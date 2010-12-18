@@ -137,10 +137,10 @@ bool BaseThread::shutdownAndWait() {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 			pThread->signalQuit();
-			//sleep(0);
+			sleep(0);
 			ret = false;
 
-			int maxWaitSeconds = 7;
+			int maxWaitSeconds = 5;
 			if(pThread->canShutdown() == false) {
 				maxWaitSeconds = 2;
 			}
@@ -156,6 +156,7 @@ bool BaseThread::shutdownAndWait() {
 			}
 			//sleep(0);
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+			sleep(0);
 		}
 	}
 	//sleep(0);
