@@ -817,6 +817,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 		throw runtime_error("ut == NULL");
 	}
 
+    bool canPutInCell = true;
 	const UnitType *ut= unit->getType();
 
 	for(int i = 0; i < ut->getSize(); ++i) {
@@ -829,19 +830,37 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
 				// NOT SURE UNDER WHAT CONDITIONS THIS COULD HAPPEN?
+				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL || getCell(currPos)->getUnit(unit->getCurrField()) == unit);
+				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL &&
+                   getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
 
-				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL || getCell(currPos)->getUnit(unit->getCurrField()) == unit);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL && getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
-				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
+                    if(unit->getCurrSkill() != NULL &&
+                       unit->getCurrSkill()->getClass() == ccMove) {
+                        canPutInCell = false;
+                        unit->setCurrSkill(scStop);
+                        unit->finishCommand();
+
+                        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] POSSIBLE ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
                               __FILE__,__FUNCTION__,__LINE__,
                               currPos.getString().c_str(),
                               unit->toString().c_str(),
                               getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
+
+                    }
+                    else {
+                        canPutInCell = false;
+				    //	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+                        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
+                              __FILE__,__FUNCTION__,__LINE__,
+                              currPos.getString().c_str(),
+                              unit->toString().c_str(),
+                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
+                    }
 				}
 
-				getCell(currPos)->setUnit(unit->getCurrField(), unit);
-
+                if(canPutInCell == true) {
+                    getCell(currPos)->setUnit(unit->getCurrField(), unit);
+                }
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 			else if(ut->hasCellMap() == true &&
@@ -853,7 +872,9 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 			}
 		}
 	}
-	unit->setPos(pos);
+	if(canPutInCell == true) {
+        unit->setPos(pos);
+	}
 }
 
 //removes a unit from cells
@@ -877,10 +898,14 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 				// This seems to be a bad assert since you can clear the cell
 				// for many reasons including a unit dieing.
 
-				assert(getCell(currPos)->getUnit(unit->getCurrField()) == unit || getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
+				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == unit || getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
 				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit && getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
 				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str(),(getCell(currPos)->getUnit(unit->getCurrField()) != NULL ? getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str() : "NULL"));
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",
+                              __FILE__,__FUNCTION__,__LINE__,
+                              currPos.getString().c_str(),
+                              unit->toString().c_str(),
+                              (getCell(currPos)->getUnit(unit->getCurrField()) != NULL ? getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str() : "NULL"));
 				}
 
 				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
