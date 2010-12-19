@@ -63,7 +63,7 @@ private:
 public:
 	WaterEffects();
 
-	void update();
+	void update(float speed);
 
 	float getAmin() const	{return anim;}
 

@@ -46,13 +46,13 @@ WaterEffects::WaterEffects(){
 	anim= 0;
 }
 
-void WaterEffects::update(){
+void WaterEffects::update(float speed){
 	anim+= 0.5f/GameConstants::updateFps;
 	if(anim>1.f){
 		anim= 0;
 	}
 	for(int i=0; i<waterSplashes.size(); ++i){
-		waterSplashes[i].update(1.f/GameConstants::updateFps);
+		waterSplashes[i].update(speed/GameConstants::updateFps);
 	}
 }
 
@@ -64,6 +64,7 @@ void WaterEffects::addWaterSplash(const Vec2f &pos, int size){
 		}
 	}
 	waterSplashes.push_back(WaterSplash(pos,size));
+	printf("count of watereffects=%d\n",getWaterSplashCount());
 }
 
 }}//end namespace

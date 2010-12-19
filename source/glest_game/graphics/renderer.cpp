@@ -2235,6 +2235,7 @@ void Renderer::renderMinimap(){
 	const GameCamera *gameCamera= game->getGameCamera();
 	const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
 	const Metrics &metrics= Metrics::getInstance();
+	const WaterEffects *attackEffects= world->getAttackEffects();
 
 	int mx= metrics.getMinimapX();
 	int my= metrics.getMinimapY();
@@ -2292,6 +2293,57 @@ void Renderer::renderMinimap(){
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(baseTexUnit);
 	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_BLEND);
+	// draw attack alarm
+	for(int i=0; i<attackEffects->getWaterSplashCount(); ++i){
+		const WaterSplash *ws= attackEffects->getWaterSplash(i);
+
+		float scale= (1/ws->getAnim()*ws->getSize())*5;
+		glColor4f(1.f, 1.f, 0.f, 1.f-ws->getAnim());
+		float alpha=(1.f-ws->getAnim())*0.01f;
+		Vec2f pos= ws->getPos()/Map::cellScale;
+		float attackX=mx +pos.x*zoom.x;
+		float attackY=my +mh -pos.y*zoom.y;
+		if(ws->getEnabled()){
+//			glBegin(GL_QUADS);
+//				glVertex2f(attackX-scale, attackY-scale);
+//				glVertex2f(attackX-scale, attackY+scale);
+//				glVertex2f(attackX+scale, attackY+scale);
+//				glVertex2f(attackX+scale, attackY-scale);
+//			glEnd();
+			glBegin(GL_TRIANGLES);
+				glColor4f(1.f, 1.f, 0.f, alpha);
+				glVertex2f(attackX-scale, attackY-scale);
+				glVertex2f(attackX-scale, attackY+scale);
+				glColor4f(1.f, 1.f, 0.f, 0.8f);
+				glVertex2f(attackX, attackY);
+			glEnd();
+			glBegin(GL_TRIANGLES);
+				glColor4f(1.f, 1.f, 0.f, alpha);				
+				glVertex2f(attackX-scale, attackY+scale);
+				glVertex2f(attackX+scale, attackY+scale);
+				glColor4f(1.f, 1.f, 0.f, 0.8f);
+				glVertex2f(attackX, attackY);
+			glEnd();
+			glBegin(GL_TRIANGLES);				
+				glColor4f(1.f, 1.f, 0.f, alpha);												
+				glVertex2f(attackX+scale, attackY+scale);
+				glVertex2f(attackX+scale, attackY-scale);
+				glColor4f(1.f, 1.f, 0.f, 0.8f);
+				glVertex2f(attackX, attackY);
+			glEnd();
+			glBegin(GL_TRIANGLES);				
+				glColor4f(1.f, 1.f, 0.f, alpha);				
+				glVertex2f(attackX+scale, attackY-scale);
+				glVertex2f(attackX-scale, attackY-scale);
+				glColor4f(1.f, 1.f, 0.f, 0.8f);
+				glVertex2f(attackX, attackY);
+			glEnd();
+				
+		}
+	}
+    glDisable(GL_BLEND);
 
 	//draw units
 	if(useQuadCache == true) {
@@ -2384,6 +2436,7 @@ void Renderer::renderMinimap(){
     glVertex2i(x2,y2);
 
     glEnd();
+        
     glPopAttrib();
 
 	assertGl();

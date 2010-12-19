@@ -1706,6 +1706,7 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast){
     vector<Unit*> enemies;
+    Unit* enemySeen = NULL;
 	bool result=false;
 	//we check command target
 	const Unit *commandTarget = NULL;
@@ -1756,7 +1757,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     for(int i = 0; i< enemies.size(); ++i) {
 		if(enemies[i]->getType()->hasSkillClass(scAttack)) {
             *rangedPtr= enemies[i];
-
+			enemySeen=enemies[i];
             result=true;
             break;
         }
@@ -1765,7 +1766,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	//any enemy
     if(!result && (enemies.size() > 0)) {
         *rangedPtr= enemies.front();
-
+		enemySeen=*rangedPtr;
         return true;
     }
 
@@ -1774,6 +1775,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		
 		if(world->getFrameCount()-lastWarnFrameCount>80) //after 100 frames attack break we warn again
 		{
+			world->addAttackEffects(enemySeen);
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 		}
 		lastWarnFrameCount=world->getFrameCount();

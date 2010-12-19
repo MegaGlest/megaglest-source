@@ -331,7 +331,9 @@ void World::update(){
 	timeFlow.update();
 
 	//water effects
-	waterEffects.update();
+	waterEffects.update(1.0f);
+	// attack effects 
+	attackEffects.update(0.25f);
 
 	//bool needToUpdateUnits = true;
 	//if(staggeredFactionUpdates == true) {
@@ -575,6 +577,12 @@ void World::moveUnitCells(Unit *unit) {
 	}
 
 	scriptManager->onCellTriggerEvent(unit);
+}
+
+void World::addAttackEffects(const Unit *unit)
+{
+	attackEffects.addWaterSplash(
+					Vec2f(unit->getPos().x, unit->getPos().y),1);
 }
 
 //returns the nearest unit that can store a type of resource given a position and a faction

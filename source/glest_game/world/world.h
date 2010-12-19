@@ -106,6 +106,7 @@ private:
 
 	UnitUpdater unitUpdater;
     WaterEffects waterEffects;
+    WaterEffects attackEffects; // onMiniMap
 	Minimap minimap;
     Stats stats;	//BattleEnd will delete this object
 
@@ -161,6 +162,7 @@ public:
 	const Stats *getStats() const					{return &stats;};
 	Stats *getStats()								{return &stats;};
 	const WaterEffects *getWaterEffects() const		{return &waterEffects;}
+	const WaterEffects *getAttackEffects() const		{return &attackEffects;}
 	int getNextUnitId(Faction *faction);
 	int getFrameCount() const						{return frameCount;}
 
@@ -181,6 +183,7 @@ public:
 	bool toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const;
 	bool toRenderUnit(const Unit *unit) const;
 	Unit *nearestStore(const Vec2i &pos, int factionIndex, const ResourceType *rt);
+	void addAttackEffects(const Unit *unit);
 
 	//scripting interface
 	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos);
