@@ -50,15 +50,15 @@ Cell::Cell() {
 // ==================== misc ====================
 
 //returns if the cell is free
-bool Cell::isFree(Field field) const{
-	return getUnit(field)==NULL || getUnit(field)->isPutrefacting();
+bool Cell::isFree(Field field) const {
+	return getUnit(field) == NULL || getUnit(field)->isPutrefacting();
 }
 
 // =====================================================
 // 	class SurfaceCell
 // =====================================================
 
-SurfaceCell::SurfaceCell(){
+SurfaceCell::SurfaceCell() {
 	object= NULL;
 	vertex= Vec3f(0.f);
 	normal= Vec3f(0.f, 1.f, 0.f);
@@ -66,24 +66,24 @@ SurfaceCell::SurfaceCell(){
 	surfaceTexture= NULL;
 }
 
-SurfaceCell::~SurfaceCell(){
+SurfaceCell::~SurfaceCell() {
 	delete object;
 }
 
-bool SurfaceCell::isFree() const{
+bool SurfaceCell::isFree() const {
 	return object==NULL || object->getWalkable();
 }
 
-void SurfaceCell::deleteResource(){
+void SurfaceCell::deleteResource() {
 	delete object;
 	object= NULL;
 }
 
-void SurfaceCell::setExplored(int teamIndex, bool explored){
+void SurfaceCell::setExplored(int teamIndex, bool explored) {
 	this->explored[teamIndex]= explored;
 }
 
-void SurfaceCell::setVisible(int teamIndex, bool visible){
+void SurfaceCell::setVisible(int teamIndex, bool visible) {
     this->visible[teamIndex]= visible;
 }
 
@@ -96,13 +96,13 @@ void SurfaceCell::setVisible(int teamIndex, bool visible){
 const int Map::cellScale= 2;
 const int Map::mapScale= 2;
 
-Map::Map(){
+Map::Map() {
 	cells= NULL;
 	surfaceCells= NULL;
 	startLocations= NULL;
 }
 
-Map::~Map(){
+Map::~Map() {
 	Logger::getInstance().add("Cells", true);
 
 	delete [] cells;
@@ -155,8 +155,7 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 	return startLocations[locationIndex];
 }
 
-void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
-
+void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 	struct MapFileHeader{
 		int32 version;
 		int32 maxPlayers;
@@ -268,7 +267,7 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset){
 	}
 }
 
-void Map::init(){
+void Map::init() {
 	Logger::getInstance().add("Heightmap computations", true);
 	smoothSurface();
 	computeNormals();
@@ -280,19 +279,19 @@ void Map::init(){
 
 // ==================== is ====================
 
-bool Map::isInside(int x, int y) const{
+bool Map::isInside(int x, int y) const {
 	return x>=0 && y>=0 && x<w && y<h;
 }
 
-bool Map::isInside(const Vec2i &pos) const{
+bool Map::isInside(const Vec2i &pos) const {
 	return isInside(pos.x, pos.y);
 }
 
-bool Map::isInsideSurface(int sx, int sy) const{
+bool Map::isInsideSurface(int sx, int sy) const {
 	return sx>=0 && sy>=0 && sx<surfaceW && sy<surfaceH;
 }
 
-bool Map::isInsideSurface(const Vec2i &sPos) const{
+bool Map::isInsideSurface(const Vec2i &sPos) const {
 	return isInsideSurface(sPos.x, sPos.y);
 }
 
@@ -398,31 +397,29 @@ bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) c
 	return false;
 }
 
-bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const{
-
-	if(isInside(pos)){
+bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
+	if(isInside(pos)) {
 		const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
 
-		if(sc->isVisible(teamIndex)){
+		if(sc->isVisible(teamIndex)) {
 			return isFreeCell(pos, field);
 		}
-		else if(sc->isExplored(teamIndex)){
+		else if(sc->isExplored(teamIndex)) {
 			return field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos)): true;
 		}
-		else{
+		else {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const {
+bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
 			if(isFreeCell(testPos, field) == false) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
-
                 return false;
 			}
 		}
@@ -430,10 +427,10 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const {
     return true;
 }
 
-bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const{
-	for(int i=pos.x; i<pos.x+size; ++i){
-		for(int j=pos.y; j<pos.y+size; ++j){
-			if(!isFreeCellOrHasUnit(Vec2i(i,j), field, unit)){
+bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const {
+	for(int i=pos.x; i<pos.x+size; ++i) {
+		for(int j=pos.y; j<pos.y+size; ++j) {
+			if(isFreeCellOrHasUnit(Vec2i(i,j), field, unit) == false) {
                 return false;
 			}
 		}
@@ -441,10 +438,10 @@ bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Un
     return true;
 }
 
-bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const{
-	for(int i=pos.x; i<pos.x+size; ++i){
-		for(int j=pos.y; j<pos.y+size; ++j){
-			if(!isAproxFreeCell(Vec2i(i, j), field, teamIndex)){
+bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const {
+	for(int i=pos.x; i<pos.x+size; ++i) {
+		for(int j=pos.y; j<pos.y+size; ++j) {
+			if(isAproxFreeCell(Vec2i(i, j), field, teamIndex) == false) {
                 return false;
 			}
 		}
@@ -457,14 +454,15 @@ bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalD
 		for (int y=0; y < ut->getSize(); ++y) {
 			for (int x=0; x < ut->getSize(); ++x) {
 				if (ut->getCellMapCell(x, y, facing)) {
-					if (!isFreeCell(pos + Vec2i(x, y), field)) {
+					if (isFreeCell(pos + Vec2i(x, y), field) == false) {
 						return false;
 					}
 				}
 			}
 		}
 		return true;
-	} else {
+	}
+	else {
 		return isFreeCells(pos, ut->getSize(), field);
 	}
 }
@@ -811,7 +809,6 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 
 //put a units into the cells
 void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
-
 	assert(unit != NULL);
 	if(unit == NULL) {
 		throw runtime_error("ut == NULL");
@@ -829,27 +826,28 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 			}
 
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
-				// NOT SURE UNDER WHAT CONDITIONS THIS COULD HAPPEN?
-				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL || getCell(currPos)->getUnit(unit->getCurrField()) == unit);
 				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL &&
                    getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
 
+                    // If unit tries to move into a cell where another unit resides
+                    // cancel the move command
                     if(unit->getCurrSkill() != NULL &&
                        unit->getCurrSkill()->getClass() == scMove) {
                         canPutInCell = false;
                         unit->setCurrSkill(scStop);
                         unit->finishCommand();
 
-                        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] POSSIBLE ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
-                              __FILE__,__FUNCTION__,__LINE__,
-                              currPos.getString().c_str(),
-                              unit->toString().c_str(),
-                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
-
+                        //SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] POSSIBLE ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
+                        //      __FILE__,__FUNCTION__,__LINE__,
+                        //      currPos.getString().c_str(),
+                        //      unit->toString().c_str(),
+                        //      getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
                     }
+                    // If the unit trying to move into the cell is not in the moving state
+                    // it is likely being created or morphed so we will will log the error
                     else {
                         canPutInCell = false;
-				    //	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+				        // throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
                         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
                               __FILE__,__FUNCTION__,__LINE__,
                               currPos.getString().c_str(),
@@ -868,7 +866,10 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), unit);
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
+                             __FILE__,__FUNCTION__,__LINE__,
+                             currPos.getString().c_str(),
+                             unit->toString().c_str());
 			}
 		}
 	}
@@ -917,7 +918,10 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), NULL);
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
+                             __FILE__,__FUNCTION__,__LINE__,
+                             currPos.getString().c_str(),
+                             unit->toString().c_str());
 			}
 		}
 	}
