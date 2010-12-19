@@ -835,7 +835,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
                    getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
 
                     if(unit->getCurrSkill() != NULL &&
-                       unit->getCurrSkill()->getClass() == ccMove) {
+                       unit->getCurrSkill()->getClass() == scMove) {
                         canPutInCell = false;
                         unit->setCurrSkill(scStop);
                         unit->finishCommand();
