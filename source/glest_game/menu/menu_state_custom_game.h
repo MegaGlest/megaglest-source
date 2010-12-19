@@ -43,7 +43,7 @@ private:
 	GraphicLabel labelEnableObserverMode;
 	//GraphicLabel labelEnableServerControlledAI;
 	GraphicLabel labelLocalIP;
-	
+
 
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
@@ -66,30 +66,33 @@ private:
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
-	
+
 	GraphicLabel labelPublishServer;
 	GraphicListBox listBoxPublishServer;
-	
+
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-	
+
 	//GraphicListBox listBoxNetworkFramePeriod;
 	//GraphicLabel labelNetworkFramePeriod;
-	
+
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
 
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;
-	
+
 	GraphicLabel labelMapFilter;
 	GraphicListBox listBoxMapFilter;
-	
+
 	GraphicLabel labelAdvanced;
 	GraphicListBox listBoxAdvanced;
 
 	GraphicLabel labelAllowObservers;
 	GraphicListBox listBoxAllowObservers;
+
+	GraphicLabel labelShowMapResources;
+	GraphicListBox listBoxShowMapResources;
 
 	GraphicLabel *activeInputLabel;
 
@@ -105,17 +108,17 @@ private:
 	Mutex masterServerThreadAccessor;
 	Mutex publishToMasterserverThreadPtrChangeAccessor;
 	bool publishToMasterserverThreadInDeletion;
-	
+
 	bool parentMenuIsMs;
 	int soundConnectionCount;
-	
+
 	bool showMasterserverError;
 	string masterServererErrorToShow;
 
 	bool showGeneralError;
 	string generalErrorToShow;
 	bool serverInitError;
-	
+
 	Console console;
 	ChatManager chatManager;
 	bool showFullConsole;
@@ -154,7 +157,7 @@ public:
     virtual void keyDown(char key);
     virtual void keyPress(char c);
     virtual void keyUp(char key);
-    
+
 
     virtual void simpleTask();
     virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }

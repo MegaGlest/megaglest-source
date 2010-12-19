@@ -251,6 +251,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
 	listBoxAllowObservers.setSelectedItemIndex(0);
 
+	labelShowMapResources.registerGraphicComponent(containerName,"labelShowMapResources;");
+	labelShowMapResources.init(xoffset+200, aHeadPos, 80);
+	labelShowMapResources.setText(lang.get("ShowMapResources"));
+
+	listBoxShowMapResources.registerGraphicComponent(containerName,"listBoxShowMapResources;");
+	listBoxShowMapResources.init(xoffset+200, aPos, 80);
+	listBoxShowMapResources.pushBackItem(lang.get("No"));
+	listBoxShowMapResources.pushBackItem(lang.get("Yes"));
+	listBoxShowMapResources.setSelectedItemIndex(0);
+
 	// fog - o - war
 	// @350 ? 300 ?
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
@@ -684,8 +694,19 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		reloadFactions(true);
 
-        if(hasNetworkGameSettings() == true)
-        {
+        if(hasNetworkGameSettings() == true) {
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+        }
+	}
+	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxShowMapResources.mouseClick(x, y)) {
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			needToRepublishToMasterserver = true;
+		}
+
+        if(hasNetworkGameSettings() == true) {
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
         }
@@ -1182,6 +1203,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		listBoxFogOfWar.mouseMove(x, y);
 		listBoxAllowObservers.mouseMove(x, y);
 		listBoxEnableObserverMode.mouseMove(x, y);
+		listBoxShowMapResources.mouseMove(x, y);
 		//listBoxEnableServerControlledAI.mouseMove(x, y);
 		//labelNetworkFramePeriod.mouseMove(x, y);
 		//listBoxNetworkFramePeriod.mouseMove(x, y);
@@ -1286,11 +1308,13 @@ void MenuStateCustomGame::render() {
 			if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
+				renderer.renderLabel(&labelShowMapResources);
 				renderer.renderLabel(&labelEnableObserverMode);
 				renderer.renderLabel(&labelPathFinderType);
 
 				renderer.renderListBox(&listBoxFogOfWar);
 				renderer.renderListBox(&listBoxAllowObservers);
+				renderer.renderListBox(&listBoxShowMapResources);
 				renderer.renderListBox(&listBoxEnableObserverMode);
 				renderer.renderListBox(&listBoxPathFinderType);
 			}
@@ -1981,6 +2005,16 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
 
+	uint32 valueFlags1 = gameSettings->getFlagTypes1();
+	if(listBoxShowMapResources.getSelectedItemIndex() == 1) {
+        valueFlags1 |= ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
 	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
@@ -2128,6 +2162,8 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 
 	saveGameFile << "AllowObservers=" << gameSettings.getAllowObservers() << std::endl;
 
+	saveGameFile << "FlagTypes1=" << gameSettings.getFlagTypes1() << std::endl;
+
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
 	saveGameFile << "PathFinderType=" << gameSettings.getPathFinderType() << std::endl;
 	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
@@ -2185,6 +2221,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		listBoxAdvanced.setSelectedItemIndex(properties.getInt("AdvancedIndex","0"));
 
 		gameSettings.setAllowObservers(properties.getBool("AllowObservers","false"));
+
+        gameSettings.setFlagTypes1(properties.getInt("FlagTypes1","0"));
 
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 		gameSettings.setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
@@ -2244,6 +2282,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		Lang &lang= Lang::getInstance();
 		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
+
+        listBoxShowMapResources.setSelectedItem((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources ? lang.get("Yes") : lang.get("No"));
 
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
