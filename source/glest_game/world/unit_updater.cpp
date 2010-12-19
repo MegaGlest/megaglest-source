@@ -1755,7 +1755,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//attack enemies that can attack first
     for(int i = 0; i< enemies.size(); ++i) {
-		if(enemies[i]->getType()->hasSkillClass(scAttack)) {
+		if(enemies[i]->getType()->hasSkillClass(scAttack) && enemies[i]->isAlive() == true && !(unit->isAlly(enemies[i]))) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
             result=true;
@@ -1765,7 +1765,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//any enemy
     for(int i = 0; i< enemies.size(); ++i) {
-		if(enemies[i]->isAlive() == true ) {
+		if(enemies[i]->isAlive() == true && !(unit->isAlly(enemies[i]))) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
             result=true;
@@ -1776,7 +1776,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	if(result)
 	{
 		
-		if(world->getFrameCount()-lastWarnFrameCount>10) //after 100 frames attack break we warn again
+		if(world->getFrameCount()-lastWarnFrameCount>100) //after 100 frames attack break we warn again
 		{
 			world->addAttackEffects(enemySeen);
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
