@@ -232,6 +232,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.networkFramePeriod = gameSettings->getNetworkFramePeriod();
 	data.networkPauseGameForLaggedClients = gameSettings->getNetworkPauseGameForLaggedClients();
 	data.pathFinderType = gameSettings->getPathFinderType();
+	data.flagTypes1 = gameSettings->getFlagTypes1();
 
 	for(int i= 0; i<data.factionCount; ++i){
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
@@ -261,6 +262,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setNetworkFramePeriod(data.networkFramePeriod);
 	gameSettings->setNetworkPauseGameForLaggedClients((data.networkPauseGameForLaggedClients != 0));
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(data.pathFinderType));
+	gameSettings->setFlagTypes1(data.flagTypes1);
 
 	for(int i= 0; i<data.factionCount; ++i){
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());

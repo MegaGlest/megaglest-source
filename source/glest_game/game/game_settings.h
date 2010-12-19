@@ -24,6 +24,16 @@ namespace Glest{ namespace Game{
 //	class GameSettings
 // =====================================================
 
+enum FlagTypes1 {
+    ft1_none                = 0x00,
+    ft1_show_map_resources  = 0x01
+    //ft1_xx                  = 0x02,
+    //ft1_xx                  = 0x04,
+    //ft1_xx                  = 0x08,
+    //ft1_xx                  = 0x10,
+};
+
+
 class GameSettings{
 private:
 	string description;
@@ -43,7 +53,7 @@ private:
 	int teams[GameConstants::maxPlayers];
 	int startLocationIndex[GameConstants::maxPlayers];
 	int mapFilterIndex;
-	
+
 
 	bool defaultUnits;
 	bool defaultResources;
@@ -56,6 +66,8 @@ private:
 	int networkFramePeriod;
 	bool networkPauseGameForLaggedClients;
 	PathFinderType pathFinderType;
+
+	uint32 flagTypes1;
 
 public:
 
@@ -78,6 +90,8 @@ public:
     		teams[i] = 0;
     		startLocationIndex[i] = i;
     	}
+
+    	flagTypes1 = ft1_none;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -131,6 +145,7 @@ public:
 	int getNetworkFramePeriod()			  const {return networkFramePeriod; }
 	bool getNetworkPauseGameForLaggedClients()	  const {return networkPauseGameForLaggedClients; }
 	PathFinderType getPathFinderType() const { return pathFinderType; }
+	uint32 getFlagTypes1() const             { return flagTypes1;}
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -144,7 +159,7 @@ public:
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
 	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)		{this->resourceMultiplierIndex[factionIndex]= multiplierIndex;}
-	
+
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)								{this->teams[factionIndex]= team;}
@@ -162,6 +177,7 @@ public:
 	void setNetworkFramePeriod(int value)							{this->networkFramePeriod = value; }
 	void setNetworkPauseGameForLaggedClients(bool value)			{this->networkPauseGameForLaggedClients = value; }
 	void setPathFinderType(PathFinderType value)					{this->pathFinderType = value; }
+	void setFlagTypes1(uint32 value)                                {this->flagTypes1 = value; }
 
 	string toString() const {
 		string result = "";
@@ -197,6 +213,7 @@ public:
 		result += "networkFramePeriod = " + intToStr(networkFramePeriod) + "\n";
 		result += "networkPauseGameForLaggedClients = " + intToStr(networkPauseGameForLaggedClients) + "\n";
 		result += "pathFinderType = " + intToStr(pathFinderType) + "\n";
+		result += "flagTypes1 = " + intToStr(flagTypes1) + "\n";
 
 		return result;
 	}

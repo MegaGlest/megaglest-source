@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -25,6 +25,7 @@ using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Texture2D;
 
 class World;
+class GameSettings;
 
 enum ExplorationState{
     esNotExplored,
@@ -33,7 +34,7 @@ enum ExplorationState{
 };
 
 // =====================================================
-// 	class Minimap  
+// 	class Minimap
 //
 /// State of the in-game minimap
 // =====================================================
@@ -45,6 +46,7 @@ private:
 	Texture2D *tex;
 	Texture2D *fowTex;    //Fog Of War Texture2D
 	bool fogOfWar;
+	const GameSettings *gameSettings;
 
 private:
 	static const float exploredAlpha;
@@ -66,6 +68,6 @@ private:
 	void computeTexture(const World *world);
 };
 
-}}//end namespace 
+}}//end namespace
 
 #endif

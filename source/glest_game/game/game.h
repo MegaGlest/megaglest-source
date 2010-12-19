@@ -116,7 +116,8 @@ public:
     ~Game();
 
     //get
-	GameSettings *getGameSettings()			{return &gameSettings;}
+    GameSettings *getGameSettings() 	    {return &gameSettings;}
+	const GameSettings *getReadOnlyGameSettings() const	{return &gameSettings;}
 
 	const GameCamera *getGameCamera() const	{return &gameCamera;}
 	GameCamera *getGameCamera()				{return &gameCamera;}

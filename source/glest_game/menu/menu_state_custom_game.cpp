@@ -1965,6 +1965,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+    // Test flags values
+    //gameSettings->setFlagTypes1(ft1_show_map_resources);
+    //
+
 	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
