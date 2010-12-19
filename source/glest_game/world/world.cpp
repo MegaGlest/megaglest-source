@@ -876,7 +876,7 @@ void World::initCells(bool fogOfWar) {
 				j/(next2Power(map.getSurfaceH())-1.f)));
 
 			for (int k = 0; k < GameConstants::maxPlayers; k++) {
-				sc->setExplored(k, !fogOfWar);
+				sc->setExplored(k, (game->getGameSettings()->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources);
 				sc->setVisible(k, !fogOfWar);
 			}
 			for (int k = GameConstants::maxPlayers; k < GameConstants::maxPlayers + GameConstants::specialFactions; k++) {
@@ -1340,6 +1340,10 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
+}
+
+const GameSettings * World::getGameSettings() const {
+    return (game != NULL ? game->getReadOnlyGameSettings() : NULL);
 }
 
 // WARNING! This id is critical! Make sure it fits inside the network packet

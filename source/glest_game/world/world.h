@@ -197,6 +197,7 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 	Game * getGame() { return game; }
+	const GameSettings * getGameSettings() const;
 
 	std::vector<std::string> validateFactionTypes();
 	std::vector<std::string> validateResourceTypes();
