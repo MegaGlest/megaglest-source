@@ -1764,16 +1764,19 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     }
 
 	//any enemy
-    if(!result && (enemies.size() > 0)) {
-        *rangedPtr= enemies.front();
-		enemySeen=*rangedPtr;
-        return true;
+    for(int i = 0; i< enemies.size(); ++i) {
+		if(enemies[i]->isAlive() == true ) {
+            *rangedPtr= enemies[i];
+			enemySeen=enemies[i];
+            result=true;
+            break;
+        }
     }
 
 	if(result)
 	{
 		
-		if(world->getFrameCount()-lastWarnFrameCount>80) //after 100 frames attack break we warn again
+		if(world->getFrameCount()-lastWarnFrameCount>10) //after 100 frames attack break we warn again
 		{
 			world->addAttackEffects(enemySeen);
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
