@@ -789,7 +789,7 @@ bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 // is testPos in the cells of unitType where unitType's position is pos
 bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 							const Vec2i &testPos) const {
-	assert(ut!=NULL);
+	assert(ut != NULL);
 	if(ut == NULL) {
 		throw runtime_error("ut == NULL");
 	}
@@ -812,7 +812,7 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 //put a units into the cells
 void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
-	assert(unit!=NULL);
+	assert(unit != NULL);
 	if(unit == NULL) {
 		throw runtime_error("ut == NULL");
 	}
@@ -830,8 +830,8 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
 				// NOT SURE UNDER WHAT CONDITIONS THIS COULD HAPPEN?
 
-				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
+				assert(getCell(currPos)->getUnit(unit->getCurrField()) == NULL || getCell(currPos)->getUnit(unit->getCurrField()) == unit);
+				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL && getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
 				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
                               __FILE__,__FUNCTION__,__LINE__,
@@ -858,7 +858,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
 //removes a unit from cells
 void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
-	assert(unit!=NULL);
+	assert(unit != NULL);
 	if(unit == NULL) {
 		throw runtime_error("unit == NULL");
 	}
@@ -877,8 +877,8 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 				// This seems to be a bad assert since you can clear the cell
 				// for many reasons including a unit dieing.
 
-				assert(getCell(currPos)->getUnit(unit->getCurrField())==unit);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
+				assert(getCell(currPos)->getUnit(unit->getCurrField()) == unit || getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
+				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit && getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
 				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str(),(getCell(currPos)->getUnit(unit->getCurrField()) != NULL ? getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str() : "NULL"));
 				}
