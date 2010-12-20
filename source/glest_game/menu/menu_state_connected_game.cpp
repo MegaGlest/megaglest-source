@@ -121,23 +121,24 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	// @350 ? 300 ?
 
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
-	labelFogOfWar.init(xoffset+150, aHeadPos, 80);
+	labelFogOfWar.init(xoffset, aHeadPos, 130);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+150, aPos, 80);
-	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
-	listBoxFogOfWar.pushBackItem(lang.get("No"));
+	listBoxFogOfWar.init(xoffset, aPos, 130);
+	listBoxFogOfWar.pushBackItem(lang.get("Enabled"));
+	listBoxFogOfWar.pushBackItem(lang.get("Explored"));
+	listBoxFogOfWar.pushBackItem(lang.get("Disabled"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 	listBoxFogOfWar.setEditable(false);
 
 
 	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+50, aHeadPos, 80);
+	labelAllowObservers.init(xoffset+150, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
 	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-	listBoxAllowObservers.init(xoffset+50, aPos, 80);
+	listBoxAllowObservers.init(xoffset+150, aPos, 80);
 	listBoxAllowObservers.pushBackItem(lang.get("No"));
 	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
 	listBoxAllowObservers.setSelectedItemIndex(0);
@@ -670,7 +671,7 @@ void MenuStateConnectedGame::render() {
 			int mouse2dAnim = mainMenu->getMouse2dAnim();
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
+		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
 		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
 		}
 		renderer.renderChatManager(&chatManager);
@@ -944,12 +945,12 @@ void MenuStateConnectedGame::update() {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				// FogOfWar
-				if(gameSettings->getFogOfWar()){
-					listBoxFogOfWar.setSelectedItemIndex(0); 
+				listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
+				if(gameSettings->getFogOfWar() == false){
+					listBoxFogOfWar.setSelectedItemIndex(2);
 				}
-				else
-				{
-					listBoxFogOfWar.setSelectedItemIndex(1);
+				if((gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
+        			listBoxFogOfWar.setSelectedItemIndex(1);
 				}
 				
 				// Allow Observers

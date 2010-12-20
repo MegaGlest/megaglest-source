@@ -91,9 +91,6 @@ private:
 	GraphicLabel labelAllowObservers;
 	GraphicListBox listBoxAllowObservers;
 
-	GraphicLabel labelShowMapResources;
-	GraphicListBox listBoxShowMapResources;
-
 	GraphicLabel *activeInputLabel;
 
 	bool needToSetChangedGameSettings;
