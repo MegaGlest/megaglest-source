@@ -404,14 +404,14 @@ void Gui::giveDefaultOrders(int x, int y){
 		console->addStdMessage("InvalidPosition");
 		return;
 	}
-	giveDefaultOrders(targetPos.x,targetPos.y,targetUnit);
+	giveDefaultOrders(targetPos.x,targetPos.y,targetUnit,true);
 }
 
 void Gui::givePreparedDefaultOrders(int x, int y){
-	giveDefaultOrders(x, y, NULL);
+	giveDefaultOrders(x, y, NULL,false);
 }
 
-void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit){
+void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse3d){
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	Vec2i targetPos=Vec2i(x, y);
 	//give order
@@ -420,7 +420,8 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit){
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
 	if(result == crSuccess || result == crSomeFailed){
-		mouse3d.enable();
+		if(paintMouse3d)
+			mouse3d.enable();
 
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(
@@ -474,7 +475,9 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
 	if(result == crSuccess || result == crSomeFailed){
-		mouse3d.enable();
+		if(!prepared){
+			mouse3d.enable();
+		}
 
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(

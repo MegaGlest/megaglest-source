@@ -183,7 +183,7 @@ private:
 
 	//orders
 	void giveDefaultOrders(int x, int y);
-	void giveDefaultOrders(int x, int y, const Unit *targetUnit);
+	void giveDefaultOrders(int x, int y, const Unit *targetUnit, bool paintMouse3d);
 	void givePreparedDefaultOrders(int x, int y);
 	void giveOneClickOrders();
 	void giveTwoClickOrders(int x, int y, bool prepared);
