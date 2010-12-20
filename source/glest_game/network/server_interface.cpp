@@ -1521,35 +1521,45 @@ void ServerInterface::simpleTask() {
 		lastMasterserverHeartbeatTime = time(NULL);
 
 		if(needToRepublishToMasterserver == true) {
-			//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
-			string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+			try {
+			    if(Config::getInstance().getString("Masterserver","") != "") {
+                    //string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
+                    string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
-			std::map<string,string> newPublishToServerInfo = publishToMasterserver();
+                    std::map<string,string> newPublishToServerInfo = publishToMasterserver();
 
-			CURL *handle = SystemFlags::initHTTP();
-			for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-				iterMap != newPublishToServerInfo.end(); iterMap++) {
+                    CURL *handle = SystemFlags::initHTTP();
+                    for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+                        iterMap != newPublishToServerInfo.end(); iterMap++) {
 
-				request += iterMap->first;
-				request += "=";
-				request += SystemFlags::escapeURL(iterMap->second,handle);
-				request += "&";
+                        request += iterMap->first;
+                        request += "=";
+                        request += SystemFlags::escapeURL(iterMap->second,handle);
+                        request += "&";
+                    }
+
+                    //printf("the request is:\n%s\n",request.c_str());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
+
+                    std::string serverInfo = SystemFlags::getHTTP(request,handle);
+                    SystemFlags::cleanupHTTP(&handle);
+
+                    //printf("the result is:\n'%s'\n",serverInfo.c_str());
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+
+                    // uncomment to enable router setup check of this server
+                    if(EndsWith(serverInfo, "OK") == false) {
+                        //showMasterserverError=true;
+                        //masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
+                    }
+			    }
+			    else {
+			        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
+			    }
 			}
-
-			//printf("the request is:\n%s\n",request.c_str());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
-
-			std::string serverInfo = SystemFlags::getHTTP(request,handle);
-			SystemFlags::cleanupHTTP(&handle);
-
-			//printf("the result is:\n'%s'\n",serverInfo.c_str());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
-
-			// uncomment to enable router setup check of this server
-			if(EndsWith(serverInfo, "OK") == false) {
-				//showMasterserverError=true;
-				//masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
-			}
+            catch(const exception &ex) {
+                SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            }
 		}
 	}
 

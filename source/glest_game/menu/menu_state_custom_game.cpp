@@ -1898,28 +1898,34 @@ void MenuStateCustomGame::simpleTask() {
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
-		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+        std::string serverInfo = "no masterserver defined.";
+		try {
+		    if(Config::getInstance().getString("Masterserver","") != "") {
+                //string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
+                string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
-		CURL *handle = SystemFlags::initHTTP();
-		for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-			iterMap != newPublishToServerInfo.end(); iterMap++) {
+                CURL *handle = SystemFlags::initHTTP();
+                for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+                    iterMap != newPublishToServerInfo.end(); iterMap++) {
 
-			request += iterMap->first;
-			request += "=";
-			request += SystemFlags::escapeURL(iterMap->second,handle);
-			request += "&";
+                    request += iterMap->first;
+                    request += "=";
+                    request += SystemFlags::escapeURL(iterMap->second,handle);
+                    request += "&";
+                }
+
+                //printf("the request is:\n%s\n",request.c_str());
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
+
+                serverInfo = SystemFlags::getHTTP(request,handle);
+                SystemFlags::cleanupHTTP(&handle);
+		    }
+            //printf("the result is:\n'%s'\n",serverInfo.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
 		}
-
-		//printf("the request is:\n%s\n",request.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
-
-		std::string serverInfo = SystemFlags::getHTTP(request,handle);
-		SystemFlags::cleanupHTTP(&handle);
-
-		//printf("the result is:\n'%s'\n",serverInfo.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
-
+		catch(const exception &ex) {
+		    serverInfo = ex.what();
+		}
 		// uncomment to enable router setup check of this server
 		if(EndsWith(serverInfo, "OK") == false) {
 			showMasterserverError=true;
