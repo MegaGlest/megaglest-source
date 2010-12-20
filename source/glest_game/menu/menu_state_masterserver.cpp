@@ -1,6 +1,6 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
-//	
+//
 //	Copyright (C) 2010-  by Titus Tscharntke
 //
 //	You can redistribute this code and/or modify it under
@@ -45,7 +45,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 	masterServerInfo = *mServerInfo;
 	int i=10;
 	int startOffset=600;
-	
+
 	//general info:
 	i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
@@ -64,39 +64,39 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char
 //	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
 //	binaryCompileDateLabel.init(i,startOffset-lineOffset);
 //	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
-	
+
 	//game info:
 	i+=130;
 	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
-	
+
 	i+=210;
 	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(masterServerInfo.getIpAddress());
-	
+
 	//game setup info:
 	i+=100;
 	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
 	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(masterServerInfo.getTech());
-	
+
 	i+=100;
 	registeredObjNameList.push_back("mapLabel" + intToStr(lineIndex));
 	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
 	mapLabel.init(i,startOffset-lineOffset);
 	mapLabel.setText(masterServerInfo.getMap());
-	
+
 	i+=100;
 	registeredObjNameList.push_back("tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.init(i,startOffset-lineOffset);
 	tilesetLabel.setText(masterServerInfo.getTileset());
-	
+
 	i+=100;
 	registeredObjNameList.push_back("activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
@@ -170,14 +170,14 @@ void ServerLine::render() {
 	renderer.renderLabel(&glestVersionLabel);
 	renderer.renderLabel(&platformLabel);
 	//renderer.renderLabel(&binaryCompileDateLabel);
-	
+
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
 	renderer.renderLabel(&ipAddressLabel);
-	
+
 	//game setup info:
 	renderer.renderLabel(&techLabel);
-	renderer.renderLabel(&mapLabel); 
+	renderer.renderLabel(&mapLabel);
 	renderer.renderLabel(&tilesetLabel);
 	renderer.renderLabel(&activeSlotsLabel);
 	renderer.renderLabel(&externalConnectPort);
@@ -188,14 +188,14 @@ void ServerLine::render() {
 // =====================================================
 
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "masterserver") 
+	MenuState(program, mainMenu, "masterserver")
 {
 	containerName = "MasterServer";
 	updateFromMasterserverThread = NULL;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
-	
+
 	autoRefreshTime=0;
 	playServerFoundSound=false;
 	announcementLoaded=false;
@@ -204,9 +204,9 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
-	
-	lastRefreshTimer= time(NULL);	
-	
+
+	lastRefreshTimer= time(NULL);
+
 	// announcement
 	announcementLabel.registerGraphicComponent(containerName,"announcementLabel");
     announcementLabel.init(10, 730);
@@ -227,10 +227,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	if(Config::getInstance().getString("Masterserver","") == "") {
 		labelTitle.setText("*** " + lang.get("AvailableServers"));
 	}
-    
+
 	// bottom
 	int buttonPos=130;
-	
+
 	labelChatUrl.registerGraphicComponent(containerName,"labelChatUrl");
 	labelChatUrl.init(150,buttonPos-50);
 	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -301,7 +301,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	selectButton.setText(lang.get("MGJoinGameSlots"));
 
 	// Titles for current games - END
-	
+
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(50, buttonPos, 150);
 
@@ -332,7 +332,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
-	
+
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
@@ -400,7 +400,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	if(mainMessageBox.getEnabled()){
 		int button= 1;
 		if(mainMessageBox.mouseClick(x, y, button))
-		{	
+		{
 			soundRenderer.playFx(coreData.getClickSoundA());
 			if(button==1)
 			{
@@ -514,7 +514,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     buttonReturn.mouseMove(x, y);
     buttonCreateGame.mouseMove(x, y);
     listBoxAutoRefresh.mouseMove(x, y);
-        
+
     for(int i=0; i<serverLines.size(); ++i){
     	serverLines[i]->buttonMouseMove(x, y);
     }
@@ -564,7 +564,7 @@ void MenuStateMasterserver::render(){
 
 		// render console
 		renderer.renderConsole(&console,false,false);
-		
+
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
 	    }
@@ -578,7 +578,7 @@ void MenuStateMasterserver::update(){
 		needUpdateFromServer = true;
 		lastRefreshTimer= time(NULL);
 	}
-	
+
 	if(playServerFoundSound)
 	{
 		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
@@ -586,10 +586,10 @@ void MenuStateMasterserver::update(){
 		Config &config = Config::getInstance();
 		float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
 		CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
-		
+
 		playServerFoundSound=false;
 	}
-	
+
 	console.update();
 
 	if(threadedErrorMsg != "") {
@@ -663,74 +663,81 @@ void MenuStateMasterserver::updateServerInfo() {
 			announcementLoaded=true;
 		}
 
-		if(Config::getInstance().getString("Masterserver","") != "") {
-			std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
+        Lang &lang= Lang::getInstance();
+        try {
+            if(Config::getInstance().getString("Masterserver","") != "") {
+                std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
 
-			if(serverInfo != "") {
-				std::vector<std::string> serverList;
-				Tokenize(serverInfo,serverList,"\n");
-				for(int i=0; i < serverList.size(); i++) {
-					string &server = serverList[i];
-					std::vector<std::string> serverEntities;
-					Tokenize(server,serverEntities,"|");
+                if(serverInfo != "") {
+                    std::vector<std::string> serverList;
+                    Tokenize(serverInfo,serverList,"\n");
+                    for(int i=0; i < serverList.size(); i++) {
+                        string &server = serverList[i];
+                        std::vector<std::string> serverEntities;
+                        Tokenize(server,serverEntities,"|");
 
-					const int MIN_FIELDS_EXPECTED = 12;
-					if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+                        const int MIN_FIELDS_EXPECTED = 12;
+                        if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+                            labelTitle.setText(lang.get("AvailableServers"));
 
-						Lang &lang= Lang::getInstance();
-						labelTitle.setText(lang.get("AvailableServers"));
+                            if(Config::getInstance().getString("Masterserver","") == "") {
+                                labelTitle.setText("*** " + lang.get("AvailableServers"));
+                            }
 
-						if(Config::getInstance().getString("Masterserver","") == "") {
-							labelTitle.setText("*** " + lang.get("AvailableServers"));
-						}
+                            MasterServerInfo *masterServerInfo=new MasterServerInfo();
 
-						MasterServerInfo *masterServerInfo=new MasterServerInfo();
+                            //general info:
+                            masterServerInfo->setGlestVersion(serverEntities[0]);
+                            masterServerInfo->setPlatform(serverEntities[1]);
+                            masterServerInfo->setBinaryCompileDate(serverEntities[2]);
 
-						//general info:
-						masterServerInfo->setGlestVersion(serverEntities[0]);
-						masterServerInfo->setPlatform(serverEntities[1]);
-						masterServerInfo->setBinaryCompileDate(serverEntities[2]);
+                            //game info:
+                            masterServerInfo->setServerTitle(serverEntities[3]);
+                            masterServerInfo->setIpAddress(serverEntities[4]);
 
-						//game info:
-						masterServerInfo->setServerTitle(serverEntities[3]);
-						masterServerInfo->setIpAddress(serverEntities[4]);
+                            //game setup info:
+                            masterServerInfo->setTech(serverEntities[5]);
+                            masterServerInfo->setMap(serverEntities[6]);
+                            masterServerInfo->setTileset(serverEntities[7]);
+                            masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
+                            masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
+                            masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+                            masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
 
-						//game setup info:
-						masterServerInfo->setTech(serverEntities[5]);
-						masterServerInfo->setMap(serverEntities[6]);
-						masterServerInfo->setTileset(serverEntities[7]);
-						masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
-						masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
-						masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
-						masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
+                            //printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
+                            //float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
+                            //printf("Ping time = %f\n",pingTime);
+                            char szBuf[1024]="";
+                            //sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
+                            sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
+                            masterServerInfo->setServerTitle(szBuf);
 
-						//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
-						//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
-						//printf("Ping time = %f\n",pingTime);
-						char szBuf[1024]="";
-						//sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
-						sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
-						masterServerInfo->setServerTitle(szBuf);
+                            safeMutexPtr.Lock();
+                            if( masterServerThreadInDeletion == true ||
+                                updateFromMasterserverThread == NULL ||
+                                updateFromMasterserverThread->getQuitStatus() == true) {
+                                safeMutexPtr.ReleaseLock();
+                                return;
+                            }
+                            safeMutexPtr.ReleaseLock(true);
 
-						safeMutexPtr.Lock();
-						if( masterServerThreadInDeletion == true ||
-							updateFromMasterserverThread == NULL ||
-							updateFromMasterserverThread->getQuitStatus() == true) {
-							safeMutexPtr.ReleaseLock();
-							return;
-						}
-						safeMutexPtr.ReleaseLock(true);
+                            safeMutex.Lock();
+                            serverLines.push_back(new ServerLine( masterServerInfo, i, containerName));
+                            safeMutex.ReleaseLock(true);
+                        }
+                        else {
+                            Lang &lang= Lang::getInstance();
+                            labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
 
-						safeMutex.Lock();
-						serverLines.push_back(new ServerLine( masterServerInfo, i, containerName));
-						safeMutex.ReleaseLock(true);
-					}
-					else {
-						Lang &lang= Lang::getInstance();
-						labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
-					}
-				}
-			}
+                            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
+                        }
+                    }
+                }
+            }
+        }
+		catch(const exception &ex) {
+		    labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + ex.what() + "]");
+		    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
 
 		safeMutexPtr.Lock();
@@ -740,7 +747,7 @@ void MenuStateMasterserver::updateServerInfo() {
 			return;
 		}
 		safeMutexPtr.ReleaseLock();
-		
+
 		safeMutex.Lock();
 		if(serverLines.size()>numberOfOldServerLines) {
 			playServerFoundSound=true;
@@ -770,17 +777,17 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port)
 	if(clientInterface->isConnected() == false) {
 		NetworkManager::getInstance().end();
 		NetworkManager::getInstance().init(nrClient);
-		
+
 		mainMessageBoxState=1;
 		Lang &lang= Lang::getInstance();
 		showMessageBox(lang.get("Couldnt connect"), lang.get("Connection failed"), false);
 		return false;
-		
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",__FILE__,__FUNCTION__);	
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",__FILE__,__FUNCTION__);
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connected to [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
-	
+
 		//save server ip
 		//config.setString("ServerIp", serverIp.getString());
 		//config.save();
@@ -811,7 +818,7 @@ void MenuStateMasterserver::keyDown(char key) {
 	if(key == configKeys.getCharKey("ToggleMusic")) {
 		Config &config = Config::getInstance();
 		Lang &lang= Lang::getInstance();
-		
+
 		float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
 		float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
 		if(currentVolume > 0) {
