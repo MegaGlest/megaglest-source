@@ -86,6 +86,7 @@ private:
 	bool gameOver;
 	bool renderNetworkStatus;
 	bool showFullConsole;
+	bool mouseMoved;
 	float scrollSpeed;
 	Speed speed;
 	GraphicMessageBox mainMessageBox;
@@ -147,6 +148,7 @@ public:
     virtual void keyPress(char c);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
+    virtual void mouseUpCenter(int x, int y);
     virtual void mouseUpLeft(int x, int y);
     virtual void mouseDoubleClickLeft(int x, int y);
     virtual void eventMouseWheel(int x, int y, int zDelta);

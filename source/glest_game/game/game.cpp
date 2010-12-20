@@ -58,6 +58,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	lastRenderLog2d		 = 0;
 	totalRenderFps       = 0;
 
+	mouseMoved= false;
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
@@ -1029,6 +1030,11 @@ void Game::mouseDownRight(int x, int y){
 	}
 }
 
+ void Game::mouseUpCenter(int x, int y){
+ 	if (!mouseMoved) gameCamera.resetPosition();
+ 	else mouseMoved = false;
+}
+
 void Game::mouseUpLeft(int x, int y){
 	try {
 		gui.mouseUpLeftGraphics(x, y);
@@ -1085,6 +1091,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms){
 			//	gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
 			//	gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
 			//} else
+			mouseMoved = true;
 			{
 				//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
 				//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
