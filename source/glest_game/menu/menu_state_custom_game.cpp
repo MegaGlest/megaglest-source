@@ -240,38 +240,29 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTechTree.init(xoffset+650, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
 
-	// Allow Observers
-	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+100, aHeadPos, 80);
-	labelAllowObservers.setText(lang.get("AllowObservers"));
-
-	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-	listBoxAllowObservers.init(xoffset+100, aPos, 80);
-	listBoxAllowObservers.pushBackItem(lang.get("No"));
-	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
-	listBoxAllowObservers.setSelectedItemIndex(0);
-
-	labelShowMapResources.registerGraphicComponent(containerName,"labelShowMapResources;");
-	labelShowMapResources.init(xoffset+200, aHeadPos, 80);
-	labelShowMapResources.setText(lang.get("ShowMapResources"));
-
-	listBoxShowMapResources.registerGraphicComponent(containerName,"listBoxShowMapResources;");
-	listBoxShowMapResources.init(xoffset+200, aPos, 80);
-	listBoxShowMapResources.pushBackItem(lang.get("No"));
-	listBoxShowMapResources.pushBackItem(lang.get("Yes"));
-	listBoxShowMapResources.setSelectedItemIndex(0);
-
 	// fog - o - war
 	// @350 ? 300 ?
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
-	labelFogOfWar.init(xoffset+310, aHeadPos, 80);
+	labelFogOfWar.init(xoffset+100, aHeadPos, 130);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+310, aPos, 80);
-	listBoxFogOfWar.pushBackItem(lang.get("Yes"));
-	listBoxFogOfWar.pushBackItem(lang.get("No"));
+	listBoxFogOfWar.init(xoffset+100, aPos, 130);
+	listBoxFogOfWar.pushBackItem(lang.get("Enabled"));
+	listBoxFogOfWar.pushBackItem(lang.get("Explored"));
+	listBoxFogOfWar.pushBackItem(lang.get("Disabled"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
+
+	// Allow Observers
+	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
+	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
+	labelAllowObservers.setText(lang.get("AllowObservers"));
+
+	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
+	listBoxAllowObservers.init(xoffset+310, aPos, 80);
+	listBoxAllowObservers.pushBackItem(lang.get("No"));
+	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
+	listBoxAllowObservers.setSelectedItemIndex(0);
 
 	// View Map At End Of Game
 	labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
@@ -693,18 +684,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 
 		reloadFactions(true);
-
-        if(hasNetworkGameSettings() == true) {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxShowMapResources.mouseClick(x, y)) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
 
         if(hasNetworkGameSettings() == true) {
             needToSetChangedGameSettings = true;
@@ -1203,7 +1182,6 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		listBoxFogOfWar.mouseMove(x, y);
 		listBoxAllowObservers.mouseMove(x, y);
 		listBoxEnableObserverMode.mouseMove(x, y);
-		listBoxShowMapResources.mouseMove(x, y);
 		//listBoxEnableServerControlledAI.mouseMove(x, y);
 		//labelNetworkFramePeriod.mouseMove(x, y);
 		//listBoxNetworkFramePeriod.mouseMove(x, y);
@@ -1308,13 +1286,11 @@ void MenuStateCustomGame::render() {
 			if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
-				renderer.renderLabel(&labelShowMapResources);
 				renderer.renderLabel(&labelEnableObserverMode);
 				renderer.renderLabel(&labelPathFinderType);
 
 				renderer.renderListBox(&listBoxFogOfWar);
 				renderer.renderListBox(&listBoxAllowObservers);
-				renderer.renderListBox(&listBoxShowMapResources);
 				renderer.renderListBox(&listBoxEnableObserverMode);
 				renderer.renderListBox(&listBoxPathFinderType);
 			}
@@ -1898,34 +1874,28 @@ void MenuStateCustomGame::simpleTask() {
 	if(republish == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        std::string serverInfo = "no masterserver defined.";
-		try {
-		    if(Config::getInstance().getString("Masterserver","") != "") {
-                //string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
-                string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+		//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
+		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
-                CURL *handle = SystemFlags::initHTTP();
-                for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-                    iterMap != newPublishToServerInfo.end(); iterMap++) {
+		CURL *handle = SystemFlags::initHTTP();
+		for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+			iterMap != newPublishToServerInfo.end(); iterMap++) {
 
-                    request += iterMap->first;
-                    request += "=";
-                    request += SystemFlags::escapeURL(iterMap->second,handle);
-                    request += "&";
-                }
-
-                //printf("the request is:\n%s\n",request.c_str());
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
-
-                serverInfo = SystemFlags::getHTTP(request,handle);
-                SystemFlags::cleanupHTTP(&handle);
-		    }
-            //printf("the result is:\n'%s'\n",serverInfo.c_str());
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+			request += iterMap->first;
+			request += "=";
+			request += SystemFlags::escapeURL(iterMap->second,handle);
+			request += "&";
 		}
-		catch(const exception &ex) {
-		    serverInfo = ex.what();
-		}
+
+		//printf("the request is:\n%s\n",request.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
+
+		std::string serverInfo = SystemFlags::getHTTP(request,handle);
+		SystemFlags::cleanupHTTP(&handle);
+
+		//printf("the result is:\n'%s'\n",serverInfo.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+
 		// uncomment to enable router setup check of this server
 		if(EndsWith(serverInfo, "OK") == false) {
 			showMasterserverError=true;
@@ -2007,12 +1977,13 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setDefaultUnits(true);
 	gameSettings->setDefaultResources(true);
 	gameSettings->setDefaultVictoryConditions(true);
-	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0);
+	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
+								listBoxFogOfWar.getSelectedItemIndex() == 1 );
 
 	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
-	if(listBoxShowMapResources.getSelectedItemIndex() == 1) {
+	if(listBoxFogOfWar.getSelectedItemIndex() == 1) {
         valueFlags1 |= ft1_show_map_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -2286,11 +2257,17 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//gameSettings->setDefaultVictoryConditions(true);
 
 		Lang &lang= Lang::getInstance();
-		listBoxFogOfWar.setSelectedItem(gameSettings.getFogOfWar() == true ? lang.get("Yes") : lang.get("No"));
+		
+		//FogOfWar
+		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
+		if(gameSettings.getFogOfWar() == false){
+			listBoxFogOfWar.setSelectedItemIndex(2);
+		}
+		if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
+        	listBoxFogOfWar.setSelectedItemIndex(1);
+		}
+		
 		listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
-
-        listBoxShowMapResources.setSelectedItem((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources ? lang.get("Yes") : lang.get("No"));
-
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
