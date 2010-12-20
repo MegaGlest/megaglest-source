@@ -389,6 +389,12 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+		
+		if(command->getUnit()!=NULL && !command->getUnit()->isAlive() && unit->getCommandSize()>1)
+		{// don't run over to dead body if there is still something to do in the queue
+			unit->finishCommand();
+		}
+		else {
 		//if unit arrives destPos order has ended
         switch (tsValue){
         case tsMoving:
@@ -402,7 +408,8 @@ void UnitUpdater::updateAttack(Unit *unit) {
 		default:
 			unit->finishCommand();
 		}
-
+		}
+		
         if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
 
@@ -1755,7 +1762,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//attack enemies that can attack first
     for(int i = 0; i< enemies.size(); ++i) {
-		if(enemies[i]->getType()->hasSkillClass(scAttack) && enemies[i]->isAlive() == true && !(unit->isAlly(enemies[i]))) {
+		if(enemies[i]->getType()->hasSkillClass(scAttack) && enemies[i]->isAlive() == true ) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
             result=true;
@@ -1765,7 +1772,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//any enemy
     for(int i = 0; i< enemies.size(); ++i) {
-		if(enemies[i]->isAlive() == true && !(unit->isAlly(enemies[i]))) {
+		if(enemies[i]->isAlive() == true ) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
             result=true;
@@ -1773,9 +1780,8 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
         }
     }
 
-	if(result)
+	if(result && !(unit->isAlly(enemySeen)))
 	{
-		
 		if(world->getFrameCount()-lastWarnFrameCount>100) //after 100 frames attack break we warn again
 		{
 			world->addAttackEffects(enemySeen);
