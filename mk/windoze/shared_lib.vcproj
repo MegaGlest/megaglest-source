@@ -504,15 +504,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\minissdpc.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\miniupnpc.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\miniwget.c"
 					>
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\minixml.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\minixmlvalid.c"
 					>
 				</File>
 				<File
@@ -528,19 +532,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\testminixml.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\testupnpreplyparse.c"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\shared_lib\sources\platform\sdl\thread.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\upnpc.c"
+					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\upnpcommands.c"
 					>
 				</File>
 				<File
