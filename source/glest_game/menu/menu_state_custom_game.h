@@ -141,6 +141,7 @@ private:
 	bool autostart;
 	std::map<int,int> lastSelectedTeamIndex;
 	float rMultiplierOffset;
+	bool hasCheckedForUPNP;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);

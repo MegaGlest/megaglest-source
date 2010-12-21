@@ -149,6 +149,8 @@ public:
 	virtual std::string getIpAddress();
 	virtual void setIpAddress(std::string value) { ipAddress = value; }
 
+	static bool isUPNP;
+
 protected:
 	static void throwException(string str);
 };
@@ -207,16 +209,32 @@ public:
 	int getBindPort() const { return boundPort; }
 	bool isPortBound() const { return portBound; }
 
+	static void setExternalPort(int port) { externalPort = port; }
+	static int getExternalPort() { return externalPort; }
+
 	virtual void disconnectSocket();
+
+    void NETdiscoverUPnPDevices();
 
 protected:
 
 	bool portBound;
 	int boundPort;
+
+	static int externalPort;
+
+	static bool enabledUPNP;
+
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
 	bool isBroadCastThreadRunning();
 
+    static int upnp_init(void *param);
+    static bool upnp_add_redirect(int ports[2]);
+    static void upnp_rem_redirect(int ext_port);
+
+    void NETaddRedirects(int ports[2]);
+    void NETremRedirects(int ext_port);
 };
 
 }}//end namespace

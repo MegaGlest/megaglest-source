@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -73,7 +73,7 @@ void GraphicComponent::registerGraphicComponent(std::string containerName, std::
 	instanceName = objName;
 	registeredGraphicComponentList[containerName][objName] = this;
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str(),registeredGraphicComponentList[containerName].size());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str(),registeredGraphicComponentList[containerName].size());
 }
 
 GraphicComponent * GraphicComponent::findRegisteredComponent(std::string containerName, std::string objName) {
@@ -209,7 +209,7 @@ bool GraphicComponent::mouseMove(int x, int y) {
 		return false;
 	}
 
-    return 
+    return
         x > this->x &&
         y > this->y &&
         x < this->x + w &&
@@ -283,7 +283,7 @@ void GraphicListBox::init(int x, int y, int w, int h){
     graphButton1.setText("<");
     graphButton2.setText(">");
     selectedItemIndex=-1;
-}       
+}
 
 //queryes
 void GraphicListBox::pushBackItem(string item){
@@ -292,7 +292,7 @@ void GraphicListBox::pushBackItem(string item){
 }
 
 void GraphicListBox::setItems(const vector<string> &items){
-    this->items= items; 
+    this->items= items;
     setSelectedItemIndex(0);
 }
 
@@ -309,7 +309,7 @@ void GraphicListBox::setEditable(bool editable){
 }
 
 void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
-	vector<string>::iterator iter;        
+	vector<string>::iterator iter;
 
     iter= find(items.begin(), items.end(), item);
 
@@ -326,14 +326,14 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 	}
 
 }
-    
+
 bool GraphicListBox::mouseMove(int x, int y){
 	if(this->getVisible() == false) {
 		return false;
 	}
 
 	return
-        graphButton1.mouseMove(x, y) || 
+        graphButton1.mouseMove(x, y) ||
         graphButton2.mouseMove(x, y);
 }
 
@@ -401,7 +401,7 @@ void GraphicMessageBox::init(const string &button1Str) {
 
 	h= defH;
 	w= defW;
-	
+
 	const Metrics &metrics= Metrics::getInstance();
 
 	x= (metrics.getVirtualW()-w)/2;

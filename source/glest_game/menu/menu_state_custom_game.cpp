@@ -60,7 +60,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
 	mapPreviewTexture=NULL;
-
+	hasCheckedForUPNP = false;
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -180,6 +180,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	string externalPort=config.getString("MasterServerExternalPort", "61357");
 	string serverPort=config.getString("ServerPort", "61357");
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
+	ServerSocket::setExternalPort(strToInt(externalPort));
 
 	// Map
 	xoffset=70;
@@ -1829,7 +1830,7 @@ void MenuStateCustomGame::publishToMasterserver()
 	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
-	//string externalport = intToStr(Config::getInstance().getInt("ExternalServerPort",intToStr(Config::getInstance().getInt("ServerPort")).c_str()));
+
 	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
 
@@ -2257,7 +2258,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//gameSettings->setDefaultVictoryConditions(true);
 
 		Lang &lang= Lang::getInstance();
-		
+
 		//FogOfWar
 		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
 		if(gameSettings.getFogOfWar() == false){
@@ -2266,7 +2267,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
         	listBoxFogOfWar.setSelectedItemIndex(1);
 		}
-		
+
 		listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
@@ -2537,6 +2538,17 @@ void MenuStateCustomGame::closeUnusedSlots(){
 void MenuStateCustomGame::updateNetworkSlots() {
 	try {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+        if(hasNetworkGameSettings() == true) {
+            if(hasCheckedForUPNP == false) {
+                hasCheckedForUPNP = true;
+
+                serverInterface->getServerSocket()->NETdiscoverUPnPDevices();
+            }
+        }
+        else {
+            hasCheckedForUPNP = false;
+        }
 
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 			if(serverInterface->getSlot(i) == NULL &&
