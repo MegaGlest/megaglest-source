@@ -1,55 +1,163 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Release Linux" />
-	<File name="../../source/glest_game/ai/ai.cpp" open="1" top="0" tabpos="10">
+	<File name="../../source/glest_game/ai/ai.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="12418" topLine="415" />
 	</File>
-	<File name="../../source/glest_game/facilities/game_util.cpp" open="1" top="0" tabpos="13">
-		<Cursor position="1286" topLine="27" />
+	<File name="../../source/glest_game/ai/ai_interface.cpp" open="1" top="0" tabpos="23">
+		<Cursor position="3148" topLine="87" />
 	</File>
-	<File name="../../source/glest_game/facilities/game_util.h" open="0" top="0" tabpos="11">
-		<Cursor position="1282" topLine="0" />
+	<File name="../../source/glest_game/ai/cartographer.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="8456" topLine="266" />
 	</File>
-	<File name="../../source/glest_game/game/game.cpp" open="1" top="0" tabpos="6">
-		<Cursor position="17909" topLine="457" />
+	<File name="../../source/glest_game/facilities/components.cpp" open="1" top="0" tabpos="43">
+		<Cursor position="2395" topLine="56" />
 	</File>
-	<File name="../../source/glest_game/global/config.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="2352" topLine="57" />
+	<File name="../../source/glest_game/facilities/game_util.cpp" open="1" top="0" tabpos="42">
+		<Cursor position="5576" topLine="196" />
 	</File>
-	<File name="../../source/glest_game/global/core_data.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="836" topLine="138" />
+	<File name="../../source/glest_game/facilities/game_util.h" open="1" top="0" tabpos="8">
+		<Cursor position="837" topLine="15" />
 	</File>
-	<File name="../../source/glest_game/global/core_data.h" open="1" top="0" tabpos="14">
+	<File name="../../source/glest_game/facilities/logger.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1195" topLine="115" />
+	</File>
+	<File name="../../source/glest_game/game/game.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="31605" topLine="788" />
+	</File>
+	<File name="../../source/glest_game/game/game.h" open="1" top="0" tabpos="34">
+		<Cursor position="2770" topLine="103" />
+	</File>
+	<File name="../../source/glest_game/game/game_constants.h" open="1" top="0" tabpos="7">
+		<Cursor position="3016" topLine="112" />
+	</File>
+	<File name="../../source/glest_game/game/game_settings.h" open="1" top="0" tabpos="35">
+		<Cursor position="893" topLine="15" />
+	</File>
+	<File name="../../source/glest_game/global/config.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="13640" topLine="389" />
+	</File>
+	<File name="../../source/glest_game/global/config.h" open="0" top="0" tabpos="0">
+		<Cursor position="1037" topLine="35" />
+	</File>
+	<File name="../../source/glest_game/global/core_data.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="2143" topLine="167" />
+	</File>
+	<File name="../../source/glest_game/global/core_data.h" open="0" top="0" tabpos="14">
 		<Cursor position="603" topLine="1" />
 	</File>
-	<File name="../../source/glest_game/global/lang.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="900" topLine="17" />
+	<File name="../../source/glest_game/global/lang.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="2007" topLine="41" />
 	</File>
-	<File name="../../source/glest_game/graphics/particle_type.cpp" open="1" top="0" tabpos="1">
+	<File name="../../source/glest_game/graphics/particle_type.cpp" open="0" top="0" tabpos="1">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="../../source/glest_game/graphics/particle_type.h" open="0" top="0" tabpos="0">
 		<Cursor position="654" topLine="2" />
 	</File>
-	<File name="../../source/glest_game/graphics/renderer.cpp" open="1" top="0" tabpos="8">
-		<Cursor position="4897" topLine="109" />
+	<File name="../../source/glest_game/graphics/renderer.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="66001" topLine="2259" />
 	</File>
-	<File name="../../source/glest_game/main/main.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="19940" topLine="590" />
+	<File name="../../source/glest_game/main/main.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="27852" topLine="759" />
 	</File>
-	<File name="../../source/glest_game/main/program.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="16490" topLine="479" />
+	<File name="../../source/glest_game/main/program.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="17186" topLine="504" />
 	</File>
-	<File name="../../source/glest_game/menu/menu_state_connected_game.cpp" open="0" top="0" tabpos="11">
-		<Cursor position="12506" topLine="308" />
+	<File name="../../source/glest_game/menu/main_menu.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="739" topLine="10" />
 	</File>
-	<File name="../../source/glest_game/menu/menu_state_custom_game.cpp" open="1" top="0" tabpos="12">
-		<Cursor position="77903" topLine="1933" />
+	<File name="../../source/glest_game/menu/menu_background.cpp" open="1" top="0" tabpos="10">
+		<Cursor position="1052" topLine="28" />
 	</File>
-	<File name="../../source/glest_game/network/network_manager.cpp" open="1" top="0" tabpos="11">
-		<Cursor position="2716" topLine="34" />
+	<File name="../../source/glest_game/menu/menu_state_connected_game.cpp" open="1" top="0" tabpos="11">
+		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="../../source/glest_game/type_instances/unit.cpp" open="1" top="0" tabpos="9">
-		<Cursor position="50789" topLine="1676" />
+	<File name="../../source/glest_game/menu/menu_state_custom_game.cpp" open="1" top="0" tabpos="14">
+		<Cursor position="104039" topLine="2533" />
+	</File>
+	<File name="../../source/glest_game/menu/menu_state_custom_game.h" open="1" top="0" tabpos="39">
+		<Cursor position="4170" topLine="137" />
+	</File>
+	<File name="../../source/glest_game/menu/menu_state_join_game.cpp" open="1" top="0" tabpos="15">
+		<Cursor position="7274" topLine="216" />
+	</File>
+	<File name="../../source/glest_game/menu/menu_state_masterserver.cpp" open="1" top="0" tabpos="22">
+		<Cursor position="23842" topLine="656" />
+	</File>
+	<File name="../../source/glest_game/menu/menu_state_options.cpp" open="1" top="0" tabpos="13">
+		<Cursor position="4623" topLine="113" />
+	</File>
+	<File name="../../source/glest_game/menu/menu_state_root.cpp" open="1" top="0" tabpos="17">
+		<Cursor position="785" topLine="9" />
+	</File>
+	<File name="../../source/glest_game/network/client_interface.cpp" open="1" top="0" tabpos="25">
+		<Cursor position="38271" topLine="901" />
+	</File>
+	<File name="../../source/glest_game/network/connection_slot.cpp" open="1" top="0" tabpos="20">
+		<Cursor position="7431" topLine="199" />
+	</File>
+	<File name="../../source/glest_game/network/connection_slot.h" open="1" top="0" tabpos="24">
+		<Cursor position="2906" topLine="102" />
+	</File>
+	<File name="../../source/glest_game/network/network_manager.cpp" open="1" top="0" tabpos="21">
+		<Cursor position="777" topLine="15" />
+	</File>
+	<File name="../../source/glest_game/network/network_message.cpp" open="1" top="0" tabpos="38">
+		<Cursor position="8307" topLine="219" />
+	</File>
+	<File name="../../source/glest_game/network/network_message.h" open="1" top="0" tabpos="37">
+		<Cursor position="5699" topLine="207" />
+	</File>
+	<File name="../../source/glest_game/network/network_types.cpp" open="1" top="0" tabpos="36">
+		<Cursor position="517" topLine="0" />
+	</File>
+	<File name="../../source/glest_game/network/network_types.h" open="0" top="0" tabpos="0">
+		<Cursor position="628" topLine="0" />
+	</File>
+	<File name="../../source/glest_game/network/server_interface.cpp" open="1" top="0" tabpos="19">
+		<Cursor position="65329" topLine="1509" />
+	</File>
+	<File name="../../source/glest_game/network/server_interface.h" open="1" top="0" tabpos="26">
+		<Cursor position="2147" topLine="60" />
+	</File>
+	<File name="../../source/glest_game/type_instances/faction.cpp" open="1" top="0" tabpos="12">
+		<Cursor position="2803" topLine="71" />
+	</File>
+	<File name="../../source/glest_game/type_instances/unit.cpp" open="1" top="0" tabpos="27">
+		<Cursor position="26630" topLine="882" />
+	</File>
+	<File name="../../source/glest_game/type_instances/unit.h" open="1" top="0" tabpos="31">
+		<Cursor position="9749" topLine="330" />
+	</File>
+	<File name="../../source/glest_game/types/command_type.cpp" open="1" top="0" tabpos="29">
+		<Cursor position="3996" topLine="101" />
+	</File>
+	<File name="../../source/glest_game/types/command_type.h" open="1" top="0" tabpos="30">
+		<Cursor position="2449" topLine="86" />
+	</File>
+	<File name="../../source/glest_game/types/skill_type.h" open="1" top="0" tabpos="32">
+		<Cursor position="1236" topLine="37" />
+	</File>
+	<File name="../../source/glest_game/world/map.cpp" open="1" top="0" tabpos="18">
+		<Cursor position="24070" topLine="832" />
+	</File>
+	<File name="../../source/glest_game/world/map.h" open="0" top="0" tabpos="20">
+		<Cursor position="1066" topLine="24" />
+	</File>
+	<File name="../../source/glest_game/world/minimap.cpp" open="1" top="0" tabpos="33">
+		<Cursor position="3587" topLine="108" />
+	</File>
+	<File name="../../source/glest_game/world/minimap.h" open="0" top="0" tabpos="0">
+		<Cursor position="1287" topLine="21" />
+	</File>
+	<File name="../../source/glest_game/world/unit_updater.cpp" open="1" top="0" tabpos="28">
+		<Cursor position="6300" topLine="170" />
+	</File>
+	<File name="../../source/glest_game/world/world.cpp" open="1" top="0" tabpos="16">
+		<Cursor position="27958" topLine="863" />
+	</File>
+	<File name="../../source/glest_game/world/world.h" open="0" top="0" tabpos="0">
+		<Cursor position="6259" topLine="184" />
 	</File>
 </CodeBlocks_layout_file>

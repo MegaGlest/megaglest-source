@@ -54,6 +54,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
+					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include" />
@@ -152,6 +153,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
+					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include" />
@@ -238,6 +240,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
+					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include" />
@@ -326,6 +329,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="$(THIRDPARTY_INCLUDE_DIR)/lua5.1" />
+					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include" />
@@ -417,6 +421,18 @@
 		<Unit filename="../../source/shared_lib/include/platform/common/math_wrapper.h" />
 		<Unit filename="../../source/shared_lib/include/platform/common/platform_common.h" />
 		<Unit filename="../../source/shared_lib/include/platform/common/simple_threads.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/bsdqueue.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/codelength.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/declspec.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/igd_desc_parse.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/minisoap.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/minissdpc.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/miniupnpc.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/miniwget.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/minixml.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnpcommands.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnperrors.h" />
+		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnpreplyparse.h" />
 		<Unit filename="../../source/shared_lib/include/platform/posix/socket.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/factory_repository.h">
 			<Option target="Release Linux" />
@@ -499,6 +515,61 @@
 		<Unit filename="../../source/shared_lib/sources/platform/common/cache_manager.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/common/platform_common.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/common/simple_threads.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/bsdqueue.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/codelength.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/declspec.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/igd_desc_parse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/igd_desc_parse.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minisoap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minisoap.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minissdpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minissdpc.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/miniupnpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/miniupnpc.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/miniupnpcstrings.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/miniwget.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/miniwget.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minixml.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minixml.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/minixmlvalid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/testigddescparse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/testminixml.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/testupnpreplyparse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpcommands.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpcommands.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnperrors.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnperrors.h" />
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpreplyparse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpreplyparse.h" />
 		<Unit filename="../../source/shared_lib/sources/platform/posix/socket.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/factory_repository.cpp">
 			<Option target="Release Linux" />
