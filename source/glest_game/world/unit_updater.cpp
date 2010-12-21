@@ -53,7 +53,6 @@ UnitUpdater::UnitUpdater() {
 	this->scriptManager= NULL;
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
-	lastWarnFrameCount=0;
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 }
 
@@ -68,7 +67,7 @@ void UnitUpdater::init(Game *game){
 	this->scriptManager= game->getScriptManager();
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
-	lastWarnFrameCount=0;
+	attackWarnRange=Config::getInstance().getFloat("AttackWarnRange","50.0");
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 
 	switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -89,6 +88,12 @@ UnitUpdater::~UnitUpdater() {
 
 	delete pathFinder;
 	pathFinder = NULL;
+	
+	while(attackWarnings.empty() == false) {
+			AttackWarningData* awd=attackWarnings.back();
+			attackWarnings.pop_back();
+			delete awd;
+		}
 }
 
 // ==================== progress skills ====================
@@ -1782,12 +1787,63 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	if(result && !(unit->isAlly(enemySeen)))
 	{
-		if(world->getFrameCount()-lastWarnFrameCount>100) //after 100 frames attack break we warn again
-		{
-			world->addAttackEffects(enemySeen);
-			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
-		}
-		lastWarnFrameCount=world->getFrameCount();
+		// find nearest Attack and cleanup old dates
+		AttackWarningData *nearest=NULL;
+		float currentDistance;
+		float nearestDistance;
+		for(int i = attackWarnings.size()-1; i>-1; --i) {
+			if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>100) { //after 100 frames attack break we warn again
+				AttackWarningData *toDelete=attackWarnings[i];
+				attackWarnings.erase(attackWarnings.begin()+i);
+				delete toDelete; // old one
+			}
+			else {
+				currentDistance=floor(floatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+				if( nearest==NULL ){
+					nearest=attackWarnings[i];
+					nearestDistance=currentDistance;
+				}
+				else {
+
+						if(  currentDistance< nearestDistance ){
+							nearest=attackWarnings[i];
+							nearestDistance=currentDistance;
+						}
+					}
+			}
+    	}
+
+    	if(nearest!=NULL)
+    	{    	// does it fit?
+    		if(nearestDistance<attackWarnRange)
+    		{// update entry with current values
+    				nearest->lastFrameCount=world->getFrameCount();
+    				nearest->attackPosition.x=enemySeen->getFloatCenteredPos().x;
+    				nearest->attackPosition.y=enemySeen->getFloatCenteredPos().y;
+    		}
+    		else
+    		{//Must be a different Attack!
+    			nearest=NULL;  //set to null to force a new entry in next step
+    		}
+    	}
+    	// add new attack
+    	if(nearest==NULL) // no else!
+    	{
+    		AttackWarningData* awd= new AttackWarningData();
+    		awd->lastFrameCount=world->getFrameCount();
+    		awd->attackPosition.x=enemySeen->getFloatCenteredPos().x;
+    		awd->attackPosition.y=enemySeen->getFloatCenteredPos().y;
+    		attackWarnings.push_back(awd);
+    		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+    		world->addAttackEffects(enemySeen);
+    	}
+		
+//		if(world->getFrameCount()-lastWarnFrameCount>100) //after 100 frames attack break we warn again
+//		{
+//			world->addAttackEffects(enemySeen);
+//			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+//		}
+//		lastWarnFrameCount=world->getFrameCount();
 	}
 
 

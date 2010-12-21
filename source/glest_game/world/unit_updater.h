@@ -49,9 +49,16 @@ public:
 	static time_t lastDebug;
 };
 
+class AttackWarningData {
+public:
+	Vec2f attackPosition;
+	int lastFrameCount;
+};
+
 class UnitUpdater {
 private:
 	friend class ParticleDamager;
+	typedef vector<AttackWarningData*> AttackWarnings;
 
 private:
 	static const int maxResSearchRadius= 10;
@@ -70,7 +77,8 @@ private:
 	RoutePlanner *routePlanner;
 	Game *game;
 	RandomGen random;
-	int lastWarnFrameCount;
+	float attackWarnRange;
+	AttackWarnings attackWarnings;
 
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
