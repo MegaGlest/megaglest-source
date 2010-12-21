@@ -106,7 +106,11 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 
 	/* some servers don't like requests that are made without a user-agent
 	   field, so we provide one */
-	curl_easy_setopt(handle, CURLOPT_USERAGENT, "mega-glest-agent/1.0");
+	curl_easy_setopt(handle, CURLOPT_USERAGENT, "megaglest-agent/1.0");
+
+	/* follow HTTP redirects (status 3xx), 20 at most */
+	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 20);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
 
