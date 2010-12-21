@@ -1785,7 +1785,10 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
         }
     }
 
-	if(result && !(unit->isAlly(enemySeen)))
+	
+	if(	result && 
+		unit->getTeam()==world->getThisTeamIndex() && //must be in local players team.
+		!(unit->isAlly(enemySeen)))
 	{
 		// find nearest Attack and cleanup old dates
 		AttackWarningData *nearest=NULL;
@@ -1837,13 +1840,6 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
     		world->addAttackEffects(enemySeen);
     	}
-		
-//		if(world->getFrameCount()-lastWarnFrameCount>100) //after 100 frames attack break we warn again
-//		{
-//			world->addAttackEffects(enemySeen);
-//			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
-//		}
-//		lastWarnFrameCount=world->getFrameCount();
 	}
 
 
