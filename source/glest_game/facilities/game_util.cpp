@@ -209,7 +209,7 @@ string getGameReadWritePath(string lookupKey) {
                 path += "/";
             }
 
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for [%s] files [%s]\n",__FILE__,__FUNCTION__,__LINE__,lookupKey.c_str(),path.c_str());
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for [%s] files [%s]\n",__FILE__,__FUNCTION__,__LINE__,lookupKey.c_str(),path.c_str());
         }
 	}
 
@@ -219,7 +219,7 @@ string getGameReadWritePath(string lookupKey) {
             path += "/";
         }
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
     }
 
     return path;

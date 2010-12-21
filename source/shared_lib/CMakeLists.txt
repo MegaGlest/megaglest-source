@@ -100,6 +100,7 @@ ENDIF()
 
 SET(DIRS_WITH_SRC
 	platform/common
+	platform/miniupnpc
 	util
 	graphics
 	graphics/gl
