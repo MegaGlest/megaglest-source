@@ -1338,7 +1338,7 @@ void MenuStateCustomGame::render() {
 			int mouse2dAnim = mainMenu->getMouse2dAnim();
 
 		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 1);
+		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
 
 		    if(mapPreviewTexture == NULL) {
 		    	//printf("=================> Rendering map preview into a texture BEFORE (%p)\n", mapPreviewTexture);
