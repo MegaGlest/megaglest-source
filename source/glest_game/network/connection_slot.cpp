@@ -92,9 +92,9 @@ bool ConnectionSlotThread::isSignalCompleted() {
 }
 
 void ConnectionSlotThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
 	try {
-		setRunningStatus(true);
-
+		//setRunningStatus(true);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		unsigned int idx = 0;
@@ -132,7 +132,7 @@ void ConnectionSlotThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
-		setRunningStatus(false);
+		//setRunningStatus(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -140,7 +140,7 @@ void ConnectionSlotThread::execute() {
 		throw runtime_error(ex.what());
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	setRunningStatus(false);
+	//setRunningStatus(false);
 }
 
 // =====================================================

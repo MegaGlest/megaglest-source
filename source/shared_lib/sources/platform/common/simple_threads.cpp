@@ -23,14 +23,13 @@ FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 }
 
 void FileCRCPreCacheThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(getQuitStatus() == true) {
-		setRunningStatus(false);
 		return;
 	}
 
-	setRunningStatus(true);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is running\n");
 
 	try	{
@@ -61,20 +60,16 @@ void FileCRCPreCacheThread::execute() {
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		setRunningStatus(false);
 	}
 	catch(...) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
-		setRunningStatus(false);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
-	setRunningStatus(false);
 }
 
-
-SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface, 
+SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
 									unsigned int executionCount,
 									unsigned int millisecsBetweenExecutions,
 									bool needTaskSignal) : BaseThread() {
@@ -91,12 +86,11 @@ bool SimpleTaskThread::canShutdown() {
 }
 
 void SimpleTaskThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
 	try {
 		if(getQuitStatus() == true) {
-			setRunningStatus(false);
 			return;
 		}
-		setRunningStatus(true);
 
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
@@ -150,15 +144,10 @@ void SimpleTaskThread::execute() {
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-
-		setRunningStatus(false);
-
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
 		throw runtime_error(ex.what());
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-	setRunningStatus(false);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 }
 
