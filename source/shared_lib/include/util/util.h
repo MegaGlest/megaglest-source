@@ -51,7 +51,7 @@ public:
 	{
 	protected:
     	DebugType debugType;
-		
+
 	public:
     	SystemFlagsType() {
     		this->debugType 		= debugSystem;
@@ -117,6 +117,7 @@ public:
 
 	static CURL *curl_handle;
 	static int DEFAULT_HTTP_TIMEOUT;
+	static bool VERBOSE_MODE_ENABLED;
 
 	SystemFlags();
 	~SystemFlags();

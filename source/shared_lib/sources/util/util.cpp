@@ -45,6 +45,7 @@ string SystemFlags::lockfilename		= "";
 bool SystemFlags::haveSpecialOutputCommandLineOption = false;
 CURL *SystemFlags::curl_handle			= NULL;
 int SystemFlags::DEFAULT_HTTP_TIMEOUT	= 10;
+bool SystemFlags::VERBOSE_MODE_ENABLED  = false;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -217,7 +218,7 @@ SystemFlags::~SystemFlags() {
 void SystemFlags::Close() {
 	if(SystemFlags::debugLogFileList.size() > 0) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-			printf("START Closing logfiles\n");
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START Closing logfiles\n");
 		}
 
 		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
@@ -243,7 +244,7 @@ void SystemFlags::Close() {
 
 	if(SystemFlags::debugLogFileList.size() > 0) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-			printf("END Closing logfiles\n");
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END Closing logfiles\n");
 		}
 	}
 }
@@ -328,7 +329,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
             		debugLog += intToStr(idx);
 
             		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-            			printf("Opening additional logfile [%s]\n",debugLog.c_str());
+            			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
             		}
 				}
 			}
@@ -336,7 +337,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
         		debugLog += intToStr(SystemFlags::lockFileCountIndex);
 
         		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-        			printf("Opening additional logfile [%s]\n",debugLog.c_str());
+        			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
         		}
 			}
 
@@ -348,7 +349,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
             }
 
             if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-            	printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d, file stream open = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner,currentDebugLog.fileStream->is_open());
+            	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d, file stream open = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner,currentDebugLog.fileStream->is_open());
             }
 
             if(currentDebugLog.fileStream->is_open() == true) {
@@ -360,10 +361,6 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 				safeMutex.ReleaseLock();
             }
         }
-
-        //printf("Logfile is open [%s]\n",SystemFlags::debugLogFile);
-
-        //printf("writing to logfile [%s]\n",szBuf);
 
         assert(currentDebugLog.fileStream != NULL);
 
@@ -391,6 +388,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     	(currentDebugLog.debugLogFileName != "" &&
         (currentDebugLog.fileStream == NULL ||
          currentDebugLog.fileStream->is_open() == false))) {
+
 		if (type != debugPathFinder && type != debugError) {
 			printf("[%s] %s", szBuf2, szBuf);
 		}
