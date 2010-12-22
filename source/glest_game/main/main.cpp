@@ -85,7 +85,8 @@ const char  *GAME_ARGS[] = {
 	"--validate-factions",
 	"--data-path",
 	"--ini-path",
-	"--log-path"
+	"--log-path",
+	"--verbose"
 
 };
 
@@ -103,7 +104,8 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_DATA_PATH,
 	GAME_ARG_INI_PATH,
-	GAME_ARG_LOG_PATH
+	GAME_ARG_LOG_PATH,
+	GAME_ARG_VERBOSE_MODE
 };
 
 string runtimeErrorMsg = "";
@@ -615,6 +617,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=~/game_config/",argv0,GAME_ARGS[GAME_ARG_INI_PATH]);
 	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n                     \t\texample: %s %s=~/game_logs/",argv0,GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
+
 	printf("\n\n");
 }
 
@@ -638,6 +642,11 @@ int glestMain(int argc, char** argv) {
 		printParameterHelp(argv[0],foundInvalidArgs);
 		return -1;
 	}
+
+    SystemFlags::VERBOSE_MODE_ENABLED  = false;
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
+        SystemFlags::VERBOSE_MODE_ENABLED  = true;
+    }
 
 	bool haveSpecialOutputCommandLineOption = false;
 
@@ -711,7 +720,7 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string customPathValue = paramPartTokens[1];
 				pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
-				printf("Using custom data path [%s]\n",customPathValue.c_str());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
 			}
 			else {
 
@@ -734,7 +743,7 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string customPathValue = paramPartTokens[1];
 				pathCache[GameConstants::path_ini_CacheLookupKey]=customPathValue;
-				printf("Using custom ini path [%s]\n",customPathValue.c_str());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom ini path [%s]\n",customPathValue.c_str());
 			}
 			else {
 
@@ -757,7 +766,7 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string customPathValue = paramPartTokens[1];
 				pathCache[GameConstants::path_logs_CacheLookupKey]=customPathValue;
-				printf("Using custom logs path [%s]\n",customPathValue.c_str());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom logs path [%s]\n",customPathValue.c_str());
 			}
 			else {
 
@@ -848,7 +857,7 @@ int glestMain(int argc, char** argv) {
         SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
 
         if(haveSpecialOutputCommandLineOption == false) {
-        	printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
         			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
         			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
