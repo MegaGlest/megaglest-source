@@ -16,12 +16,6 @@
 #include <vector>
 #include <string>
 
-#ifndef WIN32
-#include <libircclient/libircclient.h>
-#else
-#include "libircclient.h"
-#endif
-
 #include "leak_dumper.h"
 
 using namespace std;
@@ -41,7 +35,6 @@ class IRCThread : public BaseThread
 {
 protected:
     std::vector<string> argv;
-    irc_session_t *ircSession;
 
 public:
 	IRCThread(const std::vector<string> &argv,IRCCallbackInterface *callbackObj);

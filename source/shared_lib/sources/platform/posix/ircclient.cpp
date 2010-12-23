@@ -14,21 +14,29 @@
 #include "util.h"
 #include "platform_common.h"
 
-using namespace Shared::Util;
-using namespace Shared::PlatformCommon;
-
-namespace Shared { namespace PlatformCommon {
-
+#ifndef WIN32
+#include <libircclient/libircclient.h>
+#else
+#include "libircclient.h"
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 
+irc_session_t *ircSession;
+
+using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
+
+namespace Shared { namespace PlatformCommon {
+
 IRCCallbackInterface *IRCThread::callbackObj=NULL;
 std::vector<string> IRCThread::eventData;
 bool IRCThread::eventDataDone = false;
 bool IRCThread::isConnected = false;
+
 //
 // We store data in IRC session context.
 //
