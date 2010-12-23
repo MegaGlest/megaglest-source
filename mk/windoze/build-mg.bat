@@ -17,6 +17,11 @@ ECHO --------------------------------
 Echo Updating Code from SVN to latest Revision...
 svn update ..\..\
 
+set SVNVERSION=.
+for /f "delims=" %%a in ('svnversion ..\..\ -n') do @set SVNVERSION=%%a
+ECHO Will build using SVN Revision: [%SVNVERSION%]
+rem pause
+
 ECHO --------------------------------
 Echo Touching the build date/time file so we get proper build stamp
 touch ..\..\source\glest_game\facilities\game_util.cpp
@@ -24,7 +29,15 @@ touch ..\..\source\glest_game\facilities\game_util.cpp
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
 Echo Building Mega-Glest...
-msbuild Glest.sln /p:Configuration=Release
+
+set CL=
+del ..\..\source\glest_game\facilities\svnversion.h
+
+if not "%SVNVERSION%" == "." set CL=/DSVNVERSIONHEADER
+if not "%SVNVERSION%" == "."  echo building with CL [%CL%]
+if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\source\glest_game\facilities\svnversion.h
+
+msbuild /p:Configuration=Release Glest.sln
 
 rem pause execution so we can see the output before the batch file exits
 pause
