@@ -332,7 +332,7 @@ void World::update(){
 
 	//water effects
 	waterEffects.update(1.0f);
-	// attack effects 
+	// attack effects
 	attackEffects.update(0.25f);
 
 	//bool needToUpdateUnits = true;
@@ -554,7 +554,7 @@ void World::moveUnitCells(Unit *unit) {
 	Vec2i newPos= unit->getTargetPos();
 
 	//newPos must be free or the same pos as current
-	assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
+	//assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
 
 	// Only change cell placement in map if the new position is different
 	// from the old one
