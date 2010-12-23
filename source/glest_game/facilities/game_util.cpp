@@ -30,6 +30,9 @@ const string mailString			= "contact@megaglest.org";
 const string glestVersionString = "v3.4.0-dev";
 #if defined(SVNVERSION)
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
+#elif defined(SVNVERSIONHEADER)
+#include "svnversion.h"
+const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
 #else
 const string SVN_Rev 			= "$Rev$";
 #endif
