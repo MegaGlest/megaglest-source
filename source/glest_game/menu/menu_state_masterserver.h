@@ -122,7 +122,7 @@ private:
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
 
-	Console console;
+	//Console console;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;

@@ -25,8 +25,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-irc_session_t *ircSession;
-
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
@@ -36,7 +34,6 @@ IRCCallbackInterface *IRCThread::callbackObj=NULL;
 std::vector<string> IRCThread::eventData;
 bool IRCThread::eventDataDone = false;
 bool IRCThread::isConnected = false;
-
 //
 // We store data in IRC session context.
 //
@@ -57,12 +54,15 @@ void addlog (const char * fmt, ...) {
 	vsnprintf (buf, sizeof(buf), fmt, va_alist);
 #endif
 	va_end (va_alist);
-	printf ("===> IRC: %s\n", buf);
 
-	if ( (fp = fopen ("irctest.log", "ab")) != 0 ) {
-		fprintf (fp, "%s\n", buf);
-		fclose (fp);
-	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: %s\n", buf);
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED == true) {
+        if ( (fp = fopen ("irctest.log", "ab")) != 0 ) {
+            fprintf (fp, "%s\n", buf);
+            fclose (fp);
+        }
+    }
 }
 
 void dump_event (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
@@ -71,9 +71,9 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 	buf[0] = '\0';
 
 	for ( cnt = 0; cnt < count; cnt++ )	{
-		if ( cnt )
+		if ( cnt ) {
 			strcat (buf, "|");
-
+        }
 		strcat (buf, params[cnt]);
 	}
 
@@ -86,12 +86,11 @@ void event_join(irc_session_t * session, const char * event, const char * origin
 	if(IRCThread::isConnected == false) {
         irc_cmd_user_mode (session, "+i");
         irc_cmd_msg (session, params[0], "MG Bot says hello!");
-        //GetIRCConnectedNickList(argv[2]);
 	}
 	else {
         char realNick[128]="";
         irc_target_get_nick(origin,&realNick[0],127);
-        printf ("===> IRC: user joined channel realNick [%s] origin [%s]\n", realNick,origin);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user joined channel realNick [%s] origin [%s]\n", realNick,origin);
         IRCThread::eventData.push_back(realNick);
 	}
 
@@ -108,9 +107,7 @@ void event_connect (irc_session_t * session, const char * event, const char * or
 void event_privmsg (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
 	dump_event (session, event, origin, params, count);
 
-	printf ("'%s' said me (%s): %s\n",
-		origin ? origin : "someone",
-		params[0], params[1] );
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("'%s' said me (%s): %s\n",origin ? origin : "someone",params[0], params[1] );
 }
 
 void dcc_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void * ctx, const char * data, unsigned int length) {
@@ -120,46 +117,47 @@ void dcc_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void 
 	switch (status)
 	{
 	case LIBIRC_ERR_CLOSED:
-		printf ("DCC %d: chat closed\n", id);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC %d: chat closed\n", id);
 		break;
 
 	case 0:
-		if ( !data )
-		{
-			printf ("DCC %d: chat connected\n", id);
+		if ( !data ) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC %d: chat connected\n", id);
 			irc_dcc_msg	(session, id, "Hehe");
 		}
-		else
-		{
-			printf ("DCC %d: %s\n", id, data);
+		else {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC %d: %s\n", id, data);
 			sprintf (buf, "DCC [%d]: %d", id, count++);
 			irc_dcc_msg	(session, id, buf);
 		}
 		break;
 
 	default:
-		printf ("DCC %d: error %s\n", id, irc_strerror(status));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC %d: error %s\n", id, irc_strerror(status));
 		break;
 	}
 }
 
 void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void * ctx, const char * data, unsigned int length) {
 	if ( status == 0 && length == 0 ) {
-		printf ("File sent successfully\n");
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("File sent successfully\n");
 
-		if ( ctx )
+		if ( ctx ) {
 			fclose ((FILE*) ctx);
+		}
 	}
 	else if ( status ) {
-		printf ("File sent error: %d\n", status);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("File sent error: %d\n", status);
 
-		if ( ctx )
+		if ( ctx ) {
 			fclose ((FILE*) ctx);
+		}
 	}
 	else {
-		if ( ctx )
+		if ( ctx ) {
 			fwrite (data, 1, length, (FILE*) ctx);
-		printf ("File sent progress: %d\n", length);
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("File sent progress: %d\n", length);
 	}
 }
 
@@ -169,26 +167,26 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 	if ( count != 2 )
 		return;
 
-	printf ("===> IRC: '%s' said in channel %s: %s\n",origin ? origin : "someone",params[0], params[1] );
-    if(IRCThread::callbackObj) {
-       IRCThread::callbackObj->IRC_CallbackEvent(origin, params, count);
-    }
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: '%s' said in channel %s: %s\n",origin ? origin : "someone",params[0], params[1] );
 
-	if ( !origin )
+	if ( !origin ) {
 		return;
+	}
 
-	irc_target_get_nick (origin, nickbuf, sizeof(nickbuf));
+	irc_target_get_nick(origin, nickbuf, sizeof(nickbuf));
+
+    if(IRCThread::callbackObj) {
+        IRCThread::callbackObj->IRC_CallbackEvent(nickbuf, params, count);
+    }
 
 	if ( !strcmp (params[1], "quit") )
 		irc_cmd_quit (session, "of course, Master!");
 
-	if ( !strcmp (params[1], "help") )
-	{
+	if ( !strcmp (params[1], "help") ) {
 		irc_cmd_msg (session, params[0], "quit, help, dcc chat, dcc send, ctcp");
 	}
 
-	if ( !strcmp (params[1], "ctcp") )
-	{
+	if ( !strcmp (params[1], "ctcp") ) {
 		irc_cmd_ctcp_request (session, nickbuf, "PING 223");
 		irc_cmd_ctcp_request (session, nickbuf, "FINGER");
 		irc_cmd_ctcp_request (session, nickbuf, "VERSION");
@@ -198,13 +196,13 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 	if ( !strcmp (params[1], "dcc chat") ) {
 		irc_dcc_t dccid;
 		irc_dcc_chat (session, 0, nickbuf, dcc_recv_callback, &dccid);
-		printf ("DCC chat ID: %d\n", dccid);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC chat ID: %d\n", dccid);
 	}
 
 	if ( !strcmp (params[1], "dcc send") ) {
 		irc_dcc_t dccid;
 		irc_dcc_sendfile (session, 0, nickbuf, "irctest.c", dcc_file_recv_callback, &dccid);
-		printf ("DCC send ID: %d\n", dccid);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC send ID: %d\n", dccid);
 	}
 
 	if ( !strcmp (params[1], "topic") ) {
@@ -225,18 +223,18 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 }
 
 void irc_event_dcc_chat(irc_session_t * session, const char * nick, const char * addr, irc_dcc_t dccid) {
-	printf ("DCC chat [%d] requested from '%s' (%s)\n", dccid, nick, addr);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC chat [%d] requested from '%s' (%s)\n", dccid, nick, addr);
 
 	irc_dcc_accept (session, dccid, 0, dcc_recv_callback);
 }
 
 void irc_event_dcc_send(irc_session_t * session, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid) {
 	FILE * fp;
-	printf ("DCC send [%d] requested from '%s' (%s): %s (%lu bytes)\n", dccid, nick, addr, filename, size);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC send [%d] requested from '%s' (%s): %s (%lu bytes)\n", dccid, nick, addr, filename, size);
 
-	if ( (fp = fopen ("file", "wb")) == 0 )
+	if ( (fp = fopen ("file", "wb")) == 0 ) {
 		abort();
-
+	}
 	irc_dcc_accept (session, dccid, fp, dcc_file_recv_callback);
 }
 
@@ -247,15 +245,15 @@ void event_leave(irc_session_t *session, const char *event, const char *origin, 
 	// someone left the channel.
 
 	if(origin) {
-	    printf ("===> IRC: user left channel [%s]\n", origin);
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user left channel [%s]\n", origin);
 
         char realNick[128]="";
         irc_target_get_nick(origin,&realNick[0],127);
 
-        printf ("===> IRC: user left channel realNick [%s]\n", realNick);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user left channel realNick [%s]\n", realNick);
 
 	    for(unsigned int i = 0; i < IRCThread::eventData.size(); ++i) {
-	        printf ("===> IRC: lookingfor match [%s] realNick [%s]\n", IRCThread::eventData[i].c_str(),realNick);
+	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: lookingfor match [%s] realNick [%s]\n", IRCThread::eventData[i].c_str(),realNick);
 
 	        if(IRCThread::eventData[i] == realNick) {
 	            IRCThread::eventData.erase(IRCThread::eventData.begin() + i);
@@ -313,11 +311,11 @@ IRCThread::IRCThread(const std::vector<string> &argv, IRCCallbackInterface *call
 }
 
 void IRCThread::signalQuit() {
-    printf ("===> IRC: signalQuit [%p]\n",ircSession);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: signalQuit [%p]\n",ircSession);
 
     if(ircSession != NULL) {
         callbackObj=NULL;
-        printf ("===> IRC: Quitting Channel\n");
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: Quitting Channel\n");
         irc_cmd_quit(ircSession, "MG Bot is closing!");
         BaseThread::signalQuit();
         isConnected = false;
@@ -325,7 +323,7 @@ void IRCThread::signalQuit() {
 }
 
 bool IRCThread::shutdownAndWait() {
-    printf ("===> IRC: shutdownAndWait [%p]\n",ircSession);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: shutdownAndWait [%p]\n",ircSession);
 
     signalQuit();
     return BaseThread::shutdownAndWait();
@@ -375,7 +373,7 @@ void IRCThread::execute() {
         ircSession=NULL;
 
         if(argv.size() != 3) {
-            printf ("===> IRC Usage: <server> <nick> <channel> : got params [%ld]\n",argv.size());
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Usage: <server> <nick> <channel> : got params [%ld]\n",argv.size());
             return;
         }
 
@@ -408,7 +406,7 @@ void IRCThread::execute() {
         ircSession = irc_create_session (&callbacks);
 
         if(!ircSession) {
-            printf ("===> IRC Could not create session\n");
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not create session\n");
             return;
         }
 
@@ -422,7 +420,7 @@ void IRCThread::execute() {
         irc_set_ctx(ircSession, &ctx);
 
         if(irc_connect(ircSession, argv[0].c_str(), 6667, 0, argv[1].c_str(), 0, 0)) {
-            printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
             return;
         }
 
@@ -440,11 +438,11 @@ void IRCThread::execute() {
             this->getQuitStatus() == false && iAttempts <= 5;
             ++iAttempts) {
             if(irc_run(ircSession)) {
-                printf ("===> IRC Could not run the session: %s\n", irc_strerror (irc_errno(ircSession)));
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not run the session: %s\n", irc_strerror (irc_errno(ircSession)));
             }
         }
 
-        printf ("===> IRC exiting IRC CLient!\n");
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC exiting IRC CLient!\n");
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -458,8 +456,9 @@ void IRCThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] IRC thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
 
+    // Delete ourself when the thread is done (no other actions can happen after this
+    // such as the mutex which modifies the running status of this method
 	delete this;
 }
-
 
 }}//end namespace
