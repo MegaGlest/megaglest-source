@@ -18,6 +18,11 @@
 
 #include "leak_dumper.h"
 
+// Special way to forward declare a typedef struct
+struct irc_session_s;
+typedef struct irc_session_s irc_session_t;
+//
+
 using namespace std;
 
 namespace Shared { namespace PlatformCommon {
@@ -35,6 +40,7 @@ class IRCThread : public BaseThread
 {
 protected:
     std::vector<string> argv;
+    irc_session_t *ircSession;
 
 public:
 	IRCThread(const std::vector<string> &argv,IRCCallbackInterface *callbackObj);
@@ -44,11 +50,9 @@ public:
 
     void SendIRCCmdMessage(string target, string msg);
     std::vector<string> GetIRCConnectedNickList(string target);
-
-    static IRCCallbackInterface *callbackObj;
-
     std::vector<string> getNickList() { return eventData; }
 
+    static IRCCallbackInterface *callbackObj;
     static std::vector<string> eventData;
     static bool eventDataDone;
     static bool isConnected;

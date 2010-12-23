@@ -33,8 +33,7 @@ namespace Glest{ namespace Game{
 DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
 
 static const char *IRC_SERVER   = "irc.freenode.net";
-static const char *IRC_CHANNEL  = "#megaglest";
-
+static const char *IRC_CHANNEL  = "#megaglest-lobby";
 
 // =====================================================
 // 	class ServerLine
@@ -349,10 +348,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+	//console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+    consoleIRC.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
     chatManager.init(&consoleIRC, -1,true);
 
 	MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
@@ -387,7 +387,7 @@ void MenuStateMasterserver::IRC_CallbackEvent(const char* origin, const char **p
 void MenuStateMasterserver::cleanup() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
+    //printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
 
 	if(masterServerThreadInDeletion == false) {
 		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
@@ -417,7 +417,7 @@ void MenuStateMasterserver::cleanup() {
 
 	clearServerLines();
 
-    printf("Exiting master server menu [%p]\n",ircClient);
+    //printf("Exiting master server menu [%p]\n",ircClient);
     if(ircClient != NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -436,7 +436,7 @@ void MenuStateMasterserver::cleanup() {
 MenuStateMasterserver::~MenuStateMasterserver() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
+    //printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
 	cleanup();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
@@ -630,7 +630,7 @@ void MenuStateMasterserver::render(){
         renderer.renderLabel(&ircOnlinePeopleListLabel,&titleLabelColor);
 
 		// render console
-		renderer.renderConsole(&console,false,false);
+		//renderer.renderConsole(&console,false,false);
 
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
@@ -660,7 +660,7 @@ void MenuStateMasterserver::update() {
 		playServerFoundSound=false;
 	}
 
-	console.update();
+	//console.update();
 
     //call the chat manager
     chatManager.updateNetwork();
@@ -926,19 +926,19 @@ void MenuStateMasterserver::keyDown(char key) {
             float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
             if(currentVolume > 0) {
                 CoreData::getInstance().getMenuMusic()->setVolume(0.f);
-                console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+                consoleIRC.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
             }
             else {
                 CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
                 //If the config says zero, use the default music volume
                 //gameMusic->setVolume(configVolume ? configVolume : 0.9);
-                console.addLine(lang.get("GameMusic"));
+                consoleIRC.addLine(lang.get("GameMusic"));
             }
         }
         else if(key == configKeys.getCharKey("SaveGUILayout")) {
             bool saved = GraphicComponent::saveAllCustomProperties(containerName);
             Lang &lang= Lang::getInstance();
-            console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+            consoleIRC.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
         }
     }
 }
