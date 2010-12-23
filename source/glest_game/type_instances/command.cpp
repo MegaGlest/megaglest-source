@@ -30,6 +30,7 @@ Command::Command(const CommandType *ct, const Vec2i &pos){
 
     this->commandType= ct;  
     this->pos= pos;
+    this->unitRef= NULL;
 	unitType= NULL;
 	stateType			= cst_None;
 	stateValue 			= -1;
@@ -51,6 +52,7 @@ Command::Command(const CommandType *ct, Unit* unit){
 Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing){
     this->commandType= ct;  
     this->pos= pos;
+    this->unitRef= NULL;
 	this->unitType= unitType;
 	this->facing = facing;
 	stateType			= cst_None;
@@ -61,6 +63,12 @@ Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitTy
 	}
 }
 
+int Command::getPriority(){
+	if(this->commandType->commandTypeClass==ccAttack && getUnit()==NULL){
+		return 5; // attacks to the ground have low priority
+	}
+	return this->commandType->getTypePriority();
+}
 // =============== set ===============
 
 void Command::setCommandType(const CommandType *commandType){

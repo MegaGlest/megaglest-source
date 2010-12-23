@@ -64,7 +64,6 @@ void WaterEffects::addWaterSplash(const Vec2f &pos, int size){
 		}
 	}
 	waterSplashes.push_back(WaterSplash(pos,size));
-	printf("count of watereffects=%d\n",getWaterSplashCount());
 }
 
 }}//end namespace

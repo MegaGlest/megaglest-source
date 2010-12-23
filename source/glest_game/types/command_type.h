@@ -95,7 +95,7 @@ public:
 		return (q != qNever) && (q != qOnlyLast);
 	}
 	//Priority: commands of higher priority will cancel commands of lower priority
-	virtual int getPriority() const {return 0;}
+	virtual int getTypePriority() const {return 10;}
 
     //get
     CommandClass getClass() const;
@@ -118,7 +118,7 @@ public:
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qNever;}
-	virtual int getPriority() const							{return 100000;}
+	virtual int getTypePriority() const							{return 100000;}
     //get
 	const StopSkillType *getStopSkillType() const	{return stopSkillType;};
 };
@@ -300,7 +300,6 @@ public:
 	virtual string toString() const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getPriority() const 						{return 5;} //higher priority to cancel attack
 
     //get
 	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
@@ -326,7 +325,6 @@ public:
 	virtual string getReqDesc() const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getPriority() const 						{return 5;} //higher priority to cancel attack (and same as Build)
 
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}

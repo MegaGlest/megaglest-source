@@ -474,6 +474,7 @@ private:
 	float computeHeight(const Vec2i &pos) const;
 	void updateTarget();
 	void clearCommands();
+	void deleteQueuedCommand(Command *command);
 	CommandResult undoCommand(Command *command);
 	void stopDamageParticles();
 	void startDamageParticles();

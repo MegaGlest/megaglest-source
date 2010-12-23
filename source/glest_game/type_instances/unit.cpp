@@ -738,11 +738,6 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 	return count;
 }
 
-#define deleteSingleCommand(command) {\
-	undoCommand(command);\
-	delete command;\
-}
-
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
@@ -761,18 +756,18 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    const int command_priority = command->getCommandType()->getPriority();
+    const int command_priority = command->getPriority();
 
     if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	if(command->getCommandType()->isQueuable(tryQueue) && (commands.empty() || (command_priority >= commands.back()->getCommandType()->getPriority()))){
+	if(command->getCommandType()->isQueuable(tryQueue)){
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//Delete all lower-prioirty commands
 		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
-			if ((*i)->getCommandType()->getPriority() < command_priority) {
-				deleteSingleCommand(*i);
+			if ((*i)->getPriority() < command_priority) {
+				deleteQueuedCommand(*i);
 				i = commands.erase(i);
 			}
 			else {
@@ -797,7 +792,6 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//empty command queue
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		clearCommands();
-		this->unitPath->clear();
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
@@ -1424,12 +1418,24 @@ void Unit::updateTarget(){
 
 void Unit::clearCommands() {
 	this->setCurrentUnitTitle("");
+	this->unitPath->clear();
 	while(!commands.empty()){
 		undoCommand(commands.back());
 		delete commands.back();
 		commands.pop_back();
 	}
 }
+
+void Unit::deleteQueuedCommand(Command *command) {
+	if(getCurrCommand()==command)
+	{
+		this->setCurrentUnitTitle("");
+		this->unitPath->clear();	
+	}
+	undoCommand(command);
+	delete command;
+}
+
 
 CommandResult Unit::checkCommand(Command *command) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

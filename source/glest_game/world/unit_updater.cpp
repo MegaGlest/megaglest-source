@@ -346,6 +346,12 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	if( (command->getUnit()==NULL || !(command->getUnit()->isAlive()) ) && unit->getCommandSize()>1)
+	{
+		unit->finishCommand(); // all queued "ground attacks" are skipped if somthing else is queued after them.
+		return;
+	}
+
 	//if found
     if(attackableOnRange(unit, &target, act->getAttackSkillType())) {
 		if(unit->getEp()>=act->getAttackSkillType()->getEpCost()) {
@@ -361,6 +367,7 @@ void UnitUpdater::updateAttack(Unit *unit) {
     else {
 		//compute target pos
 		Vec2i pos;
+		Command *nextCommand;
 		if(command->getUnit()!=NULL) {
 			pos= command->getUnit()->getCenteredPos();
 		}
@@ -400,22 +407,21 @@ void UnitUpdater::updateAttack(Unit *unit) {
 			unit->finishCommand();
 		}
 		else {
-		//if unit arrives destPos order has ended
-        switch (tsValue){
-        case tsMoving:
-            unit->setCurrSkill(act->getMoveSkillType());
-            break;
-		case tsBlocked:
-			if(unit->getPath()->isBlocked()){
+			//if unit arrives destPos order has ended
+	        switch (tsValue){
+	        case tsMoving:
+	            unit->setCurrSkill(act->getMoveSkillType());
+	            break;
+			case tsBlocked:
+				if(unit->getPath()->isBlocked()){
+					unit->finishCommand();
+				}
+				break;
+			default:
 				unit->finishCommand();
 			}
-			break;
-		default:
-			unit->finishCommand();
 		}
-		}
-		
-        if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
 
     if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1795,7 +1801,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		float currentDistance;
 		float nearestDistance;
 		for(int i = attackWarnings.size()-1; i>-1; --i) {
-			if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>100) { //after 100 frames attack break we warn again
+			if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>200) { //after 200 frames attack break we warn again
 				AttackWarningData *toDelete=attackWarnings[i];
 				attackWarnings.erase(attackWarnings.begin()+i);
 				delete toDelete; // old one
