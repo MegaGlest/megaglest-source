@@ -36,15 +36,19 @@ else()
 	#CHECK_INCLUDE_FILES(libircclient/libircclient.h LIBIRCCLIENT_INCLUDE_DIR)
 	FIND_PATH(LIBIRCCLIENT_INCLUDE_DIR NAME libircclient/libircclient.h PATHS /usr/local/include)
 	link_directories(/usr/local/include)	
-	link_directories(/usr/local/lib/libircclient)
+	link_directories(/usr/local/lib)
 endif()
 
 #check_include_files("libircclient/libircclient.h;libircclient/include/libircclient.h" LIBIRCCLIENT_H_)
 if(NOT LIBIRCCLIENT_INCLUDE_DIR)
        message(FATAL_ERROR "missing libircclient : please install it [${LIBIRCCLIENT_INCLUDE_DIR}]")
 endif()
+
 INCLUDE_DIRECTORIES(${LIBIRCCLIENT_INCLUDE_DIR})
-SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ircclient)
+
+if(NOT WIN32)
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ircclient)
+ENDIF()
 
 FIND_PACKAGE(SDL REQUIRED)
 INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
