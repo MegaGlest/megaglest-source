@@ -94,23 +94,25 @@ ENDIF()
 
 IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-                                                   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
+           ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib
+           ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
 
 	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
-						   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
+
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)

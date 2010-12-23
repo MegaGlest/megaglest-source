@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -16,6 +16,8 @@
 #include "masterserver_info.h"
 #include "simple_threads.h"
 #include "network_interface.h"
+#include "ircclient.h"
+#include "chat_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -37,14 +39,14 @@ private:
 	GraphicLabel glestVersionLabel;
 	GraphicLabel platformLabel;
 	//GraphicLabel binaryCompileDateLabel;
-	
+
 	//game info:
 	GraphicLabel serverTitleLabel;
 	GraphicLabel ipAddressLabel;
-	
+
 	//game setup info:
 	GraphicLabel techLabel;
-	GraphicLabel mapLabel; 
+	GraphicLabel mapLabel;
 	GraphicLabel tilesetLabel;
 	GraphicLabel activeSlotsLabel;
 
@@ -62,16 +64,16 @@ public:
 	bool buttonMouseMove(int x, int y);
 	//void setIndex(int value);
 	void render();
-	
+
 };
 
 // ===============================
-// 	class MenuStateMasterserver  
+// 	class MenuStateMasterserver
 // ===============================
 typedef vector<ServerLine*> ServerLines;
 typedef vector<MasterServerInfo*> MasterServerInfos;
 
-class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface {
+class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface, public IRCCallbackInterface {
 
 private:
 
@@ -83,10 +85,10 @@ private:
 	GraphicLabel labelTitle;
 	ServerLines serverLines;
 	GraphicLabel labelChatUrl;
-	
+
 	GraphicLabel announcementLabel;
 	GraphicLabel versionInfoLabel;
-	
+
 
 
 	GraphicLabel glestVersionLabel;
@@ -106,17 +108,20 @@ private:
 	GraphicLabel externalConnectPort;
 
 	GraphicLabel selectButton;
-	
+
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-	
+
+    GraphicLabel ircOnlinePeopleLabel;
+    GraphicLabel ircOnlinePeopleListLabel;
+
 	bool announcementLoaded;
 	bool needUpdateFromServer;
 	int autoRefreshTime;
 	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
-	
+
 	Console console;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
@@ -125,26 +130,39 @@ private:
 	Mutex masterServerThreadPtrChangeAccessor;
 	bool masterServerThreadInDeletion;
 
+    std::vector<string> ircArgs;
+	IRCThread *ircClient;
+	time_t lastNickListUpdate;
+
+	Console consoleIRC;
+	ChatManager chatManager;
+
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);
-	virtual ~MenuStateMasterserver();
-	
+	~MenuStateMasterserver();
+
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();
-		
+
 	virtual void keyDown(char key);
+    virtual void keyPress(char c);
+    virtual void keyUp(char key);
+
 	virtual void simpleTask();
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
+
+    virtual void IRC_CallbackEvent(const char* origin, const char **params, unsigned int count);
 
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	bool connectToServer(string ipString, int port);
 	void clearServerLines();
 	void updateServerInfo();
-	
+	void cleanup();
+
 };
 
 

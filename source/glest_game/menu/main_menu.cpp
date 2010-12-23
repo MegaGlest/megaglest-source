@@ -161,19 +161,25 @@ void MainMenu::keyPress(char c){
 }
 
 void MainMenu::setState(MenuState *state){
+    //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(oldstate != NULL && oldstate != state) {
 		delete oldstate;
 
+        //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(oldstate != this->state) {
 			oldstate=this->state;
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		else {
 			oldstate = NULL;
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
 	else {
 		oldstate=this->state;
+		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	this->state= state;
 	GraphicComponent::resetFade();
 	menuBackground.setTargetCamera(state->getCamera());
