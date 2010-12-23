@@ -41,12 +41,12 @@ void FileCRCPreCacheThread::execute() {
 				string techName = techPaths[idx];
 
 				time_t elapsedTime = time(NULL);
-				printf("In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,techPaths.size());
 
 				int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
 
-				printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,(int)techPaths.size(),difftime(time(NULL),elapsedTime));
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,(int)techPaths.size(),difftime(time(NULL),elapsedTime));
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,techPaths.size(),difftime(time(NULL),elapsedTime));
 
 				if(getQuitStatus() == true) {
@@ -187,6 +187,74 @@ bool SimpleTaskThread::getExecutingTask() {
 	safeMutex.ReleaseLock();
 
 	return retval;
+}
+
+// -------------------------------------------------
+
+LogFileThread::LogFileThread() : BaseThread() {
+    logList.clear();
+    lastSaveToDisk = time(NULL);
+}
+
+void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
+    MutexSafeWrapper safeMutex(&mutexLogList);
+	//logList[type].push_back(make_pair(entry,time(NULL)));
+	LogFileEntry entry;
+	entry.type = type;
+	entry.entry = logEntry;
+	entry.entryDateTime = time(NULL);
+	logList.push_back(entry);
+}
+
+void LogFileThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(getQuitStatus() == true) {
+		return;
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LogFile thread is running\n");
+
+	try	{
+	    for(;this->getQuitStatus() == false;) {
+            if(difftime(time(NULL),lastSaveToDisk) >= 5) {
+                lastSaveToDisk = time(NULL);
+                saveToDisk();
+            }
+            if(this->getQuitStatus() == false) {
+                sleep(100);
+            }
+	    }
+
+	    // Ensure remaining entryies are logged to disk on shutdown
+	    saveToDisk();
+	}
+	catch(const exception &ex) {
+		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+	}
+	catch(...) {
+		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void LogFileThread::saveToDisk() {
+    MutexSafeWrapper safeMutex(&mutexLogList);
+    if(logList.size() > 0) {
+        for(int i = 0; i <logList.size(); ++i) {
+            LogFileEntry &entry = logList[i];
+            SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
+        }
+        logList.clear();
+    }
+    safeMutex.ReleaseLock();
 }
 
 }}//end namespace

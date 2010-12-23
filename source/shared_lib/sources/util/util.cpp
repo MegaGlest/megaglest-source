@@ -28,6 +28,7 @@
 #include "platform_util.h"
 #include "platform_common.h"
 #include "conversion.h"
+#include "simple_threads.h"
 
 #include "leak_dumper.h"
 
@@ -46,6 +47,8 @@ bool SystemFlags::haveSpecialOutputCommandLineOption = false;
 CURL *SystemFlags::curl_handle			= NULL;
 int SystemFlags::DEFAULT_HTTP_TIMEOUT	= 10;
 bool SystemFlags::VERBOSE_MODE_ENABLED  = false;
+bool SystemFlags::ENABLE_THREADED_LOGGING = false;
+static LogFileThread *threadLogger = NULL;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -165,6 +168,11 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
 		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
 		SystemFlags::debugLogFileList[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
+
+		if(SystemFlags::ENABLE_THREADED_LOGGING) {
+            threadLogger = new LogFileThread();
+            threadLogger->start();
+		}
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -216,6 +224,16 @@ SystemFlags::~SystemFlags() {
 }
 
 void SystemFlags::Close() {
+    if(SystemFlags::ENABLE_THREADED_LOGGING) {
+        if(threadLogger != NULL) {
+            SystemFlags::ENABLE_THREADED_LOGGING = false;
+            threadLogger->signalQuit();
+            threadLogger->shutdownAndWait();
+            delete threadLogger;
+            threadLogger = NULL;
+        }
+    }
+
 	if(SystemFlags::debugLogFileList.size() > 0) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START Closing logfiles\n");
@@ -258,9 +276,9 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
         return;
     }
 
-    /* Get the current time.  */
+    // Get the current time.
     time_t curtime = time (NULL);
-    /* Convert it to local time representation.  */
+    // Convert it to local time representation.
     struct tm *loctime = localtime (&curtime);
     char szBuf2[100]="";
     strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
@@ -272,6 +290,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     char szBuf[max_debug_buffer_size]="";
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
 
+/*
     // Either output to a logfile or
     if(currentDebugLog.debugLogFileName != "") {
         if( currentDebugLog.fileStream == NULL ||
@@ -382,6 +401,152 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 			safeMutex.ReleaseLock();
         }
     }
+*/
+
+    if(SystemFlags::ENABLE_THREADED_LOGGING &&
+       threadLogger != NULL) {
+        threadLogger->addLogEntry(type, szBuf);
+    }
+    else {
+        logDebugEntry(type, szBuf, curtime);
+    }
+    va_end(argList);
+}
+
+
+void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugTime) {
+	if(SystemFlags::debugLogFileList.size() == 0) {
+		SystemFlags::init(false);
+	}
+	SystemFlags::SystemFlagsType &currentDebugLog = SystemFlags::debugLogFileList[type];
+    if(currentDebugLog.enabled == false) {
+        return;
+    }
+
+    // Get the current time.
+//    time_t curtime = time (NULL);
+    // Convert it to local time representation.
+    struct tm *loctime = localtime (&debugTime);
+    char szBuf2[100]="";
+    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+/*
+    va_list argList;
+    va_start(argList, fmt);
+
+    const int max_debug_buffer_size = 8096;
+    char szBuf[max_debug_buffer_size]="";
+    vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
+*/
+    // Either output to a logfile or
+    if(currentDebugLog.debugLogFileName != "") {
+        if( currentDebugLog.fileStream == NULL ||
+        	currentDebugLog.fileStream->is_open() == false) {
+
+        	// If the file is already open (shared) by another debug type
+        	// do not over-write the file but share the stream pointer
+        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
+        		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
+        		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
+
+        		if(	iterMap->first != type &&
+        			currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
+        			currentDebugLog2.fileStream != NULL) {
+					currentDebugLog.fileStream = currentDebugLog2.fileStream;
+					currentDebugLog.fileStreamOwner = false;
+					currentDebugLog.mutex			= currentDebugLog2.mutex;
+        			break;
+        		}
+        	}
+
+        	string debugLog = currentDebugLog.debugLogFileName;
+
+			if(SystemFlags::lockFile == -1) {
+				const string lock_file_name = "debug.lck";
+				string lockfile = extractDirectoryPathFromFile(debugLog);
+				lockfile += lock_file_name;
+				SystemFlags::lockfilename = lockfile;
+
+#ifndef WIN32
+				//SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#else
+				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#endif
+				if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
+            		string newlockfile = lockfile;
+            		int idx = 1;
+            		for(idx = 1; idx <= 100; ++idx) {
+						newlockfile = lockfile + intToStr(idx);
+						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
+#ifndef WIN32
+	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+#else
+		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+
+#endif
+						if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
+                    		break;
+						}
+            		}
+
+            		SystemFlags::lockFileCountIndex = idx;
+            		SystemFlags::lockfilename = newlockfile;
+            		debugLog += intToStr(idx);
+
+            		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+            			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
+            		}
+				}
+			}
+			else if(SystemFlags::lockFileCountIndex > 0) {
+        		debugLog += intToStr(SystemFlags::lockFileCountIndex);
+
+        		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+        			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
+        		}
+			}
+
+            if(currentDebugLog.fileStream == NULL) {
+            	currentDebugLog.fileStream = new std::ofstream();
+            	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
+				currentDebugLog.fileStreamOwner = true;
+				currentDebugLog.mutex			= new Mutex();
+            }
+
+            if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
+            	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d, file stream open = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner,currentDebugLog.fileStream->is_open());
+            }
+
+            if(currentDebugLog.fileStream->is_open() == true) {
+				MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+
+				(*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
+				(*currentDebugLog.fileStream).flush();
+
+				safeMutex.ReleaseLock();
+            }
+        }
+
+        assert(currentDebugLog.fileStream != NULL);
+
+        if(currentDebugLog.fileStream->is_open() == true) {
+			MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+
+			// All items in the if clause we don't want timestamps
+			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
+				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << debugEntry.c_str();
+			}
+			else if (type == debugError) {
+				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << debugEntry.c_str();
+			}
+			else {
+				(*currentDebugLog.fileStream) << debugEntry.c_str();
+			}
+			(*currentDebugLog.fileStream).flush();
+
+			safeMutex.ReleaseLock();
+        }
+    }
 
     // output to console
     if(	currentDebugLog.debugLogFileName == "" ||
@@ -390,18 +555,17 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
          currentDebugLog.fileStream->is_open() == false))) {
 
 		if (type != debugPathFinder && type != debugError) {
-			printf("[%s] %s", szBuf2, szBuf);
+			printf("[%s] %s", szBuf2, debugEntry.c_str());
 		}
 		else if (type == debugError) {
-			printf("[%s] *ERROR* %s", szBuf2, szBuf);
+			printf("[%s] *ERROR* %s", szBuf2, debugEntry.c_str());
 		}
 		else {
-			printf("%s", szBuf);
+			printf("%s", debugEntry.c_str());
 		}
     }
-
-    va_end(argList);
 }
+
 
 string lastDir(const string &s){
 	size_t i= s.find_last_of('/');

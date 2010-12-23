@@ -14,9 +14,11 @@
 #include "base_thread.h"
 #include <vector>
 #include <string>
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Util;
 
 namespace Shared { namespace PlatformCommon {
 
@@ -66,8 +68,8 @@ protected:
 
 public:
 	SimpleTaskThread();
-	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface, 
-					 unsigned int executionCount=0, 
+	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
+					 unsigned int executionCount=0,
 					 unsigned int millisecsBetweenExecutions=0,
 					 bool needTaskSignal = false);
     virtual void execute();
@@ -78,6 +80,35 @@ public:
     void setExecutingTask(bool value);
     bool getExecutingTask();
 };
+
+// =====================================================
+//	class LogFileThread
+// =====================================================
+
+class LogFileEntry {
+public:
+    SystemFlags::DebugType type;
+    string entry;
+    time_t entryDateTime;
+};
+
+class LogFileThread : public BaseThread
+{
+protected:
+
+    Mutex mutexLogList;
+	vector<LogFileEntry> logList;
+	time_t lastSaveToDisk;
+
+    void saveToDisk();
+
+public:
+	LogFileThread();
+    virtual void execute();
+    void addLogEntry(SystemFlags::DebugType type, string logEntry);
+};
+
+
 
 }}//end namespace
 

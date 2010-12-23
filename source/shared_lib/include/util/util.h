@@ -110,14 +110,13 @@ protected:
 	static int lockFileCountIndex;
 
 	static std::map<DebugType,SystemFlagsType> debugLogFileList;
-
 	static bool haveSpecialOutputCommandLineOption;
-
 public:
 
 	static CURL *curl_handle;
 	static int DEFAULT_HTTP_TIMEOUT;
 	static bool VERBOSE_MODE_ENABLED;
+	static bool ENABLE_THREADED_LOGGING;
 
 	SystemFlags();
 	~SystemFlags();
@@ -133,6 +132,7 @@ public:
 
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);
+	static void logDebugEntry(DebugType type, string debugEntry, time_t debugTime);
 
 // If logging is enabled then define the logging method
 #ifndef UNDEF_DEBUG

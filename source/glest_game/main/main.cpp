@@ -643,6 +643,8 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
+    SystemFlags::ENABLE_THREADED_LOGGING = false;
+
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
         SystemFlags::VERBOSE_MODE_ENABLED  = true;
@@ -781,6 +783,7 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 		Socket::isUPNP = !config.getBool("DisableUPNP","false");
+		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","false");
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
