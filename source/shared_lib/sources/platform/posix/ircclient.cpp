@@ -59,7 +59,7 @@ void addlog (const char * fmt, ...) {
 
 void dump_event (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
 	char buf[512]="";
-	int cnt=0;
+	unsigned int cnt=0;
 	buf[0] = '\0';
 
 	for ( cnt = 0; cnt < count; cnt++ )	{
@@ -246,7 +246,7 @@ void event_leave(irc_session_t *session, const char *event, const char *origin, 
 
         printf ("===> IRC: user left channel realNick [%s]\n", realNick);
 
-	    for(int i = 0; i < IRCThread::eventData.size(); ++i) {
+	    for(unsigned int i = 0; i < IRCThread::eventData.size(); ++i) {
 	        printf ("===> IRC: lookingfor match [%s] realNick [%s]\n", IRCThread::eventData[i].c_str(),realNick);
 
 	        if(IRCThread::eventData[i] == realNick) {
@@ -274,12 +274,12 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
                 if(event == LIBIRC_RFC_RPL_NAMREPLY) {
                     IRCThread::eventData.clear();
                     if(count >= 4) {
-                        for(int i = 3; i < count && params[i]; ++i) {
+                        for(unsigned int i = 3; i < count && params[i]; ++i) {
 
                             vector<string> tokens;
                             Tokenize(params[i],tokens," ");
 
-                            for(int j = 0; j < tokens.size(); ++j) {
+                            for(unsigned int j = 0; j < tokens.size(); ++j) {
                                 IRCThread::eventData.push_back(tokens[j]);
                             }
                         }
@@ -320,7 +320,7 @@ bool IRCThread::shutdownAndWait() {
     printf ("===> IRC: shutdownAndWait [%p]\n",ircSession);
 
     signalQuit();
-    BaseThread::shutdownAndWait();
+    return BaseThread::shutdownAndWait();
 }
 
 void IRCThread::SendIRCCmdMessage(string target, string msg) {
