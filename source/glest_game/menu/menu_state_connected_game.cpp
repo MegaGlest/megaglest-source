@@ -950,7 +950,9 @@ void MenuStateConnectedGame::update() {
 					listBoxFogOfWar.setSelectedItemIndex(2);
 				}
 				if((gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
-        			listBoxFogOfWar.setSelectedItemIndex(1);
+        			if(gameSettings->getFogOfWar() == true){
+        				listBoxFogOfWar.setSelectedItemIndex(1);
+        			}
 				}
 				
 				// Allow Observers

@@ -1984,7 +1984,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
-	if(listBoxFogOfWar.getSelectedItemIndex() == 1) {
+	if(listBoxFogOfWar.getSelectedItemIndex() == 1 ||
+		listBoxFogOfWar.getSelectedItemIndex() == 2 ) {
         valueFlags1 |= ft1_show_map_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -2265,7 +2266,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 			listBoxFogOfWar.setSelectedItemIndex(2);
 		}
 		if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
-        	listBoxFogOfWar.setSelectedItemIndex(1);
+			if(gameSettings.getFogOfWar() == true){
+        		listBoxFogOfWar.setSelectedItemIndex(1);
+			}
 		}
 
 		listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
