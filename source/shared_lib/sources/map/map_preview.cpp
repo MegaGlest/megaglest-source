@@ -379,7 +379,7 @@ void MapPreview::changeObject(int x, int y, int object, int radius) {
 		for (j = y - radius + 1; j < y + radius; j++) {
 			if (inside(i, j)) {
 				dist = get_dist(i - x, j - y);
-				if (radius >= dist) {
+				if (radius > dist) {  // was >=
 					cells[i][j].object = object;
 					cells[i][j].resource = 0;
 				}
@@ -401,7 +401,7 @@ void MapPreview::changeResource(int x, int y, int resource, int radius) {
 		for (j = y - radius + 1; j < y + radius; j++) {
 			if (inside(i, j)) {
 				dist = get_dist(i - x, j - y);
-				if (radius >= dist) {
+				if (radius > dist) {  // was >=
 					cells[i][j].resource = resource;
 					cells[i][j].object = 0;
 				}

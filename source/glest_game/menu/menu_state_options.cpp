@@ -332,7 +332,11 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	buttonVideoInfo.setText(lang.get("VideoInfo"));
 	buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
-	buttonVideoInfo.init(620, buttonRowPos, 125);
+	buttonVideoInfo.init(585, buttonRowPos, 125); // was 620
+
+	buttonKeyboardSetup.setText(lang.get("Keyboard"));
+	buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
+	buttonKeyboardSetup.init(720, buttonRowPos, 125);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
@@ -424,6 +428,11 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateGraphicInfo(program, mainMenu));
 	}
+	else if(buttonKeyboardSetup.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundA());
+//		mainMenu->setState(new MenuStateKeyboardSetup(program, mainMenu)); // open keyboard shortcuts setup screen
+		showMessageBox("Not implemented yet", "Keyboard setup", false);
+	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
 	}
@@ -455,6 +464,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	buttonAbort.mouseMove(x, y);
 	buttonAutoConfig.mouseMove(x, y);
 	buttonVideoInfo.mouseMove(x, y);
+	buttonKeyboardSetup.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
 	listBoxSoundFactory.mouseMove(x, y);
 	listBoxVolumeFx.mouseMove(x, y);
@@ -488,9 +498,13 @@ void MenuStateOptions::keyDown(char key){
 void MenuStateOptions::keyPress(char c){
 	if(activeInputLabel!=NULL)
 	{
+	    //printf("[%d]\n",c); fflush(stdout);
 		int maxTextSize= 16;
 		if(&labelPlayerName==activeInputLabel){
 			if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
+				// (c>=(192-256) && c<=(255-256))||     // test some support for accented letters in names, is this ok? (latin1 signed char)
+				// no master server breaks, and a russian translation with game switched to KOI-8p encoding? probably irc too.
+				// (use Shared::Platform::charSet in shared_lib/include/platform/sdl/gl_wrap.h ?)
 				(c=='-')||(c=='(')||(c==')')){
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
@@ -523,6 +537,7 @@ void MenuStateOptions::render(){
 		renderer.renderButton(&buttonAbort);
 		renderer.renderButton(&buttonAutoConfig);
 		renderer.renderButton(&buttonVideoInfo);
+		renderer.renderButton(&buttonKeyboardSetup);
 		renderer.renderListBox(&listBoxLang);
 		renderer.renderListBox(&listBoxShadows);
 		renderer.renderListBox(&listBoxTextures3D);

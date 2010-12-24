@@ -74,7 +74,7 @@ class UndoPoint {
 
 class ChangeStack : public std::stack<UndoPoint> {
 public:
-	static const int maxSize = 100;
+	static const unsigned int maxSize = 100;
 
 	void clear() { c.clear(); }
 
