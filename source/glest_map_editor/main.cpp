@@ -593,7 +593,7 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 	simpleDialog.addValue("Height", intToStr(program->getMap()->getH()),"(must be 16,32,64,128,256,512...)");
 	simpleDialog.addValue("Surface", "1","(surface material for new area around map)");
 	simpleDialog.addValue("Altitude", "10","(surface height for new area around map)");
-	if (!simpleDialog.show("Resze - expand around, shrink to topleft")) return;
+	if (!simpleDialog.show("Resize - expand around, shrink to topleft")) return;
 
 	try {
 		program->resize(
@@ -750,11 +750,13 @@ void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 
 void MainWindow::onMenuViewHelp(wxCommandEvent &event) {
 	MsgDialog(this,
-		wxT("Draw with left mouse\nMove viewport with right mouse drag\nZoom with center mouse drag, or mousewheel\n\
+		wxT("Draw with left mouse\nMove viewport with right mouse drag\nZoom with center mouse drag, or mousewheel\n\n\
 You can change brush in the same category with key 1-9\n\
+and change category with their first letter (keys S, R, O, G, H)\n\
+Press Space to set brush to the resource or object under the mouse cursor\n\
 To center things in the map shift it with Shift-Up/Down/Left/Right keys\n\
 Height tool (blue) builds with integer height steps 0-20, \nwhile Gradient tool (red) uses any real number \n\
-Units can go over water as long as it is less than 1.5 deep\n\
+Units can go over water as long as it is less than 1.5 deep\n\n\
 A good idea is to put some stone, gold and tree near starting position\n\
 Starting position needs an open area for the tower and the starting units\n"),
 		wxT("Help")).ShowModal();

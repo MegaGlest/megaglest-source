@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -18,17 +18,18 @@
 namespace Glest{ namespace Game{
 
 // ===============================
-// 	class MenuStateOptions  
+// 	class MenuStateOptions
 // ===============================
 
 class MenuStateOptions: public MenuState{
 private:
 
-	GraphicButton buttonOk;	
+	GraphicButton buttonOk;
 	GraphicButton buttonAbort;
-	GraphicButton buttonAutoConfig;	
+	GraphicButton buttonAutoConfig;
 	GraphicButton buttonVideoInfo;
-	
+	GraphicButton buttonKeyboardSetup; // configure the keyboard
+
 	GraphicLabel labelLang;
 	GraphicLabel labelShadows;
 	GraphicLabel labelFilter;
@@ -54,31 +55,31 @@ private:
 	GraphicLabel *activeInputLabel;
 	GraphicLabel labelServerPort;
 	GraphicLabel labelServerPortLabel;
-	
-	
+
+
 	GraphicLabel labelScreenModes;
 	GraphicListBox listBoxScreenModes;
 	list<ModeInfo> modeInfos;
-	
+
 	GraphicLabel labelFullscreenWindowed;
 	GraphicListBox listBoxFullscreenWindowed;
-	
+
 	GraphicLabel labelVideoSection;
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
-	
+
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
-	
+
 	GraphicLabel labelMapPreview;
 	GraphicListBox listBoxMapPreview;
-	
+
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-	
+
 	GraphicLabel labelPublishServerExternalPort;
 	GraphicListBox listBoxPublishServerExternalPort;
-	
+
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
@@ -88,7 +89,7 @@ public:
 	void render();
 	virtual void keyDown(char key);
     virtual void keyPress(char c);
-	
+
 
 private:
 	void saveConfig();

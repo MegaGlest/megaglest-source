@@ -80,7 +80,7 @@
 #include "icons/brush_resource_5.xpm"
 
 #include "icons/edit_randomize-heights.xpm"
-#include "icons/edit_randomize.xpm"
+// #include "icons/edit_randomize.xpm"
 #include "icons/edit_redo.xpm"
 #include "icons/edit_switch-surfaces.xpm"
 #include "icons/edit_undo.xpm"
