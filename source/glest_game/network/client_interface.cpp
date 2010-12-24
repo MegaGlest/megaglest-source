@@ -208,7 +208,7 @@ void ClientInterface::updateLobby() {
                 		versionMatched = true;
 
 						string playerNameStr = getHumanPlayerName();
-						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() + 
+						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() +
 								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
 
@@ -553,7 +553,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 					  isConnected() == true &&
 					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
 					//sleep(waitSleepTime);
-					sleep(0);
+					//sleep(0);
 					waitCount++;
 				}
 
@@ -605,7 +605,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				while(receiveMessage(&networkMessageQuit) == false &&
 					  isConnected() == true &&
 					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-					sleep(0);
+					//sleep(0);
 				}
 				quit= true;
 				done= true;
@@ -619,7 +619,7 @@ void ClientInterface::updateKeyframe(int frameCount)
 				while(receiveMessage(&networkMessageText) == false &&
 					  isConnected() == true &&
 					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-					sleep(0);
+					//sleep(0);
 				}
 
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
@@ -866,7 +866,7 @@ void ClientInterface::waitForMessage()
 		}
 		// Sleep ever second we wait to let other threads work
 		else if(chrono.getMillis() % 1000 == 0) {
-			sleep(0);
+			//sleep(0);
 		}
 
 		//sleep(waitSleepTime);

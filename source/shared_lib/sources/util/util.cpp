@@ -276,141 +276,28 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
         return;
     }
 
-    // Get the current time.
-    time_t curtime = time (NULL);
-    // Convert it to local time representation.
-    struct tm *loctime = localtime (&curtime);
-    char szBuf2[100]="";
-    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
-
     va_list argList;
     va_start(argList, fmt);
 
     const int max_debug_buffer_size = 8096;
     char szBuf[max_debug_buffer_size]="";
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
-
-/*
-    // Either output to a logfile or
-    if(currentDebugLog.debugLogFileName != "") {
-        if( currentDebugLog.fileStream == NULL ||
-        	currentDebugLog.fileStream->is_open() == false) {
-
-        	// If the file is already open (shared) by another debug type
-        	// do not over-write the file but share the stream pointer
-        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
-        		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
-        		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
-
-        		if(	iterMap->first != type &&
-        			currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
-        			currentDebugLog2.fileStream != NULL) {
-					currentDebugLog.fileStream = currentDebugLog2.fileStream;
-					currentDebugLog.fileStreamOwner = false;
-					currentDebugLog.mutex			= currentDebugLog2.mutex;
-        			break;
-        		}
-        	}
-
-        	string debugLog = currentDebugLog.debugLogFileName;
-
-			if(SystemFlags::lockFile == -1) {
-				const string lock_file_name = "debug.lck";
-				string lockfile = extractDirectoryPathFromFile(debugLog);
-				lockfile += lock_file_name;
-				SystemFlags::lockfilename = lockfile;
-
-#ifndef WIN32
-				//SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-				SystemFlags::lockFile = open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-#else
-				SystemFlags::lockFile = _open(lockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-#endif
-				if (SystemFlags::lockFile < 0 || acquire_file_lock(SystemFlags::lockFile) == false) {
-            		string newlockfile = lockfile;
-            		int idx = 1;
-            		for(idx = 1; idx <= 100; ++idx) {
-						newlockfile = lockfile + intToStr(idx);
-						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
-#ifndef WIN32
-	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-#else
-		                SystemFlags::lockFile = _open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
-
-#endif
-						if(SystemFlags::lockFile >= 0 && acquire_file_lock(SystemFlags::lockFile) == true) {
-                    		break;
-						}
-            		}
-
-            		SystemFlags::lockFileCountIndex = idx;
-            		SystemFlags::lockfilename = newlockfile;
-            		debugLog += intToStr(idx);
-
-            		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-            			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
-            		}
-				}
-			}
-			else if(SystemFlags::lockFileCountIndex > 0) {
-        		debugLog += intToStr(SystemFlags::lockFileCountIndex);
-
-        		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-        			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening additional logfile [%s]\n",debugLog.c_str());
-        		}
-			}
-
-            if(currentDebugLog.fileStream == NULL) {
-            	currentDebugLog.fileStream = new std::ofstream();
-            	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
-				currentDebugLog.fileStreamOwner = true;
-				currentDebugLog.mutex			= new Mutex();
-            }
-
-            if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
-            	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Opening logfile [%s] type = %d, currentDebugLog.fileStreamOwner = %d, file stream open = %d\n",debugLog.c_str(),type, currentDebugLog.fileStreamOwner,currentDebugLog.fileStream->is_open());
-            }
-
-            if(currentDebugLog.fileStream->is_open() == true) {
-				MutexSafeWrapper safeMutex(currentDebugLog.mutex);
-
-				(*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
-				(*currentDebugLog.fileStream).flush();
-
-				safeMutex.ReleaseLock();
-            }
-        }
-
-        assert(currentDebugLog.fileStream != NULL);
-
-        if(currentDebugLog.fileStream->is_open() == true) {
-			MutexSafeWrapper safeMutex(currentDebugLog.mutex);
-
-			// All items in the if clause we don't want timestamps
-			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
-				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << szBuf;
-			}
-			else if (type == debugError) {
-				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << szBuf;
-			}
-			else {
-				(*currentDebugLog.fileStream) << szBuf;
-			}
-			(*currentDebugLog.fileStream).flush();
-
-			safeMutex.ReleaseLock();
-        }
-    }
-*/
+    va_end(argList);
 
     if(SystemFlags::ENABLE_THREADED_LOGGING &&
        threadLogger != NULL) {
         threadLogger->addLogEntry(type, szBuf);
     }
     else {
+        // Get the current time.
+        time_t curtime = time (NULL);
+        // Convert it to local time representation.
+        struct tm *loctime = localtime (&curtime);
+        char szBuf2[100]="";
+        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+
         logDebugEntry(type, szBuf, curtime);
     }
-    va_end(argList);
 }
 
 

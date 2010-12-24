@@ -259,7 +259,7 @@ Unit::~Unit() {
 	//Just to be sure, should already be removed
 	if (livingUnitsp.erase(this)) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		
+
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//remove commands
@@ -301,7 +301,7 @@ Unit::~Unit() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Unit::setModelFacing(CardinalDir value) { 
+void Unit::setModelFacing(CardinalDir value) {
 	modelFacing = value;
 	lastRotation = targetRotation = rotation = value * 90.f;
 }
@@ -1222,12 +1222,12 @@ string Unit::getDesc() const{
 
 	//hp
 	string str= "\n";
-	
+
 	//maxUnitCount
 	if(type->getMaxUnitCount()>0){
 		str += lang.get("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
 	}
-	
+
 	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
 	if(type->getHpRegeneration()!=0){
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration()) + ")";
@@ -1430,7 +1430,7 @@ void Unit::deleteQueuedCommand(Command *command) {
 	if(getCurrCommand()==command)
 	{
 		this->setCurrentUnitTitle("");
-		this->unitPath->clear();	
+		this->unitPath->clear();
 	}
 	undoCommand(command);
 	delete command;
@@ -1795,8 +1795,6 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 }
 
 void Unit::cleanupOldBadHarvestPos() {
-	//if(difftime(time(NULL),lastBadHarvestListPurge) >= 240) {
-		//lastBadHarvestListPurge = time(NULL);
 	const int cleanupInterval = (GameConstants::updateFps * 5);
 	bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
 	if(needToCleanup == true) {

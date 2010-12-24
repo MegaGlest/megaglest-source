@@ -104,6 +104,8 @@ private:
 	bool receivedNetworkGameStatus;
 	time_t connectedTime;
 	bool gotIntro;
+
+	Mutex mutexPendingNetworkCommandList;
 	vector<NetworkCommand> vctPendingNetworkCommandList;
 	ConnectionSlotThread* slotThreadWorker;
 	int currentFrameCount;
@@ -141,8 +143,8 @@ public:
 	std::vector<std::string> getThreadErrorList() const { return threadErrorList; }
 	void clearThreadErrorList() { threadErrorList.clear(); }
 
-	vector<NetworkCommand> getPendingNetworkCommandList() { return vctPendingNetworkCommandList; }
-	void clearPendingNetworkCommandList() { vctPendingNetworkCommandList.clear(); }
+	vector<NetworkCommand> getPendingNetworkCommandList(bool clearList=false);
+	void clearPendingNetworkCommandList();
 
 	void signalUpdate(ConnectionSlotEvent *event);
 	bool updateCompleted();

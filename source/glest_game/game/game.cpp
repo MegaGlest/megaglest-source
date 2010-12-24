@@ -1005,7 +1005,7 @@ void Game::mouseDownRight(int x, int y){
 	try {
 		Map *map= world.getMap();
 		const Metrics &metrics= Metrics::getInstance();
-		
+
 		if(metrics.isInMinimap(x, y) ){
 			int xm= x - metrics.getMinimapX();
 			int ym= y - metrics.getMinimapY();
@@ -1611,59 +1611,13 @@ void Game::render2d(){
 
 		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
 		int visibleUnitCount = qCache.visibleQuadUnitList.size();
-		/*
-		int visibleUnitCount = 0;
-		for(int i=0; i< world.getFactionCount(); ++i){
-			for(int j=0; j< world.getFaction(i)->getUnitCount(); ++j){
-				Unit *unit = world.getFaction(i)->getUnit(j);
-				if(world.toRenderUnit(unit, visibleQuad)) {
-					visibleUnitCount++;
-				}
-			}
-		}
-		*/
 		str+= "Visible unit count: " + intToStr(visibleUnitCount) +"\n";
 
 		int visibleObjectCount = qCache.visibleObjectList.size();
-		/*
-		int visibleObjectCount = 0;
-		Map *map= world.getMap();
-		int thisTeamIndex= world.getThisTeamIndex();
-		PosQuadIterator pqi(visibleQuad, Map::cellScale);
-		while(pqi.next()){
-			const Vec2i &pos= pqi.getPos();
-			bool isPosVisible = map->isInside(pos.x, pos.y);
-			if(isPosVisible == true) {
-				Vec2i mapPos = Map::toSurfCoords(pos);
-				SurfaceCell *sc= map->getSurfaceCell(mapPos.x, mapPos.y);
-				Object *o= sc->getObject();
-				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
-				bool isVisible = true;
-				if(isExplored == true && isVisible == true) {
-					visibleObjectCount++;
-				}
-			}
-		}
-		*/
 		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
 
 		// resources
-
-		/*
 		for(int i = 0; i < world.getFactionCount(); ++i) {
-			//str+= "Player "+intToStr(i)+" res: ";
-			str+= this->gameSettings.getNetworkPlayerName(i) + " res: ";
-			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-				str+= intToStr(world.getFaction(i)->getResource(j)->getAmount());
-				str+=" ";
-			}
-			str+="\n";
-		}
-		*/
-
-		for(int i = 0; i < world.getFactionCount(); ++i) {
-			//str+= "Player "+intToStr(i)+" res: ";
 			string factionInfo = this->gameSettings.getNetworkPlayerName(i) +
 					" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
 					" team: " + intToStr(this->gameSettings.getTeam(i)) + "] res: ";
@@ -1671,7 +1625,6 @@ void Game::render2d(){
 				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
 				factionInfo += " ";
 			}
-			//str+="\n";
 
 			factionDebugInfo[i] = factionInfo;
 		}
@@ -1692,9 +1645,6 @@ void Game::render2d(){
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			string factionInfo = factionDebugInfo[i];
 			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
-			//renderer.renderTextShadow(factionInfo, coreData.getMenuFontNormal(),
-			//		Vec4f(playerColor.x,playerColor.y,playerColor.z,fontColor.w),
-			//		10, metrics.getVirtualH() - mh - 60 - 210 - (i * 12), false);
 
 			renderer.renderText(factionInfo, coreData.getMenuFontBig(),
 					Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
@@ -1706,9 +1656,6 @@ void Game::render2d(){
 		}
 		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
-	//else if(renderer.getAllowRenderUnitTitles() == true) {
-	//	renderer.setAllowRenderUnitTitles(false);
-	//}
 
 	//network status
 	if(renderNetworkStatus == true) {

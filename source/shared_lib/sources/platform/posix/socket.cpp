@@ -1035,7 +1035,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
-	    	sleep(0);
+	    	//sleep(0);
 	        //if(Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 #ifdef __APPLE__
@@ -1063,7 +1063,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
-	    	sleep(0);
+	    	//sleep(0);
 	        //if(bytesSent > 0 || Socket::isWritable(true) == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
