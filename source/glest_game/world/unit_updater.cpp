@@ -191,7 +191,10 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
     	if(unit->isOperative() && (!(cc==ccStop || cc==ccAttack)) )
     	{//stop and attack already check for themselves
     		Unit *sighted;
-    		attackerOnSight(unit, &sighted);
+    		if(unit->getTeam()==world->getThisTeamIndex()){
+    			// check only needed for alarm sound, so its enough to check teammates units
+    			attackerOnSight(unit, &sighted);
+    		}
     	}
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
