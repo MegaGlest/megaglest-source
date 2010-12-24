@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -37,11 +37,11 @@ private:
 	string text;
 	int thisTeamIndex;
 	bool inMenu;
-	
+	string manualPlayerNameOverride;
 
 public:
 	ChatManager();
-	void init(Console* console, int thisTeamIndex, const bool inMenu=false );
+	void init(Console* console, int thisTeamIndex, const bool inMenu=false, string manualPlayerNameOverride="");
 
 	void keyDown(char key);
 	void keyUp(char key);
