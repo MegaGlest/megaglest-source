@@ -878,9 +878,7 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 			const int cleanupInterval = (GameConstants::updateFps * 5);
 			bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
 
-			//if(deleteListPtr != NULL || difftime(time(NULL),lastResourceTargettListPurge) >= 120) {
 			if(deleteListPtr != NULL || needToCleanup == true) {
-				//lastResourceTargettListPurge = time(NULL);
 				std::vector<Vec2i> deleteList;
 
 				if(deleteListPtr != NULL) {

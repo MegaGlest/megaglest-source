@@ -227,7 +227,11 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						this->vctFileList.clear();
 						this->receivedNetworkGameStatus = false;
 						this->gotIntro = false;
+
+						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
 						this->vctPendingNetworkCommandList.clear();
+						safeMutexSlot.ReleaseLock();
+
 						this->currentFrameCount = 0;
 						this->currentLagCount = 0;
 						this->lastReceiveCommandListTime = 0;
@@ -336,7 +340,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
 									for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
-										//serverInterface->requestCommand(networkMessageCommandList.getCommand(i));
+										MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
 								}
@@ -657,7 +661,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 void ConnectionSlot::validateConnection() {
 	if(gotIntro == false && connectedTime > 0 &&
 		difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
 		close();
 	}
 }
@@ -720,6 +724,22 @@ void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
 
 string ConnectionSlot::getHumanPlayerName(int index) {
 	return serverInterface->getHumanPlayerName(index);
+}
+
+vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
+    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+    vector<NetworkCommand> ret = vctPendingNetworkCommandList;
+    if(clearList == true) {
+        vctPendingNetworkCommandList.clear();
+    }
+    safeMutexSlot.ReleaseLock();
+
+    return ret;
+}
+
+void ConnectionSlot::clearPendingNetworkCommandList() {
+    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+    vctPendingNetworkCommandList.clear();
 }
 
 }}//end namespace

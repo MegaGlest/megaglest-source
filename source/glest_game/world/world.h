@@ -232,6 +232,7 @@ private:
 	void updateAllFactionUnits();
 	void underTakeDeadFactionUnits();
 	void updateAllFactionConsumableCosts();
+	bool showWorldForPlayer(int factionIndex) const;
 };
 
 }}//end namespace

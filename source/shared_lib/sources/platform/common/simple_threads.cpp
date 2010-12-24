@@ -198,7 +198,6 @@ LogFileThread::LogFileThread() : BaseThread() {
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
     MutexSafeWrapper safeMutex(&mutexLogList);
-	//logList[type].push_back(make_pair(entry,time(NULL)));
 	LogFileEntry entry;
 	entry.type = type;
 	entry.entry = logEntry;
@@ -218,7 +217,7 @@ void LogFileThread::execute() {
 
 	try	{
 	    for(;this->getQuitStatus() == false;) {
-            if(difftime(time(NULL),lastSaveToDisk) >= 5) {
+            if(difftime(time(NULL),lastSaveToDisk) >= 3) {
                 lastSaveToDisk = time(NULL);
                 saveToDisk();
             }
@@ -247,14 +246,24 @@ void LogFileThread::execute() {
 
 void LogFileThread::saveToDisk() {
     MutexSafeWrapper safeMutex(&mutexLogList);
-    if(logList.size() > 0) {
-        for(int i = 0; i <logList.size(); ++i) {
-            LogFileEntry &entry = logList[i];
+    unsigned int logCount = logList.size();
+    if(logCount > 0) {
+        vector<LogFileEntry> tempLogList = logList;
+        safeMutex.ReleaseLock(true);
+
+        logCount = tempLogList.size();
+        for(int i = 0; i < logCount; ++i) {
+            LogFileEntry &entry = tempLogList[i];
             SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
         }
-        logList.clear();
+
+        safeMutex.Lock();
+        logList.erase(logList.begin(),logList.begin() + logCount);
+        safeMutex.ReleaseLock();
     }
-    safeMutex.ReleaseLock();
+    else {
+        safeMutex.ReleaseLock();
+    }
 }
 
 }}//end namespace

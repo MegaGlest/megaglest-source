@@ -621,6 +621,10 @@ bool World::toRenderUnit(const Unit *unit) const {
     	throw runtime_error("unit == NULL");
     }
 
+    if(showWorldForPlayer(thisFactionIndex) == true) {
+        return true;
+    }
+
 	return
         (map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isVisible(thisTeamIndex) &&
          map.getSurfaceCell(Map::toSurfCoords(unit->getCenteredPos()))->isExplored(thisTeamIndex) ) ||
@@ -1057,7 +1061,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 	bool cacheLookupPosResult 	= false;
 	bool cacheLookupSightResult = false;
 
-	// Experimental cache lookup of previously calculated cells + sight range
+	// cache lookup of previously calculated cells + sight range
 	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
 			ExploredCellsLookupItem::lastDebug = time(NULL);
@@ -1173,14 +1177,42 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
     }
 }
 
+bool World::showWorldForPlayer(int factionIndex) const {
+    bool ret = false;
+    if(factionIndex == thisFactionIndex) {
+        // Player is an Observer
+        if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
+            ret = true;
+        }
+        // Game over and not a network game
+        else if(game->getGameOver() == true &&
+                game->getGameSettings()->isNetworkGame() == false) {
+            ret = true;
+        }
+        // Game is over but playing a Network game so check if we can
+        // turn off fog of war?
+        else if(game->getGameOver() == true &&
+                game->getGameSettings()->isNetworkGame() == true &&
+                game->getGameSettings()->getEnableObserverModeAtEndGame() == true) {
+            ret = true;
+            // If the player has at least 1 Unit alive that is mobile (can move)
+            // then we cannot turn off fog of war
+            for(int i = 0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
+                Unit *unit = getFaction(factionIndex)->getUnit(i);
+                if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
+                    ret = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(int factionIdxToTick) {
-	//reset texture
-	//if(factionIdxToTick == -1 || factionIdxToTick == 0) {
-	//if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-	//if(frameCount % (GameConstants::updateFps) == 0) {
 	minimap.resetFowTex();
-	//}
 
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -1188,24 +1220,23 @@ void World::computeFow(int factionIdxToTick) {
 			for(int j = 0; j < map.getSurfaceH(); ++j) {
 				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
 					if(fogOfWar || k != thisTeamIndex) {
-						if(	k == thisTeamIndex &&
-							(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer ||
-							 (game->getGameOver() == true && (game->getGameSettings()->isNetworkGame() == false ||
-							  (game->getGameSettings()->getEnableObserverModeAtEndGame() == true &&
-                               getFaction(k)->getUnitCount() <= 0))))) {
-							map.getSurfaceCell(i, j)->setVisible(k, true);
-							map.getSurfaceCell(i, j)->setExplored(k, true);
+						if(showWorldForPlayer(k) == true) {
+							//map.getSurfaceCell(i, j)->setVisible(k, true);
+							//map.getSurfaceCell(i, j)->setExplored(k, true);
 
 							const Vec2i pos(i,j);
-							//Vec2i surfPos= Map::toSurfCoords(pos);
 							Vec2i surfPos= pos;
 
 							//compute max alpha
 							float maxAlpha= 0.0f;
-							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+							if(surfPos.x > 1 && surfPos.y > 1 &&
+                               surfPos.x < map.getSurfaceW() - 2 &&
+                               surfPos.y < map.getSurfaceH() - 2) {
 								maxAlpha= 1.f;
 							}
-							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+							else if(surfPos.x > 0 && surfPos.y > 0 &&
+                                    surfPos.x < map.getSurfaceW() - 1 &&
+                                    surfPos.y < map.getSurfaceH() - 1){
 								maxAlpha= 0.3f;
 							}
 
@@ -1228,19 +1259,22 @@ void World::computeFow(int factionIdxToTick) {
 				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
 					if(fogOfWar || k != thisTeamIndex) {
 						if(k == thisTeamIndex && thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
-							map.getSurfaceCell(i, j)->setVisible(k, true);
-							map.getSurfaceCell(i, j)->setExplored(k, true);
+							//map.getSurfaceCell(i, j)->setVisible(k, true);
+							//map.getSurfaceCell(i, j)->setExplored(k, true);
 
 							const Vec2i pos(i,j);
-							//Vec2i surfPos= Map::toSurfCoords(pos);
 							Vec2i surfPos= pos;
 
 							//compute max alpha
 							float maxAlpha= 0.0f;
-							if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
+							if(surfPos.x > 1 && surfPos.y > 1 &&
+                               surfPos.x < map.getSurfaceW() - 2 &&
+                               surfPos.y < map.getSurfaceH() - 2) {
 								maxAlpha= 1.f;
 							}
-							else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
+							else if(surfPos.x > 0 && surfPos.y > 0 &&
+                                    surfPos.x < map.getSurfaceW() - 1 &&
+                                    surfPos.y < map.getSurfaceH() - 1){
 								maxAlpha= 0.3f;
 							}
 
@@ -1274,8 +1308,13 @@ void World::computeFow(int factionIdxToTick) {
 
 				//fire
 				ParticleSystem *fire= unit->getFire();
-				if(fire!=NULL){
-					fire->setActive(map.getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(thisTeamIndex));
+				if(fire != NULL) {
+				    bool cellVisible = showWorldForPlayer(thisFactionIndex);
+				    if(cellVisible == false) {
+				        cellVisible = map.getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(thisTeamIndex);
+				    }
+
+					fire->setActive(cellVisible);
 				}
 			}
 		}
