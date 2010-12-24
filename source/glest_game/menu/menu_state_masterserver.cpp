@@ -196,7 +196,6 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	containerName = "MasterServer";
 	updateFromMasterserverThread = NULL;
 	ircClient = NULL;
-	lastNickListUpdate = 0;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
@@ -352,8 +351,13 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+    char szIRCNick[80]="";
+    srand(time(NULL));
+    int randomNickId = rand() % 999;
+    sprintf(szIRCNick,"MG_%s_%d",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),randomNickId);
+
     consoleIRC.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
-    chatManager.init(&consoleIRC, -1,true);
+    chatManager.init(&consoleIRC, -1, true, szIRCNick);
 
 	MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
 	masterServerThreadInDeletion = false;
@@ -362,11 +366,6 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	updateFromMasterserverThread->setUniqueID(__FILE__);
 	updateFromMasterserverThread->start();
 
-    char szIRCNick[80]="";
-    srand(time(NULL));
-    int randomNickId = rand() % 999;
-
-    sprintf(szIRCNick,"MG_%s_%d",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),randomNickId);
     ircArgs.push_back(IRC_SERVER);
     ircArgs.push_back(szIRCNick);
     ircArgs.push_back(IRC_CHANNEL);
@@ -626,11 +625,18 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
-        renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
-        renderer.renderLabel(&ircOnlinePeopleListLabel,&titleLabelColor);
-
-		// render console
-		//renderer.renderConsole(&console,false,false);
+        if(ircClient != NULL &&
+           ircClient->isConnected() == true &&
+           ircClient->getHasJoinedChannel() == true) {
+            const Vec4f titleLabelColor = GREEN;
+            renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
+        }
+        else {
+            const Vec4f titleLabelColor = RED;
+            renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
+        }
+        const Vec4f titleLabelColorList = YELLOW;
+        renderer.renderLabel(&ircOnlinePeopleListLabel,&titleLabelColorList);
 
 		for(int i=0; i<serverLines.size(); ++i){
 	    	serverLines[i]->render();
@@ -669,18 +675,15 @@ void MenuStateMasterserver::update() {
     consoleIRC.update();
 
     if(ircClient != NULL) {
-        if(difftime(time(NULL),lastNickListUpdate) >= 5) {
-            lastNickListUpdate = time(NULL);
-            std::vector<string> nickList = ircClient->getNickList();
-            string nicks = "";
-            for(int i = 0; i < nickList.size(); ++i) {
-                if(nicks != "") {
-                    nicks += " ";
-                }
-                nicks += nickList[i];
+        std::vector<string> nickList = ircClient->getNickList();
+        string nicks = "";
+        for(int i = 0; i < nickList.size(); ++i) {
+            if(nicks != "") {
+                nicks += ", ";
             }
-            ircOnlinePeopleListLabel.setText(nicks);
+            nicks += nickList[i];
         }
+        ircOnlinePeopleListLabel.setText(nicks);
     }
     else {
         ircOnlinePeopleListLabel.setText("");

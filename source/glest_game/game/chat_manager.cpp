@@ -40,16 +40,17 @@ ChatManager::ChatManager() {
 	disableTeamMode = false;
 }
 
-void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu) {
+void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, string manualPlayerNameOverride) {
 	this->console= console;
 	this->thisTeamIndex= thisTeamIndex;
 	this->disableTeamMode= false;
 	this->inMenu=inMenu;
+	this->manualPlayerNameOverride = manualPlayerNameOverride;
 }
 
 void ChatManager::keyUp(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	
+
 	try {
 		if(editEnabled) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
@@ -119,7 +120,13 @@ void ChatManager::keyDown(char key) {
 					if(text.empty() == false) {
 						string playerName 	= gameNetworkInterface->getHumanPlayerName();
 						int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
-						console->addLine(text,false,playerIndex);
+
+						if(this->manualPlayerNameOverride != "") {
+						    console->addLine(text,false,this->manualPlayerNameOverride);
+						}
+						else {
+                            console->addLine(text,false,playerIndex);
+						}
 
 						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
 						if(inMenu == false) {
@@ -128,7 +135,7 @@ void ChatManager::keyDown(char key) {
 					}
 					else {
 						editEnabled= false;
-					}	
+					}
 					text.clear();
 				}
 				else {
@@ -146,7 +153,7 @@ void ChatManager::keyDown(char key) {
 				text.erase(text.end() -1);
 			}
 		}
-		
+
 	}
 	catch(const exception &ex) {
 		char szBuf[1024]="";

@@ -189,7 +189,7 @@ Renderer::Renderer() {
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
-	
+
 	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 
 	saveScreenShotThread = new SimpleTaskThread(this,0,25);
@@ -884,6 +884,28 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 			// Proper font spacing after username portion of chat text rendering
 			xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
 		}
+	}
+	else if(lineInfo->originalPlayerName != "") {
+        string playerName = lineInfo->originalPlayerName;
+        string headerLine = playerName + ": ";
+
+        const Metrics &metrics= Metrics::getInstance();
+        const FontMetrics *fontMetrics= CoreData::getInstance().getConsoleFont()->getMetrics();
+
+        if(fontMetrics == NULL) {
+            throw runtime_error("fontMetrics == NULL");
+        }
+
+        renderTextShadow(
+                    headerLine,
+                CoreData::getInstance().getConsoleFont(),
+                fontColor,
+                xPosition, lineIndex * 20 + 20);
+
+        fontColor = defaultFontColor;
+        //xPosition += (8 * (playerName.length() + 2));
+        // Proper font spacing after username portion of chat text rendering
+        xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
 	}
 	else {
 		fontColor = defaultFontColor;
@@ -2320,27 +2342,27 @@ void Renderer::renderMinimap(){
 				glVertex2f(attackX, attackY);
 			glEnd();
 			glBegin(GL_TRIANGLES);
-				glColor4f(1.f, 1.f, 0.f, alpha);				
+				glColor4f(1.f, 1.f, 0.f, alpha);
 				glVertex2f(attackX-scale, attackY+scale);
 				glVertex2f(attackX+scale, attackY+scale);
 				glColor4f(1.f, 1.f, 0.f, 0.8f);
 				glVertex2f(attackX, attackY);
 			glEnd();
-			glBegin(GL_TRIANGLES);				
-				glColor4f(1.f, 1.f, 0.f, alpha);												
+			glBegin(GL_TRIANGLES);
+				glColor4f(1.f, 1.f, 0.f, alpha);
 				glVertex2f(attackX+scale, attackY+scale);
 				glVertex2f(attackX+scale, attackY-scale);
 				glColor4f(1.f, 1.f, 0.f, 0.8f);
 				glVertex2f(attackX, attackY);
 			glEnd();
-			glBegin(GL_TRIANGLES);				
-				glColor4f(1.f, 1.f, 0.f, alpha);				
+			glBegin(GL_TRIANGLES);
+				glColor4f(1.f, 1.f, 0.f, alpha);
 				glVertex2f(attackX+scale, attackY-scale);
 				glVertex2f(attackX-scale, attackY-scale);
 				glColor4f(1.f, 1.f, 0.f, 0.8f);
 				glVertex2f(attackX, attackY);
 			glEnd();
-				
+
 		}
 	}
     glDisable(GL_BLEND);
@@ -2436,7 +2458,7 @@ void Renderer::renderMinimap(){
     glVertex2i(x2,y2);
 
     glEnd();
-        
+
     glPopAttrib();
 
 	assertGl();

@@ -132,7 +132,6 @@ private:
 
     std::vector<string> ircArgs;
 	IRCThread *ircClient;
-	time_t lastNickListUpdate;
 
 	Console consoleIRC;
 	ChatManager chatManager;

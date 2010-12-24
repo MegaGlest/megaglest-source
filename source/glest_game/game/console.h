@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -49,7 +49,7 @@ public:
 	typedef Lines::const_iterator LineIterator;
 
 private:
-	float timeElapsed; 
+	float timeElapsed;
 	Lines lines;
 	Lines storedLines;
 
@@ -60,7 +60,7 @@ private:
 
 public:
 	Console();
-	
+
 	int getStoredLineCount() const		{return storedLines.size();}
 	int getLineCount() const			{return lines.size();}
 	string getLine(int i) const;
@@ -71,6 +71,7 @@ public:
 	void clearStoredLines();
 	void addStdMessage(const string &s);
 	void addLine(string line, bool playSound= false,int playerIndex=-1);
+	void addLine(string line, bool playSound,string playerName);
 	void update();
 	bool isEmpty();
 };

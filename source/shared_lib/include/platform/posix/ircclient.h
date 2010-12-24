@@ -42,20 +42,49 @@ protected:
     std::vector<string> argv;
     irc_session_t *ircSession;
 
+	string channel;
+	string nick;
+
+    bool hasJoinedChannel;
+    bool eventDataDone;
+    Mutex mutexNickList;
+    time_t lastNickListUpdate;
+    std::vector<string> eventData;
+
+    IRCCallbackInterface *callbackObj;
+
 public:
+
 	IRCThread(const std::vector<string> &argv,IRCCallbackInterface *callbackObj);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
 
     void SendIRCCmdMessage(string target, string msg);
-    std::vector<string> GetIRCConnectedNickList(string target);
-    std::vector<string> getNickList() { return eventData; }
+    std::vector<string> getNickList();
+    bool isConnected();
 
-    static IRCCallbackInterface *callbackObj;
-    static std::vector<string> eventData;
-    static bool eventDataDone;
-    static bool isConnected;
+    std::vector<string> GetIRCConnectedNickList(string target, bool waitForCompletion);
+
+    bool getEventDataDone() const { return eventDataDone; }
+    void setEventDataDone(bool value) { eventDataDone=value; }
+
+    bool getHasJoinedChannel() const { return hasJoinedChannel; }
+    void setHasJoinedChannel(bool value) { hasJoinedChannel=value; }
+
+    time_t getLastNickListUpdate() const { return lastNickListUpdate; }
+    void setLastNickListUpdate(time_t value) { lastNickListUpdate = value;}
+
+	string getChannel() const { return channel;}
+	string getNick() const { return nick;}
+
+    std::vector<string> getArgs() const { return argv;}
+
+    Mutex * getMutexNickList() { return &mutexNickList; }
+    std::vector<string> & getCachedNickList() { return eventData; }
+    void setCachedNickList(std::vector<string> &list) { eventData = list; }
+
+    IRCCallbackInterface * getCallbackObj() { return callbackObj;}
 };
 
 }}//end namespace
