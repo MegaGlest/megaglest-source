@@ -1594,7 +1594,10 @@ void Game::render2d(){
 		str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
 		str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
 		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
-		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),8)+"\n";
+		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2)+"\n";
+		if(SystemFlags::getThreadedLoggerRunning() == true) {
+            str+= "Log buffer count: "  + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
+		}
 		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
@@ -1648,7 +1651,7 @@ void Game::render2d(){
 
 			renderer.renderText(factionInfo, coreData.getMenuFontBig(),
 					Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
-					10, metrics.getVirtualH() - mh - 60 - 210 - (i * 16), false);
+					10, metrics.getVirtualH() - mh - 90 - 210 - (i * 16), false);
 		}
 
 		if(renderer.getAllowRenderUnitTitles() == false) {
@@ -1694,19 +1697,18 @@ void Game::render2d(){
 
 // ==================== misc ====================
 
-void Game::checkWinner(){
-	if(!gameOver){
-		if(gameSettings.getDefaultVictoryConditions()){
+void Game::checkWinner() {
+	if(gameOver == false) {
+		if(gameSettings.getDefaultVictoryConditions()) {
 			checkWinnerStandard();
 		}
-		else
-		{
+		else {
 			checkWinnerScripted();
 		}
 	}
 }
 
-void Game::checkWinnerStandard(){
+void Game::checkWinnerStandard() {
 	if(world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
 		// lookup int is team #, value is players alive on team
 		std::map<int,int> teamsAlive;
@@ -1854,16 +1856,16 @@ void Game::checkWinnerScripted() {
 	}
 }
 
-bool Game::hasBuilding(const Faction *faction){
-	for(int i=0; i<faction->getUnitCount(); ++i){
-		if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)){
+bool Game::hasBuilding(const Faction *faction) {
+	for(int i=0; i<faction->getUnitCount(); ++i) {
+		if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void Game::incSpeed(){
+void Game::incSpeed() {
 	Lang &lang= Lang::getInstance();
 	switch(speed){
 	case sSlow:
@@ -1879,7 +1881,7 @@ void Game::incSpeed(){
 	}
 }
 
-void Game::decSpeed(){
+void Game::decSpeed() {
 	Lang &lang= Lang::getInstance();
 	switch(speed){
 	case sNormal:
@@ -1895,20 +1897,20 @@ void Game::decSpeed(){
 	}
 }
 
-int Game::getUpdateLoops(){
-	if(paused){
+int Game::getUpdateLoops() {
+	if(paused) {
 		return 0;
 	}
-	else if(speed==sFast){
+	else if(speed == sFast) {
 		return Config::getInstance().getInt("FastSpeedLoops");
 	}
-	else if(speed==sSlow){
+	else if(speed == sSlow) {
 		return updateFps % 2 == 0? 1: 0;
 	}
 	return 1;
 }
 
-void Game::showLoseMessageBox(){
+void Game::showLoseMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	NetworkManager &networkManager= NetworkManager::getInstance();

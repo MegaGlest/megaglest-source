@@ -217,7 +217,7 @@ void LogFileThread::execute() {
 
 	try	{
 	    for(;this->getQuitStatus() == false;) {
-            if(difftime(time(NULL),lastSaveToDisk) >= 3) {
+            if(difftime(time(NULL),lastSaveToDisk) >= 5) {
                 lastSaveToDisk = time(NULL);
                 saveToDisk();
             }
@@ -244,9 +244,16 @@ void LogFileThread::execute() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+std::size_t LogFileThread::getLogEntryBufferCount() {
+    MutexSafeWrapper safeMutex(&mutexLogList);
+    std::size_t logCount = logList.size();
+    safeMutex.ReleaseLock();
+    return logCount;
+}
+
 void LogFileThread::saveToDisk() {
     MutexSafeWrapper safeMutex(&mutexLogList);
-    unsigned int logCount = logList.size();
+    std::size_t logCount = logList.size();
     if(logCount > 0) {
         vector<LogFileEntry> tempLogList = logList;
         safeMutex.ReleaseLock(true);
