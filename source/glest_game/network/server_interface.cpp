@@ -458,15 +458,15 @@ bool ServerInterface::signalClientReceiveCommands(ConnectionSlot* connectionSlot
 	event.socketTriggered = socketTriggered;
 	event.triggerId = slotIndex;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 
 	// Step #1 tell all connection slot worker threads to receive socket data
 	if(connectionSlot != NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 		if(socketTriggered == true || connectionSlot->isConnected() == false) {
 			connectionSlot->signalUpdate(&event);
 			slotSignalled = true;
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 		}
 	}
 
@@ -564,7 +564,7 @@ void ServerInterface::update() {
 								//connectionSlot = slots[i];
 
 								// Not done waiting for data yet
-								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted() : true);
+								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
 								if(updateFinished == false) {
 									threadsDone = false;
 									break;
@@ -618,7 +618,7 @@ void ServerInterface::update() {
 								connectionSlot = slots[i];
 
 								// Not done waiting for data yet
-								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted() : true);
+								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
 								if(updateFinished == false) {
 									threadsDone = false;
 									//sleep(0);
@@ -1208,7 +1208,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 							connectionSlot->clearThreadErrorList();
 						}
 
-						if(connectionSlot->updateCompleted() == false) {
+						if(connectionSlot->updateCompleted(&eventList[i]) == false) {
 							threadsDone = false;
 							break;
 						}

@@ -35,13 +35,15 @@ namespace Glest{ namespace Game{
 ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
-	this->event = NULL;
+	//this->event = NULL;
+	eventList.clear();
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
 	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
-	this->event = NULL;
+	//this->event = NULL;
+	eventList.clear();
 }
 
 void ConnectionSlotThread::setQuitStatus(bool value) {
@@ -56,38 +58,36 @@ void ConnectionSlotThread::setQuitStatus(bool value) {
 }
 
 void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
 
 	if(event != NULL) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex);
-		this->event = event;
+		eventList.push_back(event);
 		safeMutex.ReleaseLock();
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	semTaskSignalled.signal();
 }
 
 void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(event != NULL) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex);
 		event->eventCompleted = true;
+        eventList.erase(eventList.begin());
 		safeMutex.ReleaseLock();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-bool ConnectionSlotThread::isSignalCompleted() {
+bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
-
 	MutexSafeWrapper safeMutex(&triggerIdMutex);
-	bool result = (this->event != NULL ? this->event->eventCompleted : true);
+	bool result = (event != NULL ? event->eventCompleted : true);
 	safeMutex.ReleaseLock();
-
-	if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
-
+	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
 	return result;
 }
 
@@ -104,29 +104,36 @@ void ConnectionSlotThread::execute() {
 				break;
 			}
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			semTaskSignalled.waitTillSignalled();
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			this->slotInterface->slotUpdateTask(this->event);
+            MutexSafeWrapper safeMutex(&triggerIdMutex);
+            int eventCount = eventList.size();
+            safeMutex.ReleaseLock(true);
 
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+            if(eventCount > 0) {
+                safeMutex.Lock();
+                ConnectionSlotEvent *event = eventList[0];
+                safeMutex.ReleaseLock();
+
+                this->slotInterface->slotUpdateTask(event);
+                setTaskCompleted(event);
+            }
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
-
-			setTaskCompleted(this->event);
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -177,21 +184,18 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->clearChatInfo();
 }
 
-ConnectionSlot::~ConnectionSlot()
-{
+ConnectionSlot::~ConnectionSlot() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	BaseThread::shutdownAndWait(slotThreadWorker);
-
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	delete slotThreadWorker;
+	if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        delete slotThreadWorker;
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 	slotThreadWorker = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	close();
-
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
@@ -701,15 +705,15 @@ void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
 	slotThreadWorker->signalUpdate(event);
 }
 
-bool ConnectionSlot::updateCompleted() {
+bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 	assert(slotThreadWorker != NULL);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 	bool waitingForThread = (slotThreadWorker != NULL &&
-							 slotThreadWorker->isSignalCompleted() 	== false &&
-							 slotThreadWorker->getQuitStatus() 		== false &&
-							 slotThreadWorker->getRunningStatus() 	== true);
+							 slotThreadWorker->isSignalCompleted(event) == false &&
+							 slotThreadWorker->getQuitStatus() 		    == false &&
+							 slotThreadWorker->getRunningStatus() 	    == true);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, waitingForThread = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,waitingForThread);
 

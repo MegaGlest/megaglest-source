@@ -74,7 +74,7 @@ protected:
 	ConnectionSlotCallbackInterface *slotInterface;
 	Semaphore semTaskSignalled;
 	Mutex triggerIdMutex;
-	ConnectionSlotEvent *event;
+	vector<ConnectionSlotEvent *> eventList;
 	int slotIndex;
 
 	virtual void setQuitStatus(bool value);
@@ -85,7 +85,7 @@ public:
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
-    bool isSignalCompleted();
+    bool isSignalCompleted(ConnectionSlotEvent *event);
     int getSlotIndex() const {return slotIndex; }
 };
 
@@ -147,7 +147,7 @@ public:
 	void clearPendingNetworkCommandList();
 
 	void signalUpdate(ConnectionSlotEvent *event);
-	bool updateCompleted();
+	bool updateCompleted(ConnectionSlotEvent *event);
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
 	int getCurrentFrameCount() const { return currentFrameCount; }
