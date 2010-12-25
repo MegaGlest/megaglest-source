@@ -205,6 +205,16 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	logList.push_back(entry);
 }
 
+bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
+    bool ret = false;
+    if(difftime(time(NULL),lastSaveToDisk) >= 5 ||
+       LogFileThread::getLogEntryBufferCount() >= 35000) {
+        lastSaveToDisk = time(NULL);
+        ret = true;
+    }
+    return ret;
+}
+
 void LogFileThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -217,8 +227,7 @@ void LogFileThread::execute() {
 
 	try	{
 	    for(;this->getQuitStatus() == false;) {
-            if(difftime(time(NULL),lastSaveToDisk) >= 5) {
-                lastSaveToDisk = time(NULL);
+            if(checkSaveCurrentLogBufferToDisk() == true) {
                 saveToDisk();
             }
             if(this->getQuitStatus() == false) {
