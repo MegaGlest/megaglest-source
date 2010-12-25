@@ -117,15 +117,15 @@ void ConnectionSlotThread::execute() {
 
             MutexSafeWrapper safeMutex(&triggerIdMutex);
             int eventCount = eventList.size();
-            safeMutex.ReleaseLock(true);
-
             if(eventCount > 0) {
-                safeMutex.Lock();
                 ConnectionSlotEvent *event = eventList[0];
                 safeMutex.ReleaseLock();
 
                 this->slotInterface->slotUpdateTask(event);
                 setTaskCompleted(event);
+            }
+            else {
+                safeMutex.ReleaseLock();
             }
 			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -723,7 +723,6 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
 	MutexSafeWrapper safeMutex(&socketSynchAccessor);
 	NetworkInterface::sendMessage(networkMessage);
-	safeMutex.ReleaseLock();
 }
 
 string ConnectionSlot::getHumanPlayerName(int index) {

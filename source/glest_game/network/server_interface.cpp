@@ -95,8 +95,10 @@ ServerInterface::~ServerInterface() {
             slots[i]=NULL;
         }
 
-		delete switchSetupRequests[i];
-		switchSetupRequests[i]=NULL;
+        if(switchSetupRequests[i] != NULL) {
+            delete switchSetupRequests[i];
+            switchSetupRequests[i]=NULL;
+        }
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -117,10 +119,10 @@ ServerInterface::~ServerInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ServerInterface::addSlot(int playerIndex){
+void ServerInterface::addSlot(int playerIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
+	assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
 
 	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
 	if(serverSocket.isPortBound() == false) {
@@ -131,20 +133,25 @@ void ServerInterface::addSlot(int playerIndex){
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete slots[playerIndex];
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     safeMutexSlot.ReleaseLock();
 
 	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	updateListen();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
+bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool result=false;
@@ -186,12 +193,17 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex){
 	return result;
 }
 
-void ServerInterface::removeSlot(int playerIndex) {
+void ServerInterface::removeSlot(int playerIndex,int lockedSlotIndex) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
     MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
     // Mention to everyone that this player is disconnected
-    MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+
+    MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(playerIndex));
+    if(playerIndex != lockedSlotIndex) {
+        safeMutexSlot.setMutex(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+    }
+
     ConnectionSlot *slot = slots[playerIndex];
 
     bool notifyDisconnect = false;
@@ -228,14 +240,15 @@ void ServerInterface::removeSlot(int playerIndex) {
 	if(notifyDisconnect == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 		string sMsg = szBuf;
-		sendTextMessage(sMsg,-1, true);
+		sendTextMessage(sMsg,-1, true, lockedSlotIndex);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 }
 
 ConnectionSlot* ServerInterface::getSlot(int playerIndex) {
-    MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+    //!!! Don't think this is useful
+    //MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
 	return slots[playerIndex];
 }
 
@@ -291,7 +304,6 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(event != NULL) {
-		//ConnectionSlot *connectionSlot = event->connectionSlot;
 		bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients = true;
 
@@ -306,19 +318,6 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
            (gameHasBeenInitiated == false ||
             (connectionSlot->getSocket() != NULL && socketTriggered == true))) {
             if(connectionSlot->isConnected() == false || socketTriggered == true) {
-                /*
-                if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList[i] = %i\n",__FILE__,__FUNCTION__,(socketTriggered ? 1 : 0));
-
-                if(connectionSlot->isConnected()) {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to call connectionSlot->update() for socketId = %d\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getSocket()->getSocketId());
-                }
-                else {
-                    if(gameHasBeenInitiated) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] getSocket() == NULL\n",__FILE__,__FUNCTION__);
-                }
-
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                */
-
                 connectionSlot->update(checkForNewClients);
 
                 // This means no clients are trying to connect at the moment
@@ -354,9 +353,12 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 
 				if(this->getCurrentFrameCount() > 0) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %f, clientLagCount = %f, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d, clientLagTime = %f\n",
-																			 __FILE__,__FUNCTION__,__LINE__,
-																			 connectionSlot->getPlayerIndex(),clientLag,clientLagCount,
-																			 this->getCurrentFrameCount(),connectionSlot->getCurrentFrameCount(),clientLagTime);
+                                                                         __FILE__,__FUNCTION__,__LINE__,
+                                                                         connectionSlot->getPlayerIndex(),
+                                                                         clientLag,clientLagCount,
+                                                                         this->getCurrentFrameCount(),
+                                                                         connectionSlot->getCurrentFrameCount(),
+                                                                         clientLagTime);
 				}
 
 				// TEST LAG Error and warnings!!!
@@ -393,7 +395,7 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 
 					if(skipNetworkBroadCast == false) {
 						string sMsg = szBuf;
-						sendTextMessage(sMsg,-1, true);
+						sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
 					}
 
 					if(gameSettings.getNetworkPauseGameForLaggedClients() == false ||
@@ -423,7 +425,7 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot* connectionS
 
 						if(skipNetworkBroadCast == false) {
 							string sMsg = szBuf;
-							sendTextMessage(sMsg,-1, true);
+							sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
 						}
 					}
 				}
@@ -528,7 +530,10 @@ void ServerInterface::update() {
 
 					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-					bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
+					bool socketTriggered = false;
+					if(connectionSlot != NULL && connectionSlot->getSocket() != NULL) {
+					    socketTriggered = socketTriggeredList[connectionSlot->getSocket()->getSocketId()];
+					}
 					ConnectionSlotEvent &event = eventList[i];
 					mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
 				}
@@ -561,8 +566,6 @@ void ServerInterface::update() {
 									connectionSlot->clearThreadErrorList();
 								}
 
-								//connectionSlot = slots[i];
-
 								// Not done waiting for data yet
 								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
 								if(updateFinished == false) {
@@ -580,9 +583,6 @@ void ServerInterface::update() {
 							}
 						}
 					}
-					//if(threadsDone == false) {
-                    //    sleep(0);
-                    //}
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",__FILE__,__FUNCTION__,__LINE__);
@@ -615,18 +615,13 @@ void ServerInterface::update() {
 									connectionSlot->clearThreadErrorList();
 								}
 
-								connectionSlot = slots[i];
-
 								// Not done waiting for data yet
 								bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
 								if(updateFinished == false) {
 									threadsDone = false;
-									//sleep(0);
 									break;
 								}
 								else {
-									//connectionSlot = slots[i];
-
 									// New lag check
 									std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 									if( gameHasBeenInitiated == true && connectionSlot != NULL &&
@@ -648,21 +643,15 @@ void ServerInterface::update() {
 										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime(time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
 
 										if(difftime(time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
-											connectionSlot = slots[i];
 											if(connectionSlot != NULL) {
 												SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
 
 												bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
 												ConnectionSlotEvent &event = eventList[i];
 												mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
-												//sleep(0);
 												threadsDone = false;
 											}
 											SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
-
-											//if(gameSettings.getNetworkPauseGameForLaggedClients() == false) {
-											//	slotsWarnedAndRetried[i] = true;
-											//}
 										}
 									}
 									else {
@@ -719,7 +708,7 @@ void ServerInterface::update() {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
 									NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
-									broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
+									broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex(),i);
 
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
 								}
@@ -939,7 +928,7 @@ void ServerInterface::waitUntilReady(Checksum* checksum) {
 						else if(networkMessageType != nmtInvalid) {
 							//throw runtime_error("Unexpected network message: " + intToStr(networkMessageType));
 							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
-							sendTextMessage(sErr,-1, true);
+							sendTextMessage(sErr,-1, true,i);
 							DisplayErrorMessage(sErr);
 							return;
 						}
@@ -1007,11 +996,15 @@ void ServerInterface::waitUntilReady(Checksum* checksum) {
 }
 
 void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal);
+    sendTextMessage(text, teamIndex, echoLocal, -1);
+}
+
+void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal, int lockedSlotIndex) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal,lockedSlotIndex);
 
 	//NetworkMessageText networkMessageText(text, getHumanPlayerName().c_str(), teamIndex, getHumanPlayerIndex());
 	NetworkMessageText networkMessageText(text, teamIndex, getHumanPlayerIndex());
-	broadcastMessage(&networkMessageText);
+	broadcastMessage(&networkMessageText,-1,lockedSlotIndex);
 
 	if(echoLocal == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1063,8 +1056,7 @@ string ServerInterface::getNetworkStatus() {
                 str+= connectionSlot->getName() + string(szBuf);
 			}
 		}
-		else
-		{
+		else {
 			str+= lang.get("NotConnected");
 		}
 
@@ -1138,54 +1130,50 @@ void ServerInterface::broadcastGameSetup(const GameSettings* gameSettings) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot){
+void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot, int lockedSlotIndex) {
     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     try {
-
     	if(enabledThreadedClientCommandBroadcast == true) {
 			// Step #1 signal worker threads to send this broadcast to each client
 			std::map<int,ConnectionSlotEvent> eventList;
 			for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-				MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+				MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(i));
+				if(i != lockedSlotIndex) {
+				    safeMutexSlot.setMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+				}
+
 				ConnectionSlot* connectionSlot = slots[i];
 
-				// New lag check
-				//std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
-				//if( gameHasBeenInitiated == true && connectionSlot != NULL &&
-				//	connectionSlot->isConnected() == true) {
-				//	clientLagExceededOrWarned = clientLagCheck(connectionSlot);
-				//}
-				//if(clientLagExceededOrWarned.first == false) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessage = %p\n",__FILE__,__FUNCTION__,__LINE__,networkMessage);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessage = %p\n",__FILE__,__FUNCTION__,__LINE__,networkMessage);
 
-					ConnectionSlotEvent &event = eventList[i];
-					event.eventType = eSendSocketData;
-					event.networkMessage = networkMessage;
-					event.connectionSlot = connectionSlot;
-					event.socketTriggered = true;
-					event.triggerId = i;
+                ConnectionSlotEvent &event  = eventList[i];
+                event.eventType             = eSendSocketData;
+                event.networkMessage        = networkMessage;
+                event.connectionSlot        = connectionSlot;
+                event.socketTriggered       = true;
+                event.triggerId             = i;
 
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-					// Step #1 tell all connection slot worker threads to receive socket data
-					if(i != excludeSlot && connectionSlot != NULL) {
-						if(connectionSlot->isConnected()) {
-							connectionSlot->signalUpdate(&event);
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-						}
-						else if(gameHasBeenInitiated == true) {
-
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
-							removeSlot(i);
-						}
-					}
-					else if(i == excludeSlot && gameHasBeenInitiated == true &&
-							connectionSlot != NULL && connectionSlot->isConnected() == false) {
-						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
-						removeSlot(i);
-					}
-				//}
+                // Step #1 tell all connection slot worker threads to receive socket data
+                if(i != excludeSlot && connectionSlot != NULL) {
+                    if(connectionSlot->isConnected()) {
+                        connectionSlot->signalUpdate(&event);
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    }
+                    else if(gameHasBeenInitiated == true) {
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+                        removeSlot(i,i);
+                    }
+                }
+                else if(i == excludeSlot &&
+                        gameHasBeenInitiated == true &&
+                        connectionSlot != NULL &&
+                        connectionSlot->isConnected() == false) {
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+                    removeSlot(i,i);
+                }
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1196,7 +1184,11 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 				threadsDone = true;
 				// Examine all threads for completion of delegation
 				for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-					MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+                    MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(i));
+                    if(i != lockedSlotIndex) {
+                        safeMutexSlot.setMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+                    }
+
 					ConnectionSlot* connectionSlot = slots[i];
 					if(connectionSlot != NULL && slotsCompleted.find(i) == slotsCompleted.end()) {
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
@@ -1217,39 +1209,33 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 						}
 					}
 				}
-				//sleep(0);
 			}
     	}
     	else {
 			for(int i= 0; i<GameConstants::maxPlayers; ++i) {
-				MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+				MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(i));
+				if(i != lockedSlotIndex) {
+				    safeMutexSlot.setMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+				}
+
 				ConnectionSlot* connectionSlot= slots[i];
 
 				if(i != excludeSlot && connectionSlot != NULL) {
-					// New lag check
-					//std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
-					//if( gameHasBeenInitiated == true && connectionSlot != NULL &&
-					//	connectionSlot->isConnected() == true) {
-					//	clientLagExceededOrWarned = clientLagCheck(connectionSlot);
-					//}
-					//if(clientLagExceededOrWarned.first == false) {
-						if(connectionSlot->isConnected()) {
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] before sendMessage\n",__FILE__,__FUNCTION__,__LINE__);
-							connectionSlot->sendMessage(networkMessage);
-						}
-						else if(gameHasBeenInitiated == true) {
-
-							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,__LINE__,i);
-							safeMutexSlot.ReleaseLock();
-							removeSlot(i);
-						}
-					//}
+                    if(connectionSlot->isConnected()) {
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] before sendMessage\n",__FILE__,__FUNCTION__,__LINE__);
+                        connectionSlot->sendMessage(networkMessage);
+                    }
+                    else if(gameHasBeenInitiated == true) {
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+                        //safeMutexSlot.ReleaseLock();
+                        removeSlot(i,i);
+                    }
 				}
 				else if(i == excludeSlot && gameHasBeenInitiated == true &&
 						connectionSlot != NULL && connectionSlot->isConnected() == false) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,i);
-					safeMutexSlot.ReleaseLock();
-					removeSlot(i);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 before removeSlot for slot# %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+					//safeMutexSlot.ReleaseLock();
+					removeSlot(i,i);
 				}
 			}
     	}
@@ -1261,7 +1247,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 
     	//DisplayErrorMessage(ex.what());
 		string sMsg = ex.what();
-		sendTextMessage(sMsg,-1, true);
+		sendTextMessage(sMsg,-1, true, lockedSlotIndex);
     }
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
