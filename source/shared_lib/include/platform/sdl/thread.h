@@ -86,6 +86,12 @@ public:
 		ReleaseLock();
 	}
 
+    void setMutex(Mutex *mutex,string ownerId="") {
+		this->mutex = mutex;
+		this->ownerId = ownerId;
+		Lock();
+    }
+
 	void Lock() {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES

@@ -65,6 +65,8 @@ public:
 
 	// message sending
 	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
+	void sendTextMessage(const string &text, int teamIndex, bool echoLocal, int lockedSlotIndex);
+
 	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
@@ -74,7 +76,7 @@ public:
 	SwitchSetupRequest** getSwitchSetupRequests() {return &switchSetupRequests[0];}
 	void addSlot(int playerIndex);
 	bool switchSlot(int fromPlayerIndex,int toPlayerIndex);
-	void removeSlot(int playerIndex);
+	void removeSlot(int playerIndex, int lockedSlotIndex=-1);
 	ConnectionSlot* getSlot(int playerIndex);
 	int getConnectedSlotCount();
 	int getOpenSlotCount();
@@ -117,7 +119,7 @@ public:
 
 private:
 
-	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1);
+	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1,int lockedSlotIndex=-1);
 	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
 	void updateSlot(ConnectionSlotEvent *event);
