@@ -1195,13 +1195,18 @@ bool World::showWorldForPlayer(int factionIndex) const {
                 game->getGameSettings()->isNetworkGame() == true &&
                 game->getGameSettings()->getEnableObserverModeAtEndGame() == true) {
             ret = true;
-            // If the player has at least 1 Unit alive that is mobile (can move)
-            // then we cannot turn off fog of war
-            for(int i = 0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
-                Unit *unit = getFaction(factionIndex)->getUnit(i);
-                if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
-                    ret = false;
-                    break;
+
+            // If the faction is NOT on the winning team, don't let them see the map
+            // until all mobile units are dead
+            if(getStats()->getVictory(factionIndex) == false) {
+                // If the player has at least 1 Unit alive that is mobile (can move)
+                // then we cannot turn off fog of war
+                for(int i = 0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
+                    Unit *unit = getFaction(factionIndex)->getUnit(i);
+                    if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
+                        ret = false;
+                        break;
+                    }
                 }
             }
         }
