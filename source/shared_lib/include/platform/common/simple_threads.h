@@ -101,6 +101,7 @@ protected:
 	time_t lastSaveToDisk;
 
     void saveToDisk();
+    bool checkSaveCurrentLogBufferToDisk();
 
 public:
 	LogFileThread();
