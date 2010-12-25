@@ -106,6 +106,7 @@ public:
 	LogFileThread();
     virtual void execute();
     void addLogEntry(SystemFlags::DebugType type, string logEntry);
+    std::size_t getLogEntryBufferCount();
 };
 
 

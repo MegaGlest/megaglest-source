@@ -778,12 +778,20 @@ int glestMain(int argc, char** argv) {
 			}
         }
 
+        //printf("In MAIN STARTUP A\n");
 
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		Config &config = Config::getInstance();
+
+		//printf("In MAIN STARTUP B\n");
+
+		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
+
+		//printf("In MAIN STARTUP C, SystemFlags::ENABLE_THREADED_LOGGING = %d\n",SystemFlags::ENABLE_THREADED_LOGGING);
+
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 		Socket::isUPNP = !config.getBool("DisableUPNP","false");
-		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","false");
+
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

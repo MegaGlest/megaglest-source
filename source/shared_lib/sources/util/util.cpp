@@ -61,6 +61,18 @@ static void *myrealloc(void *ptr, size_t size)
     return malloc(size);
 }
 
+bool SystemFlags::getThreadedLoggerRunning() {
+    return (threadLogger != NULL && threadLogger->getRunningStatus() == true);
+}
+
+std::size_t SystemFlags::getLogEntryBufferCount() {
+    std::size_t ret = 0;
+    if(threadLogger != NULL) {
+        ret = threadLogger->getLogEntryBufferCount();
+    }
+    return ret;
+}
+
 size_t SystemFlags::httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t realsize = size * nmemb;
@@ -159,6 +171,8 @@ CURL *SystemFlags::initHTTP() {
 }
 
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
+    //printf("SystemFlags::init CALLED, SystemFlags::debugLogFileList.size() = %d\n",SystemFlags::debugLogFileList.size());
+
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	if(SystemFlags::debugLogFileList.size() == 0) {
 		SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
@@ -168,12 +182,13 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
 		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
 		SystemFlags::debugLogFileList[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
-
-		if(SystemFlags::ENABLE_THREADED_LOGGING) {
-            threadLogger = new LogFileThread();
-            threadLogger->start();
-		}
 	}
+
+    if(threadLogger == NULL) {
+        threadLogger = new LogFileThread();
+        threadLogger->start();
+        sleep(5);
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -224,14 +239,12 @@ SystemFlags::~SystemFlags() {
 }
 
 void SystemFlags::Close() {
-    if(SystemFlags::ENABLE_THREADED_LOGGING) {
-        if(threadLogger != NULL) {
-            SystemFlags::ENABLE_THREADED_LOGGING = false;
-            threadLogger->signalQuit();
-            threadLogger->shutdownAndWait();
-            delete threadLogger;
-            threadLogger = NULL;
-        }
+    if(threadLogger != NULL) {
+        SystemFlags::ENABLE_THREADED_LOGGING = false;
+        threadLogger->signalQuit();
+        threadLogger->shutdownAndWait();
+        delete threadLogger;
+        threadLogger = NULL;
     }
 
 	if(SystemFlags::debugLogFileList.size() > 0) {
@@ -285,7 +298,8 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     va_end(argList);
 
     if(SystemFlags::ENABLE_THREADED_LOGGING &&
-       threadLogger != NULL) {
+       threadLogger != NULL &&
+       threadLogger->getRunningStatus() == true) {
         threadLogger->addLogEntry(type, szBuf);
     }
     else {

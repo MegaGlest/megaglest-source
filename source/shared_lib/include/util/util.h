@@ -130,6 +130,9 @@ public:
 	static CURL *initHTTP();
 	static void cleanupHTTP(CURL **handle);
 
+    static bool getThreadedLoggerRunning();
+    static std::size_t getLogEntryBufferCount();
+
 	// Let the macro call into this when require.. NEVER call it automatically.
 	static void handleDebug(DebugType type, const char *fmt, ...);
 	static void logDebugEntry(DebugType type, string debugEntry, time_t debugTime);
