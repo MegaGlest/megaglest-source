@@ -66,12 +66,10 @@ ClientInterface::ClientInterface() {
 	this->setReceivedDataSynchCheck(false);
 }
 
-ClientInterface::~ClientInterface()
-{
+ClientInterface::~ClientInterface() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] destructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
-    if(clientSocket != NULL && clientSocket->isConnected() == true)
-    {
+    if(clientSocket != NULL && clientSocket->isConnected() == true) {
     	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         string sQuitText = "has chosen to leave the game!";
@@ -79,9 +77,7 @@ ClientInterface::~ClientInterface()
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     close();
-
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete clientSocket;
@@ -90,11 +86,11 @@ ClientInterface::~ClientInterface()
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ClientInterface::connect(const Ip &ip, int port)
-{
+void ClientInterface::connect(const Ip &ip, int port) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	delete clientSocket;
+	clientSocket = NULL;
 
 	this->ip    = ip;
 	this->port  = port;
@@ -107,26 +103,23 @@ void ClientInterface::connect(const Ip &ip, int port)
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
 }
 
-void ClientInterface::reset()
-{
-    if(getSocket() != NULL)
-    {
+void ClientInterface::reset() {
+    if(getSocket() != NULL) {
         string sQuitText = "has chosen to leave the game!";
         sendTextMessage(sQuitText,-1);
         close();
     }
 }
 
-void ClientInterface::update()
-{
+void ClientInterface::update() {
 	NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
 	//send as many commands as we can
-	while(!requestedCommands.empty()){
-		if(networkMessageCommandList.addCommand(&requestedCommands.back())){
+	while(requestedCommands.empty() == false) {
+		if(networkMessageCommandList.addCommand(&requestedCommands.back())) {
 			requestedCommands.pop_back();
 		}
-		else{
+		else {
 			break;
 		}
 	}
@@ -136,14 +129,14 @@ void ClientInterface::update()
 
 	if(networkMessageCommandList.getCommandCount() > 0 ||
 	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
-		sendMessage(&networkMessageCommandList);
 		lastNetworkCommandListSendTime = time(NULL);
+		sendMessage(&networkMessageCommandList);
 	}
 
 	// Possible cause of out of synch since we have more commands that need
 	// to be sent in this frame
-	if(!requestedCommands.empty()) {
-		char szBuf[1024]="";
+	if(requestedCommands.empty() == false) {
+		char szBuf[4096]="";
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
@@ -514,12 +507,10 @@ void ClientInterface::updateLobby() {
 	}
 }
 
-void ClientInterface::updateKeyframe(int frameCount)
-{
+void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 
 	bool done= false;
-
 	while(done == false) {
 		//wait for the next message
 		waitForMessage();

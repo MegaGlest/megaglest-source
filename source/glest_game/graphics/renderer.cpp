@@ -1818,7 +1818,13 @@ void Renderer::renderWater() {
             SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
 
 			int thisTeamIndex= world->getThisTeamIndex();
-			if(tc0->getNearSubmerged() && (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex))){
+
+			bool cellExplored = world->showWorldForPlayer(world->getThisFactionIndex());
+            if(cellExplored == false) {
+                cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
+            }
+
+			if(tc0->getNearSubmerged() && cellExplored == true) {
 				glNormal3f(0.f, 1.f, 0.f);
                 closed= false;
 
@@ -4166,7 +4172,13 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 						SurfaceCell *sc = map->getSurfaceCell(mapPos);
 						Object *o = sc->getObject();
-						bool isExplored = (sc->isExplored(world->getThisTeamIndex()) && o != NULL);
+
+                        bool cellExplored = world->showWorldForPlayer(world->getThisFactionIndex());
+                        if(cellExplored == false) {
+                            cellExplored = sc->isExplored(world->getThisTeamIndex());
+                        }
+
+						bool isExplored = (cellExplored == true && o != NULL);
 						//bool isVisible = (sc->isVisible(world->getThisTeamIndex()) && o != NULL);
 						bool isVisible = true;
 

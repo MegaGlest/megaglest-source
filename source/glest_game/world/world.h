@@ -212,6 +212,7 @@ public:
 	bool canTickWorld() const;
 
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+	bool showWorldForPlayer(int factionIndex) const;
 
 private:
 
@@ -232,7 +233,6 @@ private:
 	void updateAllFactionUnits();
 	void underTakeDeadFactionUnits();
 	void updateAllFactionConsumableCosts();
-	bool showWorldForPlayer(int factionIndex) const;
 };
 
 }}//end namespace
