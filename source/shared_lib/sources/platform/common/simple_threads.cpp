@@ -207,15 +207,15 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	entry.entryDateTime = time(NULL);
 	logList.push_back(entry);
 
-    if(logList.size() >= 750000) {
-        saveToDisk(false,true);
-    }
+    //if(logList.size() >= 750000) {
+    //    saveToDisk(false,true);
+    //}
 }
 
 bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
     bool ret = false;
     if(difftime(time(NULL),lastSaveToDisk) >= 10 ||
-       LogFileThread::getLogEntryBufferCount() >= 500000) {
+       LogFileThread::getLogEntryBufferCount() >= 2000000) {
         lastSaveToDisk = time(NULL);
         ret = true;
     }
@@ -275,20 +275,20 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
 
     std::size_t logCount = logList.size();
     if(logCount > 0) {
-        //vector<LogFileEntry> tempLogList = logList;
-        //safeMutex.ReleaseLock(true);
+        vector<LogFileEntry> tempLogList = logList;
+        safeMutex.ReleaseLock(true);
 
-        //logCount = tempLogList.size();
-        if(forceSaveAll == false) {
-            logCount = min(logCount,(std::size_t)1000000);
-        }
+        logCount = tempLogList.size();
+        //if(forceSaveAll == false) {
+        //    logCount = min(logCount,(std::size_t)2000000);
+        //}
 
         for(int i = 0; i < logCount; ++i) {
-            LogFileEntry &entry = logList[i];
+            LogFileEntry &entry = tempLogList[i];
             SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
         }
 
-        //safeMutex.Lock();
+        safeMutex.Lock();
         logList.erase(logList.begin(),logList.begin() + logCount);
         safeMutex.ReleaseLock();
     }
