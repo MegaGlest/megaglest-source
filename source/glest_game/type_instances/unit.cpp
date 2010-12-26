@@ -1715,7 +1715,28 @@ void Unit::exploreCells() {
 void Unit::logSynchData(string file,int line,string source) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 
-	    char szBuf[1024]="";
+	    char szBuf[4096]="";
+
+	    sprintf(szBuf,
+	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%f], progress2 [%d]\nUnit Path [%s]\n",
+	    		getFrameCount(),
+	    		id,
+				getFullName().c_str(),
+				faction->getType()->getName().c_str(),
+				//getDesc().c_str(),
+				pos.getString().c_str(),
+				lastPos.getString().c_str(),
+				targetPos.getString().c_str(),
+				targetVec.getString().c_str(),
+				meetingPos.getString().c_str(),
+//				lastRotation,
+//				targetRotation,
+//				rotation,
+				progress,
+				progress2,
+				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
+
+/*
 	    sprintf(szBuf,
 	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
@@ -1734,7 +1755,7 @@ void Unit::logSynchData(string file,int line,string source) {
 				progress,
 				progress2,
 				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
-
+*/
 	    if( lastSynchDataString != string(szBuf) ||
 	    	lastFile != file ||
 	    	lastLine != line ||
