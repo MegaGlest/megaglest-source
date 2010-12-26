@@ -207,15 +207,15 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	entry.entryDateTime = time(NULL);
 	logList.push_back(entry);
 
-    if(logList.size() >= 100000) {
+    if(logList.size() >= 750000) {
         saveToDisk(false,true);
     }
 }
 
 bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
     bool ret = false;
-    if(difftime(time(NULL),lastSaveToDisk) >= 5 ||
-       LogFileThread::getLogEntryBufferCount() >= 100000) {
+    if(difftime(time(NULL),lastSaveToDisk) >= 10 ||
+       LogFileThread::getLogEntryBufferCount() >= 500000) {
         lastSaveToDisk = time(NULL);
         ret = true;
     }
@@ -280,7 +280,7 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
 
         //logCount = tempLogList.size();
         if(forceSaveAll == false) {
-            logCount = min(logCount,(std::size_t)250000);
+            logCount = min(logCount,(std::size_t)1000000);
         }
 
         for(int i = 0; i < logCount; ++i) {
