@@ -206,6 +206,10 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	entry.entry = logEntry;
 	entry.entryDateTime = time(NULL);
 	logList.push_back(entry);
+
+    if(logList.size() >= 100000) {
+        saveToDisk(false);
+    }
 }
 
 bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
