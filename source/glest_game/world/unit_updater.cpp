@@ -88,7 +88,7 @@ UnitUpdater::~UnitUpdater() {
 
 	delete pathFinder;
 	pathFinder = NULL;
-	
+
 	while(attackWarnings.empty() == false) {
 			AttackWarningData* awd=attackWarnings.back();
 			attackWarnings.pop_back();
@@ -191,10 +191,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
     	if(unit->isOperative() && (!(cc==ccStop || cc==ccAttack)) )
     	{//stop and attack already check for themselves
     		Unit *sighted;
-    		if(unit->getTeam()==world->getThisTeamIndex()){
-    			// check only needed for alarm sound, so its enough to check teammates units
-    			attackerOnSight(unit, &sighted);
-    		}
+    		attackerOnSight(unit, &sighted);
     	}
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
@@ -404,7 +401,7 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		
+
 		if(command->getUnit()!=NULL && !command->getUnit()->isAlive() && unit->getCommandSize()>1)
 		{// don't run over to dead body if there is still something to do in the queue
 			unit->finishCommand();
@@ -480,7 +477,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 			case pfBasic:
 				{
 				//Vec2i buildPos = (command->getPos()-Vec2i(1));
-				Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), ut);
+				Vec2i buildPos = map->findBestBuildApproach(unit, command->getPos(), ut);
 				//Vec2i buildPos = (command->getPos() + Vec2i(ut->getSize() / 2));
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
@@ -1176,7 +1173,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			else {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				Vec2i buildPos = map->findBestBuildApproach(unit->getPos(), command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
+				Vec2i buildPos = map->findBestBuildApproach(unit, command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
 
 				//nextToRepaired= (unit->getPos() == (command->getPos()-Vec2i(1)));
 				nextToRepaired = (unit->getPos() == buildPos);
@@ -1794,8 +1791,8 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
         }
     }
 
-	
-	if(	result && 
+
+	if(	result &&
 		unit->getTeam()==world->getThisTeamIndex() && //must be in local players team.
 		!(unit->isAlly(enemySeen)))
 	{
