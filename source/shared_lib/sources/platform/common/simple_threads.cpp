@@ -13,7 +13,10 @@
 #include "simple_threads.h"
 #include "util.h"
 #include "platform_common.h"
+#include <algorithm>
+#include "leak_dumper.h"
 
+using namespace std;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
@@ -208,7 +211,7 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
     bool ret = false;
     if(difftime(time(NULL),lastSaveToDisk) >= 5 ||
-       LogFileThread::getLogEntryBufferCount() >= 35000) {
+       LogFileThread::getLogEntryBufferCount() >= 100000) {
         lastSaveToDisk = time(NULL);
         ret = true;
     }
@@ -228,15 +231,15 @@ void LogFileThread::execute() {
 	try	{
 	    for(;this->getQuitStatus() == false;) {
             if(checkSaveCurrentLogBufferToDisk() == true) {
-                saveToDisk();
+                saveToDisk(false);
             }
             if(this->getQuitStatus() == false) {
-                sleep(100);
+                sleep(50);
             }
 	    }
 
 	    // Ensure remaining entryies are logged to disk on shutdown
-	    saveToDisk();
+	    saveToDisk(true);
 	}
 	catch(const exception &ex) {
 		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -260,7 +263,7 @@ std::size_t LogFileThread::getLogEntryBufferCount() {
     return logCount;
 }
 
-void LogFileThread::saveToDisk() {
+void LogFileThread::saveToDisk(bool forceSaveAll) {
     MutexSafeWrapper safeMutex(&mutexLogList);
     std::size_t logCount = logList.size();
     if(logCount > 0) {
@@ -268,6 +271,10 @@ void LogFileThread::saveToDisk() {
         safeMutex.ReleaseLock(true);
 
         logCount = tempLogList.size();
+        if(forceSaveAll == false) {
+            logCount = min(logCount,(std::size_t)250000);
+        }
+
         for(int i = 0; i < logCount; ++i) {
             LogFileEntry &entry = tempLogList[i];
             SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);

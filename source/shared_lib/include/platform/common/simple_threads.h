@@ -100,7 +100,7 @@ protected:
 	vector<LogFileEntry> logList;
 	time_t lastSaveToDisk;
 
-    void saveToDisk();
+    void saveToDisk(bool forceSaveAll);
     bool checkSaveCurrentLogBufferToDisk();
 
 public:
