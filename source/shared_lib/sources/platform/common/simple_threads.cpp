@@ -208,7 +208,7 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	logList.push_back(entry);
 
     if(logList.size() >= 100000) {
-        saveToDisk(false);
+        saveToDisk(false,true);
     }
 }
 
@@ -235,7 +235,7 @@ void LogFileThread::execute() {
 	try	{
 	    for(;this->getQuitStatus() == false;) {
             if(checkSaveCurrentLogBufferToDisk() == true) {
-                saveToDisk(false);
+                saveToDisk(false,false);
             }
             if(this->getQuitStatus() == false) {
                 sleep(50);
@@ -243,7 +243,7 @@ void LogFileThread::execute() {
 	    }
 
 	    // Ensure remaining entryies are logged to disk on shutdown
-	    saveToDisk(true);
+	    saveToDisk(true,false);
 	}
 	catch(const exception &ex) {
 		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -267,8 +267,12 @@ std::size_t LogFileThread::getLogEntryBufferCount() {
     return logCount;
 }
 
-void LogFileThread::saveToDisk(bool forceSaveAll) {
-    MutexSafeWrapper safeMutex(&mutexLogList);
+void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
+    MutexSafeWrapper safeMutex(NULL);
+    if(logListAlreadyLocked == false) {
+        safeMutex.setMutex(&mutexLogList);
+    }
+
     std::size_t logCount = logList.size();
     if(logCount > 0) {
         vector<LogFileEntry> tempLogList = logList;
