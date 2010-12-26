@@ -737,9 +737,9 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 	return closestUnit;
 }
 
-Vec2i Map::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
-								 const UnitType *ut) const {
-	Vec2i pos = originalBuildPos;
+Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const {
+    Vec2i unitBuilderPos    = unit->getPos();
+	Vec2i pos               = originalBuildPos;
 
 	float bestRange = -1;
 
@@ -752,8 +752,11 @@ Vec2i Map::findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
 			if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
 				float distance = unitBuilderPos.dist(testPos);
 				if(bestRange < 0 || bestRange > distance) {
-					bestRange = distance;
-					pos = testPos;
+				    // Check if the cell is occupied by another unit
+				    if(isFreeCellOrHasUnit(testPos, unit->getType()->getField(), unit) == true) {
+                        bestRange = distance;
+                        pos = testPos;
+				    }
 				}
 			}
 		}

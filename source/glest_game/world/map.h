@@ -228,8 +228,7 @@ public:
 							    const UnitType *ut) const;
 	bool isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
 	bool isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
-	Vec2i findBestBuildApproach(Vec2i unitBuilderPos, Vec2i originalBuildPos,
-								const UnitType *ut) const;
+	Vec2i findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const;
 	std::pair<float,Vec2i> getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut);
 
 	//misc
