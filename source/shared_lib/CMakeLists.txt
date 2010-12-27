@@ -15,8 +15,7 @@ IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 				${PROJECT_SOURCE_DIR}/source/win32_deps/lib
 				${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-				${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib
-                                ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
+				${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
 
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
@@ -39,36 +38,6 @@ IF(WIN32)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
 ENDIF()
-
-# stupid hack because cmake WILL NOT find libircclient for some reason
-if(WIN32)
-
-	if(EXISTS ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include/libircclient.h)
-	  set(LIBIRCCLIENT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include)
-	  link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
-	endif()
-else()
-	#CHECK_INCLUDE_FILES(libircclient/libircclient.h LIBIRCCLIENT_INCLUDE_DIR)
-	FIND_PATH(LIBIRCCLIENT_INCLUDE_DIR NAMES libircclient/libircclient.h)
-
-	if(NOT LIBIRCCLIENT_INCLUDE_DIR)
-		FIND_PATH(LIBIRCCLIENT_INCLUDE_DIR NAMES libircclient.h PATHS /usr/local/include)
-		if(LIBIRCCLIENT_INCLUDE_DIR)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBIRCCLIENTLOCAL=1")
-			link_directories(/usr/local/include)	
-			link_directories(/usr/local/lib)
-		endif()
-	endif()
-endif()
-
-#check_include_files("libircclient/libircclient.h;libircclient/include/libircclient.h" LIBIRCCLIENT_H_)
-if(NOT LIBIRCCLIENT_INCLUDE_DIR)
-        message(FATAL_ERROR "missing libircclient : please install it [${LIBIRCCLIENT_INCLUDE_DIR}]")
-else()
-	message(STATUS "Found libircclient : [${LIBIRCCLIENT_INCLUDE_DIR}]")
-endif()
-INCLUDE_DIRECTORIES(${LIBIRCCLIENT_INCLUDE_DIR})
-#SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ircclient)
 
 FIND_PACKAGE(SDL REQUIRED)
 INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
@@ -164,6 +133,10 @@ SET(MG_INCLUDE_FILES "")
 SET(MG_SOURCE_FILES "")
 INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
 
+
+SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
+
 IF(WIN32)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/ircclient.cpp)
@@ -250,7 +223,7 @@ ENDIF()
 #ADD_LIBRARY(libglest SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 #ADD_LIBRARY(libglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 IF(WIN32)
-  TARGET_LINK_LIBRARIES(libglest stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 ircclient streflop libglest stdc++ moldname mingwex msvcrt user32 kernel32)
+  TARGET_LINK_LIBRARIES(libglest stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop libglest stdc++ moldname mingwex msvcrt user32 kernel32)
 ENDIF()
 TARGET_LINK_LIBRARIES(libglest streflop)
 TARGET_LINK_LIBRARIES(libglest ${EXTERNAL_LIBS})

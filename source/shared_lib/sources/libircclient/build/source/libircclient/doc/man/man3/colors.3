@@ -1,0 +1,146 @@
+.TH "Messages colors manipulation" 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Messages colors manipulation \- 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "char * \fBirc_color_strip_from_mirc\fP (const char *message)"
+.br
+.RI "\fIRemoves all the color codes and format options. \fP"
+.ti -1c
+.RI "char * \fBirc_color_convert_from_mirc\fP (const char *message)"
+.br
+.RI "\fIConverts all the color codes and format options to libircclient colors. \fP"
+.ti -1c
+.RI "char * \fBirc_color_convert_to_mirc\fP (const char *message)"
+.br
+.RI "\fIConverts all the color codes from libircclient format to mIRC. \fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "char * irc_color_convert_from_mirc (const char * message)"
+.PP
+Converts all the color codes and format options to libircclient colors. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fImessage\fP A message from IRC
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Returns a new message with converted mIRC color codes and format options. See the \fBirc_color_convert_to_mirc()\fP help to see how the colors are converted.
+.br
+ Note that the memory for the new message is allocated using malloc(), so you should free it using free() when it is not used anymore. If memory allocation failed, returns 0.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_color_strip_from_mirc\fP \fBirc_color_convert_to_mirc\fP 
+.RE
+.PP
+
+.SS "char * irc_color_convert_to_mirc (const char * message)"
+.PP
+Converts all the color codes from libircclient format to mIRC. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fImessage\fP A message with color codes
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Returns a new message with converted color codes and format options, or 0 if memory could not be allocated. Note that the memory for the new message is allocated using malloc(), so you should free it using free() when it is not used anymore.
+.RE
+.PP
+The color system of libircclient is designed to be easy to use, and portable between different IRC clients. Every color or format option is described using plain text commands written between square brackets. The possible codes are:
+.IP "\(bu" 2
+[B] ... [/B] - bold format mode. Everything between [B] and [/B] is written in \fBbold\fP.
+.IP "\(bu" 2
+[I] ... [/I] - italic/reverse format mode. Everything between [I] and [/I] is written in \fCitalic\fP, or reversed (however, because some clients are incapable of rendering italic text, most clients display this as normal text with the background and foreground colors swapped).
+.IP "\(bu" 2
+[U] ... [/U] - underline format mode. Everything between [U] and [/U] is written underlined.
+.IP "\(bu" 2
+[COLOR=RED] ... [/COLOR] - write the text using specified foreground color. The color is set by using the \fCCOLOR\fP keyword, and equal sign followed by text color code (see below).
+.IP "\(bu" 2
+[COLOR=RED/BLUE] ... [/COLOR] - write the text using specified foreground and background color. The color is set by using the \fCCOLOR\fP keyword, an equal sign followed by text foreground color code, a dash and a text background color code.
+.PP
+.PP
+The supported text colors are:
+.IP "\(bu" 2
+WHITE
+.IP "\(bu" 2
+BLACK
+.IP "\(bu" 2
+DARKBLUE
+.IP "\(bu" 2
+DARKGREEN
+.IP "\(bu" 2
+RED
+.IP "\(bu" 2
+BROWN
+.IP "\(bu" 2
+PURPLE
+.IP "\(bu" 2
+OLIVE
+.IP "\(bu" 2
+YELLOW
+.IP "\(bu" 2
+GREEN
+.IP "\(bu" 2
+TEAL
+.IP "\(bu" 2
+CYAN
+.IP "\(bu" 2
+BLUE
+.IP "\(bu" 2
+MAGENTA
+.IP "\(bu" 2
+DARKGRAY
+.IP "\(bu" 2
+LIGHTGRAY
+.PP
+.PP
+Examples of color sequences: 
+.PP
+.nf
+ Hello, [B]Tim[/B]. 
+ [U]Arsenal[/U] got a [COLOR=RED]red card[/COLOR]
+ The tree[U]s[/U] are [COLOR=GREEN/BLACK]green[/COLOR]
+
+.fi
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_color_strip_from_mirc\fP \fBirc_color_convert_from_mirc\fP 
+.RE
+.PP
+
+.SS "char * irc_color_strip_from_mirc (const char * message)"
+.PP
+Removes all the color codes and format options. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fImessage\fP A message from IRC
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Returns a new plain text message with stripped mIRC color codes. Note that the memory for the new message is allocated using malloc(), so you should free it using free() when it is not used anymore. If memory allocation failed, returns 0.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_color_convert_from_mirc\fP \fBirc_color_convert_to_mirc\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

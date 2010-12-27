@@ -53,23 +53,6 @@ ELSE()
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 ENDIF()
 
-# stupid hack because cmake WILL NOT find libircclient for some reason
-if(WIN32)
-	if(EXISTS ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include/libircclient.h)
-	  set(LIBIRCCLIENT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include)
-	  link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
-	endif()
-else()
-	FIND_PATH(LIBIRCCLIENT_INCLUDE_DIR NAME libircclient/libircclient.h PATHS /usr/local/include)
-	link_directories(/usr/local/include)	
-	link_directories(/usr/local/lib)
-endif()
-
-if(NOT LIBIRCCLIENT_INCLUDE_DIR)
-       message(FATAL_ERROR "missing libircclient : please install it [${LIBIRCCLIENT_INCLUDE_DIR}]")
-endif()
-INCLUDE_DIRECTORIES(${LIBIRCCLIENT_INCLUDE_DIR})
-
 #########################################################################################
 # glest G3d Model Viewer
 

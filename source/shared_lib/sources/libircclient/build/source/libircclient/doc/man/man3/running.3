@@ -1,0 +1,95 @@
+.TH "Running IRC session." 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Running IRC session. \- 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBirc_run\fP (\fBirc_session_t\fP *session)"
+.br
+.RI "\fIGoes into forever-loop, processing IRC events and generating callbacks. \fP"
+.ti -1c
+.RI "int \fBirc_add_select_descriptors\fP (\fBirc_session_t\fP *session, fd_set *in_set, fd_set *out_set, int *maxfd)"
+.br
+.RI "\fIAdds IRC socket(s) for the descriptor set to use in select(). \fP"
+.ti -1c
+.RI "int \fBirc_process_select_descriptors\fP (\fBirc_session_t\fP *session, fd_set *in_set, fd_set *out_set)"
+.br
+.RI "\fIProcesses the IRC socket(s), which descriptor(s) are set. \fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "int irc_add_select_descriptors (\fBirc_session_t\fP * session, fd_set * in_set, fd_set * out_set, int * maxfd)"
+.PP
+Adds IRC socket(s) for the descriptor set to use in select(). 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP An initiated and connected session. 
+.br
+\fIin_set\fP A FD_IN descriptor set for select() 
+.br
+\fIout_set\fP A FD_OUT descriptor set for select() 
+.br
+\fImaxfd\fP A max descriptor found.
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Return code 0 means success. Other value means error, the error code may be obtained through \fBirc_errno()\fP.
+.RE
+.PP
+This function should be used when you already have a program with select() based data processing. You prepare your descriptors, call this function to add session's descriptor(s) into set, and then call select(). When it returns, you should call irc_add_select_descriptors, which sends/recvs all available data, parses received data, calls your callbacks(!), and returns. Then you can process your sockets from set. See the example.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_process_select_descriptors\fP 
+.RE
+.PP
+
+.SS "int irc_process_select_descriptors (\fBirc_session_t\fP * session, fd_set * in_set, fd_set * out_set)"
+.PP
+Processes the IRC socket(s), which descriptor(s) are set. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP An initiated and connected session. 
+.br
+\fIin_set\fP A FD_IN descriptor set for select() 
+.br
+\fIout_set\fP A FD_OUT descriptor set for select()
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Return code 0 means success. Other value means error, the error code may be obtained through \fBirc_errno()\fP.
+.RE
+.PP
+This function should be used in pair with irc_add_select_descriptors function. See irc_add_select_descriptors description.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_add_select_descriptors\fP 
+.RE
+.PP
+
+.SS "int irc_run (\fBirc_session_t\fP * session)"
+.PP
+Goes into forever-loop, processing IRC events and generating callbacks. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP An initiated and connected session.
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Return code 0 means success. Other value means error, the error code may be obtained through \fBirc_errno()\fP.
+.RE
+.PP
+This function goes into forever loop, processing the IRC events, and calling appropriate callbacks. This function will not return until the server connection is terminated - either by server, or by calling irc_cmd_quit. This function should be used, if you don't need asynchronous request processing (i.e. your bot just reacts on the events, and doesn't generate it asynchronously). Even in last case, you still can call irc_run, and start the asynchronous thread in event_connect handler. See examples. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

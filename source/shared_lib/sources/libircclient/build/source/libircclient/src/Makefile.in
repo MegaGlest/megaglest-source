@@ -1,0 +1,39 @@
+# $Id: Makefile.in 84 2009-01-10 01:37:29Z chromerium $
+CC = @CC@
+CFLAGS = -Wall -DIN_BUILDING_LIBIRC @CFLAGS@
+AR=@AR@ cr
+RANLIB=@RANLIB@
+INCLUDES=-I../include
+DESTDIR=
+
+
+OBJS = libircclient.o
+
+all:	lib
+
+lib:	libircclient.a
+
+install: lib
+	-mkdir -p $(DESTDIR)@prefix@/include
+	-mkdir -p $(DESTDIR)@prefix@/lib
+	cp ../include/libircclient.h $(DESTDIR)@prefix@/include/libircclient.h
+	cp ../include/libirc_errors.h $(DESTDIR)@prefix@/include/libirc_errors.h
+	cp ../include/libirc_events.h  $(DESTDIR)@prefix@/include/libirc_events.h 
+	cp libircclient.a $(DESTDIR)@prefix@/lib/libircclient.a
+	cd $(DESTDIR)@prefix@/lib && ln -s libircclient.a libirc.a
+
+$(OBJS): utils.c dcc.c errors.c portable.c sockets.c colors.c
+
+libircclient.a: $(OBJS)
+	$(AR) libircclient.a $(OBJS)
+	$(RANLIB) libircclient.a
+
+clean:
+	rm -f libircclient.a $(OBJS)
+
+distclean: clean
+	-rm -f Makefile
+
+.c.o:
+	@echo "Compiling  $<"
+	@$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<

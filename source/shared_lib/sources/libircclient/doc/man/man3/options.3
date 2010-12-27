@@ -1,0 +1,81 @@
+.TH "Managing libircclient options." 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Managing libircclient options. \- 
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLIBIRC_OPTION_DEBUG\fP   (1 << 1)"
+.br
+.ti -1c
+.RI "#define \fBLIBIRC_OPTION_STRIPNICKS\fP   (1 << 2)"
+.br
+.RI "\fIallows to strip origins automatically. \fP"
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBirc_option_set\fP (\fBirc_session_t\fP *session, unsigned int option)"
+.br
+.RI "\fISets the libircclient option. \fP"
+.ti -1c
+.RI "void \fBirc_option_reset\fP (\fBirc_session_t\fP *session, unsigned int option)"
+.br
+.RI "\fIResets the libircclient option. \fP"
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define LIBIRC_OPTION_DEBUG   (1 << 1)"
+.PP
+enables additional debug output 
+.SS "#define LIBIRC_OPTION_STRIPNICKS   (1 << 2)"
+.PP
+allows to strip origins automatically. 
+.PP
+For every IRC server event, the event origin is sent in standard form: nick!host@ircserver, i.e. like tim!home@irc.krasnogorsk.ru. Such origins can not be used in IRC commands, and need to be stripped (i.e. host and server part should be cut off) before using. This can be done either explicitly, by calling \fBirc_target_get_nick()\fP, or implicitly for all the events - by setting this option with \fBirc_option_set()\fP. 
+.SH "Function Documentation"
+.PP 
+.SS "void irc_option_reset (\fBirc_session_t\fP * session, unsigned int option)"
+.PP
+Resets the libircclient option. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP An initiated session. 
+.br
+\fIoption\fP An option from \fBlibirc_options.h\fP
+.RE
+.PP
+This function removes the previously set libircclient option, changing libircclient behavior. See the option list for the meaning for every option.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_option_set\fP 
+.RE
+.PP
+
+.SS "void irc_option_set (\fBirc_session_t\fP * session, unsigned int option)"
+.PP
+Sets the libircclient option. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP An initiated session. 
+.br
+\fIoption\fP An option from \fBlibirc_options.h\fP
+.RE
+.PP
+This function sets the libircclient option, changing libircclient behavior. See the option list for the meaning for every option.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_option_reset\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

@@ -1,0 +1,1229 @@
+.TH "Numeric reply codes from RFC1459" 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Numeric reply codes from RFC1459 \- 
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WELCOME\fP   001"
+.br
+.RI "\fI001 Welcome to the Internet Relay Network <nick>!<user>@<host> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_YOURHOST\fP   002"
+.br
+.RI "\fI002 Your host is <servername>, running version <ver> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_CREATED\fP   003"
+.br
+.RI "\fI003 This server was created <date> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_MYINFO\fP   004"
+.br
+.RI "\fI004 <servername> <version> <available user modes> <available channel modes> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_BOUNCE\fP   005"
+.br
+.RI "\fI005 Try server <server name>, port <port number> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_USERHOST\fP   302"
+.br
+.RI "\fI302 :*1<reply> *( \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ISON\fP   303"
+.br
+.RI "\fI303 :*1<nick> *( \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_AWAY\fP   301"
+.br
+.RI "\fI301 <nick> :<away message> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_UNAWAY\fP   305"
+.br
+.RI "\fI305 :You are no longer marked as being away \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_NOWAWAY\fP   306"
+.br
+.RI "\fI306 :You have been marked as being away \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOISUSER\fP   311"
+.br
+.RI "\fI311 <nick> <user> <host> * :<real name> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOISSERVER\fP   312"
+.br
+.RI "\fI312 <nick> <server> :<server info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOISOPERATOR\fP   313"
+.br
+.RI "\fI313 <nick> :is an IRC operator \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOISIDLE\fP   317"
+.br
+.RI "\fI317 <nick> <integer> :seconds idle \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFWHOIS\fP   318"
+.br
+.RI "\fI318 <nick> :End of WHOIS list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOISCHANNELS\fP   319"
+.br
+.RI "\fI319 '<nick> :*( ( '@' / '+' ) <channel> ' ' )' \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOWASUSER\fP   314"
+.br
+.RI "\fI314 <nick> <user> <host> * :<real name> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFWHOWAS\fP   369"
+.br
+.RI "\fI369 <nick> :End of WHOWAS \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LIST\fP   322"
+.br
+.RI "\fI322 <channel> <# visible> :<topic> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LISTEND\fP   323"
+.br
+.RI "\fI323 :End of LIST \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_UNIQOPIS\fP   325"
+.br
+.RI "\fI325 <channel> <nickname> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_CHANNELMODEIS\fP   324"
+.br
+.RI "\fI324 <channel> <mode> <mode params> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_NOTOPIC\fP   331"
+.br
+.RI "\fI331 <channel> :No topic is set \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TOPIC\fP   332"
+.br
+.RI "\fI332 <channel> :<topic> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_INVITING\fP   341"
+.br
+.RI "\fI341 <channel> <nick> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_SUMMONING\fP   342"
+.br
+.RI "\fI342 <user> :Summoning user to IRC \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_INVITELIST\fP   346"
+.br
+.RI "\fI346 <channel> <invitemask> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFINVITELIST\fP   347"
+.br
+.RI "\fI347 <channel> :End of channel invite list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_EXCEPTLIST\fP   348"
+.br
+.RI "\fI348 <channel> <exceptionmask> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFEXCEPTLIST\fP   349"
+.br
+.RI "\fI349 <channel> :End of channel exception list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_VERSION\fP   351"
+.br
+.RI "\fI351 <version>.<debuglevel> <server> :<comments> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_WHOREPLY\fP   352"
+.br
+.RI "\fI352 <channel> <user> <host> <server> <nick> ( 'H \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFWHO\fP   315"
+.br
+.RI "\fI315 <name> :End of WHO list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_NAMREPLY\fP   353"
+.br
+.RI "\fI353 ( '= \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFNAMES\fP   366"
+.br
+.RI "\fI366 <channel> :End of NAMES list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LINKS\fP   364"
+.br
+.RI "\fI364 <mask> <server> :<hopcount> <server info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFLINKS\fP   365"
+.br
+.RI "\fI365 <mask> :End of LINKS list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_BANLIST\fP   367"
+.br
+.RI "\fI367 <channel> <banmask> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFBANLIST\fP   368"
+.br
+.RI "\fI368 <channel> :End of channel ban list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_INFO\fP   371"
+.br
+.RI "\fI371 :<string> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFINFO\fP   374"
+.br
+.RI "\fI374 :End of INFO list \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_MOTDSTART\fP   375"
+.br
+.RI "\fI375 :- <server> Message of the day - \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_MOTD\fP   372"
+.br
+.RI "\fI372 :- <text> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFMOTD\fP   376"
+.br
+.RI "\fI376 :End of MOTD command \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_YOUREOPER\fP   381"
+.br
+.RI "\fI381 :You are now an IRC operator \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_REHASHING\fP   382"
+.br
+.RI "\fI382 <config file> :Rehashing \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_YOURESERVICE\fP   383"
+.br
+.RI "\fI383 You are service <servicename> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TIME\fP   391"
+.br
+.RI "\fI391 <server> :<string showing server's local time> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_USERSSTART\fP   392"
+.br
+.RI "\fI392 :UserID Terminal Host \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_USERS\fP   393"
+.br
+.RI "\fI393 :<username> <ttyline> <hostname> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFUSERS\fP   394"
+.br
+.RI "\fI394 :End of users \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_NOUSERS\fP   395"
+.br
+.RI "\fI395 :Nobody logged in \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACELINK\fP   200"
+.br
+.RI "\fI200 Link <version & debug level> <destination> <next server> V<protocol version> <link uptime in seconds> <backstream sendq> <upstream sendq> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACECONNECTING\fP   201"
+.br
+.RI "\fI201 Try. <class> <server> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACEHANDSHAKE\fP   202"
+.br
+.RI "\fI202 H.S. <class> <server> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACEUNKNOWN\fP   203"
+.br
+.RI "\fI203 ???? <class> [<client IP address in dot form>] \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACEOPERATOR\fP   204"
+.br
+.RI "\fI204 Oper <class> <nick> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACEUSER\fP   205"
+.br
+.RI "\fI205 User <class> <nick> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACESERVER\fP   206"
+.br
+.RI "\fI206 Serv <class> <int>S <int>C <server> <nick!user|*!*>@<host|server> V<protocol version> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACESERVICE\fP   207"
+.br
+.RI "\fI207 Service <class> <name> <type> <active type> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACENEWTYPE\fP   208"
+.br
+.RI "\fI208 <newtype> 0 <client name> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACECLASS\fP   209"
+.br
+.RI "\fI209 Class <class> <count> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACELOG\fP   261"
+.br
+.RI "\fI261 File <logfile> <debug level> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRACEEND\fP   262"
+.br
+.RI "\fI262 <server name> <version & debug level> :End of TRACE \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_STATSLINKINFO\fP   211"
+.br
+.RI "\fI211 <linkname> <sendq> <sent messages> <sent Kbytes> <received messages> <received Kbytes> <time open> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_STATSCOMMANDS\fP   212"
+.br
+.RI "\fI212 <command> <count> <byte count> <remote count> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ENDOFSTATS\fP   219"
+.br
+.RI "\fI219 <stats letter> :End of STATS report \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_STATSUPTIME\fP   242"
+.br
+.RI "\fI242 :Server Up d days d:02d:02d \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_STATSOLINE\fP   243"
+.br
+.RI "\fI243 O <hostmask> * <name> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_UMODEIS\fP   221"
+.br
+.RI "\fI221 <user mode string> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_SERVLIST\fP   234"
+.br
+.RI "\fI234 <name> <server> <mask> <type> <hopcount> <info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_SERVLISTEND\fP   235"
+.br
+.RI "\fI235 <mask> <type> :End of service listing \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LUSERCLIENT\fP   251"
+.br
+.RI "\fI251 :There are <integer> users and <integer> services on <integer> servers \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LUSEROP\fP   252"
+.br
+.RI "\fI252 <integer> :operator(s) online \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LUSERUNKNOWN\fP   253"
+.br
+.RI "\fI253 <integer> :unknown connection(s) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LUSERCHANNELS\fP   254"
+.br
+.RI "\fI254 <integer> :channels formed \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_LUSERME\fP   255"
+.br
+.RI "\fI255 :I have <integer> clients and <integer> servers \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ADMINME\fP   256"
+.br
+.RI "\fI256 <server> :Administrative info \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ADMINLOC1\fP   257"
+.br
+.RI "\fI257 :<admin info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ADMINLOC2\fP   258"
+.br
+.RI "\fI258 :<admin info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_ADMINEMAIL\fP   259"
+.br
+.RI "\fI259 :<admin info> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_RPL_TRYAGAIN\fP   263"
+.br
+.RI "\fI263 <command> :Please wait a while and try again. \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOSUCHNICK\fP   401"
+.br
+.RI "\fI401 <nickname> :No such nick/channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOSUCHSERVER\fP   402"
+.br
+.RI "\fI402 <server name> :No such server \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOSUCHCHANNEL\fP   403"
+.br
+.RI "\fI403 <channel name> :No such channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_CANNOTSENDTOCHAN\fP   404"
+.br
+.RI "\fI404 <channel name> :Cannot send to channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_TOOMANYCHANNELS\fP   405"
+.br
+.RI "\fI405 <channel name> :You have joined too many channels \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_WASNOSUCHNICK\fP   406"
+.br
+.RI "\fI406 <nickname> :There was no such nickname \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_TOOMANYTARGETS\fP   407"
+.br
+.RI "\fI407 <target> :<error code> recipients. <abort message> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOSUCHSERVICE\fP   408"
+.br
+.RI "\fI408 <service name> :No such service \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOORIGIN\fP   409"
+.br
+.RI "\fI409 :No origin specified \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NORECIPIENT\fP   411"
+.br
+.RI "\fI411 :No recipient given (<command>) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOTEXTTOSEND\fP   412"
+.br
+.RI "\fI412 :No text to send \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOTOPLEVEL\fP   413"
+.br
+.RI "\fI413 <mask> :No toplevel domain specified \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_WILDTOPLEVEL\fP   414"
+.br
+.RI "\fI414 <mask> :Wildcard in toplevel domain \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_BADMASK\fP   415"
+.br
+.RI "\fI415 <mask> :Bad Server/host mask \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_UNKNOWNCOMMAND\fP   421"
+.br
+.RI "\fI421 <command> :Unknown command \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOMOTD\fP   422"
+.br
+.RI "\fI422 :MOTD File is missing \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOADMININFO\fP   423"
+.br
+.RI "\fI423 <server> :No administrative info available \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_FILEERROR\fP   424"
+.br
+.RI "\fI424 :File error doing <file op> on <file> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NONICKNAMEGIVEN\fP   431"
+.br
+.RI "\fI431 :No nickname given \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_ERRONEUSNICKNAME\fP   432"
+.br
+.RI "\fI432 <nick> :Erroneous nickname \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NICKNAMEINUSE\fP   433"
+.br
+.RI "\fI433 <nick> :Nickname is already in use \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NICKCOLLISION\fP   436"
+.br
+.RI "\fI436 <nick> :Nickname collision KILL from <user>@<host> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_UNAVAILRESOURCE\fP   437"
+.br
+.RI "\fI437 <nick/channel> :Nick/channel is temporarily unavailable \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_USERNOTINCHANNEL\fP   441"
+.br
+.RI "\fI441 <nick> <channel> :They aren't on that channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOTONCHANNEL\fP   442"
+.br
+.RI "\fI442 <channel> :You're not on that channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_USERONCHANNEL\fP   443"
+.br
+.RI "\fI443 <user> <channel> :is already on channel \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOLOGIN\fP   444"
+.br
+.RI "\fI444 <user> :User not logged in \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_SUMMONDISABLED\fP   445"
+.br
+.RI "\fI445 :SUMMON has been disabled \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_USERSDISABLED\fP   446"
+.br
+.RI "\fI446 :USERS has been disabled \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOTREGISTERED\fP   451"
+.br
+.RI "\fI451 :You have not registered \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NEEDMOREPARAMS\fP   461"
+.br
+.RI "\fI461 <command> :Not enough parameters \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_ALREADYREGISTRED\fP   462"
+.br
+.RI "\fI462 :Unauthorized command (already registered) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOPERMFORHOST\fP   463"
+.br
+.RI "\fI463 :Your host isn't among the privileged \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_PASSWDMISMATCH\fP   464"
+.br
+.RI "\fI464 :Password incorrect \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_YOUREBANNEDCREEP\fP   465"
+.br
+.RI "\fI465 :You are banned from this server \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_YOUWILLBEBANNED\fP   466"
+.br
+.RI "\fI466 :You will be banned from this server \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_KEYSET\fP   467"
+.br
+.RI "\fI467 <channel> :Channel key already set \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_CHANNELISFULL\fP   471"
+.br
+.RI "\fI471 <channel> :Cannot join channel (+l) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_UNKNOWNMODE\fP   472"
+.br
+.RI "\fI472 <char> :is unknown mode char to me for <channel> \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_INVITEONLYCHAN\fP   473"
+.br
+.RI "\fI473 <channel> :Cannot join channel (+i) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_BANNEDFROMCHAN\fP   474"
+.br
+.RI "\fI474 <channel> :Cannot join channel (+b) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_BADCHANNELKEY\fP   475"
+.br
+.RI "\fI475 <channel> :Cannot join channel (+k) \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_BADCHANMASK\fP   476"
+.br
+.RI "\fI476 <channel> :Bad Channel Mask \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOCHANMODES\fP   477"
+.br
+.RI "\fI477 <channel> :Channel doesn't support modes \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_BANLISTFULL\fP   478"
+.br
+.RI "\fI478 <channel> <char> :Channel list is full \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOPRIVILEGES\fP   481"
+.br
+.RI "\fI481 :Permission Denied- You're not an IRC operator \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_CHANOPRIVSNEEDED\fP   482"
+.br
+.RI "\fI482 <channel> :You're not channel operator \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_CANTKILLSERVER\fP   483"
+.br
+.RI "\fI483 :You can't kill a server! \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_RESTRICTED\fP   484"
+.br
+.RI "\fI484 :Your connection is restricted! \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_UNIQOPPRIVSNEEDED\fP   485"
+.br
+.RI "\fI485 :You're not the original channel operator \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_NOOPERHOST\fP   491"
+.br
+.RI "\fI491 :No O-lines for your host \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_UMODEUNKNOWNFLAG\fP   501"
+.br
+.RI "\fI501 :Unknown MODE flag \fP"
+.ti -1c
+.RI "#define \fBLIBIRC_RFC_ERR_USERSDONTMATCH\fP   502"
+.br
+.RI "\fI502 :Cannot change mode for other users \fP"
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define LIBIRC_RFC_ERR_ALREADYREGISTRED   462"
+.PP
+462 :Unauthorized command (already registered) 
+.PP
+Returned by the server to any link which tries to change part of the registered details (such as password or user details from second USER message). 
+.SS "#define LIBIRC_RFC_ERR_BADCHANMASK   476"
+.PP
+476 <channel> :Bad Channel Mask 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_BADCHANNELKEY   475"
+.PP
+475 <channel> :Cannot join channel (+k) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_BADMASK   415"
+.PP
+415 <mask> :Bad Server/host mask 
+.PP
+412 - 415 are returned by PRIVMSG to indicate that the message wasn't delivered for some reason. ERR_NOTOPLEVEL and ERR_WILDTOPLEVEL are errors that are returned when an invalid use of 'PRIVMSG $\\<server\\>' or 'PRIVMSG #\\<host\\>' is attempted. 
+.SS "#define LIBIRC_RFC_ERR_BANLISTFULL   478"
+.PP
+478 <channel> <char> :Channel list is full 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_BANNEDFROMCHAN   474"
+.PP
+474 <channel> :Cannot join channel (+b) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_CANNOTSENDTOCHAN   404"
+.PP
+404 <channel name> :Cannot send to channel 
+.PP
+Sent to a user who is either (a) not on a channel which is mode +n or (b) not a chanop (or mode +v) on a channel which has mode +m set or where the user is banned and is trying to send a PRIVMSG message to that channel. 
+.SS "#define LIBIRC_RFC_ERR_CANTKILLSERVER   483"
+.PP
+483 :You can't kill a server! 
+.PP
+Any attempts to use the KILL command on a server are to be refused and this error returned directly to the client. 
+.SS "#define LIBIRC_RFC_ERR_CHANNELISFULL   471"
+.PP
+471 <channel> :Cannot join channel (+l) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_CHANOPRIVSNEEDED   482"
+.PP
+482 <channel> :You're not channel operator 
+.PP
+Any command requiring 'chanop' privileges (such as MODE messages) MUST return this error if the client making the attempt is not a chanop on the specified channel. 
+.SS "#define LIBIRC_RFC_ERR_ERRONEUSNICKNAME   432"
+.PP
+432 <nick> :Erroneous nickname 
+.PP
+Returned after receiving a NICK message which contains characters which do not fall in the defined set. See section 2.3.1 for details on valid nicknames. 
+.SS "#define LIBIRC_RFC_ERR_FILEERROR   424"
+.PP
+424 :File error doing <file op> on <file> 
+.PP
+Generic error message used to report a failed file operation during the processing of a message. 
+.SS "#define LIBIRC_RFC_ERR_INVITEONLYCHAN   473"
+.PP
+473 <channel> :Cannot join channel (+i) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_KEYSET   467"
+.PP
+467 <channel> :Channel key already set 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_NEEDMOREPARAMS   461"
+.PP
+461 <command> :Not enough parameters 
+.PP
+Returned by the server by numerous commands to indicate to the client that it didn't supply enough parameters. 
+.SS "#define LIBIRC_RFC_ERR_NICKCOLLISION   436"
+.PP
+436 <nick> :Nickname collision KILL from <user>@<host> 
+.PP
+Returned by a server to a client when it detects a nickname collision (registered of a NICK that already exists by another server). 
+.SS "#define LIBIRC_RFC_ERR_NICKNAMEINUSE   433"
+.PP
+433 <nick> :Nickname is already in use 
+.PP
+Returned when a NICK message is processed that results in an attempt to change to a currently existing nickname. 
+.SS "#define LIBIRC_RFC_ERR_NOADMININFO   423"
+.PP
+423 <server> :No administrative info available 
+.PP
+Returned by a server in response to an ADMIN message when there is an error in finding the appropriate information. 
+.SS "#define LIBIRC_RFC_ERR_NOCHANMODES   477"
+.PP
+477 <channel> :Channel doesn't support modes 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_NOLOGIN   444"
+.PP
+444 <user> :User not logged in 
+.PP
+Returned by the summon after a SUMMON command for a user was unable to be performed since they were not logged in. 
+.SS "#define LIBIRC_RFC_ERR_NOMOTD   422"
+.PP
+422 :MOTD File is missing 
+.PP
+Server's MOTD file could not be opened by the server. 
+.SS "#define LIBIRC_RFC_ERR_NONICKNAMEGIVEN   431"
+.PP
+431 :No nickname given 
+.PP
+Returned when a nickname parameter expected for a command and isn't found. 
+.SS "#define LIBIRC_RFC_ERR_NOOPERHOST   491"
+.PP
+491 :No O-lines for your host 
+.PP
+If a client sends an OPER message and the server has not been configured to allow connections from the client's host as an operator, this error MUST be returned. 
+.SS "#define LIBIRC_RFC_ERR_NOORIGIN   409"
+.PP
+409 :No origin specified 
+.PP
+PING or PONG message missing the originator parameter. 
+.SS "#define LIBIRC_RFC_ERR_NOPERMFORHOST   463"
+.PP
+463 :Your host isn't among the privileged 
+.PP
+Returned to a client which attempts to register with a server which does not been setup to allow connections from the host the attempted connection is tried. 
+.SS "#define LIBIRC_RFC_ERR_NOPRIVILEGES   481"
+.PP
+481 :Permission Denied- You're not an IRC operator 
+.PP
+Any command requiring operator privileges to operate MUST return this error to indicate the attempt was unsuccessful. 
+.SS "#define LIBIRC_RFC_ERR_NORECIPIENT   411"
+.PP
+411 :No recipient given (<command>) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_NOSUCHCHANNEL   403"
+.PP
+403 <channel name> :No such channel 
+.PP
+Used to indicate the given channel name is invalid. 
+.SS "#define LIBIRC_RFC_ERR_NOSUCHNICK   401"
+.PP
+401 <nickname> :No such nick/channel 
+.PP
+Used to indicate the nickname parameter supplied to a command is currently unused. 
+.SS "#define LIBIRC_RFC_ERR_NOSUCHSERVER   402"
+.PP
+402 <server name> :No such server 
+.PP
+Used to indicate the server name given currently does not exist. 
+.SS "#define LIBIRC_RFC_ERR_NOSUCHSERVICE   408"
+.PP
+408 <service name> :No such service 
+.PP
+Returned to a client which is attempting to send a SQUERY to a service which does not exist. 
+.SS "#define LIBIRC_RFC_ERR_NOTEXTTOSEND   412"
+.PP
+412 :No text to send 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_NOTONCHANNEL   442"
+.PP
+442 <channel> :You're not on that channel 
+.PP
+Returned by the server whenever a client tries to perform a channel affecting command for which the client isn't a member. 
+.SS "#define LIBIRC_RFC_ERR_NOTOPLEVEL   413"
+.PP
+413 <mask> :No toplevel domain specified 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_NOTREGISTERED   451"
+.PP
+451 :You have not registered 
+.PP
+Returned by the server to indicate that the client MUST be registered before the server will allow it to be parsed in detail. 
+.SS "#define LIBIRC_RFC_ERR_PASSWDMISMATCH   464"
+.PP
+464 :Password incorrect 
+.PP
+Returned to indicate a failed attempt at registering a connection for which a password was required and was either not given or incorrect. 
+.SS "#define LIBIRC_RFC_ERR_RESTRICTED   484"
+.PP
+484 :Your connection is restricted! 
+.PP
+Sent by the server to a user upon connection to indicate the restricted nature of the connection (user mode '+r'). 
+.SS "#define LIBIRC_RFC_ERR_SUMMONDISABLED   445"
+.PP
+445 :SUMMON has been disabled 
+.PP
+Returned as a response to the SUMMON command. MUST be returned by any server which doesn't implement it. 
+.SS "#define LIBIRC_RFC_ERR_TOOMANYCHANNELS   405"
+.PP
+405 <channel name> :You have joined too many channels 
+.PP
+Sent to a user when they have joined the maximum number of allowed channels and they try to join another channel. 
+.SS "#define LIBIRC_RFC_ERR_TOOMANYTARGETS   407"
+.PP
+407 <target> :<error code> recipients. <abort message> 
+.PP
+Returned to a client which is attempting to send a PRIVMSG/NOTICE using the user@host destination format and for a user@host which has several occurrences. - Returned to a client which trying to send a PRIVMSG/NOTICE to too many recipients. - Returned to a client which is attempting to JOIN a safe channel using the shortname when there are more than one such channel. 
+.SS "#define LIBIRC_RFC_ERR_UMODEUNKNOWNFLAG   501"
+.PP
+501 :Unknown MODE flag 
+.PP
+Returned by the server to indicate that a MODE message was sent with a nickname parameter and that the a mode flag sent was not recognized. 
+.SS "#define LIBIRC_RFC_ERR_UNAVAILRESOURCE   437"
+.PP
+437 <nick/channel> :Nick/channel is temporarily unavailable 
+.PP
+Returned by a server to a user trying to join a channel currently blocked by the channel delay mechanism. - Returned by a server to a user trying to change nickname when the desired nickname is blocked by the nick delay mechanism. 
+.SS "#define LIBIRC_RFC_ERR_UNIQOPPRIVSNEEDED   485"
+.PP
+485 :You're not the original channel operator 
+.PP
+Any MODE requiring 'channel creator' privileges MUST return this error if the client making the attempt is not a chanop on the specified channel. 
+.SS "#define LIBIRC_RFC_ERR_UNKNOWNCOMMAND   421"
+.PP
+421 <command> :Unknown command 
+.PP
+Returned to a registered client to indicate that the command sent is unknown by the server. 
+.SS "#define LIBIRC_RFC_ERR_UNKNOWNMODE   472"
+.PP
+472 <char> :is unknown mode char to me for <channel> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_USERNOTINCHANNEL   441"
+.PP
+441 <nick> <channel> :They aren't on that channel 
+.PP
+Returned by the server to indicate that the target user of the command is not on the given channel. 
+.SS "#define LIBIRC_RFC_ERR_USERONCHANNEL   443"
+.PP
+443 <user> <channel> :is already on channel 
+.PP
+Returned when a client tries to invite a user to a channel they are already on. 
+.SS "#define LIBIRC_RFC_ERR_USERSDISABLED   446"
+.PP
+446 :USERS has been disabled 
+.PP
+Returned as a response to the USERS command. MUST be returned by any server which does not implement it. 
+.SS "#define LIBIRC_RFC_ERR_USERSDONTMATCH   502"
+.PP
+502 :Cannot change mode for other users 
+.PP
+Error sent to any user trying to view or change the user mode for a user other than themselves. 
+.SS "#define LIBIRC_RFC_ERR_WASNOSUCHNICK   406"
+.PP
+406 <nickname> :There was no such nickname 
+.PP
+Returned by WHOWAS to indicate there is no history information for that nickname. 
+.SS "#define LIBIRC_RFC_ERR_WILDTOPLEVEL   414"
+.PP
+414 <mask> :Wildcard in toplevel domain 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_ERR_YOUREBANNEDCREEP   465"
+.PP
+465 :You are banned from this server 
+.PP
+Returned after an attempt to connect and register yourself with a server which has been setup to explicitly deny connections to you. 
+.SS "#define LIBIRC_RFC_ERR_YOUWILLBEBANNED   466"
+.PP
+466 :You will be banned from this server 
+.PP
+Sent by a server to a user to inform that access to the server will soon be denied. 
+.SS "#define LIBIRC_RFC_RPL_ADMINEMAIL   259"
+.PP
+259 :<admin info> 
+.PP
+When replying to an ADMIN message, a server is expected to use replies RPL_ADMINME through to RPL_ADMINEMAIL and provide a text message with each. For RPL_ADMINLOC1 a description of what city, state and country the server is in is expected, followed by details of the institution (RPL_ADMINLOC2) and finally the administrative contact for the server (an email address here is REQUIRED) in RPL_ADMINEMAIL. 
+.SS "#define LIBIRC_RFC_RPL_ADMINLOC1   257"
+.PP
+257 :<admin info> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_ADMINLOC2   258"
+.PP
+258 :<admin info> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_ADMINME   256"
+.PP
+256 <server> :Administrative info 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_AWAY   301"
+.PP
+301 <nick> :<away message> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_BANLIST   367"
+.PP
+367 <channel> <banmask> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_BOUNCE   005"
+.PP
+005 Try server <server name>, port <port number> 
+.PP
+Sent by the server to a user to suggest an alternative server. This is often used when the connection is refused because the server is already full. 
+.SS "#define LIBIRC_RFC_RPL_CHANNELMODEIS   324"
+.PP
+324 <channel> <mode> <mode params> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_CREATED   003"
+.PP
+003 This server was created <date> 
+.PP
+The server sends replies 001 to 004 to a user upon successful registration. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFBANLIST   368"
+.PP
+368 <channel> :End of channel ban list 
+.PP
+When listing the active 'bans' for a given channel, a server is required to send the list back using the RPL_BANLIST and RPL_ENDOFBANLIST messages. A separate RPL_BANLIST is sent for each active banmask. After the banmasks have been listed (or if none present) a RPL_ENDOFBANLIST MUST be sent. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFEXCEPTLIST   349"
+.PP
+349 <channel> :End of channel exception list 
+.PP
+When listing the 'exception masks' for a given channel, a server is required to send the list back using the RPL_EXCEPTLIST and RPL_ENDOFEXCEPTLIST messages. A separate RPL_EXCEPTLIST is sent for each active mask. After the masks have been listed (or if none present) a RPL_ENDOFEXCEPTLIST MUST be sent. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFINFO   374"
+.PP
+374 :End of INFO list 
+.PP
+A server responding to an INFO message is required to send all its 'info' in a series of RPL_INFO messages with a RPL_ENDOFINFO reply to indicate the end of the replies. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFINVITELIST   347"
+.PP
+347 <channel> :End of channel invite list 
+.PP
+When listing the 'invitations masks' for a given channel, a server is required to send the list back using the RPL_INVITELIST and RPL_ENDOFINVITELIST messages. A separate RPL_INVITELIST is sent for each active mask. After the masks have been listed (or if none present) a RPL_ENDOFINVITELIST MUST be sent. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFLINKS   365"
+.PP
+365 <mask> :End of LINKS list 
+.PP
+In replying to the LINKS message, a server MUST send replies back using the RPL_LINKS numeric and mark the end of the list using an RPL_ENDOFLINKS reply. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFMOTD   376"
+.PP
+376 :End of MOTD command 
+.PP
+When responding to the MOTD message and the MOTD file is found, the file is displayed line by line, with each line no longer than 80 characters, using RPL_MOTD format replies. These MUST be surrounded by a RPL_MOTDSTART (before the RPL_MOTDs) and an RPL_ENDOFMOTD (after). 
+.SS "#define LIBIRC_RFC_RPL_ENDOFNAMES   366"
+.PP
+366 <channel> :End of NAMES list 
+.PP
+To reply to a NAMES message, a reply pair consisting of RPL_NAMREPLY and RPL_ENDOFNAMES is sent by the server back to the client. If there is no channel found as in the query, then only RPL_ENDOFNAMES is returned. The exception to this is when a NAMES message is sent with no parameters and all visible channels and contents are sent back in a series of RPL_NAMEREPLY messages with a RPL_ENDOFNAMES to mark the end. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFSTATS   219"
+.PP
+219 <stats letter> :End of STATS report 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_ENDOFUSERS   394"
+.PP
+394 :End of users 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_ENDOFWHO   315"
+.PP
+315 <name> :End of WHO list 
+.PP
+The RPL_WHOREPLY and RPL_ENDOFWHO pair are used to answer a WHO message. The RPL_WHOREPLY is only sent if there is an appropriate match to the WHO query. If there is a list of parameters supplied with a WHO message, a RPL_ENDOFWHO MUST be sent after processing each list item with <name> being the item. 
+.SS "#define LIBIRC_RFC_RPL_ENDOFWHOIS   318"
+.PP
+318 <nick> :End of WHOIS list 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_ENDOFWHOWAS   369"
+.PP
+369 <nick> :End of WHOWAS 
+.PP
+When replying to a WHOWAS message, a server MUST use the replies RPL_WHOWASUSER, RPL_WHOISSERVER or ERR_WASNOSUCHNICK for each nickname in the presented list. At the end of all reply batches, there MUST be RPL_ENDOFWHOWAS (even if there was only one reply and it was an error). 
+.SS "#define LIBIRC_RFC_RPL_EXCEPTLIST   348"
+.PP
+348 <channel> <exceptionmask> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_INFO   371"
+.PP
+371 :<string> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_INVITELIST   346"
+.PP
+346 <channel> <invitemask> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_INVITING   341"
+.PP
+341 <channel> <nick> 
+.PP
+Returned by the server to indicate that the attempted INVITE message was successful and is being passed onto the end client. 
+.SS "#define LIBIRC_RFC_RPL_ISON   303"
+.PP
+303 :*1<nick> *( 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LINKS   364"
+.PP
+364 <mask> <server> :<hopcount> <server info> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LIST   322"
+.PP
+322 <channel> <# visible> :<topic> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LISTEND   323"
+.PP
+323 :End of LIST 
+.PP
+Replies RPL_LIST, RPL_LISTEND mark the actual replies with data and end of the server's response to a LIST command. If there are no channels available to return, only the end reply MUST be sent. 
+.SS "#define LIBIRC_RFC_RPL_LUSERCHANNELS   254"
+.PP
+254 <integer> :channels formed 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LUSERCLIENT   251"
+.PP
+251 :There are <integer> users and <integer> services on <integer> servers 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LUSERME   255"
+.PP
+255 :I have <integer> clients and <integer> servers 
+.PP
+In processing an LUSERS message, the server sends a set of replies from RPL_LUSERCLIENT, RPL_LUSEROP, RPL_USERUNKNOWN, RPL_LUSERCHANNELS and RPL_LUSERME. When replying, a server MUST send back RPL_LUSERCLIENT and RPL_LUSERME. The other replies are only sent back if a non-zero count is found for them. 
+.SS "#define LIBIRC_RFC_RPL_LUSEROP   252"
+.PP
+252 <integer> :operator(s) online 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_LUSERUNKNOWN   253"
+.PP
+253 <integer> :unknown connection(s) 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_MOTD   372"
+.PP
+372 :- <text> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_MOTDSTART   375"
+.PP
+375 :- <server> Message of the day - 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_MYINFO   004"
+.PP
+004 <servername> <version> <available user modes> <available channel modes> 
+.PP
+The server sends replies 001 to 004 to a user upon successful registration. 
+.SS "#define LIBIRC_RFC_RPL_NAMREPLY   353"
+.PP
+353 ( '= 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_NOTOPIC   331"
+.PP
+331 <channel> :No topic is set 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_NOUSERS   395"
+.PP
+395 :Nobody logged in 
+.PP
+If the USERS message is handled by a server, the replies RPL_USERSTART, RPL_USERS, RPL_ENDOFUSERS and RPL_NOUSERS are used. RPL_USERSSTART MUST be sent first, following by either a sequence of RPL_USERS or a single RPL_NOUSER. Following this is RPL_ENDOFUSERS. 
+.SS "#define LIBIRC_RFC_RPL_NOWAWAY   306"
+.PP
+306 :You have been marked as being away 
+.PP
+These replies are used with the AWAY command (if allowed). RPL_AWAY is sent to any client sending a PRIVMSG to a client which is away. RPL_AWAY is only sent by the server to which the client is connected. Replies RPL_UNAWAY and RPL_NOWAWAY are sent when the client removes and sets an AWAY message. 
+.SS "#define LIBIRC_RFC_RPL_REHASHING   382"
+.PP
+382 <config file> :Rehashing 
+.PP
+If the REHASH option is used and an operator sends a REHASH message, an RPL_REHASHING is sent back to the operator. 
+.SS "#define LIBIRC_RFC_RPL_SERVLIST   234"
+.PP
+234 <name> <server> <mask> <type> <hopcount> <info> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_SERVLISTEND   235"
+.PP
+235 <mask> <type> :End of service listing 
+.PP
+When listing services in reply to a SERVLIST message, a server is required to send the list back using the RPL_SERVLIST and RPL_SERVLISTEND messages. A separate RPL_SERVLIST is sent for each service. After the services have been listed (or if none present) a RPL_SERVLISTEND MUST be sent. 
+.SS "#define LIBIRC_RFC_RPL_STATSCOMMANDS   212"
+.PP
+212 <command> <count> <byte count> <remote count> 
+.PP
+reports statistics on commands usage. 
+.SS "#define LIBIRC_RFC_RPL_STATSLINKINFO   211"
+.PP
+211 <linkname> <sendq> <sent messages> <sent Kbytes> <received messages> <received Kbytes> <time open> 
+.PP
+reports statistics on a connection. <linkname> identifies the particular connection, <sendq> is the amount of data that is queued and waiting to be sent <sent messages> the number of messages sent, and <sent Kbytes> the amount of data sent, in Kbytes. <received messages> and <received Kbytes> are the equivalent of <sent messages> and <sent Kbytes> for received data, respectively. <time open> indicates how long ago the connection was opened, in seconds. 
+.SS "#define LIBIRC_RFC_RPL_STATSOLINE   243"
+.PP
+243 O <hostmask> * <name> 
+.PP
+reports the allowed hosts from where user may become IRC operators. 
+.SS "#define LIBIRC_RFC_RPL_STATSUPTIME   242"
+.PP
+242 :Server Up d days d:02d:02d 
+.PP
+reports the server uptime. 
+.SS "#define LIBIRC_RFC_RPL_SUMMONING   342"
+.PP
+342 <user> :Summoning user to IRC 
+.PP
+Returned by a server answering a SUMMON message to indicate that it is summoning that user. 
+.SS "#define LIBIRC_RFC_RPL_TIME   391"
+.PP
+391 <server> :<string showing server's local time> 
+.PP
+When replying to the TIME message, a server MUST send the reply using the RPL_TIME format above. The string showing the time need only contain the correct day and time there. There is no further requirement for the time string. 
+.SS "#define LIBIRC_RFC_RPL_TOPIC   332"
+.PP
+332 <channel> :<topic> 
+.PP
+When sending a TOPIC message to determine the channel topic, one of two replies is sent. If the topic is set, RPL_TOPIC is sent back else RPL_NOTOPIC. 
+.SS "#define LIBIRC_RFC_RPL_TRACECLASS   209"
+.PP
+209 Class <class> <count> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACECONNECTING   201"
+.PP
+201 Try. <class> <server> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACEEND   262"
+.PP
+262 <server name> <version & debug level> :End of TRACE 
+.PP
+The RPL_TRACE* are all returned by the server in response to the TRACE message. How many are returned is dependent on the TRACE message and whether it was sent by an operator or not. There is no predefined order for which occurs first. Replies RPL_TRACEUNKNOWN, RPL_TRACECONNECTING and RPL_TRACEHANDSHAKE are all used for connections which have not been fully established and are either unknown, still attempting to connect or in the process of completing the 'server handshake'. RPL_TRACELINK is sent by any server which handles a TRACE message and has to pass it on to another server. The list of RPL_TRACELINKs sent in response to a TRACE command traversing the IRC network should reflect the actual connectivity of the servers themselves along that path. RPL_TRACENEWTYPE is to be used for any connection which does not fit in the other categories but is being displayed anyway. RPL_TRACEEND is sent to indicate the end of the list. 
+.SS "#define LIBIRC_RFC_RPL_TRACEHANDSHAKE   202"
+.PP
+202 H.S. <class> <server> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACELINK   200"
+.PP
+200 Link <version & debug level> <destination> <next server> V<protocol version> <link uptime in seconds> <backstream sendq> <upstream sendq> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACELOG   261"
+.PP
+261 File <logfile> <debug level> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACENEWTYPE   208"
+.PP
+208 <newtype> 0 <client name> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACEOPERATOR   204"
+.PP
+204 Oper <class> <nick> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACESERVER   206"
+.PP
+206 Serv <class> <int>S <int>C <server> <nick!user|*!*>@<host|server> V<protocol version> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACESERVICE   207"
+.PP
+207 Service <class> <name> <type> <active type> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACEUNKNOWN   203"
+.PP
+203 ???? <class> [<client IP address in dot form>] 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRACEUSER   205"
+.PP
+205 User <class> <nick> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_TRYAGAIN   263"
+.PP
+263 <command> :Please wait a while and try again. 
+.PP
+When a server drops a command without processing it, it MUST use the reply RPL_TRYAGAIN to inform the originating client. 
+.SS "#define LIBIRC_RFC_RPL_UMODEIS   221"
+.PP
+221 <user mode string> 
+.PP
+To answer a query about a client's own mode, RPL_UMODEIS is sent back. 
+.SS "#define LIBIRC_RFC_RPL_UNAWAY   305"
+.PP
+305 :You are no longer marked as being away 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_UNIQOPIS   325"
+.PP
+325 <channel> <nickname> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_USERHOST   302"
+.PP
+302 :*1<reply> *( 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_USERS   393"
+.PP
+393 :<username> <ttyline> <hostname> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_USERSSTART   392"
+.PP
+392 :UserID Terminal Host 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_VERSION   351"
+.PP
+351 <version>.<debuglevel> <server> :<comments> 
+.PP
+Reply by the server showing its version details. The <version> is the version of the software being used (including any patchlevel revisions) and the <debuglevel> is used to indicate if the server is running in 'debug mode'. The 'comments' field may contain any comments about the version or further version details. 
+.SS "#define LIBIRC_RFC_RPL_WELCOME   001"
+.PP
+001 Welcome to the Internet Relay Network <nick>!<user>@<host> 
+.PP
+The server sends replies 001 to 004 to a user upon successful registration. 
+.SS "#define LIBIRC_RFC_RPL_WHOISCHANNELS   319"
+.PP
+319 '<nick> :*( ( '@' / '+' ) <channel> ' ' )' 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOISIDLE   317"
+.PP
+317 <nick> <integer> :seconds idle 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOISOPERATOR   313"
+.PP
+313 <nick> :is an IRC operator 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOISSERVER   312"
+.PP
+312 <nick> <server> :<server info> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOISUSER   311"
+.PP
+311 <nick> <user> <host> * :<real name> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOREPLY   352"
+.PP
+352 <channel> <user> <host> <server> <nick> ( 'H 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_WHOWASUSER   314"
+.PP
+314 <nick> <user> <host> * :<real name> 
+.PP
+No description available in RFC 
+.SS "#define LIBIRC_RFC_RPL_YOUREOPER   381"
+.PP
+381 :You are now an IRC operator 
+.PP
+RPL_YOUREOPER is sent back to a client which has just successfully issued an OPER message and gained operator status. 
+.SS "#define LIBIRC_RFC_RPL_YOURESERVICE   383"
+.PP
+383 You are service <servicename> 
+.PP
+Sent by the server to a service upon successful registration. 
+.SS "#define LIBIRC_RFC_RPL_YOURHOST   002"
+.PP
+002 Your host is <servername>, running version <ver> 
+.PP
+The server sends replies 001 to 004 to a user upon successful registration. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

@@ -96,8 +96,7 @@ IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-           ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib
-           ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
+           ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
 
 	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/include

@@ -1,0 +1,68 @@
+.TH "Initiating and destroying IRC session." 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Initiating and destroying IRC session. \- 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBirc_session_t\fP * \fBirc_create_session\fP (\fBirc_callbacks_t\fP *callbacks)"
+.br
+.RI "\fICreates and initiates a new IRC session. \fP"
+.ti -1c
+.RI "void \fBirc_destroy_session\fP (\fBirc_session_t\fP *session)"
+.br
+.RI "\fIDestroys previously created IRC session. \fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "\fBirc_session_t\fP * irc_create_session (\fBirc_callbacks_t\fP * callbacks)"
+.PP
+Creates and initiates a new IRC session. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcallbacks\fP A structure, which defines several callbacks, which will be called on appropriate events. Must not be NULL.
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+An \fBirc_session_t\fP object, or 0 if creation failed. Usually, failure is caused by out of memory error.
+.RE
+.PP
+Every \fBirc_session_t\fP object describes a single IRC session - a connection to an IRC server, and possibly to some DCC clients. Almost every irc_* function requires this object to be passed to, and therefore this function should be called first.
+.PP
+Every session created must be destroyed when it is not needed anymore by calling \fBirc_destroy_session()\fP.
+.PP
+The most common function sequence is: 
+.PP
+.nf
+  ... prepare irc_callbacks_t structure ...
+  irc_create_session();
+  irc_connect();
+  irc_run();
+  irc_destroy_session();
+
+.fi
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBirc_destroy_session\fP 
+.RE
+.PP
+
+.SS "void irc_destroy_session (\fBirc_session_t\fP * session)"
+.PP
+Destroys previously created IRC session. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsession\fP A session to destroy. Must not be NULL.
+.RE
+.PP
+This function should be used to destroy an IRC session, close the connection to the IRC server, and free all the used resources. After calling this function, you should not use this session object anymore. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

@@ -1,0 +1,21 @@
+IRCClient.framework 1.0 by Nathan Ollerenshaw (chrome@stupendous.net)
+
+This is a Cocoa framework wrapper around Georgy Yunaev's (gyunaev@ulduzsoft.com)
+excellent libircclient library.
+
+While Georgy's library is portable, obviously this Cocoa framework is specific
+to Mac OS X systems. Though you might be able to get it working under
+cocotron or GNUstep, those implementations of Cocoa are not supported.
+
+To build the framework, you will need to configure libircclient library first. 
+From the Terminal, run the following command in the distribution directory:
+
+ ./configure --enable-thread --enable-ipv6
+
+The Xcode project is configured to include the libircclient.c source.
+
+The framework is configured to build with a relative path of ../Frameworks/ so
+it can be easily embedded in your application.
+
+For documentation, examine the header files or read the Doxygen documentations
+in 'doc'.

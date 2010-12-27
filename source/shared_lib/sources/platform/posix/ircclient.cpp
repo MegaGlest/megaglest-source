@@ -13,16 +13,7 @@
 #include "ircclient.h"
 #include "util.h"
 #include "platform_common.h"
-
-#ifndef WIN32
-  #ifndef _LIBIRCCLIENTLOCAL
-    #include <libircclient/libircclient.h>
-  #else
-    #include "libircclient.h"
-  #endif
-#else
 #include "libircclient.h"
-#endif
 
 #include <stdio.h>
 #include <stdarg.h>
