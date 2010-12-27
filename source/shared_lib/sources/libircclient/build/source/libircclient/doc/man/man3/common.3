@@ -1,0 +1,32 @@
+.TH "Getting libircclient version." 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Getting libircclient version. \- 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBirc_get_version\fP (unsigned int *high, unsigned int *low)"
+.br
+.RI "\fIObtains a libircclient version. \fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void irc_get_version (unsigned int * high, unsigned int * low)"
+.PP
+Obtains a libircclient version. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIhigh\fP A pointer to receive the high version part. 
+.br
+\fIlow\fP A pointer to receive the low version part.
+.RE
+.PP
+This function returns the libircclient version. You can use the version either to check whether required options are available, or to output the version. The preferred printf-like format string to output the version is:
+.PP
+printf ('Version: %d.%02d', high, low); 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

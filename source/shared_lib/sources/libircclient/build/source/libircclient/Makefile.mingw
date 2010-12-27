@@ -1,0 +1,44 @@
+# You must have mingw installed.
+
+BUILD=build/
+SRCDIR=$(BUILD)/source
+LIBDIR=$(BUILD)/lib
+OBJS=src/libircclient.obj
+
+all: prep static dynamic package-win32 package-linux
+
+prep:
+	mkdir -p $(LIBDIR)
+
+$(OBJS) : src/colors.c  src/dcc.c  src/errors.c  src/libircclient.c  src/portable.c  src/sockets.c  src/utils.c Makefile.mingw
+
+src/libircclient.obj: src/libircclient.c
+	i586-mingw32msvc-gcc -Iinclude -O2 -s -Isrc -DWIN32 -c -o src/libircclient.obj src/libircclient.c
+
+static: $(OBJS)
+	i586-mingw32msvc-ar cr $(LIBDIR)/libircclient-static.lib $(OBJS)
+	i586-mingw32msvc-ranlib $(LIBDIR)/libircclient-static.lib
+
+dynamic: $(OBJS)
+	i586-mingw32msvc-gcc -s -shared $(OBJS) src/libircclient.def -o $(LIBDIR)/libircclient.dll -Wl,-out-implib,$(LIBDIR)/libircclient.lib -lkernel32 -lwsock32
+
+docs:
+	doxygen Doxyfile
+
+package-win32:
+	mkdir -p $(BUILD)/doc
+	mkdir -p $(BUILD)/include
+	mkdir -p $(BUILD)/examples
+	cp include/libircclient.h include/libirc_errors.h include/libirc_events.h $(BUILD)/include/
+	cp include/libircclient.h include/libirc_errors.h include/libirc_events.h $(BUILD)/include/
+	cp examples/*.cpp examples/*.c $(BUILD)/examples/
+	cp src/win32/spammer.dsp $(BUILD)/examples/
+	cp doc/html/* $(BUILD)/doc/
+	rm -f libircclient-win32.zip
+	(cd $(BUILD) && zip -r ../libircclient-win32.zip .)
+
+package-linux:
+	mkdir -p $(SRCDIR)
+	rm -rf $(SRCDIR)/libircclient
+	svn export . $(SRCDIR)/libircclient
+	(cd $(SRCDIR) && tar zcf ../../libircclient.tar.gz libircclient)

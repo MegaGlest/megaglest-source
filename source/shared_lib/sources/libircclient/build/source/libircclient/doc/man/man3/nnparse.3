@@ -1,0 +1,50 @@
+.TH "Nickname parsing." 3 "10 Jan 2009" "Version 1.3" "libircclient" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Nickname parsing. \- 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBirc_target_get_nick\fP (const char *target, char *nick, size_t size)"
+.br
+.RI "\fIGets the nick part from the target. \fP"
+.ti -1c
+.RI "void \fBirc_target_get_host\fP (const char *target, char *nick, size_t size)"
+.br
+.RI "\fIGets the host part from the target. \fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void irc_target_get_host (const char * target, char * nick, size_t size)"
+.PP
+Gets the host part from the target. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItarget\fP A nick in common IRC server form like tim!root@mydomain.com 
+.br
+\fInick\fP A buffer to hold the nickname. 
+.br
+\fIsize\fP A buffer size. If nick is longer than buffer size, it will be truncated.
+.RE
+.PP
+For most events IRC server returns 'origin' (i.e. the person, who generated this event) in i.e. 'common' form, like nick!host@domain. I don't know any command, which requires host, but it may be useful :) This function parses this origin, and gets the host, storing it into user-provided buffer. 
+.SS "void irc_target_get_nick (const char * target, char * nick, size_t size)"
+.PP
+Gets the nick part from the target. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItarget\fP A nick in common IRC server form like tim!root@mycomain.com 
+.br
+\fInick\fP A buffer to hold the nickname. 
+.br
+\fIsize\fP A buffer size. If nick is longer than buffer size, it will be truncated.
+.RE
+.PP
+For most events IRC server returns 'origin' (i.e. the person, who generated this event) in i.e. 'common' form, like nick!host@domain. However, all the irc_cmd_* functions require just a nick/ This function parses this origin, and gets the nick, storing it into user-provided buffer. A buffer of size 90 should be enough for most nicks :) 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for libircclient from the source code.

@@ -1,0 +1,408 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		693CA3360F188B3400BF8670 /* libircclient.c in Sources */ = {isa = PBXBuildFile; fileRef = 693CA3350F188B3400BF8670 /* libircclient.c */; };
+		694762D30F10AAAE002C0318 /* DDInvocationGrabber.h in Headers */ = {isa = PBXBuildFile; fileRef = 694762CB0F10AAAE002C0318 /* DDInvocationGrabber.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		694762D40F10AAAE002C0318 /* DDInvocationGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 694762CC0F10AAAE002C0318 /* DDInvocationGrabber.m */; };
+		694762D50F10AAAE002C0318 /* NSObject+DDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 694762CD0F10AAAE002C0318 /* NSObject+DDExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		694762D60F10AAAE002C0318 /* NSObject+DDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 694762CE0F10AAAE002C0318 /* NSObject+DDExtensions.m */; };
+		694762D70F10AAAE002C0318 /* IRCClientChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 694762CF0F10AAAE002C0318 /* IRCClientChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		694762D80F10AAAE002C0318 /* IRCClientChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 694762D00F10AAAE002C0318 /* IRCClientChannel.m */; };
+		694762D90F10AAAE002C0318 /* IRCClientSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 694762D10F10AAAE002C0318 /* IRCClientSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		694762DA0F10AAAE002C0318 /* IRCClientSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 694762D20F10AAAE002C0318 /* IRCClientSession.m */; };
+		6947631E0F10AE32002C0318 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 6947631D0F10AE32002C0318 /* LICENSE */; };
+		694763200F10AE46002C0318 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 6947631F0F10AE46002C0318 /* README */; };
+		6989EABC0F1861FB0083030A /* IRCClientChannelDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 6989EABA0F1861FB0083030A /* IRCClientChannelDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6989EAC00F1862090083030A /* IRCClientSessionDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 6989EABE0F1862090083030A /* IRCClientSessionDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6989EADD0F18810C0083030A /* Doxyfile in Resources */ = {isa = PBXBuildFile; fileRef = 6989EADC0F18810C0083030A /* Doxyfile */; };
+		69B1CAAC0F1F2F1B00EF6DE2 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA10F1F2F1B00EF6DE2 /* config.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAAD0F1F2F1B00EF6DE2 /* libirc_dcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA20F1F2F1B00EF6DE2 /* libirc_dcc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAAE0F1F2F1B00EF6DE2 /* libirc_doc.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA30F1F2F1B00EF6DE2 /* libirc_doc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAAF0F1F2F1B00EF6DE2 /* libirc_doc_faq.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA40F1F2F1B00EF6DE2 /* libirc_doc_faq.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB00F1F2F1B00EF6DE2 /* libirc_errors.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA50F1F2F1B00EF6DE2 /* libirc_errors.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB10F1F2F1B00EF6DE2 /* libirc_events.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA60F1F2F1B00EF6DE2 /* libirc_events.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB20F1F2F1B00EF6DE2 /* libirc_options.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA70F1F2F1B00EF6DE2 /* libirc_options.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB30F1F2F1B00EF6DE2 /* libirc_params.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA80F1F2F1B00EF6DE2 /* libirc_params.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB40F1F2F1B00EF6DE2 /* libirc_rfcnumeric.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAA90F1F2F1B00EF6DE2 /* libirc_rfcnumeric.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB50F1F2F1B00EF6DE2 /* libirc_session.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAAA0F1F2F1B00EF6DE2 /* libirc_session.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69B1CAB60F1F2F1B00EF6DE2 /* libircclient.h in Headers */ = {isa = PBXBuildFile; fileRef = 69B1CAAB0F1F2F1B00EF6DE2 /* libircclient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
+		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		32DBCF5E0370ADEE00C91783 /* IRCClient_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRCClient_Prefix.pch; sourceTree = "<group>"; };
+		693CA3350F188B3400BF8670 /* libircclient.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libircclient.c; path = ../src/libircclient.c; sourceTree = SOURCE_ROOT; };
+		694762CB0F10AAAE002C0318 /* DDInvocationGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDInvocationGrabber.h; sourceTree = "<group>"; };
+		694762CC0F10AAAE002C0318 /* DDInvocationGrabber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDInvocationGrabber.m; sourceTree = "<group>"; };
+		694762CD0F10AAAE002C0318 /* NSObject+DDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DDExtensions.h"; sourceTree = "<group>"; };
+		694762CE0F10AAAE002C0318 /* NSObject+DDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DDExtensions.m"; sourceTree = "<group>"; };
+		694762CF0F10AAAE002C0318 /* IRCClientChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRCClientChannel.h; sourceTree = "<group>"; };
+		694762D00F10AAAE002C0318 /* IRCClientChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IRCClientChannel.m; sourceTree = "<group>"; };
+		694762D10F10AAAE002C0318 /* IRCClientSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRCClientSession.h; sourceTree = "<group>"; };
+		694762D20F10AAAE002C0318 /* IRCClientSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IRCClientSession.m; sourceTree = "<group>"; };
+		6947631D0F10AE32002C0318 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		6947631F0F10AE46002C0318 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		6989EABA0F1861FB0083030A /* IRCClientChannelDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRCClientChannelDelegate.h; sourceTree = "<group>"; };
+		6989EABE0F1862090083030A /* IRCClientSessionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRCClientSessionDelegate.h; sourceTree = "<group>"; };
+		6989EADC0F18810C0083030A /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Doxyfile; sourceTree = SOURCE_ROOT; };
+		69B1CAA10F1F2F1B00EF6DE2 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../include/config.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA20F1F2F1B00EF6DE2 /* libirc_dcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_dcc.h; path = ../include/libirc_dcc.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA30F1F2F1B00EF6DE2 /* libirc_doc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_doc.h; path = ../include/libirc_doc.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA40F1F2F1B00EF6DE2 /* libirc_doc_faq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_doc_faq.h; path = ../include/libirc_doc_faq.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA50F1F2F1B00EF6DE2 /* libirc_errors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_errors.h; path = ../include/libirc_errors.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA60F1F2F1B00EF6DE2 /* libirc_events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_events.h; path = ../include/libirc_events.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA70F1F2F1B00EF6DE2 /* libirc_options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_options.h; path = ../include/libirc_options.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA80F1F2F1B00EF6DE2 /* libirc_params.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_params.h; path = ../include/libirc_params.h; sourceTree = SOURCE_ROOT; };
+		69B1CAA90F1F2F1B00EF6DE2 /* libirc_rfcnumeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_rfcnumeric.h; path = ../include/libirc_rfcnumeric.h; sourceTree = SOURCE_ROOT; };
+		69B1CAAA0F1F2F1B00EF6DE2 /* libirc_session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libirc_session.h; path = ../include/libirc_session.h; sourceTree = SOURCE_ROOT; };
+		69B1CAAB0F1F2F1B00EF6DE2 /* libircclient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libircclient.h; path = ../include/libircclient.h; sourceTree = SOURCE_ROOT; };
+		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8DC2EF5B0486A6940098B216 /* IRCClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IRCClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DC2EF560486A6940098B216 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5B0486A6940098B216 /* IRCClient.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* IRCClient */ = {
+			isa = PBXGroup;
+			children = (
+				6947632B0F10AFD3002C0318 /* doc */,
+				6947631F0F10AE46002C0318 /* README */,
+				6947631D0F10AE32002C0318 /* LICENSE */,
+				6989EADC0F18810C0083030A /* Doxyfile */,
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				089C1665FE841158C02AAC07 /* Resources */,
+				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = IRCClient;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */,
+				1058C7B2FEA5585E11CA2CBB /* Other Frameworks */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C1665FE841158C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5A0486A6940098B216 /* Info.plist */,
+				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				694762CB0F10AAAE002C0318 /* DDInvocationGrabber.h */,
+				694762CC0F10AAAE002C0318 /* DDInvocationGrabber.m */,
+				694762CD0F10AAAE002C0318 /* NSObject+DDExtensions.h */,
+				694762CE0F10AAAE002C0318 /* NSObject+DDExtensions.m */,
+				6989EABA0F1861FB0083030A /* IRCClientChannelDelegate.h */,
+				694762CF0F10AAAE002C0318 /* IRCClientChannel.h */,
+				694762D00F10AAAE002C0318 /* IRCClientChannel.m */,
+				6989EABE0F1862090083030A /* IRCClientSessionDelegate.h */,
+				694762D10F10AAAE002C0318 /* IRCClientSession.h */,
+				694762D20F10AAAE002C0318 /* IRCClientSession.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7B2FEA5585E11CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
+				D2F7E79907B2D74100F64583 /* CoreData.framework */,
+				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				69B1CAA10F1F2F1B00EF6DE2 /* config.h */,
+				69B1CAA20F1F2F1B00EF6DE2 /* libirc_dcc.h */,
+				69B1CAA30F1F2F1B00EF6DE2 /* libirc_doc.h */,
+				69B1CAA40F1F2F1B00EF6DE2 /* libirc_doc_faq.h */,
+				69B1CAA50F1F2F1B00EF6DE2 /* libirc_errors.h */,
+				69B1CAA60F1F2F1B00EF6DE2 /* libirc_events.h */,
+				69B1CAA70F1F2F1B00EF6DE2 /* libirc_options.h */,
+				69B1CAA80F1F2F1B00EF6DE2 /* libirc_params.h */,
+				69B1CAA90F1F2F1B00EF6DE2 /* libirc_rfcnumeric.h */,
+				69B1CAAA0F1F2F1B00EF6DE2 /* libirc_session.h */,
+				69B1CAAB0F1F2F1B00EF6DE2 /* libircclient.h */,
+				32DBCF5E0370ADEE00C91783 /* IRCClient_Prefix.pch */,
+				693CA3350F188B3400BF8670 /* libircclient.c */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		6947632B0F10AFD3002C0318 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = doc;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		8DC2EF500486A6940098B216 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				694762D30F10AAAE002C0318 /* DDInvocationGrabber.h in Headers */,
+				694762D50F10AAAE002C0318 /* NSObject+DDExtensions.h in Headers */,
+				694762D70F10AAAE002C0318 /* IRCClientChannel.h in Headers */,
+				694762D90F10AAAE002C0318 /* IRCClientSession.h in Headers */,
+				6989EABC0F1861FB0083030A /* IRCClientChannelDelegate.h in Headers */,
+				6989EAC00F1862090083030A /* IRCClientSessionDelegate.h in Headers */,
+				69B1CAAC0F1F2F1B00EF6DE2 /* config.h in Headers */,
+				69B1CAAD0F1F2F1B00EF6DE2 /* libirc_dcc.h in Headers */,
+				69B1CAAE0F1F2F1B00EF6DE2 /* libirc_doc.h in Headers */,
+				69B1CAAF0F1F2F1B00EF6DE2 /* libirc_doc_faq.h in Headers */,
+				69B1CAB00F1F2F1B00EF6DE2 /* libirc_errors.h in Headers */,
+				69B1CAB10F1F2F1B00EF6DE2 /* libirc_events.h in Headers */,
+				69B1CAB20F1F2F1B00EF6DE2 /* libirc_options.h in Headers */,
+				69B1CAB30F1F2F1B00EF6DE2 /* libirc_params.h in Headers */,
+				69B1CAB40F1F2F1B00EF6DE2 /* libirc_rfcnumeric.h in Headers */,
+				69B1CAB50F1F2F1B00EF6DE2 /* libirc_session.h in Headers */,
+				69B1CAB60F1F2F1B00EF6DE2 /* libircclient.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8DC2EF4F0486A6940098B216 /* IRCClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "IRCClient" */;
+			buildPhases = (
+				8DC2EF500486A6940098B216 /* Headers */,
+				8DC2EF520486A6940098B216 /* Resources */,
+				8DC2EF540486A6940098B216 /* Sources */,
+				8DC2EF560486A6940098B216 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IRCClient;
+			productInstallPath = "$(HOME)/Library/Frameworks";
+			productName = IRCClient;
+			productReference = 8DC2EF5B0486A6940098B216 /* IRCClient.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "IRCClient" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 0867D691FE84028FC02AAC07 /* IRCClient */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DC2EF4F0486A6940098B216 /* IRCClient */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8DC2EF520486A6940098B216 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+				6947631E0F10AE32002C0318 /* LICENSE in Resources */,
+				694763200F10AE46002C0318 /* README in Resources */,
+				6989EADD0F18810C0083030A /* Doxyfile in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DC2EF540486A6940098B216 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				694762D40F10AAAE002C0318 /* DDInvocationGrabber.m in Sources */,
+				694762D60F10AAAE002C0318 /* NSObject+DDExtensions.m in Sources */,
+				694762D80F10AAAE002C0318 /* IRCClientChannel.m in Sources */,
+				694762DA0F10AAAE002C0318 /* IRCClientSession.m in Sources */,
+				693CA3360F188B3400BF8670 /* libircclient.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C1667FE841158C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB91AE08733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = IRCClient_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					../include,
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					../libircclient/trunk/src,
+					"\"$(SRCROOT)/../src\"",
+				);
+				PRODUCT_NAME = IRCClient;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		1DEB91AF08733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = IRCClient_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					../include,
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LD_DYLIB_INSTALL_NAME = "../Frameworks/$(EXECUTABLE_PATH)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					../libircclient/trunk/src,
+					"\"$(SRCROOT)/../src\"",
+				);
+				PRODUCT_NAME = IRCClient;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		1DEB91B208733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB91B308733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "IRCClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91AE08733DA50010E9CD /* Debug */,
+				1DEB91AF08733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "IRCClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91B208733DA50010E9CD /* Debug */,
+				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
