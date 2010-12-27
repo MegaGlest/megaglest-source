@@ -835,8 +835,12 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
-void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLineInfo *lineInfo) {
+void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
+									const Font2D* font, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
+	const Metrics &metrics= Metrics::getInstance();
+	const FontMetrics *fontMetrics= font->getMetrics();
+		
 	if(game != NULL) {
 		fontColor = game->getGui()->getDisplay()->getColor();
 	}
@@ -866,18 +870,15 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 			//string headerLine = "*" + playerName + ":";
 			string headerLine = playerName + ": ";
 
-			const Metrics &metrics= Metrics::getInstance();
-			const FontMetrics *fontMetrics= CoreData::getInstance().getConsoleFont()->getMetrics();
-
 			if(fontMetrics == NULL) {
 				throw runtime_error("fontMetrics == NULL");
 			}
 
 			renderTextShadow(
-						headerLine,
-					CoreData::getInstance().getConsoleFont(),
+					headerLine,
+					font,
 					fontColor,
-					xPosition, lineIndex * 20 + 20);
+                	xPosition, lineIndex * lineHeight + yPosition);
 
 			fontColor = defaultFontColor;
 			//xPosition += (8 * (playerName.length() + 2));
@@ -889,18 +890,15 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
         string playerName = lineInfo->originalPlayerName;
         string headerLine = playerName + ": ";
 
-        const Metrics &metrics= Metrics::getInstance();
-        const FontMetrics *fontMetrics= CoreData::getInstance().getConsoleFont()->getMetrics();
-
         if(fontMetrics == NULL) {
             throw runtime_error("fontMetrics == NULL");
         }
 
         renderTextShadow(
-                    headerLine,
-                CoreData::getInstance().getConsoleFont(),
+                headerLine,
+                font,
                 fontColor,
-                xPosition, lineIndex * 20 + 20);
+                xPosition, lineIndex * lineHeight + yPosition);
 
         fontColor = defaultFontColor;
         //xPosition += (8 * (playerName.length() + 2));
@@ -913,13 +911,12 @@ void Renderer::RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLine
 
 	renderTextShadow(
 			lineInfo->text,
-		CoreData::getInstance().getConsoleFont(),
+		font,
 		fontColor,
-		xPosition, lineIndex * 20 + 20);
+        xPosition, (lineIndex * lineHeight) + yPosition);
 }
 
 void Renderer::renderConsole(const Console *console,const bool showFullConsole,const bool showMenuConsole){
-
 	if(console == NULL) {
 		throw runtime_error("console == NULL");
 	}
@@ -929,23 +926,23 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 
 	if(showFullConsole) {
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
-			int xPosition = 20;
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			RenderConsoleLine(i, xPosition, &lineInfo);
+			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			console->getLineHeight(), console->getFont(), &lineInfo);
 		}
 	}
 	else if(showMenuConsole) {
 		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
-			int xPosition = 20;
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			RenderConsoleLine(i, xPosition, &lineInfo);
+			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			console->getLineHeight(), console->getFont(), &lineInfo);
 		}
 	}
 	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
-			int xPosition = 20;
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
-			RenderConsoleLine(i, xPosition, &lineInfo);
+			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			console->getLineHeight(), console->getFont(), &lineInfo);
 		}
 	}
 	glPopAttrib();
@@ -976,9 +973,9 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 
 		renderTextShadow(
 				text,
-				CoreData::getInstance().getConsoleFont(),
+				chatManager->getFont(),
 				fontColor,
-				300, 150);
+				chatManager->getXPos(), chatManager->getYPos());
 
 		//textRenderer->begin(CoreData::getInstance().getConsoleFont());
 		//textRenderer->render(text, 300, 150);
@@ -1306,6 +1303,142 @@ void Renderer::renderButton(const GraphicButton *button) {
 			x+w/2, y+h/2, true);
 	}
 
+    glPopAttrib();
+}
+
+void Renderer::renderCheckBox(const GraphicCheckBox *box) {
+	if(box->getVisible() == false) {
+		return;
+	}
+
+    int x= box->getX();
+    int y= box->getY();
+    int h= box->getH();
+    int w= box->getW();
+
+	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+
+	//background
+	CoreData &coreData= CoreData::getInstance();
+	Texture2D *backTexture= box->getValue()? coreData.getCheckedCheckBoxTexture(): coreData.getCheckBoxTexture();
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+
+	//box
+	Vec4f fontColor;
+	//if(game!=NULL){
+	//	fontColor=game->getGui()->getDisplay()->getColor();
+	//	fontColor.w = GraphicComponent::getFade();
+	//}
+	//else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	//}
+
+	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	Vec4f color= fontColor;
+	glColor4fv(color.ptr());
+
+	glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(x, y);
+
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(x, y+h);
+
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(x+w, y);
+
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x+w, y+h);
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	//lighting
+	float anim= GraphicComponent::getAnim();
+	if(anim>0.5f) anim= 1.f-anim;
+
+	if(box->getLighted() && box->getEditable()){
+		const int lightSize= 0;
+		const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
+		const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
+
+		glBegin(GL_TRIANGLE_FAN);
+
+		glColor4fv(color2.ptr());
+		glVertex2f(x+w/2, y+h/2);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y-lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y-lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y-lightSize);
+
+		glEnd();
+	}
+
+    glPopAttrib();
+}
+
+
+void Renderer::renderLine(const GraphicLine *line) {
+	if(line->getVisible() == false) {
+		return;
+	}
+
+    int x= line->getX();
+    int y= line->getY();
+    int h= line->getH();
+    int w= line->getW();
+
+	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+
+	//background
+	CoreData &coreData= CoreData::getInstance();
+	Texture2D *backTexture= line->getHorizontal()? coreData.getHorizontalLineTexture(): coreData.getVerticalLineTexture();
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+
+	glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(x, y);
+
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(x, y+h);
+
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(x+w, y);
+
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x+w, y+h);
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
     glPopAttrib();
 }
 

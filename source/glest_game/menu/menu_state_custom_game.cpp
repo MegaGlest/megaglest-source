@@ -219,6 +219,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
 	listBoxTileset.init(xoffset+460, mapPos, 150);
     listBoxTileset.setItems(results);
+    srand(time(NULL));
+	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount()); 
 
     labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+460, mapHeadPos);

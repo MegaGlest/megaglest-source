@@ -35,6 +35,10 @@ Console::Console() {
 	maxStoredLines	= Config::getInstance().getInt("ConsoleMaxLinesStored");
 	timeout			= Config::getInstance().getInt("ConsoleTimeout");
 	timeElapsed		= 0.0f;
+	xPos=20;
+	yPos=20;
+	lineHeight=20;
+	font=CoreData::getInstance().getConsoleFont();
 }
 
 void Console::addStdMessage(const string &s) {

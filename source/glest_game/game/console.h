@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include "font.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -24,6 +25,8 @@ using std::pair;
 using namespace std;
 
 namespace Glest { namespace Game {
+
+using Shared::Graphics::Font2D;
 
 // =====================================================
 // 	class Console
@@ -57,12 +60,25 @@ private:
 	int maxLines;
 	int maxStoredLines;
 	float timeout;
+	int xPos;
+	int yPos;
+	int lineHeight;
+	Font2D *font;
 
 public:
 	Console();
 
 	int getStoredLineCount() const		{return storedLines.size();}
 	int getLineCount() const			{return lines.size();}
+	int getXPos() const {return xPos;}
+	void setXPos(int xPos)	{this->xPos= xPos;}
+	int getYPos() const {return yPos;}
+	void setYPos(int yPos)	{this->yPos= yPos;}
+	int getLineHeight() const {return lineHeight;}
+	void setLineHeight(int lineHeight)	{this->lineHeight= lineHeight;}
+	Font2D *getFont() const {return font;}
+	void setFont(Font2D *font)	{this->font= font;}
+	
 	string getLine(int i) const;
 	string getStoredLine(int i) const;
 	ConsoleLineInfo getLineItem(int i) const;

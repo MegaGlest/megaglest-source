@@ -16,6 +16,7 @@
 #include "config.h"
 #include "network_manager.h"
 #include "lang.h"
+#include "core_data.h"
 #include "util.h"
 #include <stdexcept>
 #include "leak_dumper.h"
@@ -30,14 +31,16 @@ namespace Glest{ namespace Game{
 //	class ChatManager
 // =====================================================
 
-const int ChatManager::maxTextLenght= 64;
-
 ChatManager::ChatManager() {
 	console= NULL;
 	editEnabled= false;
 	teamMode= false;
 	thisTeamIndex= -1;
 	disableTeamMode = false;
+	xPos=300;
+	yPos=150;
+	maxTextLenght=64;
+	font=CoreData::getInstance().getConsoleFont();
 }
 
 void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, string manualPlayerNameOverride) {
@@ -141,8 +144,7 @@ void ChatManager::keyDown(char key) {
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-					editEnabled= true;
-					text.clear();
+					switchOnEdit();
 				}
 			}
 		}
@@ -165,6 +167,11 @@ void ChatManager::keyDown(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ChatManager::switchOnEdit(){
+	editEnabled= true;
+	text.clear();
+}
+
 void ChatManager::keyPress(char c){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,c);
 
@@ -174,6 +181,12 @@ void ChatManager::keyPress(char c){
 		if(c>=' '){
 			text+= c;
 		}
+	}
+}
+
+void ChatManager::addText(string text){
+	if(editEnabled && text.size()+this->text.size()<maxTextLenght){
+		this->text+= text;
 	}
 }
 

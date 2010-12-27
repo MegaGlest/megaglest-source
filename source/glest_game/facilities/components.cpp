@@ -302,6 +302,12 @@ void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
     setText(getSelectedItem());
 }
 
+void GraphicListBox::setY(int y) {
+	this->y= y;
+	graphButton1.setY(y);
+	graphButton2.setY(y);
+}
+
 void GraphicListBox::setEditable(bool editable){
     graphButton1.setEditable(editable);
     graphButton2.setEditable(editable);
@@ -458,6 +464,51 @@ bool GraphicMessageBox::mouseClick(int x, int y, int &clickedButton){
 		}
 	}
 	return false;
+}
+
+// =====================================================
+//	class GraphicLine
+// =====================================================
+
+const int GraphicLine::defH= 5;
+const int GraphicLine::defW= 1000;
+
+void GraphicLine::init(int x, int y, int w, int h){
+	GraphicComponent::init(x, y, w, h);
+	horizontal=true;
+}
+
+// =====================================================
+//	class GraphicCheckBox
+// =====================================================
+
+const int GraphicCheckBox::defH= 22;
+const int GraphicCheckBox::defW= 22;
+
+void GraphicCheckBox::init(int x, int y, int w, int h){
+	GraphicComponent::init(x, y, w, h);
+	value=true;
+    lighted= false;
+}
+
+bool GraphicCheckBox::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	bool b= GraphicComponent::mouseMove(x, y);
+    lighted= b;
+    return b;
+}
+
+bool GraphicCheckBox::mouseClick(int x, int y){
+	bool result=GraphicComponent::mouseClick( x,  y);
+	if(result)
+    	if(value) 
+    		value=false;
+    	else
+    		value=true;
+    return result;
 }
 
 }}//end namespace

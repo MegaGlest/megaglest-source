@@ -53,6 +53,10 @@ private:
     Texture2D *customTexture;
 	Texture2D *buttonSmallTexture;
 	Texture2D *buttonBigTexture;
+	Texture2D *horizontalLineTexture;
+	Texture2D *verticalLineTexture;
+	Texture2D *checkBoxTexture;
+	Texture2D *checkedCheckBoxTexture;
 
     Font2D *displayFont;
 	Font2D *menuFontNormal;
@@ -75,6 +79,10 @@ public:
 	Texture2D *getCustomTexture() const			{return customTexture;}
 	Texture2D *getButtonSmallTexture() const	{return buttonSmallTexture;}
 	Texture2D *getButtonBigTexture() const		{return buttonBigTexture;}
+	Texture2D *getHorizontalLineTexture() const	{return horizontalLineTexture;}
+	Texture2D *getVerticalLineTexture() const	{return verticalLineTexture;}
+	Texture2D *getCheckBoxTexture() const		{return checkBoxTexture;}
+	Texture2D *getCheckedCheckBoxTexture() const	{return checkedCheckBoxTexture;}
 
 	size_t getLogoTextureExtraCount() const {return logoTextureList.size();}
 	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}

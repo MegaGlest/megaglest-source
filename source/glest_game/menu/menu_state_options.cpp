@@ -234,12 +234,10 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelFullscreenWindowed.registerGraphicComponent(containerName,"labelFullscreenWindowed");
 	labelFullscreenWindowed.init(leftLabelStart, leftline);
 
-	listBoxFullscreenWindowed.registerGraphicComponent(containerName,"listBoxFullscreenWindowed");
-	listBoxFullscreenWindowed.init(leftColumnStart, leftline, 80);
+	checkBoxFullscreenWindowed.registerGraphicComponent(containerName,"checkBoxFullscreenWindowed");
+	checkBoxFullscreenWindowed.init(leftColumnStart, leftline);
 	labelFullscreenWindowed.setText(lang.get("Windowed"));
-	listBoxFullscreenWindowed.pushBackItem(lang.get("No"));
-	listBoxFullscreenWindowed.pushBackItem(lang.get("Yes"));
-	listBoxFullscreenWindowed.setSelectedItemIndex(clamp(config.getBool("Windowed"), false, true));
+	checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
 	leftline-=30;
 
 	//filter
@@ -272,12 +270,10 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
 	labelTextures3D.init(leftLabelStart, leftline);
 
-	listBoxTextures3D.registerGraphicComponent(containerName,"listBoxTextures3D");
-	listBoxTextures3D.init(leftColumnStart, leftline, 80);
+	checkBoxTextures3D.registerGraphicComponent(containerName,"checkBoxTextures3D");
+	checkBoxTextures3D.init(leftColumnStart, leftline);
 	labelTextures3D.setText(lang.get("Textures3D"));
-	listBoxTextures3D.pushBackItem(lang.get("No"));
-	listBoxTextures3D.pushBackItem(lang.get("Yes"));
-	listBoxTextures3D.setSelectedItemIndex(clamp(config.getBool("Textures3D"), false, true));
+	checkBoxTextures3D.setValue(config.getBool("Textures3D"));
 	leftline-=30;
 
 	//lights
@@ -298,11 +294,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelUnitParticles.init(leftLabelStart,leftline);
 	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
 
-	listBoxUnitParticles.registerGraphicComponent(containerName,"listBoxUnitParticles");
-	listBoxUnitParticles.init(leftColumnStart,leftline,80);
-	listBoxUnitParticles.pushBackItem(lang.get("No"));
-	listBoxUnitParticles.pushBackItem(lang.get("Yes"));
-	listBoxUnitParticles.setSelectedItemIndex(clamp(config.getBool("UnitParticles"), 0, 1));
+	checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
+	checkBoxUnitParticles.init(leftColumnStart,leftline);
+	checkBoxUnitParticles.setValue(config.getBool("UnitParticles"));
 	leftline-=30;
 
 	//unit particles
@@ -310,11 +304,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelMapPreview.init(leftLabelStart,leftline);
 	labelMapPreview.setText(lang.get("ShowMapPreview"));
 
-	listBoxMapPreview.registerGraphicComponent(containerName,"listBoxMapPreview");
-	listBoxMapPreview.init(leftColumnStart,leftline,80);
-	listBoxMapPreview.pushBackItem(lang.get("No"));
-	listBoxMapPreview.pushBackItem(lang.get("Yes"));
-	listBoxMapPreview.setSelectedItemIndex(clamp(config.getBool("MapPreview","true"), 0, 1));
+	checkBoxMapPreview.registerGraphicComponent(containerName,"checkBoxMapPreview");
+	checkBoxMapPreview.init(leftColumnStart,leftline);
+	checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
 	leftline-=30;
 
 	// buttons
@@ -403,7 +395,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 
 		bool currentFullscreenWindowed=config.getBool("Windowed");
-		bool selectedFullscreenWindowed = (listBoxFullscreenWindowed.getSelectedItemIndex() != 0);
+		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
 			mainMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
@@ -441,9 +433,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxLang.mouseClick(x, y);
 		listBoxShadows.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
-		listBoxTextures3D.mouseClick(x, y);
-		listBoxUnitParticles.mouseClick(x, y);
-		listBoxMapPreview.mouseClick(x, y);
+		checkBoxTextures3D.mouseClick(x, y);
+		checkBoxUnitParticles.mouseClick(x, y);
+		checkBoxMapPreview.mouseClick(x, y);
 		listBoxLights.mouseClick(x, y);
 		listBoxSoundFactory.mouseClick(x, y);
 		listBoxVolumeFx.mouseClick(x, y);
@@ -451,7 +443,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxVolumeMusic.mouseClick(x, y);
 		listBoxScreenModes.mouseClick(x, y);
 		listFontSizeAdjustment.mouseClick(x, y);
-		listBoxFullscreenWindowed.mouseClick(x, y);
+		checkBoxFullscreenWindowed.mouseClick(x, y);
 		listBoxPublishServerExternalPort.mouseClick(x, y);
 	}
 }
@@ -473,11 +465,12 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxLang.mouseMove(x, y);
 	listBoxFilter.mouseMove(x, y);
 	listBoxShadows.mouseMove(x, y);
-	listBoxTextures3D.mouseMove(x, y);
-	listBoxUnitParticles.mouseMove(x, y);
-	listBoxMapPreview.mouseMove(x, y);
+	checkBoxTextures3D.mouseMove(x, y);
+	checkBoxUnitParticles.mouseMove(x, y);
+	checkBoxMapPreview.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
 	listBoxScreenModes.mouseMove(x, y);
+	checkBoxFullscreenWindowed.mouseMove(x, y);
 	listFontSizeAdjustment.mouseMove(x, y);
 	listBoxPublishServerExternalPort.mouseMove(x, y);
 }
@@ -540,9 +533,9 @@ void MenuStateOptions::render(){
 		renderer.renderButton(&buttonKeyboardSetup);
 		renderer.renderListBox(&listBoxLang);
 		renderer.renderListBox(&listBoxShadows);
-		renderer.renderListBox(&listBoxTextures3D);
-		renderer.renderListBox(&listBoxUnitParticles);
-		renderer.renderListBox(&listBoxMapPreview);
+		renderer.renderCheckBox(&checkBoxTextures3D);
+		renderer.renderCheckBox(&checkBoxUnitParticles);
+		renderer.renderCheckBox(&checkBoxMapPreview);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
 		renderer.renderListBox(&listBoxSoundFactory);
@@ -572,7 +565,7 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listFontSizeAdjustment);
 		renderer.renderLabel(&labelFontSizeAdjustment);
 		renderer.renderLabel(&labelFullscreenWindowed);
-		renderer.renderListBox(&listBoxFullscreenWindowed);
+		renderer.renderCheckBox(&checkBoxFullscreenWindowed);
 		renderer.renderLabel(&labelPublishServerExternalPort);
 		renderer.renderListBox(&listBoxPublishServerExternalPort);
 	}
@@ -596,11 +589,11 @@ void MenuStateOptions::saveConfig(){
 	int index= listBoxShadows.getSelectedItemIndex();
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
 
-	config.setBool("Windowed", (listBoxFullscreenWindowed.getSelectedItemIndex() != 0));
+	config.setBool("Windowed", checkBoxFullscreenWindowed.getValue());
 	config.setString("Filter", listBoxFilter.getSelectedItem());
-	config.setBool("Textures3D", (listBoxTextures3D.getSelectedItemIndex() != 0));
-	config.setBool("UnitParticles", (listBoxUnitParticles.getSelectedItemIndex() != 0));
-	config.setBool("MapPreview", (listBoxMapPreview.getSelectedItemIndex() != 0));
+	config.setBool("Textures3D", checkBoxTextures3D.getValue());
+	config.setBool("UnitParticles", (checkBoxUnitParticles.getValue()));
+	config.setBool("MapPreview", checkBoxMapPreview.getValue());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());

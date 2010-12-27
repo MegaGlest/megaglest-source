@@ -11,6 +11,7 @@
 
 #include "menu_state_masterserver.h"
 
+#include "server_line.h"
 #include "renderer.h"
 #include "sound_renderer.h"
 #include "core_data.h"
@@ -36,157 +37,6 @@ static const char *IRC_SERVER   = "irc.freenode.net";
 static const char *IRC_CHANNEL  = "#megaglest-lobby";
 
 // =====================================================
-// 	class ServerLine
-// =====================================================
-
-ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char * containerName) {
-	this->containerName = containerName;
-	Lang &lang= Lang::getInstance();
-
-	index=lineIndex;
-	int lineOffset = 25 * lineIndex;
-	masterServerInfo = *mServerInfo;
-	int i=10;
-	int startOffset=600;
-
-	//general info:
-	i+=10;
-	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
-	registeredObjNameList.push_back("glestVersionLabel" + intToStr(lineIndex));
-	glestVersionLabel.init(i,startOffset-lineOffset);
-	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
-
-	i+=80;
-	registeredObjNameList.push_back("platformLabel" + intToStr(lineIndex));
-	platformLabel.registerGraphicComponent(containerName,"platformLabel" + intToStr(lineIndex));
-	platformLabel.init(i,startOffset-lineOffset);
-	platformLabel.setText(masterServerInfo.getPlatform());
-
-//	i+=50;
-//	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
-//	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel" + intToStr(lineIndex));
-//	binaryCompileDateLabel.init(i,startOffset-lineOffset);
-//	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
-
-	//game info:
-	i+=130;
-	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
-	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
-	serverTitleLabel.init(i,startOffset-lineOffset);
-	serverTitleLabel.setText(masterServerInfo.getServerTitle());
-
-	i+=210;
-	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
-	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
-	ipAddressLabel.init(i,startOffset-lineOffset);
-	ipAddressLabel.setText(masterServerInfo.getIpAddress());
-
-	//game setup info:
-	i+=100;
-	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
-	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
-	techLabel.init(i,startOffset-lineOffset);
-	techLabel.setText(masterServerInfo.getTech());
-
-	i+=100;
-	registeredObjNameList.push_back("mapLabel" + intToStr(lineIndex));
-	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
-	mapLabel.init(i,startOffset-lineOffset);
-	mapLabel.setText(masterServerInfo.getMap());
-
-	i+=100;
-	registeredObjNameList.push_back("tilesetLabel" + intToStr(lineIndex));
-	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
-	tilesetLabel.init(i,startOffset-lineOffset);
-	tilesetLabel.setText(masterServerInfo.getTileset());
-
-	i+=100;
-	registeredObjNameList.push_back("activeSlotsLabel" + intToStr(lineIndex));
-	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
-	activeSlotsLabel.init(i,startOffset-lineOffset);
-	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots())+"/"+intToStr(masterServerInfo.getNetworkSlots())+"/"+intToStr(masterServerInfo.getConnectedClients()));
-
-	i+=50;
-	registeredObjNameList.push_back("externalConnectPort" + intToStr(lineIndex));
-	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort" + intToStr(lineIndex));
-	externalConnectPort.init(i,startOffset-lineOffset);
-	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
-
-	i+=50;
-	registeredObjNameList.push_back("selectButton" + intToStr(lineIndex));
-	selectButton.registerGraphicComponent(containerName,"selectButton" + intToStr(lineIndex));
-	selectButton.init(i, startOffset-lineOffset, 30);
-	selectButton.setText(">");
-
-	//printf("glestVersionString [%s] masterServerInfo->getGlestVersion() [%s]\n",glestVersionString.c_str(),masterServerInfo->getGlestVersion().c_str());
-	bool compatible = checkVersionComptability(glestVersionString, masterServerInfo.getGlestVersion());
-	selectButton.setEnabled(compatible);
-	selectButton.setEditable(compatible);
-
-	registeredObjNameList.push_back("gameFull" + intToStr(lineIndex));
-	gameFull.registerGraphicComponent(containerName,"gameFull" + intToStr(lineIndex));
-	gameFull.init(i, startOffset-lineOffset);
-	gameFull.setText(lang.get("MGGameSlotsFull"));
-	gameFull.setEnabled(!compatible);
-	gameFull.setEditable(!compatible);
-
-	GraphicComponent::applyAllCustomProperties(containerName);
-}
-
-ServerLine::~ServerLine() {
-	GraphicComponent::clearRegisterGraphicComponent(containerName, registeredObjNameList);
-	//delete masterServerInfo;
-}
-
-bool ServerLine::buttonMouseClick(int x, int y){
-	return selectButton.mouseClick(x,y);
-}
-
-bool ServerLine::buttonMouseMove(int x, int y){
-	return selectButton.mouseMove(x,y);
-}
-
-void ServerLine::render() {
-	Renderer &renderer= Renderer::getInstance();
-
-	bool joinEnabled = (masterServerInfo.getNetworkSlots() > masterServerInfo.getConnectedClients());
-	if(joinEnabled == true) {
-		selectButton.setEnabled(true);
-		selectButton.setVisible(true);
-
-		gameFull.setEnabled(false);
-		gameFull.setEditable(false);
-
-		renderer.renderButton(&selectButton);
-	}
-	else {
-		selectButton.setEnabled(false);
-		selectButton.setVisible(false);
-
-		gameFull.setEnabled(true);
-		gameFull.setEditable(true);
-
-		renderer.renderLabel(&gameFull);
-	}
-
-	//general info:
-	renderer.renderLabel(&glestVersionLabel);
-	renderer.renderLabel(&platformLabel);
-	//renderer.renderLabel(&binaryCompileDateLabel);
-
-	//game info:
-	renderer.renderLabel(&serverTitleLabel);
-	renderer.renderLabel(&ipAddressLabel);
-
-	//game setup info:
-	renderer.renderLabel(&techLabel);
-	renderer.renderLabel(&mapLabel);
-	renderer.renderLabel(&tilesetLabel);
-	renderer.renderLabel(&activeSlotsLabel);
-	renderer.renderLabel(&externalConnectPort);
-}
-
-// =====================================================
 // 	class MenuStateMasterserver
 // =====================================================
 
@@ -200,6 +50,26 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	Lang &lang= Lang::getInstance();
 
+	//Configure ConsolePosition
+	consoleIRC.setYPos(60);
+	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
+	consoleIRC.setLineHeight(18);
+
+	serverLinesToRender=9;
+	serverLinesLineHeight=25;
+	serverLinesYBase=680;
+	
+	userButtonsYBase=serverLinesYBase-(serverLinesToRender+2)*serverLinesLineHeight;
+	userButtonsHeight=20;
+	userButtonsWidth=150;
+	userButtonsLineHeight=userButtonsHeight+2;
+	userButtonsToRender=userButtonsYBase/userButtonsLineHeight;
+	userButtonsXBase=1000-userButtonsWidth;
+	
+	lines[0].init(0, userButtonsYBase+serverLinesLineHeight);
+	lines[1].init(userButtonsXBase-5,0,5,userButtonsYBase+userButtonsLineHeight);
+	lines[1].setHorizontal(false);
+	
 	autoRefreshTime=0;
 	playServerFoundSound=false;
 	announcementLoaded=false;
@@ -222,9 +92,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     versionInfoLabel.init(10, 680);
     versionInfoLabel.setFont(CoreData::getInstance().getMenuFontBig());
     versionInfoLabel.setText("");
+    
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
-	labelTitle.init(330, 640);
+	labelTitle.init(330, serverLinesYBase+40);
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setText(lang.get("AvailableServers"));
 
@@ -235,17 +106,12 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// bottom
 	int buttonPos=230;
 
-	labelChatUrl.registerGraphicComponent(containerName,"labelChatUrl");
-	labelChatUrl.init(150,buttonPos-50);
-	labelChatUrl.setFont(CoreData::getInstance().getMenuFontBig());
-	labelChatUrl.setText(lang.get("NoServerVisitChat")+":     http://webchat.freenode.net/?channels=glest");
-
 	// Titles for current games - START
 	int lineIndex = 0;
 	int lineOffset=25*lineIndex;
 	int i=10;
-	int startOffset=623;
-
+	int startOffset=serverLinesYBase+23;
+	
 	//general info:
 	i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel");
@@ -333,20 +199,14 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
 
 	ircOnlinePeopleLabel.registerGraphicComponent(containerName,"ircOnlinePeopleLabel");
-	ircOnlinePeopleLabel.init(10,startOffset-lineOffset+30);
+	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase);
 	ircOnlinePeopleLabel.setText("IRC People Online:");
-
-	ircOnlinePeopleListLabel.registerGraphicComponent(containerName,"ircOnlinePeopleListLabel");
-	ircOnlinePeopleListLabel.init(90,startOffset-lineOffset+30);
-	ircOnlinePeopleListLabel.setText("n/a");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
-
-	// write hint to console:
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	
 	//console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -354,10 +214,15 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     char szIRCNick[80]="";
     srand(time(NULL));
     int randomNickId = rand() % 999;
-    sprintf(szIRCNick,"MG_%s_%d",Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()).c_str(),randomNickId);
+    string netPlayerName=Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
+    string ircname=netPlayerName.substr(0,9);
+    sprintf(szIRCNick,"MG_%s_%d",ircname.c_str(),randomNickId);
 
-    consoleIRC.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+    lines[2].init(0,consoleIRC.getYPos()-10,userButtonsXBase,5);
     chatManager.init(&consoleIRC, -1, true, szIRCNick);
+    chatManager.setXPos(0);
+    chatManager.setYPos(consoleIRC.getYPos()-20);
+    chatManager.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
 	masterServerThreadInDeletion = false;
@@ -374,6 +239,20 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     ircClient->start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateMasterserver::setConsolePos(int yPos){
+		consoleIRC.setYPos(yPos);
+		lines[2].setY(consoleIRC.getYPos()-10);
+		chatManager.setYPos(consoleIRC.getYPos()-20);
+}
+
+void MenuStateMasterserver::setButtonLinePosition(int pos){
+    buttonReturn.setY(pos);
+    buttonCreateGame.setY(pos);
+    buttonRefresh.setY(pos);
+	labelAutoRefresh.setY(pos+30);
+	listBoxAutoRefresh.setY(pos);
 }
 
 void MenuStateMasterserver::IRC_CallbackEvent(const char* origin, const char **params, unsigned int count) {
@@ -415,6 +294,7 @@ void MenuStateMasterserver::cleanup() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	clearServerLines();
+	clearUserButtons();
 
     //printf("Exiting master server menu [%p]\n",ircClient);
     if(ircClient != NULL) {
@@ -437,7 +317,6 @@ MenuStateMasterserver::~MenuStateMasterserver() {
 
     //printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
 	cleanup();
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -445,6 +324,13 @@ void MenuStateMasterserver::clearServerLines() {
 	while(!serverLines.empty()){
 		delete serverLines.back();
 		serverLines.pop_back();
+	}
+}
+
+void MenuStateMasterserver::clearUserButtons() {
+	while(!userButtons.empty()){
+		delete userButtons.back();
+		userButtons.pop_back();
 	}
 }
 
@@ -540,9 +426,11 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     }
     else {
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-	    for(int i=0; i<serverLines.size(); ++i){
+    	bool clicked=false;
+	    for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
 	    	if(serverLines[i]->buttonMouseClick(x, y)) {
 	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				clicked=true;
 	    		soundRenderer.playFx(coreData.getClickSoundB());
 	    		string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
 	    		int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
@@ -565,6 +453,23 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	    		break;
 	    	}
 	    }
+	    if(!clicked){
+		    for(int i = 0; i < userButtons.size(); ++i) {
+	       		if(userButtons[i]->mouseClick(x, y)) {
+	       			clicked=true;
+	     			if(!chatManager.getEditEnabled())
+	     			{
+	     				chatManager.switchOnEdit();
+	     				chatManager.addText(userButtons[i]->getText()+" ");
+	     			}
+	     			else
+	     			{
+	     				chatManager.addText(userButtons[i]->getText());
+	     			}
+	       			break;
+	       		}
+	    	}
+	    }
     }
 }
 
@@ -579,9 +484,13 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     buttonCreateGame.mouseMove(x, y);
     listBoxAutoRefresh.mouseMove(x, y);
 
-    for(int i=0; i<serverLines.size(); ++i){
+    for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
     	serverLines[i]->buttonMouseMove(x, y);
     }
+    for(int i = 0; i < userButtons.size(); ++i) {
+       	userButtons[i]->mouseMove(x, y);
+    }
+    
 }
 
 void MenuStateMasterserver::render(){
@@ -593,17 +502,9 @@ void MenuStateMasterserver::render(){
 	}
 	else
 	{
-		renderer.renderButton(&buttonRefresh);
-		renderer.renderButton(&buttonReturn);
-
 		renderer.renderLabel(&labelTitle,&GREEN);
 		renderer.renderLabel(&announcementLabel,&YELLOW);
 		renderer.renderLabel(&versionInfoLabel);
-
-		renderer.renderLabel(&labelAutoRefresh);
-		renderer.renderLabel(&labelChatUrl);
-		renderer.renderButton(&buttonCreateGame);
-		renderer.renderListBox(&listBoxAutoRefresh);
 
 		// Render titles for server games listed
 		const Vec4f titleLabelColor = CYAN;
@@ -636,14 +537,26 @@ void MenuStateMasterserver::render(){
             renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
         }
         const Vec4f titleLabelColorList = YELLOW;
-        renderer.renderLabel(&ircOnlinePeopleListLabel,&titleLabelColorList);
 
-		for(int i=0; i<serverLines.size(); ++i){
+		for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
 	    	serverLines[i]->render();
 	    }
-
+	    for(int i=0; i<sizeof(lines) / sizeof(lines[0]); ++i){
+	    	renderer.renderLine(&lines[i]);
+	    }
+	    renderer.renderButton(&buttonRefresh);
+		renderer.renderButton(&buttonReturn);
+		renderer.renderLabel(&labelAutoRefresh);
+		renderer.renderButton(&buttonCreateGame);
+		renderer.renderListBox(&listBoxAutoRefresh);
+	    
+		for(int i = 0; i < userButtons.size(); ++i) {
+        	renderer.renderButton(userButtons[i]);
+        }
+        
    		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&consoleIRC,false,true);
+		renderer.renderConsole(&consoleIRC,true,true);
+		
 	}
 	if(program != NULL) program->renderProgramMsgBox();
 }
@@ -654,6 +567,10 @@ void MenuStateMasterserver::update() {
 		needUpdateFromServer = true;
 		lastRefreshTimer= time(NULL);
 	}
+
+	// calculate button linepos:
+	
+	setButtonLinePosition(serverLinesYBase-serverLinesToRender*serverLinesLineHeight);
 
 	if(playServerFoundSound)
 	{
@@ -674,19 +591,34 @@ void MenuStateMasterserver::update() {
     //console
     consoleIRC.update();
 
+	
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
-        string nicks = "";
-        for(int i = 0; i < nickList.size(); ++i) {
-            if(nicks != "") {
-                nicks += ", ";
-            }
-            nicks += nickList[i];
+        bool isNew=false;
+        //check if there is something new
+        if( oldNickList.size()!=nickList.size()) {
+        	isNew=true;
         }
-        ircOnlinePeopleListLabel.setText(nicks);
-    }
-    else {
-        ircOnlinePeopleListLabel.setText("");
+        else {
+        	for(int i = 0; i < nickList.size(); ++i) {
+        		if(nickList[i]!=oldNickList[i])
+        		{
+        			isNew=true;
+        			break;
+        		}
+        	}
+        }
+        if(isNew) {
+	        clearUserButtons();
+	        for(int i = 0; i < nickList.size(); ++i) {
+	                GraphicButton *button=new GraphicButton();
+	                button->init(userButtonsXBase,userButtonsYBase-userButtonsLineHeight*(i+1),userButtonsWidth,userButtonsHeight);
+					button->setFont(CoreData::getInstance().getDisplayFontSmall());
+					button->setText(nickList[i]);
+	                userButtons.push_back(button);
+	        }
+	        oldNickList=nickList;
+        }
     }
 
 	if(threadedErrorMsg != "") {
@@ -746,17 +678,63 @@ void MenuStateMasterserver::updateServerInfo() {
 			if(announcementURL != "") {
 				std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
 				if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
-					announcementLabel.setText(announcementTxt);
+					int newlineCount=0;
+					size_t lastIndex=0;
+					
+					//announcementLabel.setText(announcementTxt);
+					consoleIRC.addLine(announcementTxt);
+					
+					while(true){
+						lastIndex=announcementTxt.find("\n",lastIndex+1);
+						if(lastIndex==string::npos)
+						{
+							break;
+						}
+						else
+						{
+							newlineCount++;
+						}
+					}
+					newlineCount--;// remove my own line
+					for( int i=0; i< newlineCount;++i ){
+						consoleIRC.addLine("");
+					}
 				}
 			}
+			consoleIRC.addLine("---------------------------------------------");
 			string versionURL = Config::getInstance().getString("VersionURL","http://master.megaglest.org/files/versions/")+glestVersionString+".txt";
 			//printf("\nversionURL=%s\n",versionURL.c_str());
 			if(versionURL != "") {
 				std::string versionTxt = SystemFlags::getHTTP(versionURL);
 				if(StartsWith(versionTxt,"Version info:") == true) {
-					versionInfoLabel.setText(versionTxt);
+					int newlineCount=0;
+					size_t lastIndex=0;
+					
+					//versionInfoLabel.setText(versionTxt);
+					consoleIRC.addLine(versionTxt);
+					
+					while(true){
+						lastIndex=versionTxt.find("\n",lastIndex+1);
+						if(lastIndex==string::npos)
+						{
+							break;
+						}
+						else
+						{
+							newlineCount++;
+						}
+					}
+					newlineCount--;// remove my own line
+					for( int i=0; i< newlineCount;++i ){
+						consoleIRC.addLine("");
+					}
 				}
 			}
+			consoleIRC.addLine("---------------------------------------------");
+			// write hint to console:
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+			consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+			
 			announcementLoaded=true;
 		}
 
@@ -819,7 +797,7 @@ void MenuStateMasterserver::updateServerInfo() {
                             safeMutexPtr.ReleaseLock(true);
 
                             safeMutex.Lock();
-                            serverLines.push_back(new ServerLine( masterServerInfo, i, containerName));
+                            serverLines.push_back(new ServerLine( masterServerInfo, i, serverLinesYBase, serverLinesLineHeight, containerName));
                             safeMutex.ReleaseLock(true);
                         }
                         else {
