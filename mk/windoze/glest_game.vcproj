@@ -723,6 +723,10 @@
 				RelativePath="..\..\source\glest_game\menu\menu_state_scenario.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\server_line.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="network"
