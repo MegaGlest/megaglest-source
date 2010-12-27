@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEMASTERSERVER_H_
 
 #include "main_menu.h"
+#include "server_line.h"
 #include "masterserver_info.h"
 #include "simple_threads.h"
 #include "network_interface.h"
@@ -22,55 +23,11 @@
 
 namespace Glest{ namespace Game{
 
-
-// ===============================
-// 	ServerLine
-// ===============================
-
-class ServerLine {
-private:
-
-	MasterServerInfo masterServerInfo;
-	int index;
-	GraphicButton selectButton;
-	GraphicLabel gameFull;
-
-	//general info:
-	GraphicLabel glestVersionLabel;
-	GraphicLabel platformLabel;
-	//GraphicLabel binaryCompileDateLabel;
-
-	//game info:
-	GraphicLabel serverTitleLabel;
-	GraphicLabel ipAddressLabel;
-
-	//game setup info:
-	GraphicLabel techLabel;
-	GraphicLabel mapLabel;
-	GraphicLabel tilesetLabel;
-	GraphicLabel activeSlotsLabel;
-
-	GraphicLabel externalConnectPort;
-
-	const char * containerName;
-	std::vector<std::string> registeredObjNameList;
-
-public:
-	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, const char *containerName);
-	virtual ~ServerLine();
-	MasterServerInfo *getMasterServerInfo() {return &masterServerInfo;}
-	const int getIndex() const	{return index;}
-	bool buttonMouseClick(int x, int y);
-	bool buttonMouseMove(int x, int y);
-	//void setIndex(int value);
-	void render();
-
-};
-
 // ===============================
 // 	class MenuStateMasterserver
 // ===============================
 typedef vector<ServerLine*> ServerLines;
+typedef vector<GraphicButton*> UserButtons;
 typedef vector<MasterServerInfo*> MasterServerInfos;
 
 class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface, public IRCCallbackInterface {
@@ -83,14 +40,12 @@ private:
 	GraphicLabel labelAutoRefresh;
 	GraphicListBox listBoxAutoRefresh;
 	GraphicLabel labelTitle;
-	ServerLines serverLines;
-	GraphicLabel labelChatUrl;
 
 	GraphicLabel announcementLabel;
 	GraphicLabel versionInfoLabel;
-
-
-
+	
+	GraphicLine lines[3];
+	
 	GraphicLabel glestVersionLabel;
 	GraphicLabel platformLabel;
 	//GraphicLabel binaryCompileDateLabel;
@@ -113,7 +68,6 @@ private:
 	int mainMessageBoxState;
 
     GraphicLabel ircOnlinePeopleLabel;
-    GraphicLabel ircOnlinePeopleListLabel;
 
 	bool announcementLoaded;
 	bool needUpdateFromServer;
@@ -121,6 +75,19 @@ private:
 	time_t lastRefreshTimer;
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
+	ServerLines serverLines;
+	int serverLinesToRender;
+	int serverLinesYBase;
+	int serverLinesLineHeight;
+	UserButtons userButtons;
+	UserButtons userButtonsToRemove;
+	int userButtonsToRender;
+	int userButtonsYBase;
+	int userButtonsXBase;
+	int userButtonsLineHeight;
+	int	userButtonsHeight;
+	int userButtonsWidth;
+	
 
 	//Console console;
 
@@ -132,6 +99,7 @@ private:
 
     std::vector<string> ircArgs;
 	IRCThread *ircClient;
+	std::vector<string> oldNickList;
 
 	Console consoleIRC;
 	ChatManager chatManager;
@@ -158,7 +126,10 @@ public:
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	bool connectToServer(string ipString, int port);
+	void setConsolePos(int yPos);
+	void setButtonLinePosition(int pos);
 	void clearServerLines();
+	void clearUserButtons();
 	void updateServerInfo();
 	void cleanup();
 

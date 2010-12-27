@@ -43,9 +43,9 @@ private:
 	GraphicListBox listBoxLang;
 	GraphicListBox listBoxShadows;
 	GraphicListBox listBoxFilter;
-	GraphicListBox listBoxTextures3D;
+	GraphicCheckBox checkBoxTextures3D;
 	GraphicListBox listBoxLights;
-	GraphicListBox listBoxUnitParticles;
+	GraphicCheckBox checkBoxUnitParticles;
 	GraphicListBox listBoxSoundFactory;
 	GraphicListBox listBoxVolumeFx;
 	GraphicListBox listBoxVolumeAmbient;
@@ -62,7 +62,7 @@ private:
 	list<ModeInfo> modeInfos;
 
 	GraphicLabel labelFullscreenWindowed;
-	GraphicListBox listBoxFullscreenWindowed;
+	GraphicCheckBox checkBoxFullscreenWindowed;
 
 	GraphicLabel labelVideoSection;
 	GraphicLabel labelAudioSection;
@@ -72,7 +72,7 @@ private:
 	GraphicListBox listFontSizeAdjustment;
 
 	GraphicLabel labelMapPreview;
-	GraphicListBox listBoxMapPreview;
+	GraphicCheckBox checkBoxMapPreview;
 
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;

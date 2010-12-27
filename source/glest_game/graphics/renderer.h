@@ -312,7 +312,7 @@ public:
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false);
-	void RenderConsoleLine(int lineIndex, int xPosition, const ConsoleLineInfo *lineInfo);
+	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, const Font2D* font,const ConsoleLineInfo *lineInfo);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();
@@ -326,6 +326,8 @@ public:
 	void renderLabel(const GraphicLabel *label,const Vec3f *color);
 	void renderLabel(const GraphicLabel *label,const Vec4f *color);
     void renderButton(const GraphicButton *button);
+    void renderCheckBox(const GraphicCheckBox *box);
+    void renderLine(const GraphicLine *line);
     void renderListBox(const GraphicListBox *listBox);
 	void renderMessageBox(const GraphicMessageBox *listBox);
 

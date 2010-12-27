@@ -168,6 +168,7 @@ public:
 	void setSelectedItemIndex(int index, bool errorOnMissing=true);
     void setSelectedItem(string item, bool errorOnMissing=true);
     void setEditable(bool editable);
+	virtual void setY(int y);
     
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
@@ -207,6 +208,46 @@ public:
     bool mouseClick(int x, int y, int &clickedButton);
 };
 
-}}//end namespace
+// ===========================================================
+// 	class GraphicLine  
+// ===========================================================
 
+class GraphicLine: public GraphicComponent {
+public:
+	static const int defH;
+	static const int defW;
+	
+private:
+	bool horizontal;	
+	
+public:
+	void init(int x, int y, int w=defW, int h=defH);
+	bool getHorizontal() const		{return horizontal;}
+	void setHorizontal(bool horizontal) 		{this->horizontal= horizontal;}
+};
+
+// ===========================================================
+// 	class GraphicCheckBox  
+// ===========================================================
+
+class GraphicCheckBox: public GraphicComponent {
+public:
+	static const int defH;
+	static const int defW;
+	
+private:
+	bool value;
+	bool lighted;
+
+public:
+	void init(int x, int y, int w=defW, int h=defH);
+	bool getValue() const		{return value;}
+	void setValue(bool value) 		{this->value= value;}
+	bool getLighted() const			{return lighted;}
+	void setLighted(bool lighted)	{this->lighted= lighted;}
+	virtual bool mouseMove(int x, int y);  
+    virtual bool mouseClick(int x, int y);
+};
+
+}}//end namespace
 #endif

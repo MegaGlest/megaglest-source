@@ -13,9 +13,11 @@
 #define _GLEST_GAME_CHATMANAGER_H_
 
 #include <string>
+#include "font.h"
 #include "leak_dumper.h"
 
 using std::string;
+using Shared::Graphics::Font2D;
 
 namespace Glest{ namespace Game{
 
@@ -26,8 +28,6 @@ class Console;
 // =====================================================
 
 class ChatManager{
-private:
-	static const int maxTextLenght;
 
 private:
 	bool editEnabled;
@@ -38,6 +38,11 @@ private:
 	int thisTeamIndex;
 	bool inMenu;
 	string manualPlayerNameOverride;
+	int xPos;
+	int yPos;
+	int maxTextLenght;
+	Font2D *font;
+	
 
 public:
 	ChatManager();
@@ -51,6 +56,17 @@ public:
 	bool getEditEnabled() const	{return editEnabled;}
 	bool getTeamMode() const	{return teamMode;}
 	string getText() const		{return text;}
+	int getXPos() const {return xPos;}
+	void setXPos(int xPos)	{this->xPos= xPos;}
+	int getYPos() const {return yPos;}
+	void setYPos(int yPos)	{this->yPos= yPos;}
+	int getMaxTextLenght() const {return maxTextLenght;}
+	void setMaxTextLenght(int maxTextLenght)	{this->maxTextLenght= maxTextLenght;}
+	Font2D *getFont() const {return font;}
+	void setFont(Font2D *font)	{this->font= font;}
+	void addText(string text);
+	void switchOnEdit();
+	
 
 	bool getDisableTeamMode() const { return disableTeamMode; }
 	void setDisableTeamMode(bool value);

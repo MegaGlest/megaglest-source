@@ -100,6 +100,29 @@ void CoreData::load() {
 	buttonBigTexture->setForceCompressionDisabled(true);
 	buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
 
+	horizontalLineTexture= renderer.newTexture2D(rsGlobal);
+	horizontalLineTexture->setForceCompressionDisabled(true);
+	horizontalLineTexture->getPixmap()->load(dir+"/menu/textures/line_horizontal.tga");
+
+	verticalLineTexture= renderer.newTexture2D(rsGlobal);
+	verticalLineTexture->setForceCompressionDisabled(true);
+	verticalLineTexture->getPixmap()->load(dir+"/menu/textures/line_vertical.tga");
+
+	checkBoxTexture= renderer.newTexture2D(rsGlobal);
+	checkBoxTexture->setForceCompressionDisabled(true);
+	checkBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox.tga");
+
+	checkedCheckBoxTexture= renderer.newTexture2D(rsGlobal);
+	checkedCheckBoxTexture->setForceCompressionDisabled(true);
+	checkedCheckBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox_checked.tga");
+
+	Texture2D *horizontalLineTexture;
+	Texture2D *verticalLineTexture;
+	Texture2D *checkBoxTexture;
+	Texture2D *checkedCeckBoxTextur;
+
+
+
 	//display font
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
