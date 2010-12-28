@@ -151,7 +151,7 @@ public:
 // =====================================================
 // 	class UnitPath
 // =====================================================
-/** Holds the next cells of a Unit movement 
+/** Holds the next cells of a Unit movement
   * @extends std::list<Shared::Math::Vec2i>
   */
 class UnitPath : public list<Vec2i>, public UnitPathInterface {
@@ -175,14 +175,14 @@ public:
 	bool empty() const		{return list<Vec2i>::empty();}	/**< is path empty				  */
 	virtual void add(const Vec2i &pos)	{ push_front(pos);}	  /**< push onto front of path			  */
 
-	
+
 #if 0
 	// old style, to work with original PathFinder
-	Vec2i peek()			{return back();}	 /**< peek at the next position			 */	
+	Vec2i peek()			{return back();}	 /**< peek at the next position			 */
 	void pop()				{this->pop_back();}	/**< pop the next position off the path */
 #else
 	// new style, for the new RoutePlanner
-	Vec2i peek()			{return front();}	 /**< peek at the next position			 */	
+	Vec2i peek()			{return front();}	 /**< peek at the next position			 */
 	//virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
 	void pop()		{ erase(begin()); }	/**< pop the next position off the path */
 #endif

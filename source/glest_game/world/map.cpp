@@ -747,7 +747,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
 	Vec2i end 	= pos + Vec2i(ut->getSize());
 
 	for(int i = start.x; i <= end.x; ++i) {
-		for(int j = start.y; j <= end.y; ++j){
+		for(int j = start.y; j <= end.y; ++j) {
 			Vec2i testPos(i,j);
 			if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
 				float distance = unitBuilderPos.dist(testPos);
