@@ -143,7 +143,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 }
 
 CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
-	
+
 	if(!selection->isEmpty()){
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
@@ -503,7 +503,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
-	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+	    //std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+	    std::string sError = "Error [#1]: Game is out of sync, please check log files for details.";
 		throw runtime_error(sError);
 	}
 
@@ -522,7 +523,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
-	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+	    //std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+	    std::string sError = "Error [#2]: Game is out of sync, please check log files for details.";
 		throw runtime_error(sError);
 	}
 
