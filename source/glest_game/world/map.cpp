@@ -837,8 +837,8 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
                     if(unit->getCurrSkill() != NULL &&
                        unit->getCurrSkill()->getClass() == scMove) {
                         canPutInCell = false;
-                        unit->setCurrSkill(scStop);
-                        unit->finishCommand();
+                        //unit->setCurrSkill(scStop);
+                        //unit->finishCommand();
 
                         //SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] POSSIBLE ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
                         //      __FILE__,__FUNCTION__,__LINE__,
