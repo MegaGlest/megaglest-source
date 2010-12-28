@@ -25,6 +25,7 @@
 #include "renderer.h"
 #include "game.h"
 #include "socket.h"
+#include "sound_renderer.h"
 
 #include "leak_dumper.h"
 
@@ -1112,23 +1113,39 @@ void Unit::tick() {
 		}
 
 		//regenerate hp
-		hp+= type->getHpRegeneration();
-		if(hp>type->getTotalMaxHp(&totalUpgrade)){
-			hp= type->getTotalMaxHp(&totalUpgrade);
+		if(type->getHpRegeneration() >= 0) {
+            hp+= type->getHpRegeneration();
+            if(hp>type->getTotalMaxHp(&totalUpgrade)){
+                hp= type->getTotalMaxHp(&totalUpgrade);
+            }
 		}
+		// If we have negative regeneration then check if the unit should die
+		else {
+            bool decHpResult = decHp(-type->getHpRegeneration());
+            if(decHpResult) {
+                Unit::game->getWorld()->getStats()->die(getFactionIndex());
+                game->getScriptManager()->onUnitDied(this);
+            }
+            StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+            if(sound != NULL && this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex()) {
+                SoundRenderer::getInstance().playFx(sound);
+            }
+		}
+
 		//stop DamageParticles
-		if(hp>type->getTotalMaxHp(&totalUpgrade)/2 ){
+		if(hp > type->getTotalMaxHp(&totalUpgrade) / 2) {
 			stopDamageParticles();
 		}
+
 		//regenerate ep
-		ep+= type->getEpRegeneration();
+		ep += type->getEpRegeneration();
 		if(ep>type->getTotalMaxEp(&totalUpgrade)){
 			ep= type->getTotalMaxEp(&totalUpgrade);
 		}
 	}
 }
 
-int Unit::update2(){
+int Unit::update2() {
      progress2++;
      return progress2;
 }
@@ -1185,12 +1202,12 @@ bool Unit::repair(){
 }
 
 //decrements HP and returns if dead
-bool Unit::decHp(int i){
-	if(hp==0){
+bool Unit::decHp(int i) {
+	if(hp == 0) {
 		return false;
 	}
 
-	hp-=i;
+	hp -= i;
 
 	if(type == NULL) {
 		char szBuf[4096]="";
@@ -1199,12 +1216,12 @@ bool Unit::decHp(int i){
 	}
 
 	//startDamageParticles
-	if(hp<type->getMaxHp()/2 ){
+	if(hp < type->getMaxHp() / 2 ) {
 		startDamageParticles();
 	}
 
 	//stop DamageParticles on death
-    if(hp<=0){
+    if(hp <= 0) {
 		alive= false;
         hp=0;
 		stopDamageParticles();
@@ -1213,7 +1230,7 @@ bool Unit::decHp(int i){
     return false;
 }
 
-string Unit::getDesc() const{
+string Unit::getDesc() const {
 
     Lang &lang= Lang::getInstance();
 
