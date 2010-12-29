@@ -963,7 +963,9 @@ void MenuStateConnectedGame::update() {
 				}
 				else {
                     // try to get the map via ftp
-
+                    if(ftpClientThread != NULL) {
+                        ftpClientThread->addMapToRequests(currentMap);
+                    }
 					maps.push_back("***missing***");
 				}
 				listBoxMap.setItems(maps);
