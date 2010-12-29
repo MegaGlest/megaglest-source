@@ -137,6 +137,7 @@ private:
 	std::vector<std::string> tileSets;
 
     FTPClientThread *ftpClientThread;
+    string getMissingMapFromFTPServer;
 
 public:
 

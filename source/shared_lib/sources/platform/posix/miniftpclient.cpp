@@ -87,7 +87,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
          */
 
         char szBuf[1024]="";
-        sprintf(szBuf,"ftp://maps:mg_ftp_server@%s/maps/%s",serverUrl.c_str(),mapFileName.c_str());
+        sprintf(szBuf,"ftp://maps:mg_ftp_server@%s/%s",serverUrl.c_str(),mapFileName.c_str());
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
         /* Define our callback to get called when there's data to be written */
@@ -107,7 +107,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
             /* we failed */
             fprintf(stderr, "curl told us %d\n", res);
 
-            sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s/maps/%s",serverUrl.c_str(),mapFileName.c_str());
+            sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s/%s",serverUrl.c_str(),mapFileName.c_str());
 
             curl_easy_setopt(curl, CURLOPT_URL,szBuf);
             /* Define our callback to get called when there's data to be written */
