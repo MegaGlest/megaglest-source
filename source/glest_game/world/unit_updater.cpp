@@ -367,7 +367,7 @@ void UnitUpdater::updateAttack(Unit *unit) {
     else {
 		//compute target pos
 		Vec2i pos;
-		Command *nextCommand;
+		//Command *nextCommand;
 		if(command->getUnit()!=NULL) {
 			pos= command->getUnit()->getCenteredPos();
 		}

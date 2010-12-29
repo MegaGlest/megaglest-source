@@ -263,6 +263,7 @@ LOCAL int ftpCmdAbor(int sessionId, const char* args, int len)
 #define MLSD	8
 LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int format)
 {
+	int haveAnySuccessfulFiles = 0;
 	void *dir;
     const char monName[12][4] = {
             "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -285,10 +286,10 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 		printf("about to read dir contents [%s]\n", path);
 #endif
 
-        int haveAnySuccessfulFiles = 0;
+        haveAnySuccessfulFiles = 0;
 		while((dirEntry = ftpReadDir(dir)) != NULL)
 		{
-		    char * realPath = ftpGetRealPath(sessionId, dirEntry, FALSE);
+		    const char * realPath = ftpGetRealPath(sessionId, dirEntry, FALSE);
 		    int statResult = ftpStat(realPath, &fileInfo);
 #if DBG_LOG
 		printf("ftpGetRealPath() returned [%s] stat() = %d\n", realPath, statResult);
@@ -488,12 +489,13 @@ LOCAL int ftpCmdRetr(int sessionId, const char* args, int len)
     const char* realPath = ftpGetRealPath(sessionId, args, TRUE);
 	socket_t s;
 	void *fp;
+	int statResult = 0;
 
 #if DBG_LOG
 	printf("ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
 #endif
 
-    int statResult = ftpStat(realPath, &fileInfo);
+    statResult = ftpStat(realPath, &fileInfo);
 #if DBG_LOG
 	printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
 #endif
