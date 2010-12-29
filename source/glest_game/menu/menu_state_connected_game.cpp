@@ -1576,6 +1576,16 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string mapFilename, FTP_Cli
 
     getMissingMapFromFTPServerInProgress = false;
     printf("Got FTP Callback for [%s] result = %d\n",mapFilename.c_str(),result);
+
+    if(result == ftp_crt_SUCCESS) {
+        NetworkManager &networkManager= NetworkManager::getInstance();
+        ClientInterface* clientInterface= networkManager.getClientInterface();
+        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+        char szMsg[1024]="";
+        sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+        clientInterface->sendTextMessage(szMsg,-1, true);
+    }
 }
 
 }}//end namespace
