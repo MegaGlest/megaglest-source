@@ -138,6 +138,7 @@ private:
 
     FTPClientThread *ftpClientThread;
     string getMissingMapFromFTPServer;
+    bool getMissingMapFromFTPServerInProgress;
 
 public:
 
