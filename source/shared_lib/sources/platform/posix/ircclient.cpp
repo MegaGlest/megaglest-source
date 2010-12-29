@@ -192,7 +192,7 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
         if(ctx->getCallbackObj() != NULL) {
-            ctx->getCallbackObj()->IRC_CallbackEvent(nickbuf, params, count);
+            ctx->getCallbackObj()->IRC_CallbackEvent(IRC_evt_chatText, nickbuf, params, count);
         }
 	}
 
@@ -411,6 +411,15 @@ std::vector<string> IRCThread::getNickList() {
     return nickList;
 }
 
+IRCCallbackInterface * IRCThread::getCallbackObj() {
+    MutexSafeWrapper safeMutex(&mutexIRCCB);
+    return callbackObj;
+}
+void IRCThread::setCallbackObj(IRCCallbackInterface *cb) {
+    MutexSafeWrapper safeMutex(&mutexIRCCB);
+    callbackObj=cb;
+}
+
 void IRCThread::execute() {
     {
         RunningStatusSafeWrapper runningStatus(this);
@@ -509,6 +518,9 @@ void IRCThread::execute() {
 
     // Delete ourself when the thread is done (no other actions can happen after this
     // such as the mutex which modifies the running status of this method
+    if(getCallbackObj() != NULL) {
+       getCallbackObj()->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);
+    }
 	delete this;
 }
 

@@ -58,18 +58,18 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	serverLinesToRender=9;
 	serverLinesLineHeight=25;
 	serverLinesYBase=680;
-	
+
 	userButtonsYBase=serverLinesYBase-(serverLinesToRender+2)*serverLinesLineHeight;
 	userButtonsHeight=20;
 	userButtonsWidth=150;
 	userButtonsLineHeight=userButtonsHeight+2;
 	userButtonsToRender=userButtonsYBase/userButtonsLineHeight;
 	userButtonsXBase=1000-userButtonsWidth;
-	
+
 	lines[0].init(0, userButtonsYBase+serverLinesLineHeight);
 	lines[1].init(userButtonsXBase-5,0,5,userButtonsYBase+userButtonsLineHeight);
 	lines[1].setHorizontal(false);
-	
+
 	autoRefreshTime=0;
 	playServerFoundSound=false;
 	announcementLoaded=false;
@@ -92,7 +92,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     versionInfoLabel.init(10, 680);
     versionInfoLabel.setFont(CoreData::getInstance().getMenuFontBig());
     versionInfoLabel.setText("");
-    
+
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
 	labelTitle.init(330, serverLinesYBase+40);
@@ -111,7 +111,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	int lineOffset=25*lineIndex;
 	int i=10;
 	int startOffset=serverLinesYBase+23;
-	
+
 	//general info:
 	i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel");
@@ -206,7 +206,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
-	
+
 	//console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -234,6 +234,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     ircArgs.push_back(IRC_SERVER);
     ircArgs.push_back(szIRCNick);
     ircArgs.push_back(IRC_CHANNEL);
+
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
     ircClient = new IRCThread(ircArgs,this);
     ircClient->setUniqueID(__FILE__);
     ircClient->start();
@@ -255,11 +257,20 @@ void MenuStateMasterserver::setButtonLinePosition(int pos){
 	listBoxAutoRefresh.setY(pos);
 }
 
-void MenuStateMasterserver::IRC_CallbackEvent(const char* origin, const char **params, unsigned int count) {
-    //printf ("===> IRC: '%s' said in channel %s: %s\n",origin ? origin : "someone",params[0], params[1] );
-    char szBuf[4096]="";
-    sprintf(szBuf,"%s: %s",origin ? origin : "someone",params[1]);
-    consoleIRC.addLine(szBuf);
+void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) {
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    if(ircClient != NULL) {
+        if(evt == IRC_evt_exitThread) {
+            ircClient = NULL;
+        }
+        else if(evt == IRC_evt_chatText) {
+            //printf ("===> IRC: '%s' said in channel %s: %s\n",origin ? origin : "someone",params[0], params[1] );
+
+            char szBuf[4096]="";
+            sprintf(szBuf,"%s: %s",origin ? origin : "someone",params[1]);
+            consoleIRC.addLine(szBuf);
+        }
+    }
 }
 
 void MenuStateMasterserver::cleanup() {
@@ -297,9 +308,11 @@ void MenuStateMasterserver::cleanup() {
 	clearUserButtons();
 
     //printf("Exiting master server menu [%p]\n",ircClient);
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
     if(ircClient != NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+        ircClient->setCallbackObj(NULL);
         ircClient->signalQuit();
         //if(ircClient->shutdownAndWait() == true) {
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -490,7 +503,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     for(int i = 0; i < userButtons.size(); ++i) {
        	userButtons[i]->mouseMove(x, y);
     }
-    
+
 }
 
 void MenuStateMasterserver::render(){
@@ -526,6 +539,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
+        MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
         if(ircClient != NULL &&
            ircClient->isConnected() == true &&
            ircClient->getHasJoinedChannel() == true) {
@@ -536,6 +550,8 @@ void MenuStateMasterserver::render(){
             const Vec4f titleLabelColor = RED;
             renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
         }
+        safeMutexIRCPtr.ReleaseLock();
+
         const Vec4f titleLabelColorList = YELLOW;
 
 		for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
@@ -549,14 +565,14 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&labelAutoRefresh);
 		renderer.renderButton(&buttonCreateGame);
 		renderer.renderListBox(&listBoxAutoRefresh);
-	    
+
 		for(int i = 0; i < userButtons.size(); ++i) {
         	renderer.renderButton(userButtons[i]);
         }
-        
+
    		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&consoleIRC,true,true);
-		
+
 	}
 	if(program != NULL) program->renderProgramMsgBox();
 }
@@ -569,7 +585,7 @@ void MenuStateMasterserver::update() {
 	}
 
 	// calculate button linepos:
-	
+
 	setButtonLinePosition(serverLinesYBase-serverLinesToRender*serverLinesLineHeight);
 
 	if(playServerFoundSound)
@@ -591,7 +607,7 @@ void MenuStateMasterserver::update() {
     //console
     consoleIRC.update();
 
-	
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
         bool isNew=false;
@@ -620,6 +636,7 @@ void MenuStateMasterserver::update() {
 	        oldNickList=nickList;
         }
     }
+    safeMutexIRCPtr.ReleaseLock();
 
 	if(threadedErrorMsg != "") {
 		std::string sError = threadedErrorMsg;
@@ -680,10 +697,10 @@ void MenuStateMasterserver::updateServerInfo() {
 				if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
 					int newlineCount=0;
 					size_t lastIndex=0;
-					
+
 					//announcementLabel.setText(announcementTxt);
 					consoleIRC.addLine(announcementTxt);
-					
+
 					while(true){
 						lastIndex=announcementTxt.find("\n",lastIndex+1);
 						if(lastIndex==string::npos)
@@ -709,10 +726,10 @@ void MenuStateMasterserver::updateServerInfo() {
 				if(StartsWith(versionTxt,"Version info:") == true) {
 					int newlineCount=0;
 					size_t lastIndex=0;
-					
+
 					//versionInfoLabel.setText(versionTxt);
 					consoleIRC.addLine(versionTxt);
-					
+
 					while(true){
 						lastIndex=versionTxt.find("\n",lastIndex+1);
 						if(lastIndex==string::npos)
@@ -734,7 +751,7 @@ void MenuStateMasterserver::updateServerInfo() {
 			// write hint to console:
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 			consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
-			
+
 			announcementLoaded=true;
 		}
 
@@ -892,6 +909,7 @@ void MenuStateMasterserver::keyDown(char key) {
 
     if(chatManager.getEditEnabled() == true) {
         //printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
+        MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
         if(key == vkReturn && ircClient != NULL) {
             ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
         }
