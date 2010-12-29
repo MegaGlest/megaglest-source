@@ -72,6 +72,9 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFile = this->mapsPath.second + mapFileName;
+    if(EndsWith(destFile,".mgm") && EndsWith(destFile,".gbm")) {
+        destFile += ".mgm";
+    }
 
     struct FtpFile ftpfile = {
         destFile.c_str(), /* name to store the file as if succesful */
@@ -140,6 +143,11 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
 
     if(ftpfile.stream) {
         fclose(ftpfile.stream); /* close the local file */
+    }
+
+    if(result != ftp_crt_SUCCESS && EndsWith(destFile,".mgm")) {
+        destFile = this->mapsPath.second + mapFileName + ".gbm";
+        getMapFromServer(destFile);
     }
 
     //curl_global_cleanup();
