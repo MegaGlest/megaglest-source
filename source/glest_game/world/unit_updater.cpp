@@ -188,11 +188,11 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 	//if unit has command process it
     if(unit->anyCommand()) {
     	CommandClass cc=unit->getCurrCommand()->getCommandType()->commandTypeClass;
-    	if(unit->isOperative() && (!(cc==ccStop || cc==ccAttack)) )
-    	{//stop and attack already check for themselves
-    		Unit *sighted;
-    		attackerOnSight(unit, &sighted);
-    	}
+//    	if(unit->isOperative() && (!(cc==ccStop || cc==ccAttack)) )
+//    	{//stop and attack already check for themselves
+//    		Unit *sighted;
+//    		attackerOnSight(unit, &sighted);
+//    	}
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
 
@@ -207,12 +207,12 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 		}
-		else
-		{
-			// buidings have no stop skill but hav to check for attackers too.
-			Unit *sighted;
-			attackerOnSight(unit, &sighted);
-		}
+//		else
+//		{
+//			// buidings have no stop skill but have to check for attackers too.
+//			Unit *sighted;
+//			attackerOnSight(unit, &sighted);
+//		}
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -367,7 +367,6 @@ void UnitUpdater::updateAttack(Unit *unit) {
     else {
 		//compute target pos
 		Vec2i pos;
-		//Command *nextCommand;
 		if(command->getUnit()!=NULL) {
 			pos= command->getUnit()->getCenteredPos();
 		}
@@ -1792,61 +1791,135 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     }
 
 
-	if(	result &&
-		unit->getTeam()==world->getThisTeamIndex() && //must be in local players team.
-		!(unit->isAlly(enemySeen)))
+	if(result)
 	{
-		// find nearest Attack and cleanup old dates
-		AttackWarningData *nearest=NULL;
-		float currentDistance;
-		float nearestDistance;
-		for(int i = attackWarnings.size()-1; i>-1; --i) {
-			if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>200) { //after 200 frames attack break we warn again
-				AttackWarningData *toDelete=attackWarnings[i];
-				attackWarnings.erase(attackWarnings.begin()+i);
-				delete toDelete; // old one
-			}
-			else {
-				currentDistance=floor(floatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
-				if( nearest==NULL ){
-					nearest=attackWarnings[i];
-					nearestDistance=currentDistance;
+		const Unit* teamUnit;
+		const Unit* enemyUnit;
+		bool onlyEnemyUnits=true;
+		if(unit->getTeam()==world->getThisTeamIndex())
+		{
+			teamUnit=unit;
+			enemyUnit=enemySeen;
+			onlyEnemyUnits=false;
+		}
+		else if(enemySeen->getTeam()==world->getThisTeamIndex() )
+		{
+			teamUnit=enemySeen;
+			enemyUnit=unit;
+			onlyEnemyUnits=false;
+		}
+
+		if(!onlyEnemyUnits && enemyUnit->getTeam()!=world->getThisTeamIndex())
+		{
+			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
+			// find nearest Attack and cleanup old dates
+			AttackWarningData *nearest=NULL;
+			float currentDistance;
+			float nearestDistance;
+			for(int i = attackWarnings.size()-1; i>-1; --i) {
+				if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>200) { //after 200 frames attack break we warn again
+					AttackWarningData *toDelete=attackWarnings[i];
+					attackWarnings.erase(attackWarnings.begin()+i);
+					delete toDelete; // old one
 				}
 				else {
-
-						if(  currentDistance< nearestDistance ){
-							nearest=attackWarnings[i];
-							nearestDistance=currentDistance;
-						}
+					currentDistance=floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+					if( nearest==NULL ){
+						nearest=attackWarnings[i];
+						nearestDistance=currentDistance;
 					}
-			}
-    	}
+					else {
 
-    	if(nearest!=NULL)
-    	{    	// does it fit?
-    		if(nearestDistance<attackWarnRange)
-    		{// update entry with current values
-    				nearest->lastFrameCount=world->getFrameCount();
-    				nearest->attackPosition.x=enemySeen->getFloatCenteredPos().x;
-    				nearest->attackPosition.y=enemySeen->getFloatCenteredPos().y;
-    		}
-    		else
-    		{//Must be a different Attack!
-    			nearest=NULL;  //set to null to force a new entry in next step
-    		}
-    	}
-    	// add new attack
-    	if(nearest==NULL) // no else!
-    	{
-    		AttackWarningData* awd= new AttackWarningData();
-    		awd->lastFrameCount=world->getFrameCount();
-    		awd->attackPosition.x=enemySeen->getFloatCenteredPos().x;
-    		awd->attackPosition.y=enemySeen->getFloatCenteredPos().y;
-    		attackWarnings.push_back(awd);
-    		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
-    		world->addAttackEffects(enemySeen);
-    	}
+							if(  currentDistance< nearestDistance ){
+								nearest=attackWarnings[i];
+								nearestDistance=currentDistance;
+							}
+						}
+				}
+	    	}
+
+	    	if(nearest!=NULL)
+	    	{    	// does it fit?
+	    		if(nearestDistance<attackWarnRange)
+	    		{// update entry with current values
+	    				nearest->lastFrameCount=world->getFrameCount();
+	    				nearest->attackPosition.x=enemyFloatCenter.x;
+	    				nearest->attackPosition.y=enemyFloatCenter.y;
+	    		}
+	    		else
+	    		{//Must be a different Attack!
+	    			nearest=NULL;  //set to null to force a new entry in next step
+	    		}
+	    	}
+	    	// add new attack
+	    	if(nearest==NULL) // no else!
+	    	{
+	    		AttackWarningData* awd= new AttackWarningData();
+	    		awd->lastFrameCount=world->getFrameCount();
+	    		awd->attackPosition.x=enemyFloatCenter.x;
+	    		awd->attackPosition.y=enemyFloatCenter.y;
+	    		attackWarnings.push_back(awd);
+	    		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+	    		world->addAttackEffects(enemyUnit);
+	    	}
+		}
 	}
+
+//	if(	result &&
+//		unit->getTeam()==world->getThisTeamIndex() && //must be in local players team.
+//		!(unit->isAlly(enemySeen)))
+//	{
+//		// find nearest Attack and cleanup old dates
+//		AttackWarningData *nearest=NULL;
+//		float currentDistance;
+//		float nearestDistance;
+//		for(int i = attackWarnings.size()-1; i>-1; --i) {
+//			if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>200) { //after 200 frames attack break we warn again
+//				AttackWarningData *toDelete=attackWarnings[i];
+//				attackWarnings.erase(attackWarnings.begin()+i);
+//				delete toDelete; // old one
+//			}
+//			else {
+//				currentDistance=floor(floatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+//				if( nearest==NULL ){
+//					nearest=attackWarnings[i];
+//					nearestDistance=currentDistance;
+//				}
+//				else {
+//
+//						if(  currentDistance< nearestDistance ){
+//							nearest=attackWarnings[i];
+//							nearestDistance=currentDistance;
+//						}
+//					}
+//			}
+//    	}
+//
+//    	if(nearest!=NULL)
+//    	{    	// does it fit?
+//    		if(nearestDistance<attackWarnRange)
+//    		{// update entry with current values
+//    				nearest->lastFrameCount=world->getFrameCount();
+//    				nearest->attackPosition.x=enemySeen->getFloatCenteredPos().x;
+//    				nearest->attackPosition.y=enemySeen->getFloatCenteredPos().y;
+//    		}
+//    		else
+//    		{//Must be a different Attack!
+//    			nearest=NULL;  //set to null to force a new entry in next step
+//    		}
+//    	}
+//    	// add new attack
+//    	if(nearest==NULL) // no else!
+//    	{
+//    		AttackWarningData* awd= new AttackWarningData();
+//    		awd->lastFrameCount=world->getFrameCount();
+//    		awd->attackPosition.x=enemySeen->getFloatCenteredPos().x;
+//    		awd->attackPosition.y=enemySeen->getFloatCenteredPos().y;
+//    		attackWarnings.push_back(awd);
+//    		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+//    		world->addAttackEffects(enemySeen);
+//    	}
+//	}
 
 
     return result;
