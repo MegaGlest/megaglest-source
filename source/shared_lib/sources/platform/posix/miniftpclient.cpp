@@ -77,7 +77,13 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFileExt = "";
-    string destFile = this->mapsPath.second + mapFileName;
+    string destFile = this->mapsPath.second;
+
+    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+        destFile += "/";
+    }
+    destFile += mapFileName;
+
     if(EndsWith(destFile,".mgm") == false && EndsWith(destFile,".gbm") == false) {
         destFileExt = ".mgm";
         destFile += destFileExt;
