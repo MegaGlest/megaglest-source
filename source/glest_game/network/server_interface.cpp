@@ -86,7 +86,7 @@ ServerInterface::ServerInterface() {
 	//serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 
-    if(Config::getInstance().getBool("EnableFTPXfer") == true) {
+    if(Config::getInstance().getBool("EnableFTPXfer","false") == true) {
         std::pair<string,string> mapsPath;
         vector<string> pathList = Config::getInstance().getPathListForType(ptMaps);
         if(pathList.size() > 0) {
