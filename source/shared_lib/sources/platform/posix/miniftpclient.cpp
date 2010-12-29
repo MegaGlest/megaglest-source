@@ -36,14 +36,19 @@ struct FtpFile {
   FILE *stream;
 };
 
-static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream)
-{
+static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct FtpFile *out=(struct FtpFile *)stream;
-  if(out && !out->stream) {
+  if(out && out->stream == NULL) {
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",out->filename);
+
     /* open file for writing */
     out->stream=fopen(out->filename, "wb");
-    if(!out->stream)
+    if(out->stream == NULL) {
+      if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",out->filename);
+
       return -1; /* failure, can't open file to write */
+    }
   }
   return fwrite(buffer, size, nmemb, out->stream);
 }
@@ -78,6 +83,8 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         destFile += destFileExt;
     }
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+
     struct FtpFile ftpfile = {
         destFile.c_str(), /* name to store the file as if succesful */
         NULL
@@ -90,6 +97,8 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         /*
          * You better replace the URL with one that works!
          */
+
+        ftpfile.stream = NULL;
 
         char szBuf[1024]="";
         sprintf(szBuf,"ftp://maps:mg_ftp_server@%s/%s%s",serverUrl.c_str(),mapFileName.c_str(),destFileExt.c_str());
@@ -111,6 +120,8 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         if(CURLE_OK != res) {
             /* we failed */
             fprintf(stderr, "curl told us %d\n", res);
+
+            ftpfile.stream = NULL;
 
             sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s/%s%s",serverUrl.c_str(),mapFileName.c_str(),destFileExt.c_str());
 
@@ -145,17 +156,17 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
 
     if(ftpfile.stream) {
         fclose(ftpfile.stream); /* close the local file */
+        ftpfile.stream = NULL;
     }
 
     if(result != ftp_crt_SUCCESS && EndsWith(destFile,".mgm")) {
         destFile = mapFileName + ".gbm";
         getMapFromServer(destFile);
     }
-
-    //curl_global_cleanup();
-
-    if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(mapFileName,result);
+    else {
+        if(this->pCBObject != NULL) {
+           this->pCBObject->FTPClient_CallbackEvent(mapFileName,result);
+        }
     }
 }
 
