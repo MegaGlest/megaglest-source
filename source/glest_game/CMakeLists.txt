@@ -6,8 +6,7 @@ SET(EXTERNAL_LIBS "")
 IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 			       ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-			       ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-			       ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
+			       ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
@@ -23,31 +22,6 @@ IF(WIN32)
 			       
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
-ENDIF()
-
-# stupid hack because cmake WILL NOT find libircclient for some reason
-if(WIN32)
-
-	if(EXISTS ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include/libircclient.h)
-	  set(LIBIRCCLIENT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/include)
-	  link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/libircclient/build/lib)
-	endif()
-else()
-	#CHECK_INCLUDE_FILES(libircclient/libircclient.h LIBIRCCLIENT_INCLUDE_DIR)
-	FIND_PATH(LIBIRCCLIENT_INCLUDE_DIR NAME libircclient/libircclient.h PATHS /usr/local/include)
-	link_directories(/usr/local/include)	
-	link_directories(/usr/local/lib)
-endif()
-
-#check_include_files("libircclient/libircclient.h;libircclient/include/libircclient.h" LIBIRCCLIENT_H_)
-if(NOT LIBIRCCLIENT_INCLUDE_DIR)
-       message(FATAL_ERROR "missing libircclient : please install it [${LIBIRCCLIENT_INCLUDE_DIR}]")
-endif()
-
-INCLUDE_DIRECTORIES(${LIBIRCCLIENT_INCLUDE_DIR})
-
-if(NOT WIN32)
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ircclient)
 ENDIF()
 
 FIND_PACKAGE(SDL REQUIRED)
