@@ -31,9 +31,14 @@ namespace Shared { namespace PlatformCommon {
 //	class IRCThreadThread
 // =====================================================
 
+enum IRCEventType {
+    IRC_evt_chatText = 0,
+    IRC_evt_exitThread = 1
+};
+
 class IRCCallbackInterface {
 public:
-    virtual void IRC_CallbackEvent(const char* origin, const char **params, unsigned int count) = 0;
+    virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) = 0;
 };
 
 class IRCThread : public BaseThread
@@ -51,6 +56,7 @@ protected:
     time_t lastNickListUpdate;
     std::vector<string> eventData;
 
+    Mutex mutexIRCCB;
     IRCCallbackInterface *callbackObj;
 
 public:
@@ -84,7 +90,8 @@ public:
     std::vector<string> & getCachedNickList() { return eventData; }
     void setCachedNickList(std::vector<string> &list) { eventData = list; }
 
-    IRCCallbackInterface * getCallbackObj() { return callbackObj;}
+    IRCCallbackInterface * getCallbackObj();
+    void setCallbackObj(IRCCallbackInterface *cb);
 };
 
 }}//end namespace

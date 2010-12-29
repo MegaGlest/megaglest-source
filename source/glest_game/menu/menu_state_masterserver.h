@@ -43,9 +43,9 @@ private:
 
 	GraphicLabel announcementLabel;
 	GraphicLabel versionInfoLabel;
-	
+
 	GraphicLine lines[3];
-	
+
 	GraphicLabel glestVersionLabel;
 	GraphicLabel platformLabel;
 	//GraphicLabel binaryCompileDateLabel;
@@ -87,7 +87,7 @@ private:
 	int userButtonsLineHeight;
 	int	userButtonsHeight;
 	int userButtonsWidth;
-	
+
 
 	//Console console;
 
@@ -98,6 +98,7 @@ private:
 	bool masterServerThreadInDeletion;
 
     std::vector<string> ircArgs;
+	Mutex mutexIRCClient;
 	IRCThread *ircClient;
 	std::vector<string> oldNickList;
 
@@ -121,8 +122,6 @@ public:
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
-    virtual void IRC_CallbackEvent(const char* origin, const char **params, unsigned int count);
-
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	bool connectToServer(string ipString, int port);
@@ -132,6 +131,7 @@ private:
 	void clearUserButtons();
 	void updateServerInfo();
 	void cleanup();
+	virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count);
 
 };
 
