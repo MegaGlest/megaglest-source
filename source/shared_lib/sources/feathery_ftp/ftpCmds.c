@@ -489,7 +489,16 @@ LOCAL int ftpCmdRetr(int sessionId, const char* args, int len)
 	socket_t s;
 	void *fp;
 
-   	if(ftpStat(realPath, &fileInfo) || (fileInfo.type != TYPE_FILE)) // file accessible?
+#if DBG_LOG
+	printf("ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
+#endif
+
+    int statResult = ftpStat(realPath, &fileInfo);
+#if DBG_LOG
+	printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
+#endif
+
+   	if(statResult || (fileInfo.type != TYPE_FILE)) // file accessible?
     {
     	ftpSendMsg(MSG_NORMAL, sessionId, 550, ftpMsg032);
         return 2;

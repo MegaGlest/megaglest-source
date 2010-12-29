@@ -234,7 +234,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 	ftpRoot = ftpGetRoot(sessions[id].userId, &len);
 
 #if DBG_LOG
-		printf("ftpGetRealPath path [%s] ftpRoot [%s] sessions[id].workingDir [%s]\n", path, ftpRoot, sessions[id].workingDir);
+    printf("#1 ftpGetRealPath id = %d path [%s] ftpRoot [%s] sessions[id].workingDir [%s] normalize = %d\n", id, path, ftpRoot, sessions[id].workingDir,normalize);
 #endif
 
     pathScratchBuf[0]='\0';
@@ -249,7 +249,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 	}
 
 #if DBG_LOG
-		printf("#2 ftpGetRealPath path [%s] ftpRoot [%s]\n", path, ftpRoot);
+	printf("#2 ftpGetRealPath path [%s] ftpRoot [%s] pathScratchBuf [%s]\n", path, ftpRoot, pathScratchBuf);
 #endif
 
 	ftpRemoveDoubleSlash(pathScratchBuf);

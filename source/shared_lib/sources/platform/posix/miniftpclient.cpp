@@ -78,7 +78,6 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         destFile += destFileExt;
     }
 
-
     struct FtpFile ftpfile = {
         destFile.c_str(), /* name to store the file as if succesful */
         NULL
@@ -149,7 +148,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     }
 
     if(result != ftp_crt_SUCCESS && EndsWith(destFile,".mgm")) {
-        destFile = this->mapsPath.second + mapFileName + ".gbm";
+        destFile = mapFileName + ".gbm";
         getMapFromServer(destFile);
     }
 
