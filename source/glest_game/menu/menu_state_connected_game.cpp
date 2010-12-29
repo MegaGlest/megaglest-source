@@ -370,7 +370,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     findDirs(config.getPathListForType(ptTilesets), tileSets);
 
 
-    if(config.getBool("EnableFTPXfer") == true) {
+    if(config.getBool("EnableFTPXfer","false") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
         string serverUrl = clientInterface->getServerIpAddress() + ":61358";
 
