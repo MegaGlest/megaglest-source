@@ -397,7 +397,7 @@ std::vector<string> IRCThread::GetIRCConnectedNickList(string target, bool waitF
 bool IRCThread::isConnected() {
     bool ret = false;
     if(ircSession != NULL) {
-        ret = irc_is_connected(ircSession);
+        ret = (irc_is_connected(ircSession) != 0);
     }
 
     return ret;

@@ -322,6 +322,7 @@ socket_t ftpCreateServerSocket(void)
 	SOCKET	theServer;
 	struct sockaddr_in serverinfo;
 	unsigned len;
+	int val = 1;
 
 	theServer = socket(AF_INET, SOCK_STREAM, 0);
 	if(theServer < 0)
@@ -331,8 +332,7 @@ socket_t ftpCreateServerSocket(void)
 	serverinfo.sin_addr.s_addr = INADDR_ANY;
 	serverinfo.sin_port = htons(21);
 	len = sizeof(serverinfo);
-
-	int val = 1;
+	
 #ifndef WIN32
 	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 #else

@@ -283,7 +283,7 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
         //    logCount = min(logCount,(std::size_t)2000000);
         //}
 
-        for(int i = 0; i < logCount; ++i) {
+        for(unsigned int i = 0; i < logCount; ++i) {
             LogFileEntry &entry = tempLogList[i];
             SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
         }
