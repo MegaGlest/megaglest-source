@@ -39,6 +39,7 @@ public:
 class FTPClientThread : public BaseThread
 {
 protected:
+    int portNumber;
     string serverUrl;
     FTPClientCallbackInterface *pCBObject;
     std::pair<string,string> mapsPath;
@@ -49,7 +50,7 @@ protected:
 
 public:
 
-    FTPClientThread(string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject);
+    FTPClientThread(int portNumber,string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();

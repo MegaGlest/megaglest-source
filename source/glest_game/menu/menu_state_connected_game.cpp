@@ -378,7 +378,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
     if(config.getBool("EnableFTPXfer","false") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
-        string serverUrl = clientInterface->getServerIpAddress() + ":61358";
+        string serverUrl = clientInterface->getServerIpAddress();
+        int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
 
         vector<string> mapPathList = config.getPathListForType(ptMaps);
         std::pair<string,string> mapsPath;
@@ -389,7 +390,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
             mapsPath.second = mapPathList[1];
         }
 
-        ftpClientThread = new FTPClientThread(serverUrl,mapsPath, this);
+        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath, this);
         ftpClientThread->start();
     }
 
@@ -590,11 +591,12 @@ void MenuStateConnectedGame::render() {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Renderer &renderer= Renderer::getInstance();
-		if(mainMessageBox.getEnabled()){
+
+		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if(ftpMessageBox.getEnabled()){
+		if(ftpMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&ftpMessageBox);
 		}
 
@@ -733,6 +735,15 @@ void MenuStateConnectedGame::render() {
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
+
+
+		if(mainMessageBox.getEnabled()) {
+			renderer.renderMessageBox(&mainMessageBox);
+		}
+
+		if(ftpMessageBox.getEnabled()) {
+			renderer.renderMessageBox(&ftpMessageBox);
+		}
 
 	}
 	catch(const std::exception &ex) {
@@ -999,7 +1010,11 @@ void MenuStateConnectedGame::update() {
                         if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
                             if(ftpMessageBox.getEnabled() == false) {
                                 getMissingMapFromFTPServer = currentMap;
-                                showFTPMessageBox("Download missing map: " + currentMap + " ?", "Question", false);
+                                Lang &lang= Lang::getInstance();
+
+                                char szBuf[1024]="";
+                                sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
+                                showFTPMessageBox(szBuf, lang.get("Question"), false);
                             }
                         }
                         maps.push_back("***missing***");

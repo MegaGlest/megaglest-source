@@ -30,10 +30,11 @@ class FTPServerThread : public BaseThread
 {
 protected:
     std::pair<string,string> mapsPath;
+    int portNumber;
 
 public:
 
-    FTPServerThread(std::pair<string,string> mapsPath);
+    FTPServerThread(std::pair<string,string> mapsPath, int portNumber);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();

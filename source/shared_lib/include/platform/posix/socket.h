@@ -212,6 +212,9 @@ public:
 	static void setExternalPort(int port) { externalPort = port; }
 	static int getExternalPort() { return externalPort; }
 
+	static void setFTPServerPort(int port) { ftpServerPort = port; }
+	static int getFTPServerPort() { return ftpServerPort; }
+
 	virtual void disconnectSocket();
 
     void NETdiscoverUPnPDevices();
@@ -222,6 +225,7 @@ protected:
 	int boundPort;
 
 	static int externalPort;
+	static int ftpServerPort;
 
 	static bool enabledUPNP;
 
@@ -230,10 +234,10 @@ protected:
 	bool isBroadCastThreadRunning();
 
     static int upnp_init(void *param);
-    static bool upnp_add_redirect(int ports[2]);
+    static bool upnp_add_redirect(int ports[4]);
     static void upnp_rem_redirect(int ext_port);
 
-    void NETaddRedirects(int ports[2]);
+    void NETaddRedirects(int ports[4]);
     void NETremRedirects(int ext_port);
 };
 
