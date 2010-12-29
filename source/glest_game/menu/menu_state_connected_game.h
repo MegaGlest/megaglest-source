@@ -136,6 +136,7 @@ private:
 
 	std::vector<std::string> tileSets;
 
+    GraphicMessageBox ftpMessageBox;
     FTPClientThread *ftpClientThread;
     string getMissingMapFromFTPServer;
     bool getMissingMapFromFTPServerInProgress;
@@ -169,6 +170,7 @@ private:
 	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
+    void showFTPMessageBox(const string &text, const string &header, bool toggle);
     virtual void FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result);
 };
 
