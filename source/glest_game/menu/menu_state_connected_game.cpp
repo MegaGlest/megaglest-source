@@ -55,6 +55,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
 	ftpClientThread = NULL;
+	getMissingMapFromFTPServer = "";
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
@@ -963,7 +964,8 @@ void MenuStateConnectedGame::update() {
 				}
 				else {
                     // try to get the map via ftp
-                    if(ftpClientThread != NULL) {
+                    if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
+                        getMissingMapFromFTPServer = currentMap;
                         ftpClientThread->addMapToRequests(currentMap);
                     }
 					maps.push_back("***missing***");
