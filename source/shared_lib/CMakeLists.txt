@@ -99,19 +99,20 @@ ENDIF()
 # glest lib
 
 SET(DIRS_WITH_SRC
-	platform/common
-	platform/miniupnpc
-	util
+	feathery_ftp	
+	glew
 	graphics
 	graphics/gl
+	lua
+	map	
+	platform/common
+	platform/miniupnpc
 	sound
 	sound/openal
-	xml
-	glew
-	lua
 	streflop
-	streflop/libm_flt32_source
-	map)
+	streflop/libm_flt32_source	
+	util
+	xml)
 
 IF(APPLE)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
@@ -140,6 +141,8 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient
 IF(WIN32)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/ircclient.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/miniftpserver.cpp)
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/miniftpclient.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/gl_wrap.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/thread.cpp)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/window.cpp)

@@ -59,7 +59,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="$(NOINHERIT)" />
+					<Add directory="../../source/win32_deps/libircclient/include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include/graphics" />
@@ -126,9 +126,11 @@
 					<Add library="lua5.1" />
 					<Add library="streflop" />
 					<Add library="glest" />
+					<Add library="ircclient" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 					<Add directory="../../data/glest_game/" />
+					<Add directory="../../source/win32_deps/libircclient/build/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
@@ -186,7 +188,7 @@
 					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
-					<Add directory="$(NOINHERIT)" />
+					<Add directory="../../source/win32_deps/libircclient/include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include/graphics" />
@@ -253,9 +255,11 @@
 					<Add library="lua5.1" />
 					<Add library="streflop" />
 					<Add library="glest" />
+					<Add library="ircclient" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 					<Add directory="../../data/glest_game/" />
+					<Add directory="../../source/win32_deps/libircclient/build/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Linux">
@@ -351,6 +355,7 @@
 					<Add library="lua5.1" />
 					<Add library="glest" />
 					<Add library="streflop" />
+					<Add library="ircclient" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
@@ -452,6 +457,7 @@
 					<Add library="lua5.1" />
 					<Add library="glest" />
 					<Add library="streflop" />
+					<Add library="ircclient" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>

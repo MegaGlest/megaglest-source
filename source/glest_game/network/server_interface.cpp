@@ -22,6 +22,7 @@
 #include <time.h>
 #include "util.h"
 #include "game_util.h"
+#include "miniftpserver.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -67,6 +68,7 @@ ServerInterface::ServerInterface() {
     publishToMasterserverThread = NULL;
     lastMasterserverHeartbeatTime = 0;
     needToRepublishToMasterserver = false;
+    ftpServer = NULL;
 
     enabledThreadedClientCommandBroadcast = Config::getInstance().getBool("EnableThreadedClientCommandBroadcast","false");
     maxFrameCountLagAllowed = Config::getInstance().getInt("MaxFrameCountLagAllowed",intToStr(maxFrameCountLagAllowed).c_str());
@@ -83,6 +85,19 @@ ServerInterface::ServerInterface() {
 	serverSocket.setBlock(false);
 	//serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
+
+    if(Config::getInstance().getBool("EnableFTPXfer") == true) {
+        std::pair<string,string> mapsPath;
+        vector<string> pathList = Config::getInstance().getPathListForType(ptMaps);
+        if(pathList.size() > 0) {
+            mapsPath.first = pathList[0];
+            if(pathList.size() > 1) {
+                mapsPath.second = pathList[1];
+            }
+        }
+        ftpServer = new FTPServerThread(mapsPath);
+        ftpServer->start();
+    }
 }
 
 ServerInterface::~ServerInterface() {
@@ -104,6 +119,12 @@ ServerInterface::~ServerInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	close();
+
+    if(ftpServer != NULL) {
+        ftpServer->shutdownAndWait();
+        delete ftpServer;
+        ftpServer = NULL;
+    }
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
 	delete publishToMasterserverThread;
