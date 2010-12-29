@@ -95,7 +95,10 @@ ServerInterface::ServerInterface() {
                 mapsPath.second = pathList[1];
             }
         }
-        ftpServer = new FTPServerThread(mapsPath);
+
+        int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+        ServerSocket::setFTPServerPort(portNumber);
+        ftpServer = new FTPServerThread(mapsPath,portNumber);
         ftpServer->start();
     }
 }

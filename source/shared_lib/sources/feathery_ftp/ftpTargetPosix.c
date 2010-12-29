@@ -287,7 +287,7 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 	return dataSocket;
 }
 
-socket_t ftpCreateServerSocket(void)
+socket_t ftpCreateServerSocket(int portNumber)
 {
 	int	theServer;
 	struct sockaddr_in serverinfo;
@@ -299,7 +299,7 @@ socket_t ftpCreateServerSocket(void)
 
 	serverinfo.sin_family = AF_INET;
 	serverinfo.sin_addr.s_addr = INADDR_ANY;
-	serverinfo.sin_port = htons(61358);
+	serverinfo.sin_port = htons(portNumber);
 	len = sizeof(serverinfo);
 
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len))

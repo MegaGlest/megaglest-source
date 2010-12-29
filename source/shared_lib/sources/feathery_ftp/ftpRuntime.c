@@ -44,7 +44,7 @@ LOCAL socket_t server;
  *  @return -  0: server started successfully
  *          - -1: could not create server socket
  */
-int ftpStart(void)
+int ftpStart(int portNumber)
 {
 	server = -1;														// set server socket to invalid value
 
@@ -57,7 +57,7 @@ int ftpStart(void)
 	printf(". Creating server socket");
 	#endif
 
-	server = ftpCreateServerSocket();									// create main listener socket
+	server = ftpCreateServerSocket(portNumber);									// create main listener socket
 	if(server < 0)
 	{
 		#if DBG_LOG

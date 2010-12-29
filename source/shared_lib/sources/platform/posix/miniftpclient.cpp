@@ -53,10 +53,11 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   return fwrite(buffer, size, nmemb, out->stream);
 }
 
-FTPClientThread::FTPClientThread(string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
-    this->serverUrl = serverUrl;
-    this->mapsPath = mapsPath;
-    this->pCBObject = pCBObject;
+FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
+    this->portNumber    = portNumber;
+    this->serverUrl     = serverUrl;
+    this->mapsPath      = mapsPath;
+    this->pCBObject     = pCBObject;
 }
 
 void FTPClientThread::signalQuit() {
@@ -107,7 +108,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         ftpfile.stream = NULL;
 
         char szBuf[1024]="";
-        sprintf(szBuf,"ftp://maps:mg_ftp_server@%s/%s%s",serverUrl.c_str(),mapFileName.c_str(),destFileExt.c_str());
+        sprintf(szBuf,"ftp://maps:mg_ftp_server@%s:%d/%s%s",serverUrl.c_str(),portNumber, mapFileName.c_str(),destFileExt.c_str());
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
         /* Define our callback to get called when there's data to be written */
@@ -129,7 +130,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
 
             ftpfile.stream = NULL;
 
-            sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s/%s%s",serverUrl.c_str(),mapFileName.c_str(),destFileExt.c_str());
+            sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s:%d/%s%s",serverUrl.c_str(),portNumber,mapFileName.c_str(),destFileExt.c_str());
 
             curl_easy_setopt(curl, CURLOPT_URL,szBuf);
             /* Define our callback to get called when there's data to be written */

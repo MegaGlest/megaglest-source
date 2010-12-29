@@ -25,8 +25,9 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
-FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath) : BaseThread() {
+FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumber) : BaseThread() {
     this->mapsPath = mapsPath;
+    this->portNumber = portNumber;
 }
 
 void FTPServerThread::signalQuit() {
@@ -73,7 +74,7 @@ void FTPServerThread::execute() {
             ftpCreateAccount("lister", "", "./", FTP_ACC_LS);
             ftpCreateAccount("admin", "xxx", "./", FTP_ACC_RD | FTP_ACC_WR | FTP_ACC_LS | FTP_ACC_DIR);
 */
-            ftpStart();
+            ftpStart(portNumber);
             while(this->getQuitStatus() == false) {
                 ftpExecute();
                 sleep(25);

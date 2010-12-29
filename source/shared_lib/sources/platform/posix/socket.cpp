@@ -62,7 +62,8 @@ using namespace Shared::Util;
 
 namespace Shared{ namespace Platform{
 
-int Socket::broadcast_portno = 61357;
+int Socket::broadcast_portno    = 61357;
+int ServerSocket::ftpServerPort = 61358;
 BroadCastClientSocketThread *ClientSocket::broadCastClientThread = NULL;
 
 //
@@ -1656,6 +1657,7 @@ ServerSocket::~ServerSocket() {
 
 	stopBroadCastThread();
 	NETremRedirects(ServerSocket::externalPort);
+	NETremRedirects(ServerSocket::ftpServerPort);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1835,7 +1837,7 @@ int ServerSocket::upnp_init(void *param) {
 	//int *externalPort = (int *)asdf;
 	ServerSocket *srv = (ServerSocket *)param;
 
-	int ports[2] = { externalPort, srv->getBindPort() };
+	int ports[4] = { externalPort, srv->getBindPort(), ftpServerPort, ftpServerPort };
 
 	memset(&urls, 0, sizeof(struct UPNPUrls));
 	memset(&data, 0, sizeof(struct IGDdatas));
@@ -1900,13 +1902,13 @@ int ServerSocket::upnp_init(void *param) {
 	}
 }
 
-bool ServerSocket::upnp_add_redirect(int ports[2]) {
+bool ServerSocket::upnp_add_redirect(int ports[4]) {
 	char externalIP[16]="";
 	char ext_port_str[16]="";
 	char int_port_str[16]="";
 	int r=0;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"upnp_add_redir(%d : %d)\n", ports[0],ports[1]);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"upnp_add_redir(%d : %d) (%d : %d)\n", ports[0],ports[1],ports[2],ports[3]);
 
 	UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
 
@@ -1920,6 +1922,18 @@ bool ServerSocket::upnp_add_redirect(int ports[2]) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
 		return false;
 	}
+
+	sprintf(ext_port_str, "%d", ports[2]);
+	sprintf(int_port_str, "%d", ports[3]);
+
+	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,
+			ext_port_str, int_port_str, lanaddr, "MegaGlest (FTP) - www.megaglest.org", "TCP", 0);
+
+	if (r != UPNPCOMMAND_SUCCESS) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
+		//return false;
+	}
+
 	return true;
 
 }
@@ -1931,7 +1945,7 @@ void ServerSocket::upnp_rem_redirect(int ext_port) {
 	UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
 }
 
-void ServerSocket::NETaddRedirects(int ports[2]) {
+void ServerSocket::NETaddRedirects(int ports[4]) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork, "%s\n", __FUNCTION__);
 	//if (!upnp_done)
 	//{

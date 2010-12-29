@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 int ftpCreateAccount(const char* name, const char* passw, const char* root, int accRights);
-int ftpStart(void);
+int ftpStart(int portNumber);
 int ftpShutdown(void);
 void ftpExecute(void);
 int ftpState(void);

@@ -317,7 +317,7 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 	return (socket_t)dataSocket;
 }
 
-socket_t ftpCreateServerSocket(void)
+socket_t ftpCreateServerSocket(int portNumber)
 {
 	SOCKET	theServer;
 	struct sockaddr_in serverinfo;
@@ -330,9 +330,9 @@ socket_t ftpCreateServerSocket(void)
 
 	serverinfo.sin_family = AF_INET;
 	serverinfo.sin_addr.s_addr = INADDR_ANY;
-	serverinfo.sin_port = htons(21);
+	serverinfo.sin_port = htons(portNumber);
 	len = sizeof(serverinfo);
-	
+
 #ifndef WIN32
 	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 #else
