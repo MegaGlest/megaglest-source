@@ -17,6 +17,7 @@
 #include <curl/curl.h>
 #include <curl/types.h>
 #include <curl/easy.h>
+#include <algorithm>
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -150,7 +151,9 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
 
 void FTPClientThread::addMapToRequests(string mapFilename) {
     MutexSafeWrapper safeMutex(&mutexMapFileList);
-    mapFileList.push_back(mapFilename);
+    if(std::find(mapFileList.begin(),mapFileList.end(),mapFilename) == mapFileList.end()) {
+        mapFileList.push_back(mapFilename);
+    }
 }
 
 
