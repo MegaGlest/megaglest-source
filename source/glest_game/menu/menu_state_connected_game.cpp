@@ -56,6 +56,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	currentFactionName_factionPreview="";
 	ftpClientThread = NULL;
 	getMissingMapFromFTPServer = "";
+	getMissingMapFromFTPServerInProgress = false;
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
@@ -952,26 +953,29 @@ void MenuStateConnectedGame::update() {
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
-				// map
-				if(currentMap != gameSettings->getMap()) {// load the setup again
-					currentMap = gameSettings->getMap();
-				}
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,"",false), &mapInfo, true);
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				if(mapLoaded == true) {
-					maps.push_back(formatString(gameSettings->getMap()));
-				}
-				else {
-                    // try to get the map via ftp
-                    if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
-                        getMissingMapFromFTPServer = currentMap;
-                        ftpClientThread->addMapToRequests(currentMap);
+				if(getMissingMapFromFTPServerInProgress == false) {
+                    // map
+                    if(currentMap != gameSettings->getMap()) {// load the setup again
+                        currentMap = gameSettings->getMap();
                     }
-					maps.push_back("***missing***");
+                    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,"",false), &mapInfo, true);
+                    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    if(mapLoaded == true) {
+                        maps.push_back(formatString(gameSettings->getMap()));
+                    }
+                    else {
+                        // try to get the map via ftp
+                        if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
+                            getMissingMapFromFTPServer = currentMap;
+                            getMissingMapFromFTPServerInProgress = true;
+                            ftpClientThread->addMapToRequests(currentMap);
+                        }
+                        maps.push_back("***missing***");
+                    }
+                    listBoxMap.setItems(maps);
+                    labelMapInfo.setText(mapInfo.desc);
 				}
-				listBoxMap.setItems(maps);
-				labelMapInfo.setText(mapInfo.desc);
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1569,6 +1573,8 @@ void MenuStateConnectedGame::showMessageBox(const string &text, const string &he
 
 void MenuStateConnectedGame::FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    getMissingMapFromFTPServerInProgress = false;
     printf("Got FTP Callback for [%s] result = %d\n",mapFilename.c_str(),result);
 }
 
