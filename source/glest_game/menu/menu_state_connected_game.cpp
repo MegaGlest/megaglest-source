@@ -85,6 +85,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
+    ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
+	ftpMessageBox.init(lang.get("Yes"),lang.get("no"));
+	ftpMessageBox.setEnabled(false);
+
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
     defaultPlayerName = config.getString("NetPlayerName",Socket::getHostName().c_str());
@@ -420,6 +424,24 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
+	else if(ftpMessageBox.getEnabled()) {
+		int button= 1;
+		if(ftpMessageBox.mouseClick(x, y, button)) {
+			soundRenderer.playFx(coreData.getClickSoundA());
+			ftpMessageBox.setEnabled(false);
+			if(button == 1) {
+                getMissingMapFromFTPServerInProgress = true;
+
+                char szMsg[1024]="";
+                sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+                clientInterface->sendTextMessage(szMsg,-1, true);
+
+                if(ftpClientThread != NULL) {
+                    ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
+                }
+			}
+		}
+	}
 	else if(buttonDisconnect.mouseClick(x,y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -533,6 +555,10 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 		mainMessageBox.mouseMove(x, y);
 	}
 
+	if (ftpMessageBox.getEnabled()) {
+		ftpMessageBox.mouseMove(x, y);
+	}
+
 	buttonDisconnect.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 
@@ -566,6 +592,10 @@ void MenuStateConnectedGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 		if(mainMessageBox.getEnabled()){
 			renderer.renderMessageBox(&mainMessageBox);
+		}
+
+		if(ftpMessageBox.getEnabled()){
+			renderer.renderMessageBox(&ftpMessageBox);
 		}
 
 		if (!initialSettingsReceivedFromServer) return;
@@ -967,9 +997,10 @@ void MenuStateConnectedGame::update() {
                     else {
                         // try to get the map via ftp
                         if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
-                            getMissingMapFromFTPServer = currentMap;
-                            getMissingMapFromFTPServerInProgress = true;
-                            ftpClientThread->addMapToRequests(currentMap);
+                            if(ftpMessageBox.getEnabled() == false) {
+                                getMissingMapFromFTPServer = currentMap;
+                                showFTPMessageBox("Download missing map: " + currentMap + " ?", "Question", false);
+                            }
                         }
                         maps.push_back("***missing***");
                     }
@@ -1568,6 +1599,21 @@ void MenuStateConnectedGame::showMessageBox(const string &text, const string &he
 	}
 	else{
 		mainMessageBox.setEnabled(false);
+	}
+}
+
+void MenuStateConnectedGame::showFTPMessageBox(const string &text, const string &header, bool toggle) {
+	if(!toggle) {
+		ftpMessageBox.setEnabled(false);
+	}
+
+	if(!ftpMessageBox.getEnabled()) {
+		ftpMessageBox.setText(text);
+		ftpMessageBox.setHeader(header);
+		ftpMessageBox.setEnabled(true);
+	}
+	else {
+		ftpMessageBox.setEnabled(false);
 	}
 }
 
