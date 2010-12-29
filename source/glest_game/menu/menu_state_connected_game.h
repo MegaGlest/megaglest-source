@@ -15,6 +15,7 @@
 #include "main_menu.h"
 #include "chat_manager.h"
 #include "map_preview.h"
+#include "miniftpclient.h"
 #include "leak_dumper.h"
 
 namespace Glest { namespace Game {
@@ -31,7 +32,7 @@ enum JoinMenu {
 // 	class MenuStateConnectedGame
 // ===============================
 
-class MenuStateConnectedGame: public MenuState {
+class MenuStateConnectedGame: public MenuState, public FTPClientCallbackInterface {
 private:
 	GraphicButton buttonDisconnect;
 	GraphicButton buttonPlayNow;
@@ -60,13 +61,13 @@ private:
 
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;
-	
+
 	GraphicLabel labelMapPlayerCount;
 	GraphicListBox listBoxMapPlayerCount;
-	
+
 	GraphicLabel labelAdvanced;
 	GraphicListBox listBoxAdvanced;
-	
+
 
 
 	GraphicListBox listBoxMap;
@@ -100,7 +101,7 @@ private:
 	Console console;
 	ChatManager chatManager;
 	bool showFullConsole;
-	
+
 	string currentFactionName;
 	string currentMap;
 	JoinMenu returnMenuInfo;
@@ -108,11 +109,11 @@ private:
 	time_t lastNetworkSendPing;
 	int pingCount;
 	bool initialSettingsReceivedFromServer;
-	
+
 	string lastMapDataSynchError;
 	string lastTileDataSynchError;
 	string lastTechtreeDataSynchError;
-	
+
 	int8 switchSetupRequestFlagType;
 	string defaultPlayerName;
 
@@ -132,8 +133,10 @@ private:
 	std::string lastMissingMap;
 	std::string lastMissingTechtree;
 	std::string lastMissingTileSet;
-	
+
 	std::vector<std::string> tileSets;
+
+    FTPClientThread *ftpClientThread;
 
 public:
 
@@ -164,6 +167,7 @@ private:
 	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
+    virtual void FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result);
 };
 
 }}//end namespace

@@ -16,7 +16,7 @@
 	"randomgen.h"
 	"leak_dumper.h"
 
-1292863749 /home/softcoder/Code/megaglest/trunk/source/glest_game/world/world.h
+1293264197 /home/softcoder/Code/megaglest/trunk/source/glest_game/world/world.h
 	"vec.h"
 	"math_util.h"
 	"resource.h"
@@ -94,7 +94,7 @@
 	"damage_multiplier.h"
 	"leak_dumper.h"
 
-1292977016 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/util.h
+1293266395 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/util.h
 	<string>
 	<fstream>
 	<map>
@@ -103,13 +103,13 @@
 	<cstdio>
 	"leak_dumper.h"
 
-1292701426 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/thread.h
+1293313684 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/thread.h
 	<SDL_thread.h>
 	<SDL_mutex.h>
 	<string>
 	"leak_dumper.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_thread.h
+1278057011 /usr/include/SDL/SDL_thread.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_mutex.h"
@@ -117,7 +117,7 @@
 	<process.h>
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_stdinc.h
+1278057011 /usr/include/SDL/SDL_stdinc.h
 	"SDL_config.h"
 	<sys/types.h>
 	<stdio.h>
@@ -143,66 +143,26 @@
 	<stdlib.h>
 	"close_code.h"
 
-1291399086 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_config.h
+1278057011 /usr/include/SDL/SDL_config.h
 	"SDL_platform.h"
 	<stdarg.h>
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_platform.h
+1278057011 /usr/include/SDL/SDL_platform.h
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/begin_code.h
+1278057011 /usr/include/SDL/begin_code.h
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/close_code.h
+1278057011 /usr/include/SDL/close_code.h
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_error.h
+1278057011 /usr/include/SDL/SDL_error.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_mutex.h
+1278057011 /usr/include/SDL/SDL_mutex.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/curl.h
-	"curlver.h"
-	"curlbuild.h"
-	"curlrules.h"
-	<stdio.h>
-	<limits.h>
-	<osreldate.h>
-	<sys/types.h>
-	<time.h>
-	<winsock2.h>
-	<ws2tcpip.h>
-	<sys/select.h>
-	<sys/socket.h>
-	<sys/time.h>
-	<sys/types.h>
-	<support/SupportDefs.h>
-	"easy.h"
-	"multi.h"
-	"typecheck-gcc.h"
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/curlver.h
-
-1291422070 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/curlbuild.h
-	<windows.h>
-	<winsock2.h>
-	<ws2tcpip.h>
-	<sys/types.h>
-	<stdint.h>
-	<inttypes.h>
-	<sys/socket.h>
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/curlrules.h
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/easy.h
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/multi.h
-	"curl.h"
-
-1290847573 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.20.1/include/curl/typecheck-gcc.h
 
 1288222080 /home/softcoder/Code/megaglest/trunk/source/glest_game/types/resource_type.h
 	"element_type.h"
@@ -223,9 +183,12 @@
 	<string>
 	"leak_dumper.h"
 
-1287676545 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/win32/types.h
-	<windows.h>
+1287674976 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/types.h
+	<SDL_types.h>
 	"leak_dumper.h"
+
+1278057011 /usr/include/SDL/SDL_types.h
+	"SDL_stdinc.h"
 
 1289289536 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/pixmap.h
 	<string>
@@ -274,7 +237,7 @@
 	"game_constants.h"
 	"leak_dumper.h"
 
-1292730514 /home/softcoder/Code/megaglest/trunk/source/glest_game/types/command_type.h
+1293122674 /home/softcoder/Code/megaglest/trunk/source/glest_game/types/command_type.h
 	"element_type.h"
 	"resource_type.h"
 	"lang.h"
@@ -330,174 +293,6 @@
 	<vector>
 	<xercesc/util/XercesDefs.hpp>
 	"leak_dumper.h"
-
-1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XercesDefs.hpp
-	<xercesc/util/XercesVersion.hpp>
-	<xercesc/util/AutoSense.hpp>
-	<xercesc/util/Platforms/Win32/Win32Defs.hpp>
-	<xercesc/util/Platforms/Cygwin/CygwinDefs.hpp>
-	<xercesc/util/Platforms/AIX/AIXDefs.hpp>
-	<xercesc/util/Platforms/Solaris/SolarisDefs.hpp>
-	<xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp>
-	<xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp>
-	<xercesc/util/Platforms/HPUX/HPUXDefs.hpp>
-	<xercesc/util/Platforms/IRIX/IRIXDefs.hpp>
-	<xercesc/util/Platforms/Interix/InterixDefs.hpp>
-	<xercesc/util/Platforms/Tandem/TandemDefs.hpp>
-	<xercesc/util/Platforms/BeOS/BeOSDefs.hpp>
-	<xercesc/util/Platforms/Linux/LinuxDefs.hpp>
-	<xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp>
-	<xercesc/util/Platforms/OS390/OS390Defs.hpp>
-	<xercesc/util/Platforms/PTX/PTXDefs.hpp>
-	<xercesc/util/Platforms/OS2/OS2Defs.hpp>
-	<xercesc/util/Platforms/MacOS/MacOSDefs.hpp>
-	<xercesc/util/Platforms/OS400/OS400Defs.hpp>
-	<xercesc/util/Platforms/Tru64/Tru64Defs.hpp>
-	<xercesc/util/Platforms/QNX/QNXDefs.hpp>
-	<xercesc/util/Compilers/VCPPDefs.hpp>
-	<xercesc/util/Compilers/CSetDefs.hpp>
-	<xercesc/util/Compilers/BorlandCDefs.hpp>
-	<xercesc/util/Compilers/SunCCDefs.hpp>
-	<xercesc/util/Compilers/SCOCCDefs.hpp>
-	<xercesc/util/Compilers/SunKaiDefs.hpp>
-	<xercesc/util/Compilers/HPCCDefs.hpp>
-	<xercesc/util/Compilers/MIPSproDefs.hpp>
-	<xercesc/util/Compilers/TandemCCDefs.hpp>
-	<xercesc/util/Compilers/GCCDefs.hpp>
-	<xercesc/util/Compilers/MVSCPPDefs.hpp>
-	<xercesc/util/Compilers/IBMVAW32Defs.hpp>
-	<xercesc/util/Compilers/IBMVAOS2Defs.hpp>
-	<xercesc/util/Compilers/CodeWarriorDefs.hpp>
-	<xercesc/util/Compilers/PTXCCDefs.hpp>
-	<xercesc/util/Compilers/OS400SetDefs.hpp>
-	<xercesc/util/Compilers/DECCXXDefs.hpp>
-	<xercesc/util/Compilers/QCCDefs.hpp>
-	<xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp>
-
-1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XercesVersion.hpp
-
-1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/AutoSense.hpp
-
-1188326649 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Win32/Win32Defs.hpp
-
-1188326646 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Cygwin/CygwinDefs.hpp
-
-1188326643 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/AIX/AIXDefs.hpp
-
-1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Solaris/SolarisDefs.hpp
-	<sys/isa_defs.h>
-
-1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp
-
-1188326647 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp
-
-1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/HPUX/HPUXDefs.hpp
-
-1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/IRIX/IRIXDefs.hpp
-
-1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Interix/InterixDefs.hpp
-
-1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Tandem/TandemDefs.hpp
-
-1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/BeOS/BeOSDefs.hpp
-
-1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Linux/LinuxDefs.hpp
-	<endian.h>
-
-1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp
-
-1188326652 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS390/OS390Defs.hpp
-
-1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/PTX/PTXDefs.hpp
-
-1188326649 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS2/OS2Defs.hpp
-
-1188326647 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/MacOS/MacOSDefs.hpp
-
-1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS400/OS400Defs.hpp
-
-1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Tru64/Tru64Defs.hpp
-
-1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/QNX/QNXDefs.hpp
-	<gulliver.h>
-	<stdio.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/VCPPDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/CSetDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/BorlandCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SunCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SCOCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SunKaiDefs.hpp
-	<memory.h>
-	<strings.h>
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/HPCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/MIPSproDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/TandemCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/GCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/MVSCPPDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/IBMVAW32Defs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/IBMVAOS2Defs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/CodeWarriorDefs.hpp
-	<wchar.h>
-	<wctype.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/PTXCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/OS400SetDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/DECCXXDefs.hpp
-	<sys/types.h>
-	<limits.h>
-
-1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/QCCDefs.hpp
-	<sys/types.h>
-	<limits.h>
-	<inttypes.h>
-
-1188326643 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp
 
 1283809386 /home/softcoder/Code/megaglest/trunk/source/glest_game/types/damage_multiplier.h
 	<string>
@@ -571,14 +366,19 @@
 	"vec.h"
 	"leak_dumper.h"
 
-1287802932 /home/softcoder/Code/megaglest/trunk/source/glest_game/game/console.h
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/game/console.h
 	<utility>
 	<string>
 	<vector>
 	<stdexcept>
+	"font.h"
 	"leak_dumper.h"
 
-1292114344 /home/softcoder/Code/megaglest/trunk/source/glest_game/world/map.h
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/font.h
+	<string>
+	"leak_dumper.h"
+
+1293337436 /home/softcoder/Code/megaglest/trunk/source/glest_game/world/map.h
 	"vec.h"
 	"math_util.h"
 	"command_type.h"
@@ -605,7 +405,7 @@
 	<vector>
 	"leak_dumper.h"
 
-1291245617 /home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/unit.h
+1293501877 /home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/unit.h
 	"model.h"
 	"upgrade_type.h"
 	"particle.h"
@@ -627,7 +427,7 @@
 	<SDL.h>
 	"leak_dumper.h"
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL.h
+1278057011 /usr/include/SDL/SDL.h
 	"SDL_main.h"
 	"SDL_stdinc.h"
 	"SDL_audio.h"
@@ -646,14 +446,14 @@
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_main.h
+1278057011 /usr/include/SDL/SDL_main.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_audio.h
+1278057011 /usr/include/SDL/SDL_audio.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_endian.h"
@@ -663,30 +463,29 @@
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_endian.h
+1278057011 /usr/include/SDL/SDL_endian.h
 	"SDL_stdinc.h"
-	<endian.h>
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_rwops.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_cdrom.h
+1278057011 /usr/include/SDL/SDL_rwops.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_cpuinfo.h
+1278057011 /usr/include/SDL/SDL_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_cpuinfo.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_events.h
+1278057011 /usr/include/SDL/SDL_events.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_active.h"
@@ -697,58 +496,58 @@
 	"begin_code.h"
 	"close_code.h"
 
-1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_active.h
+1278057011 /usr/include/SDL/SDL_active.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_keyboard.h
+1278057011 /usr/include/SDL/SDL_keyboard.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keysym.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_keysym.h
+1278057011 /usr/include/SDL/SDL_keysym.h
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_mouse.h
+1278057011 /usr/include/SDL/SDL_mouse.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_video.h
+1278057011 /usr/include/SDL/SDL_video.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_joystick.h
+1278057011 /usr/include/SDL/SDL_joystick.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_quit.h
+1278057011 /usr/include/SDL/SDL_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_loadso.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_timer.h
+1278057011 /usr/include/SDL/SDL_loadso.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_version.h
+1278057011 /usr/include/SDL/SDL_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1278057011 /usr/include/SDL/SDL_version.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
@@ -838,14 +637,13 @@
 	"platform_util.h"
 	"leak_dumper.h"
 
-1288939635 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/win32/platform_util.h
-	<windows.h>
+1283810437 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/platform_util.h
 	<string>
 	<stdexcept>
 	"platform_common.h"
 	"leak_dumper.h"
 
-1283809383 /home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/command.h
+1293122674 /home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/command.h
 	<cstdlib>
 	"unit.h"
 	"vec.h"
@@ -945,19 +743,7 @@
 	<SDL.h>
 	"leak_dumper.h"
 
-1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/glprocs.h
-	"glext.h"
-	"wglext.h"
-	<GL/glext.h>
-
-1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/glext.h
-	<windows.h>
-	<stddef.h>
-
-1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/wglext.h
-	<windows.h>
-
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_opengl.h
+1278057011 /usr/include/SDL/SDL_opengl.h
 	"SDL_config.h"
 	<windows.h>
 	<OpenGL/gl.h>
@@ -968,19 +754,6 @@
 	<GL/glu.h>
 	<windows.h>
 	<stddef.h>
-
-1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/gl.h
-
-1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/font.h
-	<string>
-	"leak_dumper.h"
-
-1287674976 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/types.h
-	<SDL_types.h>
-	"leak_dumper.h"
-
-1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_types.h
-	"SDL_stdinc.h"
 
 1286498202 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/window.h
 	<map>
@@ -1014,13 +787,14 @@
 	"thread.h"
 	<string>
 
-1291510227 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/simple_threads.h
+1293326828 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/simple_threads.h
 	"base_thread.h"
 	<vector>
 	<string>
+	"util.h"
 	"leak_dumper.h"
 
-1286692091 /home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/components.h
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/components.h
 	<string>
 	<vector>
 	<map>
@@ -1028,8 +802,9 @@
 	"font.h"
 	"leak_dumper.h"
 
-1283807955 /home/softcoder/Code/megaglest/trunk/source/glest_game/game/chat_manager.h
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/game/chat_manager.h
 	<string>
+	"font.h"
 	"leak_dumper.h"
 
 1283984892 /home/softcoder/Code/megaglest/trunk/source/glest_game/game/script_manager.h
@@ -1047,17 +822,17 @@
 	<vec.h>
 	"leak_dumper.h"
 
-1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lua.hpp
+1103763184 /usr/include/lua5.1/lua.hpp
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 
-1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lua.h
+1218029412 /usr/include/lua5.1/lua.h
 	<stdarg.h>
 	<stddef.h>
 	"luaconf.h"
 
-1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/luaconf.h
+1259004059 /usr/include/lua5.1/luaconf.h
 	<limits.h>
 	<stddef.h>
 	<unistd.h>
@@ -1070,10 +845,10 @@
 	<math.h>
 	<unistd.h>
 
-1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lualib.h
+1198760545 /usr/include/lua5.1/lualib.h
 	"lua.h"
 
-1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lauxlib.h
+1198760545 /usr/include/lua5.1/lauxlib.h
 	<stddef.h>
 	<stdio.h>
 	"lua.h"
@@ -1117,7 +892,7 @@
 	"client_interface.h"
 	"leak_dumper.h"
 
-1292696156 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.h
+1293568776 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.h
 	<vector>
 	"game_constants.h"
 	"network_interface.h"
@@ -1125,7 +900,7 @@
 	"socket.h"
 	"leak_dumper.h"
 
-1292696049 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.h
+1293262129 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.h
 	<vector>
 	"socket.h"
 	"network_interface.h"
@@ -1435,7 +1210,7 @@
 	"main_menu.h"
 	"leak_dumper.h"
 
-1292902068 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/components.cpp
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/components.cpp
 	"components.h"
 	<cassert>
 	<algorithm>
@@ -1450,7 +1225,7 @@
 	"config.h"
 	"leak_dumper.h"
 
-1287645654 /home/softcoder/Code/megaglest/trunk/source/glest_game/global/core_data.h
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/global/core_data.h
 	<string>
 	"sound.h"
 	"font.h"
@@ -1458,7 +1233,7 @@
 	"sound_container.h"
 	"leak_dumper.h"
 
-1293061072 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
+1293579721 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
 	"game_util.h"
 	"util.h"
 	"lang.h"
@@ -1469,6 +1244,7 @@
 	"conversion.h"
 	"cache_manager.h"
 	"leak_dumper.h"
+	"svnversion.h"
 
 1283810433 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/cache_manager.h
 	"thread.h"
@@ -1489,7 +1265,7 @@
 	"game_util.h"
 	"leak_dumper.h"
 
-1288727583 /home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.h
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.h
 	"vec.h"
 	"math_util.h"
 	"model.h"
@@ -1521,18 +1297,19 @@
 	"pos_iterator.h"
 	"leak_dumper.h"
 
-1287802572 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/chat_manager.cpp
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/chat_manager.cpp
 	"chat_manager.h"
 	"window.h"
 	"console.h"
 	"config.h"
 	"network_manager.h"
 	"lang.h"
+	"core_data.h"
 	"util.h"
 	<stdexcept>
 	"leak_dumper.h"
 
-1289457392 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/commander.cpp
+1293505030 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/commander.cpp
 	"commander.h"
 	"world.h"
 	"unit.h"
@@ -1548,7 +1325,7 @@
 	"game_settings.h"
 	"game.h"
 
-1287806316 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/console.cpp
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/console.cpp
 	"console.h"
 	"lang.h"
 	"config.h"
@@ -1574,7 +1351,7 @@
 	"types.h"
 	"leak_dumper.h"
 
-1292876302 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/game.cpp
+1293268214 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/game/game.cpp
 	"game.h"
 	"config.h"
 	"renderer.h"
@@ -1635,7 +1412,7 @@
 	<fstream>
 	"leak_dumper.h"
 
-1291925857 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/global/core_data.cpp
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/global/core_data.cpp
 	"core_data.h"
 	"logger.h"
 	"renderer.h"
@@ -1690,7 +1467,7 @@
 	"graphics_interface.h"
 	"leak_dumper.h"
 
-1292863749 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.cpp
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/graphics/renderer.cpp
 	"renderer.h"
 	"texture_gl.h"
 	"main_menu.h"
@@ -1761,21 +1538,6 @@
 	<vector>
 	"leak_dumper.h"
 
-1268371626 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/ds8/sound_factory_ds8.h
-	"sound_factory.h"
-	"sound_player_ds8.h"
-
-1292050233 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/ds8/sound_player_ds8.h
-	"sound_player.h"
-	"platform_util.h"
-	<mmsystem.h>
-	<dsound.h>
-	<vector>
-
-1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/dsound.h
-	<objbase.h>
-	<float.h>
-
 1283810440 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/openal/sound_factory_openal.h
 	"sound_factory.h"
 	"sound_player_openal.h"
@@ -1792,10 +1554,6 @@
 	<AL/al.h>
 	<vector>
 	"leak_dumper.h"
-
-1290846892 /home/softcoder/Code/megaglest/trunk/source/win32_deps/openal-soft-1.12.854/include/AL/alc.h
-
-1290846892 /home/softcoder/Code/megaglest/trunk/source/win32_deps/openal-soft-1.12.854/include/AL/al.h
 
 1283810442 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_factory_none.h
 	"sound_factory.h"
@@ -1891,5 +1649,783 @@
 	"font.h"
 	"vec.h"
 	"texture.h"
+	"leak_dumper.h"
+
+1293268399 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/main/main.cpp
+	"math_wrapper.h"
+	"main.h"
+	<string>
+	<cstdlib>
+	"game.h"
+	"main_menu.h"
+	"program.h"
+	"config.h"
+	"metrics.h"
+	"game_util.h"
+	"platform_util.h"
+	"platform_main.h"
+	"network_interface.h"
+	"ImageReaders.h"
+	"renderer.h"
+	"simple_threads.h"
+	<memory>
+	"font.h"
+	<curl/curl.h>
+	"menu_state_masterserver.h"
+	"checksum.h"
+	<algorithm>
+	"sound_renderer.h"
+	"font_gl.h"
+	"cache_manager.h"
+	<eh.h>
+	<dbghelp.h>
+	"leak_dumper.h"
+
+1285619697 /home/softcoder/Code/megaglest/trunk/source/glest_game/main/main.h
+	<ctime>
+	"program.h"
+	"window_gl.h"
+	"leak_dumper.h"
+
+1291504513 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/platform_main.h
+	<SDL.h>
+	<iostream>
+	"leak_dumper.h"
+
+1283809810 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/ImageReaders.h
+	"FileReader.h"
+	"BMPReader.h"
+	"JPGReader.h"
+	"PNGReader.h"
+	"TGAReader.h"
+	"leak_dumper.h"
+
+1287645654 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/FileReader.h
+	"platform_util.h"
+	<map>
+	<string>
+	<vector>
+	<fstream>
+	<iostream>
+	<stdexcept>
+	<typeinfo>
+	<vector>
+	"leak_dumper.h"
+
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/BMPReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1283809810 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/JPGReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1283809814 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/PNGReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1283809817 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/TGAReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.h
+	"main_menu.h"
+	"server_line.h"
+	"masterserver_info.h"
+	"simple_threads.h"
+	"network_interface.h"
+	"ircclient.h"
+	"chat_manager.h"
+	"leak_dumper.h"
+
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/server_line.h
+	"masterserver_info.h"
+	"components.h"
+	"lang.h"
+	"world.h"
+	"leak_dumper.h"
+
+1283808672 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/masterserver_info.h
+	<string>
+	"leak_dumper.h"
+
+1293156289 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1292621322 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/main/program.cpp
+	"program.h"
+	"sound.h"
+	"renderer.h"
+	"config.h"
+	"game.h"
+	"main_menu.h"
+	"intro.h"
+	"world.h"
+	"main.h"
+	"sound_renderer.h"
+	"logger.h"
+	"profiler.h"
+	"core_data.h"
+	"metrics.h"
+	"network_manager.h"
+	"menu_state_custom_game.h"
+	"menu_state_join_game.h"
+	"menu_state_scenario.h"
+	"leak_dumper.h"
+
+1292892634 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_custom_game.h
+	"main_menu.h"
+	"chat_manager.h"
+	"simple_threads.h"
+	"map_preview.h"
+	"leak_dumper.h"
+
+1284060473 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_join_game.h
+	"properties.h"
+	"main_menu.h"
+	"chat_manager.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1293046606 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/main_menu.cpp
+	"main_menu.h"
+	"renderer.h"
+	"sound.h"
+	"config.h"
+	"program.h"
+	"game_util.h"
+	"game.h"
+	"platform_util.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"faction.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"socket.h"
+	"menu_state_root.h"
+	"leak_dumper.h"
+
+1284060678 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_root.h
+	"main_menu.h"
+	"leak_dumper.h"
+
+1291925528 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_background.cpp
+	"menu_background.h"
+	<ctime>
+	"renderer.h"
+	"core_data.h"
+	"config.h"
+	"xml_parser.h"
+	"util.h"
+	"game_constants.h"
+	"game_util.h"
+	"leak_dumper.h"
+
+1284061399 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_about.cpp
+	"menu_state_about.h"
+	"renderer.h"
+	"menu_state_root.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_options.h"
+	"leak_dumper.h"
+
+1284061346 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_about.h
+	"main_menu.h"
+	"leak_dumper.h"
+
+1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_options.h
+	"main_menu.h"
+	"leak_dumper.h"
+
+1293584447 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.cpp
+	"menu_state_connected_game.h"
+	"menu_state_join_game.h"
+	"menu_state_masterserver.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_new_game.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"client_interface.h"
+	"conversion.h"
+	"socket.h"
+	"game.h"
+	<algorithm>
+	<time.h>
+	"cache_manager.h"
+	"leak_dumper.h"
+
+1293584319 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.h
+	"main_menu.h"
+	"chat_manager.h"
+	"map_preview.h"
+	"miniftpclient.h"
+	"leak_dumper.h"
+
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_custom_game.cpp
+	"menu_state_custom_game.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_new_game.h"
+	"menu_state_masterserver.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"client_interface.h"
+	"conversion.h"
+	"socket.h"
+	"game.h"
+	"util.h"
+	<algorithm>
+	<time.h>
+	<curl/curl.h>
+	"cache_manager.h"
+	"leak_dumper.h"
+
+1284061382 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_graphic_info.cpp
+	"menu_state_graphic_info.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"menu_state_options.h"
+	"config.h"
+	"leak_dumper.h"
+
+1284061301 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_graphic_info.h
+	"main_menu.h"
+	"leak_dumper.h"
+
+1293033401 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_join_game.cpp
+	"menu_state_join_game.h"
+	"menu_state_connected_game.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_root.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"client_interface.h"
+	"conversion.h"
+	"game.h"
+	"socket.h"
+	"leak_dumper.h"
+
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.cpp
+	"menu_state_masterserver.h"
+	"server_line.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_connected_game.h"
+	"menu_state_custom_game.h"
+	"menu_state_root.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"auto_test.h"
+	"socket.h"
+	"masterserver_info.h"
+	<curl/curl.h>
+	"leak_dumper.h"
+
+1284061176 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_new_game.cpp
+	"menu_state_new_game.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_custom_game.h"
+	"menu_state_scenario.h"
+	"menu_state_root.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"auto_test.h"
+	"socket.h"
+	"leak_dumper.h"
+
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_options.cpp
+	"menu_state_options.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_root.h"
+	"util.h"
+	"menu_state_graphic_info.h"
+	"leak_dumper.h"
+
+1292050232 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_root.cpp
+	"menu_state_root.h"
+	"renderer.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"menu_state_new_game.h"
+	"menu_state_join_game.h"
+	"menu_state_options.h"
+	"menu_state_about.h"
+	"menu_state_masterserver.h"
+	"metrics.h"
+	"network_manager.h"
+	"network_message.h"
+	"socket.h"
+	"auto_test.h"
+	"leak_dumper.h"
+
+1292050232 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_scenario.cpp
+	"menu_state_scenario.h"
+	"renderer.h"
+	"menu_state_new_game.h"
+	"sound_renderer.h"
+	"core_data.h"
+	"menu_state_options.h"
+	"network_manager.h"
+	"config.h"
+	"auto_test.h"
+	"game.h"
+	"leak_dumper.h"
+
+1293263149 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/client_interface.cpp
+	"client_interface.h"
+	<stdexcept>
+	<cassert>
+	"platform_util.h"
+	"game_util.h"
+	"conversion.h"
+	"config.h"
+	"lang.h"
+	"leak_dumper.h"
+	"map.h"
+	"config.h"
+	"logger.h"
+
+1293313161 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.cpp
+	"connection_slot.h"
+	<stdexcept>
+	"conversion.h"
+	"game_util.h"
+	"config.h"
+	"server_interface.h"
+	"network_message.h"
+	"leak_dumper.h"
+	"platform_util.h"
+	"map.h"
+
+1281396515 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_interface.cpp
+	"network_interface.h"
+	<exception>
+	<cassert>
+	"types.h"
+	"conversion.h"
+	"platform_util.h"
+	<fstream>
+	"util.h"
+	"leak_dumper.h"
+
+1292283355 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_manager.cpp
+	"network_manager.h"
+	"util.h"
+	"leak_dumper.h"
+
+1292743481 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.cpp
+	"network_message.h"
+	<cassert>
+	<stdexcept>
+	"types.h"
+	"util.h"
+	"game_settings.h"
+	"leak_dumper.h"
+	"checksum.h"
+	"map.h"
+	"platform_util.h"
+	"config.h"
+	<algorithm>
+
+1283198503 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_types.cpp
+	"network_types.h"
+	"util.h"
+	"unit.h"
+	"world.h"
+	"unit_type.h"
+	"game.h"
+	"gui.h"
+	"leak_dumper.h"
+
+1293579720 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.cpp
+	"server_interface.h"
+	<cassert>
+	<stdexcept>
+	"platform_util.h"
+	"conversion.h"
+	"config.h"
+	"lang.h"
+	"logger.h"
+	<time.h>
+	"util.h"
+	"game_util.h"
+	"miniftpserver.h"
+	"leak_dumper.h"
+
+1293566544 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ftpserver.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1268371625 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/sound/sound_container.cpp
+	"sound_container.h"
+	"util.h"
+	"leak_dumper.h"
+
+1283990458 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/sound/sound_renderer.cpp
+	"sound_renderer.h"
+	"core_data.h"
+	"config.h"
+	"sound_interface.h"
+	"factory_repository.h"
+	"util.h"
+	"leak_dumper.h"
+
+1283810443 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_interface.h
+	"sound_factory.h"
+	"leak_dumper.h"
+
+1293122674 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/command.cpp
+	"command.h"
+	"command_type.h"
+	"util.h"
+	"conversion.h"
+	"unit_type.h"
+	"leak_dumper.h"
+
+1293175431 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/faction.cpp
+	"faction.h"
+	<algorithm>
+	<cassert>
+	"resource_type.h"
+	"unit.h"
+	"util.h"
+	"sound_renderer.h"
+	"renderer.h"
+	"tech_tree.h"
+	"game.h"
+	"config.h"
+	"leak_dumper.h"
+
+1288470965 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/object.cpp
+	"object.h"
+	"faction_type.h"
+	"tech_tree.h"
+	"resource.h"
+	"upgrade.h"
+	"object_type.h"
+	"resource.h"
+	"util.h"
+	"randomgen.h"
+	"renderer.h"
+	"leak_dumper.h"
+
+1268371625 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/resource.cpp
+	"resource.h"
+	"conversion.h"
+	"resource_type.h"
+	"leak_dumper.h"
+
+1293502513 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/unit.cpp
+	"faction.h"
+	<cassert>
+	"unit.h"
+	"unit_particle_type.h"
+	"world.h"
+	"upgrade.h"
+	"map.h"
+	"command.h"
+	"object.h"
+	"config.h"
+	"skill_type.h"
+	"core_data.h"
+	"renderer.h"
+	"game.h"
+	"socket.h"
+	"sound_renderer.h"
+	"leak_dumper.h"
+
+1289111416 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/type_instances/upgrade.cpp
+	"upgrade.h"
+	<stdexcept>
+	"unit.h"
+	"util.h"
+	"upgrade_type.h"
+	"conversion.h"
+	"leak_dumper.h"
+
+1289458292 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/command_type.cpp
+	"command_type.h"
+	<algorithm>
+	<cassert>
+	"upgrade_type.h"
+	"unit_type.h"
+	"sound.h"
+	"util.h"
+	"leak_dumper.h"
+	"graphics_interface.h"
+	"tech_tree.h"
+	"faction_type.h"
+	"unit_updater.h"
+	"renderer.h"
+	"leak_dumper.h"
+	"socket.h"
+
+1268371624 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/damage_multiplier.cpp
+	"damage_multiplier.h"
+	"leak_dumper.h"
+
+1281396382 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/element_type.cpp
+	"element_type.h"
+	<cassert>
+	"resource_type.h"
+	"upgrade_type.h"
+	"unit_type.h"
+	"resource.h"
+	"tech_tree.h"
+	"logger.h"
+	"lang.h"
+	"renderer.h"
+	"leak_dumper.h"
+
+1288224781 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/faction_type.cpp
+	"faction_type.h"
+	"logger.h"
+	"util.h"
+	"xml_parser.h"
+	"tech_tree.h"
+	"resource.h"
+	"platform_util.h"
+	"game_util.h"
+	"conversion.h"
+	"leak_dumper.h"
+
+1289287514 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/object_type.cpp
+	"object_type.h"
+	"renderer.h"
+	"leak_dumper.h"
+
+1288222076 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/resource_type.cpp
+	"resource_type.h"
+	"util.h"
+	"element_type.h"
+	"logger.h"
+	"renderer.h"
+	"xml_parser.h"
+	"game_util.h"
+	"leak_dumper.h"
+
+1277376564 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/skill_type.cpp
+	"skill_type.h"
+	<cassert>
+	"sound.h"
+	"util.h"
+	"lang.h"
+	"renderer.h"
+	"particle_type.h"
+	"unit_particle_type.h"
+	"tech_tree.h"
+	"faction_type.h"
+	"leak_dumper.h"
+
+1288226739 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/tech_tree.cpp
+	"tech_tree.h"
+	<cassert>
+	"util.h"
+	"resource.h"
+	"faction_type.h"
+	"logger.h"
+	"xml_parser.h"
+	"platform_util.h"
+	"game_util.h"
+	"leak_dumper.h"
+
+1289103505 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/unit_type.cpp
+	"unit_type.h"
+	<cassert>
+	"util.h"
+	"upgrade_type.h"
+	"resource_type.h"
+	"sound.h"
+	"logger.h"
+	"xml_parser.h"
+	"tech_tree.h"
+	"resource.h"
+	"renderer.h"
+	"game_util.h"
+	"unit_particle_type.h"
+	"faction.h"
+	"leak_dumper.h"
+
+1286390360 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/types/upgrade_type.cpp
+	"upgrade_type.h"
+	<algorithm>
+	<cassert>
+	"unit_type.h"
+	"util.h"
+	"logger.h"
+	"lang.h"
+	"xml_parser.h"
+	"tech_tree.h"
+	"faction_type.h"
+	"resource.h"
+	"renderer.h"
+	"game_util.h"
+	"leak_dumper.h"
+
+1293503019 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/map.cpp
+	"map.h"
+	<cassert>
+	"tileset.h"
+	"unit.h"
+	"resource.h"
+	"logger.h"
+	"tech_tree.h"
+	"config.h"
+	"util.h"
+	"game_settings.h"
+	"platform_util.h"
+	"pos_iterator.h"
+	"faction.h"
+	"command.h"
+	"leak_dumper.h"
+
+1292745087 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/minimap.cpp
+	"minimap.h"
+	<cassert>
+	"world.h"
+	"vec.h"
+	"renderer.h"
+	"config.h"
+	"object.h"
+	"game_settings.h"
+	"leak_dumper.h"
+
+1286390360 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/scenario.cpp
+	"scenario.h"
+	<stdexcept>
+	"logger.h"
+	"xml_parser.h"
+	"util.h"
+	"game_util.h"
+	"leak_dumper.h"
+	<stdio.h>
+
+1284101068 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/surface_atlas.cpp
+	"surface_atlas.h"
+	<stdexcept>
+	<algorithm>
+	"renderer.h"
+	"util.h"
+	"math_util.h"
+	"leak_dumper.h"
+
+1288624190 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/tileset.cpp
+	"tileset.h"
+	<cassert>
+	<ctime>
+	"logger.h"
+	"util.h"
+	"renderer.h"
+	"game_util.h"
+	"leak_dumper.h"
+	"platform_util.h"
+
+1275752460 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/time_flow.cpp
+	"time_flow.h"
+	"sound_renderer.h"
+	"config.h"
+	"game_constants.h"
+	"util.h"
+	"leak_dumper.h"
+
+1293337268 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/unit_updater.cpp
+	"unit_updater.h"
+	<algorithm>
+	<cassert>
+	"cartographer.h"
+	"core_data.h"
+	"config.h"
+	"game.h"
+	"faction.h"
+	"network_manager.h"
+	"object.h"
+	"particle_type.h"
+	"path_finder.h"
+	"renderer.h"
+	"route_planner.h"
+	"sound.h"
+	"sound_renderer.h"
+	"upgrade.h"
+	"unit.h"
+	"leak_dumper.h"
+
+1293122674 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/water_effects.cpp
+	"water_effects.h"
+	"config.h"
+	"map.h"
+	"leak_dumper.h"
+
+1293312495 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/world.cpp
+	"world.h"
+	<algorithm>
+	<cassert>
+	"config.h"
+	"faction.h"
+	"unit.h"
+	"game.h"
+	"logger.h"
+	"sound_renderer.h"
+	"game_settings.h"
+	"cache_manager.h"
+	"route_planner.h"
+	<iostream>
+	"leak_dumper.h"
+
+1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/server_line.cpp
+	"server_line.h"
+	"renderer.h"
+	"core_data.h"
+	"config.h"
+	"metrics.h"
+	"auto_test.h"
+	"masterserver_info.h"
+	"leak_dumper.h"
+
+1293583462 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1293580203 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
+	"base_thread.h"
+	<vector>
+	<string>
 	"leak_dumper.h"
 

@@ -54,6 +54,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
+	ftpClientThread = NULL;
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
@@ -97,7 +98,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-30;
 	int xoffset=0;
-	
+
 	//state
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
 	labelStatus.init(350, networkHeadPos+30);
@@ -107,7 +108,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.init(30, networkHeadPos+30);
 	labelInfo.setText("");
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
-	
+
 	//create
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(450, 180, 125);
@@ -236,7 +237,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+350, mapHeadPos);
 	labelTileset.setText(lang.get("Tileset"));
-	
+
 
     //tech Tree listBox
 	//listBoxTechTree.init(700, 260, 150);
@@ -250,7 +251,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
 	labelTechTree.init(xoffset+550, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
-	
+
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
@@ -291,15 +292,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     labelControl.registerGraphicComponent(containerName,"labelControl");
 	labelControl.init(xoffset+210, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
-	
+
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
 	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	//labelRMultiplier.setText(lang.get("RMultiplier"));
-	
+
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
     labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
-    
+
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
     labelTeam.init(xoffset+590, setupPos, 60, GraphicListBox::defH, true);
 	labelTeam.setText(lang.get("Team"));
@@ -347,7 +348,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxControls[i].setItems(controlItems);
 		listBoxRMultiplier[i].setItems(rMultiplier);
 		listBoxRMultiplier[i].setSelectedItemIndex(5);
-		
+
 		labelNetStatus[i].setText("V");
     }
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -368,11 +369,35 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//tileset listBox
     findDirs(config.getPathListForType(ptTilesets), tileSets);
 
+
+    if(config.getBool("EnableFTPXfer") == true) {
+        ClientInterface *clientInterface = networkManager.getClientInterface();
+        string serverUrl = clientInterface->getServerIpAddress() + ":61358";
+
+        vector<string> mapPathList = config.getPathListForType(ptMaps);
+        std::pair<string,string> mapsPath;
+        if(mapPathList.size() > 0) {
+            mapsPath.first = mapPathList[0];
+        }
+        if(mapPathList.size() > 1) {
+            mapsPath.second = mapPathList[1];
+        }
+
+        ftpClientThread = new FTPClientThread(serverUrl,mapsPath, this);
+        ftpClientThread->start();
+    }
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateConnectedGame::~MenuStateConnectedGame() {
 	cleanupFactionTexture();
+
+	if(ftpClientThread != NULL) {
+	    ftpClientThread->shutdownAndWait();
+	    delete ftpClientThread;
+	    ftpClientThread = NULL;
+	}
 }
 
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -609,7 +634,7 @@ void MenuStateConnectedGame::render() {
 				renderer.renderListBox(&listBoxFactions[i]);
 				renderer.renderListBox(&listBoxTeams[i]);
 				//renderer.renderLabel(&labelNetStatus[i]);
-				
+
 				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
 					(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
 					renderer.renderButton(&grabSlotButton[i]);
@@ -676,7 +701,7 @@ void MenuStateConnectedGame::render() {
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
-		
+
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
@@ -866,7 +891,7 @@ void MenuStateConnectedGame::update() {
 
 	//process network messages
 	if(clientInterface != NULL && clientInterface->isConnected()) {
-		
+
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
@@ -878,7 +903,7 @@ void MenuStateConnectedGame::update() {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				vector<string> maps,tilesets,techtree;
 				const GameSettings *gameSettings = clientInterface->getGameSettings();
-			
+
 				if(gameSettings == NULL) {
 					throw runtime_error("gameSettings == NULL");
 				}
@@ -906,11 +931,11 @@ void MenuStateConnectedGame::update() {
 					}
 				}
 				listBoxTileset.setItems(tilesets);
-		
+
 				// techtree
 				techtree.push_back(formatString(gameSettings->getTech()));
 				listBoxTechTree.setItems(techtree);
-				
+
 				// factions
 				bool hasFactions = true;
 				if(currentFactionName != gameSettings->getTech())
@@ -923,7 +948,7 @@ void MenuStateConnectedGame::update() {
 					// do this to process special faction types liek observers
 					loadFactions(gameSettings,false);
 				}
-				
+
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
 				// map
@@ -937,11 +962,13 @@ void MenuStateConnectedGame::update() {
 					maps.push_back(formatString(gameSettings->getMap()));
 				}
 				else {
+                    // try to get the map via ftp
+
 					maps.push_back("***missing***");
 				}
 				listBoxMap.setItems(maps);
 				labelMapInfo.setText(mapInfo.desc);
-				
+
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				// FogOfWar
@@ -954,7 +981,7 @@ void MenuStateConnectedGame::update() {
         				listBoxFogOfWar.setSelectedItemIndex(1);
         			}
 				}
-				
+
 				// Allow Observers
 				if(gameSettings->getAllowObservers()) {
 					listBoxAllowObservers.setSelectedItemIndex(1);
@@ -999,7 +1026,7 @@ void MenuStateConnectedGame::update() {
 					listBoxFactions[i].setEditable(false);
 					listBoxTeams[i].setEditable(false);
 				}
-				
+
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(hasFactions == true) {
@@ -1021,7 +1048,7 @@ void MenuStateConnectedGame::update() {
 								labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 							}
 						}
-						
+
 						if(gameSettings->getFactionControl(i) == ctNetwork &&
 							gameSettings->getThisFactionIndex() == i){
 							// set my current slot to ctHuman
@@ -1035,7 +1062,7 @@ void MenuStateConnectedGame::update() {
 								labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 							}
 						}
-						
+
 						settingsReceivedFromServer=true;
 						initialSettingsReceivedFromServer=true;
 
@@ -1534,6 +1561,11 @@ void MenuStateConnectedGame::showMessageBox(const string &text, const string &he
 	else{
 		mainMessageBox.setEnabled(false);
 	}
+}
+
+void MenuStateConnectedGame::FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result) {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    printf("Got FTP Callback for [%s] result = %d\n",mapFilename.c_str(),result);
 }
 
 }}//end namespace

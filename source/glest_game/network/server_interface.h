@@ -23,6 +23,10 @@
 using std::vector;
 using Shared::Platform::ServerSocket;
 
+namespace Shared {  namespace PlatformCommon {  class FTPServerThread;  }}
+
+//using Shared::PlatformCommon::FTPServerThread;
+
 namespace Glest{ namespace Game{
 
 // =====================================================
@@ -48,6 +52,8 @@ private:
 	Mutex masterServerThreadAccessor;
 	time_t lastMasterserverHeartbeatTime;
 	bool needToRepublishToMasterserver;
+
+    Shared::PlatformCommon::FTPServerThread *ftpServer;
 
 public:
 	ServerInterface();
