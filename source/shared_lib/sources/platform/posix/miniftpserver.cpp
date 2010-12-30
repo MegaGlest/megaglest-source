@@ -48,6 +48,10 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumbe
     ftpFindExternalFTPServerIp = &FindExternalFTPServerIp;
 }
 
+FTPServerThread::~FTPServerThread() {
+    ServerSocket::upnp_rem_redirect(ServerSocket::getFTPServerPort());
+}
+
 void FTPServerThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: signalQuit\n");
     BaseThread::signalQuit();

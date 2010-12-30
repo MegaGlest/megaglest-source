@@ -1141,6 +1141,12 @@ bool ServerInterface::launchGame(const GameSettings* gameSettings) {
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
     	}
+
+        if(ftpServer != NULL) {
+            ftpServer->shutdownAndWait();
+            delete ftpServer;
+            ftpServer = NULL;
+        }
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);

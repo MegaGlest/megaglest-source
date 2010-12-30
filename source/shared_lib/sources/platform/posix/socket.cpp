@@ -1427,11 +1427,13 @@ void ClientSocket::connect(const Ip &ip, int port)
 	addr.sin_port= htons(port);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
 
     connectedIpAddress = "";
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)	{
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d error = %s\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d error = %s\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 
         if (getLastSocketError() == PLATFORM_SOCKET_INPROGRESS ||
         	getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1441,6 +1443,7 @@ void ClientSocket::connect(const Ip &ip, int port)
             socklen_t lon;
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] PLATFORM_SOCKET_INPROGRESS in connect() - selecting\n",__FILE__,__FUNCTION__);
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] PLATFORM_SOCKET_INPROGRESS in connect() - selecting\n",__FILE__,__FUNCTION__);
 
             do {
                tv.tv_sec = 10;
@@ -1456,6 +1459,8 @@ void ClientSocket::connect(const Ip &ip, int port)
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED) {
             	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error connecting %s\n",__FILE__,__FUNCTION__,getLastSocketErrorFormattedText().c_str());
+            	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Error connecting %s\n",__FILE__,__FUNCTION__,getLastSocketErrorFormattedText().c_str());
+
                   //throwException(szBuf);
                   break;
                }
@@ -1469,23 +1474,27 @@ void ClientSocket::connect(const Ip &ip, int port)
 #endif
                   {
                 	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error in getsockopt() %s\n",__FILE__,__FUNCTION__,getLastSocketErrorFormattedText().c_str());
+                	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Error in getsockopt() %s\n",__FILE__,__FUNCTION__,getLastSocketErrorFormattedText().c_str());
                      //throwException(szBuf);
                      break;
                   }
                   // Check the value returned...
                   if(valopt) {
                 	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error in delayed connection() %d - [%s]\n",__FILE__,__FUNCTION__,valopt, strerror(valopt));
+                	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Error in delayed connection() %d - [%s]\n",__FILE__,__FUNCTION__,valopt, strerror(valopt));
                      //throwException(szBuf);
                      break;
                   }
 
                   errno = 0;
                   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Apparent recovery for connection sock = %d, err = %d\n",__FILE__,__FUNCTION__,sock,err);
+                  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Apparent recovery for connection sock = %d, err = %d\n",__FILE__,__FUNCTION__,sock,err);
 
                   break;
                }
                else {
             	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
+            	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
                   //throwException(szBuf);
 
                   disconnectSocket();
@@ -1496,16 +1505,19 @@ void ClientSocket::connect(const Ip &ip, int port)
 
         if(err < 0) {
         	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Before END sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Before END sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
             //throwException(szBuf);
             disconnectSocket();
         }
         else {
         	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Valid recovery for connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Valid recovery for connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
         	connectedIpAddress = ip.getString();
         }
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,sock,err);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,sock,err);
 		connectedIpAddress = ip.getString();
 	}
 }
@@ -1673,7 +1685,6 @@ ServerSocket::~ServerSocket() {
 	    ServerSocket::enabledUPNP = false;
 
         NETremRedirects(ServerSocket::externalPort);
-        NETremRedirects(ServerSocket::ftpServerPort);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
