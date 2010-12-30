@@ -425,7 +425,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								gotIntro = true;
 
-                                this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIp()),this->connectedRemoteIPAddress);
+                                this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIpAddress()),this->connectedRemoteIPAddress);
 
 								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);

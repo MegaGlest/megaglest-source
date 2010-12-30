@@ -29,7 +29,11 @@ namespace Shared { namespace PlatformCommon {
 static std::map<uint32,uint32> clientToFTPServerList;
 
 uint32 FindExternalFTPServerIp(uint32 clientIp) {
-    return clientToFTPServerList[clientIp];
+    uint32 result = clientToFTPServerList[clientIp];
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
+
+    return result;
 }
 
 FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumber) : BaseThread() {
@@ -61,6 +65,8 @@ bool FTPServerThread::shutdownAndWait() {
 void FTPServerThread::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
     //ftpSetSessionRemoteServerIp(clientIp, ServerIp);
      clientToFTPServerList[clientIp] = ServerIp;
+
+     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
 }
 
 void FTPServerThread::execute() {

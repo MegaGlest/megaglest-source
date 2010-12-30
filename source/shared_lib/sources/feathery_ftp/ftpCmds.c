@@ -682,10 +682,19 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
     }
     ftpGetSession(sessionId)->passiveDataSocket = s;
 
-    if(ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) > 0)
+#if DBG_LOG
+    printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p\n",
+           sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,ftpAddUPNPPortForward,ftpRemoveUPNPPortForward);
+#endif
+
+    if(ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) != 0)
     {
         ftpGetSession(sessionId)->remoteFTPServerPassivePort = port;
         if(ftpAddUPNPPortForward) {
+#if DBG_LOG
+            printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
+#endif
+
             ftpAddUPNPPortForward(port, port);
         }
 
@@ -699,6 +708,11 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
                 remoteFTPServerIp & 0xFF,
                 (port >> 8) & 0xFF,
                 port & 0xFF);
+
+#if DBG_LOG
+    printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sessionId, str);
+#endif
+
     }
     else
     {

@@ -1669,8 +1669,12 @@ ServerSocket::~ServerSocket() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	stopBroadCastThread();
-	NETremRedirects(ServerSocket::externalPort);
-	NETremRedirects(ServerSocket::ftpServerPort);
+	if (ServerSocket::enabledUPNP) {
+	    ServerSocket::enabledUPNP = false;
+
+        NETremRedirects(ServerSocket::externalPort);
+        NETremRedirects(ServerSocket::ftpServerPort);
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -2054,10 +2058,10 @@ void ServerSocket::NETaddRedirects(int ports[4]) {
 
 void ServerSocket::NETremRedirects(int ext_port) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork, "%s\n", __FUNCTION__);
-	if (ServerSocket::enabledUPNP) {
-	    ServerSocket::enabledUPNP = false;
-        upnp_rem_redirect(ext_port);
-	}
+	//if (ServerSocket::enabledUPNP) {
+	    //ServerSocket::enabledUPNP = false;
+    upnp_rem_redirect(ext_port);
+	//}
 }
 
 void ServerSocket::NETdiscoverUPnPDevices() {

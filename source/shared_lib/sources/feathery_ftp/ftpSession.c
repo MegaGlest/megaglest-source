@@ -119,10 +119,19 @@ int ftpAuthSession(int id)
  */
 int ftpCloseSession(int id)
 {
-    if(ftpFindExternalFTPServerIp != NULL && ftpFindExternalFTPServerIp(sessions[id].remoteIp) > 0)
+#if DBG_LOG
+    printf("In ftpCloseSession sessionId = %d, remote IP = %u, port = %d\n",
+           id, sessions[id].remoteIp, sessions[id].remoteFTPServerPassivePort);
+#endif
+
+    if(ftpFindExternalFTPServerIp != NULL && ftpFindExternalFTPServerIp(sessions[id].remoteIp) != 0)
     {
         if(ftpRemoveUPNPPortForward)
         {
+#if DBG_LOG
+            printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
+#endif
+
             ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
         }
     }
