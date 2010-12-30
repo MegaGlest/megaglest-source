@@ -667,6 +667,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 	uint32_t ip;
 	char str[50];
 	socket_t s;
+	uint32_t remoteFTPServerIp;
 
 	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
 	{
@@ -688,7 +689,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
             ftpAddUPNPPortForward(port, port);
         }
 
-        ip_t remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
+        remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
 
         sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
                 ftpMsg029,
