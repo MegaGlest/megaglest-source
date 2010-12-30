@@ -15,6 +15,7 @@
 #include "base_thread.h"
 #include <vector>
 #include <string>
+#include "types.h"
 
 #include "leak_dumper.h"
 
@@ -25,12 +26,14 @@ namespace Shared { namespace PlatformCommon {
 // =====================================================
 //	class FTPServerThread
 // =====================================================
+uint32 FindExternalFTPServerIp(uint32 clientIp);
 
 class FTPServerThread : public BaseThread
 {
 protected:
     std::pair<string,string> mapsPath;
     int portNumber;
+    //uint32 externalIp;
 
 public:
 
@@ -38,6 +41,9 @@ public:
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
+
+    static void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
+
 };
 
 }}//end namespace

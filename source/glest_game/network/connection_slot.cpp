@@ -158,6 +158,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+    this->connectedRemoteIPAddress = 0;
 	this->sessionKey 		= 0;
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
@@ -257,7 +258,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0);
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -267,7 +268,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0);
 							sendMessage(&networkMessageIntro);
 						}
 					}
@@ -362,6 +363,7 @@ void ConnectionSlot::update(bool checkForNewClients) {
 								int msgSessionId = networkMessageIntro.getSessionId();
 								name= networkMessageIntro.getName();
 								versionString = networkMessageIntro.getVersionString();
+								this->connectedRemoteIPAddress = networkMessageIntro.getExternalIp();
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s], msgSessionId = %d\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str(),msgSessionId);
 
@@ -422,6 +424,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 								SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								gotIntro = true;
+
+                                this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIp()),this->connectedRemoteIPAddress);
 
 								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);

@@ -32,6 +32,8 @@
 #define FTP_ACC_DIR	8
 #define FTP_ACC_FULL (FTP_ACC_RD | FTP_ACC_WR | FTP_ACC_LS | FTP_ACC_DIR)
 
+#include "ftpTypes.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

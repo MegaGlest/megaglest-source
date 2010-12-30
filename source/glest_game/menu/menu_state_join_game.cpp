@@ -503,7 +503,7 @@ void MenuStateJoinGame::keyDown(char key){
 	}
 }
 
-void MenuStateJoinGame::keyPress(char c){
+void MenuStateJoinGame::keyPress(char c) {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
 	if(clientInterface->isConnected() == false)	{
@@ -511,34 +511,28 @@ void MenuStateJoinGame::keyPress(char c){
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		if(c>='0' && c<='9'){
+		if(c>='0' && c<='9') {
 
-			if(labelServerIp.getText().size()<maxTextSize){
+			if(labelServerIp.getText().size()<maxTextSize) {
 				string text= labelServerIp.getText();
-
 				text.insert(text.end()-1, c);
-
 				labelServerIp.setText(text);
 			}
 		}
-		else if (c=='.'){
-			if(labelServerIp.getText().size()<maxTextSize){
+		else if (c=='.') {
+			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
-
 				text.insert(text.end()-1, '.');
-
 				labelServerIp.setText(text);
 			}
 		}
 	}
-	else
-	{
+	else {
 	    chatManager.keyPress(c);
 	}
 }
 
-void MenuStateJoinGame::connectToServer()
-{
+void MenuStateJoinGame::connectToServer() {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
