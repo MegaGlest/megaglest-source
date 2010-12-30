@@ -47,6 +47,7 @@ protected:
     Mutex mutexMapFileList;
     vector<string> mapFileList;
     void getMapFromServer(string mapFilename);
+    FTP_Client_ResultType getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword);
 
 public:
 
