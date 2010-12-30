@@ -86,7 +86,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	mainMessageBoxState=0;
 
     ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
-	ftpMessageBox.init(lang.get("Yes"),lang.get("no"));
+	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
 	ftpMessageBox.setEnabled(false);
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -1184,13 +1184,6 @@ void MenuStateConnectedGame::update() {
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				if(chrono.getMillis() > 0) chrono.start();
 
-				//call the chat manager
-				chatManager.updateNetwork();
-
-				//console732
-
-				console.update();
-
 				//intro
 				if(clientInterface->getIntroDone()) {
 					labelInfo.setText(lang.get("WaitingHost"));
@@ -1215,6 +1208,13 @@ void MenuStateConnectedGame::update() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 			}
+
+			//call the chat manager
+			chatManager.updateNetwork();
+
+			//console732
+            console.update();
+
 		}
 		catch(const runtime_error &ex) {
 			char szBuf[1024]="";
@@ -1407,7 +1407,7 @@ void MenuStateConnectedGame::keyUp(char key) {
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		if(chatManager.getEditEnabled()){
+		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
@@ -1418,8 +1418,6 @@ void MenuStateConnectedGame::keyUp(char key) {
 }
 
 void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
-
-
 	if(newLable != NULL) {
 		string text= newLable->getText();
 		size_t found = text.find_last_of("_");
@@ -1638,13 +1636,18 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string mapFilename, FTP_Cli
     getMissingMapFromFTPServerInProgress = false;
     printf("Got FTP Callback for [%s] result = %d\n",mapFilename.c_str(),result);
 
-    if(result == ftp_crt_SUCCESS) {
-        NetworkManager &networkManager= NetworkManager::getInstance();
-        ClientInterface* clientInterface= networkManager.getClientInterface();
-        const GameSettings *gameSettings = clientInterface->getGameSettings();
+    NetworkManager &networkManager= NetworkManager::getInstance();
+    ClientInterface* clientInterface= networkManager.getClientInterface();
+    const GameSettings *gameSettings = clientInterface->getGameSettings();
 
+    if(result == ftp_crt_SUCCESS) {
         char szMsg[1024]="";
         sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+        clientInterface->sendTextMessage(szMsg,-1, true);
+    }
+    else {
+        char szMsg[1024]="";
+        sprintf(szMsg,"Player: %s FAILED to download the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
         clientInterface->sendTextMessage(szMsg,-1, true);
     }
 }
