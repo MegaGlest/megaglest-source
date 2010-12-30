@@ -622,10 +622,325 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n\n");
 }
 
+int setupGameItemPaths(int argc, char** argv) {
+    // Setup path cache for files and folders used in the game
+    std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
+
+    //GAME_ARG_DATA_PATH
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]),&foundParamIndIndex);
+        }
+        string customPath = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
+        }
+        else {
+
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(argv[0],false);
+            return -1;
+        }
+    }
+
+    //GAME_ARG_INI_PATH
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_INI_PATH]) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]),&foundParamIndIndex);
+        }
+        string customPath = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            pathCache[GameConstants::path_ini_CacheLookupKey]=customPathValue;
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom ini path [%s]\n",customPathValue.c_str());
+        }
+        else {
+
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(argv[0],false);
+            return -1;
+        }
+    }
+
+    //GAME_ARG_LOG_PATH
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LOG_PATH]) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]),&foundParamIndIndex);
+        }
+        string customPath = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            pathCache[GameConstants::path_logs_CacheLookupKey]=customPathValue;
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom logs path [%s]\n",customPathValue.c_str());
+        }
+        else {
+
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(argv[0],false);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
+
+    SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      	= config.getBool("DebugMode","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     	= config.getBool("DebugNetwork","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled 	= config.getBool("DebugPerformance","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  	= config.getBool("DebugWorldSynch","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  	= config.getBool("DebugUnitCommands","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  	= config.getBool("DebugPathFinder","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  			= config.getBool("DebugLUA","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
+
+    string debugLogFile 			= config.getString("DebugLogFile","");
+    if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+        debugLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLogFile;
+    }
+    string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
+    if(debugWorldSynchLogFile == "") {
+        debugWorldSynchLogFile = debugLogFile;
+    }
+    else {
+        debugWorldSynchLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldSynchLogFile;
+    }
+
+    string debugPerformanceLogFile = config.getString("DebugLogFilePerformance","");
+    if(debugPerformanceLogFile == "") {
+        debugPerformanceLogFile = debugLogFile;
+    }
+    else {
+        debugPerformanceLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugPerformanceLogFile;
+    }
+
+    string debugNetworkLogFile = config.getString("DebugLogFileNetwork","");
+    if(debugNetworkLogFile == "") {
+        debugNetworkLogFile = debugLogFile;
+    }
+    else {
+        debugNetworkLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugNetworkLogFile;
+    }
+
+    string debugUnitCommandsLogFile = config.getString("DebugLogFileUnitCommands","");
+    if(debugUnitCommandsLogFile == "") {
+        debugUnitCommandsLogFile = debugLogFile;
+    }
+    else {
+        debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+    }
+
+    string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
+    if(debugUnitCommandsLogFile == "") {
+        debugUnitCommandsLogFile = debugLogFile;
+    }
+    else {
+        debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+    }
+
+    string debugLUALogFile = config.getString("DebugLogFileLUA","");
+    if(debugLUALogFile == "") {
+        debugLUALogFile = debugLogFile;
+    }
+    else {
+        debugLUALogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLUALogFile;
+    }
+
+    string debugErrorLogFile = config.getString("DebugLogFileError","");
+
+    SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName = debugUnitCommandsLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName   = debugPathFinderLogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugLUA).debugLogFileName  		   = debugLUALogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
+
+    if(haveSpecialOutputCommandLineOption == false) {
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
+                SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled);
+    }
+}
+
+void runTechValidationReport(int argc, char** argv) {
+    printf("====== Started Validation ======\n");
+
+    // Did the user pass a specific list of factions to validate?
+    std::vector<string> filteredFactionList;
+    if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("=")) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("="),&foundParamIndIndex);
+
+        string filterList = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(filterList,paramPartTokens,"=");
+
+        if(paramPartTokens.size() >= 2) {
+            string factionList = paramPartTokens[1];
+            Tokenize(factionList,filteredFactionList,",");
+
+            if(filteredFactionList.size() > 0) {
+                printf("Filtering factions and only looking for the following:\n");
+                for(int idx = 0; idx < filteredFactionList.size(); ++idx) {
+                    filteredFactionList[idx] = trim(filteredFactionList[idx]);
+                    printf("%s\n",filteredFactionList[idx].c_str());
+                }
+            }
+        }
+    }
+
+    Config &config = Config::getInstance();
+    vector<string> results;
+    findDirs(config.getPathListForType(ptTechs), results);
+    vector<string> techTreeFiles = results;
+    // Did the user pass a specific list of techtrees to validate?
+    std::vector<string> filteredTechTreeList;
+    if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("=")) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("="),&foundParamIndIndex);
+        string filterList = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(filterList,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2) {
+            string techtreeList = paramPartTokens[1];
+            Tokenize(techtreeList,filteredTechTreeList,",");
+
+            if(filteredTechTreeList.size() > 0) {
+                printf("Filtering techtrees and only looking for the following:\n");
+                for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
+                    filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
+                    printf("%s\n",filteredTechTreeList[idx].c_str());
+                }
+            }
+        }
+    }
+
+
+    {
+    printf("\n---------------- Loading factions inside world ----------------");
+    World world;
+
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
+            string &techName = techTreeFiles[idx2];
+
+            if(	filteredTechTreeList.size() == 0 ||
+                std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
+
+                vector<string> factionsList;
+                findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
+
+                if(factionsList.size() > 0) {
+                    Checksum checksum;
+                    set<string> factions;
+                    for(int j = 0; j < factionsList.size(); ++j) {
+                        if(	filteredFactionList.size() == 0 ||
+                            std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+                            factions.insert(factionsList[j]);
+                        }
+                    }
+
+                    printf("\n----------------------------------------------------------------");
+                    printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
+                    for(int j = 0; j < factionsList.size(); ++j) {
+                        if(	filteredFactionList.size() == 0 ||
+                            std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+                            printf("Using faction [%s]\n",factionsList[j].c_str());
+                        }
+                    }
+
+                    if(factions.size() > 0) {
+                        bool techtree_errors = false;
+                        world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
+                        // Validate the faction setup to ensure we don't have any bad associations
+                        std::vector<std::string> resultErrors = world.validateFactionTypes();
+                        if(resultErrors.size() > 0) {
+                            techtree_errors = true;
+                            // Display the validation errors
+                            string errorText = "\nErrors were detected:\n=====================\n";
+                            for(int i = 0; i < resultErrors.size(); ++i) {
+                                if(i > 0) {
+                                    errorText += "\n";
+                                }
+                                errorText = errorText + resultErrors[i];
+                            }
+                            errorText += "\n=====================\n";
+                            //throw runtime_error(errorText);
+                            printf("%s",errorText.c_str());
+                        }
+
+                        // Validate the faction resource setup to ensure we don't have any bad associations
+                        printf("\nChecking resources, count = %d\n",world.getTechTree()->getResourceTypeCount());
+
+                        for(int i = 0; i < world.getTechTree()->getResourceTypeCount(); ++i) {
+                            printf("Found techtree resource [%s]\n",world.getTechTree()->getResourceType(i)->getName().c_str());
+                        }
+
+                        resultErrors = world.validateResourceTypes();
+                        if(resultErrors.size() > 0) {
+                            techtree_errors = true;
+                            // Display the validation errors
+                            string errorText = "\nErrors were detected:\n=====================\n";
+                            for(int i = 0; i < resultErrors.size(); ++i) {
+                                if(i > 0) {
+                                    errorText += "\n";
+                                }
+                                errorText = errorText + resultErrors[i];
+                            }
+                            errorText += "\n=====================\n";
+                            //throw runtime_error(errorText);
+                            printf("%s",errorText.c_str());
+                        }
+
+                        if(techtree_errors == false) {
+                            printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),(int)factions.size());
+                            for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+                                printf("Faction [%s]\n",(*it).c_str());
+                            }
+                        }
+                    }
+                    printf("----------------------------------------------------------------");
+                }
+            }
+        }
+    }
+
+    printf("\n====== Finished Validation ======\n");
+    }
+
+}
+
 int glestMain(int argc, char** argv) {
 #ifdef SL_LEAK_DUMP
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
+
+    SystemFlags::ENABLE_THREADED_LOGGING = false;
 
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
@@ -642,8 +957,6 @@ int glestMain(int argc, char** argv) {
 		printParameterHelp(argv[0],foundInvalidArgs);
 		return -1;
 	}
-
-    SystemFlags::ENABLE_THREADED_LOGGING = false;
 
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
@@ -706,195 +1019,23 @@ int glestMain(int argc, char** argv) {
 	exceptionHandler.install( getCrashDumpFileName() );
 
 	try {
-        // Setup path cache for files and folders used in the game
-        std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
-
-        //GAME_ARG_DATA_PATH
-        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]),&foundParamIndIndex);
-			}
-			string customPath = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(customPath,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string customPathValue = paramPartTokens[1];
-				pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
-			}
-			else {
-
-				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-				printParameterHelp(argv[0],foundInvalidArgs);
-				return -1;
-			}
+        // Setup paths to game items (like data, logs, ini etc)
+        int setupResult = setupGameItemPaths(argc, argv);
+        if(setupResult != 0) {
+            return setupResult;
         }
 
-        //GAME_ARG_INI_PATH
-        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_INI_PATH]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_INI_PATH]),&foundParamIndIndex);
-			}
-			string customPath = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(customPath,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string customPathValue = paramPartTokens[1];
-				pathCache[GameConstants::path_ini_CacheLookupKey]=customPathValue;
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom ini path [%s]\n",customPathValue.c_str());
-			}
-			else {
-
-				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-				printParameterHelp(argv[0],foundInvalidArgs);
-				return -1;
-			}
-        }
-
-        //GAME_ARG_LOG_PATH
-        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LOG_PATH]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOG_PATH]),&foundParamIndIndex);
-			}
-			string customPath = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(customPath,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string customPathValue = paramPartTokens[1];
-				pathCache[GameConstants::path_logs_CacheLookupKey]=customPathValue;
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom logs path [%s]\n",customPathValue.c_str());
-			}
-			else {
-
-				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-				printParameterHelp(argv[0],foundInvalidArgs);
-				return -1;
-			}
-        }
-
-        //printf("In MAIN STARTUP A\n");
-
+        // Setup the file crc thread
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
+
+		// Attempt to read ini files
 		Config &config = Config::getInstance();
 
-		//printf("In MAIN STARTUP B\n");
-
+        // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
-
-		//printf("In MAIN STARTUP C, SystemFlags::ENABLE_THREADED_LOGGING = %d\n",SystemFlags::ENABLE_THREADED_LOGGING);
-
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 		Socket::isUPNP = !config.getBool("DisableUPNP","false");
-
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled      	= config.getBool("DebugMode","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled     	= config.getBool("DebugNetwork","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled 	= config.getBool("DebugPerformance","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled  	= config.getBool("DebugWorldSynch","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  	= config.getBool("DebugUnitCommands","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  	= config.getBool("DebugPathFinder","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  			= config.getBool("DebugLUA","false");
-		SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
-
-		string debugLogFile 			= config.getString("DebugLogFile","");
-        if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
-            debugLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLogFile;
-        }
-		string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
-        if(debugWorldSynchLogFile == "") {
-        	debugWorldSynchLogFile = debugLogFile;
-        }
-        else {
-            debugWorldSynchLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldSynchLogFile;
-        }
-
-		string debugPerformanceLogFile = config.getString("DebugLogFilePerformance","");
-        if(debugPerformanceLogFile == "") {
-        	debugPerformanceLogFile = debugLogFile;
-        }
-        else {
-            debugPerformanceLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugPerformanceLogFile;
-        }
-
-		string debugNetworkLogFile = config.getString("DebugLogFileNetwork","");
-        if(debugNetworkLogFile == "") {
-        	debugNetworkLogFile = debugLogFile;
-        }
-        else {
-            debugNetworkLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugNetworkLogFile;
-        }
-
-		string debugUnitCommandsLogFile = config.getString("DebugLogFileUnitCommands","");
-        if(debugUnitCommandsLogFile == "") {
-        	debugUnitCommandsLogFile = debugLogFile;
-        }
-        else {
-            debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
-        }
-
-		string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
-        if(debugUnitCommandsLogFile == "") {
-        	debugUnitCommandsLogFile = debugLogFile;
-        }
-        else {
-            debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
-        }
-
-		string debugLUALogFile = config.getString("DebugLogFileLUA","");
-        if(debugLUALogFile == "") {
-        	debugLUALogFile = debugLogFile;
-        }
-        else {
-            debugLUALogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLUALogFile;
-        }
-
-		string debugErrorLogFile = config.getString("DebugLogFileError","");
-
-        SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).debugLogFileName     = debugNetworkLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).debugLogFileName = debugPerformanceLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).debugLogFileName  = debugWorldSynchLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName = debugUnitCommandsLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName   = debugPathFinderLogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugLUA).debugLogFileName  		   = debugLUALogFile;
-        SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
-
-        if(haveSpecialOutputCommandLineOption == false) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
-        			SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled,
-        			SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled);
-        }
-
-		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
-		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
-
-#ifdef USE_STREFLOP
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
-#else
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
-#endif
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
-		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
-
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
-
 		// 256 for English
 		// 30000 for Chinese
 		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
@@ -903,16 +1044,6 @@ int glestMain(int argc, char** argv) {
 		// DEFAULT_CHARSET (English) = 1
 		// GB2312_CHARSET (Chinese)  = 134
 		Shared::Platform::charSet = config.getInt("FONT_CHARSET",intToStr(Shared::Platform::charSet).c_str());
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
-
-		Config &configKeys = Config::getInstance(
-				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
-				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
-				std::pair<bool,bool>(true,false));
-
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
 		}
@@ -927,13 +1058,36 @@ int glestMain(int argc, char** argv) {
 			MeshCallbackTeamColor::noTeamColors = true;
 		}
 
+        // Setup debug logging etc
+		setupLogging(config, haveSpecialOutputCommandLineOption);
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
+
+		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
+		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
+
+#ifdef USE_STREFLOP
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP enabled.\n",getNetworkVersionString().c_str());
+#else
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
+#endif
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
+		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
+
+        // Setup hotkeys from key ini files
+		Config &configKeys = Config::getInstance(
+				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
+				std::pair<bool,bool>(true,false));
+
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		// Over-ride default network command framecount
-		//GameConstants::networkFramePeriod = config.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str());
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
 
+        // Load the language strings
         Lang &lang= Lang::getInstance();
         lang.loadStrings(config.getString("Lang"));
 
@@ -1004,6 +1158,7 @@ int glestMain(int argc, char** argv) {
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+        // Initialize Renderer
 		Renderer &renderer= Renderer::getInstance();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
 
@@ -1023,152 +1178,7 @@ int glestMain(int argc, char** argv) {
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
 
-			printf("====== Started Validation ======\n");
-
-			// Did the user pass a specific list of factions to validate?
-			std::vector<string> filteredFactionList;
-			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("=")) == true) {
-				int foundParamIndIndex = -1;
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) + string("="),&foundParamIndIndex);
-
-				string filterList = argv[foundParamIndIndex];
-				vector<string> paramPartTokens;
-				Tokenize(filterList,paramPartTokens,"=");
-
-				if(paramPartTokens.size() >= 2) {
-					string factionList = paramPartTokens[1];
-					Tokenize(factionList,filteredFactionList,",");
-
-					if(filteredFactionList.size() > 0) {
-						printf("Filtering factions and only looking for the following:\n");
-						for(int idx = 0; idx < filteredFactionList.size(); ++idx) {
-							filteredFactionList[idx] = trim(filteredFactionList[idx]);
-							printf("%s\n",filteredFactionList[idx].c_str());
-						}
-					}
-				}
-			}
-
-			Config &config = Config::getInstance();
-			vector<string> results;
-			findDirs(config.getPathListForType(ptTechs), results);
-			vector<string> techTreeFiles = results;
-			// Did the user pass a specific list of techtrees to validate?
-			std::vector<string> filteredTechTreeList;
-			if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("=")) == true) {
-				int foundParamIndIndex = -1;
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) + string("="),&foundParamIndIndex);
-				string filterList = argv[foundParamIndIndex];
-				vector<string> paramPartTokens;
-				Tokenize(filterList,paramPartTokens,"=");
-				if(paramPartTokens.size() >= 2) {
-					string techtreeList = paramPartTokens[1];
-					Tokenize(techtreeList,filteredTechTreeList,",");
-
-					if(filteredTechTreeList.size() > 0) {
-						printf("Filtering techtrees and only looking for the following:\n");
-						for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
-							filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
-							printf("%s\n",filteredTechTreeList[idx].c_str());
-						}
-					}
-				}
-			}
-
-
-			{
-			printf("\n---------------- Loading factions inside world ----------------");
-			World world;
-
-		    vector<string> techPaths = config.getPathListForType(ptTechs);
-		    for(int idx = 0; idx < techPaths.size(); idx++) {
-		        string &techPath = techPaths[idx];
-		        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
-					string &techName = techTreeFiles[idx2];
-
-					if(	filteredTechTreeList.size() == 0 ||
-						std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
-
-						vector<string> factionsList;
-						findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
-
-						if(factionsList.size() > 0) {
-							Checksum checksum;
-							set<string> factions;
-							for(int j = 0; j < factionsList.size(); ++j) {
-								if(	filteredFactionList.size() == 0 ||
-									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
-									factions.insert(factionsList[j]);
-								}
-							}
-
-							printf("\n----------------------------------------------------------------");
-							printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
-							for(int j = 0; j < factionsList.size(); ++j) {
-								if(	filteredFactionList.size() == 0 ||
-									std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
-									printf("Using faction [%s]\n",factionsList[j].c_str());
-								}
-							}
-
-							if(factions.size() > 0) {
-								bool techtree_errors = false;
-								world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
-								// Validate the faction setup to ensure we don't have any bad associations
-								std::vector<std::string> resultErrors = world.validateFactionTypes();
-								if(resultErrors.size() > 0) {
-									techtree_errors = true;
-									// Display the validation errors
-									string errorText = "\nErrors were detected:\n=====================\n";
-									for(int i = 0; i < resultErrors.size(); ++i) {
-										if(i > 0) {
-											errorText += "\n";
-										}
-										errorText = errorText + resultErrors[i];
-									}
-									errorText += "\n=====================\n";
-									//throw runtime_error(errorText);
-									printf("%s",errorText.c_str());
-								}
-
-								// Validate the faction resource setup to ensure we don't have any bad associations
-								printf("\nChecking resources, count = %d\n",world.getTechTree()->getResourceTypeCount());
-
-								for(int i = 0; i < world.getTechTree()->getResourceTypeCount(); ++i) {
-									printf("Found techtree resource [%s]\n",world.getTechTree()->getResourceType(i)->getName().c_str());
-								}
-
-								resultErrors = world.validateResourceTypes();
-								if(resultErrors.size() > 0) {
-									techtree_errors = true;
-									// Display the validation errors
-									string errorText = "\nErrors were detected:\n=====================\n";
-									for(int i = 0; i < resultErrors.size(); ++i) {
-										if(i > 0) {
-											errorText += "\n";
-										}
-										errorText = errorText + resultErrors[i];
-									}
-									errorText += "\n=====================\n";
-									//throw runtime_error(errorText);
-									printf("%s",errorText.c_str());
-								}
-
-								if(techtree_errors == false) {
-									printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),(int)factions.size());
-									for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
-										printf("Faction [%s]\n",(*it).c_str());
-									}
-								}
-							}
-							printf("----------------------------------------------------------------");
-						}
-					}
-		        }
-			}
-
-		    printf("\n====== Finished Validation ======\n");
-			}
+			runTechValidationReport(argc, argv);
 
 		    delete mainWindow;
 		    return -1;
@@ -1176,15 +1186,14 @@ int glestMain(int argc, char** argv) {
 
 		gameInitialized = true;
 
+        // Setup the screenshots folder
 		string screenShotsPath = GameConstants::folder_path_screenshots;
-		//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         if(isdir(screenShotsPath.c_str()) == false) {
         	createDirectoryPaths(screenShotsPath);
-			//printf("In [%s::%s Line: %d] screenShotsPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,screenShotsPath.c_str());
         }
 
-        string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
         // Cache Player textures - START
+        string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
         for(int index = 0; index < GameConstants::maxPlayers; ++index) {
         	string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
@@ -1219,7 +1228,7 @@ int glestMain(int argc, char** argv) {
 		//printf("[%s]",test.c_str());
 
 		//main loop
-		while(Window::handleEvent()){
+		while(Window::handleEvent()) {
 			program->loop();
 		}
 
@@ -1241,6 +1250,7 @@ int glestMain(int argc, char** argv) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete mainWindow;
+	mainWindow = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1268,18 +1278,4 @@ __try {
 }}//end namespace
 
 MAIN_FUNCTION(Glest::Game::glestMainWrapper)
-
-/*
-int main(int argc, char *argv[])
-{
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
-        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
-        return 1;
-    }
-	atexit(SDL_Quit);
-	SDL_EnableUNICODE(1);
-    int result = Glest::Game::glestMainWrapper(argc, argv);
-    return result;
-}
-*/
 
