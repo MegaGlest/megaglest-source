@@ -680,14 +680,37 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
         return 1;
     }
     ftpGetSession(sessionId)->passiveDataSocket = s;
-	sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
-			ftpMsg029,
-			(ip >> 24) & 0xFF,
-			(ip >> 16) & 0xFF,
-			(ip >> 8) & 0xFF,
-			ip & 0xFF,
-			(port >> 8) & 0xFF,
-			port & 0xFF);
+
+    if(ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) > 0)
+    {
+        ftpGetSession(sessionId)->remoteFTPServerPassivePort = port;
+        if(ftpAddUPNPPortForward) {
+            ftpAddUPNPPortForward(port, port);
+        }
+
+        ip_t remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
+
+        sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
+                ftpMsg029,
+                (remoteFTPServerIp >> 24) & 0xFF,
+                (remoteFTPServerIp >> 16) & 0xFF,
+                (remoteFTPServerIp >> 8) & 0xFF,
+                remoteFTPServerIp & 0xFF,
+                (port >> 8) & 0xFF,
+                port & 0xFF);
+    }
+    else
+    {
+        sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
+                ftpMsg029,
+                (ip >> 24) & 0xFF,
+                (ip >> 16) & 0xFF,
+                (ip >> 8) & 0xFF,
+                ip & 0xFF,
+                (port >> 8) & 0xFF,
+                port & 0xFF);
+    }
+
 	ftpSendMsg(MSG_NORMAL, sessionId, 227, str);
     ftpGetSession(sessionId)->passive = TRUE;
 	return 0;

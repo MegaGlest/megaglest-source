@@ -32,7 +32,6 @@
 #include "ftpConfig.h"
 #include "ftp.h"
 
-
 /**
  *  @brief array that holds the data of all ftp sessions
  *
@@ -120,6 +119,13 @@ int ftpAuthSession(int id)
  */
 int ftpCloseSession(int id)
 {
+    if(ftpFindExternalFTPServerIp != NULL && ftpFindExternalFTPServerIp(sessions[id].remoteIp) > 0)
+    {
+        if(ftpRemoveUPNPPortForward)
+        {
+            ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
+        }
+    }
 	ftpCloseSocket(sessions[id].ctrlSocket);
 	ftpCloseTransmission(id);
 

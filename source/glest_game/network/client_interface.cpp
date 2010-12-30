@@ -226,7 +226,7 @@ void ClientInterface::updateLobby() {
                 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					//send intro message
-					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk);
+					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress());
 					sendMessage(&sendNetworkMessageIntro);
 
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

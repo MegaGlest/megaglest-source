@@ -114,6 +114,7 @@ private:
 	bool gotLagCountWarning;
 	string versionString;
 	int sessionKey;
+	uint32 connectedRemoteIPAddress;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -123,6 +124,8 @@ public:
 	virtual void update();
 	void setPlayerIndex(int value) { playerIndex = value; }
 	int getPlayerIndex() {return playerIndex;}
+
+	uint32 getConnectedRemoteIPAddress() const { return connectedRemoteIPAddress; }
 
 	void setReady()					{ready= true;}
 	const string &getName() const	{return name;}

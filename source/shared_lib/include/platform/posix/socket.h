@@ -21,6 +21,7 @@
 #include <vector>
 #include "base_thread.h"
 #include "simple_threads.h"
+#include "types.h"
 
 using std::string;
 
@@ -48,6 +49,10 @@ using std::string;
 using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Platform {
+
+
+void AddUPNPPortForward(int internalPort, int externalPort);
+void RemoveUPNPPortForward(int internalPort, int externalPort);
 
 //
 // This interface describes the methods a callback object must implement
@@ -99,6 +104,7 @@ protected:
 	time_t lastDebugEvent;
 	static int broadcast_portno;
 	std::string ipAddress;
+	std::string connectedIpAddress;
 
 	SimpleTaskThread *pingThread;
 	std::map<string,double> pingCache;
@@ -148,6 +154,8 @@ public:
 
 	virtual std::string getIpAddress();
 	virtual void setIpAddress(std::string value) { ipAddress = value; }
+
+	uint32 getConnectedIPAddress(string IP="");
 
 	static bool isUPNP;
 
@@ -219,6 +227,10 @@ public:
 
     void NETdiscoverUPnPDevices();
 
+    static bool enabledUPNP;
+    static bool upnp_add_redirect(int ports[2]);
+    static void upnp_rem_redirect(int ext_port);
+
 protected:
 
 	bool portBound;
@@ -227,15 +239,11 @@ protected:
 	static int externalPort;
 	static int ftpServerPort;
 
-	static bool enabledUPNP;
-
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
 	bool isBroadCastThreadRunning();
 
     static int upnp_init(void *param);
-    static bool upnp_add_redirect(int ports[4]);
-    static void upnp_rem_redirect(int ext_port);
 
     void NETaddRedirects(int ports[4]);
     void NETremRedirects(int ext_port);

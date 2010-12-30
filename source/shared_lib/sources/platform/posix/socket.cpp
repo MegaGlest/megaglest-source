@@ -620,6 +620,20 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 	return broadCastAddress;
 }
 
+uint32 Socket::getConnectedIPAddress(string IP) {
+	sockaddr_in addr;
+	memset(&addr, 0, sizeof(addr));
+
+    addr.sin_family= AF_INET;
+    if(IP == "") {
+        IP = connectedIpAddress;
+    }
+	addr.sin_addr.s_addr= inet_addr(IP.c_str());
+	//addr.sin_port= htons(port);
+
+	return SockAddrToUint32((struct sockaddr *)&addr);
+}
+
 std::vector<std::string> Socket::getLocalIPAddressList() {
 	std::vector<std::string> ipList;
 
@@ -734,14 +748,16 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 #endif
 }
 
-Socket::Socket(PLATFORM_SOCKET sock){
+Socket::Socket(PLATFORM_SOCKET sock) {
 	this->pingThread = NULL;
 	this->sock= sock;
+	this->connectedIpAddress = "";
 }
 
-Socket::Socket()
-{
+Socket::Socket() {
 	this->pingThread = NULL;
+	this->connectedIpAddress = "";
+
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(isSocketValid() == false) {
 		throwException("Error creating socket");
@@ -1411,6 +1427,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connecting to host [%s] on port = %d\n", ip.getString().c_str(),port);
 
+    connectedIpAddress = "";
 	int err= ::connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
 	if(err < 0)	{
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 Error connecting socket for IP: %s for Port: %d err = %d error = %s\n",__FILE__,__FUNCTION__,ip.getString().c_str(),port,err,getLastSocketErrorFormattedText().c_str());
@@ -1436,14 +1453,12 @@ void ClientSocket::connect(const Ip &ip, int port)
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
                }
 
-               if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED)
-               {
+               if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED) {
             	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error connecting %s\n",__FILE__,__FUNCTION__,getLastSocketErrorFormattedText().c_str());
                   //throwException(szBuf);
                   break;
                }
-               else if (err > 0)
-               {
+               else if (err > 0) {
                   // Socket selected for write
                   lon = sizeof(int);
 #ifndef WIN32
@@ -1457,8 +1472,7 @@ void ClientSocket::connect(const Ip &ip, int port)
                      break;
                   }
                   // Check the value returned...
-                  if (valopt)
-                  {
+                  if(valopt) {
                 	  SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Error in delayed connection() %d - [%s]\n",__FILE__,__FUNCTION__,valopt, strerror(valopt));
                      //throwException(szBuf);
                      break;
@@ -1469,8 +1483,7 @@ void ClientSocket::connect(const Ip &ip, int port)
 
                   break;
                }
-               else
-               {
+               else {
             	   SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Timeout in select() - Cancelling!\n",__FILE__,__FUNCTION__);
                   //throwException(szBuf);
 
@@ -1480,20 +1493,19 @@ void ClientSocket::connect(const Ip &ip, int port)
             } while (1);
         }
 
-        if(err < 0)
-        {
+        if(err < 0) {
         	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Before END sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
             //throwException(szBuf);
             disconnectSocket();
         }
-        else
-        {
+        else {
         	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Valid recovery for connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+        	connectedIpAddress = ip.getString();
         }
 	}
-	else
-	{
+	else {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(),port,sock,err);
+		connectedIpAddress = ip.getString();
 	}
 }
 
@@ -1824,6 +1836,85 @@ Socket *ServerSocket::accept() {
 	return result;
 }
 
+void AddUPNPPortForward(int internalPort, int externalPort) {
+	struct UPNPDev *devlist=NULL;
+	struct UPNPDev *dev=NULL;
+	char *descXML=NULL;
+	int descXMLsize = 0;
+	char buf[255]="";
+	//int *externalPort = (int *)asdf;
+
+	memset(&urls, 0, sizeof(struct UPNPUrls));
+	memset(&data, 0, sizeof(struct IGDdatas));
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Socket::isUPNP = %d\n", Socket::isUPNP);
+
+	if(Socket::isUPNP) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
+		devlist = upnpDiscover(2000, NULL, NULL, 0);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
+
+		if (devlist) {
+			dev = devlist;
+			while (dev) {
+				if (strstr(dev->st, "InternetGatewayDevice"))
+					break;
+				dev = dev->pNext;
+			}
+			if (!dev) {
+				dev = devlist; /* defaulting to first device */
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device found: %s %s\n", dev->descURL, dev->st);
+
+			descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, sizeof(lanaddr));
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LAN address: %s\n", lanaddr);
+			if (descXML) {
+				parserootdesc (descXML, descXMLsize, &data);
+				free (descXML); descXML = 0;
+				GetUPNPUrls (&urls, &data, dev->descURL);
+			}
+			sprintf(buf, "UPnP device found: %s %s LAN address %s", dev->descURL, dev->st, lanaddr);
+			//addDumpInfo(buf);
+			freeUPNPDevlist(devlist);
+
+			if (!urls.controlURL || urls.controlURL[0] == '\0')	{
+				sprintf(buf, "controlURL not available, UPnP disabled");
+				//addDumpInfo(buf);
+				//obj->DiscoveredServers();
+				//return false;
+				return;
+			}
+
+            //obj->DiscoveredServers();
+            int ports[2] = { externalPort, internalPort };
+            ServerSocket::upnp_add_redirect(ports);
+            ServerSocket::enabledUPNP = true;
+			//return true;
+			return;
+		}
+		sprintf(buf, "UPnP device not found.");
+		//addDumpInfo(buf);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
+
+		//obj->DiscoveredServers();
+		//return false;
+		return;
+	}
+	else {
+		sprintf(buf, "UPnP detection routine disabled by user.");
+		//addDumpInfo(buf);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
+
+		//obj->DiscoveredServers();
+		//return false;
+		return;
+	}
+}
+
+void RemoveUPNPPortForward(int internalPort, int externalPort) {
+    ServerSocket::upnp_rem_redirect(externalPort);
+}
 
 //
 // This code below handles Universal Plug and Play Router Port Forwarding
@@ -1902,7 +1993,7 @@ int ServerSocket::upnp_init(void *param) {
 	}
 }
 
-bool ServerSocket::upnp_add_redirect(int ports[4]) {
+bool ServerSocket::upnp_add_redirect(int ports[2]) {
 	char externalIP[16]="";
 	char ext_port_str[16]="";
 	char int_port_str[16]="";
@@ -1923,16 +2014,16 @@ bool ServerSocket::upnp_add_redirect(int ports[4]) {
 		return false;
 	}
 
-	sprintf(ext_port_str, "%d", ports[2]);
-	sprintf(int_port_str, "%d", ports[3]);
+	//sprintf(ext_port_str, "%d", ports[2]);
+	//sprintf(int_port_str, "%d", ports[3]);
 
-	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,
-			ext_port_str, int_port_str, lanaddr, "MegaGlest (FTP) - www.megaglest.org", "TCP", 0);
+	//r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,
+	//		ext_port_str, int_port_str, lanaddr, "MegaGlest (FTP) - www.megaglest.org", "TCP", 0);
 
-	if (r != UPNPCOMMAND_SUCCESS) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
+	//if (r != UPNPCOMMAND_SUCCESS) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
 		//return false;
-	}
+	//}
 
 	return true;
 
@@ -1953,7 +2044,10 @@ void ServerSocket::NETaddRedirects(int ports[4]) {
 	//	upnp_done = true;
 	//}
 	//if (upnp) {
-	upnp_add_redirect(ports);
+	int portsA[2] = { ports[0], ports[1] };
+	upnp_add_redirect(portsA);
+	int portsB[2] = { ports[2], ports[3] };
+	upnp_add_redirect(portsB);
 	//}
 }
 

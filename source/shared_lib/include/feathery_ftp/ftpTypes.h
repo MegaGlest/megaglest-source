@@ -4,7 +4,7 @@
  *
  * ftpTypes.h - global type  definitions
  *
- * Definitions of fixed size integers an helper macros. 
+ * Definitions of fixed size integers an helper macros.
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -59,5 +59,10 @@ typedef uint16_t port_t;
 #ifndef TRUE
 #define TRUE 1
 #endif
+
+ip_t (*ftpFindExternalFTPServerIp)(ip_t clientIp);
+void (*ftpAddUPNPPortForward)(int internalPort, int externalPort);
+void (*ftpRemoveUPNPPortForward)(int internalPort, int externalPort);
+
 
 #endif

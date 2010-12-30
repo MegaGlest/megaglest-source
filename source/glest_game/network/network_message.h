@@ -84,13 +84,14 @@ private:
 	static const int maxNameSize= 32;
 
 private:
-	struct Data{
+	struct Data {
 		int8 messageType;
 		int32 sessionId;
 		NetworkString<maxVersionStringSize> versionString;
 		NetworkString<maxNameSize> name;
 		int16 playerIndex;
 		int8 gameState;
+		uint32 externalIp;
 	};
 
 private:
@@ -98,13 +99,14 @@ private:
 
 public:
 	NetworkMessageIntro();
-	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState);
+	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState, uint32 externalIp);
 
 	int32 getSessionId() const 					{ return data.sessionId;}
 	string getVersionString() const				{ return data.versionString.getString(); }
 	string getName() const						{ return data.name.getString(); }
 	int getPlayerIndex() const					{ return data.playerIndex; }
 	NetworkGameStateType getGameState() const 	{ return static_cast<NetworkGameStateType>(data.gameState); }
+	uint32 getExternalIp() const                { return data.externalIp;}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

@@ -14,6 +14,7 @@
 #include "util.h"
 #include "platform_common.h"
 #include "ftpIfc.h"
+#include "socket.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -25,9 +26,22 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+static std::map<uint32,uint32> clientToFTPServerList;
+
+uint32 FindExternalFTPServerIp(uint32 clientIp) {
+    return clientToFTPServerList[clientIp];
+}
+
 FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumber) : BaseThread() {
-    this->mapsPath = mapsPath;
-    this->portNumber = portNumber;
+    this->mapsPath      = mapsPath;
+    this->portNumber    = portNumber;
+    //this->externalIp    = externalIp;
+
+    //void (*ftpAddUPNPPortForward)(int internalPort, int externalPort) = NULL;
+    //void (*ftpRemoveUPNPPortForward)(int internalPort, int externalPort) = NULL;
+    ftpAddUPNPPortForward = &AddUPNPPortForward;
+    ftpRemoveUPNPPortForward = &RemoveUPNPPortForward;
+    ftpFindExternalFTPServerIp = &FindExternalFTPServerIp;
 }
 
 void FTPServerThread::signalQuit() {
@@ -39,7 +53,14 @@ bool FTPServerThread::shutdownAndWait() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: shutdownAndWait\n");
 
     signalQuit();
-    return BaseThread::shutdownAndWait();
+    bool ret = BaseThread::shutdownAndWait();
+    clientToFTPServerList.clear();
+    return ret;
+}
+
+void FTPServerThread::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
+    //ftpSetSessionRemoteServerIp(clientIp, ServerIp);
+     clientToFTPServerList[clientIp] = ServerIp;
 }
 
 void FTPServerThread::execute() {

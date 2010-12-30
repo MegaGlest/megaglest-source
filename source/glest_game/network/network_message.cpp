@@ -123,22 +123,25 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const 
 //	class NetworkMessageIntro
 // =====================================================
 
-NetworkMessageIntro::NetworkMessageIntro(){
+NetworkMessageIntro::NetworkMessageIntro() {
 	data.messageType= -1;
 	data.sessionId=	  -1;
 	data.playerIndex= -1;
 	data.gameState	= nmgstInvalid;
+	data.externalIp = 0;
 }
 
 NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionString,
 										const string &name, int playerIndex,
-										NetworkGameStateType gameState) {
+										NetworkGameStateType gameState,
+										uint32 externalIp) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
 	data.name			= name;
 	data.playerIndex	= static_cast<int16>(playerIndex);
 	data.gameState		= static_cast<int8>(gameState);
+	data.externalIp     = externalIp;
 }
 
 bool NetworkMessageIntro::receive(Socket* socket){

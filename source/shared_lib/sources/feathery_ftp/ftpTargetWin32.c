@@ -33,15 +33,17 @@
 #pragma comment(lib, "MSWSOCK")
 
 ip_t ownIp;
+//ip_t ownExternalIp;
 
 LOCAL fd_set watchedSockets;
 LOCAL fd_set signaledSockets;
 LOCAL int maxSockNr;
 
-void ftpArchInit(void)
+void ftpArchInit()
 {
 	WSADATA wsaData;
 	ownIp = 0;
+	//ownExternalIp = externalIp;
 	maxSockNr = 0;
 	FD_ZERO(&watchedSockets);
 	WSAStartup(MAKEWORD(2, 0),&wsaData);
@@ -291,6 +293,9 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 
 		*port = ntohs(myAddr.sin_port);
 		*ip   = ownIp;
+		//if(ownExternalIp > 0) {
+		//    *ip = ownExternalIp;
+		//}
 
 	    if(listen(dataSocket, 1))
 	    {

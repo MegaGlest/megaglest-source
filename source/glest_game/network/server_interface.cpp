@@ -143,6 +143,10 @@ ServerInterface::~ServerInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ServerInterface::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
+    FTPServerThread::addClientToServerIPAddress(clientIp,ServerIp);
+}
+
 void ServerInterface::addSlot(int playerIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
