@@ -764,7 +764,7 @@
 	"vec.h"
 	"leak_dumper.h"
 
-1292906793 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/socket.h
+1293699630 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/socket.h
 	<string>
 	<errno.h>
 	<sys/types.h>
@@ -773,6 +773,7 @@
 	<vector>
 	"base_thread.h"
 	"simple_threads.h"
+	"types.h"
 	<winsock2.h>
 	<winsock.h>
 	<unistd.h>
@@ -865,7 +866,7 @@
 	<time.h>
 	"leak_dumper.h"
 
-1292735398 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.h
+1293672799 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.h
 	"socket.h"
 	"game_constants.h"
 	"network_types.h"
@@ -892,7 +893,7 @@
 	"client_interface.h"
 	"leak_dumper.h"
 
-1293568776 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.h
+1293700053 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.h
 	<vector>
 	"game_constants.h"
 	"network_interface.h"
@@ -900,7 +901,7 @@
 	"socket.h"
 	"leak_dumper.h"
 
-1293262129 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.h
+1293673479 /home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.h
 	<vector>
 	"socket.h"
 	"network_interface.h"
@@ -1233,7 +1234,7 @@
 	"sound_container.h"
 	"leak_dumper.h"
 
-1293579721 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
+1293743805 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/facilities/game_util.cpp
 	"game_util.h"
 	"util.h"
 	"lang.h"
@@ -1732,7 +1733,7 @@
 	"pixmap.h"
 	"leak_dumper.h"
 
-1293415462 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.h
+1293656408 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.h
 	"main_menu.h"
 	"server_line.h"
 	"masterserver_info.h"
@@ -1753,7 +1754,7 @@
 	<string>
 	"leak_dumper.h"
 
-1293156289 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
+1293656163 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
 	"base_thread.h"
 	<vector>
 	<string>
@@ -1848,7 +1849,7 @@
 	"main_menu.h"
 	"leak_dumper.h"
 
-1293584447 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.cpp
+1293741940 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.cpp
 	"menu_state_connected_game.h"
 	"menu_state_join_game.h"
 	"menu_state_masterserver.h"
@@ -1869,7 +1870,7 @@
 	"cache_manager.h"
 	"leak_dumper.h"
 
-1293584319 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.h
+1293650057 /home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_connected_game.h
 	"main_menu.h"
 	"chat_manager.h"
 	"map_preview.h"
@@ -1911,7 +1912,7 @@
 	"main_menu.h"
 	"leak_dumper.h"
 
-1293033401 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_join_game.cpp
+1293672904 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_join_game.cpp
 	"menu_state_join_game.h"
 	"menu_state_connected_game.h"
 	"renderer.h"
@@ -1928,7 +1929,7 @@
 	"socket.h"
 	"leak_dumper.h"
 
-1293415462 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.cpp
+1293656519 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/menu/menu_state_masterserver.cpp
 	"menu_state_masterserver.h"
 	"server_line.h"
 	"renderer.h"
@@ -2005,7 +2006,7 @@
 	"game.h"
 	"leak_dumper.h"
 
-1293263149 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/client_interface.cpp
+1293741872 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/client_interface.cpp
 	"client_interface.h"
 	<stdexcept>
 	<cassert>
@@ -2019,7 +2020,7 @@
 	"config.h"
 	"logger.h"
 
-1293313161 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.cpp
+1293734753 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/connection_slot.cpp
 	"connection_slot.h"
 	<stdexcept>
 	"conversion.h"
@@ -2047,7 +2048,7 @@
 	"util.h"
 	"leak_dumper.h"
 
-1292743481 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.cpp
+1293661086 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/network_message.cpp
 	"network_message.h"
 	<cassert>
 	<stdexcept>
@@ -2071,7 +2072,7 @@
 	"gui.h"
 	"leak_dumper.h"
 
-1293579720 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.cpp
+1293738364 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/network/server_interface.cpp
 	"server_interface.h"
 	<cassert>
 	<stdexcept>
@@ -2364,7 +2365,7 @@
 	"util.h"
 	"leak_dumper.h"
 
-1293337268 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/unit_updater.cpp
+1293648572 source:/home/softcoder/Code/megaglest/trunk/source/glest_game/world/unit_updater.cpp
 	"unit_updater.h"
 	<algorithm>
 	<cassert>
@@ -2417,15 +2418,16 @@
 	"masterserver_info.h"
 	"leak_dumper.h"
 
-1293583462 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
+1293743718 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
 	"base_thread.h"
 	<vector>
 	<string>
 	"leak_dumper.h"
 
-1293580203 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
+1293738950 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
 	"base_thread.h"
 	<vector>
 	<string>
+	"types.h"
 	"leak_dumper.h"
 

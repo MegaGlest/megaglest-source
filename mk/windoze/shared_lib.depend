@@ -5,14 +5,14 @@
 	"ftpConfig.h"
 	"ftp.h"
 
-1281749348 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpTypes.h
+1293698802 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpTypes.h
 	<stdint.h>
 
 1281749348 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpConfig.h
 
-1281749348 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftp.h
+1293699212 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftp.h
 
-1293575818 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpCmds.c
+1293734990 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpCmds.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -24,7 +24,8 @@
 	"ftpIfc.h"
 	"ftpMessages.h"
 
-1293570522 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpIfc.h
+1293699330 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpIfc.h
+	"ftpTypes.h"
 
 1281749348 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpMessages.h
 
@@ -38,7 +39,7 @@
 
 1281749348 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpMessages.c
 
-1293571680 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpRuntime.c
+1293673720 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpRuntime.c
 	<stdio.h>
 	"ftpTypes.h"
 	"ftpConfig.h"
@@ -48,14 +49,14 @@
 1293565704 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpServer.c
 	"ftpIfc.h"
 
-1293577600 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpSession.c
+1293733873 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpSession.c
 	<stdio.h>
 	<string.h>
 	"ftpTypes.h"
 	"ftpConfig.h"
 	"ftp.h"
 
-1293558846 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetPosix.c
+1293694607 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetPosix.c
 	<stdio.h>
 	<string.h>
 	<time.h>
@@ -74,7 +75,7 @@
 	"ftpConfig.h"
 	"ftp.h"
 
-1293575483 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetWin32.c
+1293673774 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetWin32.c
 	<windows.h>
 	<stdio.h>
 	<string.h>
@@ -941,7 +942,7 @@
 1283810436 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/noimpl.h
 	"leak_dumper.h"
 
-1292906793 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/socket.h
+1293699630 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/socket.h
 	<string>
 	<errno.h>
 	<sys/types.h>
@@ -950,6 +951,7 @@
 	<vector>
 	"base_thread.h"
 	"simple_threads.h"
+	"types.h"
 	<winsock2.h>
 	<winsock.h>
 	<unistd.h>
@@ -966,7 +968,7 @@
 	"util.h"
 	"leak_dumper.h"
 
-1293331578 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/simple_threads.cpp
+1293640245 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/simple_threads.cpp
 	"simple_threads.h"
 	"util.h"
 	"platform_common.h"
@@ -1107,7 +1109,7 @@
 	"upnpreplyparse.h"
 	"minixml.h"
 
-1293439014 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/ircclient.cpp
+1293656163 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/ircclient.cpp
 	"ircclient.h"
 	"util.h"
 	"platform_common.h"
@@ -1117,7 +1119,7 @@
 	<string.h>
 	<stdlib.h>
 
-1293156289 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
+1293656163 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
 	"base_thread.h"
 	<vector>
 	<string>
@@ -1152,7 +1154,7 @@
 1293437651 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/libircclient/include/libirc_dcc.h
 	<stdio.h>
 
-1293175189 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/socket.cpp
+1293732253 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/socket.cpp
 	"socket.h"
 	<cstring>
 	<cstdio>
@@ -1527,20 +1529,22 @@
 	<string>
 	"leak_dumper.h"
 
-1293579687 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpserver.cpp
+1293699020 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpserver.cpp
 	"miniftpserver.h"
 	"util.h"
 	"platform_common.h"
 	"ftpIfc.h"
+	"socket.h"
 	<stdio.h>
 	<stdarg.h>
 	<string.h>
 	<stdlib.h>
 
-1293580203 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
+1293699385 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
 	"base_thread.h"
 	<vector>
 	<string>
+	"types.h"
 	"leak_dumper.h"
 
 1293437648 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/libircclient.c
@@ -1605,15 +1609,16 @@
 1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/dcc.c
 	"libircclient.h"
 
-1293583677 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpclient.cpp
+1293653392 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpclient.cpp
 	"miniftpclient.h"
 	"util.h"
 	"platform_common.h"
 	<curl/curl.h>
 	<curl/types.h>
 	<curl/easy.h>
+	<algorithm>
 
-1293583462 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
+1293653392 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
 	"base_thread.h"
 	<vector>
 	<string>
