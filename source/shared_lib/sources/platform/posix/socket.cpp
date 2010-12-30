@@ -307,11 +307,12 @@ string Ip::getString() const{
 #if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
 # define USE_GETIFADDRS 1
 # include <ifaddrs.h>
+#endif
+
 static uint32 SockAddrToUint32(struct sockaddr * a)
 {
    return ((a)&&(a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in *)a)->sin_addr.s_addr) : 0;
 }
-#endif
 
 // convert a numeric IP address into its string representation
 static void Inet_NtoA(uint32 addr, char * ipbuf)
