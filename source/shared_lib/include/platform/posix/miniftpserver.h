@@ -38,6 +38,7 @@ protected:
 public:
 
     FTPServerThread(std::pair<string,string> mapsPath, int portNumber);
+    ~FTPServerThread();
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
