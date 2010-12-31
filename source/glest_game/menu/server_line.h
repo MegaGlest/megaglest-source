@@ -29,7 +29,6 @@ class ServerLine {
 private:
 
 	MasterServerInfo masterServerInfo;
-	int index;
 	int lineHeight;
 	int baseY;
 	GraphicButton selectButton;
@@ -59,10 +58,10 @@ public:
 	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY, int lineHeight, const char *containerName);
 	virtual ~ServerLine();
 	MasterServerInfo *getMasterServerInfo() {return &masterServerInfo;}
-	const int getIndex() const	{return index;}
 	const int getLineHeight() const	{return lineHeight;}
 	bool buttonMouseClick(int x, int y);
 	bool buttonMouseMove(int x, int y);
+	void setY(int y);
 	//void setIndex(int value);
 	void render();
 

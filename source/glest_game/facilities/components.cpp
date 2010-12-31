@@ -511,4 +511,109 @@ bool GraphicCheckBox::mouseClick(int x, int y){
     return result;
 }
 
+// =====================================================
+//	class GraphicScrollBar
+// =====================================================
+
+const int GraphicScrollBar::defThickness=20;
+const int GraphicScrollBar::defLength= 200;
+
+void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickness){
+	GraphicComponent::init(x, y, horizontal?length:thickness,horizontal?thickness:length );
+	this->horizontal=horizontal;
+	this->elementCount=1;
+	this->visibleSize=1;
+	this->visibleStart=0;
+	int visibleCompPosStart=0;
+	int visibleCompPosEnd=length;
+	lighted= false;
+}
+
+bool GraphicScrollBar::mouseDown(int x, int y) {
+	if(getVisible() && getEnabled() && getEditable())
+	{
+		if(mouseMove(x,y))
+		{
+			if( elementCount>visibleSize) {
+				int pos;
+				if(horizontal){
+					pos=x-this->x;
+				}
+				else {
+					// invert the clicked point ( y is from bottom to top normally )
+					pos=getLength()-(y-this->y);
+				}
+				float partSize=(float)getLength()/(float)elementCount;
+				float visiblePartSize=partSize*(float)visibleSize;
+				float startPos=((float)pos)-visiblePartSize/2;
+
+				visibleStart=startPos/partSize;
+				setVisibleStart(visibleStart);
+
+			}
+		}
+	}
+	return false;
+}
+
+void GraphicScrollBar::setVisibleStart(int vs){
+	visibleStart=vs;
+
+	if(visibleStart>elementCount-visibleSize) {
+		visibleStart=elementCount-visibleSize;
+	}
+	if(visibleStart<0) {
+		visibleStart=0;
+	}
+	float partSize=(float)getLength()/(float)elementCount;
+	visibleCompPosStart=visibleStart*partSize;
+	visibleCompPosEnd=visibleStart*partSize+visibleSize*partSize;
+	if(visibleCompPosEnd>getLength()) {
+		visibleCompPosEnd=getLength();
+	}
+	if(!horizontal) {
+		// invert the display ( y is from bottom to top normally )
+		visibleCompPosStart=getLength()-visibleCompPosStart;
+		visibleCompPosEnd=getLength()-visibleCompPosEnd;
+	}
+}
+
+void GraphicScrollBar::setElementCount(int elementCount){
+	this->elementCount=elementCount;
+	setVisibleStart(getVisibleStart());
+}
+
+void GraphicScrollBar::setVisibleSize(int visibleSize){
+	this->visibleSize=visibleSize;
+	setVisibleStart(getVisibleStart());
+}
+
+
+bool GraphicScrollBar::mouseClick(int x, int y){
+	bool result=GraphicComponent::mouseClick( x,  y);
+	if(result)
+		mouseDown( x,  y);
+    return result;
+}
+
+
+bool GraphicScrollBar::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	bool b= GraphicComponent::mouseMove(x, y);
+    lighted= b;
+    return b;
+}
+
+int GraphicScrollBar::getLength() {
+	return horizontal?getW():getH();
+}
+
+int GraphicScrollBar::getThickness() {
+	return horizontal?getH():getW();
+}
+
+
 }}//end namespace

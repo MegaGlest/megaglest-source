@@ -76,9 +76,12 @@ private:
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
 	ServerLines serverLines;
+	std::string serverInfoString;
 	int serverLinesToRender;
 	int serverLinesYBase;
 	int serverLinesLineHeight;
+	GraphicScrollBar userScrollBar;
+	GraphicScrollBar serverScrollBar;
 	UserButtons userButtons;
 	UserButtons userButtonsToRemove;
 	int userButtonsToRender;
@@ -130,6 +133,7 @@ private:
 	void clearServerLines();
 	void clearUserButtons();
 	void updateServerInfo();
+	void rebuildServerLines(const string &serverInfo);
 	void cleanup();
 	virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count);
 

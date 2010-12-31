@@ -1442,6 +1442,137 @@ void Renderer::renderLine(const GraphicLine *line) {
     glPopAttrib();
 }
 
+void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
+	if(sb->getVisible() == false) {
+		return;
+	}
+
+    int x= sb->getX();
+    int y= sb->getY();
+    int h= sb->getH();
+    int w= sb->getW();
+
+	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+	/////////////////////
+	//background
+	////////////////////
+	CoreData &coreData= CoreData::getInstance();
+	Texture2D *backTexture= coreData.getHorizontalLineTexture();
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+
+	glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(x, y);
+
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(x, y+h);
+
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(x+w, y);
+
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x+w, y+h);
+
+	glEnd();
+
+	////////////////////
+	// selectBlock
+	////////////////////
+
+    x= sb->getX();
+    y= sb->getY();
+    h= sb->getH();
+    w= sb->getW();
+
+    if( sb->getHorizontal()) {
+    	x=x+sb->getVisibleCompPosStart();
+    	w=sb->getVisibleCompPosEnd()-sb->getVisibleCompPosStart();
+    }
+    else {
+    	y=y+sb->getVisibleCompPosStart();
+    	h=sb->getVisibleCompPosEnd()-sb->getVisibleCompPosStart();
+    }
+
+	Texture2D *selectTexture= coreData.getButtonBigTexture();
+
+	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(selectTexture)->getHandle());
+
+	//button
+	Vec4f fontColor;
+	//if(game!=NULL){
+	//	fontColor=game->getGui()->getDisplay()->getColor();
+	//	fontColor.w = GraphicComponent::getFade();
+	//}
+	//else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	//}
+
+	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	Vec4f color= fontColor;
+	glColor4fv(color.ptr());
+
+	glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(x, y);
+
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(x, y+h);
+
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(x+w, y);
+
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x+w, y+h);
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	//lighting
+	float anim= GraphicComponent::getAnim();
+	if(anim>0.5f) anim= 1.f-anim;
+
+	if(sb->getLighted() && sb->getEditable()){
+		const int lightSize= 0;
+		const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
+		const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
+
+		glBegin(GL_TRIANGLE_FAN);
+
+		glColor4fv(color2.ptr());
+		glVertex2f(x+w/2, y+h/2);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y-lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y-lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x+w+lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y+h+lightSize);
+
+		glColor4fv(color1.ptr());
+		glVertex2f(x-lightSize, y-lightSize);
+
+		glEnd();
+	}
+
+    glPopAttrib();
+}
+
 void Renderer::renderListBox(const GraphicListBox *listBox) {
 	if(listBox->getVisible() == false) {
 		return;

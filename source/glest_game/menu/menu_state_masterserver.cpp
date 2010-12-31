@@ -46,6 +46,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	containerName = "MasterServer";
 	updateFromMasterserverThread = NULL;
 	ircClient = NULL;
+	serverInfoString="empty";
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
@@ -55,19 +56,33 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
 	consoleIRC.setLineHeight(18);
 
-	serverLinesToRender=9;
+	serverLinesToRender=8;
 	serverLinesLineHeight=25;
 	serverLinesYBase=680;
 
-	userButtonsYBase=serverLinesYBase-(serverLinesToRender+2)*serverLinesLineHeight;
 	userButtonsHeight=20;
 	userButtonsWidth=150;
 	userButtonsLineHeight=userButtonsHeight+2;
+	userButtonsYBase=serverLinesYBase-(serverLinesToRender)*serverLinesLineHeight-90;
 	userButtonsToRender=userButtonsYBase/userButtonsLineHeight;
 	userButtonsXBase=1000-userButtonsWidth;
 
-	lines[0].init(0, userButtonsYBase+serverLinesLineHeight);
-	lines[1].init(userButtonsXBase-5,0,5,userButtonsYBase+userButtonsLineHeight);
+	userScrollBar.init(1000-20,0,false,200,20);
+	userScrollBar.setLength(userButtonsYBase+userButtonsLineHeight);
+	userScrollBar.setElementCount(0);
+	userScrollBar.setVisibleSize(userButtonsToRender);
+	userScrollBar.setVisibleStart(0);
+
+	userButtonsXBase=1000-userButtonsWidth-userScrollBar.getW();
+
+	serverScrollBar.init(1000-20,serverLinesYBase-serverLinesLineHeight*(serverLinesToRender-1),false,200,20);
+	serverScrollBar.setLength(serverLinesLineHeight*serverLinesToRender);
+	serverScrollBar.setElementCount(0);
+	serverScrollBar.setVisibleSize(serverLinesToRender);
+	serverScrollBar.setVisibleStart(0);
+
+	lines[0].init(0, userButtonsYBase+userButtonsLineHeight+serverLinesLineHeight);
+	lines[1].init(userButtonsXBase-5,0,5,userButtonsYBase+2*userButtonsLineHeight);
 	lines[1].setHorizontal(false);
 
 	autoRefreshTime=0;
@@ -129,18 +144,18 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 //	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
 
 	//game info:
-	i+=130;
+	i+=80;
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel");
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.get("MGGameTitle"));
 
-	i+=210;
+	i+=200;
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(lang.get("MGGameIP"));
 
 	//game setup info:
-	i+=100;
+	i+=120;
 	techLabel.registerGraphicComponent(containerName,"techLabel");
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(lang.get("TechTree"));
@@ -199,7 +214,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
 
 	ircOnlinePeopleLabel.registerGraphicComponent(containerName,"ircOnlinePeopleLabel");
-	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase);
+	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight);
 	ircOnlinePeopleLabel.setText("IRC People Online:");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -364,6 +379,16 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
+	else if(userScrollBar.mouseClick(x, y)){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			soundRenderer.playFx(coreData.getClickSoundB());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    }
+	else if(serverScrollBar.mouseClick(x, y)){
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			soundRenderer.playFx(coreData.getClickSoundB());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    }
 	else if(buttonRefresh.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -440,34 +465,36 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else {
     	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
     	bool clicked=false;
-	    for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
-	    	if(serverLines[i]->buttonMouseClick(x, y)) {
-	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				clicked=true;
-	    		soundRenderer.playFx(coreData.getClickSoundB());
-	    		string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
-	    		int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
-	    		connectToServer(connectServerIP,connectServerPort);
-	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    		safeMutex.ReleaseLock();
+    	if(!clicked && serverScrollBar.getElementCount()!=0){
+    		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
+				if(serverLines[i]->buttonMouseClick(x, y)) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					clicked=true;
+					soundRenderer.playFx(coreData.getClickSoundB());
+					string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
+					int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
+					connectToServer(connectServerIP,connectServerPort);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					safeMutex.ReleaseLock();
 
-	    		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-	    		masterServerThreadInDeletion = true;
-				if(updateFromMasterserverThread != NULL &&
-					updateFromMasterserverThread->shutdownAndWait() == true) {
-					delete updateFromMasterserverThread;
+					MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
+					masterServerThreadInDeletion = true;
+					if(updateFromMasterserverThread != NULL &&
+						updateFromMasterserverThread->shutdownAndWait() == true) {
+						delete updateFromMasterserverThread;
+					}
+					updateFromMasterserverThread = NULL;
+					masterServerThreadInDeletion = false;
+					safeMutexPtr.ReleaseLock();
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
+					break;
 				}
-	    		updateFromMasterserverThread = NULL;
-	    		masterServerThreadInDeletion = false;
-	    		safeMutexPtr.ReleaseLock();
-
-	    		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
-	    		break;
-	    	}
-	    }
-	    if(!clicked){
-		    for(int i = 0; i < userButtons.size(); ++i) {
+    		}
+    	}
+	    if(!clicked && userScrollBar.getElementCount()!=0){
+	    	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
 	       		if(userButtons[i]->mouseClick(x, y)) {
 	       			clicked=true;
 	     			if(!chatManager.getEditEnabled())
@@ -495,13 +522,22 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     buttonRefresh.mouseMove(x, y);
     buttonReturn.mouseMove(x, y);
     buttonCreateGame.mouseMove(x, y);
+    if(ms->get(mbLeft)){
+    	userScrollBar.mouseDown(x, y);
+    }
+    else
+    	userScrollBar.mouseMove(x, y);
     listBoxAutoRefresh.mouseMove(x, y);
 
-    for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
-    	serverLines[i]->buttonMouseMove(x, y);
+    if(serverScrollBar.getElementCount()!=0 ) {
+    	for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
+    		serverLines[i]->buttonMouseMove(x, y);
+    	}
     }
-    for(int i = 0; i < userButtons.size(); ++i) {
-       	userButtons[i]->mouseMove(x, y);
+    if(userScrollBar.getElementCount()!=0 ) {
+    	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
+    		userButtons[i]->mouseMove(x, y);
+    	}
     }
 
 }
@@ -554,9 +590,13 @@ void MenuStateMasterserver::render(){
 
         const Vec4f titleLabelColorList = YELLOW;
 
-		for(int i=0; i<serverLines.size() && i<serverLinesToRender; ++i){
-	    	serverLines[i]->render();
-	    }
+		if(serverScrollBar.getElementCount()!=0 ) {
+			for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
+				serverLines[i]->render();
+			}
+		}
+		renderer.renderScrollBar(&serverScrollBar);
+
 	    for(int i=0; i<sizeof(lines) / sizeof(lines[0]); ++i){
 	    	renderer.renderLine(&lines[i]);
 	    }
@@ -566,9 +606,12 @@ void MenuStateMasterserver::render(){
 		renderer.renderButton(&buttonCreateGame);
 		renderer.renderListBox(&listBoxAutoRefresh);
 
-		for(int i = 0; i < userButtons.size(); ++i) {
-        	renderer.renderButton(userButtons[i]);
-        }
+		if(userScrollBar.getElementCount()!=0 ) {
+			for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
+				renderer.renderButton(userButtons[i]);
+			}
+		}
+		renderer.renderScrollBar(&userScrollBar);
 
    		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&consoleIRC,true,true);
@@ -585,8 +628,7 @@ void MenuStateMasterserver::update() {
 	}
 
 	// calculate button linepos:
-
-	setButtonLinePosition(serverLinesYBase-serverLinesToRender*serverLinesLineHeight);
+	setButtonLinePosition(serverLinesYBase-(serverLinesToRender)*serverLinesLineHeight-30);
 
 	if(playServerFoundSound)
 	{
@@ -608,6 +650,7 @@ void MenuStateMasterserver::update() {
     consoleIRC.update();
 
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    safeMutexIRCPtr.Lock();
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
         bool isNew=false;
@@ -628,15 +671,34 @@ void MenuStateMasterserver::update() {
 	        clearUserButtons();
 	        for(int i = 0; i < nickList.size(); ++i) {
 	                GraphicButton *button=new GraphicButton();
-	                button->init(userButtonsXBase,userButtonsYBase-userButtonsLineHeight*(i+1),userButtonsWidth,userButtonsHeight);
+	                button->init(userButtonsXBase,userButtonsYBase,userButtonsWidth,userButtonsHeight);
+	                //button->init(userButtonsXBase,userButtonsYBase-userButtonsLineHeight*i,userButtonsWidth,userButtonsHeight);
 					button->setFont(CoreData::getInstance().getDisplayFontSmall());
 					button->setText(nickList[i]);
 	                userButtons.push_back(button);
 	        }
+	        userScrollBar.setElementCount(userButtons.size());
 	        oldNickList=nickList;
+        }
+        if(userScrollBar.getElementCount()!=0 ) {
+        	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
+        		userButtons[i]->setY(userButtonsYBase-userButtonsLineHeight*(i-userScrollBar.getVisibleStart()));
+        	}
         }
     }
     safeMutexIRCPtr.ReleaseLock();
+    if(serverInfoString!="empty")
+    {
+    	rebuildServerLines(serverInfoString);
+    	serverInfoString="empty";
+    }
+
+    serverScrollBar.setElementCount(serverLines.size());
+	if(serverScrollBar.getElementCount()!=0 ) {
+		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
+			serverLines[i]->setY(serverLinesYBase-serverLinesLineHeight*(i-serverScrollBar.getVisibleStart()));
+		}
+	}
 
 	if(threadedErrorMsg != "") {
 		std::string sError = threadedErrorMsg;
@@ -686,8 +748,6 @@ void MenuStateMasterserver::updateServerInfo() {
 
 		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		needUpdateFromServer = false;
-		int numberOfOldServerLines=serverLines.size();
-		clearServerLines();
 		safeMutex.ReleaseLock(true);
 
 		if(announcementLoaded == false) {
@@ -758,77 +818,13 @@ void MenuStateMasterserver::updateServerInfo() {
         Lang &lang= Lang::getInstance();
         try {
             if(Config::getInstance().getString("Masterserver","") != "") {
-                std::string serverInfo = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
 
-                if(serverInfo != "") {
-                    std::vector<std::string> serverList;
-                    Tokenize(serverInfo,serverList,"\n");
-                    for(int i=0; i < serverList.size(); i++) {
-                        string &server = serverList[i];
-                        std::vector<std::string> serverEntities;
-                        Tokenize(server,serverEntities,"|");
-
-                        const int MIN_FIELDS_EXPECTED = 12;
-                        if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
-                            labelTitle.setText(lang.get("AvailableServers"));
-
-                            if(Config::getInstance().getString("Masterserver","") == "") {
-                                labelTitle.setText("*** " + lang.get("AvailableServers"));
-                            }
-
-                            MasterServerInfo *masterServerInfo=new MasterServerInfo();
-
-                            //general info:
-                            masterServerInfo->setGlestVersion(serverEntities[0]);
-                            masterServerInfo->setPlatform(serverEntities[1]);
-                            masterServerInfo->setBinaryCompileDate(serverEntities[2]);
-
-                            //game info:
-                            masterServerInfo->setServerTitle(serverEntities[3]);
-                            masterServerInfo->setIpAddress(serverEntities[4]);
-
-                            //game setup info:
-                            masterServerInfo->setTech(serverEntities[5]);
-                            masterServerInfo->setMap(serverEntities[6]);
-                            masterServerInfo->setTileset(serverEntities[7]);
-                            masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
-                            masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
-                            masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
-                            masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
-
-                            //printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
-                            //float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
-                            //printf("Ping time = %f\n",pingTime);
-                            char szBuf[1024]="";
-                            //sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
-                            sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
-                            masterServerInfo->setServerTitle(szBuf);
-
-                            safeMutexPtr.Lock();
-                            if( masterServerThreadInDeletion == true ||
-                                updateFromMasterserverThread == NULL ||
-                                updateFromMasterserverThread->getQuitStatus() == true) {
-                                safeMutexPtr.ReleaseLock();
-                                return;
-                            }
-                            safeMutexPtr.ReleaseLock(true);
-
-                            safeMutex.Lock();
-                            serverLines.push_back(new ServerLine( masterServerInfo, i, serverLinesYBase, serverLinesLineHeight, containerName));
-                            safeMutex.ReleaseLock(true);
-                        }
-                        else {
-                            Lang &lang= Lang::getInstance();
-                            labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
-
-                            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
-                        }
-                    }
-                }
+                std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
+                serverInfoString=localServerInfoString;
             }
         }
 		catch(const exception &ex) {
-		    labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + ex.what() + "]");
+            serverInfoString=ex.what();
 		    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
 
@@ -839,17 +835,84 @@ void MenuStateMasterserver::updateServerInfo() {
 			return;
 		}
 		safeMutexPtr.ReleaseLock();
-
-		safeMutex.Lock();
-		if(serverLines.size()>numberOfOldServerLines) {
-			playServerFoundSound=true;
-		}
-		safeMutex.ReleaseLock();
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		threadedErrorMsg = e.what();
+	}
+}
+
+
+void MenuStateMasterserver::rebuildServerLines(const string &serverInfo)
+{
+	int numberOfOldServerLines=serverLines.size();
+	clearServerLines();
+    Lang &lang= Lang::getInstance();
+    try {
+		if(serverInfo != "") {
+			std::vector<std::string> serverList;
+			Tokenize(serverInfo,serverList,"\n");
+			for(int i=0; i < serverList.size(); i++) {
+				string &server = serverList[i];
+				std::vector<std::string> serverEntities;
+				Tokenize(server,serverEntities,"|");
+
+				const int MIN_FIELDS_EXPECTED = 12;
+				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+					labelTitle.setText(lang.get("AvailableServers"));
+
+					if(Config::getInstance().getString("Masterserver","") == "") {
+						labelTitle.setText("*** " + lang.get("AvailableServers"));
+					}
+
+					MasterServerInfo *masterServerInfo=new MasterServerInfo();
+
+					//general info:
+					masterServerInfo->setGlestVersion(serverEntities[0]);
+					masterServerInfo->setPlatform(serverEntities[1]);
+					masterServerInfo->setBinaryCompileDate(serverEntities[2]);
+
+					//game info:
+					masterServerInfo->setServerTitle(serverEntities[3]);
+					masterServerInfo->setIpAddress(serverEntities[4]);
+
+					//game setup info:
+					masterServerInfo->setTech(serverEntities[5]);
+					masterServerInfo->setMap(serverEntities[6]);
+					masterServerInfo->setTileset(serverEntities[7]);
+					masterServerInfo->setActiveSlots(strToInt(serverEntities[8]));
+					masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
+					masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
+					masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
+
+					//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
+					//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
+					//printf("Ping time = %f\n",pingTime);
+					char szBuf[1024]="";
+					//sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
+					sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
+					masterServerInfo->setServerTitle(szBuf);
+
+					serverLines.push_back(new ServerLine( masterServerInfo, i, serverLinesYBase, serverLinesLineHeight, containerName));
+				}
+				else {
+					Lang &lang= Lang::getInstance();
+					labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
+
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
+		}
+
+    }
+	catch(const exception &ex) {
+	    labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + ex.what() + "]");
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+	}
+
+	if(serverLines.size()>numberOfOldServerLines) {
+		playServerFoundSound=true;
 	}
 }
 
