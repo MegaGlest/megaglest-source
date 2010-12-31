@@ -401,9 +401,10 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 	cleanupFactionTexture();
 
 	if(ftpClientThread != NULL) {
-	    ftpClientThread->shutdownAndWait();
-	    delete ftpClientThread;
-	    ftpClientThread = NULL;
+	    if(ftpClientThread->shutdownAndWait() == true) {
+            delete ftpClientThread;
+            ftpClientThread = NULL;
+	    }
 	}
 }
 
