@@ -26,7 +26,6 @@ namespace Shared { namespace PlatformCommon {
 // =====================================================
 //	class FTPServerThread
 // =====================================================
-uint32 FindExternalFTPServerIp(uint32 clientIp);
 
 class FTPServerThread : public BaseThread
 {

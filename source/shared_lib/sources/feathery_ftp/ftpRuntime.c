@@ -36,6 +36,11 @@
  */
 LOCAL socket_t server;
 
+void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, ftpRemoveUPNPPortForwardType cb3) {
+	ftpFindExternalFTPServerIp	= cb1;
+	ftpAddUPNPPortForward		= cb2;
+	ftpRemoveUPNPPortForward	= cb3;
+}
 
 /**
  *  @brief Initializes and starts the server
@@ -47,7 +52,6 @@ LOCAL socket_t server;
 int ftpStart(int portNumber)
 {
 	server = -1;														// set server socket to invalid value
-
 
 if(VERBOSE_MODE_ENABLED) printf("Feathery FTP-Server\n");
 
