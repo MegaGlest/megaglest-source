@@ -60,9 +60,22 @@ typedef uint16_t port_t;
 #define TRUE 1
 #endif
 
-ip_t (*ftpFindExternalFTPServerIp)(ip_t clientIp);
-void (*ftpAddUPNPPortForward)(int internalPort, int externalPort);
-void (*ftpRemoveUPNPPortForward)(int internalPort, int externalPort);
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 int VERBOSE_MODE_ENABLED;
+
+typedef ip_t (*ftpFindExternalFTPServerIpType)(ip_t clientIp);
+typedef void (*ftpAddUPNPPortForwardType)(int internalPort, int externalPort);
+typedef void (*ftpRemoveUPNPPortForwardType)(int internalPort, int externalPort);
+
+ftpFindExternalFTPServerIpType	ftpFindExternalFTPServerIp;
+ftpAddUPNPPortForwardType		ftpAddUPNPPortForward;
+ftpRemoveUPNPPortForwardType	ftpRemoveUPNPPortForward;
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif

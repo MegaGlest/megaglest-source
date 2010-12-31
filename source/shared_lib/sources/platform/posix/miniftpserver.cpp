@@ -28,8 +28,8 @@ namespace Shared { namespace PlatformCommon {
 
 static std::map<uint32,uint32> clientToFTPServerList;
 
-uint32 FindExternalFTPServerIp(uint32 clientIp) {
-    uint32 result = clientToFTPServerList[clientIp];
+ip_t FindExternalFTPServerIp(ip_t clientIp) {
+    ip_t result = clientToFTPServerList[clientIp];
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
 
@@ -40,9 +40,7 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumbe
     this->mapsPath              = mapsPath;
     this->portNumber            = portNumber;
 
-    ftpAddUPNPPortForward       = &UPNP_Tools::AddUPNPPortForward;
-    ftpRemoveUPNPPortForward    = &UPNP_Tools::RemoveUPNPPortForward;
-    ftpFindExternalFTPServerIp  = &FindExternalFTPServerIp;
+	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward);
     VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
 }
 

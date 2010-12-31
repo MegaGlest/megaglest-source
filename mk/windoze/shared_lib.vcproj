@@ -251,38 +251,110 @@
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpAccount.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpCmds.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpLib.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpMessages.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpRuntime.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpServer.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpSession.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpTargetPosix.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\feathery_ftp\ftpTargetWin32.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp"
@@ -635,6 +707,26 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\shared_lib\include\feathery_ftp\ftp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\feathery_ftp\ftpConfig.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\feathery_ftp\ftpIfc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\feathery_ftp\ftpMessages.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\include\feathery_ftp\ftpTypes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\shared_lib\include\streflop\IntegerTypes.h"
 				>
 			</File>
@@ -922,7 +1014,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\shared_lib\include\platform\posix\ircclient.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\shared_lib\include\platform\common\math_wrapper.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\posix\miniftpclient.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\shared_lib\include\platform\posix\miniftpserver.h"
 					>
 				</File>
 				<File
@@ -955,10 +1059,6 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\include\platform\sdl\thread.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\platform\miniupnpc\updateminiupnpcstrings.sh"
 					>
 				</File>
 				<File
