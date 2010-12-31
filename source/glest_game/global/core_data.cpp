@@ -116,13 +116,6 @@ void CoreData::load() {
 	checkedCheckBoxTexture->setForceCompressionDisabled(true);
 	checkedCheckBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox_checked.tga");
 
-	Texture2D *horizontalLineTexture;
-	Texture2D *verticalLineTexture;
-	Texture2D *checkBoxTexture;
-	Texture2D *checkedCeckBoxTextur;
-
-
-
 	//display font
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
