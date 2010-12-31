@@ -78,9 +78,7 @@ int ftpSendMsg(msgmode_E mode, int sessionId, int ret, const char* msg)
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, "\r\n", 2);
 	}
 
-	#if DBG_LOG
-	printf("%02d <-- %s%s\n", sessionId, buf, msg);
-	#endif
+if(VERBOSE_MODE_ENABLED) printf("%02d <-- %s%s\n", sessionId, buf, msg);
 
 	return	sentlen;
 }
@@ -282,18 +280,15 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
     	ftpGetLocalTime(&currTime);
 		ftpSendMsg(MSG_NORMAL, sessionId, 150, ftpMsg010);
 
-#if DBG_LOG
-		printf("about to read dir contents [%s]\n", path);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("about to read dir contents [%s]\n", path);
 
         haveAnySuccessfulFiles = 0;
 		while((dirEntry = ftpReadDir(dir)) != NULL)
 		{
 		    const char * realPath = ftpGetRealPath(sessionId, dirEntry, FALSE);
 		    int statResult = ftpStat(realPath, &fileInfo);
-#if DBG_LOG
-		printf("ftpGetRealPath() returned [%s] stat() = %d\n", realPath, statResult);
-#endif
+
+if(VERBOSE_MODE_ENABLED) printf("ftpGetRealPath() returned [%s] stat() = %d\n", realPath, statResult);
 
 			if(statResult == 0)
 			{
@@ -401,9 +396,7 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 	}
 	else
 	{
-#if DBG_LOG
-		printf("opendir [%s] returned errno: %#x\n", path,errno);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("opendir [%s] returned errno: %#x\n", path,errno);
 
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg038);
 	}
@@ -491,14 +484,10 @@ LOCAL int ftpCmdRetr(int sessionId, const char* args, int len)
 	void *fp;
 	int statResult = 0;
 
-#if DBG_LOG
-	printf("ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
 
     statResult = ftpStat(realPath, &fileInfo);
-#if DBG_LOG
-	printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
 
    	if(statResult || (fileInfo.type != TYPE_FILE)) // file accessible?
     {
@@ -682,18 +671,14 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
     }
     ftpGetSession(sessionId)->passiveDataSocket = s;
 
-#if DBG_LOG
-    printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p\n",
+if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p\n",
            sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,ftpAddUPNPPortForward,ftpRemoveUPNPPortForward);
-#endif
 
     if(ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) != 0)
     {
         ftpGetSession(sessionId)->remoteFTPServerPassivePort = port;
         if(ftpAddUPNPPortForward) {
-#if DBG_LOG
-            printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
 
             ftpAddUPNPPortForward(port, port);
         }
@@ -709,9 +694,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
                 (port >> 8) & 0xFF,
                 port & 0xFF);
 
-#if DBG_LOG
-    printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sessionId, str);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sessionId, str);
 
     }
     else
@@ -965,9 +948,7 @@ void ftpParseCmd(int sessionId)
 			pSession->rxBuf[c] = toupper(pSession->rxBuf[c]);
 		}
 
-		#if DBG_LOG
-		printf("%02d --> %s\n", sessionId, pSession->rxBuf);
-		#endif
+if(VERBOSE_MODE_ENABLED) printf("%02d --> %s\n", sessionId, pSession->rxBuf);
 
 		if(execFtpCmd(sessionId, pSession->rxBuf, len - 2) == -1)
 		{
@@ -980,9 +961,8 @@ void ftpParseCmd(int sessionId)
 	{
 		pSession->rxBufWriteIdx = 0;
 		ftpSendMsg(MSG_NORMAL, sessionId, 500, ftpMsg035);
-		#if DBG_LOG
-		printf("Receive buffer overflow. Received data discarded.\n");
-		#endif
+
+if(VERBOSE_MODE_ENABLED) printf("Receive buffer overflow. Received data discarded.\n");
 	}
 }
 

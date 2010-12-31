@@ -63,6 +63,6 @@ typedef uint16_t port_t;
 ip_t (*ftpFindExternalFTPServerIp)(ip_t clientIp);
 void (*ftpAddUPNPPortForward)(int internalPort, int externalPort);
 void (*ftpRemoveUPNPPortForward)(int internalPort, int externalPort);
-
+int VERBOSE_MODE_ENABLED;
 
 #endif

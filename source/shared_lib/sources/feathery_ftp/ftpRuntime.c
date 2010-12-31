@@ -48,28 +48,23 @@ int ftpStart(int portNumber)
 {
 	server = -1;														// set server socket to invalid value
 
-	#if DBG_LOG
-	printf("Feathery FTP-Server\n");
-	#endif
+
+if(VERBOSE_MODE_ENABLED) printf("Feathery FTP-Server\n");
 
 	ftpArchInit();
-	#if DBG_LOG
-	printf(". Creating server socket");
-	#endif
+
+if(VERBOSE_MODE_ENABLED) printf("Creating server socket");
 
 	server = ftpCreateServerSocket(portNumber);									// create main listener socket
 	if(server < 0)
 	{
-		#if DBG_LOG
-		printf("\t\terror\n");
-		#endif
+if(VERBOSE_MODE_ENABLED) printf("\t\terror\n");
+
 		return -1;
 	}
 
-	#if DBG_LOG
-	printf("\t\tok\n");
-	printf("Server successfully startet\n");
-	#endif
+if(VERBOSE_MODE_ENABLED) printf("\t\tok\n");
+if(VERBOSE_MODE_ENABLED) printf("Server successfully started\n");
 
 	ftpTrackSocket(server);												// add socket to "watchlist"
 	return 0;
@@ -143,9 +138,8 @@ void ftpExecute(void)
 				}
 				else
 				{
-					#if DBG_LOG
-					printf("Connection refused; Session limit reached.\n");
-					#endif
+if(VERBOSE_MODE_ENABLED) printf("Connection refused; Session limit reached.\n");
+
 					ftpCloseSocket(clientSocket);
 				}
 			}

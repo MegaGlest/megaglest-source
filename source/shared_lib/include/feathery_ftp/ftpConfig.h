@@ -25,22 +25,22 @@
 /**
  * @brief max. possible simultaneous FTP client connections
  */
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 16
 
 /**
  * @brief max. possible user accounts
  */
-#define MAX_USERS		10
+#define MAX_USERS		16
 
 /**
  * @brief max. length of a user account name
  */
-#define MAXLEN_USERNAME	10
+#define MAXLEN_USERNAME	25
 
 /**
  * @brief max. length of a user account password
  */
-#define MAXLEN_PASSWORD	10
+#define MAXLEN_PASSWORD	25
 
 /**
  * @brief session timeout in seconds
@@ -76,7 +76,7 @@
 /**
  * @brief set to 1 to activate debug messages on stdout
  */
-#define DBG_LOG			1
+//#define DBG_LOG			1
 
 /**
  * @brief set to 1 if target-plattform supports ANSI-C file-IO functions

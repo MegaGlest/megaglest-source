@@ -51,8 +51,11 @@ using namespace Shared::PlatformCommon;
 namespace Shared{ namespace Platform {
 
 
-void AddUPNPPortForward(int internalPort, int externalPort);
-void RemoveUPNPPortForward(int internalPort, int externalPort);
+// The callback Interface used by the UPNP discovery process
+class UPNPInitInterface {
+public:
+	virtual void UPNPInitStatus(bool result) = 0;
+};
 
 //
 // This interface describes the methods a callback object must implement
@@ -157,8 +160,6 @@ public:
 
 	uint32 getConnectedIPAddress(string IP="");
 
-	static bool isUPNP;
-
 protected:
 	static void throwException(string str);
 };
@@ -204,7 +205,21 @@ public:
 // =====================================================
 //	class ServerSocket
 // =====================================================
-class ServerSocket: public Socket{
+class ServerSocket: public Socket, public UPNPInitInterface {
+protected:
+
+	bool portBound;
+	int boundPort;
+
+	static int externalPort;
+	static int ftpServerPort;
+	SDL_Thread *upnpdiscoverThread;
+
+    virtual void UPNPInitStatus(bool result);
+	BroadCastSocketThread *broadCastThread;
+	void startBroadCastThread();
+	bool isBroadCastThreadRunning();
+
 public:
 	ServerSocket();
 	virtual ~ServerSocket();
@@ -226,27 +241,28 @@ public:
 	virtual void disconnectSocket();
 
     void NETdiscoverUPnPDevices();
+};
 
+// =====================================================
+//	class UPNP_Tools
+// =====================================================
+class UPNP_Tools {
+
+public:
+
+    static bool isUPNP;
     static bool enabledUPNP;
-    static bool upnp_add_redirect(int ports[2]);
-    static void upnp_rem_redirect(int ext_port);
-
-protected:
-
-	bool portBound;
-	int boundPort;
-
-	static int externalPort;
-	static int ftpServerPort;
-
-	BroadCastSocketThread *broadCastThread;
-	void startBroadCastThread();
-	bool isBroadCastThreadRunning();
 
     static int upnp_init(void *param);
 
-    void NETaddRedirects(int ports[4]);
-    void NETremRedirects(int ext_port);
+    static bool upnp_add_redirect(int ports[2]);
+    static void upnp_rem_redirect(int ext_port);
+
+    static void NETaddRedirects(int ports[4]);
+    static void NETremRedirects(int ext_port);
+
+    static void AddUPNPPortForward(int internalPort, int externalPort);
+    static void RemoveUPNPPortForward(int internalPort, int externalPort);
 };
 
 }}//end namespace
