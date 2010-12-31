@@ -34,7 +34,6 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	this->containerName = containerName;
 	Lang &lang= Lang::getInstance();
 
-	index=lineIndex;
 	this->lineHeight=lineHeight;
 	int lineOffset = lineHeight * lineIndex;
 	masterServerInfo = *mServerInfo;
@@ -61,20 +60,20 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 //	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
 
 	//game info:
-	i+=130;
+	i+=80;
 	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,baseY-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
-	i+=210;
+	i+=200;
 	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,baseY-lineOffset);
 	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 
 	//game setup info:
-	i+=100;
+	i+=120;
 	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
 	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,baseY-lineOffset);
@@ -168,13 +167,39 @@ void ServerLine::render() {
 
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
-	renderer.renderLabel(&ipAddressLabel);
+	if(!gameFull.getEnabled()){
+		renderer.renderLabel(&ipAddressLabel);
+
+		//game setup info:
+		renderer.renderLabel(&techLabel);
+		renderer.renderLabel(&mapLabel);
+		renderer.renderLabel(&tilesetLabel);
+		renderer.renderLabel(&activeSlotsLabel);
+		renderer.renderLabel(&externalConnectPort);
+	}
+}
+
+void ServerLine::setY(int y) {
+	selectButton.setY(y);
+	gameFull.setY(y);
+
+	//general info:
+	glestVersionLabel.setY(y);
+	platformLabel.setY(y);
+	//binaryCompileDateLabel.setY(y);
+
+	//game info:
+	serverTitleLabel.setY(y);
+	ipAddressLabel.setY(y);
 
 	//game setup info:
-	renderer.renderLabel(&techLabel);
-	renderer.renderLabel(&mapLabel);
-	renderer.renderLabel(&tilesetLabel);
-	renderer.renderLabel(&activeSlotsLabel);
-	renderer.renderLabel(&externalConnectPort);
+	techLabel.setY(y);
+	mapLabel.setY(y);
+	tilesetLabel.setY(y);
+	activeSlotsLabel.setY(y);
+
+	externalConnectPort.setY(y);
+
 }
+
 }}//end namespace

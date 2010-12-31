@@ -83,6 +83,8 @@ public:
 
 	virtual void setX(int x)					{this->x= x;}
 	virtual void setY(int y)					{this->y= y;}
+	virtual void setW(int w)					{this->w= w;}
+	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
 	virtual void setFont(const Font2D *font)	{this->font= font;}
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
@@ -247,6 +249,54 @@ public:
 	void setLighted(bool lighted)	{this->lighted= lighted;}
 	virtual bool mouseMove(int x, int y);  
     virtual bool mouseClick(int x, int y);
+};
+
+// ===========================================================
+// 	class GraphicScrollBar
+// ===========================================================
+
+class GraphicScrollBar: public GraphicComponent {
+public:
+	static const int defLength;
+	static const int defThickness;
+
+private:
+	bool lighted;
+	bool horizontal;
+	int elementCount;
+	int visibleSize;
+	int visibleStart;
+
+	// position on component for renderer
+	int visibleCompPosStart;
+	int visibleCompPosEnd;
+
+public:
+	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
+	virtual bool mouseDown(int x, int y);
+	virtual bool mouseMove(int x, int y);
+	virtual bool mouseClick(int x, int y);
+
+
+	bool getHorizontal() const		{return horizontal;}
+	int getLength();
+	void setLength(int length)	{horizontal?setW(length):setH(length);}
+	int getThickness();
+
+
+	bool getLighted() const			{return lighted;}
+	void setLighted(bool lighted)	{this->lighted= lighted;}
+
+	int getElementCount() const		{return elementCount;}
+	void setElementCount(int elementCount);
+	int getVisibleSize() const		{return visibleSize;}
+	void setVisibleSize(int visibleSize);
+	int getVisibleStart() const		{return visibleStart;}
+	int getVisibleEnd() const		{return visibleStart+visibleSize>elementCount-1?elementCount-1: visibleStart+visibleSize-1;}
+	void setVisibleStart(int visibleStart);
+
+	int getVisibleCompPosStart() const		{return visibleCompPosStart;}
+	int getVisibleCompPosEnd() const		{return visibleCompPosEnd;}
 };
 
 }}//end namespace

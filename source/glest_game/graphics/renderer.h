@@ -328,6 +328,7 @@ public:
     void renderButton(const GraphicButton *button);
     void renderCheckBox(const GraphicCheckBox *box);
     void renderLine(const GraphicLine *line);
+    void renderScrollBar(const GraphicScrollBar *sb);
     void renderListBox(const GraphicListBox *listBox);
 	void renderMessageBox(const GraphicMessageBox *listBox);
 
