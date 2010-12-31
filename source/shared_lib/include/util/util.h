@@ -109,7 +109,7 @@ protected:
 	static string lockfilename;
 	static int lockFileCountIndex;
 
-	static std::map<DebugType,SystemFlagsType> debugLogFileList;
+	static std::map<DebugType,SystemFlagsType> *debugLogFileList;
 	static bool haveSpecialOutputCommandLineOption;
 public:
 
@@ -122,7 +122,7 @@ public:
 	~SystemFlags();
 
 	static void init(bool haveSpecialOutputCommandLineOption);
-	static SystemFlagsType & getSystemSettingType(DebugType type) { return debugLogFileList[type]; }
+	static SystemFlagsType & getSystemSettingType(DebugType type) { return (*debugLogFileList)[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1);
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);

@@ -39,7 +39,7 @@ using namespace Shared::PlatformCommon;
 namespace Shared{ namespace Util{
 
 // Init statics
-std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> SystemFlags::debugLogFileList;
+std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> *SystemFlags::debugLogFileList = NULL;
 int SystemFlags::lockFile				= -1;
 int SystemFlags::lockFileCountIndex		= -1;
 string SystemFlags::lockfilename		= "";
@@ -174,14 +174,17 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
     //printf("SystemFlags::init CALLED, SystemFlags::debugLogFileList.size() = %d\n",SystemFlags::debugLogFileList.size());
 
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
-	if(SystemFlags::debugLogFileList.size() == 0) {
-		SystemFlags::debugLogFileList[SystemFlags::debugSystem] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
-		SystemFlags::debugLogFileList[SystemFlags::debugNetwork] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
-		SystemFlags::debugLogFileList[SystemFlags::debugPerformance] 	= SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
-		SystemFlags::debugLogFileList[SystemFlags::debugWorldSynch]  	= SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
-		SystemFlags::debugLogFileList[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
-		SystemFlags::debugLogFileList[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
-		SystemFlags::debugLogFileList[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
+	//if(SystemFlags::debugLogFileList.size() == 0) {
+	if(SystemFlags::debugLogFileList == NULL) {
+		SystemFlags::debugLogFileList = new std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>();
+
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugSystem] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugNetwork] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugPerformance] 	= SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugWorldSynch]  	= SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
 	}
 
     if(threadLogger == NULL) {
@@ -247,16 +250,19 @@ void SystemFlags::Close() {
         threadLogger = NULL;
     }
 
-	if(SystemFlags::debugLogFileList.size() > 0) {
+	if(SystemFlags::debugLogFileList != NULL) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START Closing logfiles\n");
 		}
 
-		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
-			iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
+		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
+			iterMap != SystemFlags::debugLogFileList->end(); iterMap++) {
 			SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
 			currentDebugLog.Close();
 		}
+
+		delete SystemFlags::debugLogFileList;
+		SystemFlags::debugLogFileList = NULL;
 	}
 	if(SystemFlags::lockFile != -1) {
 #ifndef WIN32
@@ -273,7 +279,7 @@ void SystemFlags::Close() {
 		}
 	}
 
-	if(SystemFlags::debugLogFileList.size() > 0) {
+	if(SystemFlags::debugLogFileList != NULL) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END Closing logfiles\n");
 		}
@@ -281,10 +287,10 @@ void SystemFlags::Close() {
 }
 
 void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
-	if(SystemFlags::debugLogFileList.size() == 0) {
+	if(SystemFlags::debugLogFileList == NULL) {
 		SystemFlags::init(false);
 	}
-	SystemFlags::SystemFlagsType &currentDebugLog = SystemFlags::debugLogFileList[type];
+	SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
     if(currentDebugLog.enabled == false) {
         return;
     }
@@ -316,10 +322,10 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 
 void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugTime) {
-	if(SystemFlags::debugLogFileList.size() == 0) {
+	if(SystemFlags::debugLogFileList == NULL) {
 		SystemFlags::init(false);
 	}
-	SystemFlags::SystemFlagsType &currentDebugLog = SystemFlags::debugLogFileList[type];
+	SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
     if(currentDebugLog.enabled == false) {
         return;
     }
@@ -345,8 +351,8 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 
         	// If the file is already open (shared) by another debug type
         	// do not over-write the file but share the stream pointer
-        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList.begin();
-        		iterMap != SystemFlags::debugLogFileList.end(); iterMap++) {
+        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
+        		iterMap != SystemFlags::debugLogFileList->end(); iterMap++) {
         		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
 
         		if(	iterMap->first != type &&
