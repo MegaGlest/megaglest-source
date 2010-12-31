@@ -34,12 +34,25 @@ namespace Shared { namespace PlatformCommon {
 struct FtpFile {
   const char *filename;
   FILE *stream;
+  FTPClientThread *ftpServer;
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct FtpFile *out=(struct FtpFile *)stream;
-  if(out && out->stream == NULL) {
 
+  // Abort file xfer and delete partial file
+  if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
+    if(out->stream) {
+        fclose(out->stream);
+        out->stream = NULL;
+    }
+
+    unlink(out->filename);
+
+    return -1;
+  }
+
+  if(out && out->stream == NULL) {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",out->filename);
 
     /* open file for writing */
@@ -95,7 +108,8 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
 
     struct FtpFile ftpfile = {
         destFile.c_str(), /* name to store the file as if succesful */
-        NULL
+        NULL,
+        this
     };
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -139,11 +153,11 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
 
 void FTPClientThread::getMapFromServer(string mapFileName) {
     FTP_Client_ResultType result = getMapFromServer(mapFileName + ".mgm", "maps_custom", "mg_ftp_server");
-    if(result != ftp_crt_SUCCESS) {
+    if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
         result = getMapFromServer(mapFileName + ".gbm", "maps_custom", "mg_ftp_server");
-        if(result != ftp_crt_SUCCESS) {
+        if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
             result = getMapFromServer(mapFileName + ".mgm", "maps", "mg_ftp_server");
-            if(result != ftp_crt_SUCCESS) {
+            if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
                 result = getMapFromServer(mapFileName + ".gbm", "maps", "mg_ftp_server");
             }
         }
@@ -152,107 +166,6 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     if(this->pCBObject != NULL) {
        this->pCBObject->FTPClient_CallbackEvent(mapFileName,result);
     }
-
-/*
-    CURLcode res;
-
-    FTP_Client_ResultType result = ftp_crt_FAIL;
-
-    string destFileExt = "";
-    string destFile = this->mapsPath.second;
-
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
-    destFile += mapFileName;
-
-    if(EndsWith(destFile,".mgm") == false && EndsWith(destFile,".gbm") == false) {
-        destFileExt = ".mgm";
-        destFile += destFileExt;
-    }
-
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
-
-    struct FtpFile ftpfile = {
-        destFile.c_str(), // name to store the file as if succesful
-        NULL
-    };
-
-    //curl_global_init(CURL_GLOBAL_DEFAULT);
-
-    CURL *curl = curl_easy_init();
-    if(curl) {
-        ftpfile.stream = NULL;
-
-        char szBuf[1024]="";
-        sprintf(szBuf,"ftp://maps_custom:mg_ftp_server@%s:%d/%s%s",serverUrl.c_str(),portNumber,mapFileName.c_str(),destFileExt.c_str());
-
-        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
-        // Define our callback to get called when there's data to be written
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
-        // Set a pointer to our struct to pass to the callback
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-        // Switch on full protocol/debug output
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-        res = curl_easy_perform(curl);
-
-        // always cleanup
-        //curl_easy_cleanup(curl);
-
-        if(CURLE_OK != res) {
-            // we failed
-            fprintf(stderr, "curl told us %d\n", res);
-
-            ftpfile.stream = NULL;
-
-            sprintf(szBuf,"ftp://maps:mg_ftp_server@%s:%d/%s%s",serverUrl.c_str(),portNumber, mapFileName.c_str(),destFileExt.c_str());
-
-            curl_easy_setopt(curl, CURLOPT_URL,szBuf);
-            // Define our callback to get called when there's data to be written
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
-            // Set a pointer to our struct to pass to the callback
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-            // Switch on full protocol/debug output
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-            res = curl_easy_perform(curl);
-
-            // always cleanup
-            //curl_easy_cleanup(curl);
-
-            if(CURLE_OK != res) {
-              / we failed
-              fprintf(stderr, "curl told us %d\n", res);
-            }
-            else {
-                result = ftp_crt_SUCCESS;
-            }
-        }
-        else {
-            result = ftp_crt_SUCCESS;
-        }
-
-        curl_easy_cleanup(curl);
-    }
-
-    if(ftpfile.stream) {
-        fclose(ftpfile.stream); // close the local file
-        ftpfile.stream = NULL;
-    }
-
-    if(result != ftp_crt_SUCCESS && EndsWith(destFile,".mgm")) {
-        destFile = mapFileName + ".gbm";
-        getMapFromServer(destFile);
-    }
-    else {
-        if(this->pCBObject != NULL) {
-           this->pCBObject->FTPClient_CallbackEvent(mapFileName,result);
-        }
-    }
-*/
 }
 
 void FTPClientThread::addMapToRequests(string mapFilename) {
