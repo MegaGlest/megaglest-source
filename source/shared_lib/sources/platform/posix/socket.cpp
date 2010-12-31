@@ -43,7 +43,6 @@
   #include <netdb.h>
   #include <netinet/in.h>
   #include <net/if.h>
-  //#include <sys/ioctl.h>
 
 #endif
 
@@ -64,20 +63,18 @@ namespace Shared{ namespace Platform{
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
+int ServerSocket::externalPort  = Socket::broadcast_portno;
 BroadCastClientSocketThread *ClientSocket::broadCastClientThread = NULL;
 
 //
 // UPnP - Start
 //
-SDL_Thread *upnpdiscover        = NULL;
 static struct UPNPUrls urls;
 static struct IGDdatas data;
 // local ip address
-static char lanaddr[16]         ="";
-
-bool Socket::isUPNP             = true;
-int ServerSocket::externalPort  = Socket::broadcast_portno;
-bool ServerSocket::enabledUPNP  = false;
+static char lanaddr[16]         = "";
+bool UPNP_Tools::isUPNP         = true;
+bool UPNP_Tools::enabledUPNP    = false;
 // UPnP - End
 
 #ifdef WIN32
@@ -1671,6 +1668,7 @@ void BroadCastClientSocketThread::execute() {
 ServerSocket::ServerSocket() : Socket() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    upnpdiscoverThread = NULL;
 	portBound = false;
 	broadCastThread = NULL;
 
@@ -1681,10 +1679,15 @@ ServerSocket::~ServerSocket() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	stopBroadCastThread();
-	if (ServerSocket::enabledUPNP) {
-	    ServerSocket::enabledUPNP = false;
 
-        NETremRedirects(ServerSocket::externalPort);
+    if(upnpdiscoverThread != NULL) {
+        SDL_WaitThread(upnpdiscoverThread, NULL);
+        upnpdiscoverThread = NULL;
+    }
+
+	if (UPNP_Tools::enabledUPNP) {
+        UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
+        UPNP_Tools::enabledUPNP = false;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1852,20 +1855,70 @@ Socket *ServerSocket::accept() {
 	return result;
 }
 
-void AddUPNPPortForward(int internalPort, int externalPort) {
-	struct UPNPDev *devlist=NULL;
-	struct UPNPDev *dev=NULL;
-	char *descXML=NULL;
-	int descXMLsize = 0;
-	char buf[255]="";
-	//int *externalPort = (int *)asdf;
+void ServerSocket::NETdiscoverUPnPDevices() {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] UPNP - Start\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(upnpdiscoverThread != NULL) {
+		SDL_WaitThread(upnpdiscoverThread, NULL);
+		upnpdiscoverThread = NULL;
+	}
+
+    // WATCH OUT! Because the thread takes void * as a parameter we MUST cast to the pointer type
+    // used on the other side (inside the thread)
+	upnpdiscoverThread = SDL_CreateThread(&UPNP_Tools::upnp_init, dynamic_cast<UPNPInitInterface *>(this));
+}
+
+void ServerSocket::UPNPInitStatus(bool result) {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+    if(result == true) {
+        int ports[4] = { this->getExternalPort(), this->getBindPort(), this->getFTPServerPort(), this->getFTPServerPort() };
+        UPNP_Tools::NETaddRedirects(ports);
+    }
+}
+
+//
+// UPNP Tools Start
+//
+void UPNP_Tools::AddUPNPPortForward(int internalPort, int externalPort) {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] internalPort = %d, externalPort = %d\n",__FILE__,__FUNCTION__,__LINE__,internalPort,externalPort);
+
+    bool addPorts = (UPNP_Tools::enabledUPNP == true);
+    if(addPorts == false) {
+        int result = UPNP_Tools::upnp_init(NULL);
+        addPorts = (result != 0);
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] internalPort = %d, externalPort = %d, addPorts = %d\n",__FILE__,__FUNCTION__,__LINE__,internalPort,externalPort,addPorts);
+
+    if(addPorts == true) {
+        int ports[2] = { externalPort, internalPort };
+        UPNP_Tools::upnp_add_redirect(ports);
+    }
+}
+
+void UPNP_Tools::RemoveUPNPPortForward(int internalPort, int externalPort) {
+    UPNP_Tools::upnp_rem_redirect(externalPort);
+}
+
+//
+// This code below handles Universal Plug and Play Router Discovery
+//
+int UPNP_Tools::upnp_init(void *param) {
+	struct UPNPDev *devlist = NULL;
+	struct UPNPDev *dev     = NULL;
+	char *descXML           = NULL;
+	int descXMLsize         = 0;
+	char buf[255]           = "";
+	// Callers MUST pass in NULL or a UPNPInitInterface *
+	UPNPInitInterface *callback = (UPNPInitInterface *)(param);
 
 	memset(&urls, 0, sizeof(struct UPNPUrls));
 	memset(&data, 0, sizeof(struct IGDdatas));
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Socket::isUPNP = %d\n", Socket::isUPNP);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] isUPNP = %d callback = %p\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::isUPNP,callback);
 
-	if(Socket::isUPNP) {
+	if(UPNP_Tools::isUPNP) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
 		devlist = upnpDiscover(2000, NULL, NULL, 0);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
@@ -1873,8 +1926,9 @@ void AddUPNPPortForward(int internalPort, int externalPort) {
 		if (devlist) {
 			dev = devlist;
 			while (dev) {
-				if (strstr(dev->st, "InternetGatewayDevice"))
+				if (strstr(dev->st, "InternetGatewayDevice")) {
 					break;
+				}
 				dev = dev->pNext;
 			}
 			if (!dev) {
@@ -1891,195 +1945,97 @@ void AddUPNPPortForward(int internalPort, int externalPort) {
 				GetUPNPUrls (&urls, &data, dev->descURL);
 			}
 			sprintf(buf, "UPnP device found: %s %s LAN address %s", dev->descURL, dev->st, lanaddr);
-			//addDumpInfo(buf);
+
 			freeUPNPDevlist(devlist);
 
 			if (!urls.controlURL || urls.controlURL[0] == '\0')	{
 				sprintf(buf, "controlURL not available, UPnP disabled");
-				//addDumpInfo(buf);
-				//obj->DiscoveredServers();
-				//return false;
-				return;
-			}
-
-            //obj->DiscoveredServers();
-            int ports[2] = { externalPort, internalPort };
-            ServerSocket::upnp_add_redirect(ports);
-            ServerSocket::enabledUPNP = true;
-			//return true;
-			return;
-		}
-		sprintf(buf, "UPnP device not found.");
-		//addDumpInfo(buf);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
-
-		//obj->DiscoveredServers();
-		//return false;
-		return;
-	}
-	else {
-		sprintf(buf, "UPnP detection routine disabled by user.");
-		//addDumpInfo(buf);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
-
-		//obj->DiscoveredServers();
-		//return false;
-		return;
-	}
-}
-
-void RemoveUPNPPortForward(int internalPort, int externalPort) {
-    ServerSocket::upnp_rem_redirect(externalPort);
-}
-
-//
-// This code below handles Universal Plug and Play Router Port Forwarding
-//
-int ServerSocket::upnp_init(void *param) {
-	struct UPNPDev *devlist=NULL;
-	struct UPNPDev *dev=NULL;
-	char *descXML=NULL;
-	int descXMLsize = 0;
-	char buf[255]="";
-	//int *externalPort = (int *)asdf;
-	ServerSocket *srv = (ServerSocket *)param;
-
-	int ports[4] = { externalPort, srv->getBindPort(), ftpServerPort, ftpServerPort };
-
-	memset(&urls, 0, sizeof(struct UPNPUrls));
-	memset(&data, 0, sizeof(struct IGDdatas));
-
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Socket::isUPNP = %d\n", Socket::isUPNP);
-
-	if(Socket::isUPNP) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
-		devlist = upnpDiscover(2000, NULL, NULL, 0);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
-
-		if (devlist) {
-			dev = devlist;
-			while (dev) {
-				if (strstr(dev->st, "InternetGatewayDevice"))
-					break;
-				dev = dev->pNext;
-			}
-			if (!dev) {
-				dev = devlist; /* defaulting to first device */
-			}
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device found: %s %s\n", dev->descURL, dev->st);
-
-			descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, sizeof(lanaddr));
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LAN address: %s\n", lanaddr);
-			if (descXML) {
-				parserootdesc (descXML, descXMLsize, &data);
-				free (descXML); descXML = 0;
-				GetUPNPUrls (&urls, &data, dev->descURL);
-			}
-			sprintf(buf, "UPnP device found: %s %s LAN address %s", dev->descURL, dev->st, lanaddr);
-			//addDumpInfo(buf);
-			freeUPNPDevlist(devlist);
-
-			if (!urls.controlURL || urls.controlURL[0] == '\0')	{
-				sprintf(buf, "controlURL not available, UPnP disabled");
-				//addDumpInfo(buf);
-				//obj->DiscoveredServers();
+				if(callback) {
+				    callback->UPNPInitStatus(false);
+				}
 				return false;
 			}
 
-            //obj->DiscoveredServers();
-            srv->NETaddRedirects(ports);
-            ServerSocket::enabledUPNP = true;
+            char externalIP[16]     = "";
+            UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device found at: [%s] callback [%p]\n",externalIP,callback);
+
+            //UPNP_Tools::NETaddRedirects(ports);
+            UPNP_Tools::enabledUPNP = true;
+            if(callback) {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                callback->UPNPInitStatus(true);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            }
 			return true;
 		}
 		sprintf(buf, "UPnP device not found.");
-		//addDumpInfo(buf);
+
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
 
-		//obj->DiscoveredServers();
+        if(callback) {
+            callback->UPNPInitStatus(false);
+        }
 		return false;
 	}
 	else {
 		sprintf(buf, "UPnP detection routine disabled by user.");
-		//addDumpInfo(buf);
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
 
-		//obj->DiscoveredServers();
+        if(callback) {
+            callback->UPNPInitStatus(false);
+        }
 		return false;
 	}
 }
 
-bool ServerSocket::upnp_add_redirect(int ports[2]) {
-	char externalIP[16]="";
-	char ext_port_str[16]="";
-	char int_port_str[16]="";
-	int r=0;
+bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
+	char externalIP[16]     = "";
+	char ext_port_str[16]   = "";
+	char int_port_str[16]   = "";
+	int r                   = 0;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"upnp_add_redir(%d : %d) (%d : %d)\n", ports[0],ports[1],ports[2],ports[3]);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
 
 	UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
 
 	sprintf(ext_port_str, "%d", ports[0]);
 	sprintf(int_port_str, "%d", ports[1]);
 
-	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,
-			ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
-
+	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
 	if (r != UPNPCOMMAND_SUCCESS) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] AddPortMapping(%s, %s, %s) failed\n",__FILE__,__FUNCTION__,__LINE__,ext_port_str, int_port_str, lanaddr);
 		return false;
 	}
 
-	//sprintf(ext_port_str, "%d", ports[2]);
-	//sprintf(int_port_str, "%d", ports[3]);
-
-	//r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,
-	//		ext_port_str, int_port_str, lanaddr, "MegaGlest (FTP) - www.megaglest.org", "TCP", 0);
-
-	//if (r != UPNPCOMMAND_SUCCESS) {
-	//	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"AddPortMapping(%s, %s, %s) failed\n", ext_port_str, int_port_str, lanaddr);
-		//return false;
-	//}
-
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] AddPortMapping(%s, %s, %s) success\n",__FILE__,__FUNCTION__,__LINE__,ext_port_str, int_port_str, lanaddr);
 	return true;
-
 }
 
-void ServerSocket::upnp_rem_redirect(int ext_port) {
+void UPNP_Tools::upnp_rem_redirect(int ext_port) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__,ext_port);
+
 	char ext_port_str[16]="";
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"upnp_rem_redir(%d)\n", ext_port);
 	sprintf(ext_port_str, "%d", ext_port);
 	UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
 }
 
-void ServerSocket::NETaddRedirects(int ports[4]) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork, "%s\n", __FUNCTION__);
-	//if (!upnp_done)
-	//{
-	//	SDL_WaitThread(upnpdiscover, &upnp);
-	//	upnp_done = true;
-	//}
-	//if (upnp) {
+void UPNP_Tools::NETaddRedirects(int ports[4]) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__);
+
 	int portsA[2] = { ports[0], ports[1] };
 	upnp_add_redirect(portsA);
 	int portsB[2] = { ports[2], ports[3] };
 	upnp_add_redirect(portsB);
-	//}
 }
 
-void ServerSocket::NETremRedirects(int ext_port) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork, "%s\n", __FUNCTION__);
-	//if (ServerSocket::enabledUPNP) {
-	    //ServerSocket::enabledUPNP = false;
+void UPNP_Tools::NETremRedirects(int ext_port) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__);
     upnp_rem_redirect(ext_port);
-	//}
 }
-
-void ServerSocket::NETdiscoverUPnPDevices() {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] UPNP - Start\n",__FILE__,__FUNCTION__,__LINE__);
-	upnpdiscover = SDL_CreateThread(&upnp_init, this);
-}
-// END UPNP
+//
+// UPNP Tools END
+//
 
 //=======================================================================
 // Function :		broadcast_thread

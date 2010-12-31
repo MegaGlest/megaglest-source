@@ -38,7 +38,6 @@
 #include "ftp.h"
 
 ip_t ownIp;
-//ip_t ownExternalIp;
 
 LOCAL fd_set watchedSockets;
 LOCAL fd_set signaledSockets;
@@ -48,7 +47,6 @@ LOCAL int maxSockNr;
 void ftpArchInit()
 {
 	ownIp = 0;
-	//ownExternalIp = externalIp;
 	maxSockNr = 0;
 	FD_ZERO(&watchedSockets);
 	FD_ZERO(&signaledSockets);
@@ -263,9 +261,6 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 
 		*port = ntohs(myAddr.sin_port);
 		*ip   = ownIp;
-		//if(ownExternalIp > 0) {
-		//    *ip = ownExternalIp;
-		//}
 
 	    if(listen(dataSocket, 1))
 	    {
@@ -339,16 +334,14 @@ socket_t ftpAcceptServerConnection(socket_t server, ip_t *remoteIP, port_t *remo
 		len = sizeof(sockinfo);
 		if(getsockname(clientSocket, (struct sockaddr *)&sockinfo, &len))
 		{
-			#if DBG_LOG
-			printf("getsockname error\n");
-			#endif
+if(VERBOSE_MODE_ENABLED) printf("getsockname error\n");
 		}
 
 		ownIp = ntohl(sockinfo.sin_addr.s_addr);        // eigene IP-Adresse abspeichern (wird dir PASV benätigt)
 	}
-	#if DBG_LOG
-	printf("Verbindung mit %s auf Port %d akzeptiert.\n", inet_ntoa(sockinfo.sin_addr), *remotePort);
-	#endif
+
+if(VERBOSE_MODE_ENABLED) printf("Connection with %s on Port %d accepted.\n", inet_ntoa(sockinfo.sin_addr), *remotePort);
+
 	return clientSocket;
 }
 

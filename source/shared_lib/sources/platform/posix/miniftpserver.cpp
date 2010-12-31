@@ -37,19 +37,17 @@ uint32 FindExternalFTPServerIp(uint32 clientIp) {
 }
 
 FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumber) : BaseThread() {
-    this->mapsPath      = mapsPath;
-    this->portNumber    = portNumber;
-    //this->externalIp    = externalIp;
+    this->mapsPath              = mapsPath;
+    this->portNumber            = portNumber;
 
-    //void (*ftpAddUPNPPortForward)(int internalPort, int externalPort) = NULL;
-    //void (*ftpRemoveUPNPPortForward)(int internalPort, int externalPort) = NULL;
-    ftpAddUPNPPortForward = &AddUPNPPortForward;
-    ftpRemoveUPNPPortForward = &RemoveUPNPPortForward;
-    ftpFindExternalFTPServerIp = &FindExternalFTPServerIp;
+    ftpAddUPNPPortForward       = &UPNP_Tools::AddUPNPPortForward;
+    ftpRemoveUPNPPortForward    = &UPNP_Tools::RemoveUPNPPortForward;
+    ftpFindExternalFTPServerIp  = &FindExternalFTPServerIp;
+    VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
 }
 
 FTPServerThread::~FTPServerThread() {
-    ServerSocket::upnp_rem_redirect(ServerSocket::getFTPServerPort());
+    UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort());
 }
 
 void FTPServerThread::signalQuit() {
@@ -67,9 +65,7 @@ bool FTPServerThread::shutdownAndWait() {
 }
 
 void FTPServerThread::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
-    //ftpSetSessionRemoteServerIp(clientIp, ServerIp);
      clientToFTPServerList[clientIp] = ServerIp;
-
      if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
 }
 
@@ -125,10 +121,6 @@ void FTPServerThread::execute() {
 
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Server thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
-
-    // Delete ourself when the thread is done (no other actions can happen after this
-    // such as the mutex which modifies the running status of this method
-	//delete this;
 }
 
 }}//end namespace

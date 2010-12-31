@@ -119,18 +119,14 @@ int ftpAuthSession(int id)
  */
 int ftpCloseSession(int id)
 {
-#if DBG_LOG
-    printf("In ftpCloseSession sessionId = %d, remote IP = %u, port = %d\n",
+if(VERBOSE_MODE_ENABLED) printf("In ftpCloseSession sessionId = %d, remote IP = %u, port = %d\n",
            id, sessions[id].remoteIp, sessions[id].remoteFTPServerPassivePort);
-#endif
 
     if(ftpFindExternalFTPServerIp != NULL && ftpFindExternalFTPServerIp(sessions[id].remoteIp) != 0)
     {
         if(ftpRemoveUPNPPortForward)
         {
-#if DBG_LOG
-            printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
 
             ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
         }
@@ -140,9 +136,7 @@ int ftpCloseSession(int id)
 
 	sessions[id].open = FALSE;
 
-	#if DBG_LOG
-    printf("Session %d closed\n", id);
-	#endif
+if(VERBOSE_MODE_ENABLED) printf("Session %d closed\n", id);
 
 	return 0;
 }
@@ -248,9 +242,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 
 	ftpRoot = ftpGetRoot(sessions[id].userId, &len);
 
-#if DBG_LOG
-    printf("#1 ftpGetRealPath id = %d path [%s] ftpRoot [%s] sessions[id].workingDir [%s] normalize = %d\n", id, path, ftpRoot, sessions[id].workingDir,normalize);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("#1 ftpGetRealPath id = %d path [%s] ftpRoot [%s] sessions[id].workingDir [%s] normalize = %d\n", id, path, ftpRoot, sessions[id].workingDir,normalize);
 
     pathScratchBuf[0]='\0';
 	if(path[0] == '/' || strcmp(path,sessions[id].workingDir) == 0)				// absolute path?
@@ -263,9 +255,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 		//ftpMergePaths(pathScratchBuf, ftpRoot, path, NULL);
 	}
 
-#if DBG_LOG
-	printf("#2 ftpGetRealPath path [%s] ftpRoot [%s] pathScratchBuf [%s]\n", path, ftpRoot, pathScratchBuf);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("#2 ftpGetRealPath path [%s] ftpRoot [%s] pathScratchBuf [%s]\n", path, ftpRoot, pathScratchBuf);
 
 	ftpRemoveDoubleSlash(pathScratchBuf);
 	if(normalize) {
@@ -273,9 +263,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 	}
 	ftpRemoveTrailingSlash(pathScratchBuf);
 
-#if DBG_LOG
-		printf("#2 ftpGetRealPath path [%s] ftpRoot [%s] pathScratchBuf [%s]\n", path, ftpRoot, pathScratchBuf);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("#2 ftpGetRealPath path [%s] ftpRoot [%s] pathScratchBuf [%s]\n", path, ftpRoot, pathScratchBuf);
 
 	return pathScratchBuf;
 }
@@ -299,9 +287,7 @@ int ftpChangeDir(int id, const char* path)
 	if(len == 1)													// if len == 1 root-path == '/'
 		len = 0;
 
-#if DBG_LOG
-		printf("ftpChangeDir path [%s] realPath [%s] sessions[id].workingDir [%s]\n", path, realPath, sessions[id].workingDir);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("ftpChangeDir path [%s] realPath [%s] sessions[id].workingDir [%s]\n", path, realPath, sessions[id].workingDir);
 
 	if(ftpStat(realPath, &fileInfo) || (fileInfo.type != TYPE_DIR)) // directory accessible?
 		return -2;
@@ -310,9 +296,7 @@ int ftpChangeDir(int id, const char* path)
 	if(sessions[id].workingDir[0] == '\0')
 		strcpy(sessions[id].workingDir, "/");
 
-#if DBG_LOG
-		printf("ftpChangeDir path [%s] realPath [%s] NEW sessions[id].workingDir [%s]\n", path, realPath, sessions[id].workingDir);
-#endif
+if(VERBOSE_MODE_ENABLED) printf("ftpChangeDir path [%s] realPath [%s] NEW sessions[id].workingDir [%s]\n", path, realPath, sessions[id].workingDir);
 
 	return 0;
 }

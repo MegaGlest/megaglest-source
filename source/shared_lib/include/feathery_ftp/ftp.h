@@ -62,7 +62,6 @@ typedef struct
 	char     rxBuf[LEN_RXBUF];			///< receive buffer for ftp commands
 	char     workingDir[MAX_PATH_LEN];  ///< current working directory (absolute path which is relative to the root-path of the user account)
 	ip_t     remoteIp;					///< IP of connected ftp client
-	//ip_t     remoteFTPServerIp;		    ///< IP of the FTP Server from the clients perspective
 	port_t   remoteFTPServerPassivePort; ///< Port of the FTP Server from the clients perspective related to Passive connection
 	port_t   remotePort;				///< Port of connected ftp client for control connection
 	port_t   remoteDataPort;			///< Port of connected ftp client for data connection

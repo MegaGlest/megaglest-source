@@ -1034,7 +1034,7 @@ int glestMain(int argc, char** argv) {
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
-		Socket::isUPNP = !config.getBool("DisableUPNP","false");
+		UPNP_Tools::isUPNP = !config.getBool("DisableUPNP","false");
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
 		// 256 for English
 		// 30000 for Chinese
