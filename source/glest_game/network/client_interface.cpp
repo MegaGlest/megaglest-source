@@ -142,9 +142,6 @@ void ClientInterface::update() {
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
         sendTextMessage(sMsg,-1, true);
 	}
-
-	//clear chat variables
-	//!!!clearChatInfo();
 }
 
 std::string ClientInterface::getServerIpAddress() {
@@ -152,10 +149,6 @@ std::string ClientInterface::getServerIpAddress() {
 }
 
 void ClientInterface::updateLobby() {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	//clear chat variables
-	//!!!clearChatInfo();
-
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     NetworkMessageType networkMessageType = getNextMessageType(true);
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

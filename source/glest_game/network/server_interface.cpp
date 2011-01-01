@@ -345,10 +345,15 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		bool checkForNewClients = true;
 
 		// Safety check since we can experience a disconnect and the slot is NULL
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[event->triggerId],intToStr(__LINE__) + "_" + intToStr(event->triggerId));
         ConnectionSlot *connectionSlot = NULL;
+        MutexSafeWrapper safeMutexSlot(NULL);
         if(event->triggerId >= 0 && event->triggerId < GameConstants::maxPlayers) {
+            safeMutexSlot.setMutex(&slotAccessorMutexes[event->triggerId],intToStr(__LINE__) + "_" + intToStr(event->triggerId));
             connectionSlot = slots[event->triggerId];
+        }
+        else {
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR CONDITION, event->triggerId = %d\n",__FILE__,__FUNCTION__,__LINE__,event->triggerId);
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR CONDITION, event->triggerId = %d\n",__FILE__,__FUNCTION__,__LINE__,event->triggerId);
         }
 
         if(connectionSlot != NULL &&
