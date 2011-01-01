@@ -1691,8 +1691,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             clientInterface->sendTextMessage(szMsg,-1, true);
         }
         else {
+            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+
             char szMsg[1024]="";
-            sprintf(szMsg,"Player: %s FAILED to download the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+            sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getMap().c_str(),curlVersion->version);
             clientInterface->sendTextMessage(szMsg,-1, true);
         }
     }
@@ -1712,8 +1714,11 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
         }
         else {
+
+            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+
             char szMsg[1024]="";
-            sprintf(szMsg,"Player: %s FAILED to download the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+            sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
             clientInterface->sendTextMessage(szMsg,-1, true);
         }
     }

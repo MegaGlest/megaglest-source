@@ -409,6 +409,27 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         if(isdir(userData.c_str()) == false) {
         	createDirectoryPaths(userData);
         }
+
+        string userDataMaps = userData + GameConstants::folder_path_maps;
+        if(isdir(userDataMaps.c_str()) == false) {
+        	createDirectoryPaths(userDataMaps);
+        }
+        string userDataScenarios = userData + GameConstants::folder_path_scenarios;
+        if(isdir(userDataScenarios.c_str()) == false) {
+        	createDirectoryPaths(userDataScenarios);
+        }
+        string userDataTechs = userData + GameConstants::folder_path_techs;
+        if(isdir(userDataTechs.c_str()) == false) {
+        	createDirectoryPaths(userDataTechs);
+        }
+        string userDataTilesets = userData + GameConstants::folder_path_tilesets;
+        if(isdir(userDataTilesets.c_str()) == false) {
+        	createDirectoryPaths(userDataTilesets);
+        }
+        string userDataTutorials = userData + GameConstants::folder_path_tutorials;
+        if(isdir(userDataTutorials.c_str()) == false) {
+        	createDirectoryPaths(userDataTutorials);
+        }
     }
     if(scenarioDir != "") {
         pathList.push_back(data_path+scenarioDir);
