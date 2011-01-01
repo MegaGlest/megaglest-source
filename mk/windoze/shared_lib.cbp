@@ -452,8 +452,9 @@
 		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnpcommands.h" />
 		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnperrors.h" />
 		<Unit filename="../../source/shared_lib/include/platform/miniupnpc/upnpreplyparse.h" />
-		<Unit filename="../../source/shared_lib/include/platform/posix/ftpserver.h" />
 		<Unit filename="../../source/shared_lib/include/platform/posix/ircclient.h" />
+		<Unit filename="../../source/shared_lib/include/platform/posix/miniftpclient.h" />
+		<Unit filename="../../source/shared_lib/include/platform/posix/miniftpserver.h" />
 		<Unit filename="../../source/shared_lib/include/platform/posix/socket.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/factory_repository.h">
 			<Option target="Release Linux" />
@@ -603,8 +604,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../../source/shared_lib/sources/platform/miniupnpc/upnpreplyparse.h" />
-		<Unit filename="../../source/shared_lib/sources/platform/posix/ftpserver.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/posix/ircclient.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/posix/miniftpclient.cpp" />
+		<Unit filename="../../source/shared_lib/sources/platform/posix/miniftpserver.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/posix/socket.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/sdl/factory_repository.cpp">
 			<Option target="Release Linux" />
