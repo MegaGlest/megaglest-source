@@ -57,7 +57,7 @@
 					<Add directory="../../source/shared_lib/include/platform/posix" />
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/win32_deps/curl-7.21.3/include" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="../../source/win32_deps/libircclient/include" />
 				</Compiler>
@@ -185,7 +185,7 @@
 					<Add directory="../../source/shared_lib/include/platform/posix" />
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/win32_deps/curl-7.21.3/include" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
 					<Add directory="../../source/win32_deps/libircclient/include" />
