@@ -81,6 +81,7 @@ const char  *GAME_ARGS[] = {
 	"--opengl-info",
 	"--sdl-info",
 	"--lua-info",
+	"--curl-info",
 	"--validate-techtrees",
 	"--validate-factions",
 	"--data-path",
@@ -100,6 +101,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_OPENGL_INFO,
 	GAME_ARG_SDL_INFO,
 	GAME_ARG_LUA_INFO,
+	GAME_ARG_CURL_INFO,
 	GAME_ARG_VALIDATE_TECHTREES,
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_DATA_PATH,
@@ -601,6 +603,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
+	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
 	printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tto your selected techtrees game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
@@ -968,6 +971,7 @@ int glestMain(int argc, char** argv) {
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
@@ -998,6 +1002,11 @@ int glestMain(int argc, char** argv) {
 
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) == true) {
 		printf("LUA version: %s\n", LUA_RELEASE);
+	}
+
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) == true) {
+	    curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+		printf("CURL version: %s\n", curlVersion->version);
 	}
 
 	if( (hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 		  == true ||
