@@ -365,6 +365,7 @@
 			</Target>
 			<Target title="Debug Linux">
 				<Option output="../linux/glest.bin" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../linux/" />
 				<Option object_output="Debug Linux/glest_game" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -568,6 +569,8 @@
 		<Unit filename="../../source/glest_game/menu/menu_state_root.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_scenario.cpp" />
 		<Unit filename="../../source/glest_game/menu/menu_state_scenario.h" />
+		<Unit filename="../../source/glest_game/menu/server_line.cpp" />
+		<Unit filename="../../source/glest_game/menu/server_line.h" />
 		<Unit filename="../../source/glest_game/network/client_interface.cpp" />
 		<Unit filename="../../source/glest_game/network/client_interface.h" />
 		<Unit filename="../../source/glest_game/network/connection_slot.cpp" />
