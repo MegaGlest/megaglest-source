@@ -76,7 +76,7 @@ private:
 	SimpleTaskThread *updateFromMasterserverThread;
 	bool playServerFoundSound;
 	ServerLines serverLines;
-	std::string serverInfoString;
+	string serverInfoString;
 	int serverLinesToRender;
 	int serverLinesYBase;
 	int serverLinesLineHeight;
@@ -90,6 +90,7 @@ private:
 	int userButtonsLineHeight;
 	int	userButtonsHeight;
 	int userButtonsWidth;
+	string currentIrcNick;
 
 
 	//Console console;

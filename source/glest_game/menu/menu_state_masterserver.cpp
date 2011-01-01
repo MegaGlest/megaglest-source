@@ -232,6 +232,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     string netPlayerName=Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
     string ircname=netPlayerName.substr(0,9);
     sprintf(szIRCNick,"MG_%s_%d",ircname.c_str(),randomNickId);
+    currentIrcNick=ircname;
+    consoleIRC.setStringToHighlight(currentIrcNick);
 
     lines[2].init(0,consoleIRC.getYPos()-10,userButtonsXBase,5);
     chatManager.init(&consoleIRC, -1, true, szIRCNick);
@@ -283,6 +285,13 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
 
             char szBuf[4096]="";
             sprintf(szBuf,"%s: %s",origin ? origin : "someone",params[1]);
+            string helpSTr=szBuf;
+        	if(helpSTr.find(currentIrcNick)!=string::npos){
+        		CoreData &coreData= CoreData::getInstance();
+        		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+        		soundRenderer.playFx(coreData.getHighlightSound());
+        	}
             consoleIRC.addLine(szBuf);
         }
     }
@@ -522,11 +531,13 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     buttonRefresh.mouseMove(x, y);
     buttonReturn.mouseMove(x, y);
     buttonCreateGame.mouseMove(x, y);
-    if(ms->get(mbLeft)){
-    	userScrollBar.mouseDown(x, y);
-    }
-    else
-    	userScrollBar.mouseMove(x, y);
+    if (ms->get(mbLeft)) {
+		userScrollBar.mouseDown(x, y);
+		serverScrollBar.mouseDown(x, y);
+	} else {
+		userScrollBar.mouseMove(x, y);
+		serverScrollBar.mouseMove(x, y);
+	}
     listBoxAutoRefresh.mouseMove(x, y);
 
     if(serverScrollBar.getElementCount()!=0 ) {
@@ -650,13 +661,16 @@ void MenuStateMasterserver::update() {
     consoleIRC.update();
 
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
-    safeMutexIRCPtr.Lock();
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
         bool isNew=false;
         //check if there is something new
         if( oldNickList.size()!=nickList.size()) {
         	isNew=true;
+        	if(currentIrcNick!=ircClient->getNick()){
+        		currentIrcNick=ircClient->getNick();
+        		consoleIRC.setStringToHighlight(currentIrcNick);
+        	}
         }
         else {
         	for(int i = 0; i < nickList.size(); ++i) {

@@ -836,7 +836,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
-									const Font2D* font, const ConsoleLineInfo *lineInfo) {
+									const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
 	const Metrics &metrics= Metrics::getInstance();
 	const FontMetrics *fontMetrics= font->getMetrics();
@@ -909,6 +909,9 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 		fontColor = defaultFontColor;
 	}
 
+	if(lineInfo->text.find(stringToHightlight)!=string::npos){
+		fontColor=Vec4f(1.f, 0.5f, 0.5f, 0.0f);
+	}
 	renderTextShadow(
 			lineInfo->text,
 		font,
@@ -928,21 +931,21 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
 			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
-			console->getLineHeight(), console->getFont(), &lineInfo);
+			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}
 	else if(showMenuConsole) {
 		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
 			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
-			console->getLineHeight(), console->getFont(), &lineInfo);
+			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}
 	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
 			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
-			console->getLineHeight(), console->getFont(), &lineInfo);
+			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}
 	glPopAttrib();
@@ -955,7 +958,10 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	if(chatManager->getEditEnabled()) {
 		string text="";
 
-		if(chatManager->getTeamMode()) {
+		if(chatManager->getInMenu()){
+			text += lang.get("Chat");
+		}
+		else if(chatManager->getTeamMode()) {
 			text += lang.get("Team");
 		}
 		else {
@@ -980,6 +986,15 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 		//textRenderer->begin(CoreData::getInstance().getConsoleFont());
 		//textRenderer->render(text, 300, 150);
 		//textRenderer->end();
+	}
+	else
+	{
+		if (chatManager->getInMenu()) {
+			string text = ">> "+lang.get("PressEnterToChat")+" <<";
+			fontColor = Vec4f(0.5f, 0.5f, 0.5f, 0.5f);
+			renderTextShadow(text, chatManager->getFont(), fontColor,
+					chatManager->getXPos(), chatManager->getYPos());
+		}
 	}
 }
 
