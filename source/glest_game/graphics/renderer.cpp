@@ -909,7 +909,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 		fontColor = defaultFontColor;
 	}
 
-	if(lineInfo->text.find(stringToHightlight)!=string::npos){
+	if(stringToHightlight!="" && lineInfo->text.find(stringToHightlight)!=string::npos){
 		fontColor=Vec4f(1.f, 0.5f, 0.5f, 0.0f);
 	}
 	renderTextShadow(
