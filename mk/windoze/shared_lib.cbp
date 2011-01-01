@@ -52,7 +52,7 @@
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/win32_deps/curl-7.21.3/include" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 					<Add directory="../../source/win32_deps/libircclient/include" />
@@ -155,7 +155,7 @@
 					<Add directory="../../source/shared_lib/include/streflop" />
 					<Add directory="../../source/shared_lib/include/streflop/libm_flt32_source" />
 					<Add directory="../../source/shared_lib/include/platform/common" />
-					<Add directory="../../source/win32_deps/curl-7.20.1/include" />
+					<Add directory="../../source/win32_deps/curl-7.21.3/include" />
 					<Add directory="../../source/shared_lib/include/map" />
 					<Add directory="../../source/shared_lib/include/platform/miniupnpc" />
 					<Add directory="../../source/win32_deps/libircclient/include" />
