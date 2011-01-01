@@ -42,14 +42,10 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 
 	//general info:
 	i+=10;
-	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel" + intToStr(lineIndex));
-	registeredObjNameList.push_back("glestVersionLabel" + intToStr(lineIndex));
 	glestVersionLabel.init(i,baseY-lineOffset);
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
 	i+=80;
-	registeredObjNameList.push_back("platformLabel" + intToStr(lineIndex));
-	platformLabel.registerGraphicComponent(containerName,"platformLabel" + intToStr(lineIndex));
 	platformLabel.init(i,baseY-lineOffset);
 	platformLabel.setText(masterServerInfo.getPlatform());
 
@@ -61,71 +57,55 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 
 	//game info:
 	i+=80;
-	registeredObjNameList.push_back("serverTitleLabel" + intToStr(lineIndex));
-	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel" + intToStr(lineIndex));
 	serverTitleLabel.init(i,baseY-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
 	i+=200;
-	registeredObjNameList.push_back("ipAddressLabel" + intToStr(lineIndex));
-	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel" + intToStr(lineIndex));
 	ipAddressLabel.init(i,baseY-lineOffset);
 	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 
+
+	wrongVersionLabel.init(i,baseY-lineOffset);
+	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
+
 	//game setup info:
 	i+=120;
-	registeredObjNameList.push_back("techLabel" + intToStr(lineIndex));
-	techLabel.registerGraphicComponent(containerName,"techLabel" + intToStr(lineIndex));
 	techLabel.init(i,baseY-lineOffset);
 	techLabel.setText(masterServerInfo.getTech());
 
 	i+=100;
-	registeredObjNameList.push_back("mapLabel" + intToStr(lineIndex));
-	mapLabel.registerGraphicComponent(containerName,"mapLabel" + intToStr(lineIndex));
 	mapLabel.init(i,baseY-lineOffset);
 	mapLabel.setText(masterServerInfo.getMap());
 
 	i+=100;
-	registeredObjNameList.push_back("tilesetLabel" + intToStr(lineIndex));
-	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel" + intToStr(lineIndex));
 	tilesetLabel.init(i,baseY-lineOffset);
 	tilesetLabel.setText(masterServerInfo.getTileset());
 
 	i+=100;
-	registeredObjNameList.push_back("activeSlotsLabel" + intToStr(lineIndex));
-	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel" + intToStr(lineIndex));
 	activeSlotsLabel.init(i,baseY-lineOffset);
 	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots())+"/"+intToStr(masterServerInfo.getNetworkSlots())+"/"+intToStr(masterServerInfo.getConnectedClients()));
 
 	i+=50;
-	registeredObjNameList.push_back("externalConnectPort" + intToStr(lineIndex));
-	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort" + intToStr(lineIndex));
 	externalConnectPort.init(i,baseY-lineOffset);
 	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
 	i+=50;
-	registeredObjNameList.push_back("selectButton" + intToStr(lineIndex));
-	selectButton.registerGraphicComponent(containerName,"selectButton" + intToStr(lineIndex));
 	selectButton.init(i, baseY-lineOffset, 30);
 	selectButton.setText(">");
 
 	//printf("glestVersionString [%s] masterServerInfo->getGlestVersion() [%s]\n",glestVersionString.c_str(),masterServerInfo->getGlestVersion().c_str());
-	bool compatible = checkVersionComptability(glestVersionString, masterServerInfo.getGlestVersion());
+	compatible = checkVersionComptability(glestVersionString, masterServerInfo.getGlestVersion());
 	selectButton.setEnabled(compatible);
 	selectButton.setEditable(compatible);
 
-	registeredObjNameList.push_back("gameFull" + intToStr(lineIndex));
-	gameFull.registerGraphicComponent(containerName,"gameFull" + intToStr(lineIndex));
 	gameFull.init(i, baseY-lineOffset);
 	gameFull.setText(lang.get("MGGameSlotsFull"));
 	gameFull.setEnabled(!compatible);
 	gameFull.setEditable(!compatible);
 
-	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 ServerLine::~ServerLine() {
-	GraphicComponent::clearRegisterGraphicComponent(containerName, registeredObjNameList);
 	//delete masterServerInfo;
 }
 
@@ -168,14 +148,20 @@ void ServerLine::render() {
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
 	if(!gameFull.getEnabled()){
-		renderer.renderLabel(&ipAddressLabel);
+		if (compatible) {
+			renderer.renderLabel(&ipAddressLabel);
 
-		//game setup info:
-		renderer.renderLabel(&techLabel);
-		renderer.renderLabel(&mapLabel);
-		renderer.renderLabel(&tilesetLabel);
-		renderer.renderLabel(&activeSlotsLabel);
-		renderer.renderLabel(&externalConnectPort);
+			//game setup info:
+			renderer.renderLabel(&techLabel);
+			renderer.renderLabel(&mapLabel);
+			renderer.renderLabel(&tilesetLabel);
+			renderer.renderLabel(&activeSlotsLabel);
+			renderer.renderLabel(&externalConnectPort);
+		}
+		else {
+			renderer.renderLabel(&wrongVersionLabel);
+		}
+
 	}
 }
 

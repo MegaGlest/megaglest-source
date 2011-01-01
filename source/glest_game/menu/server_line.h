@@ -31,8 +31,10 @@ private:
 	MasterServerInfo masterServerInfo;
 	int lineHeight;
 	int baseY;
+	bool compatible;
 	GraphicButton selectButton;
 	GraphicLabel gameFull;
+	GraphicLabel wrongVersionLabel;
 
 	//general info:
 	GraphicLabel glestVersionLabel;
@@ -52,7 +54,6 @@ private:
 	GraphicLabel externalConnectPort;
 
 	const char * containerName;
-	std::vector<std::string> registeredObjNameList;
 
 public:
 	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY, int lineHeight, const char *containerName);
@@ -64,7 +65,6 @@ public:
 	void setY(int y);
 	//void setIndex(int value);
 	void render();
-
 };
 
 }}//end namespace

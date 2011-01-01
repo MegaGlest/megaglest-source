@@ -94,13 +94,16 @@ void ChatManager::keyDown(char key) {
 			key == configKeys.getCharKey("ChatTeamMode")) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-			if(teamMode == true) {
-				teamMode= false;
-				console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
-			}
-			else {
-				teamMode= true;
-				console->addLine(lang.get("ChatMode") + ": " + lang.get("Team"));
+			if (!inMenu) {
+				if (teamMode == true) {
+					teamMode = false;
+					console->addLine(lang.get("ChatMode") + ": " + lang.get(
+							"All"));
+				} else {
+					teamMode = true;
+					console->addLine(lang.get("ChatMode") + ": " + lang.get(
+							"Team"));
+				}
 			}
 		}
 

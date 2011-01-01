@@ -55,6 +55,7 @@ private:
 	float timeElapsed;
 	Lines lines;
 	Lines storedLines;
+	string stringToHighlight;
 
 	//config
 	int maxLines;
@@ -78,6 +79,10 @@ public:
 	void setLineHeight(int lineHeight)	{this->lineHeight= lineHeight;}
 	Font2D *getFont() const {return font;}
 	void setFont(Font2D *font)	{this->font= font;}
+    string getStringToHighlight() const { return stringToHighlight;}
+    void setStringToHighlight(string stringToHighlight) { this->stringToHighlight = stringToHighlight;}
+
+
 	
 	string getLine(int i) const;
 	string getStoredLine(int i) const;

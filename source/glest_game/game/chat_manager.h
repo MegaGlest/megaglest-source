@@ -55,6 +55,7 @@ public:
 
 	bool getEditEnabled() const	{return editEnabled;}
 	bool getTeamMode() const	{return teamMode;}
+	bool getInMenu() const	{return inMenu;}
 	string getText() const		{return text;}
 	int getXPos() const {return xPos;}
 	void setXPos(int xPos)	{this->xPos= xPos;}

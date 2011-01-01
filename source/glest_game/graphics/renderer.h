@@ -312,7 +312,7 @@ public:
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false);
-	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, const Font2D* font,const ConsoleLineInfo *lineInfo);
+	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();
