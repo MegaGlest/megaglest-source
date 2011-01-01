@@ -39,6 +39,7 @@ Console::Console() {
 	yPos=20;
 	lineHeight=20;
 	font=CoreData::getInstance().getConsoleFont();
+	stringToHighlight="";
 }
 
 void Console::addStdMessage(const string &s) {
