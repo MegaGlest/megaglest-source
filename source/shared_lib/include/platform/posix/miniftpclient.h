@@ -44,20 +44,29 @@ protected:
     string serverUrl;
     FTPClientCallbackInterface *pCBObject;
     std::pair<string,string> mapsPath;
+    std::pair<string,string> tilesetsPath;
 
     Mutex mutexMapFileList;
     vector<string> mapFileList;
+
+    Mutex mutexTilesetList;
+    vector<string> tilesetList;
+
     void getMapFromServer(string mapFilename);
     FTP_Client_ResultType getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword);
 
+    void getTilesetFromServer(string tileSetName);
+    FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword);
+
 public:
 
-    FTPClientThread(int portNumber,string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject);
+    FTPClientThread(int portNumber,string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
 
     void addMapToRequests(string mapFilename);
+    void addTilesetToRequests(string tileSetName);
 };
 
 }}//end namespace

@@ -27,6 +27,11 @@ enum JoinMenu {
 	jmCount
 };
 
+enum FTPMessageType {
+    ftpmsg_MissingNone,
+	ftpmsg_MissingMap,
+	ftpmsg_MissingTileset
+};
 
 // ===============================
 // 	class MenuStateConnectedGame
@@ -138,8 +143,13 @@ private:
 
     GraphicMessageBox ftpMessageBox;
     FTPClientThread *ftpClientThread;
+    FTPMessageType ftpMissingDataType;
+
     string getMissingMapFromFTPServer;
     bool getMissingMapFromFTPServerInProgress;
+
+    string getMissingTilesetFromFTPServer;
+    bool getMissingTilesetFromFTPServerInProgress;
 
 public:
 
@@ -171,7 +181,7 @@ private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
     void showFTPMessageBox(const string &text, const string &header, bool toggle);
-    virtual void FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result);
+    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_ResultType result);
 };
 
 }}//end namespace

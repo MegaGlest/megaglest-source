@@ -54,9 +54,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
-	ftpClientThread = NULL;
-	getMissingMapFromFTPServer = "";
-	getMissingMapFromFTPServerInProgress = false;
+
+	ftpClientThread                             = NULL;
+    ftpMissingDataType                          = ftpmsg_MissingNone;
+	getMissingMapFromFTPServer                  = "";
+	getMissingMapFromFTPServerInProgress        = false;
+	getMissingTilesetFromFTPServer              = "";
+	getMissingTilesetFromFTPServerInProgress    = false;
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
@@ -389,8 +393,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         if(mapPathList.size() > 1) {
             mapsPath.second = mapPathList[1];
         }
+        std::pair<string,string> tilesetsPath;
+        vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
+        if(tilesetsList.size() > 0) {
+            tilesetsPath.first = tilesetsList[0];
+            if(tilesetsList.size() > 1) {
+                tilesetsPath.second = tilesetsList[1];
+            }
+        }
 
-        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath, this);
+        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath,tilesetsPath,this);
         ftpClientThread->start();
     }
 
@@ -432,15 +444,28 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			soundRenderer.playFx(coreData.getClickSoundA());
 			ftpMessageBox.setEnabled(false);
 			if(button == 1) {
-                getMissingMapFromFTPServerInProgress = true;
+			    if(ftpMissingDataType == ftpmsg_MissingMap) {
+                    getMissingMapFromFTPServerInProgress = true;
 
-                char szMsg[1024]="";
-                sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
-                clientInterface->sendTextMessage(szMsg,-1, true);
+                    char szMsg[1024]="";
+                    sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+                    clientInterface->sendTextMessage(szMsg,-1, true);
 
-                if(ftpClientThread != NULL) {
-                    ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
-                }
+                    if(ftpClientThread != NULL) {
+                        ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
+                    }
+			    }
+			    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
+                    getMissingTilesetFromFTPServerInProgress = true;
+
+                    char szMsg[1024]="";
+                    sprintf(szMsg,"Player: %s is attempting to download the tileset: %s",getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
+                    clientInterface->sendTextMessage(szMsg,-1, true);
+
+                    if(ftpClientThread != NULL) {
+                        ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
+                    }
+			    }
 			}
 		}
 	}
@@ -951,30 +976,47 @@ void MenuStateConnectedGame::update() {
 				if(gameSettings == NULL) {
 					throw runtime_error("gameSettings == NULL");
 				}
-				// tileset
-				if(std::find(this->tileSets.begin(),this->tileSets.end(),gameSettings->getTileset()) != this->tileSets.end()) {
-					lastMissingTileSet = "";
 
-					tilesets.push_back(formatString(gameSettings->getTileset()));
+				if(getMissingTilesetFromFTPServerInProgress == false) {
+                    // tileset
+                    if(std::find(this->tileSets.begin(),this->tileSets.end(),gameSettings->getTileset()) != this->tileSets.end()) {
+                        lastMissingTileSet = "";
+
+                        tilesets.push_back(formatString(gameSettings->getTileset()));
+                    }
+                    else {
+                        // try to get the map via ftp
+                        if(ftpClientThread != NULL && getMissingTilesetFromFTPServer != gameSettings->getTileset()) {
+                            if(ftpMessageBox.getEnabled() == false) {
+                                getMissingTilesetFromFTPServer = gameSettings->getTileset();
+                                Lang &lang= Lang::getInstance();
+
+                                char szBuf[1024]="";
+                                sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTilesetQuestion").c_str(),gameSettings->getTileset().c_str());
+
+                                ftpMissingDataType = ftpmsg_MissingTileset;
+                                showFTPMessageBox(szBuf, lang.get("Question"), false);
+                            }
+                        }
+
+                        tilesets.push_back("***missing***");
+
+                        NetworkManager &networkManager= NetworkManager::getInstance();
+                        ClientInterface* clientInterface= networkManager.getClientInterface();
+                        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+                        if(lastMissingTileSet != gameSettings->getTileset()) {
+                            lastMissingTileSet = gameSettings->getTileset();
+
+                            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                            char szMsg[1024]="";
+                            sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+                            clientInterface->sendTextMessage(szMsg,-1, true);
+                        }
+                    }
+                    listBoxTileset.setItems(tilesets);
 				}
-				else {
-					tilesets.push_back("***missing***");
-
-					NetworkManager &networkManager= NetworkManager::getInstance();
-					ClientInterface* clientInterface= networkManager.getClientInterface();
-					const GameSettings *gameSettings = clientInterface->getGameSettings();
-
-					if(lastMissingTileSet != gameSettings->getTileset()) {
-						lastMissingTileSet = gameSettings->getTileset();
-
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-						char szMsg[1024]="";
-						sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
-						clientInterface->sendTextMessage(szMsg,-1, true);
-					}
-				}
-				listBoxTileset.setItems(tilesets);
 
 				// techtree
 				techtree.push_back(formatString(gameSettings->getTech()));
@@ -1015,6 +1057,7 @@ void MenuStateConnectedGame::update() {
 
                                 char szBuf[1024]="";
                                 sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
+                                ftpMissingDataType = ftpmsg_MissingMap;
                                 showFTPMessageBox(szBuf, lang.get("Question"), false);
                             }
                         }
@@ -1631,25 +1674,46 @@ void MenuStateConnectedGame::showFTPMessageBox(const string &text, const string 
 	}
 }
 
-void MenuStateConnectedGame::FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result) {
+void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_ResultType result) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    getMissingMapFromFTPServerInProgress = false;
-    printf("Got FTP Callback for [%s] result = %d\n",mapFilename.c_str(),result);
+    if(ftpMissingDataType == ftpmsg_MissingMap) {
+        getMissingMapFromFTPServerInProgress = false;
+        printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-    NetworkManager &networkManager= NetworkManager::getInstance();
-    ClientInterface* clientInterface= networkManager.getClientInterface();
-    const GameSettings *gameSettings = clientInterface->getGameSettings();
+        NetworkManager &networkManager= NetworkManager::getInstance();
+        ClientInterface* clientInterface= networkManager.getClientInterface();
+        const GameSettings *gameSettings = clientInterface->getGameSettings();
 
-    if(result == ftp_crt_SUCCESS) {
-        char szMsg[1024]="";
-        sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-        clientInterface->sendTextMessage(szMsg,-1, true);
+        if(result == ftp_crt_SUCCESS) {
+            char szMsg[1024]="";
+            sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+            clientInterface->sendTextMessage(szMsg,-1, true);
+        }
+        else {
+            char szMsg[1024]="";
+            sprintf(szMsg,"Player: %s FAILED to download the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+            clientInterface->sendTextMessage(szMsg,-1, true);
+        }
     }
-    else {
-        char szMsg[1024]="";
-        sprintf(szMsg,"Player: %s FAILED to download the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-        clientInterface->sendTextMessage(szMsg,-1, true);
+    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
+        getMissingTilesetFromFTPServerInProgress = false;
+        printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+
+        NetworkManager &networkManager= NetworkManager::getInstance();
+        ClientInterface* clientInterface= networkManager.getClientInterface();
+        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+        if(result == ftp_crt_SUCCESS) {
+            char szMsg[1024]="";
+            sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+            clientInterface->sendTextMessage(szMsg,-1, true);
+        }
+        else {
+            char szMsg[1024]="";
+            sprintf(szMsg,"Player: %s FAILED to download the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+            clientInterface->sendTextMessage(szMsg,-1, true);
+        }
     }
 }
 

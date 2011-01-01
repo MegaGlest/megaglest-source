@@ -36,8 +36,9 @@ ip_t FindExternalFTPServerIp(ip_t clientIp) {
     return result;
 }
 
-FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,int portNumber) : BaseThread() {
+FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber) : BaseThread() {
     this->mapsPath              = mapsPath;
+    this->tilesetsPath          = tilesetsPath;
     this->portNumber            = portNumber;
 
 	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward);
@@ -82,6 +83,7 @@ void FTPServerThread::execute() {
         try	{
             //ftpCreateAccount("anonymous", "", mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 
+            // Setup FTP Users and permissions for maps
             if(mapsPath.first != "") {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.first.c_str());
                 ftpCreateAccount("maps", "mg_ftp_server", mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
@@ -89,6 +91,16 @@ void FTPServerThread::execute() {
             if(mapsPath.second != "") {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.second.c_str());
                 ftpCreateAccount("maps_custom", "mg_ftp_server", mapsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+            }
+
+            // Setup FTP Users and permissions for tilesets
+            if(tilesetsPath.first != "") {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
+                ftpCreateAccount("tilsets", "mg_ftp_server", tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+            }
+            if(tilesetsPath.second != "") {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
+                ftpCreateAccount("tilsets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
 
 /*
