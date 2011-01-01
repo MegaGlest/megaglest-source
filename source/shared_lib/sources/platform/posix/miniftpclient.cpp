@@ -33,12 +33,21 @@ namespace Shared { namespace PlatformCommon {
 
 struct FtpFile {
   const char *filename;
+  const char *filepath;
   FILE *stream;
   FTPClientThread *ftpServer;
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct FtpFile *out=(struct FtpFile *)stream;
+
+  string fullFilePath = "";
+  if(out != NULL && out->filepath != NULL) {
+      fullFilePath = out->filepath;
+  }
+  if(out != NULL && out->filename != NULL) {
+      fullFilePath += out->filename;
+  }
 
   // Abort file xfer and delete partial file
   if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
@@ -47,18 +56,18 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
         out->stream = NULL;
     }
 
-    unlink(out->filename);
+    unlink(fullFilePath.c_str());
 
     return -1;
   }
 
   if(out && out->stream == NULL) {
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",out->filename);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
 
     /* open file for writing */
-    out->stream = fopen(out->filename, "wb");
+    out->stream = fopen(fullFilePath.c_str(), "wb");
     if(out->stream == NULL) {
-      if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",out->filename);
+      if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
 
       return -1; /* failure, can't open file to write */
     }
@@ -69,33 +78,47 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
 
 static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
 {
-  printf("%3d %40s %10luB ", remains, finfo->filename,(unsigned long)finfo->size);
-
-  switch(finfo->filetype) {
-  case CURLFILETYPE_DIRECTORY:
-    printf(" DIR\n");
-    break;
-  case CURLFILETYPE_FILE:
-    printf("FILE ");
-    break;
-  default:
-    printf("OTHER\n");
-    break;
-  }
-
-  if(finfo->filetype == CURLFILETYPE_FILE) {
-    // do not transfer files >= 50B
-    //if(finfo->size > 50) {
-    //  printf("SKIPPED\n");
-    //  return CURL_CHUNK_BGN_FUNC_SKIP;
-    //}
-
     struct FtpFile *out=(struct FtpFile *)data;
-    out->stream = fopen(finfo->filename, "w");
-    if(!out->stream) {
-      return CURL_CHUNK_BGN_FUNC_FAIL;
+
+    string rootFilePath = "";
+    string fullFilePath = "";
+    if(out != NULL && out->filepath != NULL) {
+        rootFilePath = out->filepath;
     }
-  }
+    if(out != NULL && out->filename != NULL) {
+        fullFilePath = rootFilePath + finfo->filename;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n===> FTP Client thread file_is_comming: remains: [%3d] filename: [%40s] size: [%10luB] ", remains, finfo->filename,(unsigned long)finfo->size);
+
+    switch(finfo->filetype) {
+        case CURLFILETYPE_DIRECTORY:
+        printf("DIR (creating [%s%s])\n",rootFilePath.c_str(),finfo->filename);
+        rootFilePath += finfo->filename;
+        createDirectoryPaths(rootFilePath.c_str());
+        break;
+        case CURLFILETYPE_FILE:
+        printf("FILE ");
+        break;
+        default:
+        printf("OTHER\n");
+        break;
+    }
+
+    if(finfo->filetype == CURLFILETYPE_FILE) {
+        // do not transfer files >= 50B
+        //if(finfo->size > 50) {
+        //  printf("SKIPPED\n");
+        //  return CURL_CHUNK_BGN_FUNC_SKIP;
+        //}
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" opening file [%s] ", fullFilePath.c_str());
+
+        out->stream = fopen(fullFilePath.c_str(), "wb");
+        if(!out->stream) {
+            return CURL_CHUNK_BGN_FUNC_FAIL;
+        }
+    }
 
   return CURL_CHUNK_BGN_FUNC_OK;
 }
@@ -104,7 +127,7 @@ static long file_is_downloaded(void *data)
 {
   struct FtpFile *out=(struct FtpFile *)data;
   if(out->stream) {
-    printf("DOWNLOADED\n");
+    printf("DOWNLOAD COMPLETE!\n");
 
     fclose(out->stream);
     out->stream = 0x0;
@@ -155,6 +178,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
 
     struct FtpFile ftpfile = {
         destFile.c_str(), /* name to store the file as if succesful */
+        NULL,
         NULL,
         this
     };
@@ -211,7 +235,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(mapFileName,result);
+       this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result);
     }
 }
 
@@ -236,7 +260,7 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(tileSetName,result);
+       this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result);
     }
 }
 
@@ -246,6 +270,21 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFile = this->tilesetsPath.second;
+
+    // Root folder for the tileset
+    string destRootFolder = "";
+    if(tileSetNameSubfolder == "") {
+        destRootFolder = this->tilesetsPath.second;
+        if(EndsWith(destRootFolder,"/") == false && EndsWith(destRootFolder,"\\") == false) {
+             destRootFolder += "/";
+        }
+        destRootFolder += tileSetName;
+        if(EndsWith(destRootFolder,"/") == false && EndsWith(destRootFolder,"\\") == false) {
+             destRootFolder += "/";
+        }
+
+        createDirectoryPaths(destRootFolder);
+    }
 
     if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
         destFile += "/";
@@ -266,7 +305,8 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
 
     struct FtpFile ftpfile = {
-        destFile.c_str(), /* name to store the file as if succesful */
+        destFile.c_str(), // name to store the file as if succesful
+        destFile.c_str(),
         NULL,
         this
     };
@@ -315,6 +355,9 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         if(CURLE_OK != res) {
           // we failed
           fprintf(stderr, "curl told us %d\n", res);
+          if(destRootFolder != "") {
+            unlink(destRootFolder.c_str());
+          }
         }
         else {
             result = ftp_crt_SUCCESS;
@@ -333,8 +376,8 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
                 requireMoreFolders = true;
             }
             else if(tileSetNameSubfolder == "textures") {
-                tileSetNameSubfolder = "textures";
-                requireMoreFolders = true;
+                tileSetNameSubfolder = "";
+                requireMoreFolders = false;
             }
 
             if(requireMoreFolders == true) {
