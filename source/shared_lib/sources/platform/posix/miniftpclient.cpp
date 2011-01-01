@@ -251,6 +251,9 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         destFile += "/";
     }
     destFile += tileSetName;
+    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+        destFile += "/";
+    }
 
     if(tileSetNameSubfolder != "") {
         destFile += tileSetNameSubfolder;
@@ -275,7 +278,12 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         ftpfile.stream = NULL;
 
         char szBuf[1024]="";
-        sprintf(szBuf,"ftp://%s:%s@%s:%d/%s*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+        if(tileSetNameSubfolder == "") {
+            sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+        }
+        else {
+            sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str(),tileSetNameSubfolder.c_str());
+        }
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
 
