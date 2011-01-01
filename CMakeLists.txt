@@ -108,7 +108,7 @@ IF(WIN32)
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.20.1/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
 
