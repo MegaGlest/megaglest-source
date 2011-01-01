@@ -1674,10 +1674,10 @@ void MenuStateConnectedGame::showFTPMessageBox(const string &text, const string 
 	}
 }
 
-void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_ResultType result) {
+void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(ftpMissingDataType == ftpmsg_MissingMap) {
+    if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
         printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
@@ -1696,7 +1696,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             clientInterface->sendTextMessage(szMsg,-1, true);
         }
     }
-    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
+    else if(type == ftp_cct_Tileset) {
         getMissingTilesetFromFTPServerInProgress = false;
         printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
@@ -1708,6 +1708,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             char szMsg[1024]="";
             sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
             clientInterface->sendTextMessage(szMsg,-1, true);
+
+            findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
         }
         else {
             char szMsg[1024]="";

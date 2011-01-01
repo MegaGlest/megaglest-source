@@ -32,9 +32,14 @@ enum FTP_Client_ResultType {
     ftp_crt_ABORTED = 2
 };
 
+enum FTP_Client_CallbackType {
+    ftp_cct_Map     = 0,
+    ftp_cct_Tileset = 1
+};
+
 class FTPClientCallbackInterface {
 public:
-    virtual void FTPClient_CallbackEvent(string mapFilename, FTP_Client_ResultType result) = 0;
+    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result) = 0;
 };
 
 class FTPClientThread : public BaseThread
