@@ -370,6 +370,18 @@ void FTPClientThread::execute() {
                     safeMutex.ReleaseLock();
                 }
 
+                MutexSafeWrapper safeMutex2(&mutexTilesetList);
+                if(tilesetList.size() > 0) {
+                    string tileset = tilesetList[0];
+                    tilesetList.erase(tilesetList.begin() + 0);
+                    safeMutex2.ReleaseLock();
+
+                    getTilesetFromServer(tileset);
+                }
+                else {
+                    safeMutex2.ReleaseLock();
+                }
+
                 sleep(25);
             }
 
