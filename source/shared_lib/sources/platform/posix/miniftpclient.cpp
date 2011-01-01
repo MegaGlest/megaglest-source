@@ -56,7 +56,7 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",out->filename);
 
     /* open file for writing */
-    out->stream=fopen(out->filename, "wb");
+    out->stream = fopen(out->filename, "wb");
     if(out->stream == NULL) {
       if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",out->filename);
 
@@ -66,10 +66,57 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   return fwrite(buffer, size, nmemb, out->stream);
 }
 
-FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
+
+static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
+{
+  printf("%3d %40s %10luB ", remains, finfo->filename,(unsigned long)finfo->size);
+
+  switch(finfo->filetype) {
+  case CURLFILETYPE_DIRECTORY:
+    printf(" DIR\n");
+    break;
+  case CURLFILETYPE_FILE:
+    printf("FILE ");
+    break;
+  default:
+    printf("OTHER\n");
+    break;
+  }
+
+  if(finfo->filetype == CURLFILETYPE_FILE) {
+    // do not transfer files >= 50B
+    //if(finfo->size > 50) {
+    //  printf("SKIPPED\n");
+    //  return CURL_CHUNK_BGN_FUNC_SKIP;
+    //}
+
+    struct FtpFile *out=(struct FtpFile *)data;
+    out->stream = fopen(finfo->filename, "w");
+    if(!out->stream) {
+      return CURL_CHUNK_BGN_FUNC_FAIL;
+    }
+  }
+
+  return CURL_CHUNK_BGN_FUNC_OK;
+}
+
+static long file_is_downloaded(void *data)
+{
+  struct FtpFile *out=(struct FtpFile *)data;
+  if(out->stream) {
+    printf("DOWNLOADED\n");
+
+    fclose(out->stream);
+    out->stream = 0x0;
+  }
+  return CURL_CHUNK_END_FUNC_OK;
+}
+
+FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;
+    this->tilesetsPath  = tilesetsPath;
     this->pCBObject     = pCBObject;
 }
 
@@ -175,6 +222,127 @@ void FTPClientThread::addMapToRequests(string mapFilename) {
     }
 }
 
+void FTPClientThread::addTilesetToRequests(string tileSetName) {
+    MutexSafeWrapper safeMutex(&mutexTilesetList);
+    if(std::find(tilesetList.begin(),tilesetList.end(),tileSetName) == tilesetList.end()) {
+        tilesetList.push_back(tileSetName);
+    }
+}
+
+void FTPClientThread::getTilesetFromServer(string tileSetName) {
+    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", "tilsets_custom", "mg_ftp_server");
+    if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
+        result = getTilesetFromServer(tileSetName, "tilesets", "", "mg_ftp_server");
+    }
+
+    if(this->pCBObject != NULL) {
+       this->pCBObject->FTPClient_CallbackEvent(tileSetName,result);
+    }
+}
+
+FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword) {
+    CURLcode res;
+
+    FTP_Client_ResultType result = ftp_crt_FAIL;
+
+    string destFile = this->mapsPath.second;
+
+    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+        destFile += "/";
+    }
+    destFile += tileSetName;
+
+    if(tileSetNameSubfolder != "") {
+        destFile += tileSetNameSubfolder;
+
+        if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+            destFile += "/";
+        }
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+
+    struct FtpFile ftpfile = {
+        destFile.c_str(), /* name to store the file as if succesful */
+        NULL,
+        this
+    };
+
+    //curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    CURL *curl = curl_easy_init();
+    if(curl) {
+        ftpfile.stream = NULL;
+
+        char szBuf[1024]="";
+        sprintf(szBuf,"ftp://%s:%s@%s:%d/%s*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+
+        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
+
+        // turn on wildcard matching
+        curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
+
+        // callback is called before download of concrete file started
+        curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
+
+        // callback is called after data from the file have been transferred
+        curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
+
+        // put transfer data into callbacks
+        // helper data
+        //struct callback_data data = { 0 };
+        curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        // Define our callback to get called when there's data to be written
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
+        // Set a pointer to our struct to pass to the callback
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        // Switch on full protocol/debug output
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+        res = curl_easy_perform(curl);
+
+        if(CURLE_OK != res) {
+          // we failed
+          fprintf(stderr, "curl told us %d\n", res);
+        }
+        else {
+            result = ftp_crt_SUCCESS;
+
+            bool requireMoreFolders = false;
+            if(tileSetNameSubfolder == "") {
+                tileSetNameSubfolder = "models";
+                requireMoreFolders = true;
+            }
+            else if(tileSetNameSubfolder == "models") {
+                tileSetNameSubfolder = "sounds";
+                requireMoreFolders = true;
+            }
+            else if(tileSetNameSubfolder == "sounds") {
+                tileSetNameSubfolder = "textures";
+                requireMoreFolders = true;
+            }
+            else if(tileSetNameSubfolder == "textures") {
+                tileSetNameSubfolder = "textures";
+                requireMoreFolders = true;
+            }
+
+            if(requireMoreFolders == true) {
+                FTP_Client_ResultType result2 = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword);
+            }
+        }
+
+        curl_easy_cleanup(curl);
+    }
+
+    if(ftpfile.stream) {
+        fclose(ftpfile.stream);
+        ftpfile.stream = NULL;
+    }
+    return result;
+}
 
 void FTPClientThread::execute() {
     {

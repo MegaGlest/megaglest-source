@@ -96,9 +96,18 @@ ServerInterface::ServerInterface() {
             }
         }
 
+        std::pair<string,string> tilesetsPath;
+        vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
+        if(tilesetsList.size() > 0) {
+            tilesetsPath.first = tilesetsList[0];
+            if(tilesetsList.size() > 1) {
+                tilesetsPath.second = tilesetsList[1];
+            }
+        }
+
         int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
         ServerSocket::setFTPServerPort(portNumber);
-        ftpServer = new FTPServerThread(mapsPath,portNumber);
+        ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber);
         ftpServer->start();
     }
 }
