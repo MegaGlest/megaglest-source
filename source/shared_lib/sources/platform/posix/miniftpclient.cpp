@@ -245,7 +245,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
-    string destFile = this->mapsPath.second;
+    string destFile = this->tilesetsPath.second;
 
     if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
         destFile += "/";
@@ -368,6 +368,10 @@ void FTPClientThread::execute() {
                 }
                 else {
                     safeMutex.ReleaseLock();
+                }
+
+                if(this->getQuitStatus() == true) {
+                    break;
                 }
 
                 MutexSafeWrapper safeMutex2(&mutexTilesetList);
