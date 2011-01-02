@@ -215,7 +215,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	ircOnlinePeopleLabel.registerGraphicComponent(containerName,"ircOnlinePeopleLabel");
 	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight);
-	ircOnlinePeopleLabel.setText("IRC People Online:");
+	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
