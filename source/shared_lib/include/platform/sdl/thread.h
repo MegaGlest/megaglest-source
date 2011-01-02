@@ -91,6 +91,9 @@ public:
 		this->ownerId = ownerId;
 		Lock();
     }
+    bool isValidMutex() const {
+        return(this->mutex != NULL);
+    }
 
 	void Lock() {
 		if(this->mutex != NULL) {

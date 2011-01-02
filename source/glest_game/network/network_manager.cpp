@@ -27,83 +27,108 @@ NetworkManager &NetworkManager::getInstance(){
 }
 
 NetworkManager::NetworkManager() {
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 
 	gameNetworkInterface= NULL;
 	networkRole= nrIdle;
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
 void NetworkManager::init(NetworkRole networkRole) {
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
 
 	assert(gameNetworkInterface==NULL);
 
 	this->networkRole = networkRole;
 
-	if(networkRole==nrServer){
+	if(networkRole == nrServer) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
 		gameNetworkInterface = new ServerInterface();
 	}
 	else {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
 		gameNetworkInterface = new ClientInterface();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+    //printf("==========] CREATING gameNetworkInterface [%p]\n",gameNetworkInterface);
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
 void NetworkManager::end() {
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+
+    //printf("==========] DELETING gameNetworkInterface [%p]\n",gameNetworkInterface);
 
 	delete gameNetworkInterface;
 	gameNetworkInterface= NULL;
 	networkRole= nrIdle;
 
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
-void NetworkManager::update(){
-	if(gameNetworkInterface!=NULL){
+void NetworkManager::update() {
+	if(gameNetworkInterface!=NULL) {
 		gameNetworkInterface->update();
 	}
 }
 
-bool NetworkManager::isNetworkGame(){
+bool NetworkManager::isNetworkGame() {
 	return networkRole==nrClient || getServerInterface()->getConnectedSlotCount()>0;
 }
 
-GameNetworkInterface* NetworkManager::getGameNetworkInterface(){
-	assert(gameNetworkInterface!=NULL);
-	if(gameNetworkInterface==NULL) {
-	    throw runtime_error("gameNetworkInterface==NULL");
-	}
+GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnNull) {
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+	//printf("==========] GET gameNetworkInterface [%p]\n",gameNetworkInterface);
+
+    if(throwErrorOnNull) {
+        assert(gameNetworkInterface!=NULL);
+
+        if(gameNetworkInterface==NULL) {
+            throw runtime_error("gameNetworkInterface==NULL");
+        }
+    }
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 	return gameNetworkInterface;
 }
 
-ServerInterface* NetworkManager::getServerInterface(){
-	assert(gameNetworkInterface!=NULL);
-	if(gameNetworkInterface==NULL) {
-	    throw runtime_error("gameNetworkInterface==NULL");
-	}
+ServerInterface* NetworkManager::getServerInterface(bool throwErrorOnNull) {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+    //printf("==========] GET gameNetworkInterface (server) [%p]\n",gameNetworkInterface);
 
-	assert(networkRole==nrServer);
-	if(networkRole!=nrServer) {
-	    throw runtime_error("networkRole!=nrServer");
-	}
+    if(throwErrorOnNull) {
+        assert(gameNetworkInterface!=NULL);
+        if(gameNetworkInterface==NULL) {
+            throw runtime_error("gameNetworkInterface==NULL");
+        }
 
+        assert(networkRole==nrServer);
+        if(networkRole!=nrServer) {
+            throw runtime_error("networkRole!=nrServer");
+        }
+    }
+
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
 	return dynamic_cast<ServerInterface*>(gameNetworkInterface);
 }
 
-ClientInterface* NetworkManager::getClientInterface(){
-	assert(gameNetworkInterface!=NULL);
-	if(gameNetworkInterface==NULL) {
-	    throw runtime_error("gameNetworkInterface==NULL");
-	}
+ClientInterface* NetworkManager::getClientInterface(bool throwErrorOnNull) {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+    //printf("==========] GET gameNetworkInterface (client) [%p]\n",gameNetworkInterface);
 
-	assert(networkRole==nrClient);
-	if(networkRole!=nrClient) {
-	    throw runtime_error("networkRole!=nrClient");
-	}
+    if(throwErrorOnNull) {
+        assert(gameNetworkInterface!=NULL);
+        if(gameNetworkInterface==NULL) {
+            throw runtime_error("gameNetworkInterface==NULL");
+        }
+
+        assert(networkRole==nrClient);
+        if(networkRole!=nrClient) {
+            throw runtime_error("networkRole!=nrClient");
+        }
+    }
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d this->networkRole = %d\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole);
 
 	return dynamic_cast<ClientInterface*>(gameNetworkInterface);
 }

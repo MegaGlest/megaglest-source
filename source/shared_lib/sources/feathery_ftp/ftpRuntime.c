@@ -205,8 +205,8 @@ int ftpShutdown(void)
 		if(ftpGetSession(n)->open)
 		{
 			ftpUntrackSocket(ftpGetSession(n)->ctrlSocket);
-            ftpCloseSession(n);
 		}
+		ftpCloseSession(n);
 	}
 
 	ftpArchCleanup();

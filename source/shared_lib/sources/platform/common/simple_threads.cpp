@@ -89,7 +89,7 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 
 bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
-	if(deleteSelfIfShutdownDelayed == true) {
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
 	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
 	    signalQuit();
 	}

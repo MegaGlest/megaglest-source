@@ -145,7 +145,7 @@ private:
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
-	~MenuStateCustomGame();
+	virtual ~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -191,6 +191,7 @@ private:
 	void PlayNow();
 
 	void SetActivePlayerNameEditor();
+	void cleanup();
 };
 
 }}//end namespace

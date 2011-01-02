@@ -300,13 +300,15 @@ void MenuStateMasterserver::cleanup() {
 
     MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
     needUpdateFromServer = false;
+    safeMutex.ReleaseLock();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(updateFromMasterserverThread != NULL &&
-        updateFromMasterserverThread->canShutdown(true) == true &&
-        updateFromMasterserverThread->shutdownAndWait() == true) {
-        delete updateFromMasterserverThread;
+        updateFromMasterserverThread->canShutdown(true) == true) {
+        if(updateFromMasterserverThread->shutdownAndWait() == true) {
+            delete updateFromMasterserverThread;
+        }
     }
     updateFromMasterserverThread = NULL;
 

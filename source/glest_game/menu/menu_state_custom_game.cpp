@@ -518,26 +518,45 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-MenuStateCustomGame::~MenuStateCustomGame() {
+void MenuStateCustomGame::cleanup() {
+    //printf("IN MenuStateCustomGame cleanup - A\n");
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(publishToMasterserverThread != NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        if(publishToMasterserverThread != NULL &&
-            publishToMasterserverThread->canShutdown(true) == true &&
-            publishToMasterserverThread->shutdownAndWait() == true) {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            delete publishToMasterserverThread;
-        }
-        publishToMasterserverThread = NULL;
+        //printf("IN MenuStateCustomGame cleanup - B\n");
+
         needToBroadcastServerSettings = false;
         needToRepublishToMasterserver = false;
+        lastNetworkPing               = time(NULL);
+        publishToMasterserverThread->setThreadOwnerValid(false);
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(publishToMasterserverThread->canShutdown(true) == true &&
+           publishToMasterserverThread->shutdownAndWait() == true) {
+            //printf("IN MenuStateCustomGame cleanup - C\n");
+            delete publishToMasterserverThread;
+        }
+
+        //printf("IN MenuStateCustomGame cleanup - D\n");
+        publishToMasterserverThread = NULL;
     }
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //printf("IN MenuStateCustomGame cleanup - E\n");
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	cleanupFactionTexture();
 	cleanupMapPreviewTexture();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+MenuStateCustomGame::~MenuStateCustomGame() {
+    //printf("IN MenuStateCustomGame Destructor - A\n");
+
+    cleanup();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -547,23 +566,29 @@ void MenuStateCustomGame::returnToParentMenu() {
 
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
+	lastNetworkPing               = time(NULL);
 	bool returnToMasterServerMenu = parentMenuIsMs;
 
+/*
 	if(publishToMasterserverThread != NULL &&
         publishToMasterserverThread->canShutdown() == true &&
 		publishToMasterserverThread->shutdownAndWait() == true) {
+        publishToMasterserverThread->setThreadOwnerValid(false);
 		delete publishToMasterserverThread;
 		publishToMasterserverThread = NULL;
 	}
+*/
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(returnToMasterServerMenu) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		cleanup();
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		cleanup();
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 	}
 
@@ -596,17 +621,18 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
             needToBroadcastServerSettings = false;
             needToRepublishToMasterserver = false;
+            lastNetworkPing               = time(NULL);
             safeMutex.ReleaseLock();
 
+/*
             if(publishToMasterserverThread != NULL &&
                 publishToMasterserverThread->canShutdown() == true &&
                 publishToMasterserverThread->shutdownAndWait() == true) {
+                publishToMasterserverThread->setThreadOwnerValid(false);
                 delete publishToMasterserverThread;
                 publishToMasterserverThread = NULL;
             }
-
-            //publishToMasterserverThreadInDeletion = false;
-            //safeMutexPtr.ReleaseLock();
+*/
 
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1091,20 +1117,24 @@ void MenuStateCustomGame::PlayNow() {
 			}
 			needToBroadcastServerSettings = false;
 			needToRepublishToMasterserver = false;
+			lastNetworkPing               = time(NULL);
 			safeMutex.ReleaseLock();
 
+/*
 			if(publishToMasterserverThread != NULL &&
                 publishToMasterserverThread->canShutdown() == true &&
 				publishToMasterserverThread->shutdownAndWait() == true) {
+                publishToMasterserverThread->setThreadOwnerValid(false);
 				delete publishToMasterserverThread;
 				publishToMasterserverThread = NULL;
 			}
-
+*/
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			assert(program != NULL);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			cleanup();
 			program->setState(new Game(program, &gameSettings));
 			return;
 		}
@@ -1795,9 +1825,14 @@ void MenuStateCustomGame::publishToMasterserver()
 void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
     try {
-        if(callingThread->getQuitStatus() == true) {
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - A\n");
+
+        MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid());
+        if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
             return;
         }
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - B\n");
 
         MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor());
         bool republish                                  = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
@@ -1807,19 +1842,22 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         bool broadCastSettings                          = needToBroadcastServerSettings;
         needToBroadcastServerSettings                   = false;
         bool hasClientConnection                        = false;
+
         if(broadCastSettings == true) {
-            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-            hasClientConnection = serverInterface->hasClientConnection();
+            ServerInterface *serverInterface = NetworkManager::getInstance().getServerInterface(false);
+            if(serverInterface != NULL) {
+                hasClientConnection = serverInterface->hasClientConnection();
+            }
         }
-        bool needPing                                   = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
-        safeMutex.ReleaseLock(true);
+        bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
 
         if(callingThread->getQuitStatus() == true) {
             return;
         }
 
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - C\n");
+
         if(republish == true) {
-            safeMutex.Lock();
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
@@ -1837,66 +1875,85 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             //printf("the request is:\n%s\n",request.c_str());
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
             safeMutex.ReleaseLock(true);
+            safeMutexThreadOwner.ReleaseLock();
 
             std::string serverInfo = SystemFlags::getHTTP(request,handle);
             SystemFlags::cleanupHTTP(&handle);
 
-            if(callingThread->getQuitStatus() == true) {
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
                 return;
             }
-
             safeMutex.Lock();
+
             //printf("the result is:\n'%s'\n",serverInfo.c_str());
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
 
             // uncomment to enable router setup check of this server
             if(EndsWith(serverInfo, "OK") == false) {
+                if(callingThread->getQuitStatus() == true) {
+                    return;
+                }
+
                 showMasterserverError=true;
                 masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
             }
-            safeMutex.ReleaseLock(true);
+        }
+        else {
+            safeMutexThreadOwner.ReleaseLock();
         }
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        if(callingThread->getQuitStatus() == true) {
-            return;
-        }
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - D\n");
 
         if(broadCastSettings == true) {
-            safeMutex.Lock();
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
+                return;
+            }
 
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
             GameSettings gameSettings;
             loadGameSettings(&gameSettings);
+
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            serverInterface->setGameSettings(&gameSettings,false);
 
-            if(hasClientConnection == true) {
+            if(callingThread->getQuitStatus() == true) {
+                return;
+            }
+            ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
+            if(serverInterface != NULL) {
+                serverInterface->setGameSettings(&gameSettings,false);
+            }
+
+            if(hasClientConnection == true && serverInterface != NULL) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
                 serverInterface->broadcastGameSetup(&gameSettings);
             }
-            safeMutex.ReleaseLock(true);
         }
 
-        if(callingThread->getQuitStatus() == true) {
-            return;
-        }
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - E\n");
 
-        safeMutex.Lock();
         if(needPing == true) {
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
+                return;
+            }
+
             lastNetworkPing = time(NULL);
 
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
-            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-            NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
 
-            serverInterface->broadcastPing(&msg);
+            ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
+            if(serverInterface != NULL) {
+                NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
+                serverInterface->broadcastPing(&msg);
+            }
         }
         safeMutex.ReleaseLock();
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - F\n");
     }
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";

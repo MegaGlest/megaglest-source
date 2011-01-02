@@ -674,14 +674,13 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p\n",
            sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,ftpAddUPNPPortForward,ftpRemoveUPNPPortForward);
 
-    if(ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) != 0)
+    if(ftpAddUPNPPortForward != NULL && ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) != 0)
     {
         ftpGetSession(sessionId)->remoteFTPServerPassivePort = port;
-        if(ftpAddUPNPPortForward) {
+
 if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
 
-            ftpAddUPNPPortForward(port, port);
-        }
+        ftpAddUPNPPortForward(port, port);
 
         remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
 

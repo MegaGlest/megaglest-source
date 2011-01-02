@@ -753,6 +753,8 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 }
 
 Socket::Socket() {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	this->pingThread = NULL;
 	this->connectedIpAddress = "";
 
