@@ -567,8 +567,11 @@ void MenuStateMasterserver::render(){
 			}
 		}
 		renderer.renderScrollBar(&userScrollBar);
-
-   		renderer.renderChatManager(&chatManager);
+		 if(ircClient != NULL &&
+		           ircClient->isConnected() == true &&
+		           ircClient->getHasJoinedChannel() == true) {
+					 renderer.renderChatManager(&chatManager);
+		        }
 		renderer.renderConsole(&consoleIRC,true,true);
 
 	}
@@ -913,15 +916,19 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 void MenuStateMasterserver::keyDown(char key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-    if(chatManager.getEditEnabled() == true) {
-        //printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
-        MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
-        if(key == vkReturn && ircClient != NULL) {
-            ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
-        }
-    }
+	if (ircClient != NULL && ircClient->isConnected() == true
+			&& ircClient->getHasJoinedChannel() == true) {
+		//chatmanger only if connected to irc!
+		if (chatManager.getEditEnabled() == true) {
+			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
+			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+			if (key == vkReturn && ircClient != NULL) {
+				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
+			}
+		}
 
-    chatManager.keyDown(key);
+		chatManager.keyDown(key);
+	}
     if(chatManager.getEditEnabled() == false) {
         if(key == configKeys.getCharKey("ToggleMusic")) {
             Config &config = Config::getInstance();
@@ -949,15 +956,21 @@ void MenuStateMasterserver::keyDown(char key) {
 }
 
 void MenuStateMasterserver::keyPress(char c) {
-    chatManager.keyPress(c);
+	if (ircClient != NULL && ircClient->isConnected() == true
+			&& ircClient->getHasJoinedChannel() == true) {
+		chatManager.keyPress(c);
+	}
 }
 void MenuStateMasterserver::keyUp(char key) {
-    chatManager.keyUp(key);
+	if (ircClient != NULL && ircClient->isConnected() == true
+			&& ircClient->getHasJoinedChannel() == true) {
+		chatManager.keyUp(key);
 
-    if(chatManager.getEditEnabled()) {
-        //send key to the chat manager
-        chatManager.keyUp(key);
-    }
+		if (chatManager.getEditEnabled()) {
+			//send key to the chat manager
+			chatManager.keyUp(key);
+		}
+	}
 }
 
 }}//end namespace

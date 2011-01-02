@@ -78,7 +78,7 @@ void event_join(irc_session_t * session, const char * event, const char * origin
 	if(ctx != NULL) {
         if(ctx->getHasJoinedChannel() == false) {
             irc_cmd_user_mode (session, "+i");
-            irc_cmd_msg (session, params[0], "MG Bot says hello!");
+            //irc_cmd_msg (session, params[0], "MG Bot says hello!");
             ctx->setHasJoinedChannel(true);
 
             ctx->GetIRCConnectedNickList(ctx->getArgs()[2],true);
