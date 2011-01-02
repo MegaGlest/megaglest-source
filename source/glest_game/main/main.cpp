@@ -37,7 +37,7 @@
 #include "cache_manager.h"
 
 // For gcc backtrace on crash!
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__MINGW32__)
 #include <execinfo.h>
 #include <cxxabi.h>
 #include <signal.h>
@@ -259,7 +259,7 @@ public:
 
         string errMsg = (msg != NULL ? msg : "null");
 
-        #ifdef __GNUC__
+        #if defined(__GNUC__) && !defined(__MINGW32__)
         errMsg += "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
@@ -1463,7 +1463,7 @@ __try {
 #endif
     application_binary=argv[0];
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__MINGW32__)
     signal(SIGSEGV, handleSIGSEGV);
 #endif
 
