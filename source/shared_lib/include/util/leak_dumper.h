@@ -27,7 +27,7 @@ using namespace std;
 
 //including this header in any file of a project will cause all
 //leaks to be dumped into leak_dump.txt, but only allocations that 
-//ocurred in a file where this header is included will have
+//occurred in a file where this header is included will have
 //file and line number
 
 struct AllocInfo{
