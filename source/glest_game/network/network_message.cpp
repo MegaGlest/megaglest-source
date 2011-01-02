@@ -305,7 +305,7 @@ void NetworkMessageLaunch::send(Socket* socket) const{
 //	class NetworkMessageLaunch
 // =====================================================
 
-NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount){
+NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount) {
 	data.header.messageType= nmtCommandList;
 	data.header.frameCount= frameCount;
 	data.header.commandCount= 0;
@@ -317,24 +317,29 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 		data.header.commandCount++;
 		return true;
 	}
+	else {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
+	}
 	return false;
 }
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 1000; peekAttempt++) {
+	for(int peekAttempt = 1; peekAttempt < 2000; peekAttempt++) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
 		if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == true) {
 			break;
 		}
-		else {
-			sleep(1); // sleep 1 ms to wait for socket data
-		}
+		//else {
+		//	sleep(1); // sleep 1 ms to wait for socket data
+		//}
 	}
 
 	if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR / WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR / WARNING!!! NetworkMessage::peek failed!\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
@@ -345,21 +350,24 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 1000; peekAttempt++) {
+	for(int peekAttempt = 1; peekAttempt < 2000; peekAttempt++) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
 
 		if (NetworkMessage::peek(socket, &data, totalMsgSize) == true) {
 			break;
 		}
-		else {
-			sleep(1); // sleep 1 ms to wait for socket data
-		}
+		//else {
+		//	sleep(1); // sleep 1 ms to wait for socket data
+		//}
 	}
 
 
 	if (socket->getDataToRead() < totalMsgSize) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR / WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
 			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR / WARNING!!! Insufficient data to read entire command list [need %d bytes, only %d available].\n",
+			__FILE__,__FUNCTION__,__LINE__, totalMsgSize, socket->getDataToRead());
+
 		return false;
 	}
 	bool result = NetworkMessage::receive(socket, &data, totalMsgSize);
@@ -374,7 +382,7 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	return result;
 }
 
-void NetworkMessageCommandList::send(Socket* socket) const{
+void NetworkMessageCommandList::send(Socket* socket) const {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
 
 	assert(data.header.messageType==nmtCommandList);

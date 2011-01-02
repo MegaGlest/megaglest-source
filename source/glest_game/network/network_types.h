@@ -72,14 +72,14 @@ enum NetworkCommandType {
 //};
 
 #pragma pack(push, 1)
-class NetworkCommand{
+class NetworkCommand {
 private:
 	int16 networkCommandType;
 	int32 unitId;
+	int16 unitTypeId;
 	int16 commandTypeId;
 	int16 positionX;
 	int16 positionY;
-	int16 unitTypeId;
 	int32 targetId;
 	int8 wantQueue;
 	int8 fromFactionIndex;
@@ -91,12 +91,12 @@ private:
 public:
 	NetworkCommand(){};
 	NetworkCommand(
-		World *world, 
-		int networkCommandType, 
-		int unitId, 
-		int commandTypeId= -1, 
-		const Vec2i &pos= Vec2i(0), 
-		int unitTypeId= -1, 
+		World *world,
+		int networkCommandType,
+		int unitId,
+		int commandTypeId= -1,
+		const Vec2i &pos= Vec2i(0),
+		int unitTypeId= -1,
 		int targetId= -1,
 		int facing= -1,
 		bool wantQueue = false,

@@ -242,15 +242,12 @@ public:
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage{
 private:
-	//static const int maxCommandCount= 16*4;
-	//static const int maxCommandCount = (16 * 4) * 2;
-	static const int maxCommandCount = 2048; // can be as large as 65535
+	static const int maxCommandCount = 2496; // can be as large as 65535
 
 private:
 	struct DataHeader {
 		int8 messageType;
 		uint16 commandCount;
-		//int8 commandCount;
 		int32 frameCount;
 	};
 

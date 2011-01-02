@@ -54,7 +54,7 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
         	this->unitFactionIndex = unit->getFaction()->getIndex();
         	this->unitFactionUnitCount = unit->getFaction()->getUnitCount();
 
-            const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
+            //const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
             const CommandType *ct   = unit->getType()->findCommandTypeById(this->commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild) {
                 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
@@ -63,6 +63,8 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
             }
         }
     }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Created NetworkCommand as follows:\n%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
 }
 
 void NetworkCommand::preprocessNetworkCommand(World *world) {
@@ -71,7 +73,7 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 
         //validate unit
         if(unit != NULL) {
-            const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
+            //const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
             const CommandType *ct   = unit->getType()->findCommandTypeById(commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
 				CardinalDir::assertDirValid(targetId);
@@ -93,17 +95,5 @@ string NetworkCommand::toString() const {
     string result = szBuf;
     return result;
 }
-
-/*
-NetworkCommand::NetworkCommand(int networkCommandType, NetworkCommandSubType ncstType, int unitId, int value1, int value2) {
-	this->networkCommandType= networkCommandType;
-	this->unitId= unitId;
-	this->commandTypeId= ncstType;
-	this->positionX= -1;
-	this->positionY= -1;
-	this->unitTypeId= value1;
-	this->targetId= value2;
-}
-*/
 
 }}//end namespace

@@ -601,6 +601,10 @@ void Program::restoreDisplaySettings(){
 	}
 }
 
+bool Program::isMessageShowing() {
+    return msgBox.getEnabled();
+}
+
 void Program::showMessage(const char *msg) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg);
 

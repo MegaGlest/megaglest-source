@@ -535,9 +535,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				NetworkMessageCommandList networkMessageCommandList;
 				while(receiveMessage(&networkMessageCommandList) == false &&
 					  isConnected() == true &&
-					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-					//sleep(waitSleepTime);
-					//sleep(0);
+					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
 					waitCount++;
 				}
 
@@ -585,11 +583,9 @@ void ClientInterface::updateKeyframe(int frameCount) {
 			{
 				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageQuit networkMessageQuit;
-				//if(receiveMessage(&networkMessageQuit)) {
 				while(receiveMessage(&networkMessageQuit) == false &&
 					  isConnected() == true &&
-					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-					//sleep(0);
+					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
 				}
 				quit= true;
 				done= true;
@@ -603,7 +599,6 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				while(receiveMessage(&networkMessageText) == false &&
 					  isConnected() == true &&
 					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-					//sleep(0);
 				}
 
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());

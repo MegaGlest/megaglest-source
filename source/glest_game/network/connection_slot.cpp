@@ -344,8 +344,8 @@ void ConnectionSlot::update(bool checkForNewClients) {
 									lastReceiveCommandListTime = time(NULL);
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-									for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
-										MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+                                    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
 								}

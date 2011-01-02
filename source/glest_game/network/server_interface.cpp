@@ -791,7 +791,7 @@ void ServerInterface::update() {
 	}
 }
 
-void ServerInterface::updateKeyframe(int frameCount){
+void ServerInterface::updateKeyframe(int frameCount) {
 	Chrono chrono;
 	chrono.start();
 
@@ -801,7 +801,7 @@ void ServerInterface::updateKeyframe(int frameCount){
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
 
 	//build command list, remove commands from requested and add to pending
-	while(!requestedCommands.empty()) {
+	while(requestedCommands.empty() == false) {
 		if(networkMessageCommandList.addCommand(&requestedCommands.back())) {
 			pendingCommands.push_back(requestedCommands.back());
 			requestedCommands.pop_back();
@@ -814,9 +814,10 @@ void ServerInterface::updateKeyframe(int frameCount){
 	try {
 		// Possible cause of out of synch since we have more commands that need
 		// to be sent in this frame
-		if(!requestedCommands.empty()) {
+		if(requestedCommands.empty() == false) {
 			char szBuf[1024]="";
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
 			string sMsg = "may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
 			sendTextMessage(sMsg,-1, true);
