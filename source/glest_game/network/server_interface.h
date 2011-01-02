@@ -121,7 +121,7 @@ public:
 
 	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
 
-	virtual void simpleTask();
+	virtual void simpleTask(BaseThread *callingThread);
 	void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
 
 private:

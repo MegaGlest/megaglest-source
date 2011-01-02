@@ -102,9 +102,9 @@ private:
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
-	Mutex masterServerThreadAccessor;
-	Mutex publishToMasterserverThreadPtrChangeAccessor;
-	bool publishToMasterserverThreadInDeletion;
+	//Mutex masterServerThreadAccessor;
+	//Mutex publishToMasterserverThreadPtrChangeAccessor;
+	//bool publishToMasterserverThreadInDeletion;
 
 	bool parentMenuIsMs;
 	int soundConnectionCount;
@@ -157,7 +157,7 @@ public:
     virtual void keyUp(char key);
 
 
-    virtual void simpleTask();
+    virtual void simpleTask(BaseThread *callingThread);
     virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 private:

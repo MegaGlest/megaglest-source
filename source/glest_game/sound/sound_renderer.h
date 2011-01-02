@@ -58,7 +58,7 @@ public:
 	static SoundRenderer &getInstance();
 	bool init(Window *window);
 	void update();
-	virtual void simpleTask() { update(); }
+	virtual void simpleTask(BaseThread *callingThread) { update(); }
 	SoundPlayer *getSoundPlayer() const	{return soundPlayer;}
 
 	//music

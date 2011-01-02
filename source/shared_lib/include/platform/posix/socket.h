@@ -121,7 +121,7 @@ public:
 	Socket();
 	virtual ~Socket();
 
-	virtual void simpleTask();
+	virtual void simpleTask(BaseThread *callingThread);
 
 	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }

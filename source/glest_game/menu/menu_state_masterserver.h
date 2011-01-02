@@ -97,9 +97,6 @@ private:
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	std::string threadedErrorMsg;
-	Mutex masterServerThreadAccessor;
-	Mutex masterServerThreadPtrChangeAccessor;
-	bool masterServerThreadInDeletion;
 
     std::vector<string> ircArgs;
 	Mutex mutexIRCClient;
@@ -122,7 +119,7 @@ public:
     virtual void keyPress(char c);
     virtual void keyUp(char key);
 
-	virtual void simpleTask();
+	virtual void simpleTask(BaseThread *callingThread);
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
@@ -133,7 +130,6 @@ private:
 	void setButtonLinePosition(int pos);
 	void clearServerLines();
 	void clearUserButtons();
-	void updateServerInfo();
 	void rebuildServerLines(const string &serverInfo);
 	void cleanup();
 	virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count);

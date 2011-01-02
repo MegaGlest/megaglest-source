@@ -48,7 +48,7 @@ public:
 //
 class SimpleTaskCallbackInterface {
 public:
-	virtual void simpleTask() = 0;
+	virtual void simpleTask(BaseThread *callingThread) = 0;
 };
 
 class SimpleTaskThread : public BaseThread
@@ -63,9 +63,6 @@ protected:
 	bool taskSignalled;
 	bool needTaskSignal;
 
-	Mutex mutexExecutingTask;
-	bool executingTask;
-
 public:
 	SimpleTaskThread();
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
@@ -73,12 +70,10 @@ public:
 					 unsigned int millisecsBetweenExecutions=0,
 					 bool needTaskSignal = false);
     virtual void execute();
-    virtual bool canShutdown();
+    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
     void setTaskSignalled(bool value);
     bool getTaskSignalled();
-    void setExecutingTask(bool value);
-    bool getExecutingTask();
 };
 
 // =====================================================

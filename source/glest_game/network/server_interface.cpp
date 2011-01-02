@@ -146,7 +146,7 @@ ServerInterface::~ServerInterface() {
 	// This triggers a gameOver message to be sent to the masterserver
 	lastMasterserverHeartbeatTime = 0;
 	if(needToRepublishToMasterserver == true) {
-		simpleTask();
+		simpleTask(NULL);
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1523,7 +1523,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	return publishToServerInfo;
 }
 
-void ServerInterface::simpleTask() {
+void ServerInterface::simpleTask(BaseThread *callingThread) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
