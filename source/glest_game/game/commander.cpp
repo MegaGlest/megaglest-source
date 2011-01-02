@@ -495,21 +495,38 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw runtime_error(szBuf);
 	}
 
+    ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
+
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
 	    char szBuf[4096]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
 	    //std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
-	    std::string sError = "Error [#1]: Game is out of sync, please check log files for details.";
+	    std::string sError = "Error [#1]: Game is out of sync (Unit / Faction mismatch)\nplease check log files for details.";
+		throw runtime_error(sError);
+	}
+	else if(networkCommand->getUnitTypeId() >= 0 &&
+            unit->getType()->getId() != networkCommand->getUnitTypeId() &&
+            ct->getClass() != ccBuild) {
+	    char szBuf[4096]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Type mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nactual local unitTypeId = %d.\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex(),unit->getType()->getId());
+
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+
+	    std::string worldLog = world->DumpWorldToLog();
+	    //std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
+	    std::string sError = "Error [#2]: Game is out of sync (unit type mismatch)\nplease check log files for details.";
 		throw runtime_error(sError);
 	}
 
     const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
-	ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 
 	// debug test!
 	//throw runtime_error("Test missing command type!");
@@ -544,13 +561,13 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	//create command
 	Command *command= NULL;
-	if(unitType!=NULL){
+	if(unitType != NULL) {
 		command= new Command(ct, networkCommand->getPosition(), unitType, facing);
 	}
-	else if(target==NULL){
+	else if(target == NULL) {
 		command= new Command(ct, networkCommand->getPosition());
 	}
-	else{
+	else {
 		command= new Command(ct, target);
 	}
 

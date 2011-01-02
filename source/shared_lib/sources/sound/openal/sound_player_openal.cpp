@@ -203,7 +203,7 @@ void StreamSoundSource::update()
 	if(fadeState == NoFading){
 		alSourcef(source, AL_GAIN, sound->getVolume());
 	}
-	
+
 	ALint processed = 0;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 	while(processed > 0) {
@@ -481,15 +481,23 @@ void SoundPlayerOpenAL::updateStreams() {
 				source->update();
 			}
 			catch(std::exception& e) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 
-				std::cerr << "Error while updating sound stream: "
-					<< e.what() << "\n";
+				std::cerr << "Error while updating sound stream: "<< e.what() << "\n";
 			}
 		}
 		alcProcessContext(context);
 		checkAlcError("Error while processing audio context: ");
-	} catch(...) {
+	}
+	catch(exception &ex) {
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		printOpenALInfo();
+		throw runtime_error(ex.what());
+	}
+	catch(...) {
+	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
 		printOpenALInfo();
 		throw;

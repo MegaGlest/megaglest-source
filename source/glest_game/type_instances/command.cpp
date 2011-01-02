@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -28,16 +28,16 @@ namespace Glest{ namespace Game{
 Command::Command(const CommandType *ct, const Vec2i &pos){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
 
-    this->commandType= ct;  
+    this->commandType= ct;
     this->pos= pos;
     this->unitRef= NULL;
 	unitType= NULL;
 	stateType			= cst_None;
 	stateValue 			= -1;
-} 
+}
 
-Command::Command(const CommandType *ct, Unit* unit){
-    this->commandType= ct;  
+Command::Command(const CommandType *ct, Unit* unit) {
+    this->commandType= ct;
     this->pos= Vec2i(0);
     this->unitRef= unit;
 	unitType= NULL;
@@ -47,10 +47,10 @@ Command::Command(const CommandType *ct, Unit* unit){
 	}
 	stateType			= cst_None;
 	stateValue 			= -1;
-} 
+}
 
-Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing){
-    this->commandType= ct;  
+Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing) {
+    this->commandType= ct;
     this->pos= pos;
     this->unitRef= NULL;
 	this->unitType= unitType;

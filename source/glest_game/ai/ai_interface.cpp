@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -62,14 +62,14 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-// ==================== main ==================== 
+// ==================== main ====================
 
 void AiInterface::update() {
 	timer++;
 	ai.update();
 }
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
 void AiInterface::printLog(int logLevel, const string &s){
     if(this->logLevel>=logLevel){
@@ -82,7 +82,7 @@ void AiInterface::printLog(int logLevel, const string &s){
 		}
 		fprintf(f, "%s\n", logString.c_str());
 		fclose(f);
-		
+
 		//redirect to console
 		if(redir) {
 			console->addLine(logString);
@@ -90,7 +90,7 @@ void AiInterface::printLog(int logLevel, const string &s){
     }
 }
 
-// ==================== interaction ==================== 
+// ==================== interaction ====================
 
 Faction *AiInterface::getMyFaction() {
 	return world->getFaction(factionIndex);
@@ -224,7 +224,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	}
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut){
+CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut) {
 	assert(this->gameSettings != NULL);
 
 	const Unit *unit = getMyUnit(unitIndex);
@@ -328,7 +328,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	}
 }
 
-// ==================== get data ====================  
+// ==================== get data ====================
 
 int AiInterface::getMapMaxPlayers(){
      return world->getMaxPlayers();
@@ -360,10 +360,10 @@ int AiInterface::onSightUnitCount(){
 	for(int i=0; i<world->getFactionCount(); ++i){
 		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
 			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(world->getFaction(i)->getUnit(j)->getPos()));
-			if(sc->isVisible(teamIndex)){     
-				count++;     
+			if(sc->isVisible(teamIndex)){
+				count++;
 			}
-		}	
+		}
 	}
     return count;
 }
@@ -383,7 +383,7 @@ const Unit *AiInterface::getMyUnit(int unitIndex){
 }
 
 const Unit *AiInterface::getOnSightUnit(int unitIndex){
-     
+
     int count=0;
 	Map *map= world->getMap();
 

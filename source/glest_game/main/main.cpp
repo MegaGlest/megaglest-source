@@ -36,6 +36,12 @@
 #include "font_gl.h"
 #include "cache_manager.h"
 
+// For gcc backtrace on crash!
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <cxxabi.h>
+#endif
+
 #ifdef WIN32
 #if defined(__WIN32__) && !defined(__GNUC__)
 #include <eh.h>
@@ -70,6 +76,7 @@ using namespace Shared::Graphics::Gl;
 namespace Glest{ namespace Game{
 
 bool gameInitialized = false;
+static char *application_binary=NULL;
 
 const char  *GAME_ARGS[] = {
 	"--help",
@@ -191,18 +198,222 @@ public:
         message(msg.c_str());
 	}
 
+#ifdef __GNUC__
+    static int getFileAndLine(void *address, char *file, size_t flen) {
+        int line=-1;
+        static char buf[256]="";
+        char *p=NULL;
+
+        // prepare command to be executed
+        // our program need to be passed after the -e parameter
+        //sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
+        sprintf (buf, "addr2line -C -e %s -f -i %p",application_binary,address);
+
+        FILE* f = popen (buf, "r");
+
+        if (f == NULL) {
+            perror (buf);
+            return 0;
+        }
+
+        // get function name
+        char *ret = fgets (buf, 256, f);
+        // get file and line
+        ret = fgets (buf, 256, f);
+
+        if (buf[0] != '?') {
+            int l;
+            char *p = buf;
+
+            // file name is until ':'
+            while (*p != ':')
+            {
+                p++;
+            }
+
+            *p++ = 0;
+            // after file name follows line number
+            strcpy (file , buf);
+            sscanf (p,"%d", &line);
+        }
+        else {
+            strcpy (file,"unkown");
+            line = 0;
+        }
+        pclose(f);
+
+        return line;
+    }
+
+    static void * getStackAddress(const unsigned int index) {
+        //printf("\nSTART index = %d\n",index);
+
+        void *lineAddress = NULL;
+        if(index == 0) {
+            lineAddress = __builtin_return_address(0);
+        }
+        if(index == 1) {
+            lineAddress = __builtin_return_address(1);
+        }
+        if(index == 2) {
+            lineAddress = __builtin_return_address(2);
+        }
+        if(index == 3) {
+            lineAddress = __builtin_return_address(3);
+        }
+        if(index == 4) {
+            lineAddress = __builtin_return_address(4);
+        }
+        if(index == 5) {
+            lineAddress = __builtin_return_address(5);
+        }
+        if(index == 6) {
+            lineAddress = __builtin_return_address(6);
+        }
+        if(index == 7) {
+            lineAddress = __builtin_return_address(7);
+        }
+        if(index == 8) {
+            lineAddress = __builtin_return_address(8);
+        }
+        if(index == 9) {
+            lineAddress = __builtin_return_address(9);
+        }
+        if(index == 10) {
+            lineAddress = __builtin_return_address(10);
+        }
+        if(index == 11) {
+            lineAddress = __builtin_return_address(11);
+        }
+        if(index == 12) {
+            lineAddress = __builtin_return_address(12);
+        }
+        if(index == 13) {
+            lineAddress = __builtin_return_address(13);
+        }
+        if(index == 14) {
+            lineAddress = __builtin_return_address(14);
+        }
+        if(index == 15) {
+            lineAddress = __builtin_return_address(15);
+        }
+        //printf("\nEND index = %d lineAddress [%p]\n",index,lineAddress);
+
+        return lineAddress;
+    }
+#endif
+
 	static void handleRuntimeError(const char *msg) {
 		Program *program = Program::getInstance();
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 
+        string errMsg = (msg != NULL ? msg : "null");
+
+        #ifdef __GNUC__
+        errMsg += "\nStack Trace:\n";
+        //errMsg += "To find line #'s use:\n";
+        //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
+
+        const size_t max_depth = 15;
+        void *stack_addrs[max_depth];
+        size_t stack_depth = backtrace(stack_addrs, max_depth);
+        char **stack_strings = backtrace_symbols(stack_addrs, stack_depth);
+        //for (size_t i = 1; i < stack_depth; i++) {
+        //    errMsg += string(stack_strings[i]) + "\n";
+        //}
+
+        char szBuf[4096]="";
+        for(size_t i = 1; i < stack_depth; i++) {
+            const unsigned int stackIndex = i-1;
+            void *lineAddress = getStackAddress(stackIndex);
+
+            size_t sz = 1024; // just a guess, template names will go much wider
+            char *function = static_cast<char *>(malloc(sz));
+            char *begin = 0;
+            char *end = 0;
+
+            // find the parentheses and address offset surrounding the mangled name
+            for (char *j = stack_strings[i]; *j; ++j) {
+                if (*j == '(') {
+                    begin = j;
+                }
+                else if (*j == '+') {
+                    end = j;
+                }
+            }
+            if (begin && end) {
+                *begin++ = '\0';
+                *end = '\0';
+                // found our mangled name, now in [begin, end)
+
+                int status;
+                char *ret = abi::__cxa_demangle(begin, function, &sz, &status);
+                if (ret) {
+                    // return value may be a realloc() of the input
+                    function = ret;
+                }
+                else {
+                    // demangling failed, just pretend it's a C function with no args
+                    strncpy(function, begin, sz);
+                    strncat(function, "()", sz);
+                    function[sz-1] = '\0';
+                }
+                //fprintf(out, "    %s:%s\n", stack.strings[i], function);
+
+                sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
+            }
+            else {
+                // didn't find the mangled name, just print the whole line
+                //fprintf(out, "    %s\n", stack.strings[i]);
+                sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
+            }
+
+            errMsg += string(szBuf);
+            char file[4096]="";
+            int line = getFileAndLine(lineAddress, file, 4096);
+            if(line >= 0) {
+                errMsg += " line: " + intToStr(line);
+            }
+            errMsg += "\n";
+
+            free(function);
+        }
+
+        free(stack_strings); // malloc()ed by backtrace_symbols
+
+        #endif
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
+
         if(program && gameInitialized == true) {
 			//SystemFlags::Close();
-            program->showMessage(msg);
+			printf("\nprogram->getState() [%p]\n",program->getState());
+			if(program->getState() != NULL) {
+                program->showMessage(errMsg.c_str());
+                for(;program->isMessageShowing();) {
+                    //program->getState()->render();
+                    Window::handleEvent();
+                    program->loop();
+                }
+			}
+			else {
+                program->showMessage(errMsg.c_str());
+                for(;program->isMessageShowing();) {
+                    //program->renderProgramMsgBox();
+                    Window::handleEvent();
+                    program->loop();
+                }
+			}
         }
         else {
-            string err = "#2 An error ocurred and " + string(GameConstants::application_name) + " will close.\nError msg = [" + (msg != NULL ? string(msg) : string("?")) + "]\n\nPlease report this bug to "+mailString;
+            string err = "#2 An error ocurred and " +
+                        string(GameConstants::application_name) +
+                        " will close.\nError msg = [" +
+                        errMsg +
+                        "]\n\nPlease report this bug to "+mailString;
 #ifdef WIN32
             err += string(", attaching the generated ") + getCrashDumpFileName() + string(" file.");
 #endif
@@ -213,10 +424,7 @@ public:
 
 #ifdef WIN32
 
-		runtimeErrorMsg = "";
-		if(msg != NULL) {
-			runtimeErrorMsg = msg;
-		}
+		runtimeErrorMsg = errMsg;
 		throw runtimeErrorMsg;
 #endif
 		//SystemFlags::Close();
@@ -1277,7 +1485,7 @@ int glestMainWrapper(int argc, char** argv) {
 #ifdef WIN32_STACK_TRACE
 __try {
 #endif
-
+    application_binary=argv[0];
 	return glestMain(argc, argv);
 
 #ifdef WIN32_STACK_TRACE

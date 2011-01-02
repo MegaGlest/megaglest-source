@@ -145,6 +145,7 @@ public:
 	void loopWorker();
 	void resize(SizeState sizeState);
 	void showMessage(const char *msg);
+	bool isMessageShowing();
 
 	//misc
 	void setState(ProgramState *programState,bool cleanupOldState=true);
@@ -164,7 +165,7 @@ public:
 	void reInitGl();
 
 private:
-	
+
 	void setDisplaySettings();
 	void restoreDisplaySettings();
 };

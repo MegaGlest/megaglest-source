@@ -32,7 +32,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	# Default compiler flags
 	#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")  ## Strip binary
-	ADD_DEFINITIONS("-fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse")
+	ADD_DEFINITIONS("-fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
 
 	# Debug compiler flags

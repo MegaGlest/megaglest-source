@@ -88,8 +88,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	}
 	catch(const std::exception &ex) {
 		serverInitError = true;
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);!!!
@@ -220,7 +220,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxTileset.init(xoffset+460, mapPos, 150);
     listBoxTileset.setItems(results);
     srand(time(NULL));
-	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount()); 
+	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
     labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+460, mapHeadPos);
@@ -444,7 +444,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     }
 
     if(results.size() == 0) {
-        throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+        //throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+		showGeneralError=true;
+		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -595,327 +597,338 @@ void MenuStateCustomGame::returnToParentMenu(){
 
 void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
+    try {
+        CoreData &coreData= CoreData::getInstance();
+        SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
 
-	if(mainMessageBox.getEnabled()){
-		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
-			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==1)
-			{
-				mainMessageBox.setEnabled(false);
-			}
-		}
-	}
-	else if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(mainMessageBox.getEnabled()){
+            int button= 1;
+            if(mainMessageBox.mouseClick(x, y, button))
+            {
+                soundRenderer.playFx(coreData.getClickSoundA());
+                if(button==1)
+                {
+                    mainMessageBox.setEnabled(false);
+                }
+            }
+        }
+        else if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		soundRenderer.playFx(coreData.getClickSoundA());
+            soundRenderer.playFx(coreData.getClickSoundA());
 
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToBroadcastServerSettings = false;
-		needToRepublishToMasterserver = false;
-		safeMutex.ReleaseLock();
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+            needToBroadcastServerSettings = false;
+            needToRepublishToMasterserver = false;
+            safeMutex.ReleaseLock();
 
-		MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
-		publishToMasterserverThreadInDeletion = true;
-		//BaseThread::shutdownAndWait(publishToMasterserverThread);
-		if(publishToMasterserverThread != NULL &&
-			publishToMasterserverThread->shutdownAndWait() == true) {
-			delete publishToMasterserverThread;
-			publishToMasterserverThread = NULL;
-		}
+            MutexSafeWrapper safeMutexPtr(&publishToMasterserverThreadPtrChangeAccessor);
+            publishToMasterserverThreadInDeletion = true;
+            //BaseThread::shutdownAndWait(publishToMasterserverThread);
+            if(publishToMasterserverThread != NULL &&
+                publishToMasterserverThread->shutdownAndWait() == true) {
+                delete publishToMasterserverThread;
+                publishToMasterserverThread = NULL;
+            }
 
-		publishToMasterserverThreadInDeletion = false;
-		safeMutexPtr.ReleaseLock();
+            publishToMasterserverThreadInDeletion = false;
+            safeMutexPtr.ReleaseLock();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		returnToParentMenu();
+            returnToParentMenu();
+        }
+        else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+            PlayNow();
+
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        }
+        else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+            RestoreLastGameSettings();
+        }
+        else if(listBoxMap.mouseClick(x, y)){
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+            labelMapInfo.setText(mapInfo.desc);
+            updateControlers();
+            updateNetworkSlots();
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            reloadFactions(true);
+
+            if(hasNetworkGameSettings() == true) {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.mouseClick(x, y)) {
+            //TODO
+        }
+    /*
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableServerControlledAI.mouseClick(x, y) && listBoxEnableServerControlledAI.getEditable()) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+            needToRepublishToMasterserver = true;
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+    */
+        else if(listBoxTileset.mouseClick(x, y)){
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if(listBoxMapFilter.mouseClick(x, y)){
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+            switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+            loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+            labelMapInfo.setText(mapInfo.desc);
+            updateControlers();
+            updateNetworkSlots();
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if(listBoxTechTree.mouseClick(x, y)){
+            reloadFactions(false);
+
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+            needToRepublishToMasterserver = true;
+            soundRenderer.playFx(coreData.getClickSoundC());
+        }
+    /*
+        else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkFramePeriod.mouseClick(x, y)){
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+            needToRepublishToMasterserver = true;
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+
+            soundRenderer.playFx(coreData.getClickSoundC());
+        }
+    */
+        else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
+            MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+
+            soundRenderer.playFx(coreData.getClickSoundC());
+        }
+        else {
+            for(int i=0; i<mapInfo.players; ++i) {
+                MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+
+                if (listBoxAdvanced.getSelectedItemIndex() == 1) {
+                    // set multiplier
+                    if(listBoxRMultiplier[i].mouseClick(x, y)) {
+                    }
+                }
+
+                //ensure thet only 1 human player is present
+                if(listBoxControls[i].mouseClick(x, y)) {
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                    //look for human players
+                    int humanIndex1= -1;
+                    int humanIndex2= -1;
+                    for(int j=0; j<GameConstants::maxPlayers; ++j) {
+                        ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+                        if(ct == ctHuman) {
+                            if(humanIndex1 == -1) {
+                                humanIndex1= j;
+                            }
+                            else {
+                                humanIndex2= j;
+                            }
+                        }
+                    }
+
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+
+                    //no human
+                    if(humanIndex1 == -1 && humanIndex2 == -1) {
+                        listBoxControls[i].setSelectedItemIndex(ctHuman);
+                        //labelPlayerNames[i].setText("");
+                        //labelPlayerNames[i].setText(getHumanPlayerName());
+
+                        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+                    }
+                    //2 humans
+                    else if(humanIndex1 != -1 && humanIndex2 != -1) {
+                        int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
+                        int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+
+                        string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+
+                        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+
+                        listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+                        //labelPlayerNames[closeSlotIndex].setText("");
+
+                        labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+                    }
+                    updateNetworkSlots();
+
+                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                        needToRepublishToMasterserver = true;
+                    }
+
+                    if(hasNetworkGameSettings() == true) {
+                        needToSetChangedGameSettings = true;
+                        lastSetChangedGameSettings   = time(NULL);
+                    }
+                    updateResourceMultiplier(i);
+                }
+                else if(listBoxFactions[i].mouseClick(x, y)) {
+
+                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                        needToRepublishToMasterserver = true;
+                    }
+
+                    if(hasNetworkGameSettings() == true)
+                    {
+                        needToSetChangedGameSettings = true;
+                        lastSetChangedGameSettings   = time(NULL);
+                    }
+                }
+                else if(listBoxTeams[i].mouseClick(x, y))
+                {
+                    if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+                        //printf("i = %d factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] listBoxTeams[i].getSelectedItemIndex() = %d, lastSelectedTeamIndex[i] = %d\n",i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),listBoxTeams[i].getSelectedItemIndex(),lastSelectedTeamIndex[i]);
+                        if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+                            lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+                        }
+                    }
+                    else {
+                        lastSelectedTeamIndex[i] = -1;
+                    }
+
+                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                        needToRepublishToMasterserver = true;
+                    }
+
+                    if(hasNetworkGameSettings() == true)
+                    {
+                        needToSetChangedGameSettings = true;
+                        lastSetChangedGameSettings   = time(NULL);;
+                    }
+                }
+                else if(labelPlayerNames[i].mouseClick(x, y)) {
+                    SetActivePlayerNameEditor();
+                }
+            }
+        }
     }
-	else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		PlayNow();
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	}
-	else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
-		RestoreLastGameSettings();
-	}
-	else if(listBoxMap.mouseClick(x, y)){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
-
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
-		labelMapInfo.setText(mapInfo.desc);
-		updateControlers();
-		updateNetworkSlots();
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-		reloadFactions(true);
-
-        if(hasNetworkGameSettings() == true) {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if (listBoxAdvanced.mouseClick(x, y)) {
-		//TODO
-	}
-/*
-	else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableServerControlledAI.mouseClick(x, y) && listBoxEnableServerControlledAI.getEditable()) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-*/
-	else if(listBoxTileset.mouseClick(x, y)){
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if(listBoxMapFilter.mouseClick(x, y)){
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
-
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-		labelMapInfo.setText(mapInfo.desc);
-		updateControlers();
-		updateNetworkSlots();
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if(listBoxTechTree.mouseClick(x, y)){
-		reloadFactions(false);
-
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-	}
-	else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
-		soundRenderer.playFx(coreData.getClickSoundC());
-	}
-/*
-	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkFramePeriod.mouseClick(x, y)){
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needToRepublishToMasterserver = true;
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-
-		soundRenderer.playFx(coreData.getClickSoundC());
-	}
-*/
-	else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-		if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-			needToRepublishToMasterserver = true;
-		}
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-
-		soundRenderer.playFx(coreData.getClickSoundC());
-	}
-	else {
-		for(int i=0; i<mapInfo.players; ++i) {
-			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-
-			if (listBoxAdvanced.getSelectedItemIndex() == 1) {
-				// set multiplier
-				if(listBoxRMultiplier[i].mouseClick(x, y)) {
-				}
-			}
-
-			//ensure thet only 1 human player is present
-			if(listBoxControls[i].mouseClick(x, y)) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				//look for human players
-				int humanIndex1= -1;
-				int humanIndex2= -1;
-				for(int j=0; j<GameConstants::maxPlayers; ++j) {
-					ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
-					if(ct == ctHuman) {
-						if(humanIndex1 == -1) {
-							humanIndex1= j;
-						}
-						else {
-							humanIndex2= j;
-						}
-					}
-				}
-
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
-
-				//no human
-				if(humanIndex1 == -1 && humanIndex2 == -1) {
-					listBoxControls[i].setSelectedItemIndex(ctHuman);
-					//labelPlayerNames[i].setText("");
-					//labelPlayerNames[i].setText(getHumanPlayerName());
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
-				}
-				//2 humans
-				else if(humanIndex1 != -1 && humanIndex2 != -1) {
-					int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
-					int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
-
-					string origPlayName = labelPlayerNames[closeSlotIndex].getText();
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
-
-					listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
-					//labelPlayerNames[closeSlotIndex].setText("");
-
-					labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
-				}
-				updateNetworkSlots();
-
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-					needToRepublishToMasterserver = true;
-				}
-
-                if(hasNetworkGameSettings() == true) {
-                    needToSetChangedGameSettings = true;
-                    lastSetChangedGameSettings   = time(NULL);
-                }
-                updateResourceMultiplier(i);
-			}
-			else if(listBoxFactions[i].mouseClick(x, y)) {
-
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-					needToRepublishToMasterserver = true;
-				}
-
-                if(hasNetworkGameSettings() == true)
-                {
-                    needToSetChangedGameSettings = true;
-                    lastSetChangedGameSettings   = time(NULL);
-                }
-			}
-			else if(listBoxTeams[i].mouseClick(x, y))
-			{
-				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-					//printf("i = %d factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] listBoxTeams[i].getSelectedItemIndex() = %d, lastSelectedTeamIndex[i] = %d\n",i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),listBoxTeams[i].getSelectedItemIndex(),lastSelectedTeamIndex[i]);
-					if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-						lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
-					}
-				}
-				else {
-					lastSelectedTeamIndex[i] = -1;
-				}
-
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-					needToRepublishToMasterserver = true;
-				}
-
-                if(hasNetworkGameSettings() == true)
-                {
-                    needToSetChangedGameSettings = true;
-                    lastSetChangedGameSettings   = time(NULL);;
-                }
-			}
-			else if(labelPlayerNames[i].mouseClick(x, y)) {
-				SetActivePlayerNameEditor();
-			}
-		}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);
+		showGeneralError=true;
+		generalErrorToShow = szBuf;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1356,8 +1369,8 @@ void MenuStateCustomGame::render() {
 		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(szBuf);
 	}
 }
@@ -1770,8 +1783,8 @@ void MenuStateCustomGame::update() {
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);
@@ -1841,120 +1854,131 @@ void MenuStateCustomGame::publishToMasterserver()
 
 void MenuStateCustomGame::simpleTask() {
 
-	if(publishToMasterserverThreadInDeletion == true) {
-		return;
-	}
+    try {
+        if(publishToMasterserverThreadInDeletion == true) {
+            return;
+        }
 
-	if( publishToMasterserverThread == NULL ||
-		publishToMasterserverThread->getQuitStatus() == true) {
-		return;
-	}
+        if( publishToMasterserverThread == NULL ||
+            publishToMasterserverThread->getQuitStatus() == true) {
+            return;
+        }
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-	bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
-	needToRepublishToMasterserver = false;
-	std::map<string,string> newPublishToServerInfo = publishToServerInfo;
-	publishToServerInfo.clear();
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+        bool republish = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
+        needToRepublishToMasterserver = false;
+        std::map<string,string> newPublishToServerInfo = publishToServerInfo;
+        publishToServerInfo.clear();
 
-	bool broadCastSettings = needToBroadcastServerSettings;
-	needToBroadcastServerSettings=false;
+        bool broadCastSettings = needToBroadcastServerSettings;
+        needToBroadcastServerSettings=false;
 
-	bool hasClientConnection = false;
-	if(broadCastSettings) {
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		hasClientConnection = serverInterface->hasClientConnection();
-	}
+        bool hasClientConnection = false;
+        if(broadCastSettings) {
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            hasClientConnection = serverInterface->hasClientConnection();
+        }
 
-	bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
-	safeMutex.ReleaseLock();
+        bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
+        safeMutex.ReleaseLock();
 
-	if( publishToMasterserverThread == NULL ||
-		publishToMasterserverThread->getQuitStatus() == true) {
-		return;
-	}
+        if( publishToMasterserverThread == NULL ||
+            publishToMasterserverThread->getQuitStatus() == true) {
+            return;
+        }
 
-	if(republish == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(republish == true) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
-		string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+            //string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?" + newPublishToServerInfo;
+            string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
-		CURL *handle = SystemFlags::initHTTP();
-		for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-			iterMap != newPublishToServerInfo.end(); iterMap++) {
+            CURL *handle = SystemFlags::initHTTP();
+            for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
+                iterMap != newPublishToServerInfo.end(); iterMap++) {
 
-			request += iterMap->first;
-			request += "=";
-			request += SystemFlags::escapeURL(iterMap->second,handle);
-			request += "&";
-		}
+                request += iterMap->first;
+                request += "=";
+                request += SystemFlags::escapeURL(iterMap->second,handle);
+                request += "&";
+            }
 
-		//printf("the request is:\n%s\n",request.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
+            //printf("the request is:\n%s\n",request.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",__FILE__,__FUNCTION__,__LINE__,request.c_str());
 
-		std::string serverInfo = SystemFlags::getHTTP(request,handle);
-		SystemFlags::cleanupHTTP(&handle);
+            std::string serverInfo = SystemFlags::getHTTP(request,handle);
+            SystemFlags::cleanupHTTP(&handle);
 
-		//printf("the result is:\n'%s'\n",serverInfo.c_str());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
+            //printf("the result is:\n'%s'\n",serverInfo.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the result is:\n'%s'\n",__FILE__,__FUNCTION__,__LINE__,serverInfo.c_str());
 
-		// uncomment to enable router setup check of this server
-		if(EndsWith(serverInfo, "OK") == false) {
-			showMasterserverError=true;
-			masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
-		}
-	}
+            // uncomment to enable router setup check of this server
+            if(EndsWith(serverInfo, "OK") == false) {
+                showMasterserverError=true;
+                masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
+            }
+        }
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if( publishToMasterserverThread == NULL ||
-		publishToMasterserverThread->getQuitStatus() == true) {
-		return;
-	}
+        if( publishToMasterserverThread == NULL ||
+            publishToMasterserverThread->getQuitStatus() == true) {
+            return;
+        }
 
-	if(broadCastSettings) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(broadCastSettings) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
-		GameSettings gameSettings;
-		loadGameSettings(&gameSettings);
+            MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
+            GameSettings gameSettings;
+            loadGameSettings(&gameSettings);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		serverInterface->setGameSettings(&gameSettings,false);
-		safeMutex2.ReleaseLock();
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            serverInterface->setGameSettings(&gameSettings,false);
+            safeMutex2.ReleaseLock();
 
-		if(hasClientConnection == true) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            if(hasClientConnection == true) {
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			MutexSafeWrapper safeMutex3(&masterServerThreadAccessor);
+                MutexSafeWrapper safeMutex3(&masterServerThreadAccessor);
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			serverInterface->broadcastGameSetup(&gameSettings);
-			safeMutex3.ReleaseLock();
-		}
-	}
+                serverInterface->broadcastGameSetup(&gameSettings);
+                safeMutex3.ReleaseLock();
+            }
+        }
 
-	if( publishToMasterserverThread == NULL ||
-		publishToMasterserverThread->getQuitStatus() == true) {
-		return;
-	}
+        if( publishToMasterserverThread == NULL ||
+            publishToMasterserverThread->getQuitStatus() == true) {
+            return;
+        }
 
-	if(needPing == true) {
-		lastNetworkPing = time(NULL);
+        if(needPing == true) {
+            lastNetworkPing = time(NULL);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Sending nmtPing to clients\n",__FILE__,__FUNCTION__,__LINE__);
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
 
-		MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
-		serverInterface->broadcastPing(&msg);
-		safeMutex2.ReleaseLock();
+            MutexSafeWrapper safeMutex2(&masterServerThreadAccessor);
+            serverInterface->broadcastPing(&msg);
+            safeMutex2.ReleaseLock();
+        }
+    }
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);!!!
+		showGeneralError=true;
+		generalErrorToShow = ex.what();
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2361,8 +2385,8 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
 		}
     }
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		showGeneralError=true;
@@ -2445,7 +2469,9 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
     }
 
     if(results.size() == 0) {
-        throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+        //throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+		showGeneralError=true;
+		generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
 
     results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
@@ -2512,8 +2538,8 @@ void MenuStateCustomGame::updateControlers(){
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
@@ -2533,8 +2559,8 @@ void MenuStateCustomGame::closeUnusedSlots(){
 		updateNetworkSlots();
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
@@ -2562,8 +2588,8 @@ void MenuStateCustomGame::updateNetworkSlots() {
 					serverInterface->addSlot(i);
 				}
 				catch(const std::exception &ex) {
-					char szBuf[1024]="";
-					sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+					char szBuf[4096]="";
+					sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 					showGeneralError=true;
@@ -2585,8 +2611,8 @@ void MenuStateCustomGame::updateNetworkSlots() {
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw runtime_error(szBuf);!!!

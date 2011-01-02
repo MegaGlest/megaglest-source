@@ -1900,7 +1900,7 @@ std::string Unit::toString() const {
 
 	result += "id = " + intToStr(this->id);
 	if(this->type != NULL) {
-		result += " name [" + this->type->getName() + "]";
+		result += " name [" + this->type->getName() + "][" + intToStr(this->type->getId()) + "]";
 	}
 
 	if(this->faction != NULL) {

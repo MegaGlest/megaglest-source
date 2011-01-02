@@ -140,6 +140,8 @@ Game::~Game() {
 	Unit::setGame(NULL);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
+
 	//this->program->reInitGl();
 	//renderer.reinitAll();
 }
@@ -649,6 +651,7 @@ void Game::init(bool initForPreviewOnly)
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");
 }
 
 // ==================== update ====================
@@ -662,6 +665,16 @@ void Game::update() {
 		chrono.start();
 
 		// a) Updates non dependent on speed
+
+		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
+			NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
+		   mainMessageBox.getEnabled() == false &&
+		   errorMessageBox.getEnabled() == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//quitGame();
+			quitTriggeredIndicator = true;
+			return;
+		}
 
 		//misc
 		updateFps++;
@@ -783,7 +796,9 @@ void Game::update() {
 		if(networkManager.getGameNetworkInterface() != NULL) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
-		ErrorDisplayMessage(ex.what(),true);
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
 	}
 }
 
@@ -1406,6 +1421,10 @@ void Game::keyPress(char c){
 
 Stats Game::quitGame() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
+        world.DumpWorldToLog();
+    }
 
 	//Stats stats = *(world.getStats());
 	Stats endStats;

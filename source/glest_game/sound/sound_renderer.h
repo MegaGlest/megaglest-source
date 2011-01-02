@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -65,16 +65,15 @@ public:
 	void playMusic(StrSound *strSound);
 	void setMusicVolume(StrSound *strSound);
 	void stopMusic(StrSound *strSound);
-	
+
 	//fx
 	void playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPos);
 	void playFx(StaticSound *staticSound);
 
 	//ambient
-	//void playAmbient(StaticSound *staticSound);
 	void playAmbient(StrSound *strSound);
 	void stopAmbient(StrSound *strSound);
-	
+
 	//misc
 	void stopAllSounds();
 	void loadConfig();
