@@ -248,7 +248,7 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
     std::sort(results.begin(),results.end());
 }
 
-//finds all filenames like path and stores them in resultys
+//finds all filenames like path and stores them in results
 void findAll(const string &path, vector<string> &results, bool cutExtension, bool errorOnNotFound) {
 	results.clear();
 
@@ -334,6 +334,23 @@ bool isdir(const char *path)
 
   return ret;
 }
+
+/*
+void removeFolder(const string path) {
+    path += "*";
+    vector<string> results;
+    findAll(path, vector<string> &results, false, false);
+    for(int i = results.size() -1; i >= 0; --i) {
+        string item = results[i];
+        if(isdir(item) == true) {
+            rmdir(item.c_str());
+        }
+        else {
+            unlink(item.c_str());
+        }
+    }
+}
+*/
 
 bool StartsWith(const std::string &str, const std::string &key) {
   return str.find(key) == 0;

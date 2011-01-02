@@ -39,45 +39,42 @@ struct FtpFile {
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
-  struct FtpFile *out=(struct FtpFile *)stream;
+    struct FtpFile *out=(struct FtpFile *)stream;
 
-  string fullFilePath = "";
-  if(out != NULL && out->filepath != NULL) {
-      fullFilePath = out->filepath;
-  }
-  if(out != NULL && out->filename != NULL) {
-      fullFilePath += out->filename;
-  }
-
-  // Abort file xfer and delete partial file
-  if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
-    if(out->stream) {
-        fclose(out->stream);
-        out->stream = NULL;
+    string fullFilePath = "";
+    if(out != NULL && out->filepath != NULL) {
+        fullFilePath = out->filepath;
+    }
+    if(out != NULL && out->filename != NULL) {
+        fullFilePath += out->filename;
     }
 
-    unlink(fullFilePath.c_str());
+    // Abort file xfer and delete partial file
+    if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
+        if(out->stream) {
+            fclose(out->stream);
+            out->stream = NULL;
+        }
 
-    return -1;
-  }
-
-  if(out && out->stream == NULL) {
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
-
-    /* open file for writing */
-    out->stream = fopen(fullFilePath.c_str(), "wb");
-    if(out->stream == NULL) {
-      if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
-
-      return -1; /* failure, can't open file to write */
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
+        unlink(fullFilePath.c_str());
+        return -1;
     }
-  }
-  return fwrite(buffer, size, nmemb, out->stream);
+
+    if(out && out->stream == NULL) {
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
+
+        /* open file for writing */
+        out->stream = fopen(fullFilePath.c_str(), "wb");
+        if(out->stream == NULL) {
+          if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+          return -1; /* failure, can't open file to write */
+        }
+    }
+    return fwrite(buffer, size, nmemb, out->stream);
 }
 
-
-static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
-{
+static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) {
     struct FtpFile *out=(struct FtpFile *)data;
 
     string rootFilePath = "";
@@ -89,20 +86,20 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
         fullFilePath = rootFilePath + finfo->filename;
     }
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n===> FTP Client thread file_is_comming: remains: [%3d] filename: [%40s] size: [%10luB] ", remains, finfo->filename,(unsigned long)finfo->size);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n===> FTP Client thread file_is_comming: remains: [%3d] filename: [%s] size: [%10luB] ", remains, finfo->filename,(unsigned long)finfo->size);
 
     switch(finfo->filetype) {
         case CURLFILETYPE_DIRECTORY:
-        printf("DIR (creating [%s%s])\n",rootFilePath.c_str(),finfo->filename);
-        rootFilePath += finfo->filename;
-        createDirectoryPaths(rootFilePath.c_str());
-        break;
+            printf("DIR (creating [%s%s])\n",rootFilePath.c_str(),finfo->filename);
+            rootFilePath += finfo->filename;
+            createDirectoryPaths(rootFilePath.c_str());
+            break;
         case CURLFILETYPE_FILE:
-        printf("FILE ");
-        break;
+            printf("FILE ");
+            break;
         default:
-        printf("OTHER\n");
-        break;
+            printf("OTHER\n");
+            break;
     }
 
     if(finfo->filetype == CURLFILETYPE_FILE) {
@@ -115,7 +112,7 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" opening file [%s] ", fullFilePath.c_str());
 
         out->stream = fopen(fullFilePath.c_str(), "wb");
-        if(!out->stream) {
+        if(out->stream == NULL) {
             return CURL_CHUNK_BGN_FUNC_FAIL;
         }
     }
@@ -123,16 +120,15 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains)
   return CURL_CHUNK_BGN_FUNC_OK;
 }
 
-static long file_is_downloaded(void *data)
-{
-  struct FtpFile *out=(struct FtpFile *)data;
-  if(out->stream) {
-    printf("DOWNLOAD COMPLETE!\n");
+static long file_is_downloaded(void *data) {
+    struct FtpFile *out=(struct FtpFile *)data;
+    if(out->stream) {
+        printf("DOWNLOAD COMPLETE!\n");
 
-    fclose(out->stream);
-    out->stream = 0x0;
-  }
-  return CURL_CHUNK_END_FUNC_OK;
+        fclose(out->stream);
+        out->stream = NULL;
+    }
+    return CURL_CHUNK_END_FUNC_OK;
 }
 
 FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
@@ -157,8 +153,6 @@ bool FTPClientThread::shutdownAndWait() {
 
 
 FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword) {
-    CURLcode res;
-
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFileExt = "";
@@ -199,13 +193,12 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
 
         /* Switch on full protocol/debug output */
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-        res = curl_easy_perform(curl);
-
+        CURLcode res = curl_easy_perform(curl);
         if(CURLE_OK != res) {
           // we failed
-          fprintf(stderr, "curl told us %d\n", res);
+          printf("curl FAILED with: %d\n", res);
         }
         else {
             result = ftp_crt_SUCCESS;
@@ -217,7 +210,12 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
     if(ftpfile.stream) {
         fclose(ftpfile.stream);
         ftpfile.stream = NULL;
+
+        if(result != ftp_crt_SUCCESS) {
+            unlink(destFile.c_str());
+        }
     }
+
     return result;
 }
 
@@ -265,8 +263,6 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
 }
 
 FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword) {
-    CURLcode res;
-
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFile = this->tilesetsPath.second;
@@ -348,15 +344,16 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
 
         // Switch on full protocol/debug output
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-        res = curl_easy_perform(curl);
+        CURLcode res = curl_easy_perform(curl);
 
         if(CURLE_OK != res) {
           // we failed
-          fprintf(stderr, "curl told us %d\n", res);
+          printf("curl FAILED with: %d\n", res);
+
           if(destRootFolder != "") {
-            unlink(destRootFolder.c_str());
+              unlink(destRootFolder.c_str());
           }
         }
         else {
