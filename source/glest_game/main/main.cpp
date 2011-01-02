@@ -40,6 +40,7 @@
 #ifdef __GNUC__
 #include <execinfo.h>
 #include <cxxabi.h>
+#include <signal.h>
 #endif
 
 #ifdef WIN32
@@ -244,67 +245,14 @@ public:
 
         return line;
     }
-
-    static void * getStackAddress(const unsigned int index) {
-        //printf("\nSTART index = %d\n",index);
-
-        void *lineAddress = NULL;
-        if(index == 0) {
-            lineAddress = __builtin_return_address(0);
-        }
-        if(index == 1) {
-            lineAddress = __builtin_return_address(1);
-        }
-        if(index == 2) {
-            lineAddress = __builtin_return_address(2);
-        }
-        if(index == 3) {
-            lineAddress = __builtin_return_address(3);
-        }
-        if(index == 4) {
-            lineAddress = __builtin_return_address(4);
-        }
-        if(index == 5) {
-            lineAddress = __builtin_return_address(5);
-        }
-        if(index == 6) {
-            lineAddress = __builtin_return_address(6);
-        }
-        if(index == 7) {
-            lineAddress = __builtin_return_address(7);
-        }
-        if(index == 8) {
-            lineAddress = __builtin_return_address(8);
-        }
-        if(index == 9) {
-            lineAddress = __builtin_return_address(9);
-        }
-        if(index == 10) {
-            lineAddress = __builtin_return_address(10);
-        }
-        if(index == 11) {
-            lineAddress = __builtin_return_address(11);
-        }
-        if(index == 12) {
-            lineAddress = __builtin_return_address(12);
-        }
-        if(index == 13) {
-            lineAddress = __builtin_return_address(13);
-        }
-        if(index == 14) {
-            lineAddress = __builtin_return_address(14);
-        }
-        if(index == 15) {
-            lineAddress = __builtin_return_address(15);
-        }
-        //printf("\nEND index = %d lineAddress [%p]\n",index,lineAddress);
-
-        return lineAddress;
-    }
 #endif
 
 	static void handleRuntimeError(const char *msg) {
+	    //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+
 		Program *program = Program::getInstance();
+
+        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
@@ -324,10 +272,17 @@ public:
         //    errMsg += string(stack_strings[i]) + "\n";
         //}
 
+        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+
         char szBuf[4096]="";
         for(size_t i = 1; i < stack_depth; i++) {
-            const unsigned int stackIndex = i-1;
-            void *lineAddress = getStackAddress(stackIndex);
+            //const unsigned int stackIndex = i-1;
+
+            //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d, i = %d, stack_depth = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,i,stack_depth);
+
+            void *lineAddress = stack_addrs[i]; //getStackAddress(stackIndex);
+
+            //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d, i = %d, stack_depth = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,i,stack_depth);
 
             size_t sz = 1024; // just a guess, template names will go much wider
             char *function = static_cast<char *>(malloc(sz));
@@ -385,12 +340,14 @@ public:
 
         #endif
 
+        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 
         if(program && gameInitialized == true) {
 			//SystemFlags::Close();
-			printf("\nprogram->getState() [%p]\n",program->getState());
+			//printf("\nprogram->getState() [%p]\n",program->getState());
 			if(program->getState() != NULL) {
                 program->showMessage(errMsg.c_str());
                 for(;program->isMessageShowing();) {
@@ -428,6 +385,9 @@ public:
 		throw runtimeErrorMsg;
 #endif
 		//SystemFlags::Close();
+
+		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+
         exit(0);
 	}
 
@@ -453,6 +413,17 @@ public:
 	    return 0;
 	}
 };
+
+#ifdef __GNUC__
+void handleSIGSEGV(int sig) {
+    char szBuf[4096]="";
+    sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
+    printf("%s",szBuf);
+
+    ExceptionHandler::handleRuntimeError(szBuf);
+}
+#endif
+
 
 // =====================================================
 // 	class MainWindow
@@ -1428,6 +1399,11 @@ int glestMain(int argc, char** argv) {
 
 		//throw "BLAH!";
 
+        // START Test out SIGSEGV error handling
+        //int *foo = (int*)-1; // make a bad pointer
+        //printf("%d\n", *foo);       // causes segfault
+        // END
+
 		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
@@ -1486,6 +1462,11 @@ int glestMainWrapper(int argc, char** argv) {
 __try {
 #endif
     application_binary=argv[0];
+
+#ifdef __GNUC__
+    signal(SIGSEGV, handleSIGSEGV);
+#endif
+
 	return glestMain(argc, argv);
 
 #ifdef WIN32_STACK_TRACE
