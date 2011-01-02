@@ -80,12 +80,23 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	}
     listBoxScenario.setItems(results);
 
-    loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
-    labelInfo.setText(scenarioInfo.desc);
+    try {
+        loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
+        labelInfo.setText(scenarioInfo.desc);
 
-    GraphicComponent::applyAllCustomProperties(containerName);
+        GraphicComponent::applyAllCustomProperties(containerName);
 
-	networkManager.init(nrServer);
+        networkManager.init(nrServer);
+    }
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+        mainMessageBoxState=1;
+        showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
 }
 
 void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
@@ -208,13 +219,13 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     	if(playersNode->hasChildAtIndex("player",i)){
         	playerNode = playersNode->getChild("player", i);
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
-        	
+
         	if(playerNode->getAttribute("resource_multiplier",false)!=NULL)
 			{// if a multiplier exists use it
 				scenarioInfo->resourceMultipliers[i]=playerNode->getAttribute("resource_multiplier")->getFloatValue();
 			}
 			else
-			{// if no multiplier exists use defaults 
+			{// if no multiplier exists use defaults
 				scenarioInfo->resourceMultipliers[i]=GameConstants::normalMultiplier;
 				if(factionControl==ctCpuEasy)
 				{
@@ -229,7 +240,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 					scenarioInfo->resourceMultipliers[i]=GameConstants::megaMultiplier;
 				}
 			}
-		
+
     	}
         else{
         	factionControl=ctClosed;
