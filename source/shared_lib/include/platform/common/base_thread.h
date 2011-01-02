@@ -35,6 +35,9 @@ protected:
 
     Mutex mutexThreadObjectAccessor;
 
+    bool threadOwnerValid;
+    Mutex mutexThreadOwnerValid;
+
 	Mutex mutexExecutingTask;
 	bool executingTask;
 
@@ -73,6 +76,11 @@ public:
 
     void setExecutingTask(bool value);
     bool getExecutingTask();
+
+
+    void setThreadOwnerValid(bool value);
+    bool getThreadOwnerValid();
+    Mutex * getMutexThreadOwnerValid();
 
     Mutex * getMutexThreadObjectAccessor() { return &mutexThreadObjectAccessor; }
 };

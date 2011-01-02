@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -42,9 +42,9 @@ public:
 	void update();
 
 	bool isNetworkGame();
-	GameNetworkInterface* getGameNetworkInterface();
-	ServerInterface* getServerInterface();
-	ClientInterface* getClientInterface();
+	GameNetworkInterface* getGameNetworkInterface(bool throwErrorOnNull=true);
+	ServerInterface* getServerInterface(bool throwErrorOnNull=true);
+	ClientInterface* getClientInterface(bool throwErrorOnNull=true);
 	NetworkRole getNetworkRole() { return networkRole; }
 };
 

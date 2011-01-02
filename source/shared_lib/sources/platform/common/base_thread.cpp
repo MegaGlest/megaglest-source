@@ -29,6 +29,7 @@ BaseThread::BaseThread() : Thread() {
 	setHasBeginExecution(false);
 	setExecutingTask(false);
 	setDeleteSelfOnExecutionDone(false);
+	setThreadOwnerValid(true);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -37,6 +38,28 @@ BaseThread::~BaseThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	bool ret = shutdownAndWait();
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
+}
+
+Mutex * BaseThread::getMutexThreadOwnerValid() {
+	if(getThreadOwnerValid() == true) {
+	    return &mutexThreadOwnerValid;
+	}
+    return NULL;
+}
+
+void BaseThread::setThreadOwnerValid(bool value) {
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid);
+	threadOwnerValid = value;
+	safeMutex.ReleaseLock();
+}
+
+bool BaseThread::getThreadOwnerValid() {
+	bool ret = false;
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid);
+	ret = threadOwnerValid;
+	safeMutex.ReleaseLock();
+
+	return ret;
 }
 
 void BaseThread::signalQuit() {

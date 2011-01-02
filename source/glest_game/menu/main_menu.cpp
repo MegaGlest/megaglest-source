@@ -160,9 +160,13 @@ void MainMenu::keyPress(char c){
 	state->keyPress(c);
 }
 
-void MainMenu::setState(MenuState *state){
-    //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(oldstate != NULL && oldstate != state) {
+void MainMenu::setState(MenuState *newstate) {
+    printf("In [%s::%s Line: %d] oldstate [%p] newstate [%p] this->state [%p]\n",__FILE__,__FUNCTION__,__LINE__,oldstate,newstate,this->state);
+
+    //delete this->state;
+    //this->state = newstate;
+
+	if(oldstate != NULL && oldstate != newstate) {
 		delete oldstate;
 
         //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -180,9 +184,10 @@ void MainMenu::setState(MenuState *state){
 		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	this->state= state;
+	this->state= newstate;
+
 	GraphicComponent::resetFade();
-	menuBackground.setTargetCamera(state->getCamera());
+	menuBackground.setTargetCamera(newstate->getCamera());
 }
 
 bool MainMenu::isInSpecialKeyCaptureEvent() {

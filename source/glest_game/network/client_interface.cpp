@@ -45,7 +45,7 @@ const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
 const int ClientInterface::waitSleepTime= 10;
 const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 
-ClientInterface::ClientInterface() {
+ClientInterface::ClientInterface() : GameNetworkInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
 	clientSocket= NULL;

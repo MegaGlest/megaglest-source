@@ -60,7 +60,8 @@ double LAG_CHECK_GRACE_PERIOD = 15;
 // badly and we want to give time for them to catch up
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 1;
 
-ServerInterface::ServerInterface() {
+ServerInterface::ServerInterface() : GameNetworkInterface() {
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     gameHasBeenInitiated    = false;
     gameSettingsUpdateCount = 0;
     currentFrameCount = 0;
@@ -82,10 +83,13 @@ ServerInterface::ServerInterface() {
 		slots[i]= NULL;
 		switchSetupRequests[i]= NULL;
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	serverSocket.setBlock(false);
-	//serverSocket.bind(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(Config::getInstance().getBool("EnableFTPXfer","false") == true) {
         std::pair<string,string> mapsPath;
         vector<string> pathList = Config::getInstance().getPathListForType(ptMaps);
@@ -105,11 +109,13 @@ ServerInterface::ServerInterface() {
             }
         }
 
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
         ServerSocket::setFTPServerPort(portNumber);
         ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber);
         ftpServer->start();
     }
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 ServerInterface::~ServerInterface() {
