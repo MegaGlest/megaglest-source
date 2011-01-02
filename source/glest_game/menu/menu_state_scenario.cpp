@@ -124,8 +124,19 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
 		launchGame();
 	}
     else if(listBoxScenario.mouseClick(x, y)){
-		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
-        labelInfo.setText(scenarioInfo.desc);
+        try {
+            loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+            labelInfo.setText(scenarioInfo.desc);
+        }
+        catch(const std::exception &ex) {
+            char szBuf[4096]="";
+            sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+            mainMessageBoxState=1;
+            showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+        }
 	}
 }
 
