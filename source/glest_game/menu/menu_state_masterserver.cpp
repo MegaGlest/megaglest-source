@@ -434,14 +434,14 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 					soundRenderer.playFx(coreData.getClickSoundB());
 					string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
 					int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
-					connectToServer(connectServerIP,connectServerPort);
+					bool connected=connectToServer(connectServerIP,connectServerPort);
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					safeMutex.ReleaseLock();
-
-                    cleanup();
-
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
+					if(connected){
+						cleanup();
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
+					}
 					break;
 				}
     		}
