@@ -27,6 +27,8 @@ BaseThread::BaseThread() : Thread() {
 	setQuitStatus(false);
 	setRunningStatus(false);
 	setHasBeginExecution(false);
+	setExecutingTask(false);
+	setDeleteSelfOnExecutionDone(false);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -115,6 +117,46 @@ void BaseThread::setRunningStatus(bool value) {
 	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+}
+
+void BaseThread::setExecutingTask(bool value) {
+	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	executingTask = value;
+	safeMutex.ReleaseLock();
+}
+
+bool BaseThread::getExecutingTask() {
+	bool retval = false;
+	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	retval = executingTask;
+	safeMutex.ReleaseLock();
+
+	return retval;
+}
+
+bool BaseThread::getDeleteSelfOnExecutionDone() {
+    bool retval = false;
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone);
+    retval = deleteSelfOnExecutionDone;
+    safeMutex.ReleaseLock();
+
+    return retval;
+}
+
+void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone);
+    deleteSelfOnExecutionDone = value;
+}
+
+void BaseThread::deleteSelfIfRequired() {
+    if(getDeleteSelfOnExecutionDone() == true) {
+        delete this;
+        return;
+    }
+}
+
+bool BaseThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+    return true;
 }
 
 bool BaseThread::shutdownAndWait(BaseThread *pThread) {

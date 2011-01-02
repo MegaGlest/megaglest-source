@@ -31,13 +31,21 @@ protected:
 	Mutex mutexRunning;
 	Mutex mutexQuit;
 	Mutex mutexBeginExecution;
+	Mutex mutexDeleteSelfOnExecutionDone;
+
+    Mutex mutexThreadObjectAccessor;
+
+	Mutex mutexExecutingTask;
+	bool executingTask;
 
 	bool quit;
 	bool running;
 	string uniqueID;
 	bool hasBeginExecution;
+	bool deleteSelfOnExecutionDone;
 
 	virtual void setQuitStatus(bool value);
+	void deleteSelfIfRequired();
 
 public:
 	BaseThread();
@@ -47,17 +55,26 @@ public:
 	virtual void signalQuit();
 	virtual bool getQuitStatus();
 	virtual bool getRunningStatus();
+
 	virtual bool getHasBeginExecution();
 	virtual void setHasBeginExecution(bool value);
 
     static bool shutdownAndWait(BaseThread *ppThread);
     virtual bool shutdownAndWait();
-    virtual bool canShutdown() { return true; }
+    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+
+    virtual bool getDeleteSelfOnExecutionDone();
+	virtual void setDeleteSelfOnExecutionDone(bool value);
 
     void setUniqueID(string value) { uniqueID = value; }
     string getUniqueID() { return uniqueID; }
 
     virtual void setRunningStatus(bool value);
+
+    void setExecutingTask(bool value);
+    bool getExecutingTask();
+
+    Mutex * getMutexThreadObjectAccessor() { return &mutexThreadObjectAccessor; }
 };
 
 class RunningStatusSafeWrapper {
@@ -84,6 +101,32 @@ public:
 		}
 	}
 };
+
+class ExecutingTaskSafeWrapper {
+protected:
+	BaseThread *thread;
+public:
+
+	ExecutingTaskSafeWrapper(BaseThread *thread) {
+		this->thread = thread;
+		Enable();
+	}
+	~ExecutingTaskSafeWrapper() {
+		Disable();
+	}
+
+	void Enable() {
+		if(this->thread != NULL) {
+			this->thread->setExecutingTask(true);
+		}
+	}
+	void Disable() {
+		if(this->thread != NULL) {
+		    this->thread->setExecutingTask(false);
+		}
+	}
+};
+
 
 }}//end namespace
 

@@ -222,7 +222,7 @@ void Program::eventMouseMove(int x, int y, const MouseState *ms) {
 	}
 }
 
-void Program::simpleTask() {
+void Program::simpleTask(BaseThread *callingThread) {
 	loopWorker();
 }
 

@@ -238,7 +238,7 @@ Renderer::~Renderer() {
 	this->game = NULL;
 }
 
-void Renderer::simpleTask() {
+void Renderer::simpleTask(BaseThread *callingThread) {
 	// This code reads pixmaps from a queue and saves them to disk
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
@@ -840,7 +840,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 	Vec4f fontColor;
 	const Metrics &metrics= Metrics::getInstance();
 	const FontMetrics *fontMetrics= font->getMetrics();
-		
+
 	if(game != NULL) {
 		fontColor = game->getGui()->getDisplay()->getColor();
 	}
@@ -930,21 +930,21 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 	if(showFullConsole) {
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			renderConsoleLine(i, console->getXPos(), console->getYPos(),
 			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}
 	else if(showMenuConsole) {
 		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			renderConsoleLine(i, console->getXPos(), console->getYPos(),
 			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}
 	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(), 
+			renderConsoleLine(i, console->getXPos(), console->getYPos(),
 			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 		}
 	}

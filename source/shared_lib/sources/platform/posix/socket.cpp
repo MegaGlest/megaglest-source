@@ -787,7 +787,7 @@ float Socket::getThreadedPingMS(std::string host) {
 	return result;
 }
 
-void Socket::simpleTask()  {
+void Socket::simpleTask(BaseThread *callingThread)  {
 	// update ping times every x seconds
 	const int pingFrequencySeconds = 2;
 	if(difftime(time(NULL),lastThreadedPing) < pingFrequencySeconds) {

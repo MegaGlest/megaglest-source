@@ -154,7 +154,7 @@ public:
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
 
-	virtual void simpleTask();
+	virtual void simpleTask(BaseThread *callingThread);
 
 	void mouseDownLeft(int x, int y);
 	void eventMouseMove(int x, int y, const MouseState *ms);

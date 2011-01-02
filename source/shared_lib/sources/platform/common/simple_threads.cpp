@@ -26,50 +26,54 @@ FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 }
 
 void FileCRCPreCacheThread::execute() {
-    RunningStatusSafeWrapper runningStatus(this);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    {
+        RunningStatusSafeWrapper runningStatus(this);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(getQuitStatus() == true) {
-		return;
-	}
+        if(getQuitStatus() == true) {
+            deleteSelfIfRequired();
+            return;
+        }
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is running\n");
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FILE CRC PreCache thread is running\n");
 
-	try	{
-	    //tech Tree listBox
-		vector<string> techPaths;
-	    findDirs(techDataPaths, techPaths);
-		if(techPaths.empty() == false) {
-			for(unsigned int idx = 0; idx < techPaths.size(); idx++) {
-				string techName = techPaths[idx];
+        try	{
+            //tech Tree listBox
+            vector<string> techPaths;
+            findDirs(techDataPaths, techPaths);
+            if(techPaths.empty() == false) {
+                for(unsigned int idx = 0; idx < techPaths.size(); idx++) {
+                    string techName = techPaths[idx];
 
-				time_t elapsedTime = time(NULL);
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,techPaths.size());
+                    time_t elapsedTime = time(NULL);
+                    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] caching CRC value for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,techPaths.size());
 
-				int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
+                    int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,(int)techPaths.size(),difftime(time(NULL),elapsedTime));
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,techPaths.size(),difftime(time(NULL),elapsedTime));
+                    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,(int)techPaths.size(),difftime(time(NULL),elapsedTime));
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] [%d of %d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,idx+1,techPaths.size(),difftime(time(NULL),elapsedTime));
 
-				if(getQuitStatus() == true) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					break;
-				}
-				sleep( 100 );
-			}
-		}
-	}
-	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-	}
-	catch(...) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
-	}
+                    if(getQuitStatus() == true) {
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                        break;
+                    }
+                    sleep( 50 );
+                }
+            }
+        }
+        catch(const exception &ex) {
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+        }
+        catch(...) {
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+        }
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+    }
+	deleteSelfIfRequired();
 }
 
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
@@ -81,77 +85,79 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
 	setTaskSignalled(false);
-	setExecutingTask(false);
 }
 
-bool SimpleTaskThread::canShutdown() {
-	return (getExecutingTask() == false);
+bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
 }
 
 void SimpleTaskThread::execute() {
-    RunningStatusSafeWrapper runningStatus(this);
-	try {
-		if(getQuitStatus() == true) {
-			return;
-		}
+    {
+        RunningStatusSafeWrapper runningStatus(this);
+        try {
+            if(getQuitStatus() == true) {
+                return;
+            }
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
-		unsigned int idx = 0;
-		for(;this->simpleTaskInterface != NULL;) {
-			bool runTask = true;
-			if(needTaskSignal == true) {
-				runTask = getTaskSignalled();
-				if(runTask == true) {
-					setTaskSignalled(false);
-				}
-			}
+            unsigned int idx = 0;
+            for(;this->simpleTaskInterface != NULL;) {
+                bool runTask = true;
+                if(needTaskSignal == true) {
+                    runTask = getTaskSignalled();
+                    if(runTask == true) {
+                        setTaskSignalled(false);
+                    }
+                }
 
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-				break;
-			}
-			else if(runTask == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-				if(getQuitStatus() == false) {
-					try {
-						setExecutingTask(true);
-						this->simpleTaskInterface->simpleTask();
-						setExecutingTask(false);
-					}
-					catch(const exception &ex) {
-						setExecutingTask(false);
-						throw runtime_error(ex.what());
-					}
-				}
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-			}
+                if(getQuitStatus() == true) {
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+                    break;
+                }
+                else if(runTask == true) {
+                    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+                    if(getQuitStatus() == false) {
+                        ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+                        this->simpleTaskInterface->simpleTask(this);
+                    }
+                    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+                }
 
-			if(this->executionCount > 0) {
-				idx++;
-				if(idx >= this->executionCount) {
-					break;
-				}
-			}
-			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-				break;
-			}
+                if(this->executionCount > 0) {
+                    idx++;
+                    if(idx >= this->executionCount) {
+                        break;
+                    }
+                }
+                if(getQuitStatus() == true) {
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+                    break;
+                }
 
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] millisecsBetweenExecutions = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str(),millisecsBetweenExecutions);
-			sleep(this->millisecsBetweenExecutions);
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] millisecsBetweenExecutions = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str(),millisecsBetweenExecutions);
-		}
+                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] millisecsBetweenExecutions = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str(),millisecsBetweenExecutions);
+                sleep(this->millisecsBetweenExecutions);
+                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] millisecsBetweenExecutions = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str(),millisecsBetweenExecutions);
+            }
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
-	}
-	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+        }
+        catch(const exception &ex) {
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
-		throw runtime_error(ex.what());
-	}
+            throw runtime_error(ex.what());
+        }
+    }
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+
+	deleteSelfIfRequired();
 }
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
@@ -173,21 +179,6 @@ bool SimpleTaskThread::getTaskSignalled() {
 	safeMutex.ReleaseLock();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	return retval;
-}
-
-void SimpleTaskThread::setExecutingTask(bool value) {
-	MutexSafeWrapper safeMutex(&mutexExecutingTask);
-	executingTask = value;
-	safeMutex.ReleaseLock();
-}
-
-bool SimpleTaskThread::getExecutingTask() {
-	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexExecutingTask);
-	retval = executingTask;
-	safeMutex.ReleaseLock();
 
 	return retval;
 }
@@ -223,41 +214,45 @@ bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
 }
 
 void LogFileThread::execute() {
-    RunningStatusSafeWrapper runningStatus(this);
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    {
+        RunningStatusSafeWrapper runningStatus(this);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(getQuitStatus() == true) {
-		return;
-	}
+        if(getQuitStatus() == true) {
+            deleteSelfIfRequired();
+            return;
+        }
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LogFile thread is running\n");
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LogFile thread is running\n");
 
-	try	{
-	    for(;this->getQuitStatus() == false;) {
-            if(checkSaveCurrentLogBufferToDisk() == true) {
-                saveToDisk(false,false);
+        try	{
+            for(;this->getQuitStatus() == false;) {
+                if(checkSaveCurrentLogBufferToDisk() == true) {
+                    saveToDisk(false,false);
+                }
+                if(this->getQuitStatus() == false) {
+                    sleep(50);
+                }
             }
-            if(this->getQuitStatus() == false) {
-                sleep(50);
-            }
-	    }
 
-	    // Ensure remaining entryies are logged to disk on shutdown
-	    saveToDisk(true,false);
-	}
-	catch(const exception &ex) {
-		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-	}
-	catch(...) {
-		//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
-		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
-	}
+            // Ensure remaining entryies are logged to disk on shutdown
+            saveToDisk(true,false);
+        }
+        catch(const exception &ex) {
+            //SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+        }
+        catch(...) {
+            //SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+            //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+        }
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+    }
+    deleteSelfIfRequired();
 }
 
 std::size_t LogFileThread::getLogEntryBufferCount() {

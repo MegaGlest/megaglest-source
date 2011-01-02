@@ -241,8 +241,6 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     chatManager.setYPos(consoleIRC.getYPos()-20);
     chatManager.setFont(CoreData::getInstance().getMenuFontNormal());
 
-	MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-	masterServerThreadInDeletion = false;
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
 	updateFromMasterserverThread->setUniqueID(__FILE__);
@@ -300,48 +298,29 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
 void MenuStateMasterserver::cleanup() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
+    MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+    needUpdateFromServer = false;
 
-	if(masterServerThreadInDeletion == false) {
-		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-		if(updateFromMasterserverThread != NULL) {
-			MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-			needUpdateFromServer = false;
-			safeMutex.ReleaseLock();
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			//BaseThread::shutdownAndWait(updateFromMasterserverThread);
-			masterServerThreadInDeletion = true;
-			if(updateFromMasterserverThread != NULL &&
-				updateFromMasterserverThread->shutdownAndWait() == true) {
-				delete updateFromMasterserverThread;
-			}
-			updateFromMasterserverThread = NULL;
-			masterServerThreadInDeletion = false;
-			safeMutexPtr.ReleaseLock();
-		}
-		else {
-			safeMutexPtr.ReleaseLock();
-		}
-	}
+    if(updateFromMasterserverThread != NULL &&
+        updateFromMasterserverThread->canShutdown(true) == true &&
+        updateFromMasterserverThread->shutdownAndWait() == true) {
+        delete updateFromMasterserverThread;
+    }
+    updateFromMasterserverThread = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	clearServerLines();
 	clearUserButtons();
 
-    //printf("Exiting master server menu [%p]\n",ircClient);
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
     if(ircClient != NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         ircClient->setCallbackObj(NULL);
         ircClient->signalQuit();
-        //if(ircClient->shutdownAndWait() == true) {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            //delete ircClient;
-        //}
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         ircClient = NULL;
     }
@@ -351,14 +330,12 @@ void MenuStateMasterserver::cleanup() {
 
 MenuStateMasterserver::~MenuStateMasterserver() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    //printf("In [%s::%s Line: %d] [%p]\n",__FILE__,__FUNCTION__,__LINE__,ircClient);
 	cleanup();
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMasterserver::clearServerLines() {
-	while(!serverLines.empty()){
+	while(!serverLines.empty()) {
 		delete serverLines.back();
 		serverLines.pop_back();
 	}
@@ -401,7 +378,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonRefresh.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+		MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = true;
 
@@ -410,21 +387,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else if(buttonReturn.mouseClick(x, y)){
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
 		soundRenderer.playFx(coreData.getClickSoundB());
-
-		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
-		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-		masterServerThreadInDeletion = true;
-		if(updateFromMasterserverThread != NULL &&
-			updateFromMasterserverThread->shutdownAndWait() == true) {
-			delete updateFromMasterserverThread;
-		}
-		updateFromMasterserverThread = NULL;
-		masterServerThreadInDeletion = false;
-		safeMutexPtr.ReleaseLock();
-
-		safeMutex.ReleaseLock();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -439,23 +402,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else if(buttonCreateGame.mouseClick(x, y)){
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
 		safeMutex.ReleaseLock();
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//BaseThread::shutdownAndWait(updateFromMasterserverThread);
-		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-		masterServerThreadInDeletion = true;
-		if(updateFromMasterserverThread != NULL &&
-			updateFromMasterserverThread->shutdownAndWait() == true) {
-			delete updateFromMasterserverThread;
-		}
-		updateFromMasterserverThread = NULL;
-		masterServerThreadInDeletion = false;
-		safeMutexPtr.ReleaseLock();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -467,12 +417,12 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
-    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 		soundRenderer.playFx(coreData.getClickSoundA());
 		autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
     }
     else {
-    	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
     	bool clicked=false;
     	if(!clicked && serverScrollBar.getElementCount()!=0){
     		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
@@ -486,15 +436,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					safeMutex.ReleaseLock();
 
-					MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-					masterServerThreadInDeletion = true;
-					if(updateFromMasterserverThread != NULL &&
-						updateFromMasterserverThread->shutdownAndWait() == true) {
-						delete updateFromMasterserverThread;
-					}
-					updateFromMasterserverThread = NULL;
-					masterServerThreadInDeletion = false;
-					safeMutexPtr.ReleaseLock();
+                    cleanup();
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
@@ -523,7 +465,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
@@ -556,7 +498,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateMasterserver::render(){
 	Renderer &renderer= Renderer::getInstance();
 
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
@@ -632,7 +574,7 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update() {
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
 		needUpdateFromServer = true;
 		lastRefreshTimer= time(NULL);
@@ -727,139 +669,124 @@ void MenuStateMasterserver::update() {
 	}
 }
 
-void MenuStateMasterserver::simpleTask() {
-	if(masterServerThreadInDeletion == true) {
+void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
+	if(callingThread->getQuitStatus() == true) {
 		return;
 	}
-
-	if( updateFromMasterserverThread == NULL ||
-		updateFromMasterserverThread->getQuitStatus() == true) {
-		return;
-	}
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
+	MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor());
 	bool needUpdate = needUpdateFromServer;
-	safeMutex.ReleaseLock();
 
 	if(needUpdate == true) {
-		updateServerInfo();
-	}
-}
-
-void MenuStateMasterserver::updateServerInfo() {
-	try {
-
-		if(masterServerThreadInDeletion == true) {
-			return;
-		}
-
-		MutexSafeWrapper safeMutexPtr(&masterServerThreadPtrChangeAccessor);
-		if( updateFromMasterserverThread == NULL ||
-			updateFromMasterserverThread->getQuitStatus() == true) {
-			safeMutexPtr.ReleaseLock();
-			return;
-		}
-		safeMutexPtr.ReleaseLock(true);
-
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor);
-		needUpdateFromServer = false;
-		safeMutex.ReleaseLock(true);
-
-		if(announcementLoaded == false) {
-			string announcementURL = Config::getInstance().getString("AnnouncementURL","http://master.megaglest.org/files/announcement.txt");
-			if(announcementURL != "") {
-				std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
-				if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
-					int newlineCount=0;
-					size_t lastIndex=0;
-
-					//announcementLabel.setText(announcementTxt);
-					consoleIRC.addLine(announcementTxt);
-
-					while(true){
-						lastIndex=announcementTxt.find("\n",lastIndex+1);
-						if(lastIndex==string::npos)
-						{
-							break;
-						}
-						else
-						{
-							newlineCount++;
-						}
-					}
-					newlineCount--;// remove my own line
-					for( int i=0; i< newlineCount;++i ){
-						consoleIRC.addLine("");
-					}
-				}
-			}
-			consoleIRC.addLine("---------------------------------------------");
-			string versionURL = Config::getInstance().getString("VersionURL","http://master.megaglest.org/files/versions/")+glestVersionString+".txt";
-			//printf("\nversionURL=%s\n",versionURL.c_str());
-			if(versionURL != "") {
-				std::string versionTxt = SystemFlags::getHTTP(versionURL);
-				if(StartsWith(versionTxt,"Version info:") == true) {
-					int newlineCount=0;
-					size_t lastIndex=0;
-
-					//versionInfoLabel.setText(versionTxt);
-					consoleIRC.addLine(versionTxt);
-
-					while(true){
-						lastIndex=versionTxt.find("\n",lastIndex+1);
-						if(lastIndex==string::npos)
-						{
-							break;
-						}
-						else
-						{
-							newlineCount++;
-						}
-					}
-					newlineCount--;// remove my own line
-					for( int i=0; i< newlineCount;++i ){
-						consoleIRC.addLine("");
-					}
-				}
-			}
-			consoleIRC.addLine("---------------------------------------------");
-			// write hint to console:
-			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-			consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
-
-			announcementLoaded=true;
-		}
-
-        Lang &lang= Lang::getInstance();
         try {
-            if(Config::getInstance().getString("Masterserver","") != "") {
 
-                std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
-                serverInfoString=localServerInfoString;
+            if(callingThread->getQuitStatus() == true) {
+                return;
+            }
+
+            needUpdateFromServer = false;
+
+            if(announcementLoaded == false) {
+                string announcementURL = Config::getInstance().getString("AnnouncementURL","http://master.megaglest.org/files/announcement.txt");
+                if(announcementURL != "") {
+
+                    safeMutex.ReleaseLock(true);
+                    std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
+                    if(callingThread->getQuitStatus() == true) {
+                        return;
+                    }
+                    safeMutex.Lock();
+
+                    if(StartsWith(announcementTxt,"Announcement from Masterserver:") == true) {
+                        int newlineCount=0;
+                        size_t lastIndex=0;
+
+                        //announcementLabel.setText(announcementTxt);
+                        consoleIRC.addLine(announcementTxt);
+
+                        while(true) {
+                            lastIndex=announcementTxt.find("\n",lastIndex+1);
+                            if(lastIndex==string::npos) {
+                                break;
+                            }
+                            else {
+                                newlineCount++;
+                            }
+                        }
+                        newlineCount--;// remove my own line
+                        for( int i=0; i< newlineCount;++i ) {
+                            consoleIRC.addLine("");
+                        }
+                    }
+                }
+                consoleIRC.addLine("---------------------------------------------");
+                string versionURL = Config::getInstance().getString("VersionURL","http://master.megaglest.org/files/versions/")+glestVersionString+".txt";
+                //printf("\nversionURL=%s\n",versionURL.c_str());
+                if(versionURL != "") {
+                    safeMutex.ReleaseLock(true);
+                    std::string versionTxt = SystemFlags::getHTTP(versionURL);
+                    if(callingThread->getQuitStatus() == true) {
+                        return;
+                    }
+                    safeMutex.Lock();
+
+                    if(StartsWith(versionTxt,"Version info:") == true) {
+                        int newlineCount=0;
+                        size_t lastIndex=0;
+
+                        //versionInfoLabel.setText(versionTxt);
+                        consoleIRC.addLine(versionTxt);
+
+                        while(true) {
+                            lastIndex=versionTxt.find("\n",lastIndex+1);
+                            if(lastIndex==string::npos) {
+                                break;
+                            }
+                            else {
+                                newlineCount++;
+                            }
+                        }
+                        newlineCount--;// remove my own line
+                        for( int i=0; i< newlineCount;++i ) {
+                            consoleIRC.addLine("");
+                        }
+                    }
+                }
+                consoleIRC.addLine("---------------------------------------------");
+                // write hint to console:
+                Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+                consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+
+                announcementLoaded=true;
+            }
+
+            Lang &lang= Lang::getInstance();
+            try {
+                if(Config::getInstance().getString("Masterserver","") != "") {
+
+                    safeMutex.ReleaseLock(true);
+                    std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
+                    if(callingThread->getQuitStatus() == true) {
+                        return;
+                    }
+                    safeMutex.Lock();
+
+                    serverInfoString=localServerInfoString;
+                }
+            }
+            catch(const exception &ex) {
+                serverInfoString=ex.what();
+                SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
             }
         }
-		catch(const exception &ex) {
-            serverInfoString=ex.what();
-		    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		}
-
-		safeMutexPtr.Lock();
-		if( updateFromMasterserverThread == NULL ||
-			updateFromMasterserverThread->getQuitStatus() == true) {
-			safeMutexPtr.ReleaseLock();
-			return;
-		}
-		safeMutexPtr.ReleaseLock();
-	}
-	catch(const exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		threadedErrorMsg = e.what();
+        catch(const exception &e){
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+            threadedErrorMsg = e.what();
+        }
 	}
 }
 
-
-void MenuStateMasterserver::rebuildServerLines(const string &serverInfo)
-{
+void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 	int numberOfOldServerLines=serverLines.size();
 	clearServerLines();
     Lang &lang= Lang::getInstance();
