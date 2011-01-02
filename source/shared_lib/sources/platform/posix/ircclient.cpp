@@ -191,8 +191,10 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
-        if(ctx->getCallbackObj() != NULL) {
-            ctx->getCallbackObj()->IRC_CallbackEvent(IRC_evt_chatText, nickbuf, params, count);
+        MutexSafeWrapper safeMutex(ctx->getMutexIRCCB());
+        IRCCallbackInterface *cb = ctx->getCallbackObj(false);
+        if(cb != NULL) {
+            cb->IRC_CallbackEvent(IRC_evt_chatText, nickbuf, params, count);
         }
 	}
 
@@ -347,7 +349,7 @@ void IRCThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: signalQuit [%p]\n",ircSession);
 
     if(ircSession != NULL) {
-        callbackObj=NULL;
+        setCallbackObj(NULL);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: Quitting Channel\n");
         irc_cmd_quit(ircSession, "MG Bot is closing!");
         BaseThread::signalQuit();
@@ -411,8 +413,11 @@ std::vector<string> IRCThread::getNickList() {
     return nickList;
 }
 
-IRCCallbackInterface * IRCThread::getCallbackObj() {
-    MutexSafeWrapper safeMutex(&mutexIRCCB);
+IRCCallbackInterface * IRCThread::getCallbackObj(bool lockObj) {
+    MutexSafeWrapper safeMutex(NULL);
+    if(lockObj == true) {
+        safeMutex.setMutex(&mutexIRCCB);
+    }
     return callbackObj;
 }
 void IRCThread::setCallbackObj(IRCCallbackInterface *cb) {
@@ -518,9 +523,13 @@ void IRCThread::execute() {
 
     // Delete ourself when the thread is done (no other actions can happen after this
     // such as the mutex which modifies the running status of this method
-    if(getCallbackObj() != NULL) {
-       getCallbackObj()->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);
+    MutexSafeWrapper safeMutex(&mutexIRCCB);
+    IRCCallbackInterface *cb = getCallbackObj(false);
+    if(cb != NULL) {
+       cb->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);
     }
+    safeMutex.ReleaseLock();
+
 	delete this;
 }
 

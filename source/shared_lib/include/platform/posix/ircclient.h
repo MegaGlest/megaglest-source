@@ -90,7 +90,8 @@ public:
     std::vector<string> & getCachedNickList() { return eventData; }
     void setCachedNickList(std::vector<string> &list) { eventData = list; }
 
-    IRCCallbackInterface * getCallbackObj();
+    Mutex * getMutexIRCCB() { return &mutexIRCCB; }
+    IRCCallbackInterface * getCallbackObj(bool lockObj=true);
     void setCallbackObj(IRCCallbackInterface *cb);
 };
 
