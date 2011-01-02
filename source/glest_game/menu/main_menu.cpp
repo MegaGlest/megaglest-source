@@ -161,7 +161,7 @@ void MainMenu::keyPress(char c){
 }
 
 void MainMenu::setState(MenuState *newstate) {
-    printf("In [%s::%s Line: %d] oldstate [%p] newstate [%p] this->state [%p]\n",__FILE__,__FUNCTION__,__LINE__,oldstate,newstate,this->state);
+    //printf("In [%s::%s Line: %d] oldstate [%p] newstate [%p] this->state [%p]\n",__FILE__,__FUNCTION__,__LINE__,oldstate,newstate,this->state);
 
     //delete this->state;
     //this->state = newstate;
