@@ -108,6 +108,8 @@ const char vkF10 = -23;
 const char vkF11 = -24;
 const char vkF12 = -25;
 const char vkDelete = -26;
+const char vkPrint = -27;
+const char vkPause = -29;
 
 enum WindowStyle{
 	wsFullscreen,
@@ -131,7 +133,7 @@ private:
     static bool isKeyPressedDown;
 	static bool isFullScreen;
 	static SDL_keysym keystate;
-	
+
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}
 
@@ -158,7 +160,7 @@ public:
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	static SDL_keysym getKeystate() { return keystate; }
-	
+
 	Window();
 	virtual ~Window();
 
@@ -189,7 +191,7 @@ public:
 
 	static void setUseDefaultCursorOnly(bool value) { no2DMouseRendering = value; }
 	static bool getUseDefaultCursorOnly() { return no2DMouseRendering; }
-	
+
 	static void setAllowAltEnterFullscreenToggle(bool value) { allowAltEnterFullscreenToggle = value; }
 	static bool getAllowAltEnterFullscreenToggle() { return allowAltEnterFullscreenToggle; }
 

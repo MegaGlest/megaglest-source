@@ -948,6 +948,10 @@ bool isKeyDown(int virtualKey) {
 			return  (keystate[SDLK_BACKSPACE] != 0);
 		case vkDelete:
 			return (keystate[SDLK_DELETE] != 0);
+		case vkPrint:
+			return (keystate[SDLK_PRINT] != 0);
+		case vkPause:
+			return (keystate[SDLK_PAUSE] != 0);
 		default:
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;

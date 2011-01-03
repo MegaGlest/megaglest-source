@@ -622,6 +622,10 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkBack;
 		case SDLK_DELETE:
 			return vkDelete;
+		case SDLK_PRINT:
+			return vkPrint;
+        case SDLK_PAUSE:
+            return vkPause;
 		case SDLK_F1:
 			return vkF1;
 			break;
