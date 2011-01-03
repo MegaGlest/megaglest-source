@@ -389,6 +389,50 @@ void Config::setString(const string &key, const string &value){
 	properties.first.setString(key, value);
 }
 
+vector<pair<string,string> > Config::getPropertiesFromContainer(const Properties &propertiesObj) const {
+    vector<pair<string,string> > result;
+
+	int count = propertiesObj.getPropertyCount();
+	for(int i = 0; i < count; ++i) {
+	    pair<string,string> property;
+        property.first  = propertiesObj.getKey(i);
+        property.second = propertiesObj.getString(i);
+        result.push_back(property);
+	}
+
+    return result;
+}
+
+vector<pair<string,string> > Config::getMergedProperties() const {
+    vector<pair<string,string> > result = getMasterProperties();
+    vector<pair<string,string> > resultUser = getUserProperties();
+    for(int i = 0; i < resultUser.size(); ++i) {
+        const pair<string,string> &propertyUser = resultUser[i];
+        bool overrideProperty = false;
+        for(int j = 0; j < result.size(); ++j) {
+            pair<string,string> &property = result[j];
+            // Take the user property and override the original value
+            if(property.first == propertyUser.first) {
+                property.second = propertyUser.second;
+                break;
+            }
+        }
+        if(overrideProperty == false) {
+            result.push_back(propertyUser);
+        }
+    }
+
+    return result;
+}
+
+vector<pair<string,string> > Config::getMasterProperties() const {
+    return getPropertiesFromContainer(properties.first);
+}
+
+vector<pair<string,string> > Config::getUserProperties() const {
+    return getPropertiesFromContainer(properties.second);
+}
+
 string Config::toString(){
 	return properties.first.toString();
 }
