@@ -1147,6 +1147,15 @@ void MenuStateConnectedGame::update() {
 							}
 						}
 
+						ControlType ct= gameSettings->getFactionControl(i);
+						if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+							listBoxRMultiplier[slot].setEnabled(false);
+							listBoxRMultiplier[slot].setVisible(false);
+						} else {
+							listBoxRMultiplier[slot].setEnabled(true);
+							listBoxRMultiplier[slot].setVisible(true);
+						}
+
 						if(gameSettings->getFactionControl(i) == ctNetwork &&
 							gameSettings->getThisFactionIndex() == i){
 							// set my current slot to ctHuman
