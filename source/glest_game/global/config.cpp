@@ -413,6 +413,7 @@ vector<pair<string,string> > Config::getMergedProperties() const {
             pair<string,string> &property = result[j];
             // Take the user property and override the original value
             if(property.first == propertyUser.first) {
+                overrideProperty = true;
                 property.second = propertyUser.second;
                 break;
             }
