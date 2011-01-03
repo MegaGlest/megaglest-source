@@ -940,6 +940,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
+		listBoxRMultiplier[index].setVisible(listBoxRMultiplier[index].getEnabled());
 }
 
 
@@ -1261,7 +1262,7 @@ void MenuStateCustomGame::render() {
 				renderer.renderListBox(&listBoxControls[i]);
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-					if(listBoxRMultiplier[i].getEnabled() && (listBoxAdvanced.getSelectedItemIndex() == 1)){
+					if(listBoxAdvanced.getSelectedItemIndex() == 1){
 						renderer.renderListBox(&listBoxRMultiplier[i]);
 					}
 					renderer.renderListBox(&listBoxFactions[i]);
