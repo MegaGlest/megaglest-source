@@ -183,7 +183,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle() {
-		string msg = "#1 An error ocurred and " + string(GameConstants::application_name) + " will close.\nPlease report this bug to "+mailString;
+		string msg = "#1 An error occurred and " + string(GameConstants::application_name) + " will close.\nPlease report this bug to "+mailString;
 #ifdef WIN32
 		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
 #endif
@@ -366,7 +366,7 @@ public:
 			}
         }
         else {
-            string err = "#2 An error ocurred and " +
+            string err = "#2 An error occurred and " +
                         string(GameConstants::application_name) +
                         " will close.\nError msg = [" +
                         errMsg +
