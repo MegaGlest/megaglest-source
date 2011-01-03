@@ -120,6 +120,7 @@ public:
     virtual void keyUp(char key);
 
 	virtual void simpleTask(BaseThread *callingThread);
+	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 

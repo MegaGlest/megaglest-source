@@ -1339,7 +1339,9 @@ void MenuStateCustomGame::render() {
 		    }
 		}
 
-		renderer.renderChatManager(&chatManager);
+		if(hasNetworkGameSettings() == true) {
+			renderer.renderChatManager(&chatManager);
+		}
 		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
@@ -2635,7 +2637,9 @@ void MenuStateCustomGame::keyDown(char key) {
 	}
 	else {
 		//send key to the chat manager
-		chatManager.keyDown(key);
+		if(hasNetworkGameSettings() == true) {
+			chatManager.keyDown(key);
+		}
 		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
@@ -2692,19 +2696,24 @@ void MenuStateCustomGame::keyPress(char c) {
 	    }
 	}
 	else {
-		chatManager.keyPress(c);
+		if(hasNetworkGameSettings() == true) {
+			chatManager.keyPress(c);
+		}
 	}
 }
 
 void MenuStateCustomGame::keyUp(char key) {
 	if(activeInputLabel==NULL) {
-		chatManager.keyUp(key);
-
+		if(hasNetworkGameSettings() == true) {
+			chatManager.keyUp(key);
+		}
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
-			chatManager.keyUp(key);
+			if(hasNetworkGameSettings() == true) {
+				chatManager.keyUp(key);
+			}
 		}
 		else if(key == configKeys.getCharKey("ShowFullConsole")) {
 			showFullConsole= false;
