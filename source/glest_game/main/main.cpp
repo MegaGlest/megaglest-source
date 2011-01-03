@@ -1290,7 +1290,7 @@ int glestMain(int argc, char** argv) {
                     Tokenize(tokenList,filteredPropertyList,",");
 
                     if(filteredPropertyList.size() > 0) {
-                        printf("Filtering techtrees and only looking for the following:\n");
+                        printf("Filtering properties and only looking for the following:\n");
                         for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
                             filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
                             printf("%s\n",filteredPropertyList[idx].c_str());
