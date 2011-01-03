@@ -1299,9 +1299,13 @@ int glestMain(int argc, char** argv) {
                 }
             }
 
-            printf("Main settings report\n");
+            printf("\nMain settings report\n");
             printf("====================\n");
             vector<pair<string,string> > mergedMainSettings = config.getMergedProperties();
+            vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
+
+            // Figure out the max # of tabs we need to format display nicely
+            int tabCount = 1;
             for(int i = 0; i < mergedMainSettings.size(); ++i) {
                 const pair<string,string> &nameValue = mergedMainSettings[i];
 
@@ -1316,13 +1320,15 @@ int glestMain(int argc, char** argv) {
                 }
 
                 if(displayProperty == true) {
-                    printf("Property Name [%s]\t\t\t\tValue[%s]\n",nameValue.first.c_str(),nameValue.second.c_str());
+                    int requredTabs = (nameValue.first.length() / 8)+1;
+                    if(nameValue.first.length() % 8) {
+                        requredTabs++;
+                    }
+                    if(requredTabs > tabCount) {
+                        tabCount = requredTabs;
+                    }
                 }
             }
-
-            printf("\n\nMain key binding settings report\n");
-            printf("====================================\n");
-            vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
             for(int i = 0; i < mergedKeySettings.size(); ++i) {
                 const pair<string,string> &nameValue = mergedKeySettings[i];
 
@@ -1337,7 +1343,67 @@ int glestMain(int argc, char** argv) {
                 }
 
                 if(displayProperty == true) {
-                    printf("Property Name [%s]\t\t\t\tValue[%s]\n",nameValue.first.c_str(),nameValue.second.c_str());
+                    int requredTabs = (nameValue.first.length() / 8)+1;
+                    if(nameValue.first.length() % 8) {
+                        requredTabs++;
+                    }
+                    if(requredTabs > tabCount) {
+                        tabCount = requredTabs;
+                    }
+                }
+            }
+
+            // Output the properties
+            for(int i = 0; i < mergedMainSettings.size(); ++i) {
+                const pair<string,string> &nameValue = mergedMainSettings[i];
+
+                bool displayProperty = false;
+                if(filteredPropertyList.size() > 0) {
+                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                        displayProperty = true;
+                    }
+                }
+                else {
+                    displayProperty = true;
+                }
+
+                if(displayProperty == true) {
+                    printf("Property Name [%s]",nameValue.first.c_str());
+
+                    int tabs = (nameValue.first.length() / 8) + 1;
+                    for(int j = 0; j < (tabCount - tabs); ++j) {
+                        printf("\t");
+                    }
+
+                    printf("Value [%s]\n",nameValue.second.c_str());
+                }
+            }
+
+            printf("\n\nMain key binding settings report\n");
+            printf("====================================\n");
+
+            for(int i = 0; i < mergedKeySettings.size(); ++i) {
+                const pair<string,string> &nameValue = mergedKeySettings[i];
+
+                bool displayProperty = false;
+                if(filteredPropertyList.size() > 0) {
+                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                        displayProperty = true;
+                    }
+                }
+                else {
+                    displayProperty = true;
+                }
+
+                if(displayProperty == true) {
+                    printf("Property Name [%s]",nameValue.first.c_str());
+
+                    int tabs = (nameValue.first.length() / 8) + 1;
+                    for(int j = 0; j < (tabCount - tabs); ++j) {
+                        printf("\t");
+                    }
+
+                    printf("Value [%s]\n",nameValue.second.c_str());
                 }
             }
 
