@@ -326,15 +326,14 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 2000; peekAttempt++) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    const double MAX_MSG_WAIT_SECONDS = 3;
 
+    // Wait a max of x seconds for this message
+	for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 		if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == true) {
 			break;
 		}
-		//else {
-		//	sleep(1); // sleep 1 ms to wait for socket data
-		//}
 	}
 
 	if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == false) {
@@ -349,16 +348,13 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	// read header + data.commandCount commands.
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     // _peek_ type, commandCount & frame num first.
-	for(int peekAttempt = 1; peekAttempt < 2000; peekAttempt++) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-
+    // Wait a max of x seconds for this message
+	for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 		if (NetworkMessage::peek(socket, &data, totalMsgSize) == true) {
 			break;
 		}
-		//else {
-		//	sleep(1); // sleep 1 ms to wait for socket data
-		//}
 	}
 
 
@@ -583,14 +579,12 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 	data.header.techCRCFileCount = 0;
 
-	for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+    const double MAX_MSG_WAIT_SECONDS = 10;
 
+    // Wait a max of x seconds for this message
+	for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 		if (NetworkMessage::peek(socket, &data, HeaderSize) == true) {
 			break;
-		}
-		else {
-			sleep(1); // sleep 1 ms to wait for socket data
 		}
 	}
 
@@ -629,14 +623,10 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, maxFileCountPerPacket = %d, packetFileCount = %d, packetDetail1DataSize = %d, packetDetail2DataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,maxFileCountPerPacket,packetFileCount,packetDetail1DataSize,packetDetail2DataSize);
 
-			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-
+            // Wait a max of x seconds for this message
+            for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize) == true) {
 					break;
-				}
-				else {
-					sleep(1); // sleep 1 ms to wait for socket data
 				}
 			}
 
@@ -647,13 +637,10 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
 				}
 
-				for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+                // Wait a max of x seconds for this message
+                for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize) == true) {
 						break;
-					}
-					else {
-						sleep(1); // sleep 1 ms to wait for socket data
 					}
 				}
 
@@ -776,13 +763,12 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
 	data.header.techCRCFileCount = 0;
 
-	for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+    const double MAX_MSG_WAIT_SECONDS = 3;
+
+    // Wait a max of x seconds for this message
+	for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 		if (NetworkMessage::peek(socket, &data, HeaderSize) == true) {
 			break;
-		}
-		else {
-			sleep(1); // sleep 1 ms to wait for socket data
 		}
 	}
 
@@ -814,14 +800,10 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
-			for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
-
+            // Wait a max of x seconds for this message
+            for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 				if (NetworkMessage::peek(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount)) == true) {
 					break;
-				}
-				else {
-					sleep(1); // sleep 1 ms to wait for socket data
 				}
 			}
 
@@ -832,13 +814,10 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 					//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.detail.techCRCFileList[i] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.detail.techCRCFileList[i].getString().c_str());
 				}
 
-				for(int peekAttempt = 1; peekAttempt < 5000; peekAttempt++) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] peekAttempt = %d\n",__FILE__,__FUNCTION__,__LINE__,peekAttempt);
+                // Wait a max of x seconds for this message
+                for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 					if (NetworkMessage::peek(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount)) == true) {
 						break;
-					}
-					else {
-						sleep(1); // sleep 1 ms to wait for socket data
 					}
 				}
 
