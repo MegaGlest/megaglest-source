@@ -95,6 +95,7 @@ const char  *GAME_ARGS[] = {
 	"--data-path",
 	"--ini-path",
 	"--log-path",
+	"--show-ini-settings",
 	"--verbose"
 
 };
@@ -115,6 +116,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DATA_PATH,
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
+	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -799,6 +801,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=~/game_config/",argv0,GAME_ARGS[GAME_ARG_INI_PATH]);
 	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n                     \t\texample: %s %s=~/game_logs/",argv0,GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n%s=x\t\t\tdisplays merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
+	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
 	printf("\n\n");
@@ -1152,6 +1157,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
         hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
 		haveSpecialOutputCommandLineOption = true;
@@ -1214,9 +1220,6 @@ int glestMain(int argc, char** argv) {
             return setupResult;
         }
 
-        // Setup the file crc thread
-		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
-
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
 
@@ -1272,6 +1275,77 @@ int glestMain(int argc, char** argv) {
 				std::pair<bool,bool>(true,false));
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
+
+            vector<string> filteredPropertyList;
+            if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("=")) == true) {
+                int foundParamIndIndex = -1;
+                hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("="),&foundParamIndIndex);
+                string filterList = argv[foundParamIndIndex];
+                vector<string> paramPartTokens;
+                Tokenize(filterList,paramPartTokens,"=");
+                if(paramPartTokens.size() >= 2) {
+                    string tokenList = paramPartTokens[1];
+                    Tokenize(tokenList,filteredPropertyList,",");
+
+                    if(filteredPropertyList.size() > 0) {
+                        printf("Filtering techtrees and only looking for the following:\n");
+                        for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
+                            filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
+                            printf("%s\n",filteredPropertyList[idx].c_str());
+                        }
+                    }
+                }
+            }
+
+            printf("Main settings report\n");
+            printf("====================\n");
+            vector<pair<string,string> > mergedMainSettings = config.getMergedProperties();
+            for(int i = 0; i < mergedMainSettings.size(); ++i) {
+                const pair<string,string> &nameValue = mergedMainSettings[i];
+
+                bool displayProperty = false;
+                if(filteredPropertyList.size() > 0) {
+                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                        displayProperty = true;
+                    }
+                }
+                else {
+                    displayProperty = true;
+                }
+
+                if(displayProperty == true) {
+                    printf("Property Name [%s]\t\t\t\tValue[%s]\n",nameValue.first.c_str(),nameValue.second.c_str());
+                }
+            }
+
+            printf("\n\nMain key binding settings report\n");
+            printf("====================================\n");
+            vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
+            for(int i = 0; i < mergedKeySettings.size(); ++i) {
+                const pair<string,string> &nameValue = mergedKeySettings[i];
+
+                bool displayProperty = false;
+                if(filteredPropertyList.size() > 0) {
+                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                        displayProperty = true;
+                    }
+                }
+                else {
+                    displayProperty = true;
+                }
+
+                if(displayProperty == true) {
+                    printf("Property Name [%s]\t\t\t\tValue[%s]\n",nameValue.first.c_str(),nameValue.second.c_str());
+                }
+            }
+
+            return -1;
+        }
+
+        // Setup the file crc thread
+		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);

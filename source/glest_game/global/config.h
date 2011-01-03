@@ -53,6 +53,7 @@ protected:
 	char translateStringToCharKey(const string &value) const;
 
 	static void CopyAll(Config *src,Config *dest);
+	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
 
 public:
     static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
@@ -78,6 +79,10 @@ public:
 	void setString(const string &key, const string &value);
 
     vector<string> getPathListForType(PathType type, string scenarioDir = "");
+
+    vector<pair<string,string> > getMergedProperties() const;
+    vector<pair<string,string> > getMasterProperties() const;
+    vector<pair<string,string> > getUserProperties() const;
 
 	string toString();
 };

@@ -49,9 +49,9 @@ public:
 	void load(const string &path);
 	void save(const string &path);
 
-	int getPropertyCount()	{return (int)propertyVector.size();}
-	string getKey(int i)	{return propertyVector[i].first;}
-	string getString(int i)	{return propertyVector[i].second;}
+	int getPropertyCount() const	{return (int)propertyVector.size();}
+	string getKey(int i) const	    {return propertyVector[i].first;}
+	string getString(int i) const	{return propertyVector[i].second;}
 
 	bool getBool(const string &key, const char *defaultValueIfNotFound=NULL) const;
 	int getInt(const string &key, const char *defaultValueIfNotFound=NULL) const;
