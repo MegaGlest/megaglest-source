@@ -322,8 +322,15 @@ char Config::translateStringToCharKey(const string &value) const {
 		else if(value == "vkF12") {
 			result = vkF12;
 		}
+		else if(value == "vkPrint") {
+			result = vkPrint;
+		}
+		else if(value == "vkPause") {
+			result = vkPause;
+		}
+
 		else {
-			string sError = "Unsupported key translation" + value;
+			string sError = "Unsupported key translation [" + value + "]";
 			throw runtime_error(sError.c_str());
 		}
 	}
