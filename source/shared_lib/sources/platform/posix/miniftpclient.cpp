@@ -91,7 +91,10 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n===> FTP Client thread file_is_comming: remains: [%3d] filename: [%s] size: [%10luB] ", remains, finfo->filename,(unsigned long)finfo->size);
 
     if(out != NULL) {
-        out->currentFilename = finfo->filename;
+        //out->currentFilename = finfo->filename;
+        out->currentFilename = fullFilePath;
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" current filename: [%s] ", fullFilePath.c_str());
     }
 
     switch(finfo->filetype) {
@@ -263,7 +266,8 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result,NULL);
+        MutexSafeWrapper safeMutex(this->getProgressMutex());
+        this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result,NULL);
     }
 }
 
@@ -288,7 +292,8 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result,NULL);
+        MutexSafeWrapper safeMutex(this->getProgressMutex());
+        this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result,NULL);
     }
 }
 
