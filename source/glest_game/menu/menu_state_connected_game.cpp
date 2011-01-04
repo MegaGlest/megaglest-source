@@ -453,7 +453,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
+                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
@@ -466,7 +466,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
+                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
@@ -752,7 +752,7 @@ void MenuStateConnectedGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.size() > 0) {
             int yLocation = buttonDisconnect.getY();
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
