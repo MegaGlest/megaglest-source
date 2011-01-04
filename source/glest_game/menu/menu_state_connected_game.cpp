@@ -453,6 +453,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
+                        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+                        fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
 			    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
@@ -464,6 +466,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
+                        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+                        fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
 			}
@@ -748,6 +752,23 @@ void MenuStateConnectedGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        if(fileFTPProgressList.size() > 0) {
+            int yLocation = buttonDisconnect.getY();
+            for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
+                iterMap != fileFTPProgressList.end(); ++iterMap) {
+
+                renderer.renderProgressBar(
+                    iterMap->second.first,
+                    10,
+                    yLocation,
+                    CoreData::getInstance().getDisplayFontSmall(),
+                    350,"Downloading " + iterMap->first + " [" + iterMap->second.second + "] ");
+
+                yLocation -= 100;
+            }
+        }
+        safeMutexFTPProgress.ReleaseLock();
 
 		if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
 
@@ -1683,12 +1704,28 @@ void MenuStateConnectedGame::showFTPMessageBox(const string &text, const string 
 	}
 }
 
-void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result) {
+void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result, void *userdata) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(type == ftp_cct_Map) {
+    if(type == ftp_cct_DownloadProgress) {
+        FTPClientCallbackInterface::FtpProgressStats *stats = (FTPClientCallbackInterface::FtpProgressStats *)userdata;
+        if(stats != NULL) {
+            int fileProgress = 0;
+            if(stats->download_total > 0) {
+                fileProgress = (stats->download_now * 100.0 / stats->download_total);
+            }
+            printf("Got FTP Callback for [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),fileProgress,stats->download_now,stats->download_total);
+
+            fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
+        }
+    }
+    else if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
         printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock();
 
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -1711,6 +1748,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         getMissingTilesetFromFTPServerInProgress = false;
         printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock();
+
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
@@ -1720,10 +1761,46 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
             clientInterface->sendTextMessage(szMsg,-1, true);
 
+            // START
+            // Clear the CRC Cache if it is populated
+            //
+            vector<string> paths        = Config::getInstance().getPathListForType(ptTilesets);
+            string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
+            std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+            string pathSearchString     = string("/") + itemName + string("/*");
+            const string filterFileExt  = ".xml";
+
+            string cacheKey = "";
+            size_t count = paths.size();
+            for(size_t idx = 0; idx < count; ++idx) {
+                string path = paths[idx] + pathSearchString;
+
+                cacheKey += path + "_" + filterFileExt + "_";
+            }
+            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+                crcTreeCache.erase(cacheKey);
+            }
+
+            cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
+            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+
+            count = paths.size();
+            for(size_t idx = 0; idx < count; ++idx) {
+                string path = paths[idx] + pathSearchString;
+
+                string cacheKey = path + "_" + filterFileExt;
+                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+                    crcTreeCache2.erase(cacheKey);
+                }
+            }
+            // END
+
+            // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
         }
         else {
-
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
             char szMsg[1024]="";

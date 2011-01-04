@@ -369,12 +369,8 @@ bool EndsWith(const string &str, const string& key)
 
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum) {
-
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	// !!! OLD local CACHE
-	//static std::map<string,int32> crcTreeCache;
-	string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
+	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
 	std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
 
 	string cacheKey = "";
@@ -414,10 +410,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
-
-	// !!! OLD local CACHE
-	//static std::map<string,int32> crcTreeCache;
-	string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
+	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
 	std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
 
 	string cacheKey = path + "_" + filterFileExt;
@@ -522,10 +515,8 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 }
 
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
-	string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
 	std::map<string,vector<std::pair<string,int32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,int32> > > >(cacheLookupId);
 
 	string cacheKey = "";
@@ -564,9 +555,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 //finds all filenames like path and gets the checksum of each file
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
-
-	//static std::map<string,vector<std::pair<string,int32> > > crcTreeCache;
-	string cacheLookupId =  string(__FILE__) + intToStr(__LINE__);
+	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey2;
 	std::map<string,vector<std::pair<string,int32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,int32> > > >(cacheLookupId);
 
 	string cacheKey = path + "_" + filterFileExt;

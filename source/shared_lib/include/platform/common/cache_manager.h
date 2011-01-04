@@ -30,6 +30,13 @@ namespace Shared { namespace PlatformCommon {
 
 class CacheManager
 {
+public:
+
+static const char *getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
+static const char *getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
+static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
+static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey2;
+
 protected:
 	static Mutex mutexCache;
 

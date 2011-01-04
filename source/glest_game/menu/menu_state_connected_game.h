@@ -151,6 +151,8 @@ private:
     string getMissingTilesetFromFTPServer;
     bool getMissingTilesetFromFTPServerInProgress;
 
+    std::map<string,pair<int,string> > fileFTPProgressList;
+
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
@@ -181,7 +183,7 @@ private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
     void showFTPMessageBox(const string &text, const string &header, bool toggle);
-    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result);
+    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result,void *userdata);
 };
 
 }}//end namespace

@@ -399,6 +399,8 @@ public:
 
 	Texture2D *saveScreenToTexture(int x, int y, int width, int height);
 
+	void renderProgressBar(int size, int x, int y, Font2D *font,int customWidth=-1, string prefixLabel="");
+
 private:
 	//private misc
 	float computeSunAngle(float time);
@@ -429,7 +431,6 @@ private:
 	//private aux drawing
 	void renderSelectionCircle(Vec3f v, int size, float radius);
 	void renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &color, float width);
-	void renderProgressBar(int size, int x, int y, Font2D *font);
 	void renderTile(const Vec2i &pos);
 	void renderQuad(int x, int y, int w, int h, const Texture2D *texture);
 

@@ -33,13 +33,23 @@ enum FTP_Client_ResultType {
 };
 
 enum FTP_Client_CallbackType {
-    ftp_cct_Map     = 0,
-    ftp_cct_Tileset = 1
+    ftp_cct_Map                 = 0,
+    ftp_cct_Tileset             = 1,
+    ftp_cct_DownloadProgress    = 2
 };
 
 class FTPClientCallbackInterface {
 public:
-    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result) = 0;
+
+    struct FtpProgressStats {
+      double download_total;
+      double download_now;
+      double upload_total;
+      double upload_now;
+      string currentFilename;
+    };
+
+    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result, void *userdata) = 0;
 };
 
 class FTPClientThread : public BaseThread
@@ -63,6 +73,8 @@ protected:
     void getTilesetFromServer(string tileSetName);
     FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword);
 
+    Mutex mutexProgressMutex;
+
 public:
 
     FTPClientThread(int portNumber,string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject);
@@ -72,6 +84,9 @@ public:
 
     void addMapToRequests(string mapFilename);
     void addTilesetToRequests(string tileSetName);
+
+    FTPClientCallbackInterface * getCallBackObject() { return pCBObject; }
+    Mutex * getProgressMutex() { return &mutexProgressMutex; }
 };
 
 }}//end namespace
