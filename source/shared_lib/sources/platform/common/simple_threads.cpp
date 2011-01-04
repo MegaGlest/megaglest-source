@@ -278,14 +278,16 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
         //    logCount = min(logCount,(std::size_t)2000000);
         //}
 
-        for(unsigned int i = 0; i < logCount; ++i) {
-            LogFileEntry &entry = tempLogList[i];
-            SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
-        }
+        if(logCount > 0) {
+            for(unsigned int i = 0; i < logCount; ++i) {
+                LogFileEntry &entry = tempLogList[i];
+                SystemFlags::logDebugEntry(entry.type, entry.entry, entry.entryDateTime);
+            }
 
-        safeMutex.Lock();
-        logList.erase(logList.begin(),logList.begin() + logCount);
-        safeMutex.ReleaseLock();
+            safeMutex.Lock();
+            logList.erase(logList.begin(),logList.begin() + logCount);
+            safeMutex.ReleaseLock();
+        }
     }
     else {
         safeMutex.ReleaseLock();
