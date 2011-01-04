@@ -158,29 +158,6 @@ add_custom_target(run ALL
     DEPENDS mg.tmp)
 ENDIF()
 
-# [RCL] FIXME: make it compiler-agnostic
-#SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUSE_STREFLOP -DSTREFLOP_SSE")
-
-#IF(WIN32)
-#	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DCURL_STATICLIB")
-#ENDIF()
-
-# The stuff below gets SVN Global Revision # but ONLY when calling cmake!
-# the FindSubversion.cmake module is part of the standard distribution
-#include(FindSubversion)
-# extract working copy information for SOURCE_DIR into MY_XXX variables
-#Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
-#add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
-#SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
-
-#IF(UNIX AND NOT APPLE)
-	# We do some funky character escaping to get the right stuff written out to 
-	# the final Makefile so we get the SVN Global Revsion #
-#	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
-#ENDIF()
-
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SVN_VERSION_CMD}")
-
 IF(WIN32)
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wl,-subsystem,console -mconsole")
 	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,console -mconsole")
@@ -188,15 +165,6 @@ IF(WIN32)
 	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Wl,-subsystem,console -mconsole")
 
 ENDIF()
-
-
-#IF(UNIX AND NOT APPLE)
-	# We do some funky character escaping to get the right stuff written out to 
-	# the final Makefile so we get the SVN Global Revsion #
-#	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-##ENDIF()
-
-#message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 IF(WIN32)
 	SET(TARGET_NAME "glest_game")
