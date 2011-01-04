@@ -684,6 +684,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_keysetup.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_masterserver.cpp"
 				>
 			</File>
