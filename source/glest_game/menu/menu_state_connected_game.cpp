@@ -453,7 +453,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
                         fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
@@ -466,7 +466,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
                         fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
@@ -752,18 +752,21 @@ void MenuStateConnectedGame::render() {
 
 		if(program != NULL) program->renderProgramMsgBox();
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__)));
         if(fileFTPProgressList.size() > 0) {
             int yLocation = buttonDisconnect.getY();
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
+
+                string progressLabelPrefix = "Downloading " + iterMap->first + " [" + iterMap->second.second + "] ";
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
                 renderer.renderProgressBar(
                     iterMap->second.first,
                     10,
                     yLocation,
                     CoreData::getInstance().getDisplayFontSmall(),
-                    350,"Downloading " + iterMap->first + " [" + iterMap->second.second + "] ");
+                    350,progressLabelPrefix);
 
                 yLocation -= 100;
             }
@@ -1714,14 +1717,14 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             if(stats->download_total > 0) {
                 fileProgress = ((stats->download_now / stats->download_total) * 100.0);
             }
-            printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
         }
     }
     else if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
-        printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
         MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
         fileFTPProgressList.erase(itemName);
@@ -1746,7 +1749,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
     }
     else if(type == ftp_cct_Tileset) {
         getMissingTilesetFromFTPServerInProgress = false;
-        printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
         MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
         fileFTPProgressList.erase(itemName);
