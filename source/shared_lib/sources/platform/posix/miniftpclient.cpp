@@ -32,10 +32,12 @@ namespace Shared { namespace PlatformCommon {
  */
 
 struct FtpFile {
+  const char *itemName;
   const char *filename;
   const char *filepath;
   FILE *stream;
   FTPClientThread *ftpServer;
+  string currentFilename;
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
@@ -88,6 +90,10 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) 
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n===> FTP Client thread file_is_comming: remains: [%3d] filename: [%s] size: [%10luB] ", remains, finfo->filename,(unsigned long)finfo->size);
 
+    if(out != NULL) {
+        out->currentFilename = finfo->filename;
+    }
+
     switch(finfo->filetype) {
         case CURLFILETYPE_DIRECTORY:
             printf("DIR (creating [%s%s])\n",rootFilePath.c_str(),finfo->filename);
@@ -131,6 +137,29 @@ static long file_is_downloaded(void *data) {
     return CURL_CHUNK_END_FUNC_OK;
 }
 
+int file_progress(struct FtpFile *out,double download_total, double download_now, double upload_total,double upload_now) {
+  //  printf("%d / %d (%g %%)\n", d, t, d*100.0/t);
+  //gdk_threads_enter();
+  //gtk_progress_set_value(GTK_PROGRESS(bar), d*100.0/t);
+  //gdk_threads_leave();
+
+  if(out != NULL &&
+     out->ftpServer != NULL &&
+     out->ftpServer->getCallBackObject() != NULL) {
+         FTPClientCallbackInterface::FtpProgressStats stats;
+         stats.download_total   = download_total;
+         stats.download_now     = download_now;
+         stats.upload_total     = upload_total;
+         stats.upload_now       = upload_now;
+         stats.currentFilename  = out->currentFilename;
+
+         MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex());
+         out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(out->itemName, ftp_cct_DownloadProgress, ftp_crt_SUCCESS, &stats);
+  }
+
+  return 0;
+}
+
 FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
@@ -171,6 +200,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
 
     struct FtpFile ftpfile = {
+        NULL,
         destFile.c_str(), /* name to store the file as if succesful */
         NULL,
         NULL,
@@ -233,7 +263,7 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result);
+       this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result,NULL);
     }
 }
 
@@ -258,7 +288,7 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
     }
 
     if(this->pCBObject != NULL) {
-       this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result);
+       this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result,NULL);
     }
 }
 
@@ -301,6 +331,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
 
     struct FtpFile ftpfile = {
+        tileSetName.c_str(),
         destFile.c_str(), // name to store the file as if succesful
         destFile.c_str(),
         NULL,
@@ -328,13 +359,9 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         // callback is called before download of concrete file started
         curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
-
         // callback is called after data from the file have been transferred
         curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
 
-        // put transfer data into callbacks
-        // helper data
-        //struct callback_data data = { 0 };
         curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
 
@@ -342,6 +369,10 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
         // Set a pointer to our struct to pass to the callback
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
 
         // Switch on full protocol/debug output
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);

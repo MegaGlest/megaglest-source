@@ -4160,7 +4160,20 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	glEnd();
 }
 
-void Renderer::renderProgressBar(int size, int x, int y, Font2D *font) {
+void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth, string prefixLabel) {
+
+    int currentSize     = size;
+    int maxSize         = maxProgressBar;
+    string renderText   = intToStr(static_cast<int>(size)) + "%";
+    if(customWidth > 0) {
+        if(size > 0) {
+            currentSize     = size * (customWidth / size);
+        }
+        maxSize         = customWidth;
+    }
+    if(prefixLabel != "") {
+        renderText = prefixLabel + renderText;
+    }
 
 	//bar
 	glBegin(GL_QUADS);
@@ -4168,26 +4181,26 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font) {
 		glVertex2i(x, y);
 		glVertex2i(x, y+10);
 		glColor4fv(progressBarFront1.ptr());
-		glVertex2i(x+size, y+10);
-		glVertex2i(x+size, y);
+		glVertex2i(x + currentSize, y+10);
+		glVertex2i(x + currentSize, y);
 	glEnd();
 
 	//transp bar
 	glEnable(GL_BLEND);
 	glBegin(GL_QUADS);
 		glColor4fv(progressBarBack2.ptr());
-		glVertex2i(x+size, y);
-		glVertex2i(x+size, y+10);
+		glVertex2i(x + currentSize, y);
+		glVertex2i(x + currentSize, y+10);
 		glColor4fv(progressBarBack1.ptr());
-		glVertex2i(x+maxProgressBar, y+10);
-		glVertex2i(x+maxProgressBar, y);
+		glVertex2i(x + maxSize, y+10);
+		glVertex2i(x + maxSize, y);
 	glEnd();
 	glDisable(GL_BLEND);
 
 	//text
 	glColor3fv(defColor.ptr());
 	textRenderer->begin(font);
-	textRenderer->render(intToStr(static_cast<int>(size))+"%", x+maxProgressBar/2, y, true);
+	textRenderer->render(renderText.c_str(), x + maxSize / 2, y, true);
 	textRenderer->end();
 }
 
