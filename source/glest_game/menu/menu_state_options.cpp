@@ -18,6 +18,7 @@
 #include "menu_state_root.h"
 #include "util.h"
 #include "menu_state_graphic_info.h"
+#include "menu_state_keysetup.h"
 
 #include "leak_dumper.h"
 
@@ -326,7 +327,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
 	buttonVideoInfo.init(585, buttonRowPos, 125); // was 620
 
-	buttonKeyboardSetup.setText(lang.get("Keyboard"));
+	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
 	buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 	buttonKeyboardSetup.init(720, buttonRowPos, 125);
 
@@ -422,8 +423,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(buttonKeyboardSetup.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
-//		mainMenu->setState(new MenuStateKeyboardSetup(program, mainMenu)); // open keyboard shortcuts setup screen
-		showMessageBox("Not implemented yet", "Keyboard setup", false);
+		mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
+		//showMessageBox("Not implemented yet", "Keyboard setup", false);
 	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
