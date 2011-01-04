@@ -132,7 +132,7 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) 
 static long file_is_downloaded(void *data) {
     struct FtpFile *out=(struct FtpFile *)data;
     if(out->stream) {
-        printf("DOWNLOAD COMPLETE!\n");
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("DOWNLOAD COMPLETE!\n");
 
         fclose(out->stream);
         out->stream = NULL;
@@ -141,10 +141,7 @@ static long file_is_downloaded(void *data) {
 }
 
 int file_progress(struct FtpFile *out,double download_total, double download_now, double upload_total,double upload_now) {
-  //  printf("%d / %d (%g %%)\n", d, t, d*100.0/t);
-  //gdk_threads_enter();
-  //gtk_progress_set_value(GTK_PROGRESS(bar), d*100.0/t);
-  //gdk_threads_leave();
+  if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
 
   if(out != NULL &&
      out->ftpServer != NULL &&
