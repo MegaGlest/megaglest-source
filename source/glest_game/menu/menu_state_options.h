@@ -81,6 +81,15 @@ private:
 	GraphicListBox listBoxPublishServerExternalPort;
 
 
+	GraphicLabel labelEnableFTP;
+	GraphicCheckBox checkBoxMapEnableFTP;
+
+	GraphicLabel labelFTPServerPortLabel;
+	GraphicLabel labelFTPServerPort;
+
+	GraphicLabel labelFTPServerDataPortsLabel;
+	GraphicLabel labelFTPServerDataPorts;
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 

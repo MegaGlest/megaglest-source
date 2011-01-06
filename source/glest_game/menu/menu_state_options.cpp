@@ -172,6 +172,37 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	labelServerPort.setText(port);
 
+    // FTP Config - start
+	labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
+	labelEnableFTP.init(leftLabelStart + 330,leftline);
+	labelEnableFTP.setText(lang.get("EnableFTP"));
+
+	checkBoxMapEnableFTP.registerGraphicComponent(containerName,"checkBoxMapEnableFTP");
+	checkBoxMapEnableFTP.init(leftLabelStart + 450,leftline);
+	checkBoxMapEnableFTP.setValue(config.getBool("EnableFTPXfer"));
+
+	labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
+	labelFTPServerPortLabel.init(leftLabelStart + 330,leftline - 30);
+	labelFTPServerPortLabel.setText(lang.get("FTPServerPort"));
+
+    int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+	labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
+	labelFTPServerPort.init(leftLabelStart + 330,leftline - 40);
+	labelFTPServerPort.setText(intToStr(FTPPort));
+
+	labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
+	labelFTPServerDataPortsLabel.init(leftLabelStart + 450,leftline - 30);
+	labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
+
+    char szBuf[1024]="";
+    sprintf(szBuf,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
+
+	labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
+	labelFTPServerDataPorts.init(leftLabelStart + 450,leftline - 40);
+	labelFTPServerDataPorts.setText(szBuf);
+
+    // FTP config end
+
 	// external server port
 	leftline-=30;
 
@@ -446,6 +477,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listFontSizeAdjustment.mouseClick(x, y);
 		checkBoxFullscreenWindowed.mouseClick(x, y);
 		listBoxPublishServerExternalPort.mouseClick(x, y);
+
+        checkBoxMapEnableFTP.mouseClick(x, y);
 	}
 }
 
@@ -474,6 +507,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxFullscreenWindowed.mouseMove(x, y);
 	listFontSizeAdjustment.mouseMove(x, y);
 	listBoxPublishServerExternalPort.mouseMove(x, y);
+
+	checkBoxMapEnableFTP.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -569,6 +604,13 @@ void MenuStateOptions::render(){
 		renderer.renderCheckBox(&checkBoxFullscreenWindowed);
 		renderer.renderLabel(&labelPublishServerExternalPort);
 		renderer.renderListBox(&listBoxPublishServerExternalPort);
+
+        renderer.renderLabel(&labelEnableFTP);
+        renderer.renderCheckBox(&checkBoxMapEnableFTP);
+        renderer.renderLabel(&labelFTPServerPortLabel);
+        renderer.renderLabel(&labelFTPServerPort);
+        renderer.renderLabel(&labelFTPServerDataPortsLabel);
+        renderer.renderLabel(&labelFTPServerDataPorts);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -603,6 +645,7 @@ void MenuStateOptions::saveConfig(){
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 	config.setString("MasterServerExternalPort", listBoxPublishServerExternalPort.getSelectedItem());
+    config.setBool("EnableFTPXfer", checkBoxMapEnableFTP.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
