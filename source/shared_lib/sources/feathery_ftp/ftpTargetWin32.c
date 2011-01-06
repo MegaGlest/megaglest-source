@@ -281,7 +281,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
 
 		int val = 1;
-		setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+		setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 	    {
