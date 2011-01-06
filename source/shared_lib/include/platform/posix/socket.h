@@ -244,7 +244,7 @@ public:
 
     void NETdiscoverUPnPDevices();
 
-    static int setMaxPlayerCount(int value) { maxPlayerCount=value; }
+    static void setMaxPlayerCount(int value) { maxPlayerCount=value; }
 };
 
 // =====================================================
