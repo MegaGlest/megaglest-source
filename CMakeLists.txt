@@ -32,10 +32,13 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	# Default compiler flags
 	#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")  ## Strip binary
+
+	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 	IF(NOT MINGW)
-		ADD_DEFINITIONS("-fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
+		# For tons of verbose warnings add: -Wall
+		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
 	ELSE()
-		ADD_DEFINITIONS("-fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse")
+		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse")
 	ENDIF()
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
 
