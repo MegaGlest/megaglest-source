@@ -1145,6 +1145,7 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
+    ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
         SystemFlags::VERBOSE_MODE_ENABLED  = true;

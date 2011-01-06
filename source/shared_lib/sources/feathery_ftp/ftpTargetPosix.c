@@ -179,6 +179,7 @@ int ftpRemoveDir(const char* path)
 
 int ftpCloseSocket(socket_t s)
 {
+    if(VERBOSE_MODE_ENABLED) printf("\nClosing socket: %d\n",s);
 	return close(s);
 }
 
@@ -207,7 +208,7 @@ int ftpReceive(socket_t s, void *data, int len)
 	return recv(s, data, len, 0);
 }
 
-socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
+socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int sessionId)
 {
 	socket_t dataSocket;
 	struct sockaddr_in clientAddr;
@@ -244,14 +245,27 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 	}
 	else
 	{
+	    int passivePort = ftpGetPassivePort() + sessionId;
+	    if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d\n",sessionId,passivePort);
+
 		myAddr.sin_family = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
-		myAddr.sin_port = htons(0);
+		myAddr.sin_port = htons(passivePort);
+		//myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
+
+		int val = 1;
+        setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 	    {
+			if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d FAILED: %d\n",sessionId,passivePort,dataSocket);
+
 			close(dataSocket);
 			return -1;
 	    }
+
+	    if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d bound ok\n",sessionId,passivePort);
+
 	    len = sizeof(myAddr);
 		if(getsockname(dataSocket, (struct sockaddr *)&myAddr, &len))             // Port des Server-Sockets ermitteln
 	    {
@@ -262,11 +276,19 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 		*port = ntohs(myAddr.sin_port);
 		*ip   = ownIp;
 
+        if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d about to listen on port: %d using listener socket: %d\n",sessionId,passivePort,*port,dataSocket);
+
 	    if(listen(dataSocket, 1))
 	    {
+	        if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d FAILED #2: %d\n",sessionId,passivePort,dataSocket);
+
 			close(dataSocket);
 	        return -1;
 	    }
+
+   		//*port = ftpGetPassivePort();
+		//*ip   = ownIp;
+        //dataSocket = ftpGetServerPassivePortListenSocket();
 	}
 	return dataSocket;
 }
@@ -292,6 +314,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 	int	theServer;
 	struct sockaddr_in serverinfo;
 	unsigned len;
+	int val = 1;
 
 	theServer = socket(AF_INET, SOCK_STREAM, 0);
 	if(theServer < 0)
@@ -302,13 +325,15 @@ socket_t ftpCreateServerSocket(int portNumber)
 	serverinfo.sin_port = htons(portNumber);
 	len = sizeof(serverinfo);
 
+	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len))
 	{
 		ftpCloseSocket(theServer);
 		return -2;
 	}
 
-	if(listen(theServer, 3))
+	if(listen(theServer, 16))
 	{
 		ftpCloseSocket(theServer);
 		return -3;

@@ -215,6 +215,8 @@ protected:
 	static int ftpServerPort;
 	SDL_Thread *upnpdiscoverThread;
 
+	static int maxPlayerCount;
+
     virtual void UPNPInitStatus(bool result);
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
@@ -241,6 +243,8 @@ public:
 	virtual void disconnectSocket();
 
     void NETdiscoverUPnPDevices();
+
+    static int setMaxPlayerCount(int value) { maxPlayerCount=value; }
 };
 
 // =====================================================
@@ -258,7 +262,7 @@ public:
     static bool upnp_add_redirect(int ports[2]);
     static void upnp_rem_redirect(int ext_port);
 
-    static void NETaddRedirects(int ports[4]);
+    static void NETaddRedirects(std::vector<int> UPNPPortForwardList);
     static void NETremRedirects(int ext_port);
 
     static void AddUPNPPortForward(int internalPort, int externalPort);

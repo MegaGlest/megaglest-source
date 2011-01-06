@@ -112,7 +112,7 @@ ServerInterface::ServerInterface() : GameNetworkInterface() {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
         ServerSocket::setFTPServerPort(portNumber);
-        ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber);
+        ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber,GameConstants::maxPlayers);
         ftpServer->start();
     }
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
