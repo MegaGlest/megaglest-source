@@ -380,7 +380,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     findDirs(config.getPathListForType(ptTilesets), tileSets);
 
 
-    if(config.getBool("EnableFTPXfer","false") == true) {
+    if(config.getBool("EnableFTPXfer","true") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
         string serverUrl = clientInterface->getServerIpAddress();
         int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());

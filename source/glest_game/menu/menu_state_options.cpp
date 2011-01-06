@@ -179,7 +179,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	checkBoxMapEnableFTP.registerGraphicComponent(containerName,"checkBoxMapEnableFTP");
 	checkBoxMapEnableFTP.init(leftLabelStart + 450,leftline);
-	checkBoxMapEnableFTP.setValue(config.getBool("EnableFTPXfer"));
+	checkBoxMapEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
 
 	labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
 	labelFTPServerPortLabel.init(leftLabelStart + 330,leftline - 30);
