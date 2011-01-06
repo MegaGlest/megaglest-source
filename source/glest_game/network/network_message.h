@@ -597,8 +597,8 @@ public:
 	int getToTeam() const					{return data.toTeam;}
 	string getNetworkPlayerName() const		{return data.networkPlayerName.getString(); }
 	int getSwitchFlags() const				{return data.switchFlags;}
-	int addSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags |= flag;}
-	int clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
+	void addSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags |= flag;}
+	void clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
