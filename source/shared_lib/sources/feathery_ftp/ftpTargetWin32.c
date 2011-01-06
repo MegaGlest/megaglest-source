@@ -237,7 +237,7 @@ int ftpReceive(socket_t s, void *data, int len)
 	return recv(s, data, len, 0);
 }
 
-socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
+socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int sessionId)
 {
 	SOCKET dataSocket;
 	struct sockaddr_in clientAddr;
@@ -258,6 +258,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 		myAddr.sin_family      = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
 		myAddr.sin_port        = htons(20);
+
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 		{
 			closesocket(dataSocket);
@@ -276,7 +277,12 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 	{
 		myAddr.sin_family = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
-		myAddr.sin_port = htons(0);
+		//myAddr.sin_port = htons(0);
+		myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
+
+		int val = 1;
+		setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 	    {
 			closesocket(dataSocket);
@@ -297,6 +303,10 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port)
 			closesocket(dataSocket);
 	        return -1;
 	    }
+
+   		//*port = ftpGetPassivePort();
+		//*ip   = ownIp;
+        //dataSocket = ftpGetServerPassivePortListenSocket();
 	}
 	return (socket_t)dataSocket;
 }
@@ -333,11 +343,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 	serverinfo.sin_port = htons(portNumber);
 	len = sizeof(serverinfo);
 
-#ifndef WIN32
-	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-#else
 	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
-#endif
 
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len))
 	{
@@ -345,7 +351,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 		return -2;
 	}
 
-	if(listen(theServer, 3))
+	if(listen(theServer, 16))
 	{
 		ftpCloseSocket(theServer);
 		return -3;

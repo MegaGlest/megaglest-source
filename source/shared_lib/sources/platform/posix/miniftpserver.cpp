@@ -36,17 +36,22 @@ ip_t FindExternalFTPServerIp(ip_t clientIp) {
     return result;
 }
 
-FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber) : BaseThread() {
+FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber, int maxPlayers) : BaseThread() {
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
     this->portNumber            = portNumber;
+    this->maxPlayers            = maxPlayers;
 
 	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward);
     VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
 }
 
 FTPServerThread::~FTPServerThread() {
+    // Remove any UPNP port forwarded ports
     UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort());
+    for(int clientIndex = 1; clientIndex <= maxPlayers; ++clientIndex) {
+        UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort() + clientIndex);
+    }
 }
 
 void FTPServerThread::signalQuit() {

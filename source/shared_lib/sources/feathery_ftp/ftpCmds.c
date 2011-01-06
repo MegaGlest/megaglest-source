@@ -228,6 +228,7 @@ LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 		ftpCloseSocket(ftpGetSession(sessionId)->passiveDataSocket);
 		ftpGetSession(sessionId)->passiveDataSocket = -1;
 	}
+	//ftpGetSession(sessionId)->passiveDataSocket = -1;
 	ftpGetSession(sessionId)->remoteDataPort = clientPort;
     ftpGetSession(sessionId)->passive = FALSE;
 	ftpSendMsg(MSG_NORMAL, sessionId, 200, ftpMsg007);
@@ -419,7 +420,7 @@ LOCAL int ftpCmdList(int sessionId, const char* args, int len)
 
 	if(ftpGetSession(sessionId)->passive == FALSE)
     {
-		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort);
+		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort,sessionId);
         if(s < 0)
         {
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg011);
@@ -454,7 +455,7 @@ LOCAL int ftpCmdNlst(int sessionId, const char* args, int len)
 
 	if(ftpGetSession(sessionId)->passive == FALSE)
     {
-		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort);
+		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort,sessionId);
         if(s < 0)
         {
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg011);
@@ -497,7 +498,7 @@ if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,f
 
 	if(ftpGetSession(sessionId)->passive == FALSE)
     {
-		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort);
+		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort,sessionId);
         if(s < 0)
         {
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg011);
@@ -539,7 +540,7 @@ LOCAL int ftpCmdStor(int sessionId, const char* args, int len)
 
 	if(ftpGetSession(sessionId)->passive == FALSE)
     {
-		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort);
+		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort,sessionId);
         if(s < 0)
         {
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg011);
@@ -663,7 +664,8 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 		ftpCloseSocket(ftpGetSession(sessionId)->passiveDataSocket);
 		ftpGetSession(sessionId)->passiveDataSocket = -1;
 	}
-	s = ftpEstablishDataConnection(TRUE, &ip, &port);
+	//ftpGetSession(sessionId)->passiveDataSocket = -1;
+	s = ftpEstablishDataConnection(TRUE, &ip, &port,sessionId);
     if(s < 0)
     {
        	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg012);
@@ -680,7 +682,7 @@ if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, r
 
 if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
 
-        ftpAddUPNPPortForward(port, port);
+        //ftpAddUPNPPortForward(port, port);
 
         remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
 
@@ -805,7 +807,7 @@ LOCAL int ftpCmdMlsd(int sessionId, const char* args, int len)
 
 	if(ftpGetSession(sessionId)->passive == FALSE)
     {
-		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort);
+		s = ftpEstablishDataConnection(FALSE, &ftpGetSession(sessionId)->remoteIp, &ftpGetSession(sessionId)->remoteDataPort,sessionId);
         if(s < 0)
         {
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg011);

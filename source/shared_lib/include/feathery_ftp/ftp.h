@@ -177,7 +177,7 @@ extern int ftpRemoveDir(const char* path);
 extern int ftpCloseSocket(socket_t s);
 extern int ftpSend(socket_t s, const void *data, int len);
 extern int ftpReceive(socket_t s, void *data, int len);
-extern socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port);
+extern socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int sessionId);
 extern socket_t ftpAcceptDataConnection(socket_t listner);
 extern socket_t ftpCreateServerSocket(int portNumber);
 extern socket_t ftpAcceptServerConnection(socket_t server, ip_t *remoteIP, port_t *remotePort);
@@ -185,5 +185,8 @@ extern int ftpTrackSocket(socket_t s);
 extern int ftpUntrackSocket(socket_t s);
 extern int ftpTestSocket(socket_t s);
 extern int ftpSelect(int poll);
+
+extern int ftpGetPassivePort();
+extern int ftpGetListenPort();
 
 #endif /* FTP_H_ */

@@ -63,6 +63,7 @@ namespace Shared{ namespace Platform{
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
+int ServerSocket::maxPlayerCount = -1;
 int ServerSocket::externalPort  = Socket::broadcast_portno;
 BroadCastClientSocketThread *ClientSocket::broadCastClientThread = NULL;
 
@@ -1875,8 +1876,24 @@ void ServerSocket::UPNPInitStatus(bool result) {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
 
     if(result == true) {
-        int ports[4] = { this->getExternalPort(), this->getBindPort(), this->getFTPServerPort(), this->getFTPServerPort() };
-        UPNP_Tools::NETaddRedirects(ports);
+        //int ports[4] = { this->getExternalPort(), this->getBindPort(), this->getFTPServerPort(), this->getFTPServerPort() };
+        std::vector<int> UPNPPortForwardList;
+
+        // Glest Game Server port
+        UPNPPortForwardList.push_back(this->getExternalPort());
+        UPNPPortForwardList.push_back(this->getBindPort());
+
+        // Glest mini FTP Server Listen Port
+        UPNPPortForwardList.push_back(this->getFTPServerPort());
+        UPNPPortForwardList.push_back(this->getFTPServerPort());
+
+        // GLest mini FTP Server Passive file TRansfer ports (1 per game player)
+        for(int clientIndex = 1; clientIndex <= ServerSocket::maxPlayerCount; ++clientIndex) {
+            UPNPPortForwardList.push_back(this->getFTPServerPort() + clientIndex);
+            UPNPPortForwardList.push_back(this->getFTPServerPort() + clientIndex);
+        }
+
+        UPNP_Tools::NETaddRedirects(UPNPPortForwardList);
     }
 }
 
@@ -2023,13 +2040,25 @@ void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 	UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
 }
 
-void UPNP_Tools::NETaddRedirects(int ports[4]) {
+void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__);
 
+    if(UPNPPortForwardList.size() % 2 != 0) {
+        // We need groups of 2 ports.. one external and one internal for opening ports on UPNP router
+        throw runtime_error("UPNPPortForwardList.size() MUST BE divisable by 2");
+    }
+
+    for(int clientIndex = 0; clientIndex < UPNPPortForwardList.size(); clientIndex += 2) {
+        int ports[2] = { UPNPPortForwardList[clientIndex], UPNPPortForwardList[clientIndex+1] };
+        upnp_add_redirect(ports);
+    }
+
+/*
 	int portsA[2] = { ports[0], ports[1] };
 	upnp_add_redirect(portsA);
 	int portsB[2] = { ports[2], ports[3] };
 	upnp_add_redirect(portsB);
+*/
 }
 
 void UPNP_Tools::NETremRedirects(int ext_port) {

@@ -35,12 +35,30 @@
  * @brief server-sockets that listens for incoming connections
  */
 LOCAL socket_t server;
+LOCAL int serverListenPort;
+LOCAL int serverPassiveListenPort;
+//LOCAL socket_t serverPassivePort;
 
 void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, ftpRemoveUPNPPortForwardType cb3) {
 	ftpFindExternalFTPServerIp	= cb1;
 	ftpAddUPNPPortForward		= cb2;
 	ftpRemoveUPNPPortForward	= cb3;
 }
+
+int ftpGetListenPort()
+{
+    return serverListenPort;
+}
+
+int ftpGetPassivePort()
+{
+    return serverPassiveListenPort;
+}
+
+//socket_t ftpGetServerPassivePortListenSocket()
+//{
+//   return serverPassivePort;
+//}
 
 /**
  *  @brief Initializes and starts the server
@@ -51,7 +69,10 @@ void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, 
  */
 int ftpStart(int portNumber)
 {
-	server = -1;														// set server socket to invalid value
+    serverListenPort        = portNumber;
+    serverPassiveListenPort = portNumber + 1;
+	server                  = -1;														// set server socket to invalid value
+	//serverPassivePort   = -1;
 
 if(VERBOSE_MODE_ENABLED) printf("Feathery FTP-Server\n");
 
@@ -59,7 +80,7 @@ if(VERBOSE_MODE_ENABLED) printf("Feathery FTP-Server\n");
 
 if(VERBOSE_MODE_ENABLED) printf("Creating server socket");
 
-	server = ftpCreateServerSocket(portNumber);									// create main listener socket
+	server = ftpCreateServerSocket(serverListenPort);									// create main listener socket
 	if(server < 0)
 	{
 if(VERBOSE_MODE_ENABLED) printf("\t\terror\n");
@@ -71,6 +92,23 @@ if(VERBOSE_MODE_ENABLED) printf("\t\tok\n");
 if(VERBOSE_MODE_ENABLED) printf("Server successfully started\n");
 
 	ftpTrackSocket(server);												// add socket to "watchlist"
+
+
+/*
+if(VERBOSE_MODE_ENABLED) printf("Creating server PASSIVE socket");
+
+	serverPassivePort = ftpCreateServerSocket(serverPassiveListenPort);									// create main listener socket
+	if(serverPassivePort < 0)
+	{
+if(VERBOSE_MODE_ENABLED) printf("\t\tpassive port error\n");
+
+		return -1;
+	}
+
+if(VERBOSE_MODE_ENABLED) printf("\t\tok\n");
+if(VERBOSE_MODE_ENABLED) printf("Server passive port successfully started\n");
+*/
+
 	return 0;
 }
 
@@ -199,6 +237,7 @@ int ftpShutdown(void)
 	int n;
 	ftpUntrackSocket(server);
 	ftpCloseSocket(server);
+	//ftpCloseSocket(serverPassivePort);
 
 	for(n = 0; n < MAX_CONNECTIONS; n++)
 	{

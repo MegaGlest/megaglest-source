@@ -128,16 +128,21 @@ if(VERBOSE_MODE_ENABLED) printf("In ftpCloseSession sessionId = %d, remote IP = 
         {
 if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
 
-            ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
+            //ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
             sessions[id].remoteFTPServerPassivePort = 0;
         }
     }
     if(sessions[id].open) {
         ftpCloseSocket(sessions[id].ctrlSocket);
         ftpCloseTransmission(id);
+        if(sessions[id].passiveDataSocket > 0)
+        {
+            ftpCloseSocket(sessions[id].passiveDataSocket);
+        }
     }
     sessions[id].remoteIp = 0;
     sessions[id].ctrlSocket = 0;
+    sessions[id].passiveDataSocket = 0;
 	sessions[id].open = FALSE;
 
 if(VERBOSE_MODE_ENABLED) printf("Session %d closed\n", id);
