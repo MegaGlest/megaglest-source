@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include "types.h"
+#include "socket.h"
 
 #include "leak_dumper.h"
 
@@ -34,16 +35,18 @@ protected:
     std::pair<string,string> tilesetsPath;
     int portNumber;
     int maxPlayers;
+    static FTPClientValidationInterface *ftpValidationIntf;
 
 public:
 
-    FTPServerThread(std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, int portNumber,int maxPlayers);
+    FTPServerThread(std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf);
     ~FTPServerThread();
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
 
     static void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
+    static FTPClientValidationInterface * getFtpValidationIntf() { return ftpValidationIntf; }
 
 };
 

@@ -112,7 +112,7 @@ ServerInterface::ServerInterface() : GameNetworkInterface() {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
         ServerSocket::setFTPServerPort(portNumber);
-        ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber,GameConstants::maxPlayers);
+        ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber,GameConstants::maxPlayers,this);
         ftpServer->start();
     }
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -156,6 +156,24 @@ ServerInterface::~ServerInterface() {
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+int ServerInterface::isValidClientType(uint32 clientIp) {
+	int result = 0;
+
+	for(int i= 0; i<GameConstants::maxPlayers; ++i) {
+		if(slots[i] != NULL) {
+            MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i) + "_" + intToStr(i));
+
+            Socket *socket = slots[i]->getSocket();
+            uint32 slotIp = socket->getConnectedIPAddress(socket->getIpAddress());
+            if(slotIp == clientIp) {
+                result = 1;
+                break;
+            }
+		}
+	}
+	return result;
 }
 
 void ServerInterface::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {

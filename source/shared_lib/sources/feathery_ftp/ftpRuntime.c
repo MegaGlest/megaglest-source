@@ -39,10 +39,11 @@ LOCAL int serverListenPort;
 LOCAL int serverPassiveListenPort;
 //LOCAL socket_t serverPassivePort;
 
-void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, ftpRemoveUPNPPortForwardType cb3) {
+void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, ftpRemoveUPNPPortForwardType cb3, ftpIsValidClientType cb4) {
 	ftpFindExternalFTPServerIp	= cb1;
 	ftpAddUPNPPortForward		= cb2;
 	ftpRemoveUPNPPortForward	= cb3;
+	ftpIsValidClient            = cb4;
 }
 
 int ftpGetListenPort()

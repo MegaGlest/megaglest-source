@@ -69,10 +69,12 @@ int VERBOSE_MODE_ENABLED;
 typedef ip_t (*ftpFindExternalFTPServerIpType)(ip_t clientIp);
 typedef void (*ftpAddUPNPPortForwardType)(int internalPort, int externalPort);
 typedef void (*ftpRemoveUPNPPortForwardType)(int internalPort, int externalPort);
+typedef int (*ftpIsValidClientType)(ip_t clientIp);
 
 ftpFindExternalFTPServerIpType	ftpFindExternalFTPServerIp;
 ftpAddUPNPPortForwardType		ftpAddUPNPPortForward;
 ftpRemoveUPNPPortForwardType	ftpRemoveUPNPPortForward;
+ftpIsValidClientType            ftpIsValidClient;
 
 #ifdef	__cplusplus
 }
