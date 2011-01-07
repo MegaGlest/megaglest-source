@@ -2048,17 +2048,10 @@ void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {
         throw runtime_error("UPNPPortForwardList.size() MUST BE divisable by 2");
     }
 
-    for(int clientIndex = 0; clientIndex < UPNPPortForwardList.size(); clientIndex += 2) {
+    for(unsigned int clientIndex = 0; clientIndex < UPNPPortForwardList.size(); clientIndex += 2) {
         int ports[2] = { UPNPPortForwardList[clientIndex], UPNPPortForwardList[clientIndex+1] };
         upnp_add_redirect(ports);
     }
-
-/*
-	int portsA[2] = { ports[0], ports[1] };
-	upnp_add_redirect(portsA);
-	int portsB[2] = { ports[2], ports[3] };
-	upnp_add_redirect(portsB);
-*/
 }
 
 void UPNP_Tools::NETremRedirects(int ext_port) {
