@@ -903,16 +903,19 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 				// for many reasons including a unit dieing.
 
 				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == unit || getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != unit && getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
+				//if(getCell(currPos)->getUnit(unit->getCurrField()) != unit && getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
 				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",
-                              __FILE__,__FUNCTION__,__LINE__,
-                              currPos.getString().c_str(),
-                              unit->toString().c_str(),
-                              (getCell(currPos)->getUnit(unit->getCurrField()) != NULL ? getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str() : "NULL"));
-				}
+					//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",
+                    //          __FILE__,__FUNCTION__,__LINE__,
+                    //          currPos.getString().c_str(),
+                    //          unit->toString().c_str(),
+                    //          (getCell(currPos)->getUnit(unit->getCurrField()) != NULL ? getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str() : "NULL"));
+				//}
 
-				getCell(currPos)->setUnit(unit->getCurrField(), NULL);
+                // Only clear the cell if its the unit we expect to clear out of it
+                if(getCell(currPos)->getUnit(unit->getCurrField()) == unit) {
+                    getCell(currPos)->setUnit(unit->getCurrField(), NULL);
+                }
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}

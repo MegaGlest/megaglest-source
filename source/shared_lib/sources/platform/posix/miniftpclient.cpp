@@ -283,7 +283,7 @@ void FTPClientThread::addTilesetToRequests(string tileSetName) {
 }
 
 void FTPClientThread::getTilesetFromServer(string tileSetName) {
-    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", "tilsets_custom", "mg_ftp_server");
+    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", "tilesets_custom", "mg_ftp_server");
     if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
         result = getTilesetFromServer(tileSetName, "tilesets", "", "mg_ftp_server");
     }
