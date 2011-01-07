@@ -413,7 +413,7 @@ int ftpSelect(int poll)
 
 	if(poll)
 	{
-		struct timeval t = {250};
+		struct timeval t = {0};
 		return select(maxSockNr+1, &signaledSockets, NULL, NULL, &t);
 	}
 	else
