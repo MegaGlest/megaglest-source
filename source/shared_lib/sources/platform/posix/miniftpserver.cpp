@@ -27,6 +27,7 @@ using namespace Shared::PlatformCommon;
 namespace Shared { namespace PlatformCommon {
 
 static std::map<uint32,uint32> clientToFTPServerList;
+FTPClientValidationInterface * FTPServerThread::ftpValidationIntf = NULL;
 
 ip_t FindExternalFTPServerIp(ip_t clientIp) {
     ip_t result = clientToFTPServerList[clientIp];
@@ -36,13 +37,22 @@ ip_t FindExternalFTPServerIp(ip_t clientIp) {
     return result;
 }
 
-FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber, int maxPlayers) : BaseThread() {
+int isValidClientType(ip_t clientIp) {
+    int result = 0;
+    if(FTPServerThread::getFtpValidationIntf() != NULL) {
+        result = FTPServerThread::getFtpValidationIntf()->isValidClientType(clientIp);
+    }
+    return result;
+}
+
+FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber, int maxPlayers,FTPClientValidationInterface *ftpValidationIntf) : BaseThread() {
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
     this->portNumber            = portNumber;
     this->maxPlayers            = maxPlayers;
+    this->ftpValidationIntf     = ftpValidationIntf;
 
-	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward);
+	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward, &isValidClientType);
     VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
 }
 

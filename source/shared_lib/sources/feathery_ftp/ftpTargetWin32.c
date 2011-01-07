@@ -209,7 +209,8 @@ int ftpRemoveDir(const char* path)
 
 int ftpCloseSocket(socket_t s)
 {
-	return closesocket((SOCKET)s);
+	if(VERBOSE_MODE_ENABLED) printf("\nClosing socket: %d\n",s);
+    return closesocket((SOCKET)s);
 }
 
 int ftpSend(socket_t s, const void *data, int len)
@@ -275,18 +276,25 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 	}
 	else
 	{
+	    int passivePort = ftpGetPassivePort() + sessionId;
+	    if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d\n",sessionId,passivePort);
 		myAddr.sin_family = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
-		//myAddr.sin_port = htons(0);
-		myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
+		myAddr.sin_port = htons(passivePort);
+		//myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
 
 		setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 	    {
+			if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d FAILED: %d\n",sessionId,passivePort,dataSocket);
+
 			closesocket(dataSocket);
 			return -1;
 	    }
+
+	    if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d bound ok\n",sessionId,passivePort);
+
 	    len = sizeof(myAddr);
 		if(getsockname(dataSocket, (struct sockaddr *)&myAddr, &len))             // Port des Server-Sockets ermitteln
 	    {
@@ -297,8 +305,12 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		*port = ntohs(myAddr.sin_port);
 		*ip   = ownIp;
 
+        if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d about to listen on port: %d using listener socket: %d\n",sessionId,passivePort,*port,dataSocket);
+
 	    if(listen(dataSocket, 1))
 	    {
+	        if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d FAILED #2: %d\n",sessionId,passivePort,dataSocket);
+
 			closesocket(dataSocket);
 	        return -1;
 	    }
@@ -320,9 +332,21 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 
 	dataSocket = accept(listner, (struct sockaddr *)&clientinfo, &len);
 	if(dataSocket < 0)
+	{
 		dataSocket = -1;
+	}
 
 	closesocket(listner); // Server-Socket wird nicht mehr gebrauch deshalb schließen
+
+    ip_t remoteIP = ntohl(clientinfo.sin_addr.s_addr);
+    if(ftpIsValidClient && ftpIsValidClient(remoteIP) == 0)
+    {
+if(VERBOSE_MODE_ENABLED) printf("Connection with %s is NOT a valid trusted client, dropping connection.\n", inet_ntoa(clientinfo.sin_addr));
+
+        close(dataSocket);
+        dataSocket = -1;
+    }
+
 	return (socket_t)dataSocket;
 }
 
@@ -383,6 +407,14 @@ if(VERBOSE_MODE_ENABLED) printf("getsockname error\n");
 	}
 
 if(VERBOSE_MODE_ENABLED) printf("Connection with %s on Port %d accepted.\n", inet_ntoa(sockinfo.sin_addr), *remotePort);
+
+    if(ftpIsValidClient && ftpIsValidClient(*remoteIP) == 0)
+    {
+if(VERBOSE_MODE_ENABLED) printf("Connection with %s on Port %d is NOT a valid trusted client, dropping connection.\n", inet_ntoa(sockinfo.sin_addr), *remotePort);
+
+        close(clientSocket);
+        clientSocket = -1;
+    }
 
 	return clientSocket;
 }

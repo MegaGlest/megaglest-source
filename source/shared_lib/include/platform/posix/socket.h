@@ -48,7 +48,13 @@ using std::string;
 
 using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Platform {
+namespace Shared { namespace Platform {
+
+// The callback Interface used by the UPNP discovery process
+class FTPClientValidationInterface {
+public:
+	virtual int isValidClientType(uint32 clientIp) = 0;
+};
 
 
 // The callback Interface used by the UPNP discovery process

@@ -33,7 +33,7 @@ namespace Glest{ namespace Game{
 //	class ServerInterface
 // =====================================================
 
-class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface, public SimpleTaskCallbackInterface {
+class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface, public SimpleTaskCallbackInterface, public FTPClientValidationInterface {
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
@@ -123,6 +123,7 @@ public:
 
 	virtual void simpleTask(BaseThread *callingThread);
 	void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
+    virtual int isValidClientType(uint32 clientIp);
 
 private:
 
