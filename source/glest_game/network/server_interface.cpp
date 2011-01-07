@@ -90,7 +90,7 @@ ServerInterface::ServerInterface() : GameNetworkInterface() {
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    if(Config::getInstance().getBool("EnableFTPXfer","true") == true) {
+    if(Config::getInstance().getBool("EnableFTPServer","true") == true) {
         std::pair<string,string> mapsPath;
         vector<string> pathList = Config::getInstance().getPathListForType(ptMaps);
         if(pathList.size() > 0) {

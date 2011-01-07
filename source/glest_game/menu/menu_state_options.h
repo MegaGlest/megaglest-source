@@ -82,7 +82,10 @@ private:
 
 
 	GraphicLabel labelEnableFTP;
-	GraphicCheckBox checkBoxMapEnableFTP;
+	GraphicCheckBox checkBoxEnableFTP;
+
+	GraphicLabel labelEnableFTPServer;
+	GraphicCheckBox checkBoxEnableFTPServer;
 
 	GraphicLabel labelFTPServerPortLabel;
 	GraphicLabel labelFTPServerPort;
