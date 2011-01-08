@@ -159,7 +159,7 @@ void Gui::resetState(){
 // ==================== events ====================
 
 void Gui::update(){
-    
+
     if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize){
     	computeSelected(false,false);
     }
@@ -395,12 +395,12 @@ void Gui::giveOneClickOrders(){
     activeCommandClass= ccStop;
 }
 
-void Gui::giveDefaultOrders(int x, int y){
+void Gui::giveDefaultOrders(int x, int y) {
 
 	//compute target
 	const Unit *targetUnit= NULL;
 	Vec2i targetPos;
-	if(!computeTarget(Vec2i(x, y), targetPos, targetUnit)){
+	if(computeTarget(Vec2i(x, y), targetPos, targetUnit) == false) {
 		console->addStdMessage("InvalidPosition");
 		return;
 	}
@@ -411,7 +411,7 @@ void Gui::givePreparedDefaultOrders(int x, int y){
 	giveDefaultOrders(x, y, NULL,false);
 }
 
-void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse3d){
+void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse3d) {
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	Vec2i targetPos=Vec2i(x, y);
 	//give order
@@ -419,7 +419,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
-	if(result == crSuccess || result == crSomeFailed){
+	if(result == crSuccess || result == crSomeFailed) {
 		if(paintMouse3d)
 			mouse3d.enable();
 
@@ -435,7 +435,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 	resetState();
 }
 
-void Gui::giveTwoClickOrders(int x, int y , bool prepared){
+void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 
 	CommandResult result;
 
@@ -445,9 +445,8 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 	if(prepared){
 		targetPos=Vec2i(x, y);
 	}
-	else
-	{
-		if(!computeTarget(Vec2i(x, y), targetPos, targetUnit)){
+	else {
+		if(computeTarget(Vec2i(x, y), targetPos, targetUnit) == false) {
 			console->addStdMessage("InvalidPosition");
 			return;
 		}
@@ -455,17 +454,17 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 
 	bool queueKeyDown = isKeyDown(queueCommandKey);
     //give orders to the units of this faction
-	if(!selectingBuilding){
-		if(selection.isUniform()){
+	if(selectingBuilding == false) {
+		if(selection.isUniform()) {
 			result= commander->tryGiveCommand(&selection, activeCommandType,
 											targetPos, targetUnit,queueKeyDown);
 		}
-		else{
+		else {
 			result= commander->tryGiveCommand(&selection, activeCommandClass,
 											targetPos, targetUnit,queueKeyDown);
         	}
 	}
-	else{
+	else {
 		//selecting building
 		result= commander->tryGiveCommand(&selection,
 						activeCommandType, posObjWorld, choosenBuildingType,
@@ -474,12 +473,12 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
-	if(result == crSuccess || result == crSomeFailed){
-		if(!prepared){
+	if(result == crSuccess || result == crSomeFailed) {
+		if(prepared == false) {
 			mouse3d.enable();
 		}
 
-		if(random.randRange(0, 1)==0){
+		if(random.randRange(0, 1) == 0) {
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
 				selection.getFrontUnit()->getCurrVector(),
@@ -488,14 +487,14 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared){
 	}
 }
 
-void Gui::centerCameraOnSelection(){
-	if(!selection.isEmpty()){
+void Gui::centerCameraOnSelection() {
+	if(selection.isEmpty() == false) {
 		Vec3f refPos= selection.getRefPos();
 		gameCamera->centerXZ(refPos.x, refPos.z);
 	}
 }
 
-void Gui::selectInterestingUnit(InterestingUnitType iut){
+void Gui::selectInterestingUnit(InterestingUnitType iut) {
 	const Faction* thisFaction= world->getThisFaction();
 	const Unit* previousUnit= NULL;
 	bool previousFound= true;
@@ -916,7 +915,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		}
 		selectingBuilding= false;
 		activeCommandType= NULL;
-	
+
 		//select all units of the same type if double click
 		if(doubleClick && units.size()==1){
 			const Unit *refUnit= units.front();
@@ -930,15 +929,15 @@ void Gui::computeSelected(bool doubleClick, bool force){
 				}
 			}
 		}
-	
+
 		bool shiftDown= isKeyDown(vkShift);
 		bool controlDown= isKeyDown(vkControl);
-	
+
 		if(!shiftDown && !controlDown){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.clear()\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.clear();
 		}
-	
+
 		if(!controlDown){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.select(units);
@@ -950,25 +949,25 @@ void Gui::computeSelected(bool doubleClick, bool force){
 	}
 }
 
-bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit){
+bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit) {
 	Selection::UnitContainer uc;
 	Renderer &renderer= Renderer::getInstance();
 	renderer.computeSelected(uc, screenPos, screenPos);
 	validPosObjWorld= false;
 
-	if(!uc.empty()){
+	if(uc.empty() == false) {
 		targetUnit= uc.front();
 		targetPos= targetUnit->getPos();
 		return true;
 	}
-	else{
+	else {
 		targetUnit= NULL;
-		if(renderer.computePosition(screenPos, targetPos)){
+		if(renderer.computePosition(screenPos, targetPos)) {
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 			return true;
 		}
-		else{
+		else {
 			return false;
 		}
 	}

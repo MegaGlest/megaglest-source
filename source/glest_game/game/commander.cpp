@@ -144,17 +144,17 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
 
-	if(!selection->isEmpty()){
+	if(selection->isEmpty() == false) {
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
 		refPos= world->getMap()->computeRefPos(selection);
 
 		//give orders to all selected units
-		for(int i=0; i<selection->getCount(); ++i){
+		for(int i = 0; i < selection->getCount(); ++i) {
 			const Unit *unit= selection->getUnit(i);
 			const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
-			if(ct!=NULL){
+			if(ct != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= selection->getUnit(i)->getId();
 				Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
@@ -204,7 +204,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 }
 
 //auto command
-CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
+CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CommandResult result = crFailUndefined;
@@ -279,19 +279,19 @@ void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos)const{
 
 // ==================== PRIVATE ====================
 
-CommandResult Commander::computeResult(const CommandResultContainer &results) const{
-	switch(results.size()){
-	case 0:
-		return crFailUndefined;
-	case 1:
-		return results.front();
-	default:
-		for(int i=0; i<results.size(); ++i){
-			if(results[i]!=crSuccess){
-				return crSomeFailed;
-			}
-		}
-		return crSuccess;
+CommandResult Commander::computeResult(const CommandResultContainer &results) const {
+	switch(results.size()) {
+        case 0:
+            return crFailUndefined;
+        case 1:
+            return results.front();
+        default:
+            for(int i = 0; i < results.size(); ++i) {
+                if(results[i] != crSuccess) {
+                    return crSomeFailed;
+                }
+            }
+            return crSuccess;
 	}
 }
 
