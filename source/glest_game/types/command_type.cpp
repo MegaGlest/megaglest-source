@@ -314,7 +314,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
     return str;
 }
 
-string AttackStoppedCommandType::toString() const{
+string AttackStoppedCommandType::toString() const {
 	Lang &lang= Lang::getInstance();
 	return lang.get("AttackStopped");
 }
@@ -325,12 +325,12 @@ string AttackStoppedCommandType::toString() const{
 // =====================================================
 
 //varios
-BuildCommandType::BuildCommandType(){
+BuildCommandType::BuildCommandType() {
     commandTypeClass= ccBuild;
     clicks= cTwo;
 }
 
-BuildCommandType::~BuildCommandType(){
+BuildCommandType::~BuildCommandType() {
 	deleteValues(builtSounds.getSounds().begin(), builtSounds.getSounds().end());
 	deleteValues(startSounds.getSounds().begin(), startSounds.getSounds().end());
 }
@@ -606,7 +606,7 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
 
     str+= "\n" + getProducedUnit()->getReqDesc();
-    
+
     return str;
 }
 

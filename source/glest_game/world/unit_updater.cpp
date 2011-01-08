@@ -187,7 +187,9 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 
 	//if unit has command process it
     if(unit->anyCommand()) {
-    	CommandClass cc=unit->getCurrCommand()->getCommandType()->commandTypeClass;
+        SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit [%s] has command [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str(), unit->getCurrCommand()->toString().c_str());
+
+    	CommandClass cc = unit->getCurrCommand()->getCommandType()->commandTypeClass;
 		unit->getCurrCommand()->getCommandType()->update(this, unit);
 	}
 
@@ -195,7 +197,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
 
 	//if no commands stop and add stop command
 	if(unit->anyCommand() == false && unit->isOperative()) {
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		unit->setCurrSkill(scStop);
 
 		if(unit->getType()->hasCommandClass(ccStop)) {
@@ -445,6 +447,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 	chrono.start();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit [%s] will build using command [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str(), unit->getCurrCommand()->toString().c_str());
 
 	Command *command= unit->getCurrCommand();
     const BuildCommandType *bct= static_cast<const BuildCommandType*>(command->getCommandType());
@@ -454,6 +457,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 	if(unit->getCurrSkill()->getClass() != scBuild) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         //if not building
         const UnitType *ut= command->getUnitType();
@@ -486,6 +490,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 	    }
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsValue = %d\n",__FILE__,__FUNCTION__,__LINE__,tsValue);
 
 		switch (tsValue) {
         case tsMoving:
@@ -516,6 +521,8 @@ void UnitUpdater::updateBuild(Unit *unit) {
     			default:
     				throw runtime_error("detected unsupported pathfinder type!");
     	    }
+
+            SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] canOccupyCell = %d\n",__FILE__,__FUNCTION__,__LINE__,canOccupyCell);
 
 			if (canOccupyCell == true) {
 				const UnitType *builtUnitType= command->getUnitType();
@@ -594,6 +601,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				}
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
             }
         	}
             break;
@@ -603,6 +611,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 				unit->cancelCommand();
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] got tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
 			}
             break;
         }
@@ -611,6 +620,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
     }
     else {
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+    	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
         //if building
         Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
@@ -622,13 +632,17 @@ void UnitUpdater::updateBuild(Unit *unit) {
         	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builtUnit = %s\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
         }
 
+        SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit = [%p]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit);
+
         //if unit is killed while building then u==NULL;
 		if(builtUnit != NULL && builtUnit != command->getUnit()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is not the command's unit!\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->setCurrSkill(scStop);
 		}
 		else if(builtUnit == NULL || builtUnit->isBuilt()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is NULL or ALREADY built\n",__FILE__,__FUNCTION__,__LINE__);
 
             unit->finishCommand();
             unit->setCurrSkill(scStop);
@@ -636,6 +650,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
         }
         else if(builtUnit == NULL || builtUnit->repair()) {
         	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             //building finished
             unit->finishCommand();
@@ -1063,7 +1078,9 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 		if(command != NULL) {
 			const RepairCommandType *rct= dynamic_cast<const RepairCommandType*>(command->getCommandType());
 			if(rct != NULL && command->getStateType() == cst_linkedUnit) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] looking for command->getStateValue() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getStateValue());
+
+                Unit *firstLinkedPeerRepairer = NULL;
 
 				for(int i = 0; i < unit->getFaction()->getUnitCount(); ++i) {
 					Unit *peerUnit = unit->getFaction()->getUnit(i);
@@ -1084,12 +1101,35 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 									break;
 								}
 							}
+							else {
+							    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] **peer NOT building**, peerUnit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,peerUnit->toString().c_str());
+
+							    if(firstLinkedPeerRepairer == NULL) {
+                                    const RepairCommandType *prct = dynamic_cast<const RepairCommandType*>(peerCommand->getCommandType());
+                                    if(prct != NULL) {
+                                        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                                        if(command->getStateValue() == peerUnit->getId()) {
+                                            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                                            firstLinkedPeerRepairer = peerUnit;
+                                            break;
+                                        }
+                                    }
+							    }
+							}
 						}
 					}
+				}
+
+				if(foundUnitBuilder == NULL) {
+				    foundUnitBuilder = firstLinkedPeerRepairer;
 				}
 			}
 		}
     }
+
+    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] returning foundUnitBuilder = [%s]\n",__FILE__,__FUNCTION__,__LINE__,(foundUnitBuilder != NULL ? foundUnitBuilder->toString().c_str() : "null"));
 
     return foundUnitBuilder;
 }

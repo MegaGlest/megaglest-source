@@ -498,13 +498,13 @@ bool Unit::isInteresting(InterestingUnitType iut) const {
 		throw runtime_error(szBuf);
 	}
 
-	switch(iut){
+	switch(iut) {
 	case iutIdleHarvester:
-		if(type->hasCommandClass(ccHarvest)){
-			if(!commands.empty()){
+		if(type->hasCommandClass(ccHarvest)) {
+			if(commands.empty() == false) {
 				const CommandType *ct= commands.front()->getCommandType();
-				if(ct!=NULL){
-					return ct->getClass()==ccStop;
+				if(ct != NULL){
+					return ct->getClass() == ccStop;
 				}
 			}
 		}
@@ -698,7 +698,7 @@ bool Unit::anyCommand(bool validateCommandtype) const {
 }
 
 //return current command, assert that there is always one command
-Command *Unit::getCurrCommand() const{
+Command *Unit::getCurrCommand() const {
 	if(commands.empty() == false) {
 		return commands.front();
 	}
@@ -706,13 +706,13 @@ Command *Unit::getCurrCommand() const{
 }
 
 void Unit::replaceCurrCommand(Command *cmd) {
-	assert(!commands.empty());
+	assert(commands.empty() == false);
 	commands.front() = cmd;
 	this->setCurrentUnitTitle("");
 }
 
 //returns the size of the commands
-unsigned int Unit::getCommandSize() const{
+unsigned int Unit::getCommandSize() const {
 	return commands.size();
 }
 
@@ -749,25 +749,21 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	chrono.start();
 
     assert(command != NULL);
-
     assert(command->getCommandType() != NULL);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit id = %d name = %s, Command [%s] tryQueue = %d\n",
-    //		__FILE__,__FUNCTION__, __LINE__,this->id,(this->type != NULL ? this->type->getName().c_str() : "null"), (command != NULL ? command->toString().c_str() : "null"),tryQueue);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const int command_priority = command->getPriority();
 
     if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	if(command->getCommandType()->isQueuable(tryQueue)){
-
+	if(command->getCommandType()->isQueuable(tryQueue)) {
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+        SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//Delete all lower-prioirty commands
 		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
 			if ((*i)->getPriority() < command_priority) {
+			    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
+
 				deleteQueuedCommand(*i);
 				i = commands.erase(i);
 			}
@@ -781,8 +777,10 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//cancel current command if it is not queuable
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(!commands.empty() && !commands.back()->getCommandType()->isQueueAppendable()){
+		if(commands.empty() == false &&
+          commands.back()->getCommandType()->isQueueAppendable() == false) {
 		    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",__FILE__,__FUNCTION__,__LINE__,commands.back()->toString().c_str());
 
 		    cancelCommand();
 		}
@@ -792,6 +790,8 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	else {
 		//empty command queue
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
+
 		clearCommands();
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -804,6 +804,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	//check command
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
+	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -840,7 +841,7 @@ CommandResult Unit::finishCommand() {
 	retryCurrCommandCount=0;
 	this->setCurrentUnitTitle("");
 	//is empty?
-	if(commands.empty()){
+	if(commands.empty()) {
 		return crFailUndefined;
 	}
 
@@ -849,7 +850,7 @@ CommandResult Unit::finishCommand() {
 	commands.erase(commands.begin());
 	this->unitPath->clear();
 
-	while (!commands.empty()) {
+	while (commands.empty() == false) {
 		if (commands.front()->getUnit() != NULL && livingUnitsp.find(commands.front()->getUnit()) == livingUnitsp.end()) {
 			delete commands.front();
 			commands.erase(commands.begin());
@@ -1298,7 +1299,7 @@ string Unit::getDesc() const {
 	}
 
 	//command info
-	if(!commands.empty()){
+	if(commands.empty() == false) {
 		str+= "\n" + commands.front()->getCommandType()->getName();
 		if(commands.size()>1){
 			str+="\n"+lang.get("OrdersOnQueue")+": "+intToStr(commands.size());
@@ -1437,7 +1438,7 @@ void Unit::updateTarget(){
 void Unit::clearCommands() {
 	this->setCurrentUnitTitle("");
 	this->unitPath->clear();
-	while(!commands.empty()){
+	while(commands.empty() == false) {
 		undoCommand(commands.back());
 		delete commands.back();
 		commands.pop_back();
@@ -1445,8 +1446,7 @@ void Unit::clearCommands() {
 }
 
 void Unit::deleteQueuedCommand(Command *command) {
-	if(getCurrCommand()==command)
-	{
+	if(getCurrCommand() == command)	{
 		this->setCurrentUnitTitle("");
 		this->unitPath->clear();
 	}
@@ -1465,15 +1465,17 @@ CommandResult Unit::checkCommand(Command *command) const {
 	}
 
 	//if not operative or has not command type => fail
-	if(!isOperative() || command->getUnit()==this || !getType()->hasCommandType(command->getCommandType())|| !this->getFaction()->reqsOk(command->getCommandType())){
+	if(isOperative() == false ||
+       command->getUnit() == this ||
+       getType()->hasCommandType(command->getCommandType()) == false ||
+       this->getFaction()->reqsOk(command->getCommandType()) == false) {
         return crFailUndefined;
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
-	if(!map->isInside(command->getPos())) {
-
+	if(map->isInside(command->getPos()) == false) {
         return crFailUndefined;
 	}
 
@@ -1500,7 +1502,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //build command specific, check resources and requirements for building
-    if(command->getCommandType()->getClass()==ccBuild) {
+    if(command->getCommandType()->getClass() == ccBuild) {
 		const UnitType *builtUnit= command->getUnitType();
 
 		if(builtUnit == NULL) {
