@@ -49,7 +49,7 @@
 					<Add directory="../../source/glest_game/types" />
 					<Add directory="../../source/glest_game/world" />
 					<Add directory="../../source/win32_deps/include" />
-					<Add directory="../../source/win32_deps/xerces-c-3.0.1/src" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/src" />
 					<Add directory="../../source/win32_deps/SDL-1.2.x/include" />
 					<Add directory="../../source/shared_lib/include/platform/sdl" />
 					<Add directory="../../source/shared_lib/include/sound/openal" />
@@ -59,7 +59,7 @@
 					<Add directory="../../source/shared_lib/include/platform/common" />
 					<Add directory="../../source/win32_deps/curl-7.21.3/include" />
 					<Add directory="../../source/shared_lib/include/map" />
-					<Add directory="../../source/win32_deps/libircclient/include" />
+					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="../../source/shared_lib/include/graphics" />
@@ -559,6 +559,8 @@
 		<Unit filename="../../source/glest_game/menu/menu_state_graphic_info.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_join_game.cpp" />
 		<Unit filename="../../source/glest_game/menu/menu_state_join_game.h" />
+		<Unit filename="../../source/glest_game/menu/menu_state_keysetup.cpp" />
+		<Unit filename="../../source/glest_game/menu/menu_state_keysetup.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_masterserver.cpp" />
 		<Unit filename="../../source/glest_game/menu/menu_state_masterserver.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_new_game.cpp" />
