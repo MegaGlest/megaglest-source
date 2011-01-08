@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug Win32">
 				<Option output="../../data/glest_game/libglest.dll" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="../../data/glest_game/" />
+				<Option working_dir="../../data/glest_game" />
 				<Option object_output="Debug Win32/shared_lib" />
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
@@ -102,7 +102,11 @@
 					<Add library="liblibvorbis" />
 					<Add library="liblibvorbisfile" />
 					<Add library="liblibvorbisenc" />
-					<Add library="ircclient" />
+					<Add library="wsock32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="winmm" />
+					<Add library="ws2_32" />
 					<Add directory="./" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
@@ -205,7 +209,6 @@
 					<Add library="liblibvorbis" />
 					<Add library="liblibvorbisfile" />
 					<Add library="liblibvorbisenc" />
-					<Add library="ircclient" />
 					<Add directory="./" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
@@ -283,7 +286,6 @@
 					<Add library="vorbisfile" />
 					<Add library="vorbisenc" />
 					<Add library="streflop" />
-					<Add library="ircclient" />
 					<Add directory="./" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
@@ -375,7 +377,6 @@
 					<Add library="vorbisfile" />
 					<Add library="vorbisenc" />
 					<Add library="streflop" />
-					<Add library="ircclient" />
 					<Add directory="./" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
@@ -558,6 +559,9 @@
 		<Unit filename="../../source/shared_lib/sources/graphics/shader_manager.cpp" />
 		<Unit filename="../../source/shared_lib/sources/graphics/texture.cpp" />
 		<Unit filename="../../source/shared_lib/sources/graphics/texture_manager.cpp" />
+		<Unit filename="../../source/shared_lib/sources/libircclient/src/libircclient.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../source/shared_lib/sources/lua/lua_script.cpp" />
 		<Unit filename="../../source/shared_lib/sources/map/map_preview.cpp" />
 		<Unit filename="../../source/shared_lib/sources/platform/common/base_thread.cpp" />

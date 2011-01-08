@@ -105,9 +105,11 @@
 					<Add library="ddraw" />
 					<Add library="dsound" />
 					<Add library="dxguid" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="wsock32" />
 					<Add library="ws2_32" />
 					<Add library="iphlpapi" />
-					<Add library="wsock32" />
 					<Add library="liblibogg" />
 					<Add library="liblibvorbis" />
 					<Add library="liblibvorbisfile" />
@@ -119,14 +121,11 @@
 					<Add library="liblibcurl" />
 					<Add library="winmm" />
 					<Add library="gdi32" />
-					<Add library="opengl32" />
-					<Add library="glu32" />
 					<Add library="SDL" />
 					<Add library="SDLmain" />
 					<Add library="lua5.1" />
 					<Add library="streflop" />
 					<Add library="glest" />
-					<Add library="ircclient" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 					<Add directory="../../data/glest_game/" />
@@ -255,7 +254,6 @@
 					<Add library="lua5.1" />
 					<Add library="streflop" />
 					<Add library="glest" />
-					<Add library="ircclient" />
 					<Add directory="../../source/win32_deps/lib" />
 					<Add directory="../../source/win32_deps/xerces-c-src_2_8_0/lib" />
 					<Add directory="../../data/glest_game/" />
@@ -355,7 +353,6 @@
 					<Add library="lua5.1" />
 					<Add library="glest" />
 					<Add library="streflop" />
-					<Add library="ircclient" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
@@ -458,7 +455,6 @@
 					<Add library="lua5.1" />
 					<Add library="glest" />
 					<Add library="streflop" />
-					<Add library="ircclient" />
 					<Add directory="../../source/linux_deps/lib" />
 				</Linker>
 				<Environment>
