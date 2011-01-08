@@ -16,7 +16,6 @@ IF(NOT WIN32)
 
 	# wxWidgets include (this will do all the magic to configure everything)
 	include( ${wxWidgets_USE_FILE} )
-	#INCLUDE_DIRECTORIES(${WX_INCLUDE_DIR})
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
 ELSE()
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
@@ -85,13 +84,6 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})	
 		ENDIF(APPLE)
 ENDFOREACH(DIR)
-
-# [RCL] FIXME: make it compiler-agnostic
-SET(CMAKE_CXX_FLAGS "-O3 -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DSTREFLOP_SSE")
-
-IF(WIN32)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -DMWIN -D__WXMSW__ -DCURL_STATICLIB")
-ENDIF()
 
 SET(TARGET_NAME "glest_editor")
 
