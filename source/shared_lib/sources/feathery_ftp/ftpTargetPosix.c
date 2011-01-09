@@ -189,7 +189,12 @@ int ftpSend(socket_t s, const void *data, int len)
 
 	do
 	{
-		currLen = send(s, data, len, 0);
+#ifdef __APPLE__
+		currLen = send(s, data, len, SO_NOSIGPIPE);
+#else
+        currLen = send(s, data, len, MSG_NOSIGNAL);
+#endif
+
 		if(currLen >= 0)
 		{
 			len -= currLen;
