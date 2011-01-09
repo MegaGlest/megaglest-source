@@ -119,6 +119,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.setText("");
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 
+    timerLabelFlash = time(NULL);
+    labelDataSynchInfo.registerGraphicComponent(containerName,"labelDataSynchInfo");
+	labelDataSynchInfo.init(30, networkHeadPos-60);
+	labelDataSynchInfo.setText("");
+	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
+
 	//create
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(450, 180, 125);
@@ -720,6 +726,17 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderLabel(&labelStatus);
 		renderer.renderLabel(&labelInfo);
+
+		if(difftime(time(NULL),timerLabelFlash) < 1) {
+		    renderer.renderLabel(&labelDataSynchInfo,&RED);
+		}
+		else {
+            renderer.renderLabel(&labelDataSynchInfo,&WHITE);
+            if(difftime(time(NULL),timerLabelFlash) > 2) {
+                timerLabelFlash = time(NULL);
+            }
+		}
+
 		renderer.renderLabel(&labelMap);
 		renderer.renderLabel(&labelFogOfWar);
 		renderer.renderLabel(&labelAllowObservers);
@@ -845,11 +862,84 @@ void MenuStateConnectedGame::update() {
 		if(clientInterface->getAllowDownloadDataSynch() == false) {
 		    string label = lang.get("ConnectedToServer");
 
-            if(!clientInterface->getServerName().empty()) {
+            if(clientInterface->getServerName().empty() == false) {
                 label = label + " " + clientInterface->getServerName();
             }
 
             label = label + ", " + clientInterface->getVersionString();
+
+            if(clientInterface->getAllowGameDataSynchCheck() == false) {
+                Config &config = Config::getInstance();
+                const GameSettings *gameSettings = clientInterface->getGameSettings();
+                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+                // Test data synch
+                //tilesetCRC++;
+
+                //int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+                Checksum checksum;
+                string file = Map::getMapPath(gameSettings->getMap(),"",false);
+                checksum.addFile(file);
+                int32 mapCRC = checksum.getSum();
+
+                bool dataSynchMismatch = (mapCRC != gameSettings->getMapCRC() || tilesetCRC != gameSettings->getTilesetCRC());
+
+                //printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d] tilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC());
+
+                if(dataSynchMismatch == true) {
+                    string labelSynch = "Game data synch mismatch for:";
+
+                    if(mapCRC != gameSettings->getMapCRC()) {
+                        labelSynch = labelSynch + " map";
+
+                        if(updateDataSynchDetailText == true &&
+                            lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
+                            lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
+                            clientInterface->sendTextMessage(lastMapDataSynchError,-1,true);
+                        }
+                    }
+
+                    if(tilesetCRC != gameSettings->getTilesetCRC()) {
+                        labelSynch = labelSynch + " tileset";
+                        if(updateDataSynchDetailText == true &&
+                            lastTileDataSynchError != "tileset CRC mismatch, " + listBoxTileset.getSelectedItem()) {
+                            lastTileDataSynchError = "tileset CRC mismatch, " + listBoxTileset.getSelectedItem();
+                            clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+                        }
+                    }
+
+                    /*
+                    if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
+                        labelSynch = labelSynch + " techtree";
+
+                        if(updateDataSynchDetailText == true) {
+
+                            string report = clientInterface->getNetworkGameDataSynchCheckTechMismatchReport();
+                            if(lastTechtreeDataSynchError != "techtree CRC mismatch" + report) {
+                                lastTechtreeDataSynchError = "techtree CRC mismatch" + report;
+
+                                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
+
+                                clientInterface->sendTextMessage("techtree CRC mismatch",-1,true);
+                                vector<string> reportLineTokens;
+                                Tokenize(report,reportLineTokens,"\n");
+                                for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
+                                    clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+                                }
+                            }
+                        }
+                    }
+                    */
+
+                    //if(clientInterface->getReceivedDataSynchCheck() == true) {
+                    updateDataSynchDetailText = false;
+                    //}
+
+                    labelDataSynchInfo.setText(labelSynch);
+                }
+                else {
+                    labelDataSynchInfo.setText("");
+                }
+            }
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false) {
@@ -984,7 +1074,6 @@ void MenuStateConnectedGame::update() {
 
 	//process network messages
 	if(clientInterface != NULL && clientInterface->isConnected()) {
-
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
 
@@ -1233,7 +1322,6 @@ void MenuStateConnectedGame::update() {
 			//update lobby
 			clientInterface= NetworkManager::getInstance().getClientInterface();
 			if(clientInterface != NULL && clientInterface->isConnected()) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientInterface = %p\n",__FILE__,__FUNCTION__,__LINE__,clientInterface);
 				clientInterface->updateLobby();
 
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1243,16 +1331,12 @@ void MenuStateConnectedGame::update() {
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			if(chrono.getMillis() > 0) chrono.start();
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			clientInterface= NetworkManager::getInstance().getClientInterface();
 			if(clientInterface != NULL && clientInterface->isConnected()) {
 				if(	initialSettingsReceivedFromServer == true &&
 					clientInterface->getIntroDone() == true &&
 					(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getHumanPlayerName() = [%s], clientInterface->getGameSettings()->getThisFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,getHumanPlayerName().c_str(),clientInterface->getGameSettings()->getThisFactionIndex());
-					//needToSetChangedGameSettings = false;
-					//lastSetChangedGameSettings = time(NULL);
 					clientInterface->sendSwitchSetupRequest("",clientInterface->getPlayerIndex(),-1,-1,getHumanPlayerName(),switchSetupRequestFlagType);
 
 					switchSetupRequestFlagType=ssrft_None;

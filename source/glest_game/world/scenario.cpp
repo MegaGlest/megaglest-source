@@ -30,14 +30,18 @@ namespace Glest{ namespace Game{
 //	class Scenario
 // =====================================================
 
-Scenario::~Scenario(){
+Scenario::~Scenario() {
 
 }
 
-void Scenario::load(const string &path){
-	try{
+Checksum Scenario::load(const string &path) {
+    Checksum scenarioChecksum;
+	try {
+		scenarioChecksum.addFile(path);
+		checksumValue.addFile(path);
+
 		string name= cutLastExt(lastDir(path));
-		Logger::getInstance().add("Scenario: "+formatString(name), true);
+		Logger::getInstance().add("Scenario: " + formatString(name), true);
 
 		//parse xml
 		XmlTree xmlTree;
@@ -52,10 +56,12 @@ void Scenario::load(const string &path){
 		}
 	}
 	//Exception handling (conversions and so on);
-	catch(const exception &e){
+	catch(const exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error: " + path + "\n" + e.what());
 	}
+
+	return scenarioChecksum;
 }
 
 int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &scenarioName) {
@@ -85,7 +91,7 @@ string Scenario::getScenarioPath(const vector<string> dirList, const string &sce
 			scenarioFile = "";
 		}
     }
-	
+
     return scenarioFile;
 }
 

@@ -45,7 +45,7 @@ class GameSettings;
 ///	A map cell that holds info about units present on it
 // =====================================================
 
-class Cell{
+class Cell {
 private:
     Unit *units[fieldCount];	//units on this cell
     Unit *unitsWithEmptyCellMap[fieldCount];	//units with an empty cellmap on this cell
@@ -76,7 +76,7 @@ public:
 //	A heightmap cell, each surface cell is composed by more than one Cell
 // =====================================================
 
-class SurfaceCell{
+class SurfaceCell {
 private:
 	//geometry
 	Vec3f vertex;
@@ -147,7 +147,7 @@ public:
 ///	Represents the game map (and loads it from a gbm file)
 // =====================================================
 
-class Map{
+class Map {
 public:
 	static const int cellScale;	//number of cells per surfaceCell
 	static const int mapScale;	//horizontal scale of surface
@@ -164,6 +164,7 @@ private:
 	Cell *cells;
 	SurfaceCell *surfaceCells;
 	Vec2i *startLocations;
+	Checksum checksumValue;
 
 private:
 	Map(Map&);
@@ -172,9 +173,10 @@ private:
 public:
 	Map();
 	~Map();
+	Checksum * getChecksumValue() { return &checksumValue; }
 
 	void init();
-	void load(const string &path, TechTree *techTree, Tileset *tileset);
+	Checksum load(const string &path, TechTree *techTree, Tileset *tileset);
 
 	//get
 	Cell *getCell(int x, int y) const;

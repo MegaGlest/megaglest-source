@@ -128,8 +128,10 @@ void FTPServerThread::execute() {
 */
             ftpStart(portNumber);
             while(this->getQuitStatus() == false) {
-                ftpExecute();
-                //sleep(25);
+                int processedWork = ftpExecute();
+                if(processedWork == 0) {
+                    sleep(25);
+                }
             }
             ftpShutdown();
 

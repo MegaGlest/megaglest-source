@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -27,7 +27,7 @@ class FactionType;
 class UnitType;
 
 // ===============================
-// 	class UpgradeTypeBase 
+// 	class UpgradeTypeBase
 // ===============================
 
 class UpgradeTypeBase{
@@ -39,7 +39,7 @@ protected:
     int attackStrength;
     int attackRange;
     int moveSpeed;
-    int prodSpeed;    
+    int prodSpeed;
 
 public:
 	int getMaxHp() const			{return maxHp;}
@@ -68,28 +68,28 @@ public:
 };
 
 // ===============================
-// 	class UpgradeType  
+// 	class UpgradeType
 // ===============================
 
 class UpgradeType: public UpgradeTypeBase, public ProducibleType{
 private:
-    vector<const UnitType*> effects; 
-    
+    vector<const UnitType*> effects;
+
 public:
 	void preLoad(const string &dir);
-    void load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum);
+    void load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum, Checksum* techtreeChecksum);
 
     //get all
 	int getEffectCount() const				{return effects.size();}
 	const UnitType * getEffect(int i) const	{return effects[i];}
-	bool isAffected(const UnitType *unitType) const; 
+	bool isAffected(const UnitType *unitType) const;
 
     //other methods
 	virtual string getReqDesc() const;
 };
 
 // ===============================
-// 	class TotalUpgrade  
+// 	class TotalUpgrade
 // ===============================
 
 class TotalUpgrade: public UpgradeTypeBase{
@@ -97,7 +97,7 @@ public:
 	TotalUpgrade();
 
 	void reset();
-	void sum(const UpgradeType *ut); 
+	void sum(const UpgradeType *ut);
 	void incLevel(const UnitType *ut);
 };
 

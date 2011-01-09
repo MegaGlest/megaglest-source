@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "xml_parser.h"
+#include "checksum.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -22,14 +23,15 @@ using std::vector;
 using std::pair;
 
 using Shared::Xml::XmlNode;
+using namespace Shared::Util;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 // =====================================================
 //	class Script
 // =====================================================
 
-class Script{
+class Script {
 private:
 	string name;
 	string code;
@@ -45,16 +47,18 @@ public:
 //	class Scenario
 // =====================================================
 
-class Scenario{
+class Scenario {
 private:
 	typedef pair<string, string> NameScriptPair;
 	typedef vector<Script> Scripts;
 
 	Scripts scripts;
+	Checksum checksumValue;
 
 public:
     ~Scenario();
-	void load(const string &path);
+	Checksum load(const string &path);
+	Checksum * getChecksumValue() { return &checksumValue; }
 
 	int getScriptCount() const				{return scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}

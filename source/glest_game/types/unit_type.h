@@ -89,8 +89,8 @@ private:
     int maxEp;
 	int epRegeneration;
 	int maxUnitCount;
-	
-    
+
+
 	///@todo remove fields, multiple fields are not supported by the engine
 	bool fields[fieldCount];			//fields: land, sea or air
 	Field field;
@@ -134,7 +134,7 @@ public:
     UnitType();
     virtual ~UnitType();
 	void preLoad(const string &dir);
-    void load(int id, const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum);
+    void load(int id, const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum, Checksum* techtreeChecksum);
 
 	//get
 	int getId() const									{return id;}
@@ -205,7 +205,7 @@ public:
 
 	//other
     virtual string getReqDesc() const;
-	
+
     std::string toString() const;
 
 private:

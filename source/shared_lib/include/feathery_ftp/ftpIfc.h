@@ -42,7 +42,7 @@ void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, 
 int ftpCreateAccount(const char* name, const char* passw, const char* root, int accRights);
 int ftpStart(int portNumber);
 int ftpShutdown(void);
-void ftpExecute(void);
+int ftpExecute(void);
 int ftpState(void);
 
 #ifdef	__cplusplus

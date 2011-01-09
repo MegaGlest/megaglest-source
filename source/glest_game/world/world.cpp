@@ -181,39 +181,40 @@ void World::init(Game *game, bool createUnits){
 }
 
 //load tileset
-void World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+Checksum World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+    Checksum tilsetChecksum;
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	tileset.loadTileset(pathList, tilesetName, checksum);
+	tilsetChecksum = tileset.loadTileset(pathList, tilesetName, checksum);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return tilsetChecksum;
 }
 
-void World::loadTileset(const string &dir, Checksum *checksum){
+Checksum World::loadTileset(const string &dir, Checksum *checksum) {
+    Checksum tilesetChecksum;
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	tileset.load(dir, checksum);
+	tileset.load(dir, checksum, &tilesetChecksum);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	return tilesetChecksum;
 }
 
 //load tech
-void World::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum *checksum){
+Checksum World::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum *checksum) {
+	Checksum techtreeChecksum;
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	/*
-	std::map<string,TechTree *> &techCache = Shared::PlatformCommon::CacheManager::getCachedItem< std::map<string,TechTree *> >("techCache");
-	if(techCache.find(techName) != techCache.end()) {
-		techTree = new TechTree();
-		*techTree =	*techCache[techName];
-		return;
-	}
-	*/
-
 	techTree = new TechTree();
-	techTree->loadTech(pathList, techName, factions, checksum);
-
-	//techCache[techName] = techTree;
+	techtreeChecksum = techTree->loadTech(pathList, techName, factions, checksum);
+	return techtreeChecksum;
 }
 
 std::vector<std::string> World::validateFactionTypes() {
@@ -225,20 +226,25 @@ std::vector<std::string> World::validateResourceTypes() {
 }
 
 //load map
-void World::loadMap(const string &path, Checksum *checksum){
+Checksum World::loadMap(const string &path, Checksum *checksum) {
+    Checksum mapChecksum;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	checksum->addFile(path);
-	map.load(path, techTree, &tileset);
+	mapChecksum = map.load(path, techTree, &tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	return mapChecksum;
 }
 
 //load map
-void World::loadScenario(const string &path, Checksum *checksum){
+Checksum World::loadScenario(const string &path, Checksum *checksum) {
+    Checksum scenarioChecksum;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	checksum->addFile(path);
-	scenario.load(path);
+
+	scenarioChecksum = scenario.load(path);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	return scenarioChecksum;
 }
 
 // ==================== misc ====================

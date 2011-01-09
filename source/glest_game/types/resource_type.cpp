@@ -38,7 +38,7 @@ ResourceType::ResourceType() {
     model = NULL;
 }
 
-void ResourceType::load(const string &dir, Checksum* checksum){
+void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum) {
 
 	string path, str;
 	Renderer &renderer= Renderer::getInstance();
@@ -52,6 +52,7 @@ void ResourceType::load(const string &dir, Checksum* checksum){
 		Logger::getInstance().add("Resource type: "+ formatString(name), true);
 		path= dir+"/"+name+".xml";
 		checksum->addFile(path);
+		techtreeChecksum->addFile(path);
 
 		//tree
 		XmlTree xmlTree;

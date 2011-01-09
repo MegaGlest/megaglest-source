@@ -48,7 +48,7 @@ private:
 
 public:
     ResourceType();
-    void load(const string &dir, Checksum* checksum);
+    void load(const string &dir, Checksum* checksum,Checksum *techtreeChecksum);
 
     //get
 	int getClass() const			{return resourceClass;}

@@ -137,14 +137,14 @@ int ftpState(void)
  *  all received control-strings are dispatched to the command-module.
  *  Note, the function blocks if there is nothing to do.
  */
-void ftpExecute(void)
+int ftpExecute(void)
 {
-	int n;
-	int socksRdy;
-	ftpSession_S *pSession;
-	int sessionId;
-	int activeJobs;
-
+    int processedWork=0;
+	int n=0;
+	int socksRdy=0;
+	ftpSession_S *pSession=NULL;
+	int sessionId=0;
+	int activeJobs=0;
 
 	activeJobs = ftpGetActiveTransCnt();								// are there any active transmitions?
 	for(n = 0; (activeJobs > 0) && (n < MAX_CONNECTIONS); n++)
@@ -152,6 +152,7 @@ void ftpExecute(void)
 		pSession = ftpGetSession(n);
 		if(pSession->activeTrans.op)									// has this session an active transmition?
 		{
+		    processedWork = 1;
 			ftpExecTransmission(n);										// do the job
 			activeJobs--;
 		}
@@ -163,6 +164,7 @@ void ftpExecute(void)
 	//	socksRdy = ftpSelect(FALSE);
 	if(socksRdy > 0)
 	{
+	    processedWork = 1;
 		if(ftpTestSocket(server))										// server listner-socket signaled?
 		{
 			socket_t clientSocket;
@@ -223,6 +225,8 @@ if(VERBOSE_MODE_ENABLED) printf("Connection refused; Session limit reached.\n");
 			}
 		}
 	}
+
+	return processedWork;
 }
 
 
