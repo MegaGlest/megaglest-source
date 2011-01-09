@@ -32,7 +32,8 @@ FTPClientValidationInterface * FTPServerThread::ftpValidationIntf = NULL;
 ip_t FindExternalFTPServerIp(ip_t clientIp) {
     ip_t result = clientToFTPServerList[clientIp];
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
 
     return result;
 }
@@ -66,11 +67,14 @@ FTPServerThread::~FTPServerThread() {
 
 void FTPServerThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: signalQuit\n");
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: signalQuit\n");
+
     BaseThread::signalQuit();
 }
 
 bool FTPServerThread::shutdownAndWait() {
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: shutdownAndWait\n");
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server: shutdownAndWait\n");
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: shutdownAndWait\n");
 
     signalQuit();
     bool ret = BaseThread::shutdownAndWait();
@@ -80,7 +84,8 @@ bool FTPServerThread::shutdownAndWait() {
 
 void FTPServerThread::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
      clientToFTPServerList[clientIp] = ServerIp;
-     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
+     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
+     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
 }
 
 void FTPServerThread::execute() {
@@ -128,14 +133,15 @@ void FTPServerThread::execute() {
 */
             ftpStart(portNumber);
             while(this->getQuitStatus() == false) {
-                int processedWork = ftpExecute();
-                if(processedWork == 0) {
+                ftpExecute();
+                //if(processedWork == 0) {
                     //sleep(25);
-                }
+                //}
             }
             ftpShutdown();
 
-            if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server exiting!\n");
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server exiting!\n");
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server exiting!\n");
         }
         catch(const exception &ex) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());

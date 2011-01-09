@@ -631,6 +631,9 @@ void MenuStateConnectedGame::render() {
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
+		if(ftpMessageBox.getEnabled()) {
+			renderer.renderMessageBox(&ftpMessageBox);
+		}
 
 		//if(ftpMessageBox.getEnabled()) {
 		//	renderer.renderMessageBox(&ftpMessageBox);
@@ -807,11 +810,6 @@ void MenuStateConnectedGame::render() {
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
-
-		if(ftpMessageBox.getEnabled()) {
-			renderer.renderMessageBox(&ftpMessageBox);
-		}
-
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
