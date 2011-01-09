@@ -129,7 +129,7 @@ void Logger::loadLoadingScreen(string filepath){
 
 // ==================== PRIVATE ====================
 
-void Logger::renderLoadingScreen(){
+void Logger::renderLoadingScreen() {
 
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
@@ -151,6 +151,14 @@ void Logger::renderLoadingScreen(){
 		current, coreData.getMenuFontNormal(), 1.0f,
 		metrics.getVirtualW()/4,
 		62*metrics.getVirtualH()/100, false);
+
+    renderer.renderProgressBar(
+        progress,
+        metrics.getVirtualW()/4,
+        59*metrics.getVirtualH()/100,
+        coreData.getDisplayFontSmall(),
+        350,"loading progress ");
+
 
 	renderer.swapBuffers();
 }
