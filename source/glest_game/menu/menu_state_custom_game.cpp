@@ -1393,10 +1393,10 @@ void MenuStateCustomGame::update() {
 		if(masterServerErr) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true)
-			{
+			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true) {
 				masterServererErrorToShow=lang.get("WrongRouterSetup");
 			}
+            masterServererErrorToShow += " (disabling publish)";
 			showMasterserverError=false;
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
