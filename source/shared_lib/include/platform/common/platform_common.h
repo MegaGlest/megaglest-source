@@ -131,6 +131,7 @@ bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
 
 string replaceAll(string& context, const string& from, const string& to);
+void removeFolder(const string path);
 
 int getScreenW();
 int getScreenH();
