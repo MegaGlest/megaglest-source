@@ -632,9 +632,9 @@ void MenuStateConnectedGame::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if(ftpMessageBox.getEnabled()) {
-			renderer.renderMessageBox(&ftpMessageBox);
-		}
+		//if(ftpMessageBox.getEnabled()) {
+		//	renderer.renderMessageBox(&ftpMessageBox);
+		//}
 
 		if (!initialSettingsReceivedFromServer) return;
 
@@ -785,7 +785,7 @@ void MenuStateConnectedGame::render() {
                     CoreData::getInstance().getDisplayFontSmall(),
                     350,progressLabelPrefix);
 
-                yLocation -= 100;
+                yLocation -= 10;
             }
         }
         safeMutexFTPProgress.ReleaseLock();
