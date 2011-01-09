@@ -335,22 +335,38 @@ bool isdir(const char *path)
   return ret;
 }
 
-/*
 void removeFolder(const string path) {
-    path += "*";
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+    string deletePath = path + "*";
     vector<string> results;
-    findAll(path, vector<string> &results, false, false);
+    findAll(deletePath, results, false, false);
+
+    // First delete files
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
-        if(isdir(item) == true) {
+        if(isdir(item.c_str()) == true) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
             rmdir(item.c_str());
         }
         else {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+            unlink(item.c_str());
+        }
+    }
+    // Now delete folders
+    for(int i = results.size() -1; i >= 0; --i) {
+        string item = results[i];
+        if(isdir(item.c_str()) == true) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+            rmdir(item.c_str());
+        }
+        else {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
             unlink(item.c_str());
         }
     }
 }
-*/
 
 bool StartsWith(const std::string &str, const std::string &key) {
   return str.find(key) == 0;

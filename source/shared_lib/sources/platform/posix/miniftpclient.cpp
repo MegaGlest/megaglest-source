@@ -228,7 +228,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         CURLcode res = curl_easy_perform(curl);
         if(CURLE_OK != res) {
           // we failed
-          printf("curl FAILED with: %d\n", res);
+          printf("curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
         }
         else {
             result = ftp_crt_SUCCESS;
@@ -383,10 +383,11 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         if(CURLE_OK != res) {
           // we failed
-          printf("curl FAILED with: %d\n", res);
+          printf("curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
 
           if(destRootFolder != "") {
-              unlink(destRootFolder.c_str());
+              //unlink(destRootFolder.c_str());
+              removeFolder(destRootFolder);
           }
         }
         else {

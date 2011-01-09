@@ -130,7 +130,7 @@ void FTPServerThread::execute() {
             while(this->getQuitStatus() == false) {
                 int processedWork = ftpExecute();
                 if(processedWork == 0) {
-                    sleep(25);
+                    //sleep(25);
                 }
             }
             ftpShutdown();
