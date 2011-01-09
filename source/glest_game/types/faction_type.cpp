@@ -77,10 +77,12 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 		// b1) load units
 		try{
+			Logger &logger= Logger::getInstance();
+			int progressBaseValue=logger.getProgress();
 			for(int i = 0; i < unitTypes.size(); ++i) {
 				string str= dir + "/units/" + unitTypes[i].getName();
 				unitTypes[i].load(i, str, techTree, this, checksum,techtreeChecksum);
-
+				logger.setProgress(progressBaseValue+(int)((((double)i + 1.0) / (double)unitTypes.size()) * 100.0/techTree->getTypeCount()));
 				SDL_PumpEvents();
 			}
 		}

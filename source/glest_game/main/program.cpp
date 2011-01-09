@@ -380,6 +380,9 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			int Y = 0;
 			SDL_GetMouseState(&X,&Y);
 			programState->setStartXY(X,Y);
+			Logger::getInstance().setProgress(0);
+			Logger::getInstance().setState("");
+
 
 			SDL_PumpEvents();
 

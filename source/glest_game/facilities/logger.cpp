@@ -157,7 +157,7 @@ void Logger::renderLoadingScreen() {
         metrics.getVirtualW()/4,
         59*metrics.getVirtualH()/100,
         coreData.getDisplayFontSmall(),
-        350,"loading progress ");
+        350,""); // no string here, because it has to be language specific and does not give much information
 
 
 	renderer.swapBuffers();
