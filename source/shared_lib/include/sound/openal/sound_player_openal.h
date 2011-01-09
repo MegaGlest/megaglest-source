@@ -13,10 +13,10 @@
 #include "platform_common.h"
 #include <SDL.h>
 #ifdef __APPLE__
-#include <OpenAL/alc.h> 
+#include <OpenAL/alc.h>
 #include <OpenAL/al.h>
 #else
-#include <AL/alc.h> 
+#include <AL/alc.h>
 #include <AL/al.h>
 #endif
 #include <vector>
@@ -69,7 +69,7 @@ public:
 protected:
 	friend class SoundPlayerOpenAL;
 	static const size_t STREAMBUFFERSIZE = 1024 * 500;
-	static const size_t STREAMFRAGMENTS = 5;
+	static const size_t STREAMFRAGMENTS = 10;
 	static const size_t STREAMFRAGMENTSIZE
 		= STREAMBUFFERSIZE / STREAMFRAGMENTS;
 
