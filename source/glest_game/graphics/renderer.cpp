@@ -1657,6 +1657,7 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 
 	glPopAttrib();
 
+    glDisable(GL_BLEND);
 	//buttons
 	renderButton(messageBox->getButton1());
 	if(messageBox->getButtonCount()==2){
@@ -4167,7 +4168,7 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
     string renderText   = intToStr(static_cast<int>(size)) + "%";
     if(customWidth > 0) {
         if(size > 0) {
-            currentSize     = size * (customWidth / size);
+            currentSize     = customWidth * (size / 100);
         }
         maxSize         = customWidth;
     }
