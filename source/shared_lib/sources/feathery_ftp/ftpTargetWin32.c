@@ -32,6 +32,8 @@
 #pragma comment(lib, "ws2_32")
 #pragma comment(lib, "MSWSOCK")
 
+#define MSG_NOSIGNAL 0
+
 ip_t ownIp;
 
 LOCAL fd_set watchedSockets;
@@ -219,7 +221,12 @@ int ftpSend(socket_t s, const void *data, int len)
 
 	do
 	{
-		currLen = send((SOCKET)s, data, len, 0);
+#ifdef __APPLE__
+		currLen = send((SOCKET)s, data, len, SO_NOSIGPIPE);
+#else
+        currLen = send((SOCKET)s, data, len, MSG_NOSIGNAL);
+#endif
+
 		if(currLen >= 0)
 		{
 			len -= currLen;
