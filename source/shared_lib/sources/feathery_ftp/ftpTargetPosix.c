@@ -421,7 +421,7 @@ int ftpSelect(int poll)
 	if(poll)
 	{
 		struct timeval t = {0};
-		t.tv_usec = 10000;
+		t.tv_usec = 100;
 		return select(maxSockNr+1, &signaledSockets, NULL, NULL, &t);
 	}
 	else
