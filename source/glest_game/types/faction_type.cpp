@@ -66,7 +66,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		// a2) preload upgrades
 		string upgradesPath= dir + "/upgrades/*.";
 		vector<string> upgradeFilenames;
-		findAll(upgradesPath, upgradeFilenames);
+		findAll(upgradesPath, upgradeFilenames, false, false);
 		upgradeTypes.resize(upgradeFilenames.size());
 		for(int i=0; i<upgradeTypes.size(); ++i) {
 			string str= dir + "/upgrades/" + upgradeFilenames[i];
