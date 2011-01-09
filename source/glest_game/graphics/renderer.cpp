@@ -4168,7 +4168,7 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
     string renderText   = intToStr(static_cast<int>(size)) + "%";
     if(customWidth > 0) {
         if(size > 0) {
-            currentSize     = customWidth * (size / 100);
+            currentSize     = (int)((double)customWidth * ((double)size / 100.0));
         }
         maxSize         = customWidth;
     }
