@@ -155,7 +155,9 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 	return startLocations[locationIndex];
 }
 
-void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
+Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
+    Checksum mapChecksum;
+
 	struct MapFileHeader{
 		int32 version;
 		int32 maxPlayers;
@@ -169,9 +171,10 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 	};
 
 	try{
-		FILE *f= fopen(path.c_str(), "rb");
-		if(f!=NULL){
-
+		FILE *f = fopen(path.c_str(), "rb");
+		if(f != NULL) {
+		    mapChecksum.addFile(path);
+		    checksumValue.addFile(path);
 			//read header
 			MapFileHeader header;
 			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
@@ -196,22 +199,21 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 
 			//start locations
 			startLocations= new Vec2i[maxPlayers];
-			for(int i=0; i<maxPlayers; ++i) {
-				int x, y;
+			for(int i=0; i < maxPlayers; ++i) {
+				int x=0, y=0;
 				readBytes = fread(&x, sizeof(int32), 1, f);
 				readBytes = fread(&y, sizeof(int32), 1, f);
 				startLocations[i]= Vec2i(x, y)*cellScale;
 			}
-
 
 			//cells
 			cells= new Cell[getCellArraySize()];
 			surfaceCells= new SurfaceCell[getSurfaceCellArraySize()];
 
 			//read heightmap
-			for(int j=0; j<surfaceH; ++j){
-				for(int i=0; i<surfaceW; ++i){
-					float32 alt;
+			for(int j = 0; j < surfaceH; ++j) {
+				for(int i = 0; i < surfaceW; ++i) {
+					float32 alt=0;
 					readBytes = fread(&alt, sizeof(float32), 1, f);
 					SurfaceCell *sc= getSurfaceCell(i, j);
 					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale));
@@ -219,30 +221,30 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			}
 
 			//read surfaces
-			for(int j=0; j<surfaceH; ++j){
-				for(int i=0; i<surfaceW; ++i){
-					int8 surf;
+			for(int j = 0; j < surfaceH; ++j) {
+				for(int i = 0; i < surfaceW; ++i) {
+					int8 surf=0;
 					readBytes = fread(&surf, sizeof(int8), 1, f);
 					getSurfaceCell(i, j)->setSurfaceType(surf-1);
 				}
 			}
 
 			//read objects and resources
-			for(int j=0; j<h; j+= cellScale){
-				for(int i=0; i<w; i+= cellScale){
+			for(int j = 0; j < h; j += cellScale) {
+				for(int i = 0; i < w; i += cellScale) {
 
-					int8 objNumber;
+					int8 objNumber=0;
 					readBytes = fread(&objNumber, sizeof(int8), 1, f);
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
-					if(objNumber==0){
+					if(objNumber == 0) {
 						sc->setObject(NULL);
 					}
-					else if(objNumber <= Tileset::objCount){
+					else if(objNumber <= Tileset::objCount) {
 						Object *o= new Object(tileset->getObjectType(objNumber-1), sc->getVertex(),Vec2i(i, j));
 						sc->setObject(o);
-						for(int k=0; k<techTree->getResourceTypeCount(); ++k){
+						for(int k = 0; k < techTree->getResourceTypeCount(); ++k) {
 							const ResourceType *rt= techTree->getResourceType(k);
-							if(rt->getClass()==rcTileset && rt->getTilesetObject()==objNumber){
+							if(rt->getClass() == rcTileset && rt->getTilesetObject() == objNumber){
 								o->setResource(rt, Vec2i(i, j));
 							}
 						}
@@ -265,6 +267,8 @@ void Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading map: "+ path+ "\n"+ e.what());
 	}
+
+	return mapChecksum;
 }
 
 void Map::init() {

@@ -42,11 +42,13 @@ private:
 	ArmorTypes armorTypes;
 	AttackTypes attackTypes;
 	DamageMultiplierTable damageMultiplierTable;
+	Checksum checksumValue;
 
 public:
-    void loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
-    void load(const string &dir, set<string> &factions, Checksum* checksum);
+    Checksum loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
+    void load(const string &dir, set<string> &factions, Checksum* checksum,Checksum *techtreeChecksum);
     ~TechTree();
+    Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
 	int getResourceTypeCount() const							{return resourceTypes.size();}

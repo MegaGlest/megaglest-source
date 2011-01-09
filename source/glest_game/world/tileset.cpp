@@ -90,18 +90,20 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 // 	class Tileset
 // =====================================================
 
-void Tileset::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+    Checksum tilesetChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
         const string path = pathList[idx] + "/" + tilesetName;
         if(isdir(path.c_str()) == true) {
-            load(path, checksum);
+            load(path, checksum, &tilesetChecksum);
             break;
         }
     }
+    return tilesetChecksum;
 }
 
 
-void Tileset::load(const string &dir, Checksum *checksum){
+void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	random.init(time(NULL));
@@ -109,9 +111,11 @@ void Tileset::load(const string &dir, Checksum *checksum){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string name= lastDir(dir);
-	string path= dir+"/"+name+".xml";
+	string path= dir + "/" + name + ".xml";
 
 	checksum->addFile(path);
+	tilesetChecksum->addFile(path);
+	checksumValue.addFile(path);
 
 	try {
 		Logger::getInstance().add("Tileset: "+formatString(name), true);
@@ -262,7 +266,7 @@ void Tileset::load(const string &dir, Checksum *checksum){
 	}
 }
 
-Tileset::~Tileset(){
+Tileset::~Tileset() {
 	Logger::getInstance().add("Tileset", true);
 }
 

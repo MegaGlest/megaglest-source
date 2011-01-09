@@ -37,62 +37,48 @@ namespace Glest{ namespace Game{
 //	class NetworkMessage
 // =====================================================
 
-bool NetworkMessage::peek(Socket* socket, void* data, int dataSize)
-{
+bool NetworkMessage::peek(Socket* socket, void* data, int dataSize) {
 	if(socket != NULL) {
 		int ipeekdatalen = socket->getDataToRead();
-		if(ipeekdatalen >= dataSize)
-		{
-			if(socket->peek(data, dataSize)!=dataSize)
-			{
-				if(socket != NULL && socket->getSocketId() > 0)
-				{
+		if(ipeekdatalen >= dataSize) {
+			if(socket->peek(data, dataSize)!=dataSize) {
+				if(socket != NULL && socket->getSocketId() > 0) {
 					throw runtime_error("Error peeking NetworkMessage");
 				}
-				else
-				{
+				else {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 			}
-			else
-			{
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
 			}
 			return true;
 		}
-		else
-		{
+		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 		}
 	}
 	return false;
 }
 
-bool NetworkMessage::receive(Socket* socket, void* data, int dataSize)
-{
+bool NetworkMessage::receive(Socket* socket, void* data, int dataSize) {
 	if(socket != NULL) {
 		int ipeekdatalen = socket->getDataToRead();
-		if(ipeekdatalen >= dataSize)
-		{
-			if(socket->receive(data, dataSize)!=dataSize)
-			{
-				if(socket != NULL && socket->getSocketId() > 0)
-				{
+		if(ipeekdatalen >= dataSize) {
+			if(socket->receive(data, dataSize)!=dataSize) {
+				if(socket != NULL && socket->getSocketId() > 0) {
 					throw runtime_error("Error receiving NetworkMessage");
 				}
-				else
-				{
+				else {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket has been disconnected\n",__FILE__,__FUNCTION__);
 				}
 			}
-			else
-			{
+			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] dataSize = %d\n",__FILE__,__FUNCTION__,dataSize);
 			}
 			return true;
 		}
-		else
-		{
+		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socket->getDataToRead() returned %d\n",__FILE__,__FUNCTION__,ipeekdatalen);
 		}
 	}
@@ -189,11 +175,11 @@ void NetworkMessagePing::send(Socket* socket) const{
 //	class NetworkMessageReady
 // =====================================================
 
-NetworkMessageReady::NetworkMessageReady(){
+NetworkMessageReady::NetworkMessageReady() {
 	data.messageType= nmtReady;
 }
 
-NetworkMessageReady::NetworkMessageReady(int32 checksum){
+NetworkMessageReady::NetworkMessageReady(int32 checksum) {
 	data.messageType= nmtReady;
 	data.checksum= checksum;
 }
@@ -202,7 +188,7 @@ bool NetworkMessageReady::receive(Socket* socket){
 	return NetworkMessage::receive(socket, &data, sizeof(data));
 }
 
-void NetworkMessageReady::send(Socket* socket) const{
+void NetworkMessageReady::send(Socket* socket) const {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtReady);
 	NetworkMessage::send(socket, &data, sizeof(data));
@@ -212,12 +198,16 @@ void NetworkMessageReady::send(Socket* socket) const{
 //	class NetworkMessageLaunch
 // =====================================================
 
-NetworkMessageLaunch::NetworkMessageLaunch(){
+NetworkMessageLaunch::NetworkMessageLaunch() {
 	data.messageType=-1;
 }
 
-NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType){
+NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
 	data.messageType=messageType;
+
+    data.mapCRC     = gameSettings->getMapCRC();
+    data.tilesetCRC = gameSettings->getTilesetCRC();
+    data.techCRC    = gameSettings->getTechCRC();
 
 	data.description= gameSettings->getDescription();
 	data.map= gameSettings->getMap();
@@ -237,7 +227,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.pathFinderType = gameSettings->getPathFinderType();
 	data.flagTypes1 = gameSettings->getFlagTypes1();
 
-	for(int i= 0; i<data.factionCount; ++i){
+	for(int i= 0; i<data.factionCount; ++i) {
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
 		data.factionControls[i]= gameSettings->getFactionControl(i);
@@ -247,7 +237,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	}
 }
 
-void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
+void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	gameSettings->setDescription(data.description.getString());
 	gameSettings->setMap(data.map.getString());
 	gameSettings->setTileset(data.tileset.getString());
@@ -267,7 +257,11 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(data.pathFinderType));
 	gameSettings->setFlagTypes1(data.flagTypes1);
 
-	for(int i= 0; i<data.factionCount; ++i){
+    gameSettings->setMapCRC(data.mapCRC);
+    gameSettings->setTilesetCRC(data.tilesetCRC);
+    gameSettings->setTechCRC(data.techCRC);
+
+	for(int i= 0; i<data.factionCount; ++i) {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
 		gameSettings->setFactionControl(i, static_cast<ControlType>(data.factionControls[i]));
@@ -277,7 +271,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const{
 	}
 }
 
-bool NetworkMessageLaunch::receive(Socket* socket){
+bool NetworkMessageLaunch::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 	data.description.nullTerminate();
 	data.map.nullTerminate();

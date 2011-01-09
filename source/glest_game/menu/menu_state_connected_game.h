@@ -97,6 +97,9 @@ private:
 
 	GraphicLabel *activeInputLabel;
 
+    time_t timerLabelFlash;
+    GraphicLabel labelDataSynchInfo;
+
 	MapInfo mapInfo;
 
 	bool needToSetChangedGameSettings;

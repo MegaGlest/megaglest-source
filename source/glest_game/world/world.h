@@ -168,11 +168,11 @@ public:
 
 	//init & load
 	void init(Game *game, bool createUnits);
-	void loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
-	void loadTileset(const string &dir, Checksum* checksum);
-	void loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
-	void loadMap(const string &path, Checksum* checksum);
-	void loadScenario(const string &path, Checksum* checksum);
+	Checksum loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
+	Checksum loadTileset(const string &dir, Checksum* checksum);
+	Checksum loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
+	Checksum loadMap(const string &path, Checksum* checksum);
+	Checksum loadScenario(const string &path, Checksum* checksum);
 
 	//misc
 	void update();

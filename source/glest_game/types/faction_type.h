@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -30,7 +30,7 @@ namespace Glest{ namespace Game{
 class FactionType{
 private:
 	typedef pair<const UnitType*, int> PairPUnitTypeInt;
-	typedef vector<UnitType> UnitTypes; 
+	typedef vector<UnitType> UnitTypes;
 	typedef vector<UpgradeType> UpgradeTypes;
 	typedef vector<PairPUnitTypeInt> StartingUnits;
 	typedef vector<Resource> Resources;
@@ -47,7 +47,7 @@ private:
 public:
 	//init
 	FactionType();
-    void load(const string &dir, const TechTree *techTree, Checksum* checksum);
+    void load(const string &dir, const TechTree *techTree, Checksum* checksum,Checksum *techtreeChecksum);
 	~FactionType();
 
     //get
@@ -60,9 +60,9 @@ public:
 	int getStartingUnitCount() const					{return startingUnits.size();}
 	const UnitType *getStartingUnit(int i) const		{return startingUnits[i].first;}
 	int getStartingUnitAmount(int i) const				{return startingUnits[i].second;}
-	
-	const UnitType *getUnitType(const string &name) const;  
-	const UpgradeType *getUpgradeType(const string &name) const;  
+
+	const UnitType *getUnitType(const string &name) const;
+	const UpgradeType *getUpgradeType(const string &name) const;
 	int getStartingResourceAmount(const ResourceType *resourceType) const;
 
 	FactionPersonalityType getPersonalityType() const { return personalityType;}

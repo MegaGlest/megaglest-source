@@ -31,17 +31,19 @@ namespace Glest{ namespace Game{
 // 	class TechTree
 // =====================================================
 
-void TechTree::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum) {
+Checksum TechTree::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum) {
+    Checksum techtreeChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
         string path = pathList[idx] + "/" + techName;
         if(isdir(path.c_str()) == true) {
-            load(path, factions, checksum);
+            load(path, factions, checksum, &techtreeChecksum);
             break;
         }
     }
+    return techtreeChecksum;
 }
 
-void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum) {
+void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum, Checksum *techtreeChecksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string str;
@@ -59,7 +61,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
         for(int i=0; i<filenames.size(); ++i){
             str=dir+"/resources/"+filenames[i];
-            resourceTypes[i].load(str, checksum);
+            resourceTypes[i].load(str, checksum, &checksumValue);
 			SDL_PumpEvents();
         }
 
@@ -83,6 +85,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		string path= dir+"/"+lastDir(dir)+".xml";
 
 		checksum->addFile(path);
+		checksumValue.addFile(path);
 
 		xmlTree.load(path);
 		const XmlNode *techTreeNode= xmlTree.getRootNode();
@@ -133,7 +136,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	//SDL_PumpEvents();
 
 	//load factions
-	str= dir+"/factions/*.";
+	str = dir + "/factions/*.";
     try{
 		factionTypes.resize(factions.size());
 
@@ -147,7 +150,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    logger.setState(szBuf);
 
 			str=dir+"/factions/" + factionName;
-			factionTypes[i++].load(str, this, checksum);
+			factionTypes[i++].load(str, this, checksum,&checksumValue);
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
@@ -158,11 +161,15 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading Faction Types: "+ dir + "\n" + e.what());
     }
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    if(techtreeChecksum != NULL) {
+        *techtreeChecksum = checksumValue;
+    }
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-TechTree::~TechTree(){
+TechTree::~TechTree() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add("Tech tree", true);
 }

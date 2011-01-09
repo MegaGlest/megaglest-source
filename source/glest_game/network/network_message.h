@@ -181,7 +181,7 @@ public:
 // =====================================================
 
 #pragma pack(push, 1)
-class NetworkMessageLaunch: public NetworkMessage{
+class NetworkMessageLaunch: public NetworkMessage {
 private:
 	static const int maxStringSize= 256;
 	static const int maxSmallStringSize= 60;
@@ -195,6 +195,9 @@ private:
 		NetworkString<maxSmallStringSize> tech;
 		NetworkString<maxSmallStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
 		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
+		int32 mapCRC;
+		int32 tilesetCRC;
+		int32 techCRC;
 
 		int8 factionControls[GameConstants::maxPlayers];
 		int8 resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -226,6 +229,10 @@ public:
 	void buildGameSettings(GameSettings *gameSettings) const;
 	int getMessageType() const { return data.messageType; }
 
+	int getMapCRC() const { return data.mapCRC; }
+	int getTilesetCRC() const { return data.tilesetCRC; }
+	int getTechCRC() const { return data.techCRC; }
+
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 };
@@ -240,7 +247,7 @@ public:
 //const int32 commandListHeaderSize = 6;
 
 #pragma pack(push, 1)
-class NetworkMessageCommandList: public NetworkMessage{
+class NetworkMessageCommandList: public NetworkMessage {
 private:
 	static const int maxCommandCount = 2496; // can be as large as 65535
 

@@ -127,11 +127,13 @@ private:
 	Weather weather;
 
 	AmbientSounds ambientSounds;
+	Checksum checksumValue;
 
 public:
     ~Tileset();
-    void loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
-	void load(const string &dir, Checksum *checksum);
+    Checksum loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
+	void load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum);
+	Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
 	const SurfaceAtlas *getSurfaceAtlas() const		{return &surfaceAtlas;}

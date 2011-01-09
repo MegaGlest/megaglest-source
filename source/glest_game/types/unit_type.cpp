@@ -101,7 +101,7 @@ void UnitType::preLoad(const string &dir){
 	name= lastDir(dir);
 }
 
-void UnitType::load(int id,const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum){
+void UnitType::load(int id,const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum,Checksum* techtreeChecksum) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -115,6 +115,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//file load
 		checksum->addFile(path);
+		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
@@ -146,7 +147,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		if(parametersNode->hasChild("max-unit-count")){
 			maxUnitCount= parametersNode->getChild("max-unit-count")->getAttribute("value")->getIntValue();
 		}
-		
+
 		//armor
 		armor= parametersNode->getChild("armor")->getAttribute("value")->getIntValue();
 
@@ -679,7 +680,7 @@ string UnitType::getReqDesc() const{
 		return ProducibleType::getReqDesc();
 	else
 		return ProducibleType::getReqDesc()+"\nLimits: "+resultTxt;
-}  
+}
 
 std::string UnitType::toString() const {
 	std::string result = "";
@@ -690,7 +691,7 @@ std::string UnitType::toString() const {
 	result += " maxEp = " + intToStr(maxEp);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
-	
+
 
 	for(int i = 0; i < fieldCount; i++) {
 		result += " fields index = " + intToStr(i) + " value = " + intToStr(fields[i]);

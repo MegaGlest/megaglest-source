@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "unit_type.h" 
+#include "unit_type.h"
 #include "util.h"
 #include "logger.h"
 #include "lang.h"
@@ -35,29 +35,30 @@ namespace Glest{ namespace Game{
 // 	class UpgradeType
 // =====================================================
 
-// ==================== get ==================== 
+// ==================== get ====================
 
 bool UpgradeType::isAffected(const UnitType *unitType) const{
 	return find(effects.begin(), effects.end(), unitType)!=effects.end();
 }
 
-// ==================== misc ==================== 
+// ==================== misc ====================
 
 void UpgradeType::preLoad(const string &dir){
 	name=lastDir(dir);
 }
 
-void UpgradeType::load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum){
+void UpgradeType::load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum, Checksum* techtreeChecksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string path;
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
 
-	path=dir+"/"+name+".xml";
+	path = dir + "/" + name + ".xml";
 
 	try{
 		checksum->addFile(path);
+		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
@@ -76,7 +77,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		//upgrade time
 		const XmlNode *upgradeTimeNode= upgradeNode->getChild("time");
 		productionTime= upgradeTimeNode->getAttribute("value")->getIntValue();
-		
+
 		//unit requirements
 		const XmlNode *unitRequirementsNode= upgradeNode->getChild("unit-requirements");
 		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
@@ -120,7 +121,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
 		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
 		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
-		
+
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
@@ -131,7 +132,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 }
 
 string UpgradeType::getReqDesc() const{
-    
+
     string str;
     int i;
 	Lang &lang= Lang::getInstance();
@@ -141,9 +142,9 @@ string UpgradeType::getReqDesc() const{
 		str+= "\n"+ lang.get("Upgrades")+":\n";
 		for(i=0; i<getEffectCount(); ++i){
 			str+= getEffect(i)->getName()+"\n";
-		} 
+		}
 	}
-    
+
 	if(maxHp!=0){
         str+= lang.get("Hp")+" +"+intToStr(maxHp);
 	}
@@ -157,7 +158,7 @@ string UpgradeType::getReqDesc() const{
         str+= lang.get("AttackStrenght")+" +"+intToStr(attackStrength)+"\n";
 	}
 	if(attackRange!=0){
-        str+= lang.get("AttackDistance")+" +"+intToStr(attackRange)+"\n"; 
+        str+= lang.get("AttackDistance")+" +"+intToStr(attackRange)+"\n";
 	}
 	if(armor!=0){
 		str+= lang.get("Armor")+" +"+intToStr(armor)+"\n";
@@ -175,7 +176,7 @@ string UpgradeType::getReqDesc() const{
 
 
 // ===============================
-// 	class TotalUpgrade  
+// 	class TotalUpgrade
 // ===============================
 
 TotalUpgrade::TotalUpgrade(){

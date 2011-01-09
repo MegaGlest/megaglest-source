@@ -1016,6 +1016,8 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 
 int Socket::send(const void *data, int dataSize) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	const int MAX_SEND_WAIT_SECONDS = 3;
+
 	int bytesSent= 0;
 	if(isSocketValid() == true)	{
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1048,12 +1050,11 @@ int Socket::send(const void *data, int dataSize) {
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
 	    while((bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= 5)) {
+	    		(difftime(time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
-	    	{
-	        //if(Socket::isWritable(true) == true) {
+            if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
@@ -1063,7 +1064,15 @@ int Socket::send(const void *data, int dataSize) {
                 bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
 #endif
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesSent);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
+	        }
+	        else {
+                int iErr = getLastSocketError();
+                disconnectSocket();
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
+                break;
+
 	        }
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 	    }
@@ -1077,12 +1086,11 @@ int Socket::send(const void *data, int dataSize) {
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
 	    		(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)) &&
-	    		(difftime(time(NULL),tStartTimer) <= 5)) {
+	    		(difftime(time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
 	    	attemptCount++;
 	    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
-	    	{
-	        //if(bytesSent > 0 || Socket::isWritable(true) == true) {
+            if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
                 MutexSafeWrapper safeMutex(&dataSynchAccessor);
@@ -1097,6 +1105,14 @@ int Socket::send(const void *data, int dataSize) {
                 }
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
+	        else {
+                int iErr = getLastSocketError();
+                disconnectSocket();
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
+	            break;
+	        }
+
 	        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 	    }
 
@@ -1115,17 +1131,18 @@ int Socket::send(const void *data, int dataSize) {
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
 	    //throwException(szBuf);
 	}
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] sock = %d, bytesSent = %d\n",__FILE__,__FUNCTION__,sock,bytesSent);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sock = %d, bytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,sock,bytesSent);
 
 	return static_cast<int>(bytesSent);
 }
 
-int Socket::receive(void *data, int dataSize)
-{
+int Socket::receive(void *data, int dataSize) {
+	const int MAX_RECV_WAIT_SECONDS = 3;
+
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
@@ -1141,12 +1158,19 @@ int Socket::receive(void *data, int dataSize)
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= 5)) {
-	        if(Socket::isReadable() == true) {
+	    		(difftime(time(NULL),tStartTimer) <= MAX_RECV_WAIT_SECONDS)) {
+	        if(isConnected() == false) {
+                int iErr = getLastSocketError();
+                disconnectSocket();
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str());
+	            break;
+	        }
+	        else if(Socket::isReadable() == true) {
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,bytesReceived);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived);
 	        }
 	    }
 	}
@@ -1155,20 +1179,22 @@ int Socket::receive(void *data, int dataSize)
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, error = %s\n",__FILE__,__FUNCTION__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str());
 	    //throwException(szBuf);
 	}
 	return static_cast<int>(bytesReceived);
 }
 
-int Socket::peek(void *data, int dataSize){
+int Socket::peek(void *data, int dataSize) {
+    const int MAX_PEEK_WAIT_SECONDS = 3;
+
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
 		MutexSafeWrapper safeMutex(&dataSynchAccessor);
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
-	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR PEEKING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR PEEKING SOCKET DATA error while sending socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 
 		disconnectSocket();
@@ -1178,8 +1204,15 @@ int Socket::peek(void *data, int dataSize){
 
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= 5)) {
-	        if(Socket::isReadable() == true) {
+	    		(difftime(time(NULL),tStartTimer) <= MAX_PEEK_WAIT_SECONDS)) {
+	        if(isConnected() == false) {
+                int iErr = getLastSocketError();
+                disconnectSocket();
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
+	            break;
+	        }
+	        else if(Socket::isReadable() == true) {
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
@@ -1239,12 +1272,12 @@ bool Socket::isReadable() {
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
 	if(i < 0) {
-        if(difftime(time(NULL),lastDebugEvent) >= 1) {
-            lastDebugEvent = time(NULL);
+        //if(difftime(time(NULL),lastDebugEvent) >= 1) {
+         //   lastDebugEvent = time(NULL);
 
             //throwException("Error selecting socket");
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
-        }
+         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
+        //}
 	}
 	bool result = (i == 1);
 	return result;
@@ -1262,7 +1295,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
 	FD_SET(sock, &set);
 
 	time_t maxElapsedCheck = time(NULL);
-	const int MAX_CHECK_WAIT_SECONDS = 5;
+	const int MAX_CHECK_WAIT_SECONDS = 2;
 
     bool result = false;
     do {
@@ -1278,9 +1311,9 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     	}
         if(i < 0 ) {
             //if(difftime(time(NULL),lastDebugEvent) >= 1) {
-                lastDebugEvent = time(NULL);
+            //    lastDebugEvent = time(NULL);
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
             //}
             waitOnDelayedResponse = false;
 
@@ -1288,8 +1321,8 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
         }
         else if(i == 0) {
             //if(difftime(time(NULL),lastDebugEvent) >= 1) {
-                lastDebugEvent = time(NULL);
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+            //    lastDebugEvent = time(NULL);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
             //}
 
             if(waitOnDelayedResponse == false) {
@@ -1301,6 +1334,8 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
             result = true;
             break;
         }
+
+        if(isSocketValid() == false) return false;
     } while(waitOnDelayedResponse == true && result == false);
 
 	//return (i == 1 && FD_ISSET(sock, &set));
@@ -1837,10 +1872,9 @@ Socket *ServerSocket::accept() {
 	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
 	safeMutex.ReleaseLock();
 
-	if(isSocketValid(&newSock) == false)
-	{
+	if(isSocketValid(&newSock) == false) {
 	    char szBuf[1024]="";
-	    sprintf(szBuf, "In [%s::%s] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+	    sprintf(szBuf, "In [%s::%s Line: %d] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 		if(getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)

@@ -34,7 +34,7 @@ enum FlagTypes1 {
 };
 
 
-class GameSettings{
+class GameSettings {
 private:
 	string description;
 	string map;
@@ -69,8 +69,11 @@ private:
 
 	uint32 flagTypes1;
 
-public:
+    int32 mapCRC;
+    int32 tilesetCRC;
+    int32 techCRC;
 
+public:
 
     GameSettings() {
     	thisFactionIndex					= 0;
@@ -92,6 +95,10 @@ public:
     	}
 
     	flagTypes1 = ft1_none;
+
+		mapCRC      = 0;
+		tilesetCRC  = 0;
+		techCRC     = 0;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -147,6 +154,10 @@ public:
 	PathFinderType getPathFinderType() const { return pathFinderType; }
 	uint32 getFlagTypes1() const             { return flagTypes1;}
 
+	int32 getMapCRC() const { return mapCRC; }
+	int32 getTilesetCRC() const { return tilesetCRC; }
+	int32 getTechCRC() const { return techCRC; }
+
 	//set
 	void setDescription(const string& description)						{this->description= description;}
 	void setMap(const string& map)										{this->map= map;}
@@ -177,7 +188,12 @@ public:
 	void setNetworkFramePeriod(int value)							{this->networkFramePeriod = value; }
 	void setNetworkPauseGameForLaggedClients(bool value)			{this->networkPauseGameForLaggedClients = value; }
 	void setPathFinderType(PathFinderType value)					{this->pathFinderType = value; }
+
 	void setFlagTypes1(uint32 value)                                {this->flagTypes1 = value; }
+
+	void setMapCRC(int32 value)     { mapCRC = value; }
+	void setTilesetCRC(int32 value) { tilesetCRC = value; }
+	void setTechCRC(int32 value)    { techCRC = value; }
 
 	string toString() const {
 		string result = "";
@@ -214,6 +230,9 @@ public:
 		result += "networkPauseGameForLaggedClients = " + intToStr(networkPauseGameForLaggedClients) + "\n";
 		result += "pathFinderType = " + intToStr(pathFinderType) + "\n";
 		result += "flagTypes1 = " + intToStr(flagTypes1) + "\n";
+		result += "mapCRC = " + intToStr(mapCRC) + "\n";
+		result += "tilesetCRC = " + intToStr(tilesetCRC) + "\n";
+		result += "techCRC = " + intToStr(techCRC) + "\n";
 
 		return result;
 	}
