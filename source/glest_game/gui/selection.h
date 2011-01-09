@@ -56,7 +56,8 @@ public:
 	bool isEmpty() const				{return selectedUnits.empty();}
 	bool isUniform() const;
 	bool isEnemy() const;
-	bool isComandable() const;
+	//bool isComandable() const;
+	bool isCommandable() const;
 	bool isCancelable() const;
 	bool isMeetable() const;
 	int getCount() const				{return selectedUnits.size();}
