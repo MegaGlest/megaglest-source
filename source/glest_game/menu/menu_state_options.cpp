@@ -39,14 +39,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
 
-	int leftline=700;
-	int rightline=700;
-	int leftLabelStart=250;
+	int leftLabelStart=150;
 	int leftColumnStart=leftLabelStart+150;
-	int rightLabelStart=500;
+	int rightLabelStart=550;
 	int rightColumnStart=rightLabelStart+150;
 	int buttonRowPos=80;
 	int captionOffset=75;
+	int currentLabelStart=leftLabelStart;
+	int currentColumnStart=leftColumnStart;
+	int currentLine=700;
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
@@ -54,18 +55,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	mainMessageBoxState=0;
 
 	labelAudioSection.registerGraphicComponent(containerName,"labelAudioSection");
-	labelAudioSection.init(leftLabelStart+captionOffset, leftline);
+	labelAudioSection.init(currentLabelStart+captionOffset, currentLine);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelAudioSection.setText(lang.get("Audio"));
-	leftline-=30;
+	currentLine-=30;
 
 	//soundboxes
 	labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
-	labelSoundFactory.init(leftLabelStart, leftline);
+	labelSoundFactory.init(currentLabelStart, currentLine);
 	labelSoundFactory.setText(lang.get("SoundAndMusic"));
 
 	listBoxSoundFactory.registerGraphicComponent(containerName,"listBoxSoundFactory");
-	listBoxSoundFactory.init(leftColumnStart, leftline, 100);
+	listBoxSoundFactory.init(currentColumnStart, currentLine, 100);
 	listBoxSoundFactory.pushBackItem("None");
 	listBoxSoundFactory.pushBackItem("OpenAL");
 #ifdef WIN32
@@ -73,31 +74,31 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 #endif
 
 	listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
-	leftline-=30;
+	currentLine-=30;
 
 	labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
-	labelVolumeFx.init(leftLabelStart, leftline);
+	labelVolumeFx.init(currentLabelStart, currentLine);
 	labelVolumeFx.setText(lang.get("FxVolume"));
 
 	listBoxVolumeFx.registerGraphicComponent(containerName,"listBoxVolumeFx");
-	listBoxVolumeFx.init(leftColumnStart, leftline, 80);
-	leftline-=30;
+	listBoxVolumeFx.init(currentColumnStart, currentLine, 80);
+	currentLine-=30;
 
 	labelVolumeAmbient.registerGraphicComponent(containerName,"labelVolumeAmbient");
-	labelVolumeAmbient.init(leftLabelStart, leftline);
+	labelVolumeAmbient.init(currentLabelStart, currentLine);
 
 	listBoxVolumeAmbient.registerGraphicComponent(containerName,"listBoxVolumeAmbient");
-	listBoxVolumeAmbient.init(leftColumnStart, leftline, 80);
+	listBoxVolumeAmbient.init(currentColumnStart, currentLine, 80);
 	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
-	leftline-=30;
+	currentLine-=30;
 
 	labelVolumeMusic.registerGraphicComponent(containerName,"labelVolumeMusic");
-	labelVolumeMusic.init(leftLabelStart, leftline);
+	labelVolumeMusic.init(currentLabelStart, currentLine);
 
 	listBoxVolumeMusic.registerGraphicComponent(containerName,"listBoxVolumeMusic");
-	listBoxVolumeMusic.init(leftColumnStart, leftline, 80);
+	listBoxVolumeMusic.init(currentColumnStart, currentLine, 80);
 	labelVolumeMusic.setText(lang.get("MusicVolume"));
-	leftline-=30;
+	currentLine-=30;
 
 	for(int i=0; i<=100; i+=5){
 		listBoxVolumeFx.pushBackItem(intToStr(i));
@@ -108,21 +109,141 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
 
+	currentLine-=30;
+	// Video Section
+	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
+	labelVideoSection.init(currentLabelStart+captionOffset, currentLine);
+	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelVideoSection.setText(lang.get("Video"));
+	currentLine-=30;
 
-	//leftline-=30;
+	//resolution
+	labelScreenModes.registerGraphicComponent(containerName,"labelScreenModes");
+	labelScreenModes.init(currentLabelStart, currentLine);
+	labelScreenModes.setText(lang.get("Resolution"));
+
+	listBoxScreenModes.registerGraphicComponent(containerName,"listBoxScreenModes");
+	listBoxScreenModes.init(currentColumnStart, currentLine, 170);
+
+	string currentResString = config.getString("ScreenWidth") + "x" +
+							  config.getString("ScreenHeight") + "-" +
+							  intToStr(config.getInt("ColorBits"));
+	bool currentResolutionFound = false;
+	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+		if((*it).getString() == currentResString) {
+			currentResolutionFound = true;
+		}
+		listBoxScreenModes.pushBackItem((*it).getString());
+	}
+	if(currentResolutionFound == false) {
+		listBoxScreenModes.pushBackItem(currentResString);
+	}
+	listBoxScreenModes.setSelectedItem(currentResString);
+	currentLine-=30;
+
+
+	//FullscreenWindowed
+	labelFullscreenWindowed.registerGraphicComponent(containerName,"labelFullscreenWindowed");
+	labelFullscreenWindowed.init(currentLabelStart, currentLine);
+
+	checkBoxFullscreenWindowed.registerGraphicComponent(containerName,"checkBoxFullscreenWindowed");
+	checkBoxFullscreenWindowed.init(currentColumnStart, currentLine);
+	labelFullscreenWindowed.setText(lang.get("Windowed"));
+	checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
+	currentLine-=30;
+
+	//filter
+	labelFilter.registerGraphicComponent(containerName,"labelFilter");
+	labelFilter.init(currentLabelStart, currentLine);
+	labelFilter.setText(lang.get("Filter"));
+
+	listBoxFilter.registerGraphicComponent(containerName,"listBoxFilter");
+	listBoxFilter.init(currentColumnStart, currentLine, 170);
+	listBoxFilter.pushBackItem("Bilinear");
+	listBoxFilter.pushBackItem("Trilinear");
+	listBoxFilter.setSelectedItem(config.getString("Filter"));
+	currentLine-=30;
+
+	//shadows
+	labelShadows.registerGraphicComponent(containerName,"labelShadows");
+	labelShadows.init(currentLabelStart, currentLine);
+	labelShadows.setText(lang.get("Shadows"));
+
+	listBoxShadows.registerGraphicComponent(containerName,"listBoxShadows");
+	listBoxShadows.init(currentColumnStart, currentLine, 170);
+	for(int i= 0; i<Renderer::sCount; ++i){
+		listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
+	}
+	string str= config.getString("Shadows");
+	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
+	currentLine-=30;
+
+	//textures 3d
+	labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
+	labelTextures3D.init(currentLabelStart, currentLine);
+
+	checkBoxTextures3D.registerGraphicComponent(containerName,"checkBoxTextures3D");
+	checkBoxTextures3D.init(currentColumnStart, currentLine);
+	labelTextures3D.setText(lang.get("Textures3D"));
+	checkBoxTextures3D.setValue(config.getBool("Textures3D"));
+	currentLine-=30;
+
+	//lights
+	labelLights.registerGraphicComponent(containerName,"labelLights");
+	labelLights.init(currentLabelStart, currentLine);
+	labelLights.setText(lang.get("MaxLights"));
+
+	listBoxLights.registerGraphicComponent(containerName,"listBoxLights");
+	listBoxLights.init(currentColumnStart, currentLine, 80);
+	for(int i= 1; i<=8; ++i){
+		listBoxLights.pushBackItem(intToStr(i));
+	}
+	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
+	currentLine-=30;
+
+	//unit particles
+	labelUnitParticles.registerGraphicComponent(containerName,"labelUnitParticles");
+	labelUnitParticles.init(currentLabelStart,currentLine);
+	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
+
+	checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
+	checkBoxUnitParticles.init(currentColumnStart,currentLine);
+	checkBoxUnitParticles.setValue(config.getBool("UnitParticles"));
+	currentLine-=30;
+
+	//unit particles
+	labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
+	labelMapPreview.init(currentLabelStart,currentLine);
+	labelMapPreview.setText(lang.get("ShowMapPreview"));
+
+	checkBoxMapPreview.registerGraphicComponent(containerName,"checkBoxMapPreview");
+	checkBoxMapPreview.init(currentColumnStart,currentLine);
+	checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
+	currentLine-=30;
+
+	//////////////////////////////////////////////////////////////////
+	///////// RIGHT SIDE
+	//////////////////////////////////////////////////////////////////
+
+	currentLine=700; // reset line pos
+	currentLabelStart=rightLabelStart; // set to right side
+	currentColumnStart=rightColumnStart; // set to right side
+
+
+	//currentLine-=30;
 	labelMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
-	labelMiscSection.init(leftLabelStart+captionOffset, leftline);
+	labelMiscSection.init(currentLabelStart+captionOffset, currentLine);
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelMiscSection.setText(lang.get("Misc"));
-	leftline-=30;
+	currentLine-=30;
 
 	//lang
 	labelLang.registerGraphicComponent(containerName,"labelLang");
-	labelLang.init(leftLabelStart, leftline);
+	labelLang.init(currentLabelStart, currentLine);
 	labelLang.setText(lang.get("Language"));
 
 	listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
-	listBoxLang.init(leftColumnStart, leftline, 170);
+	listBoxLang.init(currentColumnStart, currentLine, 170);
 	vector<string> langResults;
 
     string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -132,36 +253,44 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
-	leftline-=30;
+	currentLine-=30;
 
 	//playerName
 	labelPlayerNameLabel.registerGraphicComponent(containerName,"labelPlayerNameLabel");
-	labelPlayerNameLabel.init(leftLabelStart,leftline);
+	labelPlayerNameLabel.init(currentLabelStart,currentLine);
 	labelPlayerNameLabel.setText(lang.get("Playername"));
 
 	labelPlayerName.registerGraphicComponent(containerName,"labelPlayerName");
-	labelPlayerName.init(leftColumnStart,leftline);
+	labelPlayerName.init(currentColumnStart,currentLine);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
-	leftline-=30;
+	currentLine-=30;
 
 	//FontSizeAdjustment
 	labelFontSizeAdjustment.registerGraphicComponent(containerName,"labelFontSizeAdjustment");
-	labelFontSizeAdjustment.init(leftLabelStart,leftline);
+	labelFontSizeAdjustment.init(currentLabelStart,currentLine);
 	labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
 
 	listFontSizeAdjustment.registerGraphicComponent(containerName,"listFontSizeAdjustment");
-	listFontSizeAdjustment.init(leftColumnStart, leftline, 80);
+	listFontSizeAdjustment.init(currentColumnStart, currentLine, 80);
 	for(int i=-5; i<=5; i+=1){
 		listFontSizeAdjustment.pushBackItem(intToStr(i));
 	}
 	listFontSizeAdjustment.setSelectedItem(intToStr(config.getInt("FontSizeAdjustment")));
 
-	leftline-=30;
+	currentLine-=30;
+	currentLine-=30;
+	currentLine-=30;
+
+	labelNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
+	labelNetworkSettings.init(currentLabelStart+captionOffset, currentLine);
+	labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelNetworkSettings.setText(lang.get("Network"));
+	currentLine-=30;
 	// server port
 	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
-	labelServerPortLabel.init(leftLabelStart,leftline);
+	labelServerPortLabel.init(currentLabelStart,currentLine);
 	labelServerPortLabel.setText(lang.get("ServerPort"));
-	labelServerPort.init(leftColumnStart,leftline);
+	labelServerPort.init(currentColumnStart,currentLine);
 	string port=intToStr(config.getInt("ServerPort"));
 	if(port!="61357"){
 		port=port +" ("+lang.get("NonStandardPort")+"!!)";
@@ -172,54 +301,16 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	labelServerPort.setText(port);
 
-    // FTP Config - start
-	labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
-	labelEnableFTP.init(leftLabelStart + 330,leftline + 60);
-	labelEnableFTP.setText(lang.get("EnableFTP"));
-
-	checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
-	checkBoxEnableFTP.init(leftLabelStart + 330,leftline + 30);
-	checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
-
-	labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
-	labelEnableFTPServer.init(leftLabelStart + 330,leftline);
-	labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
-
-	checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
-	checkBoxEnableFTPServer.init(leftLabelStart + 330,leftline - 30);
-	checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
-
-	labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
-	labelFTPServerPortLabel.init(leftLabelStart + 330,leftline - 60);
-	labelFTPServerPortLabel.setText(lang.get("FTPServerPort"));
-
-    int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
-	labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
-	labelFTPServerPort.init(leftLabelStart + 330,leftline - 75);
-	labelFTPServerPort.setText(intToStr(FTPPort));
-
-	labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
-	labelFTPServerDataPortsLabel.init(leftLabelStart + 450,leftline - 60);
-	labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
-
-    char szBuf[1024]="";
-    sprintf(szBuf,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
-
-	labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
-	labelFTPServerDataPorts.init(leftLabelStart + 450,leftline - 75);
-	labelFTPServerDataPorts.setText(szBuf);
-
-    // FTP config end
-
 	// external server port
-	leftline-=30;
+	currentLine-=30;
 
 	labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
-	labelPublishServerExternalPort.init(leftLabelStart, leftline, 150);
+	labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
 	listBoxPublishServerExternalPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
-	listBoxPublishServerExternalPort.init(leftColumnStart, leftline, 170);
+	listBoxPublishServerExternalPort.init(currentColumnStart, currentLine, 170);
+
 	string supportExternalPortList = config.getString("MasterServerExternalPortList",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> externalPortList;
 	Tokenize(supportExternalPortList,externalPortList,",");
@@ -237,117 +328,45 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	listBoxPublishServerExternalPort.setSelectedItemIndex(masterServerExternalPortSelectionIndex);
 
-	// Video Section
-	leftline-=30;
-	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
-	labelVideoSection.init(leftLabelStart+captionOffset, leftline);
-	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	labelVideoSection.setText(lang.get("Video"));
-	leftline-=30;
+	currentLine-=30;
+    // FTP Config - start
+	labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
+	labelEnableFTP.init(currentLabelStart ,currentLine);
+	labelEnableFTP.setText(lang.get("EnableFTP"));
 
-	//resolution
-	labelScreenModes.registerGraphicComponent(containerName,"labelScreenModes");
-	labelScreenModes.init(leftLabelStart, leftline);
-	labelScreenModes.setText(lang.get("Resolution"));
+	checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
+	checkBoxEnableFTP.init(currentColumnStart ,currentLine );
+	checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
+	currentLine-=30;
+	labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
+	labelEnableFTPServer.init(currentLabelStart ,currentLine);
+	labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
 
-	listBoxScreenModes.registerGraphicComponent(containerName,"listBoxScreenModes");
-	listBoxScreenModes.init(leftColumnStart, leftline, 170);
+	checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
+	checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
+	checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
+	currentLine-=30;
+	labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
+	labelFTPServerPortLabel.init(currentLabelStart ,currentLine );
+	labelFTPServerPortLabel.setText(lang.get("FTPServerPort"));
 
-	string currentResString = config.getString("ScreenWidth") + "x" +
-							  config.getString("ScreenHeight") + "-" +
-							  intToStr(config.getInt("ColorBits"));
-	bool currentResolutionFound = false;
-	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
-		if((*it).getString() == currentResString) {
-			currentResolutionFound = true;
-		}
-		listBoxScreenModes.pushBackItem((*it).getString());
-	}
-	if(currentResolutionFound == false) {
-		listBoxScreenModes.pushBackItem(currentResString);
-	}
-	listBoxScreenModes.setSelectedItem(currentResString);
-	leftline-=30;
+    int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+	labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
+	labelFTPServerPort.init(currentColumnStart ,currentLine );
+	labelFTPServerPort.setText(intToStr(FTPPort));
+	currentLine-=30;
+	labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
+	labelFTPServerDataPortsLabel.init(currentLabelStart ,currentLine );
+	labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
 
+    char szBuf[1024]="";
+    sprintf(szBuf,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
 
-	//FullscreenWindowed
-	labelFullscreenWindowed.registerGraphicComponent(containerName,"labelFullscreenWindowed");
-	labelFullscreenWindowed.init(leftLabelStart, leftline);
-
-	checkBoxFullscreenWindowed.registerGraphicComponent(containerName,"checkBoxFullscreenWindowed");
-	checkBoxFullscreenWindowed.init(leftColumnStart, leftline);
-	labelFullscreenWindowed.setText(lang.get("Windowed"));
-	checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
-	leftline-=30;
-
-	//filter
-	labelFilter.registerGraphicComponent(containerName,"labelFilter");
-	labelFilter.init(leftLabelStart, leftline);
-	labelFilter.setText(lang.get("Filter"));
-
-	listBoxFilter.registerGraphicComponent(containerName,"listBoxFilter");
-	listBoxFilter.init(leftColumnStart, leftline, 170);
-	listBoxFilter.pushBackItem("Bilinear");
-	listBoxFilter.pushBackItem("Trilinear");
-	listBoxFilter.setSelectedItem(config.getString("Filter"));
-	leftline-=30;
-
-	//shadows
-	labelShadows.registerGraphicComponent(containerName,"labelShadows");
-	labelShadows.init(leftLabelStart, leftline);
-	labelShadows.setText(lang.get("Shadows"));
-
-	listBoxShadows.registerGraphicComponent(containerName,"listBoxShadows");
-	listBoxShadows.init(leftColumnStart, leftline, 170);
-	for(int i= 0; i<Renderer::sCount; ++i){
-		listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
-	}
-	string str= config.getString("Shadows");
-	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
-	leftline-=30;
-
-	//textures 3d
-	labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
-	labelTextures3D.init(leftLabelStart, leftline);
-
-	checkBoxTextures3D.registerGraphicComponent(containerName,"checkBoxTextures3D");
-	checkBoxTextures3D.init(leftColumnStart, leftline);
-	labelTextures3D.setText(lang.get("Textures3D"));
-	checkBoxTextures3D.setValue(config.getBool("Textures3D"));
-	leftline-=30;
-
-	//lights
-	labelLights.registerGraphicComponent(containerName,"labelLights");
-	labelLights.init(leftLabelStart, leftline);
-	labelLights.setText(lang.get("MaxLights"));
-
-	listBoxLights.registerGraphicComponent(containerName,"listBoxLights");
-	listBoxLights.init(leftColumnStart, leftline, 80);
-	for(int i= 1; i<=8; ++i){
-		listBoxLights.pushBackItem(intToStr(i));
-	}
-	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
-	leftline-=30;
-
-	//unit particles
-	labelUnitParticles.registerGraphicComponent(containerName,"labelUnitParticles");
-	labelUnitParticles.init(leftLabelStart,leftline);
-	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
-
-	checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
-	checkBoxUnitParticles.init(leftColumnStart,leftline);
-	checkBoxUnitParticles.setValue(config.getBool("UnitParticles"));
-	leftline-=30;
-
-	//unit particles
-	labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
-	labelMapPreview.init(leftLabelStart,leftline);
-	labelMapPreview.setText(lang.get("ShowMapPreview"));
-
-	checkBoxMapPreview.registerGraphicComponent(containerName,"checkBoxMapPreview");
-	checkBoxMapPreview.init(leftColumnStart,leftline);
-	checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
-	leftline-=30;
+	labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
+	labelFTPServerDataPorts.init(currentColumnStart,currentLine );
+	labelFTPServerDataPorts.setText(szBuf);
+	currentLine-=30;
+    // FTP config end
 
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
@@ -614,6 +633,8 @@ void MenuStateOptions::render(){
 		renderer.renderCheckBox(&checkBoxFullscreenWindowed);
 		renderer.renderLabel(&labelPublishServerExternalPort);
 		renderer.renderListBox(&listBoxPublishServerExternalPort);
+		renderer.renderLabel(&labelNetworkSettings);
+
 
         renderer.renderLabel(&labelEnableFTP);
         renderer.renderCheckBox(&checkBoxEnableFTP);

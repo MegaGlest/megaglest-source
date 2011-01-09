@@ -67,6 +67,7 @@ private:
 	GraphicLabel labelVideoSection;
 	GraphicLabel labelAudioSection;
 	GraphicLabel labelMiscSection;
+	GraphicLabel labelNetworkSettings;
 
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
