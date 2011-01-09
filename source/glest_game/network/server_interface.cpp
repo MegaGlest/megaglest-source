@@ -166,10 +166,12 @@ int ServerInterface::isValidClientType(uint32 clientIp) {
             MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i) + "_" + intToStr(i));
 
             Socket *socket = slots[i]->getSocket();
-            uint32 slotIp = socket->getConnectedIPAddress(socket->getIpAddress());
-            if(slotIp == clientIp) {
-                result = 1;
-                break;
+            if(socket != NULL) {
+                uint32 slotIp = socket->getConnectedIPAddress(socket->getIpAddress());
+                if(slotIp == clientIp) {
+                    result = 1;
+                    break;
+                }
             }
 		}
 	}
