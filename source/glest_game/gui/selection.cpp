@@ -132,11 +132,11 @@ bool Selection::isEnemy() const{
 	return selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex()!=factionIndex;
 }
 
-bool Selection::isComandable() const{
+bool Selection::isCommandable() const{
 	return
 		!isEmpty() &&
 		!isEnemy() &&
-		!(selectedUnits.size()==1 && !selectedUnits.front()->isOperative());
+		!(selectedUnits.size()==1 && !selectedUnits.front()->isAlive());
 }
 
 bool Selection::isCancelable() const{
@@ -148,7 +148,7 @@ bool Selection::isCancelable() const{
 bool Selection::isMeetable() const{
 	return
 		isUniform() &&
-		isComandable() &&
+		isCommandable() &&
 		selectedUnits.front()->getType()->getMeetingPoint();
 }
 

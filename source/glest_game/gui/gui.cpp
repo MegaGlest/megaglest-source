@@ -179,7 +179,7 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 	if(!selectingPos && !selectingMeetingPoint){
 		int posDisplay= computePosDisplay(x, y);
 		if(posDisplay!= invalidPos){
-			if(selection.isComandable()){
+			if(selection.isCommandable()){
 				if(selectingBuilding){
 
 				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingBuilding == true\n",__FILE__,__FUNCTION__);
@@ -221,7 +221,7 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared){
 	else if(selectingMeetingPoint){
 	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingMeetingPoint == true\n",__FILE__,__FUNCTION__);
 
-		if(selection.isComandable()){
+		if(selection.isCommandable()){
 
 		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selection.isComandable() == true\n",__FILE__,__FUNCTION__);
 
@@ -253,7 +253,7 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared){
 	if(selectingPos || selectingMeetingPoint){
 		resetState();
 	}
-	else if(selection.isComandable()){
+	else if(selection.isCommandable()){
 		if(prepared){
 			givePreparedDefaultOrders(x, y);
 		}
@@ -276,7 +276,7 @@ void Gui::mouseUpLeftGraphics(int x, int y){
 			{
 				computeSelected(false,true);
 			}
-			if(selection.isComandable() && random.randRange(0, 1)==0){
+			if(selection.isCommandable() && random.randRange(0, 1)==0){
 				SoundRenderer::getInstance().playFx(
 					selection.getFrontUnit()->getType()->getSelectionSound(),
 					selection.getFrontUnit()->getCurrVector(),
@@ -632,7 +632,7 @@ void Gui::computeInfoString(int posDisplay){
 	Lang &lang= Lang::getInstance();
 
 	display.setInfoText("");
-	if(posDisplay!=invalidPos && selection.isComandable()){
+	if(posDisplay!=invalidPos && selection.isCommandable()){
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
 				display.setInfoText(lang.get("Cancel"));
@@ -721,7 +721,7 @@ void Gui::computeDisplay() {
 		display.setDownSelectedPos(activePos);
 	}
 
-	if(selection.isComandable()) {
+	if(selection.isCommandable()) {
 		//printf("selection.isComandable()\n");
 
 		if(selectingBuilding == false) {
@@ -806,7 +806,7 @@ int Gui::computePosDisplay(int x, int y){
 	if(posDisplay<0 || posDisplay>=Display::downCellCount){
 		posDisplay= invalidPos;
 	}
-	else if(selection.isComandable()){
+	else if(selection.isCommandable()){
 		if(posDisplay!=cancelPos){
 			if(posDisplay!=meetingPointPos){
 				if(!selectingBuilding){
