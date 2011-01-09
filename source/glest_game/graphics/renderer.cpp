@@ -1657,7 +1657,7 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 
 	glPopAttrib();
 
-    glDisable(GL_BLEND);
+
 	//buttons
 	renderButton(messageBox->getButton1());
 	if(messageBox->getButtonCount()==2){

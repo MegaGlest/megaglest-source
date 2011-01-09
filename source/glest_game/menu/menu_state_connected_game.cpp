@@ -412,6 +412,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         ftpClientThread->start();
     }
 
+    //showFTPMessageBox("test", lang.get("Question"), false);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -631,13 +632,6 @@ void MenuStateConnectedGame::render() {
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
-		if(ftpMessageBox.getEnabled()) {
-			renderer.renderMessageBox(&ftpMessageBox);
-		}
-
-		//if(ftpMessageBox.getEnabled()) {
-		//	renderer.renderMessageBox(&ftpMessageBox);
-		//}
 
 		if (!initialSettingsReceivedFromServer) return;
 
@@ -770,8 +764,6 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
 		renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 
-		if(program != NULL) program->renderProgramMsgBox();
-
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.size() > 0) {
             int yLocation = buttonDisconnect.getY();
@@ -793,6 +785,15 @@ void MenuStateConnectedGame::render() {
         }
         safeMutexFTPProgress.ReleaseLock();
 
+		if(mainMessageBox.getEnabled()) {
+			renderer.renderMessageBox(&mainMessageBox);
+		}
+		if(ftpMessageBox.getEnabled()) {
+			renderer.renderMessageBox(&ftpMessageBox);
+		}
+
+		if(program != NULL) program->renderProgramMsgBox();
+
 		if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
 
 			int mouseX = mainMenu->getMouseX();
@@ -805,11 +806,6 @@ void MenuStateConnectedGame::render() {
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
-
-
-		if(mainMessageBox.getEnabled()) {
-			renderer.renderMessageBox(&mainMessageBox);
-		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
