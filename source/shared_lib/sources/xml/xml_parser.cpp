@@ -89,19 +89,19 @@ XmlNode *XmlIo::load(const string &path){
 
 	try{
 		ErrorHandler errorHandler;
-#if XERCES_VERSION_MAJOR < 3		
+#if XERCES_VERSION_MAJOR < 3
  		DOMBuilder *parser= (static_cast<DOMImplementationLS*>(implementation))->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
  		parser->setErrorHandler(&errorHandler);
  		parser->setFeature(XMLUni::fgXercesSchema, true);
  		parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
  		parser->setFeature(XMLUni::fgDOMValidation, true);
-#else		
+#else
 		DOMLSParser *parser = (static_cast<DOMImplementationLS*>(implementation))->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
  		DOMConfiguration  *config = parser->getDomConfig();
  		config->setParameter(XMLUni::fgXercesSchema, true);
 		config->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
 		config->setParameter(XMLUni::fgDOMValidate, true);
-#endif		
+#endif
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
 
 		if(document==NULL){
@@ -123,19 +123,19 @@ void XmlIo::save(const string &path, const XmlNode *node){
 		XMLCh str[strSize];
 		XMLString::transcode(node->getName().c_str(), str, strSize-1);
 
-		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);  
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);
 		DOMElement *documentElement= document->getDocumentElement();
-		
+
 		for(unsigned int i=0; i<node->getChildCount(); ++i){
 			documentElement->appendChild(node->getChild(i)->buildElement(document));
 		}
-		
+
 		LocalFileFormatTarget file(path.c_str());
-#if XERCES_VERSION_MAJOR < 3		
+#if XERCES_VERSION_MAJOR < 3
  		DOMWriter* writer = implementation->createDOMWriter();
  		writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
  		writer->writeNode(&file, *document);
-#else		
+#else
 		DOMLSSerializer *serializer = implementation->createLSSerializer();
 		DOMLSOutput* output=implementation->createLSOutput();
 		DOMConfiguration* config=serializer->getDomConfig();
@@ -181,6 +181,10 @@ XmlTree::~XmlTree(){
 // =====================================================
 
 XmlNode::XmlNode(DOMNode *node){
+
+    if(node == NULL || node->getNodeName() == NULL) {
+        throw runtime_error("XML structure seems to be corrupt!");
+    }
 
 	//get name
 	char str[strSize];
