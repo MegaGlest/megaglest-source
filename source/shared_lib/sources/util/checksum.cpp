@@ -66,7 +66,7 @@ void Checksum::addFile(const string &path){
 	}
 }
 
-void Checksum::addFileToSum(const string &path){
+bool Checksum::addFileToSum(const string &path){
 
 // OLD SLOW FILE I/O
 /*
@@ -115,10 +115,10 @@ void Checksum::addFileToSum(const string &path){
    free(data);
 */
 
-
+    bool fileExists = false;
 	FILE* file= fopen(path.c_str(), "rb");
-	if(file!=NULL) {
-
+	if(file != NULL) {
+        fileExists = true;
 		addString(lastFile(path));
 
 		bool isXMLFile = (EndsWith(path, ".xml") == true);
@@ -162,12 +162,11 @@ void Checksum::addFileToSum(const string &path){
 			}
 		}
 	}
-	else
-	{
+	else {
 		throw runtime_error("Can not open file: " + path);
 	}
 	fclose(file);
-
+    return fileExists;
 }
 
 int32 Checksum::getSum() {
@@ -198,6 +197,16 @@ int32 Checksum::getFinalFileListSum() {
 
 int32 Checksum::getFileCount() {
 	return (int32)fileList.size();
+}
+
+void Checksum::removeFileFromCache(const string file) {
+    if(Checksum::fileListCache.find(file) != Checksum::fileListCache.end()) {
+        Checksum::fileListCache.erase(file);
+    }
+}
+
+void Checksum::clearFileCache() {
+    Checksum::fileListCache.clear();
 }
 
 }}//end namespace
