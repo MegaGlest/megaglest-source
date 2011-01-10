@@ -10,4 +10,6 @@
 	// http://php.net/manual/function.mysql-pconnect.php
 	// http://php.net/manual/features.persistent-connections.php
 	define( 'MYSQL_LINK_PERSIST', false );
+	// How many recently seen servers to store
+	define( 'MAX_RECENT_SERVERS', 5 );
 ?>

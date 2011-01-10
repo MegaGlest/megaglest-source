@@ -57,4 +57,30 @@
 		return mysql_db_query( $mysql_database, 'DELETE FROM glestserver WHERE lasttime<DATE_add(NOW(), INTERVAL -1 minute);' );
 		//return mysql_db_query( $mysql_database, 'UPDATE glestserver SET status=\'???\' WHERE lasttime<DATE_add(NOW(), INTERVAL -2 minute);' );
 	}
+
+	function addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots )
+	{
+		// insert the new server
+		$server = "$remote_ip:$service_port";
+		$players = "$connectedClients/$networkSlots";
+		mysql_db_query( MYSQL_DATABASE, "INSERT INTO recent_servers (name, server, players) VALUES('$serverTitle', '$server', '$players')");
+
+		// make sure there are not too much servers
+		$count_query = mysql_fetch_assoc(mysql_db_query( MYSQL_DATABASE, "SELECT COUNT(*) as count FROM recent_servers"));
+		$count = (int) $count_query['count'];
+		$over = $count - MAX_RECENT_SERVERS;
+		mysql_db_query( MYSQL_DATABASE, "DELETE FROM recent_servers ORDER BY id LIMIT $over");
+	}
+
+	function updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots ) {
+		// find the id of the server to update
+		$server = "$remote_ip:$service_port";
+		$players = "$connectedClients/$networkSlots";
+		$find_query = mysql_fetch_assoc(mysql_db_query( MYSQL_DATABASE, "SELECT id FROM recent_servers WHERE server ='$server' ORDER BY id desc LIMIT 1"));
+		$id = (int) $find_query['id'];
+
+		// update it.
+		mysql_db_query( MYSQL_DATABASE, "UPDATE recent_servers SET name='$serverTitle', players='$players' WHERE id=$id LIMIT 1");
+	}
+
 ?>
