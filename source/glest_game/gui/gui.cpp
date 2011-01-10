@@ -552,19 +552,20 @@ void Gui::clickCommonCommand(CommandClass commandClass){
 	}
 }
 
-void Gui::mouseDownDisplayUnitSkills(int posDisplay){
-	if(!selection.isEmpty()){
-		if(posDisplay != cancelPos){
-			if(posDisplay!=meetingPointPos){
+void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
+	if(!selection.isEmpty()) {
+		if(posDisplay != cancelPos) {
+			if(posDisplay!=meetingPointPos) {
 				const Unit *unit= selection.getFrontUnit();
 
 				//uniform selection
-				if(selection.isUniform()){
-					if(unit->getFaction()->reqsOk(display.getCommandType(posDisplay))){
+				if(selection.isUniform()) {
+				    const CommandType *ct = display.getCommandType(posDisplay);
+					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
 						activeCommandType= display.getCommandType(posDisplay);
 						activeCommandClass= activeCommandType->getClass();
 					}
-					else{
+					else {
 						posDisplay= invalidPos;
 						activeCommandType= NULL;
 						activeCommandClass= ccStop;
@@ -573,7 +574,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay){
 				}
 
 				//non uniform selection
-				else{
+				else {
 					activeCommandType= NULL;
 					activeCommandClass= display.getCommandClass(posDisplay);
 				}
