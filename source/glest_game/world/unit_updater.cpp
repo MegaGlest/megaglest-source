@@ -1109,7 +1109,7 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
                                     if(prct != NULL) {
                                         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                                        if(command->getStateValue() == peerUnit->getId()) {
+                                        if(unit != peerUnit && command->getStateValue() == peerUnit->getId()) {
                                             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                                             firstLinkedPeerRepairer = peerUnit;
