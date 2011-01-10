@@ -199,13 +199,17 @@ void ServerInterface::addSlot(int playerIndex) {
 
 	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	delete slots[playerIndex];
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ConnectionSlot *slot = slots[playerIndex];
+	if(slot != NULL) {
+        slots[playerIndex]=NULL;
+	}
 
 	slots[playerIndex]= new ConnectionSlot(this, playerIndex);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     safeMutexSlot.ReleaseLock();
+
+    delete slot;
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	safeMutex.ReleaseLock();
 
@@ -290,11 +294,14 @@ void ServerInterface::removeSlot(int playerIndex,int lockedSlotIndex) {
     }
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
-	delete slots[playerIndex];
 	slots[playerIndex]= NULL;
 
     safeMutexSlot.ReleaseLock();
 	safeMutex.ReleaseLock();
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+
+	delete slot;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
