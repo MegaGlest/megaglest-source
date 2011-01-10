@@ -85,7 +85,9 @@ public:
     void addMapToRequests(string mapFilename);
     void addTilesetToRequests(string tileSetName);
 
-    FTPClientCallbackInterface * getCallBackObject() { return pCBObject; }
+    FTPClientCallbackInterface * getCallBackObject();
+    void setCallBackObject(FTPClientCallbackInterface *value);
+
     Mutex * getProgressMutex() { return &mutexProgressMutex; }
 };
 
