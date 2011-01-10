@@ -37,7 +37,7 @@ private:
 	static std::map<string,int32> fileListCache;
 
 	void addSum(int32 value);
-	void addFileToSum(const string &path);
+	bool addFileToSum(const string &path);
 
 public:
 	Checksum();
@@ -49,6 +49,9 @@ public:
 	void addByte(int8 value);
 	void addString(const string &value);
 	void addFile(const string &path);
+
+	static void removeFileFromCache(const string file);
+	static void clearFileCache();
 };
 
 }}//end namespace

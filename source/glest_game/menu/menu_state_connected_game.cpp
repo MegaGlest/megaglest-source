@@ -1819,6 +1819,9 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
+        // Clear the CRC file Cache
+        Checksum::clearFileCache();
+
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
@@ -1888,6 +1891,9 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
                 }
             }
             // END
+
+            // Clear the CRC file Cache
+            Checksum::clearFileCache();
 
             // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
