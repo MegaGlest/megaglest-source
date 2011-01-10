@@ -187,28 +187,30 @@ XmlNode::XmlNode(DOMNode *node){
     }
 
 	//get name
-	char str[strSize];
+	char str[strSize]="";
 	XMLString::transcode(node->getNodeName(), str, strSize-1);
 	name= str;
 
 	//check document
-	if(node->getNodeType()==DOMNode::DOCUMENT_NODE){
+	if(node->getNodeType() == DOMNode::DOCUMENT_NODE) {
 		name="document";
 	}
 
 	//check children
-	for(unsigned int i=0; i<node->getChildNodes()->getLength(); ++i){
-		DOMNode *currentNode= node->getChildNodes()->item(i);
-		if(currentNode->getNodeType()==DOMNode::ELEMENT_NODE){
-			XmlNode *xmlNode= new XmlNode(currentNode);
-			children.push_back(xmlNode);
-		}
+	if(node->getChildNodes() != NULL) {
+        for(unsigned int i = 0; i < node->getChildNodes()->getLength(); ++i) {
+            DOMNode *currentNode= node->getChildNodes()->item(i);
+            if(currentNode != NULL && currentNode->getNodeType()==DOMNode::ELEMENT_NODE){
+                XmlNode *xmlNode= new XmlNode(currentNode);
+                children.push_back(xmlNode);
+            }
+        }
 	}
 
 	//check attributes
 	DOMNamedNodeMap *domAttributes= node->getAttributes();
-	if(domAttributes!=NULL){
-		for(unsigned int i=0; i<domAttributes->getLength(); ++i){
+	if(domAttributes != NULL) {
+		for(unsigned int i = 0; i < domAttributes->getLength(); ++i) {
 			DOMNode *currentNode= domAttributes->item(i);
 			if(currentNode->getNodeType()==DOMNode::ATTRIBUTE_NODE){
 				XmlAttribute *xmlAttribute= new XmlAttribute(domAttributes->item(i));
@@ -218,7 +220,7 @@ XmlNode::XmlNode(DOMNode *node){
 	}
 
 	//get value
-	if(node->getNodeType()==DOMNode::ELEMENT_NODE && children.size()==0){
+	if(node->getNodeType() == DOMNode::ELEMENT_NODE && children.size() == 0) {
 		char *textStr= XMLString::transcode(node->getTextContent());
 		text= textStr;
 		XMLString::release(&textStr);
