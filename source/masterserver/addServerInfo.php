@@ -83,6 +83,7 @@
 			'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
 			'lasttime='            . 'now()'                                        .    ' ' .
 			'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+		updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		echo 'OK';
 	}
 	else                                        // this game server is not listed in the database, yet
@@ -179,6 +180,7 @@
                                 'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\'
 ;' );
 			echo 'OK';
+			addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		}
 	}
 	db_disconnect( DB_LINK );
