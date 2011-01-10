@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -24,18 +24,18 @@ namespace Glest{ namespace Game{
 // 	class MenuStateGraphicInfo
 // =====================================================
 
-MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu): 
+MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "info")
 {
 	containerName = "GraphicInfo";
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(387, 70, 125);
+	buttonReturn.init(100, 540, 125);
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(100, 700);
 
 	labelMoreInfo.registerGraphicComponent(containerName,"labelMoreInfo");
-	labelMoreInfo.init(100, 500);
+	labelMoreInfo.init(100, 520);
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -52,7 +52,7 @@ void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton){
 	if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
-    }     
+    }
 }
 
 void MenuStateGraphicInfo::mouseMove(int x, int y, const MouseState *ms){
@@ -60,10 +60,10 @@ void MenuStateGraphicInfo::mouseMove(int x, int y, const MouseState *ms){
 }
 
 void MenuStateGraphicInfo::render(){
-	
+
 	Renderer &renderer= Renderer::getInstance();
 	Lang &lang= Lang::getInstance();
-	
+
 	buttonReturn.setText(lang.get("Return"));
 	labelInfo.setText(glInfo);
 	labelMoreInfo.setText(glMoreInfo);
