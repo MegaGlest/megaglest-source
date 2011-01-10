@@ -159,6 +159,9 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
   if(out != NULL &&
      out->ftpServer != NULL &&
      out->ftpServer->getCallBackObject() != NULL) {
+         if(out->ftpServer->getQuitStatus() == true) {
+             return -1;
+         }
          FTPClientCallbackInterface::FtpProgressStats stats;
          stats.download_total   = download_total;
          stats.download_now     = download_now;
@@ -279,8 +282,8 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         }
     }
 
+    MutexSafeWrapper safeMutex(this->getProgressMutex());
     if(this->pCBObject != NULL) {
-        MutexSafeWrapper safeMutex(this->getProgressMutex());
         this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result,NULL);
     }
 }
@@ -305,8 +308,8 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
         result = getTilesetFromServer(tileSetName, "tilesets", "", "mg_ftp_server");
     }
 
+    MutexSafeWrapper safeMutex(this->getProgressMutex());
     if(this->pCBObject != NULL) {
-        MutexSafeWrapper safeMutex(this->getProgressMutex());
         this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result,NULL);
     }
 }
@@ -443,6 +446,16 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         ftpfile.stream = NULL;
     }
     return result;
+}
+
+FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
+    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    return pCBObject;
+}
+
+void FTPClientThread::setCallBackObject(FTPClientCallbackInterface *value) {
+    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    pCBObject = value;
 }
 
 void FTPClientThread::execute() {

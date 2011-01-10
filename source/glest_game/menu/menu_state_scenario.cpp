@@ -301,6 +301,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 	if(scenarioNode->hasChild("fog-of-war") == true) {
 		scenarioInfo->fogOfWar = scenarioNode->getChild("fog-of-war")->getAttribute("value")->getBoolValue();
+		//printf("\nFOG OF WAR is set to [%d]\n",scenarioInfo->fogOfWar);
 	}
 	else {
 		scenarioInfo->fogOfWar = true;
@@ -338,6 +339,15 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setFogOfWar(scenarioInfo->fogOfWar);
+	uint32 valueFlags1 = gameSettings->getFlagTypes1();
+	if(scenarioInfo->fogOfWar == false) {
+        valueFlags1 |= ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
 
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(Config::getInstance().getInt("ScenarioPathFinderType",intToStr(pfBasic).c_str())));
 }

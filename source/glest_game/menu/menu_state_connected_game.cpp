@@ -420,6 +420,7 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 	cleanupFactionTexture();
 
 	if(ftpClientThread != NULL) {
+	    ftpClientThread->setCallBackObject(NULL);
 	    if(ftpClientThread->shutdownAndWait() == true) {
             delete ftpClientThread;
             ftpClientThread = NULL;
@@ -434,13 +435,11 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 
-	if(mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled()) {
 		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
+		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==1)
-			{
+			if(button == 1) {
 				mainMessageBox.setEnabled(false);
 			}
 		}
@@ -484,10 +483,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundA());
-		if(clientInterface->getSocket() != NULL)
-		{
-		    if(clientInterface->isConnected() == true)
-		    {
+		if(clientInterface->getSocket() != NULL) {
+		    if(clientInterface->isConnected() == true) {
                 string sQuitText = "chose to leave the game!";
                 clientInterface->sendTextMessage(sQuitText,-1);
                 sleep(1);
@@ -502,19 +499,16 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		return;
     }
 
-	if (!initialSettingsReceivedFromServer) return;
+	if (initialSettingsReceivedFromServer == false) return;
 
 	// Only allow changes after we get game settings from the server
-	//if(	clientInterface->isConnected() == true &&
-	//	clientInterface->getGameSettingsReceived() == true) {
-	if(	clientInterface->isConnected() == true) {
+	if(clientInterface->isConnected() == true) {
 		if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			soundRenderer.playFx(coreData.getClickSoundC());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
-		else
-		{
+		else {
 			int myCurrentIndex=-1;
 			for(int i=0; i<GameConstants::maxPlayers; ++i)
 			{// find my current index by looking at editable listBoxes
@@ -577,6 +571,14 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 void MenuStateConnectedGame::returnToJoinMenu() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(ftpClientThread != NULL) {
+	    ftpClientThread->setCallBackObject(NULL);
+	    if(ftpClientThread->shutdownAndWait() == true) {
+            delete ftpClientThread;
+            ftpClientThread = NULL;
+	    }
+	}
+
 	if(returnMenuInfo == jmSimple) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
@@ -587,8 +589,7 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 	}
 }
 
-void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
-
+void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
@@ -601,7 +602,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonPlayNow.mouseMove(x, y);
 
 	bool editingPlayerName = false;
-	for(int i=0; i<GameConstants::maxPlayers; ++i){
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
         listBoxControls[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
@@ -1354,6 +1355,16 @@ void MenuStateConnectedGame::update() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					assert(clientInterface != NULL);
+
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                    if(ftpClientThread != NULL) {
+                        ftpClientThread->setCallBackObject(NULL);
+                        if(ftpClientThread->shutdownAndWait() == true) {
+                            delete ftpClientThread;
+                            ftpClientThread = NULL;
+                        }
+                    }
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
