@@ -361,6 +361,22 @@ std::vector<std::string> FactionType::validateFactionType() {
 			sprintf(szBuf,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
 		}
+
+        // Ensure that all attack skill types have valid values
+        if(unitType.hasSkillClass(scAttack) == true) {
+            for(int j = 0; j < unitType.getSkillTypeCount(); ++j) {
+                const SkillType *st = unitType.getSkillType(j);
+                if(st != NULL && dynamic_cast<const AttackSkillType *>(st) != NULL) {
+                    const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
+                    if(ast->getAttackVar() < 0) {
+                        char szBuf[4096]="";
+                        sprintf(szBuf,"The Unit [%s] in Faction [%s] has the skill [%s] with an INVALID attack var value which is < 0 [%d]!",unitType.getName().c_str(),this->getName().c_str(),ast->getName().c_str(),ast->getAttackVar());
+                        results.push_back(szBuf);
+                    }
+                }
+            }
+        }
+        // end
     }
 
     return results;
