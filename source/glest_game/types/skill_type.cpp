@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -44,21 +44,21 @@ SkillType::~SkillType(){
 void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft){
 	//name
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
-	
+
 	//ep cost
 	mpCost= sn->getChild("ep-cost")->getAttribute("value")->getIntValue();
-	
+
 	//speed
 	speed= sn->getChild("speed")->getAttribute("value")->getIntValue();
-	
+
 	//anim speed
 	animSpeed= sn->getChild("anim-speed")->getAttribute("value")->getIntValue();
-	
+
 	//model
 	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
 	animation= Renderer::getInstance().newModel(rsGame);
 	animation->load(dir + "/" + path);
-	
+
 	//particles
 	if(sn->hasChild("particles")){
 		const XmlNode *particleNode= sn->getChild("particles");
@@ -73,15 +73,15 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	//sound
 	const XmlNode *soundNode= sn->getChild("sound");
 	if(soundNode->getAttribute("enabled")->getBoolValue()){
-		
+
 		soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-	
+
 		sounds.resize(soundNode->getChildCount());
 		for(int i=0; i<soundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
@@ -155,7 +155,7 @@ int MoveSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 // =====================================================
 
 //varios
-AttackSkillType::AttackSkillType(){
+AttackSkillType::AttackSkillType() {
     skillClass= scAttack;
 	attackType= NULL;
     projectile= false;
@@ -163,24 +163,34 @@ AttackSkillType::AttackSkillType(){
     splashRadius= 0;
 	projectileParticleSystemType= NULL;
 	splashParticleSystemType= NULL;
-	for(int i=0; i<fieldCount; ++i){
+
+	for(int i = 0; i < fieldCount; ++i) {
 		attackFields[i]= false;
 	}
 }
 
-AttackSkillType::~AttackSkillType(){
+AttackSkillType::~AttackSkillType() {
 	delete projectileParticleSystemType;
+	projectileParticleSystemType = NULL;
+
 	delete splashParticleSystemType;
+	splashParticleSystemType = NULL;
 	deleteValues(projSounds.getSounds().begin(), projSounds.getSounds().end());
 }
 
-void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft){
-    
-	SkillType::load(sn, dir, tt, ft);
+void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft) {
+    SkillType::load(sn, dir, tt, ft);
 
 	//misc
 	attackStrength= sn->getChild("attack-strenght")->getAttribute("value")->getIntValue();
     attackVar= sn->getChild("attack-var")->getAttribute("value")->getIntValue();
+
+    if(attackVar < 0) {
+        char szBuf[4096]="";
+        sprintf(szBuf,"The attack skill has an INVALID attack var value which is < 0 [%d] in file [%s]!",attackVar,dir.c_str());
+        throw runtime_error(szBuf);
+    }
+
     attackRange= sn->getChild("attack-range")->getAttribute("value")->getIntValue();
 	string attackTypeName= sn->getChild("attack-type")->getAttribute("value")->getRestrictedValue();
 	attackType= tt->getAttackType(attackTypeName);
@@ -193,7 +203,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		string fieldName= fieldNode->getAttribute("value")->getRestrictedValue();
 		if(fieldName=="land"){
 			attackFields[fLand]= true;
-		}		
+		}
 		else if(fieldName=="air"){
 			attackFields[fAir]= true;
 		}
@@ -206,12 +216,12 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 	const XmlNode *projectileNode= sn->getChild("projectile");
 	projectile= projectileNode->getAttribute("value")->getBoolValue();
 	if(projectile){
-		
+
 		//proj particle
 		const XmlNode *particleNode= projectileNode->getChild("particle");
 		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();	
+			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
 		}
@@ -219,7 +229,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		//proj sounds
 		const XmlNode *soundNode= projectileNode->getChild("sound");
 		if(soundNode->getAttribute("enabled")->getBoolValue()){
-			
+
 			projSounds.resize(soundNode->getChildCount());
 			for(int i=0; i<soundNode->getChildCount(); ++i){
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
@@ -242,7 +252,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		const XmlNode *particleNode= splashNode->getChild("particle");
 		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();	
+			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
 		}
@@ -399,4 +409,4 @@ SkillTypeFactory &SkillTypeFactory::getInstance(){
 	return ctf;
 }
 
-}} //end namespace 
+}} //end namespace
