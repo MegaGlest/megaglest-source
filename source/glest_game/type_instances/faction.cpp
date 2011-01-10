@@ -213,6 +213,10 @@ int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
 
 bool Faction::reqsOk(const CommandType *ct) const {
 	assert(ct != NULL);
+	if(ct == NULL) {
+	    throw runtime_error("In [Faction::reqsOk] ct == NULL");
+	}
+
 	if(ct->getProduced() != NULL && reqsOk(ct->getProduced()) == false) {
 		return false;
 	}
