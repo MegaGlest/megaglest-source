@@ -54,6 +54,7 @@ private:
 	bool needToRepublishToMasterserver;
 
     Shared::PlatformCommon::FTPServerThread *ftpServer;
+    bool exitServer;
 
 public:
 	ServerInterface();
