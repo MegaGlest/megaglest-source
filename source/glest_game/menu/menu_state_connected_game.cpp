@@ -865,6 +865,7 @@ void MenuStateConnectedGame::update() {
 
             if(clientInterface->getAllowGameDataSynchCheck() == false) {
                 Config &config = Config::getInstance();
+                MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL);
                 const GameSettings *gameSettings = clientInterface->getGameSettings();
                 int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
                 // Test data synch
@@ -875,6 +876,7 @@ void MenuStateConnectedGame::update() {
                 string file = Map::getMapPath(gameSettings->getMap(),"",false);
                 checksum.addFile(file);
                 int32 mapCRC = checksum.getSum();
+                safeMutexFTPProgress.ReleaseLock();
 
                 bool dataSynchMismatch = (mapCRC != gameSettings->getMapCRC() || tilesetCRC != gameSettings->getTilesetCRC());
 
@@ -1845,7 +1847,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
 
         MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
         fileFTPProgressList.erase(itemName);
-        safeMutexFTPProgress.ReleaseLock();
+        safeMutexFTPProgress.ReleaseLock(true);
 
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -1859,6 +1861,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             // START
             // Clear the CRC Cache if it is populated
             //
+            // Clear the CRC file Cache
+            safeMutexFTPProgress.Lock();
+            Checksum::clearFileCache();
+
             vector<string> paths        = Config::getInstance().getPathListForType(ptTilesets);
             string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
             std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
@@ -1890,10 +1896,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
                     crcTreeCache2.erase(cacheKey);
                 }
             }
+            safeMutexFTPProgress.ReleaseLock();
             // END
-
-            // Clear the CRC file Cache
-            Checksum::clearFileCache();
 
             // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
