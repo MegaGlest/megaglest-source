@@ -204,7 +204,7 @@ void Tokenize(const string& str,vector<string>& tokens,const string& delimiters)
     }
 }
 
-void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound) {
+void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
     results.clear();
     size_t pathCount = paths.size();
     for(unsigned int idx = 0; idx < pathCount; idx++) {
@@ -217,7 +217,7 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
                 const string current_folder_path = paths[idx] + "/" + current_folder;
 
                 if(isdir(current_folder_path.c_str()) == true) {
-                    if(std::find(results.begin(),results.end(),current_folder) == results.end()) {
+                    if(keepDuplicates == true || std::find(results.begin(),results.end(),current_folder) == results.end()) {
                         results.push_back(current_folder);
                     }
                 }
@@ -228,7 +228,7 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
     std::sort(results.begin(),results.end());
 }
 
-void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension, bool errorOnNotFound) {
+void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension, bool errorOnNotFound, bool keepDuplicates) {
     results.clear();
     size_t pathCount = paths.size();
     for(unsigned int idx = 0; idx < pathCount; idx++) {
@@ -238,7 +238,7 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
         if(current_results.size() > 0) {
             for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 string &current_file = current_results[folder_index];
-                if(std::find(results.begin(),results.end(),current_file) == results.end()) {
+                if(keepDuplicates == true || std::find(results.begin(),results.end(),current_file) == results.end()) {
                     results.push_back(current_file);
                 }
             }
