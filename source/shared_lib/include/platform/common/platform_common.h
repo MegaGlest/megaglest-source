@@ -108,8 +108,8 @@ public:
 // =====================================================
 void Tokenize(const string& str,vector<string>& tokens,const string& delimiters = " ");
 bool isdir(const char *path);
-void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false);
-void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
+void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false,bool keepDuplicates=false);
+void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true,bool keepDuplicates=false);
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum);

@@ -1122,6 +1122,224 @@ void runTechValidationReport(int argc, char** argv) {
 
 }
 
+void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
+        vector<string> filteredPropertyList;
+        if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("=")) == true) {
+            int foundParamIndIndex = -1;
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("="),&foundParamIndIndex);
+            string filterList = argv[foundParamIndIndex];
+            vector<string> paramPartTokens;
+            Tokenize(filterList,paramPartTokens,"=");
+            if(paramPartTokens.size() >= 2) {
+                string tokenList = paramPartTokens[1];
+                Tokenize(tokenList,filteredPropertyList,",");
+
+                if(filteredPropertyList.size() > 0) {
+                    printf("Filtering properties and only looking for the following:\n");
+                    for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
+                        filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
+                        printf("%s\n",filteredPropertyList[idx].c_str());
+                    }
+                }
+            }
+        }
+
+        printf("\nMain settings report\n");
+        printf("====================\n");
+        vector<pair<string,string> > mergedMainSettings = config.getMergedProperties();
+        vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
+
+        // Figure out the max # of tabs we need to format display nicely
+        int tabCount = 1;
+        for(int i = 0; i < mergedMainSettings.size(); ++i) {
+            const pair<string,string> &nameValue = mergedMainSettings[i];
+
+            bool displayProperty = false;
+            if(filteredPropertyList.size() > 0) {
+                if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                    displayProperty = true;
+                }
+            }
+            else {
+                displayProperty = true;
+            }
+
+            if(displayProperty == true) {
+                int requredTabs = (nameValue.first.length() / 8)+1;
+                if(nameValue.first.length() % 8) {
+                    requredTabs++;
+                }
+                if(requredTabs > tabCount) {
+                    tabCount = requredTabs;
+                }
+            }
+        }
+        for(int i = 0; i < mergedKeySettings.size(); ++i) {
+            const pair<string,string> &nameValue = mergedKeySettings[i];
+
+            bool displayProperty = false;
+            if(filteredPropertyList.size() > 0) {
+                if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                    displayProperty = true;
+                }
+            }
+            else {
+                displayProperty = true;
+            }
+
+            if(displayProperty == true) {
+                int requredTabs = (nameValue.first.length() / 8)+1;
+                if(nameValue.first.length() % 8) {
+                    requredTabs++;
+                }
+                if(requredTabs > tabCount) {
+                    tabCount = requredTabs;
+                }
+            }
+        }
+
+        // Output the properties
+        for(int i = 0; i < mergedMainSettings.size(); ++i) {
+            const pair<string,string> &nameValue = mergedMainSettings[i];
+
+            bool displayProperty = false;
+            if(filteredPropertyList.size() > 0) {
+                if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                    displayProperty = true;
+                }
+            }
+            else {
+                displayProperty = true;
+            }
+
+            if(displayProperty == true) {
+                printf("Property Name [%s]",nameValue.first.c_str());
+
+                int tabs = (nameValue.first.length() / 8) + 1;
+                for(int j = 0; j < (tabCount - tabs); ++j) {
+                    printf("\t");
+                }
+
+                printf("Value [%s]\n",nameValue.second.c_str());
+            }
+        }
+
+        printf("\n\nMain key binding settings report\n");
+        printf("====================================\n");
+
+        for(int i = 0; i < mergedKeySettings.size(); ++i) {
+            const pair<string,string> &nameValue = mergedKeySettings[i];
+
+            bool displayProperty = false;
+            if(filteredPropertyList.size() > 0) {
+                if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
+                    displayProperty = true;
+                }
+            }
+            else {
+                displayProperty = true;
+            }
+
+            if(displayProperty == true) {
+                printf("Property Name [%s]",nameValue.first.c_str());
+
+                int tabs = (nameValue.first.length() / 8) + 1;
+                for(int j = 0; j < (tabCount - tabs); ++j) {
+                    printf("\t");
+                }
+
+                printf("Value [%s]\n",nameValue.second.c_str());
+            }
+        }
+    }
+}
+
+void CheckForDuplicateData() {
+    Config &config = Config::getInstance();
+
+  	vector<string> maps;
+  	std::vector<std::string> results;
+  	vector<string> mapPaths = config.getPathListForType(ptMaps);
+
+    findAll(mapPaths, "*.gbm", results, false, false, true);
+	copy(results.begin(), results.end(), std::back_inserter(maps));
+
+	results.clear();
+    findAll(mapPaths, "*.mgm", results, false, false, true);
+    copy(results.begin(), results.end(), std::back_inserter(maps));
+
+	results.clear();
+	std::sort(maps.begin(),maps.end());
+
+	if(maps.empty()) {
+        throw runtime_error("No maps were found!");
+    }
+
+	for(int i = 0; i < maps.size(); ++i) {
+	    string map1 = maps[i];
+	    for(int j = 0; j < maps.size(); ++j) {
+	        if(i != j) {
+                string map2 = maps[j];
+
+                //printf("i = %d map1 [%s] j = %d map2 [%s]\n",i,map1.c_str(),j,map2.c_str());
+
+                if(map1 == map2) {
+                    char szBuf[4096]="";
+                    sprintf(szBuf,"You have duplicate maps for map [%s] in [%s] and [%s]",map1.c_str(),mapPaths[0].c_str(),mapPaths[1].c_str());
+                    throw runtime_error(szBuf);
+                }
+	        }
+	    }
+	}
+
+	//tilesets
+	std::vector<std::string> tileSets;
+    vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
+    findDirs(tilesetPaths, tileSets, false, true);
+
+	if (tileSets.empty()) {
+        throw runtime_error("No tilesets were found!");
+    }
+
+	for(int i = 0; i < tileSets.size(); ++i) {
+	    string tileset1 = tileSets[i];
+	    for(int j = 0; j < tileSets.size(); ++j) {
+	        if(i != j) {
+                string tileset2 = tileSets[j];
+                if(tileset1 == tileset2) {
+                    char szBuf[4096]="";
+                    sprintf(szBuf,"You have duplicate tilesets for tileset [%s] in [%s] and [%s]",tileset1.c_str(),tilesetPaths[0].c_str(),tilesetPaths[1].c_str());
+                    throw runtime_error(szBuf);
+
+                }
+	        }
+	    }
+	}
+
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    vector<string> techTrees;
+    findDirs(techPaths, techTrees, false, true);
+	if(techTrees.empty()) {
+        throw runtime_error("No tech-trees were found!");
+	}
+
+	for(int i = 0; i < techTrees.size(); ++i) {
+	    string techtree1 = techTrees[i];
+	    for(int j = 0; j < techTrees.size(); ++j) {
+	        if(i != j) {
+                string techtree2 = techTrees[j];
+                if(techtree1 == techtree2) {
+                    char szBuf[4096]="";
+                    sprintf(szBuf,"You have duplicate techtrees for techtree [%s] in [%s] and [%s]",techtree1.c_str(),techTrees[0].c_str(),techTrees[1].c_str());
+                    throw runtime_error(szBuf);
+
+                }
+	        }
+	    }
+	}
+}
+
 int glestMain(int argc, char** argv) {
 #ifdef SL_LEAK_DUMP
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
@@ -1278,136 +1496,7 @@ int glestMain(int argc, char** argv) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
-
-            vector<string> filteredPropertyList;
-            if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("=")) == true) {
-                int foundParamIndIndex = -1;
-                hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) + string("="),&foundParamIndIndex);
-                string filterList = argv[foundParamIndIndex];
-                vector<string> paramPartTokens;
-                Tokenize(filterList,paramPartTokens,"=");
-                if(paramPartTokens.size() >= 2) {
-                    string tokenList = paramPartTokens[1];
-                    Tokenize(tokenList,filteredPropertyList,",");
-
-                    if(filteredPropertyList.size() > 0) {
-                        printf("Filtering properties and only looking for the following:\n");
-                        for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
-                            filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
-                            printf("%s\n",filteredPropertyList[idx].c_str());
-                        }
-                    }
-                }
-            }
-
-            printf("\nMain settings report\n");
-            printf("====================\n");
-            vector<pair<string,string> > mergedMainSettings = config.getMergedProperties();
-            vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
-
-            // Figure out the max # of tabs we need to format display nicely
-            int tabCount = 1;
-            for(int i = 0; i < mergedMainSettings.size(); ++i) {
-                const pair<string,string> &nameValue = mergedMainSettings[i];
-
-                bool displayProperty = false;
-                if(filteredPropertyList.size() > 0) {
-                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
-                        displayProperty = true;
-                    }
-                }
-                else {
-                    displayProperty = true;
-                }
-
-                if(displayProperty == true) {
-                    int requredTabs = (nameValue.first.length() / 8)+1;
-                    if(nameValue.first.length() % 8) {
-                        requredTabs++;
-                    }
-                    if(requredTabs > tabCount) {
-                        tabCount = requredTabs;
-                    }
-                }
-            }
-            for(int i = 0; i < mergedKeySettings.size(); ++i) {
-                const pair<string,string> &nameValue = mergedKeySettings[i];
-
-                bool displayProperty = false;
-                if(filteredPropertyList.size() > 0) {
-                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
-                        displayProperty = true;
-                    }
-                }
-                else {
-                    displayProperty = true;
-                }
-
-                if(displayProperty == true) {
-                    int requredTabs = (nameValue.first.length() / 8)+1;
-                    if(nameValue.first.length() % 8) {
-                        requredTabs++;
-                    }
-                    if(requredTabs > tabCount) {
-                        tabCount = requredTabs;
-                    }
-                }
-            }
-
-            // Output the properties
-            for(int i = 0; i < mergedMainSettings.size(); ++i) {
-                const pair<string,string> &nameValue = mergedMainSettings[i];
-
-                bool displayProperty = false;
-                if(filteredPropertyList.size() > 0) {
-                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
-                        displayProperty = true;
-                    }
-                }
-                else {
-                    displayProperty = true;
-                }
-
-                if(displayProperty == true) {
-                    printf("Property Name [%s]",nameValue.first.c_str());
-
-                    int tabs = (nameValue.first.length() / 8) + 1;
-                    for(int j = 0; j < (tabCount - tabs); ++j) {
-                        printf("\t");
-                    }
-
-                    printf("Value [%s]\n",nameValue.second.c_str());
-                }
-            }
-
-            printf("\n\nMain key binding settings report\n");
-            printf("====================================\n");
-
-            for(int i = 0; i < mergedKeySettings.size(); ++i) {
-                const pair<string,string> &nameValue = mergedKeySettings[i];
-
-                bool displayProperty = false;
-                if(filteredPropertyList.size() > 0) {
-                    if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
-                        displayProperty = true;
-                    }
-                }
-                else {
-                    displayProperty = true;
-                }
-
-                if(displayProperty == true) {
-                    printf("Property Name [%s]",nameValue.first.c_str());
-
-                    int tabs = (nameValue.first.length() / 8) + 1;
-                    for(int j = 0; j < (tabCount - tabs); ++j) {
-                        printf("\t");
-                    }
-
-                    printf("Value [%s]\n",nameValue.second.c_str());
-                }
-            }
-
+            ShowINISettings(argc,argv,config,configKeys);
             return -1;
         }
 
@@ -1431,7 +1520,7 @@ int glestMain(int argc, char** argv) {
 
 		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
@@ -1537,6 +1626,12 @@ int glestMain(int argc, char** argv) {
         	}
         }
         // Cache Player textures - END
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        CheckForDuplicateData();
+
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//throw "BLAH!";
 
