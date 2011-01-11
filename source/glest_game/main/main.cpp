@@ -1701,6 +1701,9 @@ __try {
 
 #if defined(__GNUC__) && !defined(__MINGW32__)
     signal(SIGSEGV, handleSIGSEGV);
+
+    // http://developerweb.net/viewtopic.php?id=3013
+    signal(SIGPIPE, SIG_IGN);
 #endif
 
 	return glestMain(argc, argv);
