@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2007 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -26,28 +26,35 @@ std::string Font::fontTypeName = "Times New Roman";
 //	class FontMetrics
 // =====================================================
 
-FontMetrics::FontMetrics(){
+FontMetrics::FontMetrics() {
 	widths= new float[Font::charCount];
 	height= 0;
 
-	for(int i=0; i<Font::charCount; ++i){
+	for(int i=0; i < Font::charCount; ++i) {
 		widths[i]= 0;
-	}	
+	}
 }
 
-FontMetrics::~FontMetrics(){
+FontMetrics::~FontMetrics() {
 	delete [] widths;
 	widths = NULL;
 }
 
-float FontMetrics::getTextWidth(const string &str) const{
+float FontMetrics::getTextWidth(const string &str) const {
 	float width= 0.f;
 	for(unsigned int i=0; i< str.size() && (int)i < Font::charCount; ++i){
 		if(str[i] >= Font::charCount) {
 			string sError = "str[i] >= Font::charCount, [" + str + "] i = " + intToStr(i);
 			throw runtime_error(sError);
 		}
-		width+= widths[str[i]];
+		//Treat 2 byte characters as spaces
+        if(str[i] < 0) {
+            width+= widths[32];
+            i++;
+        }
+        else {
+            width+= widths[str[i]];
+        }
 	}
 	return width;
 }
