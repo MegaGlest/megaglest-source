@@ -18,6 +18,7 @@
 #include "selection.h"
 #include "command_type.h"
 #include "platform_util.h"
+#include "base_thread.h"
 #include "leak_dumper.h"
 
 using std::vector;
@@ -32,6 +33,7 @@ class Unit;
 class Command;
 class CommandType;
 class NetworkCommand;
+class Game;
 
 // =====================================================
 // 	class Commander
@@ -39,7 +41,35 @@ class NetworkCommand;
 ///	Gives commands to the units
 // =====================================================
 
-class Commander{
+//
+// This interface describes the methods a callback object must implement
+//
+class CommanderNetworkCallbackInterface {
+public:
+	virtual void commanderNetworkUpdateTask(int id) = 0;
+};
+
+class CommanderNetworkThread : public BaseThread
+{
+protected:
+
+	CommanderNetworkCallbackInterface *commanderInterface;
+	Semaphore semTaskSignalled;
+
+	virtual void setQuitStatus(bool value);
+	virtual void setTaskCompleted(int id);
+	Mutex idMutex;
+	std::pair<int,bool> idStatus;
+
+public:
+	CommanderNetworkThread();
+	CommanderNetworkThread(CommanderNetworkCallbackInterface *commanderInterface);
+    virtual void execute();
+    void signalUpdate(int id);
+    bool isSignalCompleted(int id);
+};
+
+class Commander : public CommanderNetworkCallbackInterface {
 private:
 	typedef vector<CommandResult> CommandResultContainer;
 
@@ -47,9 +77,16 @@ private:
     World *world;
 	Chrono perfTimer;
 
+	CommanderNetworkThread *networkThread;
+	Game *game;
+
 public:
+    Commander();
+    ~Commander();
+
+    void signalNetworkUpdate(Game *game);
     void init(World *world);
-	void updateNetwork();
+	void updateNetwork(Game *game);
 
 	CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType,
 										const Vec2i &pos, const UnitType* unitType,
@@ -68,6 +105,8 @@ private:
     CommandResult computeResult(const CommandResultContainer &results) const;
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
+
+	virtual void commanderNetworkUpdateTask(int id);
 };
 
 }} //end namespace

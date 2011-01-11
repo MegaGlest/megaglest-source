@@ -58,10 +58,11 @@ double LAG_CHECK_GRACE_PERIOD = 15;
 
 // The max amount of time to 'freeze' gameplay per packet when a client is lagging
 // badly and we want to give time for them to catch up
-double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 1;
+double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 2;
 
 ServerInterface::ServerInterface() : GameNetworkInterface() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    nextEventId = 1;
     gameHasBeenInitiated    = false;
     exitServer = false;
     gameSettingsUpdateCount = 0;
@@ -349,11 +350,21 @@ int ServerInterface::getConnectedSlotCount() {
 	return connectedSlotCount;
 }
 
+int64 ServerInterface::getNextEventId() {
+    nextEventId++;
+
+    // Rollover when # gets large
+    if(nextEventId > INT_MAX) {
+        nextEventId = 1;
+    }
+    return nextEventId;
+}
+
 void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(event != NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event->eventType = %d\n",__FILE__,__FUNCTION__,__LINE__,event->eventType);
 
 		if(event->eventType == eSendSocketData) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage, event->networkMessage = %p\n",__FILE__,__FUNCTION__,event->networkMessage);
@@ -363,6 +374,9 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 		else if(event->eventType == eReceiveSocketData) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			updateSlot(event);
+		}
+		else {
+		    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -536,6 +550,7 @@ bool ServerInterface::signalClientReceiveCommands(ConnectionSlot* connectionSlot
 	event.connectionSlot = connectionSlot;
 	event.socketTriggered = socketTriggered;
 	event.triggerId = slotIndex;
+	event.eventId = getNextEventId();
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 
@@ -580,6 +595,7 @@ void ServerInterface::validateConnectedClients() {
 void ServerInterface::update() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+    const int MAX_SLOT_THREAD_WAIT_TIME = 3;
 	std::vector<string> errorMsgList;
 	try {
 		// The first thing we will do is check all clients to ensure they have
@@ -619,7 +635,6 @@ void ServerInterface::update() {
 
 				// Step #2 check all connection slot worker threads for completed status
 				time_t waitForThreadElapsed = time(NULL);
-				const int MAX_SLOT_THREAD_WAIT_TIME = 6;
 				std::map<int,bool> slotsCompleted;
 				for(bool threadsDone = false;
                     exitServer == false && threadsDone == false &&
@@ -725,7 +740,10 @@ void ServerInterface::update() {
 											if(connectionSlot != NULL) {
 												SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
 
-												bool socketTriggered = (connectionSlot != NULL && connectionSlot->getSocket() != NULL ? socketTriggeredList[connectionSlot->getSocket()->getSocketId()] : false);
+												bool socketTriggered = false;
+												if(connectionSlot->getSocket() != NULL && connectionSlot->getSocket()->getSocketId() > 0) {
+                                                    socketTriggered = socketTriggeredList[connectionSlot->getSocket()->getSocketId()];
+												}
 												ConnectionSlotEvent &event = eventList[i];
 												mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
 												threadsDone = false;
@@ -1249,6 +1267,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
                 event.connectionSlot        = connectionSlot;
                 event.socketTriggered       = true;
                 event.triggerId             = i;
+                event.eventId = getNextEventId();
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1574,7 +1593,8 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
-	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= 30) {
+	const int MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS = 30;
+	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		lastMasterserverHeartbeatTime = time(NULL);

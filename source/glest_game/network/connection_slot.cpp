@@ -62,30 +62,60 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 
 	if(event != NULL) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex);
-		eventList.push_back(event);
+		eventList.push_back(*event);
 		safeMutex.ReleaseLock();
 	}
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	semTaskSignalled.signal();
 }
 
-void ConnectionSlotThread::setTaskCompleted(ConnectionSlotEvent *event) {
+void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(event != NULL) {
+	if(eventId > 0) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex);
-		event->eventCompleted = true;
-        eventList.erase(eventList.begin());
+		//event->eventCompleted = true;
+		for(int i = 0; i < eventList.size(); ++i) {
+		    ConnectionSlotEvent &slotEvent = eventList[i];
+		    if(slotEvent.eventId == eventId) {
+                //eventList.erase(eventList.begin() + i);
+                slotEvent.eventCompleted = true;
+                break;
+		    }
+		}
 		safeMutex.ReleaseLock();
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ConnectionSlotThread::purgeCompletedEvents() {
+    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    //event->eventCompleted = true;
+    for(int i = eventList.size() - 1; i >= 0; i--) {
+        ConnectionSlotEvent &slotEvent = eventList[i];
+        if(slotEvent.eventCompleted == true) {
+            eventList.erase(eventList.begin() + i);
+        }
+    }
+    safeMutex.ReleaseLock();
+}
+
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 	MutexSafeWrapper safeMutex(&triggerIdMutex);
-	bool result = (event != NULL ? event->eventCompleted : true);
+	//bool result = (event != NULL ? event->eventCompleted : true);
+	bool result = false;
+    if(event != NULL) {
+        for(int i = 0; i < eventList.size(); ++i) {
+            ConnectionSlotEvent &slotEvent = eventList[i];
+            if(slotEvent.eventId == event->eventId) {
+                //eventList.erase(eventList.begin() + i);
+                result = slotEvent.eventCompleted;
+                break;
+            }
+        }
+    }
 	safeMutex.ReleaseLock();
 	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
 	return result;
@@ -118,11 +148,22 @@ void ConnectionSlotThread::execute() {
             MutexSafeWrapper safeMutex(&triggerIdMutex);
             int eventCount = eventList.size();
             if(eventCount > 0) {
-                ConnectionSlotEvent *event = eventList[0];
+                ConnectionSlotEvent *event = NULL;
+
+                for(int i = 0; i < eventList.size(); ++i) {
+                    ConnectionSlotEvent &slotEvent = eventList[i];
+                    if(slotEvent.eventCompleted == false) {
+                        event = &slotEvent;
+                        break;
+                    }
+                }
+
                 safeMutex.ReleaseLock();
 
-                this->slotInterface->slotUpdateTask(event);
-                setTaskCompleted(event);
+                if(event != NULL) {
+                    this->slotInterface->slotUpdateTask(event);
+                    setTaskCompleted(event->eventId);
+                }
             }
             else {
                 safeMutex.ReleaseLock();
@@ -201,6 +242,9 @@ ConnectionSlot::~ConnectionSlot() {
 }
 
 void ConnectionSlot::update() {
+    if(slotThreadWorker != NULL) {
+        slotThreadWorker->purgeCompletedEvents();
+    }
     update(true);
 }
 

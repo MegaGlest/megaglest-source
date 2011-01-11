@@ -37,6 +37,135 @@ namespace Glest{ namespace Game{
 
 // ===================== PUBLIC ========================
 
+CommanderNetworkThread::CommanderNetworkThread() : BaseThread() {
+	this->idStatus = make_pair<int,bool>(-1,false);
+	this->commanderInterface = NULL;
+}
+
+CommanderNetworkThread::CommanderNetworkThread(CommanderNetworkCallbackInterface *commanderInterface) : BaseThread() {
+	this->idStatus = make_pair<int,bool>(-1,false);
+	this->commanderInterface = commanderInterface;
+}
+
+void CommanderNetworkThread::setQuitStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	BaseThread::setQuitStatus(value);
+	if(value == true) {
+		signalUpdate(-1);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void CommanderNetworkThread::signalUpdate(int id) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
+
+	MutexSafeWrapper safeMutex(&idMutex);
+	this->idStatus.first = id;
+	this->idStatus.second = false;
+	safeMutex.ReleaseLock();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	semTaskSignalled.signal();
+}
+
+void CommanderNetworkThread::setTaskCompleted(int id) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    MutexSafeWrapper safeMutex(&idMutex);
+    this->idStatus.second = true;
+    safeMutex.ReleaseLock();
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool CommanderNetworkThread::isSignalCompleted(int id) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
+	MutexSafeWrapper safeMutex(&idMutex);
+	bool result = this->idStatus.second;
+	safeMutex.ReleaseLock();
+	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
+	return result;
+}
+
+void CommanderNetworkThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
+	try {
+		//setRunningStatus(true);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		unsigned int idx = 0;
+		for(;this->commanderInterface != NULL;) {
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			semTaskSignalled.waitTillSignalled();
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+            MutexSafeWrapper safeMutex(&idMutex);
+            if(idStatus.first > 0) {
+                int updateId = this->idStatus.first;
+                safeMutex.ReleaseLock();
+
+                this->commanderInterface->commanderNetworkUpdateTask(updateId);
+                setTaskCompleted(updateId);
+            }
+            else {
+                safeMutex.ReleaseLock();
+            }
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw runtime_error(ex.what());
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//setRunningStatus(false);
+}
+
+// =====================================================
+//	class
+// =====================================================
+
+Commander::Commander() {
+	this->networkThread = new CommanderNetworkThread(this);
+	this->networkThread->setUniqueID(__FILE__);
+	this->networkThread->start();
+}
+
+Commander::~Commander() {
+	if(BaseThread::shutdownAndWait(networkThread) == true) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        delete networkThread;
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	networkThread = NULL;
+}
+
 void Commander::init(World *world){
 	this->world= world;
 }
@@ -325,11 +454,29 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	return cr;
 }
 
-void Commander::updateNetwork() {
+void Commander::signalNetworkUpdate(Game *game) {
+    if(this->networkThread != NULL) {
+        this->game = game;
+        this->networkThread->signalUpdate(1);
+
+        time_t elapsedWait = time(NULL);
+        for(;difftime(time(NULL),elapsedWait) <= 4 &&
+             this->networkThread->isSignalCompleted(1) == false;) {
+            game->render();
+        }
+    }
+}
+
+void Commander::commanderNetworkUpdateTask(int id) {
+    updateNetwork(game);
+}
+
+void Commander::updateNetwork(Game *game) {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
 	//check that this is a keyframe
-	GameSettings *gameSettings = this->world->getGame()->getGameSettings();
+	//GameSettings *gameSettings = this->world->getGame()->getGameSettings();
+	GameSettings *gameSettings = game->getGameSettings();
 	if( networkManager.isNetworkGame() == false ||
 		(world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
 
