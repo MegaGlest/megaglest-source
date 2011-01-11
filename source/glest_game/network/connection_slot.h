@@ -92,6 +92,8 @@ public:
     int getSlotIndex() const {return slotIndex; }
 
     void purgeCompletedEvents();
+    void purgeAllEvents();
+    void setAllEventsCompleted();
 };
 
 // =====================================================
