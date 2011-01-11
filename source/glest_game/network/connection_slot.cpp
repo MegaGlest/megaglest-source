@@ -101,6 +101,16 @@ void ConnectionSlotThread::purgeCompletedEvents() {
     safeMutex.ReleaseLock();
 }
 
+bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 	MutexSafeWrapper safeMutex(&triggerIdMutex);
@@ -161,6 +171,7 @@ void ConnectionSlotThread::execute() {
                 safeMutex.ReleaseLock();
 
                 if(event != NULL) {
+                    ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
                     this->slotInterface->slotUpdateTask(event);
                     setTaskCompleted(event->eventId);
                 }
@@ -459,9 +470,11 @@ void ConnectionSlot::update(bool checkForNewClients) {
 
 									if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
 									   versionMatched == false) { // error message and disconnect only if checked
+										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 										//DisplayErrorMessage(sErr);
 										//quit= true;
 										close();
+										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 										return;
 									}
 								}
@@ -720,6 +733,15 @@ void ConnectionSlot::validateConnection() {
 
 void ConnectionSlot::close() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        delete slotThreadWorker;
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	slotThreadWorker = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool updateServerListener = (socket != NULL);
 	delete socket;
