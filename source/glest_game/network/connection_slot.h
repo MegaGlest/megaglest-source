@@ -49,6 +49,7 @@ public:
 		networkMessage = NULL;
 		socketTriggered = false;
 		eventCompleted = false;
+		eventId = -1;
 	}
 
 	int64 triggerId;
@@ -57,6 +58,7 @@ public:
 	const NetworkMessage *networkMessage;
 	bool socketTriggered;
 	bool eventCompleted;
+	int64 eventId;
 };
 
 //
@@ -74,11 +76,11 @@ protected:
 	ConnectionSlotCallbackInterface *slotInterface;
 	Semaphore semTaskSignalled;
 	Mutex triggerIdMutex;
-	vector<ConnectionSlotEvent *> eventList;
+	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
 
 	virtual void setQuitStatus(bool value);
-	virtual void setTaskCompleted(ConnectionSlotEvent *event);
+	virtual void setTaskCompleted(int eventId);
 
 public:
 	ConnectionSlotThread(int slotIndex);
@@ -87,6 +89,8 @@ public:
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);
     int getSlotIndex() const {return slotIndex; }
+
+    void purgeCompletedEvents();
 };
 
 // =====================================================

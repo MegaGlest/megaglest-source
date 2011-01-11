@@ -735,7 +735,9 @@ void Game::update() {
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			// Commander
-			commander.updateNetwork();
+			//commander.updateNetwork();
+			commander.signalNetworkUpdate(this);
+
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
 			if(chrono.getMillis() > 0) chrono.start();
 

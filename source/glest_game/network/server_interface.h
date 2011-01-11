@@ -55,6 +55,7 @@ private:
 
     Shared::PlatformCommon::FTPServerThread *ftpServer;
     bool exitServer;
+    int64 nextEventId;
 
 public:
 	ServerInterface();
@@ -135,6 +136,8 @@ private:
 	void validateConnectedClients();
 
 	std::map<string,string> publishToMasterserver();
+
+    int64 getNextEventId();
 };
 
 }}//end namespace
