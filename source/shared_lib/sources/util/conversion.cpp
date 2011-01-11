@@ -95,8 +95,8 @@ bool strToFloat(const string &s, float *f){
 	return true;
 }
 
-string boolToStr(bool b){
-	if(b){
+string boolToStr(bool b) {
+	if(b) {
 		return "1";
 	}
 	else{
@@ -106,25 +106,25 @@ string boolToStr(bool b){
 
 string intToStr(int64 i) {
 	char str[strSize]="";
-	sprintf(str, "%lld", (long long int)i);
+	snprintf(str, strSize-1, "%lld", (long long int)i);
 	return str;
 }
 
 string intToHex(int i){
 	char str[strSize]="";
-	sprintf(str, "%x", i);
+	snprintf(str, strSize-1, "%x", i);
 	return str;
 }
 
-string floatToStr(float f,int precsion){
+string floatToStr(float f,int precsion) {
 	char str[strSize]="";
-	sprintf(str, "%.*f", precsion,f);
+	snprintf(str, strSize-1, "%.*f", precsion,f);
 	return str;
 }
 
-string doubleToStr(double d,int precsion){
+string doubleToStr(double d,int precsion) {
 	char str[strSize]="";
-	sprintf(str, "%.*f", precsion,d);
+	snprintf(str, strSize-1, "%.*f", precsion,d);
 	return str;
 }
 

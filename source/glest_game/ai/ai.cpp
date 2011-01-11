@@ -3,13 +3,13 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include "ai.h" 
+#include "ai.h"
 #include "ai_interface.h"
 #include "ai_rule.h"
 #include "unit_type.h"
@@ -85,7 +85,7 @@ string BuildTask::toString() const{
 	}
 	return str;
 }
-	
+
 // =====================================================
 // 	class UpgradeTask
 // =====================================================
@@ -108,7 +108,7 @@ string UpgradeTask::toString() const{
 // =====================================================
 
 void Ai::init(AiInterface *aiInterface, int useStartLocation) {
-	this->aiInterface= aiInterface; 
+	this->aiInterface= aiInterface;
 	if(useStartLocation == -1) {
 		startLoc = random.randRange(0, aiInterface->getMapMaxPlayers()-1);
 	}
@@ -136,8 +136,16 @@ void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 }
 
 Ai::~Ai() {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI aiInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,aiInterface);
 	deleteValues(tasks.begin(), tasks.end());
+	tasks.clear();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI aiInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,aiInterface);
+
 	deleteValues(aiRules.begin(), aiRules.end());
+	aiRules.clear();
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI aiInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,aiInterface);
+
+	aiInterface = NULL;
 }
 
 void Ai::update() {
@@ -176,7 +184,7 @@ void Ai::update() {
 }
 
 
-// ==================== state requests ==================== 
+// ==================== state requests ====================
 
 int Ai::getCountOfType(const UnitType *ut){
     int count= 0;
@@ -235,8 +243,8 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
     return neededResource;
 }
 
-bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){   
-    int count= aiInterface->onSightUnitCount(); 
+bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
+    int count= aiInterface->onSightUnitCount();
     const Unit *unit;
 
     for(int i=0; i<count; ++i){
@@ -246,7 +254,7 @@ bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
 			field= unit->getCurrField();
             if(pos.dist(aiInterface->getHomeLocation())<radius){
                 aiInterface->printLog(2, "Being attacked at pos "+intToStr(pos.x)+","+intToStr(pos.y)+"\n");
-                return true; 
+                return true;
             }
         }
     }
@@ -257,11 +265,11 @@ bool Ai::isStableBase(){
 
     if(getCountOfClass(ucWarrior)>minWarriors){
         aiInterface->printLog(4, "Base is stable\n");
-        return true;          
+        return true;
     }
     else{
         aiInterface->printLog(4, "Base is not stable\n");
-        return false;                
+        return false;
     }
 }
 
@@ -270,12 +278,12 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly){
 
 	*unitIndex= -1;
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-		const Unit *unit= aiInterface->getMyUnit(i); 
+		const Unit *unit= aiInterface->getMyUnit(i);
 		if(unit->getType()->hasCommandClass(ability)){
 			if(!idleOnly || !unit->anyCommand() || unit->getCurrCommand()->getCommandType()->getClass()==ccStop){
 				units.push_back(i);
 			}
-		}   
+		}
 	}
 
 	if(units.empty()){
@@ -292,12 +300,12 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass current
 
 	*unitIndex= -1;
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-		const Unit *unit= aiInterface->getMyUnit(i); 
+		const Unit *unit= aiInterface->getMyUnit(i);
 		if(unit->getType()->hasCommandClass(ability)){
 			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass()==currentCommand){
 				units.push_back(i);
 			}
-		}   
+		}
 	}
 
 	if(units.empty()){
@@ -310,7 +318,7 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass current
 }
 
 bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Vec2i &outPos){
-    
+
 	const int spacing= 1;
 
     for(int currRadius=0; currRadius<maxBuildRadius; ++currRadius){
@@ -329,7 +337,7 @@ bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Ve
 }
 
 
-// ==================== tasks ==================== 
+// ==================== tasks ====================
 
 void Ai::addTask(const Task *task){
 	tasks.push_back(task);
@@ -367,7 +375,7 @@ void Ai::retryTask(const Task *task){
 	tasks.remove(task);
 	tasks.push_back(task);
 }
-// ==================== expansions ==================== 
+// ==================== expansions ====================
 
 void Ai::addExpansion(const Vec2i &pos){
 
@@ -388,15 +396,15 @@ void Ai::addExpansion(const Vec2i &pos){
 }
 
 Vec2i Ai::getRandomHomePosition(){
-	
+
 	if(expansionPositions.empty() || random.randRange(0, 1) == 0){
 		return aiInterface->getHomeLocation();
 	}
-	
+
 	return expansionPositions[random.randRange(0, expansionPositions.size()-1)];
 }
 
-// ==================== actions ==================== 
+// ==================== actions ====================
 
 void Ai::sendScoutPatrol(){
     Vec2i pos;
@@ -410,7 +418,7 @@ void Ai::sendScoutPatrol(){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			aiInterface->giveCommand(unit, ccAttack, pos);
-			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x)+","+intToStr(pos.y)+"\n"); 
+			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x)+","+intToStr(pos.y)+"\n");
 		}
 	}
 
@@ -429,15 +437,15 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		if(act != NULL && unit->getType()->hasCommandClass(ccProduce)) {
 			producerWarriorCount++;
 		}
-		
+
 		if(	aiInterface->getControlType() == ctCpuMega ||
 			aiInterface->getControlType() == ctNetworkCpuMega) {
 			if(producerWarriorCount > maxProducerWarriors) {
 				if(
 					unit->getCommandSize()>0 &&
 					unit->getCurrCommand()->getCommandType()!=NULL && (
-				    unit->getCurrCommand()->getCommandType()->getClass()==ccBuild || 
-					unit->getCurrCommand()->getCommandType()->getClass()==ccMorph || 
+				    unit->getCurrCommand()->getCommandType()->getClass()==ccBuild ||
+					unit->getCurrCommand()->getCommandType()->getClass()==ccMorph ||
 					unit->getCurrCommand()->getCommandType()->getClass()==ccProduce
 					)
 				 ) {
@@ -455,7 +463,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		else {
 			isWarrior= !unit->getType()->hasCommandClass(ccHarvest) && !unit->getType()->hasCommandClass(ccProduce);
 		}
-		
+
 		bool alreadyAttacking= (unit->getCurrSkill()->getClass() == scAttack);
 		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -489,7 +497,7 @@ void Ai::returnBase(int unitIndex) {
 
     fi= aiInterface->getFactionIndex();
     pos= Vec2i(
-		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) + 
+		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) +
 		getRandomHomePosition();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -505,7 +513,7 @@ void Ai::harvest(int unitIndex) {
 
 		Vec2i resPos;
 		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
-			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2)); 
+			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2));
 			aiInterface->giveCommand(unitIndex, hct, resPos);
 			//aiInterface->printLog(4, "Order harvest pos:" + intToStr(resPos.x)+", "+intToStr(resPos.y)+": "+rrToStr(r)+"\n");
 		}

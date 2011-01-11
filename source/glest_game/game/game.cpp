@@ -89,6 +89,9 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	speed= sNormal;
 	showFullConsole= false;
 
+    Logger &logger= Logger::getInstance();
+	logger.showProgress();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -108,14 +111,16 @@ Game::~Game() {
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	logger.add("Game", true);
+	logger.hideProgress();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SoundRenderer::getInstance().stopAllSounds();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
+	aiInterfaces.clear();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -125,7 +130,7 @@ Game::~Game() {
 
 	world.end();	//must die before selection because of referencers
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,aiInterfaces.size());
 
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
@@ -545,6 +550,8 @@ void Game::init(bool initForPreviewOnly)
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		NetworkRole role 				= networkManager.getNetworkRole();
+
+		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
 		aiInterfaces.resize(world.getFactionCount());
 		for(int i=0; i < world.getFactionCount(); ++i) {
