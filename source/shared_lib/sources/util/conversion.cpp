@@ -17,6 +17,10 @@
 
 #include "leak_dumper.h"
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
 using namespace std;
 
 namespace Shared{ namespace Util{
