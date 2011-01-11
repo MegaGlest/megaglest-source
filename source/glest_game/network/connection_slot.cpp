@@ -89,6 +89,23 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ConnectionSlotThread::purgeAllEvents() {
+    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    eventList.clear();
+    safeMutex.ReleaseLock();
+}
+
+void ConnectionSlotThread::setAllEventsCompleted() {
+    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    for(int i = 0; i < eventList.size(); ++i) {
+        ConnectionSlotEvent &slotEvent = eventList[i];
+        if(slotEvent.eventCompleted == false) {
+            slotEvent.eventCompleted = true;
+        }
+    }
+    safeMutex.ReleaseLock();
+}
+
 void ConnectionSlotThread::purgeCompletedEvents() {
     MutexSafeWrapper safeMutex(&triggerIdMutex);
     //event->eventCompleted = true;
@@ -158,22 +175,28 @@ void ConnectionSlotThread::execute() {
             MutexSafeWrapper safeMutex(&triggerIdMutex);
             int eventCount = eventList.size();
             if(eventCount > 0) {
-                ConnectionSlotEvent *event = NULL;
+                ConnectionSlotEvent eventCopy;
+                eventCopy.eventId = -1;
 
                 for(int i = 0; i < eventList.size(); ++i) {
                     ConnectionSlotEvent &slotEvent = eventList[i];
                     if(slotEvent.eventCompleted == false) {
-                        event = &slotEvent;
+                        eventCopy = slotEvent;
                         break;
                     }
                 }
 
                 safeMutex.ReleaseLock();
 
-                if(event != NULL) {
+                if(getQuitStatus() == true) {
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    break;
+                }
+
+                if(eventCopy.eventId > 0) {
                     ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
-                    this->slotInterface->slotUpdateTask(event);
-                    setTaskCompleted(event->eventId);
+                    this->slotInterface->slotUpdateTask(&eventCopy);
+                    setTaskCompleted(eventCopy.eventId);
                 }
             }
             else {
@@ -297,6 +320,12 @@ void ConnectionSlot::update(bool checkForNewClients) {
 						this->lastReceiveCommandListTime = 0;
 						this->gotLagCountWarning = false;
 						this->versionString = "";
+
+                        //if(this->slotThreadWorker == NULL) {
+                        //    this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
+                        //    this->slotThreadWorker->setUniqueID(__FILE__);
+                        //    this->slotThreadWorker->start();
+                        //}
 
 						serverInterface->updateListen();
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
@@ -734,12 +763,11 @@ void ConnectionSlot::validateConnection() {
 void ConnectionSlot::close() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        delete slotThreadWorker;
+	if(this->slotThreadWorker != NULL) {
+	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        this->slotThreadWorker->setAllEventsCompleted();
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	slotThreadWorker = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -770,9 +798,10 @@ Mutex * ConnectionSlot::getServerSynchAccessor() {
 }
 
 void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
-	assert(slotThreadWorker != NULL);
-
-	slotThreadWorker->signalUpdate(event);
+	//assert(slotThreadWorker != NULL);
+    if(slotThreadWorker != NULL) {
+        slotThreadWorker->signalUpdate(event);
+    }
 }
 
 bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
