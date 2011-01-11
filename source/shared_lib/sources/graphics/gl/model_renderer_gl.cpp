@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -50,7 +50,7 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	//push attribs
 	glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT);
 	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-	
+
 	//init opengl
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -106,7 +106,7 @@ void ModelRendererGl::render(const Model *model){
 	for(uint32 i=0; i<model->getMeshCount(); ++i){
 		renderMesh(model->getMesh(i));
 	}
-	
+
 	//assertions
 	assertGl();
 }
@@ -118,9 +118,9 @@ void ModelRendererGl::renderNormalsOnly(const Model *model){
 
 	//render every mesh
 	for(uint32 i=0; i<model->getMeshCount(); ++i){
-		renderMeshNormals(model->getMesh(i));	
+		renderMeshNormals(model->getMesh(i));
 	}
-	
+
 	//assertions
 	assertGl();
 }
@@ -128,7 +128,7 @@ void ModelRendererGl::renderNormalsOnly(const Model *model){
 // ===================== PRIVATE =======================
 
 void ModelRendererGl::renderMesh(const Mesh *mesh){
-		
+
 	//assertions
 	assertGl();
 
@@ -150,7 +150,10 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	const Texture2DGl *texture= static_cast<const Texture2DGl*>(mesh->getTexture(mtDiffuse));
 	if(texture != NULL && renderTextures){
 		if(lastTexture != texture->getHandle()){
-			assert(glIsTexture(texture->getHandle()));
+			//assert(glIsTexture(texture->getHandle()));
+			if(glIsTexture(texture->getHandle()) == false) {
+			    throw runtime_error("glIsTexture(texture->getHandle()) == false");
+			}
 			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 			lastTexture= texture->getHandle();
 		}
@@ -167,10 +170,10 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	//misc vars
 	uint32 vertexCount= mesh->getVertexCount();
 	uint32 indexCount= mesh->getIndexCount();
-	
+
 	//assertions
 	assertGl();
-	
+
 	//vertices
 	glVertexPointer(3, GL_FLOAT, 0, mesh->getInterpolationData()->getVertices());
 
@@ -217,7 +220,7 @@ void ModelRendererGl::renderMeshNormals(const Mesh *mesh){
 	for(unsigned int i= 0; i<mesh->getIndexCount(); ++i){
 		const Vec3f &vertex= mesh->getInterpolationData()->getVertices()[mesh->getIndices()[i]];
 		const Vec3f &normal= vertex + mesh->getInterpolationData()->getNormals()[mesh->getIndices()[i]];
-	
+
 		glVertex3fv(vertex.ptr());
 		glVertex3fv(normal.ptr());
 	}
