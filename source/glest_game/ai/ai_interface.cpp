@@ -62,6 +62,10 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+AiInterface::~AiInterface() {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
+    cacheUnitHarvestResourceLookup.clear();
+}
 // ==================== main ====================
 
 void AiInterface::update() {

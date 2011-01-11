@@ -77,8 +77,8 @@ private:
     World *world;
 	Chrono perfTimer;
 
-	CommanderNetworkThread *networkThread;
-	Game *game;
+	//CommanderNetworkThread *networkThread;
+	//Game *game;
 
 public:
     Commander();

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -26,7 +26,7 @@ using Shared::Util::intToStr;
 namespace Glest{ namespace Game{
 
 // =====================================================
-// 	class AiInterface  
+// 	class AiInterface
 //
 ///	The AI will interact with the game through this interface
 // =====================================================
@@ -51,6 +51,7 @@ private:
 
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation=-1);
+    ~AiInterface();
 
 	//main
     void update();
@@ -61,14 +62,14 @@ public:
 
     //misc
     void printLog(int logLevel, const string &s);
-    
+
     //interact
     CommandResult giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos=Vec2i(0));
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, Unit *u= NULL);
     CommandResult giveCommand(Unit *unit, const CommandType *commandType, const Vec2i &pos);
-    
+
     //get data
     const ControlType getControlType();
     int getMapMaxPlayers();
@@ -83,13 +84,13 @@ public:
     const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
     Faction *getMyFaction();
-    const TechTree *getTechTree(); 
+    const TechTree *getTechTree();
     bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const;
     bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos, bool usableResourceTypeOnly);
     bool isAlly(const Unit *unit) const;
 	bool isAlly(int factionIndex) const;
-	bool reqsOk(const RequirableType *rt); 
-	bool reqsOk(const CommandType *ct); 
+	bool reqsOk(const RequirableType *rt);
+	bool reqsOk(const CommandType *ct);
     bool checkCosts(const ProducibleType *pt);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
 

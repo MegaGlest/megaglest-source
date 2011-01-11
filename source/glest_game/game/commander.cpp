@@ -152,18 +152,18 @@ void CommanderNetworkThread::execute() {
 // =====================================================
 
 Commander::Commander() {
-	this->networkThread = new CommanderNetworkThread(this);
-	this->networkThread->setUniqueID(__FILE__);
-	this->networkThread->start();
+	//this->networkThread = new CommanderNetworkThread(this);
+	//this->networkThread->setUniqueID(__FILE__);
+	//this->networkThread->start();
 }
 
 Commander::~Commander() {
-	if(BaseThread::shutdownAndWait(networkThread) == true) {
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        delete networkThread;
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	}
-	networkThread = NULL;
+	//if(BaseThread::shutdownAndWait(networkThread) == true) {
+    //    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //    delete networkThread;
+    //    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//}
+	//networkThread = NULL;
 }
 
 void Commander::init(World *world){
@@ -455,6 +455,9 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 }
 
 void Commander::signalNetworkUpdate(Game *game) {
+
+    updateNetwork(game);
+/*
     if(this->networkThread != NULL) {
         this->game = game;
         this->networkThread->signalUpdate(1);
@@ -465,10 +468,11 @@ void Commander::signalNetworkUpdate(Game *game) {
             game->render();
         }
     }
+*/
 }
 
 void Commander::commanderNetworkUpdateTask(int id) {
-    updateNetwork(game);
+    //updateNetwork(game);
 }
 
 void Commander::updateNetwork(Game *game) {
@@ -476,26 +480,28 @@ void Commander::updateNetwork(Game *game) {
 
 	//check that this is a keyframe
 	//GameSettings *gameSettings = this->world->getGame()->getGameSettings();
-	GameSettings *gameSettings = game->getGameSettings();
-	if( networkManager.isNetworkGame() == false ||
-		(world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
+	if(game != NULL) {
+        GameSettings *gameSettings = game->getGameSettings();
+        if( networkManager.isNetworkGame() == false ||
+            (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
-		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+            GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
-		perfTimer.start();
-		//update the keyframe
-		gameNetworkInterface->updateKeyframe(world->getFrameCount());
-		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
+            perfTimer.start();
+            //update the keyframe
+            gameNetworkInterface->updateKeyframe(world->getFrameCount());
+            if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
 
-		perfTimer.start();
-		//give pending commands
-		for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
-			giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
-		}
-		if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
-		gameNetworkInterface->clearPendingCommands();
+            perfTimer.start();
+            //give pending commands
+            for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
+                giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
+            }
+            if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
+            gameNetworkInterface->clearPendingCommands();
+        }
 	}
 }
 

@@ -35,6 +35,13 @@ namespace Glest{ namespace Game{
 
 class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface, public SimpleTaskCallbackInterface, public FTPClientValidationInterface {
 
+class TextMessageQueue {
+public:
+    string text;
+    int teamIndex;
+    bool echoLocal;
+};
+
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
 	Mutex slotAccessorMutexes[GameConstants::maxPlayers];
@@ -57,6 +64,9 @@ private:
     bool exitServer;
     int64 nextEventId;
 
+    Mutex textMessageQueueThreadAccessor;
+    vector<TextMessageQueue> textMessageQueue;
+
 public:
 	ServerInterface();
 	virtual ~ServerInterface();
@@ -74,6 +84,8 @@ public:
 	// message sending
 	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
 	void sendTextMessage(const string &text, int teamIndex, bool echoLocal, int lockedSlotIndex);
+
+    void queueTextMessage(const string &text, int teamIndex, bool echoLocal=false);
 
 	virtual void quitGame(bool userManuallyQuit);
 
@@ -138,6 +150,8 @@ private:
 	std::map<string,string> publishToMasterserver();
 
     int64 getNextEventId();
+
+    void processTextMessageQueue();
 };
 
 }}//end namespace

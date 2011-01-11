@@ -44,6 +44,7 @@ private:
 	string current;
 	Texture2D *loadingTexture;
 	int progress;
+	bool showProgressBar;
 
 private:
 	Logger();
@@ -59,6 +60,8 @@ public:
 	void setSubtitle(const string &subtitle)	{this->subtitle= subtitle;}
 	void setProgress(int value)                 { this->progress = value; }
     int getProgress() const                     {return progress;}
+    void showProgress() { showProgressBar = true;}
+    void hideProgress() { showProgressBar = false;}
 
 	void add(const string &str, bool renderScreen= false);
 	void loadLoadingScreen(string filepath);

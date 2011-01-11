@@ -124,13 +124,17 @@ void ClientInterface::update() {
 		}
 	}
 
-	int lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
-	if(lastNetworkCommandListSendTime > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed);
+	double lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
+	if(lastNetworkCommandListSendTime > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed);
 
 	if(networkMessageCommandList.getCommandCount() > 0 ||
 	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		lastNetworkCommandListSendTime = time(NULL);
 		sendMessage(&networkMessageCommandList);
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	// Possible cause of out of synch since we have more commands that need

@@ -264,22 +264,23 @@ bool ServerInterface::switchSlot(int fromPlayerIndex,int toPlayerIndex) {
 }
 
 void ServerInterface::removeSlot(int playerIndex,int lockedSlotIndex) {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
     MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
     // Mention to everyone that this player is disconnected
 
     MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(playerIndex));
     if(playerIndex != lockedSlotIndex) {
-        safeMutexSlot.setMutex(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+        safeMutexSlot.setMutex(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + string("_") + intToStr(playerIndex));
     }
 
     ConnectionSlot *slot = slots[playerIndex];
 
     bool notifyDisconnect = false;
     char szBuf[4096]="";
-    if(	slot != NULL) {
-    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+    if(slot != NULL) {
+    	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
     	if(slot->getLastReceiveCommandListTime() > 0) {
     		const char* msgTemplate = "Player %s, disconnected from the game.";
@@ -293,30 +294,31 @@ void ServerInterface::removeSlot(int playerIndex,int lockedSlotIndex) {
     		notifyDisconnect = true;
     	}
     }
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
 	slots[playerIndex]= NULL;
 
     safeMutexSlot.ReleaseLock();
 	safeMutex.ReleaseLock();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
 	delete slot;
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
 	updateListen();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
 	if(notifyDisconnect == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 		string sMsg = szBuf;
-		sendTextMessage(sMsg,-1, true, lockedSlotIndex);
+		//sendTextMessage(sMsg,-1, true, lockedSlotIndex);
+		queueTextMessage(sMsg,-1, true);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 }
 
 ConnectionSlot* ServerInterface::getSlot(int playerIndex) {
@@ -602,6 +604,8 @@ void ServerInterface::update() {
 		// properly identified themselves within the alloted time period
 		validateConnectedClients();
 
+		processTextMessageQueue();
+
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
 		updateSocketTriggeredList(socketTriggeredList);
@@ -642,7 +646,7 @@ void ServerInterface::update() {
 					threadsDone = true;
 					// Examine all threads for completion of delegation
 					for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-					    MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+					    MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + string("_") + intToStr(i));
 						ConnectionSlot* connectionSlot = slots[i];
 						if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
 						   slotsCompleted.find(i) == slotsCompleted.end()) {
@@ -1095,6 +1099,27 @@ void ServerInterface::waitUntilReady(Checksum* checksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] END\n",__FUNCTION__);
 }
 
+void ServerInterface::processTextMessageQueue() {
+    MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,intToStr(__LINE__));
+    if(textMessageQueue.size() > 0) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        for(int i = 0; i < textMessageQueue.size(); ++i) {
+            TextMessageQueue &item = textMessageQueue[i];
+            sendTextMessage(item.text, item.teamIndex, item.echoLocal);
+        }
+        textMessageQueue.clear();
+    }
+}
+
+void ServerInterface::queueTextMessage(const string &text, int teamIndex, bool echoLocal) {
+    MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,intToStr(__LINE__));
+    TextMessageQueue item;
+    item.text = text;
+    item.teamIndex = teamIndex;
+    item.echoLocal = echoLocal;
+    textMessageQueue.push_back(item);
+}
+
 void ServerInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
     sendTextMessage(text, teamIndex, echoLocal, -1);
 }
@@ -1327,6 +1352,8 @@ void ServerInterface::broadcastMessage(const NetworkMessage* networkMessage, int
 			}
     	}
     	else {
+    	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 				MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(i));
 				if(i != lockedSlotIndex) {

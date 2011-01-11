@@ -35,14 +35,15 @@ const int Logger::logLineCount= 15;
 
 // ===================== PUBLIC ========================
 
-Logger::Logger(){
+Logger::Logger() {
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 
 	fileName= logs_path + "log.txt";
 	loadingTexture=NULL;
+	showProgressBar = false;
 }
 
-Logger::~Logger(){
+Logger::~Logger() {
 	cleanupLoadingTexture();
 }
 
@@ -66,12 +67,12 @@ void Logger::cleanupLoadingTexture() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-Logger & Logger::getInstance(){
+Logger & Logger::getInstance() {
 	static Logger logger;
 	return logger;
 }
 
-void Logger::add(const string &str,  bool renderScreen){
+void Logger::add(const string &str,  bool renderScreen) {
 	FILE *f=fopen(fileName.c_str(), "at+");
 	if(f!=NULL){
 		fprintf(f, "%s\n", str.c_str());
@@ -83,7 +84,7 @@ void Logger::add(const string &str,  bool renderScreen){
 	}
 }
 
-void Logger::clear(){
+void Logger::clear() {
     string s="Log file\n";
 
 	FILE *f= fopen(fileName.c_str(), "wt+");
@@ -97,8 +98,7 @@ void Logger::clear(){
     fclose(f);
 }
 
-
-void Logger::loadLoadingScreen(string filepath){
+void Logger::loadLoadingScreen(string filepath) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -152,13 +152,14 @@ void Logger::renderLoadingScreen() {
 		metrics.getVirtualW()/4,
 		62*metrics.getVirtualH()/100, false);
 
-    renderer.renderProgressBar(
-        progress,
-        metrics.getVirtualW()/4,
-        59*metrics.getVirtualH()/100,
-        coreData.getDisplayFontSmall(),
-        350,""); // no string here, because it has to be language specific and does not give much information
-
+    if(showProgressBar == true) {
+        renderer.renderProgressBar(
+            progress,
+            metrics.getVirtualW()/4,
+            59*metrics.getVirtualH()/100,
+            coreData.getDisplayFontSmall(),
+            350,""); // no string here, because it has to be language specific and does not give much information
+    }
 
 	renderer.swapBuffers();
 }
