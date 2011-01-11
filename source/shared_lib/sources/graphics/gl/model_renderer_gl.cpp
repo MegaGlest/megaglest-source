@@ -152,7 +152,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 		if(lastTexture != texture->getHandle()){
 			//assert(glIsTexture(texture->getHandle()));
 			if(glIsTexture(texture->getHandle()) == false) {
-			    throw runtime_error("glIsTexture(texture->getHandle()) == false");
+			    throw runtime_error("glIsTexture(texture->getHandle()) == false for texture: " + texture->getPath());
 			}
 			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 			lastTexture= texture->getHandle();
