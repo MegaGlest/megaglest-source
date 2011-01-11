@@ -81,6 +81,7 @@ protected:
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
 public:
 	ConnectionSlotThread(int slotIndex);
