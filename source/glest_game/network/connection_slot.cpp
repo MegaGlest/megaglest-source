@@ -776,7 +776,7 @@ void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
 }
 
 bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
-	assert(slotThreadWorker != NULL);
+	//assert(slotThreadWorker != NULL);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
