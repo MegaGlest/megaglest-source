@@ -17,7 +17,7 @@
   #define BSD_COMP /* needed for FIONREAD on Solaris2 */
   #include <sys/ioctl.h>
 #endif
-  #if defined(HAVE_SYS_FILIO_H) /* needed for FIONREAD on Solaris 2.5 */
+#if defined(HAVE_SYS_FILIO_H) /* needed for FIONREAD on Solaris 2.5 */
   #include <sys/filio.h>
 #endif
 
@@ -34,6 +34,7 @@
   #include <strstream>
 
 #define MSG_NOSIGNAL 0
+#define MSG_DONTWAIT 0
 
 #else
 
@@ -763,6 +764,11 @@ Socket::Socket() {
 	if(isSocketValid() == false) {
 		throwException("Error creating socket");
 	}
+
+#ifdef __APPLE__
+    int set = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+#endif
 }
 
 float Socket::getThreadedPingMS(std::string host) {
@@ -1029,7 +1035,7 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
         bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
-        bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+        bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -1044,7 +1050,7 @@ int Socket::send(const void *data, int dataSize) {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 	}
-	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
+	else if(isConnected() == true && bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int attemptCount = 0;
@@ -1061,10 +1067,14 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
-                bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+                bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
+
+                if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+                    break;
+                }
 	        }
 	        else {
                 int iErr = getLastSocketError();
@@ -1078,7 +1088,7 @@ int Socket::send(const void *data, int dataSize) {
 	    }
 	}
 
-	if(bytesSent > 0 && bytesSent < dataSize) {
+	if(isConnected() == true && bytesSent > 0 && bytesSent < dataSize) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] need to send more data, trying again getLastSocketError() = %d, bytesSent = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,getLastSocketError(),bytesSent,dataSize);
 
 		int totalBytesSent = bytesSent;
@@ -1098,12 +1108,16 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
 #else
-			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
+			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
                 if(bytesSent > 0) {
                 	totalBytesSent += bytesSent;
                 }
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
+
+                if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+                    break;
+                }
 	        }
 	        else {
                 int iErr = getLastSocketError();
@@ -1125,7 +1139,7 @@ int Socket::send(const void *data, int dataSize) {
 
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(bytesSent <= 0) {
+	if(bytesSent <= 0 || isConnected() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
 
 	    int iErr = getLastSocketError();

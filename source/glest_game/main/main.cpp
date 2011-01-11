@@ -1703,7 +1703,7 @@ __try {
     signal(SIGSEGV, handleSIGSEGV);
 
     // http://developerweb.net/viewtopic.php?id=3013
-    signal(SIGPIPE, SIG_IGN);
+    //signal(SIGPIPE, SIG_IGN);
 #endif
 
 	return glestMain(argc, argv);
