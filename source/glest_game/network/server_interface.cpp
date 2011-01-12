@@ -605,6 +605,7 @@ void ServerInterface::update() {
 		validateConnectedClients();
 
 		processTextMessageQueue();
+		processBroadCastMessageQueue();
 
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
@@ -1099,10 +1100,34 @@ void ServerInterface::waitUntilReady(Checksum* checksum) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] END\n",__FUNCTION__);
 }
 
+void ServerInterface::processBroadCastMessageQueue() {
+    MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,intToStr(__LINE__));
+    if(broadcastMessageQueue.size() > 0) {
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] broadcastMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,broadcastMessageQueue.size());
+        for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
+            pair<const NetworkMessage *,int> &item = broadcastMessageQueue[i];
+            if(item.first != NULL) {
+                this->broadcastMessage(item.first,item.second);
+                delete item.first;
+            }
+            item.first = NULL;
+        }
+        broadcastMessageQueue.clear();
+    }
+}
+
+void ServerInterface::queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot) {
+    MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,intToStr(__LINE__));
+    pair<const NetworkMessage *,int> item;
+    item.first = networkMessage;
+    item.second = excludeSlot;
+    broadcastMessageQueue.push_back(item);
+}
+
 void ServerInterface::processTextMessageQueue() {
     MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,intToStr(__LINE__));
     if(textMessageQueue.size() > 0) {
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] textMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,textMessageQueue.size());
         for(int i = 0; i < textMessageQueue.size(); ++i) {
             TextMessageQueue &item = textMessageQueue[i];
             sendTextMessage(item.text, item.teamIndex, item.echoLocal);

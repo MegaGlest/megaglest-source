@@ -67,6 +67,9 @@ private:
     Mutex textMessageQueueThreadAccessor;
     vector<TextMessageQueue> textMessageQueue;
 
+    Mutex broadcastMessageQueueThreadAccessor;
+    vector<pair<const NetworkMessage *,int> > broadcastMessageQueue;
+
 public:
 	ServerInterface();
 	virtual ~ServerInterface();
@@ -84,7 +87,6 @@ public:
 	// message sending
 	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
 	void sendTextMessage(const string &text, int teamIndex, bool echoLocal, int lockedSlotIndex);
-
     void queueTextMessage(const string &text, int teamIndex, bool echoLocal=false);
 
 	virtual void quitGame(bool userManuallyQuit);
@@ -125,6 +127,8 @@ public:
 		this->broadcastMessage(networkMessage,excludeSlot);
 	}
 
+	void queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot=-1);
+
 	virtual string getHumanPlayerName(int index=-1);
 	virtual int getHumanPlayerIndex() const;
 
@@ -152,6 +156,7 @@ private:
     int64 getNextEventId();
 
     void processTextMessageQueue();
+    void processBroadCastMessageQueue();
 };
 
 }}//end namespace

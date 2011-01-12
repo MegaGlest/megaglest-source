@@ -1347,7 +1347,13 @@ void MenuStateCustomGame::render() {
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(szBuf);
+		//throw runtime_error(szBuf);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//throw runtime_error(szBuf);!!!
+		showGeneralError=true;
+		generalErrorToShow = ex.what();
 	}
 }
 
@@ -1950,8 +1956,11 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
             ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
             if(serverInterface != NULL) {
-                NetworkMessagePing msg(GameConstants::networkPingInterval,time(NULL));
-                serverInterface->broadcastPing(&msg);
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                NetworkMessagePing *msg = new NetworkMessagePing(GameConstants::networkPingInterval,time(NULL));
+                //serverInterface->broadcastPing(&msg);
+                serverInterface->queueBroadcastMessage(msg);
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
             }
         }
         safeMutex.ReleaseLock();
