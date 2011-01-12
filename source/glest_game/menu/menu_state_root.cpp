@@ -39,25 +39,37 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 {
 	containerName = "MainMenu";
 	Lang &lang= Lang::getInstance();
-	int i=375;
+	int yPos=440;
 
+
+	labelVersion.registerGraphicComponent(containerName,"labelVersion");
+	if(EndsWith(glestVersionString, "-dev") == false){
+		labelVersion.init(525, yPos);
+		labelVersion.setText(glestVersionString);
+	}
+	else {
+		labelVersion.init(405, yPos);
+		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+	}
+
+	yPos-=55;
 	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
-	buttonNewGame.init(425, i, 150);
-	i-=40;
+	buttonNewGame.init(425, yPos, 150);
+	yPos-=40;
 	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
-    buttonJoinGame.init(425, i, 150);
-    i-=40;
+    buttonJoinGame.init(425, yPos, 150);
+    yPos-=40;
     buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
-    buttonMasterserverGame.init(425, i, 150);
-    i-=40;
+    buttonMasterserverGame.init(425, yPos, 150);
+    yPos-=40;
     buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
-    buttonOptions.init(425, i, 150);
-    i-=40;
+    buttonOptions.init(425, yPos, 150);
+    yPos-=40;
     buttonAbout.registerGraphicComponent(containerName,"buttonAbout");
-    buttonAbout.init(425, i , 150);
-    i-=40;
+    buttonAbout.init(425, yPos , 150);
+    yPos-=40;
     buttonExit.registerGraphicComponent(containerName,"buttonExit");
-    buttonExit.init(425, i, 150);
+    buttonExit.init(425, yPos, 150);
 
 	buttonNewGame.setText(lang.get("NewGame"));
 	buttonJoinGame.setText(lang.get("JoinGame"));
@@ -66,15 +78,6 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonAbout.setText(lang.get("About"));
 	buttonExit.setText(lang.get("Exit"));
 	
-	labelVersion.registerGraphicComponent(containerName,"labelVersion");
-	if(EndsWith(glestVersionString, "-dev") == false){
-		labelVersion.init(525, 420);
-		labelVersion.setText(glestVersionString);
-	}
-	else {
-		labelVersion.init(405, 420);
-		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
-	}
 	//mesage box
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
@@ -150,9 +153,10 @@ void MenuStateRoot::render() {
 
 	int w= 300;
 	int h= 150;
+	int yPos=495;
 
 	renderer.renderTextureQuad(
-		(metrics.getVirtualW()-w)/2, 475-h/2, w, h,
+		(metrics.getVirtualW()-w)/2, yPos-h/2, w, h,
 		coreData.getLogoTexture(), GraphicComponent::getFade());
 
 	int maxLogoWidth=0;
