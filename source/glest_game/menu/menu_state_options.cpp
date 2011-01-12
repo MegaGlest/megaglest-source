@@ -503,7 +503,17 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxScreenModes.mouseClick(x, y);
 		listFontSizeAdjustment.mouseClick(x, y);
 		checkBoxFullscreenWindowed.mouseClick(x, y);
-		listBoxPublishServerExternalPort.mouseClick(x, y);
+		if(listBoxPublishServerExternalPort.mouseClick(x, y)){
+			int selectedPort=strToInt(listBoxPublishServerExternalPort.getSelectedItem());
+			if(selectedPort<10000){
+				selectedPort=GameConstants::serverPort;
+			}
+			// use the following ports for ftp
+			char szBuf[1024]="";
+			sprintf(szBuf,"%d - %d",selectedPort + 1, selectedPort + GameConstants::maxPlayers);
+			labelFTPServerPort.setText(intToStr(selectedPort));
+			labelFTPServerDataPorts.setText(szBuf);
+		}
 
         checkBoxEnableFTP.mouseClick(x, y);
         checkBoxEnableFTPServer.mouseClick(x, y);
@@ -680,6 +690,7 @@ void MenuStateOptions::saveConfig(){
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
 	config.setString("MasterServerExternalPort", listBoxPublishServerExternalPort.getSelectedItem());
+	config.setInt("FTPServerPort",config.getInt("MasterServerExternalPort")+1);
     config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
     config.setBool("EnableFTPServer", checkBoxEnableFTPServer.getValue());
 
