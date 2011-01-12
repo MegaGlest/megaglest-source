@@ -46,7 +46,7 @@ double maxClientLagTimeAllowed = 20;
 
 // The maximum amount of network update iterations a client is allowed to fall behind before we
 // for a disconnect regardless of other settings
-double maxFrameCountLagAllowedEver = 75;
+double maxFrameCountLagAllowedEver = 50;
 
 // 65% of max we warn all users about the lagged client
 double warnFrameCountLagPercent = 0.65;
@@ -58,7 +58,7 @@ double LAG_CHECK_GRACE_PERIOD = 15;
 
 // The max amount of time to 'freeze' gameplay per packet when a client is lagging
 // badly and we want to give time for them to catch up
-double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 2;
+double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = 1;
 
 ServerInterface::ServerInterface() : GameNetworkInterface() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
