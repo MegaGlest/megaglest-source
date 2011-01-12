@@ -19,7 +19,7 @@
 
 using namespace Shared::Platform;
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
 
 // =====================================================
 //	class MyClass
@@ -27,15 +27,15 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 // ===================== PUBLIC ========================
 
-ModelRendererGl::ModelRendererGl(){
+ModelRendererGl::ModelRendererGl() {
 	rendering= false;
 	duplicateTexCoords= false;
 	secondaryTexCoordUnit= 1;
 }
 
-void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback){
+void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback) {
 	//assertions
-	assert(!rendering);
+	assert(rendering == false);
 	assertGl();
 
 	this->renderTextures= renderTextures;
@@ -81,7 +81,7 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	assertGl();
 }
 
-void ModelRendererGl::end(){
+void ModelRendererGl::end() {
 	//assertions
 	assert(rendering);
 	assertGl();
@@ -97,13 +97,13 @@ void ModelRendererGl::end(){
 	assertGl();
 }
 
-void ModelRendererGl::render(const Model *model){
+void ModelRendererGl::render(const Model *model) {
 	//assertions
 	assert(rendering);
 	assertGl();
 
 	//render every mesh
-	for(uint32 i=0; i<model->getMeshCount(); ++i){
+	for(uint32 i=0; i<model->getMeshCount(); ++i) {
 		renderMesh(model->getMesh(i));
 	}
 
@@ -111,13 +111,13 @@ void ModelRendererGl::render(const Model *model){
 	assertGl();
 }
 
-void ModelRendererGl::renderNormalsOnly(const Model *model){
+void ModelRendererGl::renderNormalsOnly(const Model *model) {
 	//assertions
 	assert(rendering);
 	assertGl();
 
 	//render every mesh
-	for(uint32 i=0; i<model->getMeshCount(); ++i){
+	for(uint32 i=0; i<model->getMeshCount(); ++i) {
 		renderMeshNormals(model->getMesh(i));
 	}
 
@@ -127,13 +127,13 @@ void ModelRendererGl::renderNormalsOnly(const Model *model){
 
 // ===================== PRIVATE =======================
 
-void ModelRendererGl::renderMesh(const Mesh *mesh){
+void ModelRendererGl::renderMesh(const Mesh *mesh) {
 
 	//assertions
 	assertGl();
 
 	//set cull face
-	if(mesh->getTwoSided()){
+	if(mesh->getTwoSided()) {
 		glDisable(GL_CULL_FACE);
 	}
 	else{
@@ -141,21 +141,25 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	}
 
 	//set color
-	if(renderColors){
+	if(renderColors) {
 		Vec4f color(mesh->getDiffuseColor(), mesh->getOpacity());
 		glColor4fv(color.ptr());
 	}
 
 	//texture state
 	const Texture2DGl *texture= static_cast<const Texture2DGl*>(mesh->getTexture(mtDiffuse));
-	if(texture != NULL && renderTextures){
+	if(texture != NULL && renderTextures) {
 		if(lastTexture != texture->getHandle()){
 			//assert(glIsTexture(texture->getHandle()));
-			if(glIsTexture(texture->getHandle()) == false) {
-			    throw runtime_error("glIsTexture(texture->getHandle()) == false for texture: " + texture->getPath());
+			//throw runtime_error("glIsTexture(texture->getHandle()) == false for texture: " + texture->getPath());
+			if(glIsTexture(texture->getHandle()) == true) {
+                glBindTexture(GL_TEXTURE_2D, texture->getHandle());
+                lastTexture= texture->getHandle();
 			}
-			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
-			lastTexture= texture->getHandle();
+			else {
+                glBindTexture(GL_TEXTURE_2D, 0);
+                lastTexture= 0;
+			}
 		}
 	}
 	else{
@@ -163,7 +167,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 		lastTexture= 0;
 	}
 
-	if(meshCallback!=NULL){
+	if(meshCallback != NULL) {
 		meshCallback->execute(mesh);
 	}
 
@@ -178,7 +182,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	glVertexPointer(3, GL_FLOAT, 0, mesh->getInterpolationData()->getVertices());
 
 	//normals
-	if(renderNormals){
+	if(renderNormals) {
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glNormalPointer(GL_FLOAT, 0, mesh->getInterpolationData()->getNormals());
 	}
@@ -187,8 +191,8 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	}
 
 	//tex coords
-	if(renderTextures && mesh->getTexture(mtDiffuse)!=NULL ){
-		if(duplicateTexCoords){
+	if(renderTextures && mesh->getTexture(mtDiffuse)!=NULL ) {
+		if(duplicateTexCoords) {
 			glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
@@ -198,8 +202,8 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
 	}
-	else{
-		if(duplicateTexCoords){
+	else {
+		if(duplicateTexCoords) {
 			glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
@@ -214,7 +218,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh){
 	assertGl();
 }
 
-void ModelRendererGl::renderMeshNormals(const Mesh *mesh){
+void ModelRendererGl::renderMeshNormals(const Mesh *mesh) {
 
 	glBegin(GL_LINES);
 	for(unsigned int i= 0; i<mesh->getIndexCount(); ++i){
