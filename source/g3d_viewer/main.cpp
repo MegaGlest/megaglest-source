@@ -130,7 +130,7 @@ MainWindow::MainWindow(const string &modelPath)
 	lastX= 0;
 	lastY= 0;
 	anim= 0.0f;
-
+	statusbarText="";
 	CreateStatusBar();
 
 	wxInitAllImageHandlers();
@@ -350,7 +350,7 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
 	loadProjectileParticle("");
 	loadSplashParticle(""); // as above
 
-	GetStatusBar()->SetStatusText(ToUnicode(""));
+	GetStatusBar()->SetStatusText(ToUnicode(statusbarText.c_str()));
 	timer->Start(100);
 	isControlKeyPressed = false;
 }
@@ -373,7 +373,10 @@ void MainWindow::loadModel(string path) {
 		Model *tmpModel= new ModelGl();
 		renderer->loadTheModel(tmpModel, modelPath);
 		model= tmpModel;
-		GetStatusBar()->SetStatusText(ToUnicode(getModelInfo().c_str()));
+
+		statusbarText = getModelInfo();
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 		timer->Start(100);
 		titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
 	}
@@ -687,11 +690,23 @@ void MainWindow::onMenuModeGrid(wxCommandEvent &event){
 }
 
 void MainWindow::onMenuSpeedSlower(wxCommandEvent &event){
-	speed/= 1.5f;
+	speed /= 1.5f;
+	if(speed < 0) {
+		speed = 0;
+	}
+
+	string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+	GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 }
 
 void MainWindow::onMenuSpeedFaster(wxCommandEvent &event){
-	speed*= 1.5f;
+	speed *= 1.5f;
+	if(speed > 1) {
+		speed = 1;
+	}
+
+	string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 );
+	GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 }
 
 // set menu checkboxes to what player color is used
@@ -795,9 +810,9 @@ void MainWindow::onMenuColorMagenta(wxCommandEvent &event){
 void MainWindow::onTimer(wxTimerEvent &event){
 	wxPaintEvent paintEvent;
 
-	anim= anim+speed;
-	if(anim>1.0f){
-		anim-= 1.f;
+	anim = anim + speed;
+	if(anim > 1.0f){
+		anim -= 1.f;
 	}
 	onPaint(paintEvent);
 }
@@ -831,8 +846,24 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 
 
 	// here also because + and - hotkeys don't work for numpad automaticly
-	if (e.GetKeyCode() == 388) speed*= 1.5f; //numpad+
-	else if (e.GetKeyCode() == 390) speed/= 1.5f; //numpad-
+	if (e.GetKeyCode() == 388) {
+		speed *= 1.5f; //numpad+
+		if(speed > 1.0) {
+			speed = 1.0;
+		}
+
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
+	}
+	else if (e.GetKeyCode() == 390) {
+		speed /= 1.5f; //numpad-
+		if(speed < 0) {
+			speed = 0;
+		}
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+	}
 	else if (e.GetKeyCode() == 87) {
 	    glClearColor(0.6f, 0.6f, 0.6f, 1.0f); //w  key //backgroundcolor constant 0.3 -> 0.6
 
