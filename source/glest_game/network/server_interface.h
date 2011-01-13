@@ -75,88 +75,112 @@ public:
 	virtual ~ServerInterface();
 
 	virtual Socket* getSocket()				{return &serverSocket;}
-	virtual const Socket* getSocket() const	{return &serverSocket;}
-	virtual void close();
 
-	//message processing
-	virtual void update();
-	virtual void updateLobby(){};
-	virtual void updateKeyframe(int frameCount);
-	virtual void waitUntilReady(Checksum* checksum);
+    const virtual Socket *getSocket() const
+    {
+        return &serverSocket;
+    }
 
-	// message sending
-	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
-	void sendTextMessage(const string &text, int teamIndex, bool echoLocal, int lockedSlotIndex);
-    void queueTextMessage(const string &text, int teamIndex, bool echoLocal=false);
+    virtual void close();
+    virtual void update();
+    virtual void updateLobby()
+    {
+    }
 
-	virtual void quitGame(bool userManuallyQuit);
+    ;
+    virtual void updateKeyframe(int frameCount);
+    virtual void waitUntilReady(Checksum *checksum);
+    virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal = false);
+    void sendTextMessage(const string & text, int teamIndex, bool echoLocal, int lockedSlotIndex);
+    void queueTextMessage(const string & text, int teamIndex, bool echoLocal = false);
+    virtual void quitGame(bool userManuallyQuit);
+    virtual string getNetworkStatus();
+    ServerSocket *getServerSocket()
+    {
+        return &serverSocket;
+    }
 
-	//misc
-	virtual string getNetworkStatus() ;
+    SwitchSetupRequest **getSwitchSetupRequests()
+    {
+        return &switchSetupRequests[0];
+    }
 
-	ServerSocket* getServerSocket()		{return &serverSocket;}
-	SwitchSetupRequest** getSwitchSetupRequests() {return &switchSetupRequests[0];}
-	void addSlot(int playerIndex);
-	bool switchSlot(int fromPlayerIndex,int toPlayerIndex);
-	void removeSlot(int playerIndex, int lockedSlotIndex=-1);
-	ConnectionSlot* getSlot(int playerIndex);
-	int getConnectedSlotCount();
-	int getOpenSlotCount();
+    void addSlot(int playerIndex);
+    bool switchSlot(int fromPlayerIndex, int toPlayerIndex);
+    void removeSlot(int playerIndex, int lockedSlotIndex = -1);
+    ConnectionSlot *getSlot(int playerIndex);
+    int getConnectedSlotCount();
+    int getOpenSlotCount();
+    bool launchGame(const GameSettings *gameSettings);
+    void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
+    void broadcastGameSetup(const GameSettings *gameSettings);
+    void updateListen();
+    virtual bool getConnectHasHandshaked() const
+    {
+        return false;
+    }
 
-	bool launchGame(const GameSettings* gameSettings);
-	void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
-	void broadcastGameSetup(const GameSettings* gameSettings);
-	void updateListen();
-	virtual bool getConnectHasHandshaked() const { return false; }
+    virtual void slotUpdateTask(ConnectionSlotEvent *event);
+    bool hasClientConnection();
+    int getCurrentFrameCount() const
+    {
+        return currentFrameCount;
+    }
 
-	virtual void slotUpdateTask(ConnectionSlotEvent *event);
-	bool hasClientConnection();
-	int getCurrentFrameCount() const { return currentFrameCount; }
-	std::pair<bool,bool> clientLagCheck(ConnectionSlot* connectionSlot,bool skipNetworkBroadCast=false);
+    std::pair<bool,bool> clientLagCheck(ConnectionSlot *connectionSlot, bool skipNetworkBroadCast = false);
+    bool signalClientReceiveCommands(ConnectionSlot *connectionSlot, int slotIndex, bool socketTriggered, ConnectionSlotEvent & event);
+    void updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList);
+    bool isPortBound() const
+    {
+        return serverSocket.isPortBound();
+    }
 
-	bool signalClientReceiveCommands(ConnectionSlot* connectionSlot,
-									 int slotIndex,
-									 bool socketTriggered,
-									 ConnectionSlotEvent &event);
-	void updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
+    int getBindPort() const
+    {
+        return serverSocket.getBindPort();
+    }
 
-	bool isPortBound() const { return serverSocket.isPortBound(); }
-	int getBindPort() const { return serverSocket.getBindPort(); }
+    void broadcastPing(const NetworkMessagePing *networkMessage, int excludeSlot = -1)
+    {
+        this->broadcastMessage(networkMessage, excludeSlot);
+    }
 
-	void broadcastPing(const NetworkMessagePing* networkMessage, int excludeSlot= -1) {
-		this->broadcastMessage(networkMessage,excludeSlot);
-	}
+    void queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1);
+    virtual string getHumanPlayerName(int index = -1);
+    virtual int getHumanPlayerIndex() const;
+    bool getNeedToRepublishToMasterserver() const
+    {
+        return needToRepublishToMasterserver;
+    }
 
-	void queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot=-1);
-
-	virtual string getHumanPlayerName(int index=-1);
-	virtual int getHumanPlayerIndex() const;
-
-	bool getNeedToRepublishToMasterserver() const {return needToRepublishToMasterserver;}
-	void setNeedToRepublishToMasterserver(bool value) {needToRepublishToMasterserver = value;}
+    void setNeedToRepublishToMasterserver(bool value)
+    {
+        needToRepublishToMasterserver = value;
+    }
 
 public:
+    Mutex *getServerSynchAccessor()
+    {
+        return &serverSynchAccessor;
+    }
 
-	Mutex * getServerSynchAccessor() { return &serverSynchAccessor; }
-
-	virtual void simpleTask(BaseThread *callingThread);
-	void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
+    virtual void simpleTask(BaseThread *callingThread);
+    void addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp);
     virtual int isValidClientType(uint32 clientIp);
-
 private:
-
-	void broadcastMessage(const NetworkMessage* networkMessage, int excludeSlot= -1,int lockedSlotIndex=-1);
-	void broadcastMessageToConnectedClients(const NetworkMessage* networkMessage, int excludeSlot = -1);
-	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType,ConnectionSlot* connectionSlot);
-	void updateSlot(ConnectionSlotEvent *event);
-	void validateConnectedClients();
-
-	std::map<string,string> publishToMasterserver();
-
+    void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
+    void broadcastMessageToConnectedClients(const NetworkMessage *networkMessage, int excludeSlot = -1);
+    bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType, ConnectionSlot *connectionSlot);
+    void updateSlot(ConnectionSlotEvent *event);
+    void validateConnectedClients();
+    std::map<string,string> publishToMasterserver();
     int64 getNextEventId();
-
     void processTextMessageQueue();
     void processBroadCastMessageQueue();
+    void fsf(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
+protected:
+    void signalClientsToRecieveDataX(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
+    void test(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
 };
 
 }}//end namespace

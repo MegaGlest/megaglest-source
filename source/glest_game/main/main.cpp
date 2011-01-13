@@ -37,7 +37,7 @@
 #include "cache_manager.h"
 
 // For gcc backtrace on crash!
-#if defined(__GNUC__) && !defined(__MINGW32__)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
 #include <execinfo.h>
 #include <cxxabi.h>
 #include <signal.h>
@@ -201,7 +201,7 @@ public:
         message(msg.c_str());
 	}
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
     static int getFileAndLine(void *address, char *file, size_t flen) {
         int line=-1;
         static char buf[256]="";
@@ -261,7 +261,7 @@ public:
 
         string errMsg = (msg != NULL ? msg : "null");
 
-        #if defined(__GNUC__) && !defined(__MINGW32__)
+        #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
         errMsg += "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
@@ -416,7 +416,7 @@ public:
 	}
 };
 
-#ifdef __GNUC__
+#if defined(__GNUC__)  && !defined(__FreeBSD__) && !defined(BSD)
 void handleSIGSEGV(int sig) {
     char szBuf[4096]="";
     sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
