@@ -85,6 +85,7 @@ private:
 	std::vector<ProjectileParticleSystem *> projectileParticleSystems;
 	std::vector<ParticleSystemTypeSplash *> splashParticleSystemTypes; // as above
 	std::vector<SplashParticleSystem *> splashParticleSystems;
+	string statusbarText;
 
 	bool isControlKeyPressed;
 	void loadModel(string path);
