@@ -1752,11 +1752,13 @@ void ServerSocket::stopBroadCastThread() {
 	if(broadCastThread != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		broadCastThread->shutdownAndWait();
-
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		delete broadCastThread;
+		if(broadCastThread->canShutdown(true) == true) {
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            if(broadCastThread->shutdownAndWait() == true) {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                delete broadCastThread;
+            }
+		}
 		broadCastThread = NULL;
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -2121,10 +2123,21 @@ BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+bool BroadCastSocketThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
 void BroadCastSocketThread::execute() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//setRunningStatus(true);
 	RunningStatusSafeWrapper runningStatus(this);
+	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcast thread is running\n");
 
