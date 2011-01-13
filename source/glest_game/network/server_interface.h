@@ -70,6 +70,9 @@ private:
     Mutex broadcastMessageQueueThreadAccessor;
     vector<pair<const NetworkMessage *,int> > broadcastMessageQueue;
 
+    Mutex inBroadcastMessageThreadAccessor;
+    bool inBroadcastMessage;
+
 public:
 	ServerInterface();
 	virtual ~ServerInterface();
@@ -83,11 +86,7 @@ public:
 
     virtual void close();
     virtual void update();
-    virtual void updateLobby()
-    {
-    }
-
-    ;
+    virtual void updateLobby()  { };
     virtual void updateKeyframe(int frameCount);
     virtual void waitUntilReady(Checksum *checksum);
     virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal = false);
@@ -159,8 +158,7 @@ public:
     }
 
 public:
-    Mutex *getServerSynchAccessor()
-    {
+    Mutex *getServerSynchAccessor() {
         return &serverSynchAccessor;
     }
 
@@ -177,10 +175,12 @@ private:
     int64 getNextEventId();
     void processTextMessageQueue();
     void processBroadCastMessageQueue();
-    void fsf(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
 protected:
-    void signalClientsToRecieveDataX(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
-    void test(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
+    void signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
+    void checkForCompletedClients(std::map<int,bool> & mapSlotSignalledList,std::vector <string> &errorMsgList,std::map<int,ConnectionSlotEvent> &eventList);
+    void checForLaggingClients(std::map<int,bool> &mapSlotSignalledList, std::map<int,ConnectionSlotEvent> &eventList, std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,std::vector <string> &errorMsgList);
+    void executeNetworkCommandsFromClients();
+    void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
 };
 
 }}//end namespace

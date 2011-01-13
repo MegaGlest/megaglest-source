@@ -100,7 +100,7 @@ public:
 //	class ConnectionSlot
 // =====================================================
 
-class ConnectionSlot: public NetworkInterface{
+class ConnectionSlot: public NetworkInterface {
 private:
 	ServerInterface* serverInterface;
 	Socket* socket;
@@ -127,8 +127,7 @@ public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
 
-    void update(bool checkForNewClients);
-	virtual void update();
+    void update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
 	int getPlayerIndex() {return playerIndex;}
 
@@ -181,6 +180,8 @@ protected:
 	Mutex * getServerSynchAccessor();
 	std::vector<std::string> threadErrorList;
 	Mutex socketSynchAccessor;
+
+	virtual void update() {}
 };
 
 }}//end namespace
