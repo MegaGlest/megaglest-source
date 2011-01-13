@@ -319,6 +319,7 @@ public:
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
+	NetworkMessageText * getCopy() const;
 };
 #pragma pack(pop)
 

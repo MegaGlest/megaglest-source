@@ -277,17 +277,14 @@ ConnectionSlot::~ConnectionSlot() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ConnectionSlot::update() {
-    if(slotThreadWorker != NULL) {
-        slotThreadWorker->purgeCompletedEvents();
-    }
-    update(true);
-}
-
-void ConnectionSlot::update(bool checkForNewClients) {
-	clearThreadErrorList();
-
+void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 	try {
+		clearThreadErrorList();
+
+	    if(slotThreadWorker != NULL) {
+	        slotThreadWorker->purgeCompletedEvents();
+	    }
+
 		if(socket == NULL) {
 			if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
 			if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
@@ -295,7 +292,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 			this->setReceivedDataSynchCheck(false);
 
 			// Is the listener socket ready to be read?
-			//if(serverInterface->getServerSocket()->isReadable() == true)
 			if(checkForNewClients == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
 				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
@@ -466,7 +462,6 @@ void ConnectionSlot::update(bool checkForNewClients) {
 								//check consistency
 								bool compatible = checkVersionComptability(getNetworkVersionString(), networkMessageIntro.getVersionString());
 								if(compatible == false) {
-								//if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 									bool versionMatched = false;
@@ -479,10 +474,10 @@ void ConnectionSlot::update(bool checkForNewClients) {
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
 
-										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true);
-										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true);
-										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true);
-										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
+										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,lockedSlotIndex);
+										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true,lockedSlotIndex);
+										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,lockedSlotIndex);
+										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,lockedSlotIndex);
 									}
 									else {
 										versionMatched = true;
@@ -492,18 +487,11 @@ void ConnectionSlot::update(bool checkForNewClients) {
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
 										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
-
-										//sendTextMessage("Server and client have different platform mismatch.",-1, true);
-										//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
-										//sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
-										//sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
 									}
 
 									if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
 									   versionMatched == false) { // error message and disconnect only if checked
 										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
-										//DisplayErrorMessage(sErr);
-										//quit= true;
 										close();
 										SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 										return;

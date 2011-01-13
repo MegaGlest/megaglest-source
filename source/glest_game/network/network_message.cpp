@@ -418,6 +418,12 @@ NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int pl
 	data.playerIndex 	= playerIndex;
 }
 
+NetworkMessageText * NetworkMessageText::getCopy() const {
+	NetworkMessageText *copy = new NetworkMessageText();
+	copy->data = this->data;
+	return copy;
+}
+
 bool NetworkMessageText::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 
