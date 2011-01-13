@@ -24,7 +24,8 @@ rem pause
 
 ECHO --------------------------------
 Echo Touching the build date/time file so we get proper build stamp
-touch ..\..\source\glest_game\facilities\game_util.cpp
+rem touch ..\..\source\glest_game\facilities\game_util.cpp
+copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
