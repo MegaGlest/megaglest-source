@@ -76,6 +76,7 @@ using namespace Shared::Graphics::Gl;
 
 namespace Glest{ namespace Game{
 
+bool disableBacktrace = false;
 bool gameInitialized = false;
 static char *application_binary=NULL;
 
@@ -96,6 +97,7 @@ const char  *GAME_ARGS[] = {
 	"--ini-path",
 	"--log-path",
 	"--show-ini-settings",
+	"--disable-backtrace",
 	"--verbose"
 
 };
@@ -117,6 +119,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
+	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -262,6 +265,7 @@ public:
         string errMsg = (msg != NULL ? msg : "null");
 
         #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+        if(disableBacktrace == false) {
         errMsg += "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
@@ -339,7 +343,7 @@ public:
         }
 
         free(stack_strings); // malloc()ed by backtrace_symbols
-
+        }
         #endif
 
         //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
@@ -804,6 +808,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tdisplays merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
 	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+	printf("\n%s\t\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
 	printf("\n\n");
@@ -1346,6 +1351,7 @@ int glestMain(int argc, char** argv) {
 #endif
 
     SystemFlags::ENABLE_THREADED_LOGGING = false;
+    disableBacktrace = false;
 
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
@@ -1367,6 +1373,10 @@ int glestMain(int argc, char** argv) {
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
         SystemFlags::VERBOSE_MODE_ENABLED  = true;
+    }
+
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
+        disableBacktrace = true;
     }
 
 	bool haveSpecialOutputCommandLineOption = false;
@@ -1699,7 +1709,7 @@ __try {
 #endif
     application_binary=argv[0];
 
-#if defined(__GNUC__) && !defined(__MINGW32__)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
     signal(SIGSEGV, handleSIGSEGV);
 
     // http://developerweb.net/viewtopic.php?id=3013
