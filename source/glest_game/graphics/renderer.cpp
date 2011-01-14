@@ -3066,6 +3066,8 @@ void Renderer::computeSelected(	Selection::UnitContainer &units,
 	if(w<1) w=1;
 	if(h<1) h=1;
 
+	//recalculate visibleQuad ( lets see if this fixes the false selection )
+	computeVisibleQuad();
 	//setup matrices
 	glSelectBuffer(Gui::maxSelBuff, selectBuffer);
 	glMatrixMode(GL_PROJECTION);
