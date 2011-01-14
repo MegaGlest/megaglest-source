@@ -10,8 +10,15 @@ ECHO --------------------------------
 ECHO Setting up Visual Studio 2008 environment vars...
 REM Ensure ultifds HP doesn't mess the build up
 SET Platform=
-if "%DevEnvDir%." == "." call "\Program Files\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+if "%DevEnvDir%." == "." goto SETVCVARS
+GOTO SVNSECTION
 
+:SETVCVARS
+IF EXISTS "\Program Files\Microsoft Visual Studio 9.0\" call "\Program Files\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+IF EXISTS "\Program Files\Microsoft Visual Studio 9.0\" goto SETVCVARS
+IF EXISTS "\Program Files (x86)\Microsoft Visual Studio 9.0\" call "\Program Files (x86)\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+
+:SVNSECTION
 rem Update from SVN to latest rev
 ECHO --------------------------------
 Echo Updating Code from SVN to latest Revision...
