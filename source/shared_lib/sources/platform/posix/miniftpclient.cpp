@@ -24,6 +24,12 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+const char *FTP_MAPS_CUSTOM_USERNAME        = "maps_custom";
+const char *FTP_MAPS_USERNAME               = "maps";
+const char *FTP_TILESETS_CUSTOM_USERNAME    = "tilesets_custom";
+const char *FTP_TILESETS_USERNAME           = "tilesets";
+const char *FTP_COMMON_PASSWORD             = "mg_ftp_server";
+
 /*
  * This is an example showing how to get a single file from an FTP server.
  * It delays the actual destination file creation until the first write
@@ -133,6 +139,9 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) 
 
         out->stream = fopen(fullFilePath.c_str(), "wb");
         if(out->stream == NULL) {
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+
             return CURL_CHUNK_BGN_FUNC_FAIL;
         }
     }
@@ -160,6 +169,9 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
      out->ftpServer != NULL &&
      out->ftpServer->getCallBackObject() != NULL) {
          if(out->ftpServer->getQuitStatus() == true) {
+             if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread CANCELLED\n");
+             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED\n");
+
              return -1;
          }
          FTPClientCallbackInterface::FtpProgressStats stats;
@@ -260,24 +272,22 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
     if(ftpfile.stream) {
         fclose(ftpfile.stream);
         ftpfile.stream = NULL;
-
-        if(result != ftp_crt_SUCCESS) {
-            unlink(destFile.c_str());
-        }
+    }
+    if(result != ftp_crt_SUCCESS) {
+        unlink(destFile.c_str());
     }
 
     return result;
 }
 
-
 void FTPClientThread::getMapFromServer(string mapFileName) {
-    FTP_Client_ResultType result = getMapFromServer(mapFileName + ".mgm", "maps_custom", "mg_ftp_server");
+    FTP_Client_ResultType result = getMapFromServer(mapFileName + ".mgm", FTP_MAPS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
     if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
-        result = getMapFromServer(mapFileName + ".gbm", "maps_custom", "mg_ftp_server");
+        result = getMapFromServer(mapFileName + ".gbm", FTP_MAPS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
         if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
-            result = getMapFromServer(mapFileName + ".mgm", "maps", "mg_ftp_server");
+            result = getMapFromServer(mapFileName + ".mgm", FTP_MAPS_USERNAME, FTP_COMMON_PASSWORD);
             if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
-                result = getMapFromServer(mapFileName + ".gbm", "maps", "mg_ftp_server");
+                result = getMapFromServer(mapFileName + ".gbm", FTP_MAPS_USERNAME, FTP_COMMON_PASSWORD);
             }
         }
     }
@@ -303,9 +313,9 @@ void FTPClientThread::addTilesetToRequests(string tileSetName) {
 }
 
 void FTPClientThread::getTilesetFromServer(string tileSetName) {
-    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", "tilesets_custom", "mg_ftp_server");
+    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
     if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
-        result = getTilesetFromServer(tileSetName, "", "tilesets", "mg_ftp_server");
+        result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD);
     }
 
     MutexSafeWrapper safeMutex(this->getProgressMutex());
@@ -404,8 +414,8 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         if(CURLE_OK != res) {
           // we failed
-          printf("curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
+          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str());
+          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str());
 
           if(destRootFolder != "") {
               //unlink(destRootFolder.c_str());
@@ -434,7 +444,13 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
             }
 
             if(requireMoreFolders == true) {
-                FTP_Client_ResultType result2 = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword);
+                result = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword);
+                if(result != ftp_crt_SUCCESS) {
+                  if(destRootFolder != "") {
+                      //unlink(destRootFolder.c_str());
+                      removeFolder(destRootFolder);
+                  }
+                }
             }
         }
 
