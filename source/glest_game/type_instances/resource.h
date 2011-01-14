@@ -13,9 +13,11 @@
 
 #include <string>
 #include "vec.h"
+#include <map>
 #include "leak_dumper.h"
 
 using std::string;
+using std::map;
 
 namespace Glest{ namespace Game{
 
@@ -29,25 +31,42 @@ class ResourceType;
 /// Amount of a given ResourceType
 // =====================================================
 
-class Resource{
+class ValueCheckerVault {
+
+protected:
+	map<const void *,string> vaultList;
+
+	void addItemToVault(const void *ptr,int value);
+	void checkItemInVault(const void *ptr,int value) const;
+
+public:
+
+	ValueCheckerVault() {
+		vaultList.clear();
+	}
+};
+
+class Resource : public ValueCheckerVault {
 private:
     int amount;
     const ResourceType *type;
 	Vec2i pos;	
 	int balance;
 
-public: 
+public:
+	Resource();
     void init(const ResourceType *rt, int amount);
     void init(const ResourceType *rt, const Vec2i &pos);
 
-	int getAmount() const					{return amount;}
 	const ResourceType * getType() const	{return type;}
 	Vec2i getPos() const					{return pos;}
-	int getBalance() const					{return balance;}
+
+	int getAmount() const;
+	int getBalance() const;
 	string getDescription() const;
 
-	void setAmount(int amount)				{this->amount= amount;}
-	void setBalance(int balance)			{this->balance= balance;}
+	void setAmount(int amount);
+	void setBalance(int balance);
 
     bool decAmount(int i);
 };
