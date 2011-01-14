@@ -13,7 +13,7 @@
 
 #include <string>
 #include "vec.h"
-#include <map>
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -22,6 +22,7 @@ using std::map;
 namespace Glest{ namespace Game{
 
 using Shared::Graphics::Vec2i;
+using Shared::PlatformCommon::ValueCheckerVault;
 
 class ResourceType;
 
@@ -30,21 +31,6 @@ class ResourceType;
 //
 /// Amount of a given ResourceType
 // =====================================================
-
-class ValueCheckerVault {
-
-protected:
-	map<const void *,string> vaultList;
-
-	void addItemToVault(const void *ptr,int value);
-	void checkItemInVault(const void *ptr,int value) const;
-
-public:
-
-	ValueCheckerVault() {
-		vaultList.clear();
-	}
-};
 
 class Resource : public ValueCheckerVault {
 private:

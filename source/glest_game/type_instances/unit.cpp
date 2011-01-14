@@ -163,7 +163,6 @@ set<Unit*> Unit::livingUnitsp;
 Game *Unit::game = NULL;
 
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
-
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	modelFacing = CardinalDir::NORTH;
@@ -241,6 +240,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
+
+	addItemToVault(&this->hp,this->hp);
+	addItemToVault(&this->ep,this->ep);
 
 	logSynchData(__FILE__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -909,7 +911,11 @@ void Unit::born() {
 	faction->applyStaticProduction(type);
 	setCurrSkill(scStop);
 
+	checkItemInVault(&this->hp,this->hp);
+
 	hp= type->getMaxHp();
+
+	addItemToVault(&this->hp,this->hp);
 }
 
 void Unit::kill() {
@@ -1115,10 +1121,15 @@ void Unit::tick() {
 
 		//regenerate hp
 		if(type->getHpRegeneration() >= 0) {
+			checkItemInVault(&this->hp,this->hp);
+
             hp+= type->getHpRegeneration();
-            if(hp>type->getTotalMaxHp(&totalUpgrade)){
-                hp= type->getTotalMaxHp(&totalUpgrade);
+
+            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+                hp = type->getTotalMaxHp(&totalUpgrade);
             }
+
+        	addItemToVault(&this->hp,this->hp);
 		}
 		// If we have negative regeneration then check if the unit should die
 		else {
@@ -1138,11 +1149,16 @@ void Unit::tick() {
 			stopDamageParticles();
 		}
 
+		checkItemInVault(&this->ep,this->ep);
+
 		//regenerate ep
 		ep += type->getEpRegeneration();
+
 		if(ep>type->getTotalMaxEp(&totalUpgrade)){
 			ep= type->getTotalMaxEp(&totalUpgrade);
 		}
+
+		addItemToVault(&this->ep,this->ep);
 	}
 }
 
@@ -1160,12 +1176,16 @@ bool Unit::computeEp() {
 	}
 
 	//if not enough ep
-    if(ep-currSkill->getEpCost() < 0) {
+    if(ep - currSkill->getEpCost() < 0) {
         return true;
     }
 
+	checkItemInVault(&this->ep,this->ep);
+
 	//decrease ep
-    ep-= currSkill->getEpCost();
+    ep -= currSkill->getEpCost();
+
+	addItemToVault(&this->ep,this->ep);
 
 	if(getType() == NULL) {
 		char szBuf[4096]="";
@@ -1173,9 +1193,11 @@ bool Unit::computeEp() {
 		throw runtime_error(szBuf);
 	}
 
-	if(ep>getType()->getTotalMaxEp(&totalUpgrade)){
-        ep= getType()->getTotalMaxEp(&totalUpgrade);
+	if(ep > getType()->getTotalMaxEp(&totalUpgrade)){
+        ep = getType()->getTotalMaxEp(&totalUpgrade);
 	}
+
+	addItemToVault(&this->ep,this->ep);
 
     return false;
 }
@@ -1189,14 +1211,20 @@ bool Unit::repair(){
 	}
 
 	//increase hp
-	hp+= getType()->getMaxHp()/type->getProductionTime() + 1;
-    if(hp>(getType()->getTotalMaxHp(&totalUpgrade))){
-        hp= getType()->getTotalMaxHp(&totalUpgrade);
+	checkItemInVault(&this->hp,this->hp);
+
+	hp += getType()->getMaxHp()/type->getProductionTime() + 1;
+    if(hp > (getType()->getTotalMaxHp(&totalUpgrade))) {
+        hp = getType()->getTotalMaxHp(&totalUpgrade);
+
+    	addItemToVault(&this->hp,this->hp);
+
         return true;
     }
+	addItemToVault(&this->hp,this->hp);
 
 	//stop DamageParticles
-	if(hp>type->getTotalMaxHp(&totalUpgrade)/2 ){
+	if(hp > type->getTotalMaxHp(&totalUpgrade)/2 ) {
 		stopDamageParticles();
 	}
     return false;
@@ -1208,7 +1236,11 @@ bool Unit::decHp(int i) {
 		return false;
 	}
 
+	checkItemInVault(&this->hp,this->hp);
+
 	hp -= i;
+
+	addItemToVault(&this->hp,this->hp);
 
 	if(type == NULL) {
 		char szBuf[4096]="";
@@ -1225,6 +1257,9 @@ bool Unit::decHp(int i) {
     if(hp <= 0) {
 		alive= false;
         hp=0;
+
+    	addItemToVault(&this->hp,this->hp);
+
 		stopDamageParticles();
 		return true;
     }
@@ -1328,7 +1363,12 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 
 	if(upgradeType->isAffected(type)){
 		totalUpgrade.sum(upgradeType);
-		hp+= upgradeType->getMaxHp();
+
+		checkItemInVault(&this->hp,this->hp);
+
+		hp += upgradeType->getMaxHp();
+
+		addItemToVault(&this->hp,this->hp);
 	}
 }
 
@@ -1344,7 +1384,12 @@ void Unit::incKills(){
 		level= nextLevel;
 		int maxHp= totalUpgrade.getMaxHp();
 		totalUpgrade.incLevel(type);
-		hp+= totalUpgrade.getMaxHp()-maxHp;
+
+		checkItemInVault(&this->hp,this->hp);
+
+		hp += totalUpgrade.getMaxHp()-maxHp;
+
+		addItemToVault(&this->hp,this->hp);
 	}
 }
 
@@ -1370,7 +1415,13 @@ bool Unit::morph(const MorphCommandType *mct){
     if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this)){
 		map->clearUnitCells(this, pos);
 		faction->deApplyStaticCosts(type);
-		hp+= morphUnitType->getMaxHp() - type->getMaxHp();
+
+		checkItemInVault(&this->hp,this->hp);
+
+		hp += morphUnitType->getMaxHp() - type->getMaxHp();
+
+		addItemToVault(&this->hp,this->hp);
+
 		type= morphUnitType;
 		level= NULL;
 		currField=morphUnitField;

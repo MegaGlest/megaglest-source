@@ -990,4 +990,39 @@ string ModeInfo::getString() const{
 	return intToStr(width)+"x"+intToStr(height)+"-"+intToStr(depth);
 }
 
+void ValueCheckerVault::addItemToVault(const void *ptr,int value) {
+	Checksum checksum;
+	checksum.addString(intToStr(value));
+	vaultList[ptr] = intToStr(checksum.getSum());
+
+//	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add vault key [%p] value [%s] [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,intToStr(checksum.getSum()).c_str(),value);
+}
+
+void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
+	map<const void *,string>::const_iterator iterFind = vaultList.find(ptr);
+	if(iterFind == vaultList.end()) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) {
+//			printf("In [%s::%s Line: %d] check vault key [%p] value [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,value);
+//			for(map<const void *,string>::const_iterator iterFind = vaultList.begin();
+//					iterFind != vaultList.end(); iterFind++) {
+//				printf("In [%s::%s Line: %d] LIST-- check vault key [%p] value [%s]\n",__FILE__,__FUNCTION__,__LINE__,iterFind->first,iterFind->second.c_str());
+//			}
+		}
+		throw std::runtime_error("memory value has been unexpectedly modified (not found)!");
+	}
+	Checksum checksum;
+	checksum.addString(intToStr(value));
+	if(iterFind->second != intToStr(checksum.getSum())) {
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) {
+//			printf("In [%s::%s Line: %d] check vault key [%p] value [%s] [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,intToStr(checksum.getSum()).c_str(),value);
+//			for(map<const void *,string>::const_iterator iterFind = vaultList.begin();
+//					iterFind != vaultList.end(); iterFind++) {
+//				printf("In [%s::%s Line: %d] LIST-- check vault key [%p] value [%s]\n",__FILE__,__FUNCTION__,__LINE__,iterFind->first,iterFind->second.c_str());
+//			}
+//		}
+		throw std::runtime_error("memory value has been unexpectedly modified (changed)!");
+	}
+}
+
+
 }}//end namespace
