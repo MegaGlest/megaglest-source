@@ -1,0 +1,11 @@
+Sorry - no autotools support (yet!).
+
+You will need:
+ 1) GNU Make (or an equivalent).
+ 2) An ANSI C compiler (eg: gcc).
+ 3) libxml2 (http://xmlsoft.org) - the XML parser for GNOME.
+
+Just copy Makefile.linux to Makefile:
+ $ cp Makefile.linux Makefile
+Then edit Makefile to suit your needs (it's *very* simple).
+

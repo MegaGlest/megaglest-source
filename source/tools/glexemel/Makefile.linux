@@ -1,0 +1,30 @@
+# You need to edit this Makefile for your specific platform
+
+# CC is the name of your C compiler
+CC=gcc
+# CFLAGS are the flags that you want to pass to the C compiler
+CFLAGS=-Wall -ansi -pedantic
+# IDIRS specify the include directories to use
+IDIRS=-I/usr/include/libxml2
+# LIBS specify the libraries (libxml2)
+LIBS=-lxml2
+# INSTALLDIR specifies the directory to which the binaries should be installed
+INSTALLDIR=/usr/local/bin
+# CP specifies the copy command for the system
+CP=cp
+
+all: g2xml xml2g
+
+g2xml:
+	${CC} ${CFLAGS} ${IDIRS} g2xml.c -o g2xml ${LIBS}
+
+xml2g:
+	${CC} ${CFLAGS} ${IDIRS} xml2g.c -o xml2g ${LIBS}
+
+install:
+	${CP} g2xml ${INSTALLDIR}/.
+	${CP} xml2g ${INSTALLDIR}/.
+	${CP} g3d.dtd ${INSTALLDIR}/.
+
+clean:
+	rm -f g2xml xml2g
