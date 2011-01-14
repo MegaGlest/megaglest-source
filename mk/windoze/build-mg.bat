@@ -15,8 +15,13 @@ GOTO SVNSECTION
 
 :SETVCVARS
 
+IF EXIST "%VS90COMNTOOLS%..\..\"                             GOTO VC_Common
 IF EXIST "\Program Files\Microsoft Visual Studio 9.0\"       GOTO VC_32
 IF EXIST "\Program Files (x86)\Microsoft Visual Studio 9.0\" GOTO VC_64
+goto SVNSECTION
+
+:VC_Common
+call "%VS90COMNTOOLS%..\..\vc\vcvarsall.bat"
 goto SVNSECTION
 
 :VC_32
