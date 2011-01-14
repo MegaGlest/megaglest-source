@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ASCII" ?>
+
+<!--
+	A DTD for describing an XML representation of G3D version 4 files.
+
+	Created by Jonathan Merritt <jmerritt@warpax.com>
+	Copyright (C) Jonathan Merritt 2005.
+
+	This DTD may be distributed under the terms of the GNU General Public
+	License.
+-->
+
+<!ELEMENT G3D (Mesh+)>
+<!ATTLIST G3D version CDATA #REQUIRED>
+
+<!ELEMENT Mesh 
+	(Diffuse,Specular,Texture?,Vertices+,Normals+,TexCoords?,Indices)>
+<!ATTLIST Mesh name           CDATA        #REQUIRED>
+<!ATTLIST Mesh frameCount     CDATA        #REQUIRED>
+<!ATTLIST Mesh vertexCount    CDATA        #REQUIRED>
+<!ATTLIST Mesh indexCount     CDATA        #REQUIRED>
+<!ATTLIST Mesh specularPower  CDATA        #REQUIRED>
+<!ATTLIST Mesh opacity        CDATA        #REQUIRED>
+<!ATTLIST Mesh twoSided       (true|false) #REQUIRED>
+<!ATTLIST Mesh customColor    (true|false) #REQUIRED>
+<!ATTLIST Mesh diffuseTexture (true|false) #REQUIRED>
+
+<!ELEMENT Diffuse (Color)>
+
+<!ELEMENT Specular (Color)>
+
+<!ELEMENT Color EMPTY>
+<!ATTLIST Color r CDATA #REQUIRED>
+<!ATTLIST Color g CDATA #REQUIRED>
+<!ATTLIST Color b CDATA #REQUIRED>
+
+<!ELEMENT Texture EMPTY>
+<!ATTLIST Texture name CDATA #REQUIRED>
+
+<!ELEMENT Vertices (Vertex+)>
+<!ATTLIST Vertices frame CDATA #IMPLIED>
+
+<!ELEMENT Vertex EMPTY>
+<!ATTLIST Vertex x CDATA #REQUIRED>
+<!ATTLIST Vertex y CDATA #REQUIRED>
+<!ATTLIST Vertex z CDATA #REQUIRED>
+
+<!ELEMENT Normals (Normal+)>
+<!ATTLIST Normals frame CDATA #IMPLIED>
+
+<!ELEMENT Normal EMPTY>
+<!ATTLIST Normal x CDATA #REQUIRED>
+<!ATTLIST Normal y CDATA #REQUIRED>
+<!ATTLIST Normal z CDATA #REQUIRED>
+
+<!ELEMENT TexCoords (ST+)>
+
+<!ELEMENT ST EMPTY>
+<!ATTLIST ST s CDATA #REQUIRED>
+<!ATTLIST ST t CDATA #REQUIRED>
+
+<!ELEMENT Indices (Ix+)>
+
+<!ELEMENT Ix EMPTY>
+<!ATTLIST Ix i CDATA #REQUIRED>
+

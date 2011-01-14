@@ -1,0 +1,13 @@
+=== GLEXEMEL ===
+An XML format for the G3D file format used by the game Glest:
+  http://www.glest.org
+
+This XML format allows for exporters to create XML file descriptions that
+can then be converted to binary.
+
+Note: This package is not yet part of Glest, although it is offered for
+inclusion should the developers wish.
+
+Copyright (C) Jonathan Merritt 2005.
+This package may be distributed under the terms of the GNU General Public
+License (see the file COPYING for more details).
