@@ -52,7 +52,7 @@ const char *UnitType::propertyNames[]= {"burnable", "rotated_climb"};
 
 // ==================== creation and loading ====================
 
-UnitType::UnitType(){
+UnitType::UnitType() : ProducibleType() {
 
 	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
@@ -82,6 +82,22 @@ UnitType::UnitType(){
 	hpRegeneration= 0;
 	epRegeneration= 0;
 	maxUnitCount= 0;
+	maxHp=0;
+	maxEp=0;
+	armor=0;
+	sight=0;
+	size=0;
+	height=0;
+
+	addItemToVault(&(this->maxHp),this->maxHp);
+	addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
+	addItemToVault(&(this->maxEp),this->maxEp);
+	addItemToVault(&(this->epRegeneration),this->epRegeneration);
+	addItemToVault(&(this->maxUnitCount),this->maxUnitCount);
+	addItemToVault(&(this->armor),this->armor);
+	addItemToVault(&(this->sight),this->sight);
+	addItemToVault(&(this->size),this->size);
+	addItemToVault(&(this->height),this->height);
 }
 
 UnitType::~UnitType(){
@@ -124,39 +140,69 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		const XmlNode *parametersNode= unitNode->getChild("parameters");
 
 		//size
+		//checkItemInVault(&(this->size),this->size);
+
 		size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 
+		addItemToVault(&(this->size),this->size);
+
 		//height
+		//checkItemInVault(&(this->height),this->height);
+
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 
+		addItemToVault(&(this->height),this->height);
+
 		//maxHp
-		maxHp= parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+		//checkItemInVault(&(this->maxHp),this->maxHp);
+
+		maxHp = parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+
+		addItemToVault(&(this->maxHp),this->maxHp);
 
 		//hpRegeneration
+		//checkItemInVault(&(this->hpRegeneration),this->hpRegeneration);
+
 		hpRegeneration= parametersNode->getChild("max-hp")->getAttribute("regeneration")->getIntValue();
 
+		addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
+
 		//maxEp
+		//checkItemInVault(&(this->maxEp),this->maxEp);
+
 		maxEp= parametersNode->getChild("max-ep")->getAttribute("value")->getIntValue();
 
-		if(maxEp!=0){
-			//wpRegeneration
+		addItemToVault(&(this->maxEp),this->maxEp);
+
+		if(maxEp != 0) {
+			//epRegeneration
+			//checkItemInVault(&(this->epRegeneration),this->epRegeneration);
+
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
+		addItemToVault(&(this->epRegeneration),this->epRegeneration);
 
 		//maxUnitCount
-		if(parametersNode->hasChild("max-unit-count")){
+		if(parametersNode->hasChild("max-unit-count")) {
+			//checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
+
 			maxUnitCount= parametersNode->getChild("max-unit-count")->getAttribute("value")->getIntValue();
 		}
+		addItemToVault(&(this->maxUnitCount),this->maxUnitCount);
 
 		//armor
+		//checkItemInVault(&(this->armor),this->armor);
 		armor= parametersNode->getChild("armor")->getAttribute("value")->getIntValue();
+		addItemToVault(&(this->armor),this->armor);
 
 		//armor type string
 		string armorTypeName= parametersNode->getChild("armor-type")->getAttribute("value")->getRestrictedValue();
 		armorType= techTree->getArmorType(armorTypeName);
 
 		//sight
+		//checkItemInVault(&(this->sight),this->sight);
 		sight= parametersNode->getChild("sight")->getAttribute("value")->getIntValue();
+		addItemToVault(&(this->sight),this->sight);
 
 		//prod time
 		productionTime= parametersNode->getChild("time")->getAttribute("value")->getIntValue();
@@ -486,6 +532,8 @@ const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaire
 }
 
 bool UnitType::hasEmptyCellMap() const {
+	checkItemInVault(&(this->size),this->size);
+
 	bool result = (size > 0);
 
 	for(int i = 0; result == true && i < size; ++i) {
@@ -505,6 +553,9 @@ bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 	if(cellMap == NULL) {
 		throw runtime_error("cellMap == NULL");
 	}
+
+	checkItemInVault(&(this->size),this->size);
+
 	int tmp=0;
 	switch (facing) {
 		case CardinalDir::EAST:
@@ -553,45 +604,53 @@ const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skil
 // ==================== totals ====================
 
 int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const{
+	checkItemInVault(&(this->maxHp),this->maxHp);
+
 	return maxHp + totalUpgrade->getMaxHp();
 }
 
 int UnitType::getTotalMaxEp(const TotalUpgrade *totalUpgrade) const{
+	checkItemInVault(&(this->maxEp),this->maxEp);
+
 	return maxEp + totalUpgrade->getMaxEp();
 }
 
-int UnitType::getTotalArmor(const TotalUpgrade *totalUpgrade) const{
+int UnitType::getTotalArmor(const TotalUpgrade *totalUpgrade) const {
+	checkItemInVault(&(this->armor),this->armor);
+
 	return armor + totalUpgrade->getArmor();
 }
 
 int UnitType::getTotalSight(const TotalUpgrade *totalUpgrade) const{
+	checkItemInVault(&(this->sight),this->sight);
+
 	return sight + totalUpgrade->getSight();
 }
 
 // ==================== has ====================
 
-bool UnitType::hasSkillClass(SkillClass skillClass) const{
+bool UnitType::hasSkillClass(SkillClass skillClass) const {
     return firstSkillTypeOfClass[skillClass]!=NULL;
 }
 
-bool UnitType::hasCommandType(const CommandType *commandType) const{
+bool UnitType::hasCommandType(const CommandType *commandType) const {
     assert(commandType!=NULL);
-    for(int i=0; i<commandTypes.size(); ++i){
-        if(commandTypes[i]==commandType){
+    for(int i=0; i<commandTypes.size(); ++i) {
+        if(commandTypes[i]==commandType) {
             return true;
         }
     }
     return false;
 }
 
-bool UnitType::hasCommandClass(CommandClass commandClass) const{
+bool UnitType::hasCommandClass(CommandClass commandClass) const {
 	return firstCommandTypeOfClass[commandClass]!=NULL;
 }
 
-bool UnitType::hasSkillType(const SkillType *skillType) const{
+bool UnitType::hasSkillType(const SkillType *skillType) const {
     assert(skillType!=NULL);
-    for(int i=0; i<skillTypes.size(); ++i){
-        if(skillTypes[i]==skillType){
+    for(int i=0; i<skillTypes.size(); ++i) {
+        if(skillTypes[i]==skillType) {
             return true;
         }
     }
@@ -614,11 +673,11 @@ bool UnitType::isOfClass(UnitClass uc) const{
 
 // ==================== PRIVATE ====================
 
-void UnitType::computeFirstStOfClass(){
-	for(int j= 0; j<scCount; ++j){
+void UnitType::computeFirstStOfClass() {
+	for(int j= 0; j < scCount; ++j) {
         firstSkillTypeOfClass[j]= NULL;
-        for(int i= 0; i<skillTypes.size(); ++i){
-            if(skillTypes[i]->getClass()== SkillClass(j)){
+        for(int i= 0; i < skillTypes.size(); ++i) {
+            if(skillTypes[i]->getClass()== SkillClass(j)) {
                 firstSkillTypeOfClass[j]= skillTypes[i];
                 break;
             }
@@ -629,10 +688,10 @@ void UnitType::computeFirstStOfClass(){
 void UnitType::computeFirstCtOfClass(){
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] \n",__FILE__,__FUNCTION__,__LINE__);
 
-    for(int j=0; j<ccCount; ++j){
+    for(int j=0; j<ccCount; ++j) {
         firstCommandTypeOfClass[j]= NULL;
-        for(int i=0; i<commandTypes.size(); ++i){
-            if(commandTypes[i]->getClass()== CommandClass(j)){
+        for(int i=0; i < commandTypes.size(); ++i) {
+            if(commandTypes[i]->getClass()== CommandClass(j)) {
                 firstCommandTypeOfClass[j]= commandTypes[i];
                 break;
             }
@@ -673,7 +732,10 @@ string UnitType::getReqDesc() const{
 	Lang &lang= Lang::getInstance();
 	string desc = "Limits: ";
 	string resultTxt="";
-	if(getMaxUnitCount()>0){
+
+	checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
+
+	if(getMaxUnitCount() > 0) {
 		resultTxt+="\n"+lang.get("MaxUnitCount")+" "+intToStr(getMaxUnitCount());
 	}
 	if(resultTxt=="")

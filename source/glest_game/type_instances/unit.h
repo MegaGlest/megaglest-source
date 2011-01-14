@@ -31,6 +31,7 @@ using Shared::Graphics::Vec3f;
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Model;
 using Shared::PlatformCommon::Chrono;
+using Shared::PlatformCommon::ValueCheckerVault;
 
 using std::set;
 
@@ -216,7 +217,7 @@ public:
 ///	A game unit or building
 // ===============================
 
-class Unit {
+class Unit : public ValueCheckerVault {
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;

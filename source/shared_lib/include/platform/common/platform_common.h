@@ -26,6 +26,7 @@
 #include "checksum.h"
 #include <utility>
 #include <SDL.h>
+#include <map>
 #include "leak_dumper.h"
 
 using std::string;
@@ -163,6 +164,23 @@ inline string trim (const string & s, const string & t = SPACES) {
   string d (s);
   return trim_left (trim_right (d, t), t) ;
 }  // end of trim
+
+
+class ValueCheckerVault {
+
+protected:
+	std::map<const void *,string> vaultList;
+
+	void addItemToVault(const void *ptr,int value);
+	void checkItemInVault(const void *ptr,int value) const;
+
+public:
+
+	ValueCheckerVault() {
+		vaultList.clear();
+	}
+};
+
 
 }}//end namespace
 

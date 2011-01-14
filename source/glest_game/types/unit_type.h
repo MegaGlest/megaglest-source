@@ -18,12 +18,14 @@
 #include "sound_container.h"
 #include "checksum.h"
 #include "game_constants.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 
 using Shared::Sound::StaticSound;
 using Shared::Util::Checksum;
+using Shared::PlatformCommon::ValueCheckerVault;
 
 class UpgradeType;
 class UnitType;
@@ -38,7 +40,7 @@ class Faction;
 // 	class Level
 // ===============================
 
-class Level{
+class Level {
 private:
 	string name;
 	int kills;
@@ -56,7 +58,7 @@ public:
 ///	A unit or building type
 // ===============================
 
-enum UnitClass{
+enum UnitClass {
 	ucWarrior,
 	ucWorker,
 	ucBuilding
@@ -64,9 +66,9 @@ enum UnitClass{
 
 typedef list<UnitParticleSystemType*> DamageParticleSystemTypes;
 
-class UnitType: public ProducibleType{
+class UnitType: public ProducibleType, public ValueCheckerVault {
 public:
-	enum Property{
+	enum Property {
 		pBurnable,
 		pRotatedClimb,
 
