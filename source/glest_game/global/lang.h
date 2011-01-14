@@ -39,6 +39,7 @@ public:
 	void loadStrings(const string &language);
 	void loadScenarioStrings(const string &scenarioDir, const string &scenarioName);
 	string get(const string &s);
+	bool hasString(const string &s);
 	string getScenarioString(const string &s);
 };
 

@@ -73,6 +73,20 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 	}
 }
 
+bool Lang::hasString(const string &s) {
+	bool hasString = false;
+	try {
+		string result = strings.getString(s);
+		hasString = true;
+	}
+	catch(exception &ex) {
+		if(strings.getpath() != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
+	}
+	return hasString;
+}
+
 string Lang::get(const string &s) {
 	try{
 		string result = strings.getString(s);
