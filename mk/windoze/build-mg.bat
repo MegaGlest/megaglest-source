@@ -14,9 +14,21 @@ if "%DevEnvDir%." == "." goto SETVCVARS
 GOTO SVNSECTION
 
 :SETVCVARS
-IF EXISTS "\Program Files\Microsoft Visual Studio 9.0\" call "\Program Files\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
-IF EXISTS "\Program Files\Microsoft Visual Studio 9.0\" goto SETVCVARS
-IF EXISTS "\Program Files (x86)\Microsoft Visual Studio 9.0\" call "\Program Files (x86)\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+
+IF EXIST "\Program Files\Microsoft Visual Studio 9.0\"       GOTO VC_32
+IF EXIST "\Program Files (x86)\Microsoft Visual Studio 9.0\" GOTO VC_64
+goto SVNSECTION
+
+:VC_32
+ECHO 32 bit Windows detected...
+call "\Program Files\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+goto SVNSECTION
+
+:VC_64
+ECHO 64 bit Windows detected...
+call "\Program Files (x86)\Microsoft Visual Studio 9.0\vc\vcvarsall.bat"
+goto SVNSECTION
+
 
 :SVNSECTION
 rem Update from SVN to latest rev
