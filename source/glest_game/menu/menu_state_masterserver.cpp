@@ -893,7 +893,21 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port)
 		//config.setString("ServerIp", serverIp.getString());
 		//config.save();
 
-		return true;
+		for(time_t elapsedWait = time(NULL);
+			clientInterface->getIntroDone() == false &&
+			clientInterface->isConnected() &&
+			difftime(time(NULL),elapsedWait) <= 3;) {
+			if(clientInterface->isConnected()) {
+				//update lobby
+				clientInterface->updateLobby();
+			}
+		}
+		if( clientInterface->isConnected() == true &&
+			clientInterface->getIntroDone() == true) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
