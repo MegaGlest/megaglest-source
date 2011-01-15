@@ -40,15 +40,16 @@ namespace Shared{ namespace Util{
 
 // Init statics
 std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> *SystemFlags::debugLogFileList = NULL;
-int SystemFlags::lockFile				= -1;
-int SystemFlags::lockFileCountIndex		= -1;
-string SystemFlags::lockfilename		= "";
-bool SystemFlags::haveSpecialOutputCommandLineOption = false;
-CURL *SystemFlags::curl_handle			= NULL;
-int SystemFlags::DEFAULT_HTTP_TIMEOUT	= 10;
-bool SystemFlags::VERBOSE_MODE_ENABLED  = false;
-bool SystemFlags::ENABLE_THREADED_LOGGING = false;
-static LogFileThread *threadLogger = NULL;
+int SystemFlags::lockFile								= -1;
+int SystemFlags::lockFileCountIndex						= -1;
+string SystemFlags::lockfilename						= "";
+bool SystemFlags::haveSpecialOutputCommandLineOption 	= false;
+CURL *SystemFlags::curl_handle							= NULL;
+bool SystemFlags::curl_global_init_called				= false;
+int SystemFlags::DEFAULT_HTTP_TIMEOUT					= 10;
+bool SystemFlags::VERBOSE_MODE_ENABLED  				= false;
+bool SystemFlags::ENABLE_THREADED_LOGGING 				= false;
+static LogFileThread *threadLogger 						= NULL;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -145,8 +146,6 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 	}
 	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeOut);
 
-	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
-
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
@@ -165,8 +164,12 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 }
 
 CURL *SystemFlags::initHTTP() {
-	curl_global_init(CURL_GLOBAL_ALL);
+	if(SystemFlags::curl_global_init_called == false) {
+		SystemFlags::curl_global_init_called = true;
+		curl_global_init(CURL_GLOBAL_ALL);
+	}
 	CURL *handle = curl_easy_init();
+	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 	return handle;
 }
 
@@ -224,11 +227,17 @@ SystemFlags::SystemFlags() {
 
 }
 
-void SystemFlags::cleanupHTTP(CURL **handle) {
+void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
 	if(handle != NULL && *handle != NULL) {
 		curl_easy_cleanup(*handle);
 		*handle = NULL;
-		curl_global_cleanup();
+
+		if(globalCleanup == true) {
+			if(SystemFlags::curl_global_init_called == true) {
+				SystemFlags::curl_global_init_called = false;
+				curl_global_cleanup();
+			}
+		}
 	}
 }
 
@@ -236,7 +245,7 @@ SystemFlags::~SystemFlags() {
 	SystemFlags::Close();
 
 	if(curl_handle != NULL) {
-		SystemFlags::cleanupHTTP(&curl_handle);
+		SystemFlags::cleanupHTTP(&curl_handle, true);
 		curl_handle = NULL;
 	}
 }
