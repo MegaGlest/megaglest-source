@@ -211,8 +211,9 @@ int ftpRemoveDir(const char* path)
 
 int ftpCloseSocket(socket_t *s)
 {
+	int ret = 0;
 	if(VERBOSE_MODE_ENABLED) printf("\nClosing socket: %d\n",*s);
-    int ret = 0;
+    
     if(*s > 0) {
     	shutdown((SOCKET)*s,2);
     	ret = closesocket((SOCKET)*s);
@@ -340,6 +341,7 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 	struct sockaddr_in clientinfo;
     unsigned len;
     SOCKET dataSocket;
+	ip_t remoteIP;
 
     len = sizeof(clientinfo);
 
@@ -352,7 +354,7 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 
 	ftpCloseSocket(&listner); // Server-Socket wird nicht mehr gebrauch deshalb schließen
 
-    ip_t remoteIP = ntohl(clientinfo.sin_addr.s_addr);
+    remoteIP = ntohl(clientinfo.sin_addr.s_addr);
     if(ftpIsValidClient && ftpIsValidClient(remoteIP) == 0)
     {
 if(VERBOSE_MODE_ENABLED) printf("Connection with %s is NOT a valid trusted client, dropping connection.\n", inet_ntoa(clientinfo.sin_addr));

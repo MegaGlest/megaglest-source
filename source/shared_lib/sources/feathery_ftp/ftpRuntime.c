@@ -247,9 +247,9 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
  */
 int ftpShutdown(void)
 {
-	if(VERBOSE_MODE_ENABLED) printf("About to Shutdown Feathery FTP-Server server [%d]\n",server);
-
 	int n;
+	if(VERBOSE_MODE_ENABLED) printf("About to Shutdown Feathery FTP-Server server [%d]\n",server);
+	
 	ftpUntrackSocket(server);
 	ftpCloseSocket(&server);
 	//ftpCloseSocket(serverPassivePort);
