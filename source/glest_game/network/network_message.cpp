@@ -120,7 +120,8 @@ NetworkMessageIntro::NetworkMessageIntro() {
 NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionString,
 										const string &name, int playerIndex,
 										NetworkGameStateType gameState,
-										uint32 externalIp) {
+										uint32 externalIp,
+										uint32 ftpPort) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
@@ -128,9 +129,10 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.playerIndex	= static_cast<int16>(playerIndex);
 	data.gameState		= static_cast<int8>(gameState);
 	data.externalIp     = externalIp;
+	data.ftpPort		= ftpPort;
 }
 
-bool NetworkMessageIntro::receive(Socket* socket){
+bool NetworkMessageIntro::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
@@ -138,9 +140,9 @@ bool NetworkMessageIntro::receive(Socket* socket){
 	return result;
 }
 
-void NetworkMessageIntro::send(Socket* socket) const{
+void NetworkMessageIntro::send(Socket* socket) const {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
-	assert(data.messageType==nmtIntro);
+	assert(data.messageType == nmtIntro);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 

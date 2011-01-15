@@ -54,6 +54,7 @@ private:
 	time_t clientSimulationLagStartTime;
 	string versionString;
 	int sessionKey;
+	int serverFTPPort;
 
 public:
 	ClientInterface();
@@ -104,6 +105,7 @@ public:
 	const string &getVersionString() const	{return versionString;}
 	virtual string getHumanPlayerName(int index=-1);
 	virtual int getHumanPlayerIndex() const {return playerIndex;}
+	int getServerFTPPort() const { return serverFTPPort; }
 
 protected:
 

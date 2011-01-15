@@ -92,6 +92,7 @@ private:
 		int16 playerIndex;
 		int8 gameState;
 		uint32 externalIp;
+		uint32 ftpPort;
 	};
 
 private:
@@ -99,7 +100,7 @@ private:
 
 public:
 	NetworkMessageIntro();
-	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState, uint32 externalIp);
+	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState, uint32 externalIp, uint32 ftpPort);
 
 	int32 getSessionId() const 					{ return data.sessionId;}
 	string getVersionString() const				{ return data.versionString.getString(); }
@@ -107,6 +108,7 @@ public:
 	int getPlayerIndex() const					{ return data.playerIndex; }
 	NetworkGameStateType getGameState() const 	{ return static_cast<NetworkGameStateType>(data.gameState); }
 	uint32 getExternalIp() const                { return data.externalIp;}
+	uint32 getFtpPort() const					{ return data.ftpPort; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

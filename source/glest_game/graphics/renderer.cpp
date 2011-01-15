@@ -1706,7 +1706,7 @@ void Renderer::renderSurface(const int renderFps) {
 
 	if(shadowsOffDueToMinRender == false) {
 		//shadow texture
-		if(shadows==sProjected || shadows==sShadowMapping){
+		if(shadows == sProjected || shadows == sShadowMapping) {
 			glActiveTexture(shadowTexUnit);
 			glEnable(GL_TEXTURE_2D);
 

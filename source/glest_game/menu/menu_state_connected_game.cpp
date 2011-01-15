@@ -389,7 +389,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     if(config.getBool("EnableFTPXfer","true") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
         string serverUrl = clientInterface->getServerIpAddress();
-        int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+        //int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+        int portNumber   = clientInterface->getServerFTPPort();
 
         vector<string> mapPathList = config.getPathListForType(ptMaps);
         std::pair<string,string> mapsPath;

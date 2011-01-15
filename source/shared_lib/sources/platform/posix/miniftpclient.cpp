@@ -262,8 +262,8 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         CURLcode res = curl_easy_perform(curl);
         if(CURLE_OK != res) {
           // we failed
-          printf("curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s]\n", res,curl_easy_strerror(res));
+          printf("curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
+          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
         }
         else {
             result = ftp_crt_SUCCESS;
@@ -420,8 +420,8 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         if(CURLE_OK != res) {
           // we failed
-          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str());
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str());
+          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
+          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
 
           if(destRootFolder != "") {
               //unlink(destRootFolder.c_str());
