@@ -242,8 +242,6 @@ private:
 	float smoothedRenderFps;
 	bool shadowsOffDueToMinRender;
 
-	bool useQuadCache;
-
 	SimpleTaskThread *saveScreenShotThread;
 	Mutex saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
