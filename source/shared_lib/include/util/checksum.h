@@ -27,7 +27,7 @@ namespace Shared{ namespace Util{
 //	class Checksum
 // =====================================================
 
-class Checksum{
+class Checksum {
 private:
 	int32	sum;
 	int32	r;
@@ -48,6 +48,7 @@ public:
 
 	void addByte(int8 value);
 	void addString(const string &value);
+	int32 addInt(const int32 &value);
 	void addFile(const string &path);
 
 	static void removeFileFromCache(const string file);

@@ -141,43 +141,32 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		//size
 		//checkItemInVault(&(this->size),this->size);
-
 		size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
-
 		addItemToVault(&(this->size),this->size);
 
 		//height
 		//checkItemInVault(&(this->height),this->height);
-
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-
 		addItemToVault(&(this->height),this->height);
 
 		//maxHp
 		//checkItemInVault(&(this->maxHp),this->maxHp);
-
 		maxHp = parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-
 		addItemToVault(&(this->maxHp),this->maxHp);
 
 		//hpRegeneration
 		//checkItemInVault(&(this->hpRegeneration),this->hpRegeneration);
-
 		hpRegeneration= parametersNode->getChild("max-hp")->getAttribute("regeneration")->getIntValue();
-
 		addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
 
 		//maxEp
 		//checkItemInVault(&(this->maxEp),this->maxEp);
-
 		maxEp= parametersNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-
 		addItemToVault(&(this->maxEp),this->maxEp);
 
 		if(maxEp != 0) {
 			//epRegeneration
 			//checkItemInVault(&(this->epRegeneration),this->epRegeneration);
-
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
@@ -185,7 +174,6 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		//maxUnitCount
 		if(parametersNode->hasChild("max-unit-count")) {
 			//checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
-
 			maxUnitCount= parametersNode->getChild("max-unit-count")->getAttribute("value")->getIntValue();
 		}
 		addItemToVault(&(this->maxUnitCount),this->maxUnitCount);
@@ -532,10 +520,8 @@ const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaire
 }
 
 bool UnitType::hasEmptyCellMap() const {
-	checkItemInVault(&(this->size),this->size);
-
+	//checkItemInVault(&(this->size),this->size);
 	bool result = (size > 0);
-
 	for(int i = 0; result == true && i < size; ++i) {
 		for(int j = 0; j < size; ++j){
 			if(cellMap[i*size+j] == true) {
@@ -554,8 +540,7 @@ bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 		throw runtime_error("cellMap == NULL");
 	}
 
-	checkItemInVault(&(this->size),this->size);
-
+	//checkItemInVault(&(this->size),this->size);
 	int tmp=0;
 	switch (facing) {
 		case CardinalDir::EAST:
@@ -603,27 +588,23 @@ const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skil
 
 // ==================== totals ====================
 
-int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const{
+int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->maxHp),this->maxHp);
-
 	return maxHp + totalUpgrade->getMaxHp();
 }
 
-int UnitType::getTotalMaxEp(const TotalUpgrade *totalUpgrade) const{
+int UnitType::getTotalMaxEp(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->maxEp),this->maxEp);
-
 	return maxEp + totalUpgrade->getMaxEp();
 }
 
 int UnitType::getTotalArmor(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->armor),this->armor);
-
 	return armor + totalUpgrade->getArmor();
 }
 
-int UnitType::getTotalSight(const TotalUpgrade *totalUpgrade) const{
+int UnitType::getTotalSight(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->sight),this->sight);
-
 	return sight + totalUpgrade->getSight();
 }
 
@@ -734,11 +715,10 @@ string UnitType::getReqDesc() const{
 	string resultTxt="";
 
 	checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
-
 	if(getMaxUnitCount() > 0) {
-		resultTxt+="\n"+lang.get("MaxUnitCount")+" "+intToStr(getMaxUnitCount());
+		resultTxt += "\n" + lang.get("MaxUnitCount") + " " + intToStr(getMaxUnitCount());
 	}
-	if(resultTxt=="")
+	if(resultTxt == "")
 		return ProducibleType::getReqDesc();
 	else
 		return ProducibleType::getReqDesc()+"\nLimits: "+resultTxt;

@@ -169,7 +169,7 @@ inline string trim (const string & s, const string & t = SPACES) {
 class ValueCheckerVault {
 
 protected:
-	std::map<const void *,string> vaultList;
+	std::map<const void *,int32> vaultList;
 
 	void addItemToVault(const void *ptr,int value);
 	void checkItemInVault(const void *ptr,int value) const;

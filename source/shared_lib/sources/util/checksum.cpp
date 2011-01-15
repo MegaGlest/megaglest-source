@@ -47,26 +47,39 @@ void Checksum::addByte(int8 value) {
 	int32 cipher= (value ^ (r >> 8));
 
 	r= (cipher + r) * c1 + c2;
-	sum+= cipher;
+	sum += cipher;
 }
 
 void Checksum::addSum(int32 value) {
-	sum+= value;
+	sum += value;
 }
 
-void Checksum::addString(const string &value){
-	for(unsigned int i= 0; i<value.size(); ++i){
+int32 Checksum::addInt(const int32 &value) {
+	int8 byte 	= (value >>  0) & 0xFF;
+	addByte(byte);
+	byte  		= (value >>  8) & 0xFF;
+	addByte(byte);
+	byte 		= (value >> 16) & 0xFF;
+	addByte(byte);
+	byte 		= (value >> 24) & 0xFF;
+	addByte(byte);
+
+	return sum;
+}
+
+void Checksum::addString(const string &value) {
+	for(unsigned int i = 0; i < value.size(); ++i) {
 		addByte(value[i]);
 	}
 }
 
-void Checksum::addFile(const string &path){
+void Checksum::addFile(const string &path) {
 	if(path != "") {
 		fileList[path] = 0;
 	}
 }
 
-bool Checksum::addFileToSum(const string &path){
+bool Checksum::addFileToSum(const string &path) {
 
 // OLD SLOW FILE I/O
 /*
