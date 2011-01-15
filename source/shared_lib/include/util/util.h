@@ -111,6 +111,8 @@ protected:
 
 	static std::map<DebugType,SystemFlagsType> *debugLogFileList;
 	static bool haveSpecialOutputCommandLineOption;
+	static bool curl_global_init_called;
+
 public:
 
 	static CURL *curl_handle;
@@ -128,7 +130,7 @@ public:
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);
 
 	static CURL *initHTTP();
-	static void cleanupHTTP(CURL **handle);
+	static void cleanupHTTP(CURL **handle,bool globalCleanup=false);
 
     static bool getThreadedLoggerRunning();
     static std::size_t getLogEntryBufferCount();
