@@ -561,6 +561,8 @@ void MenuStateJoinGame::connectToServer() {
 	}
 	if( clientInterface->isConnected() == true &&
 		clientInterface->getIntroDone() == true) {
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getServerFTPPort());
 		abortAutoFind = true;
 		clientInterface->stopServerDiscovery();
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
