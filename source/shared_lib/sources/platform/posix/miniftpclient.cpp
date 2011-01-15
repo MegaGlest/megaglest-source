@@ -242,7 +242,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    CURL *curl = curl_easy_init();
+    CURL *curl = SystemFlags::initHTTP();
     if(curl) {
         ftpfile.stream = NULL;
 
@@ -275,7 +275,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
             result = ftp_crt_SUCCESS;
         }
 
-        curl_easy_cleanup(curl);
+        SystemFlags::cleanupHTTP(&curl);
     }
 
     if(ftpfile.stream) {
@@ -382,7 +382,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    CURL *curl = curl_easy_init();
+    CURL *curl = SystemFlags::initHTTP();
     if(curl) {
         ftpfile.stream = NULL;
 
@@ -470,7 +470,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
             }
         }
 
-        curl_easy_cleanup(curl);
+        SystemFlags::cleanupHTTP(&curl);
     }
 
     if(ftpfile.stream) {
