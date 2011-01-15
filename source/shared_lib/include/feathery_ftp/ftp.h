@@ -174,7 +174,7 @@ extern int ftpRemoveFile(const char* path);
 #endif
 extern int ftpMakeDir(const char* path);
 extern int ftpRemoveDir(const char* path);
-extern int ftpCloseSocket(socket_t s);
+extern int ftpCloseSocket(socket_t *s);
 extern int ftpSend(socket_t s, const void *data, int len);
 extern int ftpReceive(socket_t s, void *data, int len);
 extern socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int sessionId);

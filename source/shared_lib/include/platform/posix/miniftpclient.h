@@ -27,9 +27,10 @@ namespace Shared { namespace PlatformCommon {
 // =====================================================
 
 enum FTP_Client_ResultType {
-    ftp_crt_SUCCESS = 0,
-    ftp_crt_FAIL    = 1,
-    ftp_crt_ABORTED = 2
+    ftp_crt_SUCCESS 	= 0,
+    ftp_crt_PARTIALFAIL = 1,
+    ftp_crt_FAIL    	= 2,
+    ftp_crt_ABORTED 	= 3
 };
 
 enum FTP_Client_CallbackType {

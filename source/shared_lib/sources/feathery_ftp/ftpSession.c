@@ -133,16 +133,14 @@ if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, removing UPNP por
         }
     }
     if(sessions[id].open) {
-        ftpCloseSocket(sessions[id].ctrlSocket);
+        ftpCloseSocket(&sessions[id].ctrlSocket);
         ftpCloseTransmission(id);
-        if(sessions[id].passiveDataSocket > 0)
-        {
-            ftpCloseSocket(sessions[id].passiveDataSocket);
-        }
+        ftpCloseSocket(&sessions[id].passiveDataSocket);
     }
     sessions[id].remoteIp = 0;
     sessions[id].ctrlSocket = 0;
     sessions[id].passiveDataSocket = 0;
+    sessions[id].activeTrans.dataSocket = 0;
 	sessions[id].open = FALSE;
 
 if(VERBOSE_MODE_ENABLED) printf("Session %d closed\n", id);
@@ -329,7 +327,7 @@ void ftpCloseTransmission(int id)
 {
 	if(sessions[id].activeTrans.op != OP_NOP)						// is thera an active transmission?
 	{
-		ftpCloseSocket(sessions[id].activeTrans.dataSocket);
+		ftpCloseSocket(&sessions[id].activeTrans.dataSocket);
 		if(sessions[id].activeTrans.op == OP_LIST)
 		{
 			ftpCloseDir(sessions[id].activeTrans.fsHandle);
@@ -339,6 +337,7 @@ void ftpCloseTransmission(int id)
 			ftpCloseFile(sessions[id].activeTrans.fsHandle);
 		}
 		sessions[id].activeTrans.op = OP_NOP;
+		sessions[id].activeTrans.dataSocket = 0;
 		actTransCnt--;
 	}
 }
