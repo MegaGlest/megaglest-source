@@ -392,6 +392,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         //int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
         int portNumber   = clientInterface->getServerFTPPort();
 
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d\n",__FILE__,__FUNCTION__,__LINE__,portNumber);
+
         vector<string> mapPathList = config.getPathListForType(ptMaps);
         std::pair<string,string> mapsPath;
         if(mapPathList.size() > 0) {

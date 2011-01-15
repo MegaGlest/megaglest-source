@@ -194,6 +194,8 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<str
     this->mapsPath      = mapsPath;
     this->tilesetsPath  = tilesetsPath;
     this->pCBObject     = pCBObject;
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
 }
 
 void FTPClientThread::signalQuit() {
