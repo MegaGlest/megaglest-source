@@ -262,10 +262,14 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
         CURLcode res = curl_easy_perform(curl);
-        if(CURLE_OK != res) {
+        if(res != CURLE_OK) {
           // we failed
           printf("curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
           SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
+
+          if(res == CURLE_PARTIAL_FILE) {
+        	  result = ftp_crt_PARTIALFAIL;
+          }
         }
         else {
             result = ftp_crt_SUCCESS;
@@ -287,11 +291,11 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
 
 void FTPClientThread::getMapFromServer(string mapFileName) {
     FTP_Client_ResultType result = getMapFromServer(mapFileName + ".mgm", FTP_MAPS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
-    if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
+    if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
         result = getMapFromServer(mapFileName + ".gbm", FTP_MAPS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
-        if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
+        if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
             result = getMapFromServer(mapFileName + ".mgm", FTP_MAPS_USERNAME, FTP_COMMON_PASSWORD);
-            if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
+            if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
                 result = getMapFromServer(mapFileName + ".gbm", FTP_MAPS_USERNAME, FTP_COMMON_PASSWORD);
             }
         }
@@ -319,7 +323,7 @@ void FTPClientThread::addTilesetToRequests(string tileSetName) {
 
 void FTPClientThread::getTilesetFromServer(string tileSetName) {
     FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
-    if(result != ftp_crt_SUCCESS && this->getQuitStatus() == false) {
+    if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
         result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD);
     }
 
@@ -420,10 +424,14 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         CURLcode res = curl_easy_perform(curl);
 
-        if(CURLE_OK != res) {
+        if(res != CURLE_OK) {
           // we failed
           printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
           SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
+
+          if(res == CURLE_PARTIAL_FILE) {
+        	  result = ftp_crt_PARTIALFAIL;
+          }
 
           if(destRootFolder != "") {
               //unlink(destRootFolder.c_str());

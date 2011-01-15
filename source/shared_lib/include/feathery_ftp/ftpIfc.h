@@ -44,6 +44,7 @@ int ftpStart(int portNumber);
 int ftpShutdown(void);
 int ftpExecute(void);
 int ftpState(void);
+void ftpSignalShutdown(void);
 
 #ifdef	__cplusplus
 }

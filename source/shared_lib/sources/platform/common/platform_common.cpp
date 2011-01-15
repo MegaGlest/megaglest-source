@@ -339,31 +339,32 @@ void removeFolder(const string path) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
     string deletePath = path + "*";
-    vector<string> results;
-    findAll(deletePath, results, false, false);
+    //vector<string> results;
+    //findAll(deletePath, results, false, false);
+    vector<string> results = getFolderTreeContentsListRecursively(deletePath, "", true);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] results.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),results.size());
 
     // First delete files
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FILES\n",__FILE__,__FUNCTION__,__LINE__);
+
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
-        if(isdir(item.c_str()) == true) {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
-            rmdir(item.c_str());
-        }
-        else {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
-            unlink(item.c_str());
+        if(isdir(item.c_str()) == false) {
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+            int result = unlink(item.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
     // Now delete folders
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FOLDERS\n",__FILE__,__FUNCTION__,__LINE__);
+
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
         if(isdir(item.c_str()) == true) {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
-            rmdir(item.c_str());
-        }
-        else {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
-            unlink(item.c_str());
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+            int result = rmdir(item.c_str());
+            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
 }
@@ -567,6 +568,97 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 	crcTreeCache[cacheKey] = checksumFiles;
 	return crcTreeCache[cacheKey];
 }
+
+//finds all filenames like path and gets the checksum of each file
+vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders, vector<string> *recursiveMap) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
+	bool topLevelCaller = (recursiveMap == NULL);
+    vector<string> resultFiles = (recursiveMap == NULL ? vector<string>() : *recursiveMap);
+
+    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+
+	std::string mypath = path;
+	/** Stupid win32 is searching for all files without extension when *. is
+	 * specified as wildcard
+	 */
+	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
+		mypath = mypath.substr(0, mypath.size() - 2);
+		mypath += "*";
+	}
+
+	glob_t globbuf;
+
+	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+		const char* p = globbuf.gl_pathv[i];
+
+		if(isdir(p) == false) {
+            bool addFile = true;
+            //if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
+            //	addFile = false;
+            //}
+            //else
+            if(filterFileExt != "") {
+                addFile = EndsWith(p, filterFileExt);
+            }
+
+            if(addFile) {
+                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+                resultFiles.push_back(p);
+            }
+		}
+		else if(includeFolders == true) {
+			resultFiles.push_back(p);
+		}
+
+	}
+
+	globfree(&globbuf);
+
+    // Look recursively for sub-folders
+#if defined(__APPLE__) || defined(__FreeBSD__)
+	res = glob(mypath.c_str(), 0, 0, &globbuf);
+#else //APPLE doesn't have the GLOB_ONLYDIR definition..
+	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+#endif
+	if(res < 0) {
+		std::stringstream msg;
+		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		throw runtime_error(msg.str());
+	}
+
+	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+#if defined(__APPLE__) || defined(__FreeBSD__)
+		struct stat statStruct;
+		// only get if dir..
+		int actStat = lstat( globbuf.gl_pathv[ i], &statStruct);
+		if( S_ISDIR(statStruct.st_mode) == 0)
+			continue;
+#endif
+		const char* p = globbuf.gl_pathv[i];
+		if(includeFolders == true) {
+			resultFiles.push_back(p);
+		}
+		resultFiles = getFolderTreeContentsListRecursively(string(p) + "/*", filterFileExt, includeFolders,&resultFiles);
+	}
+
+	globfree(&globbuf);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+
+	if(topLevelCaller == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+
+    return resultFiles;
+}
+
 
 //finds all filenames like path and gets the checksum of each file
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {

@@ -58,7 +58,8 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<str
 }
 
 FTPServerThread::~FTPServerThread() {
-    // Remove any UPNP port forwarded ports
+	ftpShutdown();
+	// Remove any UPNP port forwarded ports
     UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort());
     for(int clientIndex = 1; clientIndex <= maxPlayers; ++clientIndex) {
         UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort() + clientIndex);
@@ -68,6 +69,7 @@ FTPServerThread::~FTPServerThread() {
 void FTPServerThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: signalQuit\n");
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: signalQuit\n");
+    ftpShutdown();
 
     BaseThread::signalQuit();
 }

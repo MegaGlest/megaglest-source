@@ -158,12 +158,20 @@ int ftpExecute(void)
 		}
 	}
 
-	//if(ftpGetActiveTransCnt())											// don't block if there's still something to do
-	socksRdy = ftpSelect(TRUE);
-	//else
-	//	socksRdy = ftpSelect(FALSE);
+	if(ftpGetActiveTransCnt())											// don't block if there's still something to do
+	{
+		socksRdy = ftpSelect(TRUE);
+	}
+	else
+	{
+		//if(VERBOSE_MODE_ENABLED) printf("ftpExecute calling blocking select\n");
+		socksRdy = ftpSelect(FALSE);
+	}
+
 	if(socksRdy > 0)
 	{
+		if(VERBOSE_MODE_ENABLED) printf("ftpExecute socksRdy = %d\n",socksRdy);
+
 	    processedWork = 1;
 		if(ftpTestSocket(server))										// server listner-socket signaled?
 		{
@@ -183,9 +191,9 @@ int ftpExecute(void)
 				}
 				else
 				{
-if(VERBOSE_MODE_ENABLED) printf("Connection refused; Session limit reached.\n");
+if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reached.\n");
 
-					ftpCloseSocket(clientSocket);
+					ftpCloseSocket(&clientSocket);
 				}
 			}
 		}
@@ -239,10 +247,14 @@ if(VERBOSE_MODE_ENABLED) printf("Connection refused; Session limit reached.\n");
  */
 int ftpShutdown(void)
 {
+	if(VERBOSE_MODE_ENABLED) printf("About to Shutdown Feathery FTP-Server server [%d]\n",server);
+
 	int n;
 	ftpUntrackSocket(server);
-	ftpCloseSocket(server);
+	ftpCloseSocket(&server);
 	//ftpCloseSocket(serverPassivePort);
+
+	if(VERBOSE_MODE_ENABLED) printf("About to Shutdown clients\n");
 
 	for(n = 0; n < MAX_CONNECTIONS; n++)
 	{
@@ -253,6 +265,7 @@ int ftpShutdown(void)
 		ftpCloseSession(n);
 	}
 
+	if(VERBOSE_MODE_ENABLED) printf("About to Shutdown stack\n");
 	ftpArchCleanup();
 
 	return 0;

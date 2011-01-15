@@ -1379,7 +1379,7 @@ int glestMain(int argc, char** argv) {
         disableBacktrace = true;
     }
 
-	bool haveSpecialOutputCommandLineOption = false;
+    bool haveSpecialOutputCommandLineOption = false;
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
@@ -1521,6 +1521,11 @@ int glestMain(int argc, char** argv) {
         lang.loadStrings(config.getString("Lang"));
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        //
+        //removeFolder("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/tilesets/mother_board");
+        //return -1;
+        //
 
 		program= new Program();
 

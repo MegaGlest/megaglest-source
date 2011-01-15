@@ -225,7 +225,7 @@ LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 	clientIp[0] = clientIp[0];
 	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
 	{
-		ftpCloseSocket(ftpGetSession(sessionId)->passiveDataSocket);
+		ftpCloseSocket(&ftpGetSession(sessionId)->passiveDataSocket);
 		ftpGetSession(sessionId)->passiveDataSocket = -1;
 	}
 	//ftpGetSession(sessionId)->passiveDataSocket = -1;
@@ -437,7 +437,7 @@ LOCAL int ftpCmdList(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, LIST);
-    ftpCloseSocket(s);
+    ftpCloseSocket(&s);
 
 	return 0;
 }
@@ -472,7 +472,7 @@ LOCAL int ftpCmdNlst(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, NLST);
-    ftpCloseSocket(s);
+    ftpCloseSocket(&s);
 
 	return 0;
 }
@@ -526,7 +526,7 @@ if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,f
 	else
 	{
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg015);
-		ftpCloseSocket(s);
+		ftpCloseSocket(&s);
 	}
 
 	return 0;
@@ -568,7 +568,7 @@ LOCAL int ftpCmdStor(int sessionId, const char* args, int len)
     else
     {
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg015);
-        ftpCloseSocket(s);
+        ftpCloseSocket(&s);
     }
 
 	return 0;
@@ -661,7 +661,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 
 	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
 	{
-		ftpCloseSocket(ftpGetSession(sessionId)->passiveDataSocket);
+		ftpCloseSocket(&ftpGetSession(sessionId)->passiveDataSocket);
 		ftpGetSession(sessionId)->passiveDataSocket = -1;
 	}
 	//ftpGetSession(sessionId)->passiveDataSocket = -1;
@@ -824,7 +824,7 @@ LOCAL int ftpCmdMlsd(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, MLSD);
-    ftpCloseSocket(s);
+    ftpCloseSocket(&s);
 
 	return 0;
 }
