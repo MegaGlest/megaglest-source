@@ -42,8 +42,7 @@ namespace Glest { namespace Game{
 
 bool MeshCallbackTeamColor::noTeamColors = false;
 
-void MeshCallbackTeamColor::execute(const Mesh *mesh){
-
+void MeshCallbackTeamColor::execute(const Mesh *mesh) {
 	//team color
 	if( mesh->getCustomTexture() && teamTexture != NULL &&
 		MeshCallbackTeamColor::noTeamColors == false) {
@@ -90,7 +89,7 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 
 		glActiveTexture(GL_TEXTURE0);
 	}
-	else{
+	else {
 		glActiveTexture(GL_TEXTURE1);
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
@@ -145,7 +144,6 @@ const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 // ==================== constructor and destructor ====================
 
 Renderer::Renderer() {
-	this->useQuadCache = true;
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
@@ -170,7 +168,6 @@ Renderer::Renderer() {
 	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
 
-	this->useQuadCache = config.getBool("UseQuadCache","true");
 	this->no2DMouseRendering = config.getBool("No2DMouseRendering","false");
 	this->maxConsoleLines= config.getInt("ConsoleMaxLines");
 
@@ -189,8 +186,6 @@ Renderer::Renderer() {
 		particleManager[i]= graphicsFactory->newParticleManager();
 		fontManager[i]= graphicsFactory->newFontManager();
 	}
-
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 
 	saveScreenShotThread = new SimpleTaskThread(this,0,25);
 	saveScreenShotThread->setUniqueID(__FILE__);
@@ -277,10 +272,8 @@ void Renderer::reinitAll() {
 }
 // ==================== init ====================
 
-void Renderer::init(){
-
+void Renderer::init() {
 	Config &config= Config::getInstance();
-
 	loadConfig();
 
 	if(config.getBool("CheckGlCaps")){
@@ -327,7 +320,7 @@ void Renderer::initGame(const Game *game){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//shadows
-	if(shadows==sProjected || shadows==sShadowMapping){
+	if(shadows == sProjected || shadows == sShadowMapping) {
 		static_cast<ModelRendererGl*>(modelRenderer)->setSecondaryTexCoordUnit(2);
 
 		glGenTextures(1, &shadowMapHandle);
@@ -338,8 +331,7 @@ void Renderer::initGame(const Game *game){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		if(shadows==sShadowMapping){
-
+		if(shadows == sShadowMapping) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			//shadow mapping
@@ -353,8 +345,7 @@ void Renderer::initGame(const Game *game){
 				shadowTextureSize, shadowTextureSize,
 				0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		}
-		else{
-
+		else {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			//projected
@@ -380,7 +371,7 @@ void Renderer::initGame(const Game *game){
 	init3dList();
 }
 
-void Renderer::initMenu(const MainMenu *mm){
+void Renderer::initMenu(const MainMenu *mm) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->menu = mm;
@@ -399,7 +390,7 @@ void Renderer::initMenu(const MainMenu *mm){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Renderer::reset3d(){
+void Renderer::reset3d() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 	glCallList(list3d);
@@ -408,14 +399,14 @@ void Renderer::reset3d(){
 	assertGl();
 }
 
-void Renderer::reset2d(){
+void Renderer::reset2d() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 	glCallList(list2d);
 	assertGl();
 }
 
-void Renderer::reset3dMenu(){
+void Renderer::reset3dMenu() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 	glCallList(list3dMenu);
@@ -424,8 +415,7 @@ void Renderer::reset3dMenu(){
 
 // ==================== end ====================
 
-void Renderer::end(){
-
+void Renderer::end() {
 	//delete resources
 	modelManager[rsGlobal]->end();
 	textureManager[rsGlobal]->end();
@@ -445,7 +435,7 @@ void Renderer::endGame() {
 	fontManager[rsGame]->end();
 	particleManager[rsGame]->end();
 
-	if(shadows==sProjected || shadows==sShadowMapping){
+	if(shadows == sProjected || shadows == sShadowMapping) {
 		glDeleteTextures(1, &shadowMapHandle);
 	}
 
@@ -454,7 +444,7 @@ void Renderer::endGame() {
 	worldToScreenPosCache.clear();
 }
 
-void Renderer::endMenu(){
+void Renderer::endMenu() {
 	this->menu = NULL;
 	//delete resources
 	modelManager[rsMenu]->end();
@@ -465,19 +455,19 @@ void Renderer::endMenu(){
 	glDeleteLists(list3dMenu, 1);
 }
 
-void Renderer::reloadResources(){
-	for(int i=0; i<rsCount; ++i){
+void Renderer::reloadResources() {
+	for(int i=0; i<rsCount; ++i) {
 		modelManager[i]->end();
 		textureManager[i]->end();
 		fontManager[i]->end();
 	}
-	for(int i=0; i<rsCount; ++i){
+
+	for(int i=0; i<rsCount; ++i) {
 		modelManager[i]->init();
 		textureManager[i]->init();
 		fontManager[i]->init();
 	}
 }
-
 
 // ==================== engine interface ====================
 
@@ -542,8 +532,7 @@ void Renderer::renderParticleManager(ResourceScope rs){
 	glPopAttrib();
 }
 
-void Renderer::swapBuffers(){
-
+void Renderer::swapBuffers() {
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
 	glFlush();
 
@@ -553,8 +542,7 @@ void Renderer::swapBuffers(){
 // ==================== lighting ====================
 
 //places all the opengl lights
-void Renderer::setupLighting(){
-
+void Renderer::setupLighting() {
     int lightCount= 0;
 	const World *world= game->getWorld();
 	const GameCamera *gameCamera= game->getGameCamera();
@@ -579,12 +567,12 @@ void Renderer::setupLighting(){
     lightCount++;
 
 	//disable all secondary lights
-	for(int i= 1; i<maxLights; ++i){
+	for(int i= 1; i < maxLights; ++i) {
 		glDisable(GL_LIGHT0 + i);
 	}
 
     //unit lights (not projectiles)
-	if(timeFlow->isTotalNight()){
+	if(timeFlow->isTotalNight()) {
         for(int i=0; i<world->getFactionCount() && lightCount<maxLights; ++i){
             for(int j=0; j<world->getFaction(i)->getUnitCount() && lightCount<maxLights; ++j){
                 Unit *unit= world->getFaction(i)->getUnit(j);
@@ -619,7 +607,7 @@ void Renderer::setupLighting(){
 	assertGl();
 }
 
-void Renderer::loadGameCameraMatrix(){
+void Renderer::loadGameCameraMatrix() {
 	const GameCamera *gameCamera= game->getGameCamera();
 
 	glMatrixMode(GL_MODELVIEW);
@@ -629,7 +617,7 @@ void Renderer::loadGameCameraMatrix(){
 	glTranslatef(-gameCamera->getPos().x, -gameCamera->getPos().y, -gameCamera->getPos().z);
 }
 
-void Renderer::loadCameraMatrix(const Camera *camera){
+void Renderer::loadCameraMatrix(const Camera *camera) {
 	const Vec3f &position= camera->getConstPosition();
 	Quaternion orientation= camera->getOrientation().conjugate();
 
@@ -639,24 +627,24 @@ void Renderer::loadCameraMatrix(const Camera *camera){
 	glTranslatef(-position.x, -position.y, -position.z);
 }
 
-void Renderer::computeVisibleQuad(){
-	const GameCamera *gameCamera= game->getGameCamera();
-	visibleQuad= gameCamera->computeVisibleQuad();
+void Renderer::computeVisibleQuad() {
+	const GameCamera *gameCamera = game->getGameCamera();
+	visibleQuad = gameCamera->computeVisibleQuad();
 }
 
 // =======================================
 // basic rendering
 // =======================================
 
-void Renderer::renderMouse2d(int x, int y, int anim, float fade){
+void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	if(no2DMouseRendering == true) {
 		return;
 	}
-    float color1, color2;
+    float color1 = 0.0, color2 = 0.0;
 
-	float fadeFactor= fade+1.f;
+	float fadeFactor = fade + 1.f;
 
-	anim= anim*2-maxMouse2dAnim;
+	anim= anim * 2 - maxMouse2dAnim;
 
     color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
     color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
@@ -705,13 +693,18 @@ void Renderer::renderMouse3d() {
 	const Gui *gui= game->getGui();
 	const Mouse3d *mouse3d= gui->getMouse3d();
 	const Map *map= game->getWorld()->getMap();
+	if(map == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
 
 	GLUquadricObj *cilQuadric;
 	Vec4f color;
 
 	assertGl();
 
-	if((mouse3d->isEnabled() || gui->isPlacingBuilding()) && gui->isValidPosObjWorld()){
+	if((mouse3d->isEnabled() || gui->isPlacingBuilding()) && gui->isValidPosObjWorld()) {
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
@@ -723,16 +716,9 @@ void Renderer::renderMouse3d() {
 
 		const Vec2i &pos= gui->getPosObjWorld();
 
-		if(map == NULL) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",__FILE__,__FUNCTION__,__LINE__);
-			throw runtime_error(szBuf);
-		}
-
 		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 
-		if(gui->isPlacingBuilding()){
-
+		if(gui->isPlacingBuilding()) {
 			const UnitType *building= gui->getBuilding();
 
 			//selection building emplacement
@@ -743,7 +729,7 @@ void Renderer::renderMouse3d() {
 			if(map->isFreeCells(pos, building->getSize(), fLand)){
 				color= Vec4f(1.f, 1.f, 1.f, 0.5f);
 			}
-			else{
+			else {
 				color= Vec4f(1.f, 0.f, 0.f, 0.5f);
 			}
 
@@ -765,7 +751,7 @@ void Renderer::renderMouse3d() {
 			modelRenderer->end();
 
 		}
-		else{
+		else {
 			//standard mouse
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_CULL_FACE);
@@ -794,7 +780,6 @@ void Renderer::renderMouse3d() {
 }
 
 void Renderer::renderBackground(const Texture2D *texture) {
-
 	const Metrics &metrics= Metrics::getInstance();
 
 	assertGl();
@@ -811,7 +796,7 @@ void Renderer::renderBackground(const Texture2D *texture) {
 	assertGl();
 }
 
-void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha,const Vec3f *color){
+void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha,const Vec3f *color) {
     assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -836,7 +821,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
-									const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
+								const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
 	const Metrics &metrics= Metrics::getInstance();
 	const FontMetrics *fontMetrics= font->getMetrics();
@@ -998,8 +983,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	}
 }
 
-void Renderer::renderResourceStatus(){
-
+void Renderer::renderResourceStatus() {
 	const Metrics &metrics= Metrics::getInstance();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
@@ -1061,8 +1045,7 @@ void Renderer::renderResourceStatus(){
 	assertGl();
 }
 
-void Renderer::renderSelectionQuad(){
-
+void Renderer::renderSelectionQuad() {
 	const Gui *gui= game->getGui();
 	const SelectionQuad *sq= gui->getSelectionQuad();
 
@@ -1082,7 +1065,7 @@ void Renderer::renderSelectionQuad(){
     }
 }
 
-Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y){
+Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y) {
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
@@ -1716,17 +1699,12 @@ void Renderer::renderSurface(const int renderFps) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
 
-	//glCompressedTexSubImage2D(
-	//		GL_TEXTURE_2D, 0, 0, 0,
-	//		fowTex->getPixmap()->getW(), fowTex->getPixmap()->getH(),
-	//		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmap()->getPixels());
-
 	glTexSubImage2D(
 		GL_TEXTURE_2D, 0, 0, 0,
 		fowTex->getPixmapConst()->getW(), fowTex->getPixmapConst()->getH(),
 		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmapConst()->getPixels());
 
-	if(!shadowsOffDueToMinRender) {
+	if(shadowsOffDueToMinRender == false) {
 		//shadow texture
 		if(shadows==sProjected || shadows==sShadowMapping){
 			glActiveTexture(shadowTexUnit);
@@ -1741,138 +1719,70 @@ void Renderer::renderSurface(const int renderFps) {
 
 	glActiveTexture(baseTexUnit);
 
-	if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleScaledCellList.size() > 0) {
-			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
-				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleScaledCellList.size() > 0) {
+		for(int visibleIndex = 0;
+				visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+			Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
-				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
-				SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
-				SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
-				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+			SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+			SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+			SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+			SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
 
-				if(tc00 == NULL) {
-					throw runtime_error("tc00 == NULL");
-				}
-				if(tc10 == NULL) {
-					throw runtime_error("tc10 == NULL");
-				}
-				if(tc01 == NULL) {
-					throw runtime_error("tc01 == NULL");
-				}
-				if(tc11 == NULL) {
-					throw runtime_error("tc11 == NULL");
-				}
-
-				triangleCount+= 2;
-				pointCount+= 4;
-
-				//set texture
-				if(tc00->getSurfaceTexture() == NULL) {
-					throw runtime_error("tc00->getSurfaceTexture() == NULL");
-				}
-				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
-				if(currTex != lastTex) {
-					lastTex = currTex;
-					glBindTexture(GL_TEXTURE_2D, lastTex);
-				}
-
-				const Vec2f &surfCoord= tc00->getSurfTexCoord();
-
-				glBegin(GL_TRIANGLE_STRIP);
-
-				//draw quad using immediate mode
-				glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
-				glNormal3fv(tc01->getNormal().ptr());
-				glVertex3fv(tc01->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
-				glNormal3fv(tc00->getNormal().ptr());
-				glVertex3fv(tc00->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
-				glNormal3fv(tc11->getNormal().ptr());
-				glVertex3fv(tc11->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
-				glNormal3fv(tc10->getNormal().ptr());
-				glVertex3fv(tc10->getVertex().ptr());
-
-				glEnd();
+			if(tc00 == NULL) {
+				throw runtime_error("tc00 == NULL");
 			}
-		}
-	}
-	else {
-		Quad2i scaledQuad= visibleQuad/Map::cellScale;
-
-		PosQuadIterator pqi(scaledQuad);
-		while(pqi.next()) {
-			const Vec2i &pos= pqi.getPos();
-			if(mapBounds.isInside(pos)){
-
-				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
-				SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
-				SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
-				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
-
-				if(tc00 == NULL) {
-					throw runtime_error("tc00 == NULL");
-				}
-				if(tc10 == NULL) {
-					throw runtime_error("tc10 == NULL");
-				}
-				if(tc01 == NULL) {
-					throw runtime_error("tc01 == NULL");
-				}
-				if(tc11 == NULL) {
-					throw runtime_error("tc11 == NULL");
-				}
-
-				triangleCount+= 2;
-				pointCount+= 4;
-
-				//set texture
-				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
-				if(currTex!=lastTex){
-					lastTex=currTex;
-					glBindTexture(GL_TEXTURE_2D, lastTex);
-				}
-
-				const Vec2f &surfCoord= tc00->getSurfTexCoord();
-
-				glBegin(GL_TRIANGLE_STRIP);
-
-				//draw quad using immediate mode
-				glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
-				glNormal3fv(tc01->getNormal().ptr());
-				glVertex3fv(tc01->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
-				glNormal3fv(tc00->getNormal().ptr());
-				glVertex3fv(tc00->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
-				glNormal3fv(tc11->getNormal().ptr());
-				glVertex3fv(tc11->getVertex().ptr());
-
-				glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
-				glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
-				glNormal3fv(tc10->getNormal().ptr());
-				glVertex3fv(tc10->getVertex().ptr());
-
-				glEnd();
+			if(tc10 == NULL) {
+				throw runtime_error("tc10 == NULL");
 			}
+			if(tc01 == NULL) {
+				throw runtime_error("tc01 == NULL");
+			}
+			if(tc11 == NULL) {
+				throw runtime_error("tc11 == NULL");
+			}
+
+			triangleCount+= 2;
+			pointCount+= 4;
+
+			//set texture
+			if(tc00->getSurfaceTexture() == NULL) {
+				throw runtime_error("tc00->getSurfaceTexture() == NULL");
+			}
+			currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+			if(currTex != lastTex) {
+				lastTex = currTex;
+				glBindTexture(GL_TEXTURE_2D, lastTex);
+			}
+
+			const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+			glBegin(GL_TRIANGLE_STRIP);
+
+			//draw quad using immediate mode
+			glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
+			glNormal3fv(tc01->getNormal().ptr());
+			glVertex3fv(tc01->getVertex().ptr());
+
+			glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
+			glNormal3fv(tc00->getNormal().ptr());
+			glVertex3fv(tc00->getVertex().ptr());
+
+			glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
+			glNormal3fv(tc11->getNormal().ptr());
+			glVertex3fv(tc11->getVertex().ptr());
+
+			glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
+			glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
+			glNormal3fv(tc10->getNormal().ptr());
+			glVertex3fv(tc10->getVertex().ptr());
+
+			glEnd();
 		}
-		//glEnd();
 	}
 
 	//Restore
@@ -1898,146 +1808,71 @@ void Renderer::renderObjects(const int renderFps) {
 	const Texture2D *fowTex= NULL;
 	Vec3f baseFogColor;
 
-
     bool modelRenderStarted = false;
 
-    if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		for(int visibleIndex = 0;
-				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
-			Object *o = qCache.visibleObjectList[visibleIndex];
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	for(int visibleIndex = 0;
+			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+		Object *o = qCache.visibleObjectList[visibleIndex];
 
-			const Model *objModel= o->getModel();
-			const Vec3f &v= o->getConstPos();
+		const Model *objModel= o->getModel();
+		const Vec3f &v= o->getConstPos();
 
-			if(modelRenderStarted == false) {
-				modelRenderStarted = true;
+		if(modelRenderStarted == false) {
+			modelRenderStarted = true;
 
-				fowTex= world->getMinimap()->getFowTexture();
-				baseFogColor= world->getTileset()->getFogColor() * computeLightColor(world->getTimeFlow()->getTime());
+			fowTex= world->getMinimap()->getFowTexture();
+			baseFogColor= world->getTileset()->getFogColor() * computeLightColor(world->getTimeFlow()->getTime());
 
-				glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
-				if(!shadowsOffDueToMinRender &&
-					shadows == sShadowMapping) {
-					glActiveTexture(shadowTexUnit);
-					glEnable(GL_TEXTURE_2D);
+			if(!shadowsOffDueToMinRender &&
+				shadows == sShadowMapping) {
+				glActiveTexture(shadowTexUnit);
+				glEnable(GL_TEXTURE_2D);
 
-					glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+				glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
-					static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-					enableProjectiveTexturing();
-				}
-
-				glActiveTexture(baseTexUnit);
-				glEnable(GL_COLOR_MATERIAL);
-				glAlphaFunc(GL_GREATER, 0.5f);
-
-				modelRenderer->begin(true, true, false);
+				static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+				enableProjectiveTexturing();
 			}
-			//ambient and diffuse color is taken from cell color
 
-			const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
-			float fowFactor= fowTexPixmap->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
-			Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
-			glColor4fv(color.ptr());
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
-			glFogfv(GL_FOG_COLOR, (baseFogColor * fowFactor).ptr());
+			glActiveTexture(baseTexUnit);
+			glEnable(GL_COLOR_MATERIAL);
+			glAlphaFunc(GL_GREATER, 0.5f);
 
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glTranslatef(v.x, v.y, v.z);
-			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-			objModel->updateInterpolationData(0.f, true);
-			modelRenderer->render(objModel);
-
-			triangleCount+= objModel->getTriangleCount();
-			pointCount+= objModel->getVertexCount();
-
-			glPopMatrix();
+			modelRenderer->begin(true, true, false);
 		}
+		//ambient and diffuse color is taken from cell color
 
-		if(modelRenderStarted == true) {
-			modelRenderer->end();
-			glPopAttrib();
-		}
+		const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
+		float fowFactor= fowTexPixmap->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
+		Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
+		glColor4fv(color.ptr());
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color * ambFactor).ptr());
+		glFogfv(GL_FOG_COLOR, (baseFogColor * fowFactor).ptr());
 
-		//restore
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-    }
-    else {
-		int thisTeamIndex= world->getThisTeamIndex();
-		bool modelRenderStarted = false;
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(v.x, v.y, v.z);
+		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-		PosQuadIterator pqi(visibleQuad, Map::cellScale);
-		while(pqi.next()) {
-			const Vec2i &pos= pqi.getPos();
-			if(map->isInside(pos)){
-				SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
-				Object *o= sc->getObject();
-				if(sc->isExplored(thisTeamIndex) && o!=NULL){
-					const Model *objModel= sc->getObject()->getModel();
-					const Vec3f &v= o->getConstPos();
+		objModel->updateInterpolationData(0.f, true);
+		modelRenderer->render(objModel);
 
-					if(modelRenderStarted == false) {
-						modelRenderStarted = true;
+		triangleCount+= objModel->getTriangleCount();
+		pointCount+= objModel->getVertexCount();
 
-						fowTex= world->getMinimap()->getFowTexture();
-						baseFogColor= world->getTileset()->getFogColor()*computeLightColor(world->getTimeFlow()->getTime());
+		glPopMatrix();
+	}
 
-						glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+	if(modelRenderStarted == true) {
+		modelRenderer->end();
+		glPopAttrib();
+	}
 
-						if(!shadowsOffDueToMinRender &&
-							shadows == sShadowMapping) {
-							glActiveTexture(shadowTexUnit);
-							glEnable(GL_TEXTURE_2D);
-
-							glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
-
-							static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-							enableProjectiveTexturing();
-						}
-
-						glActiveTexture(baseTexUnit);
-
-						glEnable(GL_COLOR_MATERIAL);
-						glAlphaFunc(GL_GREATER, 0.5f);
-
-						modelRenderer->begin(true, true, false);
-					}
-					//ambient and diffuse color is taken from cell color
-
-					float fowFactor= fowTex->getPixmapConst()->getPixelf(pos.x / Map::cellScale, pos.y / Map::cellScale);
-					Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
-					glColor4fv(color.ptr());
-					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (color*ambFactor).ptr());
-					glFogfv(GL_FOG_COLOR, (baseFogColor*fowFactor).ptr());
-
-					glMatrixMode(GL_MODELVIEW);
-					glPushMatrix();
-					glTranslatef(v.x, v.y, v.z);
-					glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-					objModel->updateInterpolationData(0.f, true);
-					modelRenderer->render(objModel);
-
-					triangleCount+= objModel->getTriangleCount();
-					pointCount+= objModel->getVertexCount();
-
-					glPopMatrix();
-				}
-			}
-		}
-
-		if(modelRenderStarted == true) {
-			modelRenderer->end();
-			glPopAttrib();
-		}
-
-		//restore
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-    }
+	//restore
+	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 
 	assertGl();
 }
@@ -2188,183 +2023,95 @@ void Renderer::renderUnits(const int renderFps) {
 
 	bool modelRenderStarted = false;
 
-	if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleQuadUnitList.size() > 0) {
-			for(int visibleUnitIndex = 0;
-					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
-				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.size() > 0) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
-				meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
+			meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
 
-				if(modelRenderStarted == false) {
-					modelRenderStarted = true;
+			if(modelRenderStarted == false) {
+				modelRenderStarted = true;
 
-					glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-					glEnable(GL_COLOR_MATERIAL);
+				glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
+				glEnable(GL_COLOR_MATERIAL);
 
-					if(!shadowsOffDueToMinRender) {
-						if(shadows == sShadowMapping) {
-							glActiveTexture(shadowTexUnit);
-							glEnable(GL_TEXTURE_2D);
+				if(!shadowsOffDueToMinRender) {
+					if(shadows == sShadowMapping) {
+						glActiveTexture(shadowTexUnit);
+						glEnable(GL_TEXTURE_2D);
 
-							glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+						glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
-							static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-							enableProjectiveTexturing();
-						}
+						static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+						enableProjectiveTexturing();
 					}
-					glActiveTexture(baseTexUnit);
-
-					modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
 				}
+				glActiveTexture(baseTexUnit);
 
-				glMatrixMode(GL_MODELVIEW);
-				glPushMatrix();
-
-				//translate
-				Vec3f currVec= unit->getCurrVectorFlat();
-				glTranslatef(currVec.x, currVec.y, currVec.z);
-
-				//rotate
-				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-				glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
-
-				//dead alpha
-				float alpha= 1.0f;
-				const SkillType *st= unit->getCurrSkill();
-				if(st->getClass() == scDie && static_cast<const DieSkillType*>(st)->getFade()) {
-					alpha= 1.0f-unit->getAnimProgress();
-					glDisable(GL_COLOR_MATERIAL);
-					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
-				}
-				else {
-					glEnable(GL_COLOR_MATERIAL);
-					glAlphaFunc(GL_GREATER, 0.4f);
-				}
-
-				//render
-				const Model *model= unit->getCurrentModel();
-				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
-
-				modelRenderer->render(model);
-				triangleCount+= model->getTriangleCount();
-				pointCount+= model->getVertexCount();
-
-				glPopMatrix();
-				unit->setVisible(true);
-				unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
-				visibleFrameUnitList.push_back(unit);
-
-				//if(allowRenderUnitTitles == true) {
-					// Add to the pending render unit title list
-					//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
-				//}
+				modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
 			}
 
-			if(modelRenderStarted == true) {
-				modelRenderer->end();
-				glPopAttrib();
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+
+			//translate
+			Vec3f currVec= unit->getCurrVectorFlat();
+			glTranslatef(currVec.x, currVec.y, currVec.z);
+
+			//rotate
+			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+			glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
+
+			//dead alpha
+			float alpha= 1.0f;
+			const SkillType *st= unit->getCurrSkill();
+			if(st->getClass() == scDie && static_cast<const DieSkillType*>(st)->getFade()) {
+				alpha= 1.0f-unit->getAnimProgress();
+				glDisable(GL_COLOR_MATERIAL);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
 			}
+			else {
+				glEnable(GL_COLOR_MATERIAL);
+				glAlphaFunc(GL_GREATER, 0.4f);
+			}
+
+			//render
+			const Model *model= unit->getCurrentModel();
+			model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+
+			modelRenderer->render(model);
+			triangleCount+= model->getTriangleCount();
+			pointCount+= model->getVertexCount();
+
+			glPopMatrix();
+			unit->setVisible(true);
+			unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
+			visibleFrameUnitList.push_back(unit);
+
+			//if(allowRenderUnitTitles == true) {
+				// Add to the pending render unit title list
+				//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
+			//}
 		}
 
-		//restore
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-	}
-	else {
-		bool modelRenderStarted = false;
-
-		for(int i=0; i<world->getFactionCount(); ++i){
-			meshCallbackTeamColor.setTeamTexture(world->getFaction(i)->getTexture());
-			for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-				unit= world->getFaction(i)->getUnit(j);
-				if(world->toRenderUnit(unit, visibleQuad)) {
-
-					if(modelRenderStarted == false) {
-						modelRenderStarted = true;
-
-						glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-						glEnable(GL_COLOR_MATERIAL);
-
-						if(!shadowsOffDueToMinRender) {
-							if(shadows==sShadowMapping){
-								glActiveTexture(shadowTexUnit);
-								glEnable(GL_TEXTURE_2D);
-
-								glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
-
-								static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
-								enableProjectiveTexturing();
-							}
-						}
-						glActiveTexture(baseTexUnit);
-
-						modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
-					}
-
-					glMatrixMode(GL_MODELVIEW);
-					glPushMatrix();
-
-					//translate
-					Vec3f currVec= unit->getCurrVectorFlat();
-					glTranslatef(currVec.x, currVec.y, currVec.z);
-
-					//rotate
-					glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-					glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
-
-					//dead alpha
-					float alpha= 1.0f;
-					const SkillType *st= unit->getCurrSkill();
-					if(st->getClass()==scDie && static_cast<const DieSkillType*>(st)->getFade()){
-						alpha= 1.0f-unit->getAnimProgress();
-						glDisable(GL_COLOR_MATERIAL);
-						glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
-					}
-					else{
-						glEnable(GL_COLOR_MATERIAL);
-						glAlphaFunc(GL_GREATER, 0.4f);
-					}
-
-					//render
-					const Model *model= unit->getCurrentModel();
-					model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
-
-					modelRenderer->render(model);
-					triangleCount+= model->getTriangleCount();
-					pointCount+= model->getVertexCount();
-
-					glPopMatrix();
-					unit->setVisible(true);
-					unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
-					visibleFrameUnitList.push_back(unit);
-
-					//if(allowRenderUnitTitles == true) {
-						// Add to the pending render unit title list
-						//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
-					//}
-				}
-				else
-				{
-					unit->setVisible(false);
-				}
-			}
-		}
 		if(modelRenderStarted == true) {
 			modelRenderer->end();
 			glPopAttrib();
 		}
-
-		//restore
-		static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
 	}
+
+	//restore
+	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(true);
+
 	// reset alpha
 	glAlphaFunc(GL_GREATER, 0.0f);
 	//assert
 	assertGl();
 }
 
-void Renderer::renderSelectionEffects(){
+void Renderer::renderSelectionEffects() {
 
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
@@ -2654,53 +2401,29 @@ void Renderer::renderMinimap(){
     glDisable(GL_BLEND);
 
 	//draw units
-	if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleUnitList.size() > 0) {
-			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
-				Unit *unit = qCache.visibleUnitList[visibleIndex];
-				if (!unit->isAlive()) {
-					continue;
-				}
-
-				Vec2i pos= unit->getPos() / Map::cellScale;
-				int size= unit->getType()->getSize();
-				Vec3f color=  unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
-				glColor3fv(color.ptr());
-
-				glBegin(GL_QUADS);
-
-				glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
-				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
-				glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
-				glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
-
-				glEnd();
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleUnitList.size() > 0) {
+		for(int visibleIndex = 0;
+				visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
+			Unit *unit = qCache.visibleUnitList[visibleIndex];
+			if (!unit->isAlive()) {
+				continue;
 			}
+
+			Vec2i pos= unit->getPos() / Map::cellScale;
+			int size= unit->getType()->getSize();
+			Vec3f color=  unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+			glColor3fv(color.ptr());
+
+			glBegin(GL_QUADS);
+
+			glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
+			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
+			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
+			glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
+
+			glEnd();
 		}
-	}
-	else {
-		glBegin(GL_QUADS);
-		for(int i=0; i<world->getFactionCount(); ++i){
-			for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-				Unit *unit= world->getFaction(i)->getUnit(j);
-				if(world->toRenderUnit(unit)){
-					if (!unit->isAlive()) {
-						continue;
-					}
-					Vec2i pos= unit->getPos()/Map::cellScale;
-					int size= unit->getType()->getSize();
-					Vec3f color=  world->getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
-					glColor3fv(color.ptr());
-					glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
-					glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
-					glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
-					glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
-				}
-			}
-		}
-		glEnd();
 	}
 
     //draw camera
@@ -3514,145 +3237,64 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 	assertGl();
 
 	bool modelRenderStarted = false;
-	//bool modelRenderFactionStarted = false;
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.size() > 0) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
-	if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleQuadUnitList.size() > 0) {
-			for(int visibleUnitIndex = 0;
-					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
-				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			if(modelRenderStarted == false) {
+				modelRenderStarted = true;
+				//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+				glDisable(GL_LIGHTING);
+				if (renderingShadows == false) {
+					glPushAttrib(GL_ENABLE_BIT);
+					glDisable(GL_TEXTURE_2D);
+				}
+				else {
+					glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+					glEnable(GL_TEXTURE_2D);
+					glAlphaFunc(GL_GREATER, 0.4f);
 
-				if(modelRenderStarted == false) {
-					modelRenderStarted = true;
-					//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-					glDisable(GL_LIGHTING);
-					if (!renderingShadows) {
-						glPushAttrib(GL_ENABLE_BIT);
-						glDisable(GL_TEXTURE_2D);
-					} else {
-						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-						glEnable(GL_TEXTURE_2D);
-						glAlphaFunc(GL_GREATER, 0.4f);
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					//set color to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 
-						//set color to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-						//set alpha to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-					}
-
-					modelRenderer->begin(false, renderingShadows, false);
-					glInitNames();
+					//set alpha to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 				}
 
-				glPushName(visibleUnitIndex);
-
-				glMatrixMode(GL_MODELVIEW);
-				//debuxar modelo
-				glPushMatrix();
-
-				//translate
-				Vec3f currVec= unit->getCurrVectorFlat();
-				glTranslatef(currVec.x, currVec.y, currVec.z);
-
-				//rotate
-				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-				//render
-				const Model *model= unit->getCurrentModel();
-				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
-				modelRenderer->render(model);
-
-				glPopMatrix();
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPopName() for unit->getId() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getId());
-				glPopName();
+				modelRenderer->begin(false, renderingShadows, false);
+				glInitNames();
 			}
 
-			//if(modelRenderFactionStarted == true) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] calling glPopName() for lastFactionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFactionIndex);
-				//glPopName();
-			//}
+			glPushName(visibleUnitIndex);
 
-			if(modelRenderStarted == true) {
-				modelRenderer->end();
-				glPopAttrib();
-			}
+			glMatrixMode(GL_MODELVIEW);
+			//debuxar modelo
+			glPushMatrix();
+
+			//translate
+			Vec3f currVec= unit->getCurrVectorFlat();
+			glTranslatef(currVec.x, currVec.y, currVec.z);
+
+			//rotate
+			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+			//render
+			const Model *model= unit->getCurrentModel();
+			model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+			modelRenderer->render(model);
+
+			glPopMatrix();
+			glPopName();
 		}
-	}
-	else {
-		bool modelRenderStarted = false;
-		bool modelRenderFactionStarted = false;
-		for(int i=0; i<world->getFactionCount(); ++i){
-			modelRenderFactionStarted = false;
-			for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-				Unit *unit= world->getFaction(i)->getUnit(j);
-				if(world->toRenderUnit(unit, visibleQuad)) {
-					if(modelRenderStarted == false) {
-						modelRenderStarted = true;
-						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-						glDisable(GL_LIGHTING);
 
-						if (!renderingShadows) {
-							glDisable(GL_TEXTURE_2D);
-						} else {
-							glEnable(GL_TEXTURE_2D);
-							glAlphaFunc(GL_GREATER, 0.4f);
-
-							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-
-							//set color to the texture alpha
-							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-							//set alpha to the texture alpha
-							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-						}
-
-						modelRenderer->begin(false, renderingShadows, false);
-
-						glInitNames();
-					}
-					if(modelRenderFactionStarted == false) {
-						modelRenderFactionStarted = true;
-						glPushName(i);
-					}
-					glPushName(j);
-
-					glMatrixMode(GL_MODELVIEW);
-
-					//debuxar modelo
-					glPushMatrix();
-
-					//translate
-					Vec3f currVec= unit->getCurrVectorFlat();
-					glTranslatef(currVec.x, currVec.y, currVec.z);
-
-					//rotate
-					glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-					//render
-					const Model *model= unit->getCurrentModel();
-					model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
-					modelRenderer->render(model);
-
-					glPopMatrix();
-					glPopName();
-				}
-			}
-			if(modelRenderFactionStarted == true) {
-				glPopName();
-			}
-		}
 		if(modelRenderStarted == true) {
 			modelRenderer->end();
 			glPopAttrib();
@@ -3671,110 +3313,47 @@ void Renderer::renderObjectsFast() {
 
 	bool modelRenderStarted = false;
 
-	if(useQuadCache == true) {
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleObjectList.size() > 0) {
-			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
-				Object *o = qCache.visibleObjectList[visibleIndex];
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleObjectList.size() > 0) {
+		for(int visibleIndex = 0;
+				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+			Object *o = qCache.visibleObjectList[visibleIndex];
 
-				const Model *objModel= o->getModel();
-				const Vec3f &v= o->getConstPos();
+			const Model *objModel= o->getModel();
+			const Vec3f &v= o->getConstPos();
 
-				if(modelRenderStarted == false) {
-					modelRenderStarted = true;
-					glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-					glDisable(GL_LIGHTING);
+			if(modelRenderStarted == false) {
+				modelRenderStarted = true;
+				glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+				glDisable(GL_LIGHTING);
 
-					glAlphaFunc(GL_GREATER, 0.5f);
+				glAlphaFunc(GL_GREATER, 0.5f);
 
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
-					//set color to the texture alpha
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+				//set color to the texture alpha
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 
-					//set alpha to the texture alpha
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+				//set alpha to the texture alpha
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 
-					modelRenderer->begin(false, true, false);
-				}
-				glMatrixMode(GL_MODELVIEW);
-				glPushMatrix();
-				glTranslatef(v.x, v.y, v.z);
-				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-				modelRenderer->render(objModel);
-
-				glPopMatrix();
-
+				modelRenderer->begin(false, true, false);
 			}
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glTranslatef(v.x, v.y, v.z);
+			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-			if(modelRenderStarted == true) {
-				modelRenderer->end();
-				glPopAttrib();
-			}
-		}
-	}
-	else {
-		int thisTeamIndex= world->getThisTeamIndex();
-		bool modelRenderStarted = false;
+			modelRenderer->render(objModel);
 
-		PosQuadIterator pqi(visibleQuad, Map::cellScale);
-		while(pqi.next()) {
-			const Vec2i &pos= pqi.getPos();
-			if(map->isInside(pos)){
-				const Vec2i &mapPos = Map::toSurfCoords(pos);
-				SurfaceCell *sc= map->getSurfaceCell(mapPos);
-				Object *o= sc->getObject();
-				bool isExplored = (sc->isExplored(thisTeamIndex) && o!=NULL);
-				//bool isVisible = (sc->isVisible(thisTeamIndex) && o!=NULL);
-				bool isVisible = true;
+			glPopMatrix();
 
-				if(isExplored == true && isVisible == true) {
-					const Model *objModel= sc->getObject()->getModel();
-					const Vec3f &v= o->getConstPos();
-
-					if(modelRenderStarted == false) {
-						modelRenderStarted = true;
-						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-						glDisable(GL_LIGHTING);
-
-						glAlphaFunc(GL_GREATER, 0.5f);
-
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-
-						//set color to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-						//set alpha to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-
-						modelRenderer->begin(false, true, false);
-					}
-					glMatrixMode(GL_MODELVIEW);
-					glPushMatrix();
-					glTranslatef(v.x, v.y, v.z);
-					glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
-
-					modelRenderer->render(objModel);
-
-					glPopMatrix();
-
-	//				vctEntity.push_back(RenderEntity(o,mapPos));
-				}
-			}
 		}
 
-	//	modelRenderer->begin(false, true, false);
-	//	renderObjectFastList(vctEntity);
 		if(modelRenderStarted == true) {
 			modelRenderer->end();
 			glPopAttrib();
@@ -3787,7 +3366,6 @@ void Renderer::renderObjectsFast() {
 // ==================== gl caps ====================
 
 void Renderer::checkGlCaps() {
-
 	//opengl 1.3
 	if(!isGlVersionSupported(1, 3, 0)) {
 		string message;
@@ -3946,7 +3524,6 @@ void Renderer::init3dList() {
 }
 
 void Renderer::init2dList() {
-
 	const Metrics &metrics= Metrics::getInstance();
 
 	//this list sets the state for the 2d rendering
