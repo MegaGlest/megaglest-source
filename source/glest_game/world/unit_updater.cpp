@@ -1516,7 +1516,7 @@ void UnitUpdater::updateMorph(Unit *unit){
 	    				break;
 	    			case pfRoutePlanner:
 						if (needMapUpdate) {
-							int size = std::max(oldSize, unit->getType()->getSize());
+							int size = max(oldSize, unit->getType()->getSize());
 							world->getCartographer()->updateMapMetrics(unit->getPos(), size);
 						}
 	    				break;
