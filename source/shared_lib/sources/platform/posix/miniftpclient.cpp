@@ -253,6 +253,9 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         /* Set a pointer to our struct to pass to the callback */
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
 
+        // Max 10 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+
         /* Switch on full protocol/debug output */
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
@@ -406,6 +409,9 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
+
+        // Max 10 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
 
         // Switch on full protocol/debug output
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
