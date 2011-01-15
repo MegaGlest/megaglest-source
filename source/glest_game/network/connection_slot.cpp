@@ -340,7 +340,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort());
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -350,7 +350,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0);
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort());
 							sendMessage(&networkMessageIntro);
 						}
 					}

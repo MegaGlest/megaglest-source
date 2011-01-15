@@ -550,10 +550,21 @@ void MenuStateJoinGame::connectToServer() {
 	config.setString("ServerIp", serverIp.getString());
 	config.save();
 
-	abortAutoFind = true;
-	clientInterface->stopServerDiscovery();
-	mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
-
+	for(time_t elapsedWait = time(NULL);
+		clientInterface->getIntroDone() == false &&
+		clientInterface->isConnected() &&
+		difftime(time(NULL),elapsedWait) <= 3;) {
+		if(clientInterface->isConnected()) {
+			//update lobby
+			clientInterface->updateLobby();
+		}
+	}
+	if( clientInterface->isConnected() == true &&
+		clientInterface->getIntroDone() == true) {
+		abortAutoFind = true;
+		clientInterface->stopServerDiscovery();
+		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
+	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
