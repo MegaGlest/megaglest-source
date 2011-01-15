@@ -70,42 +70,29 @@ string Resource::getDescription() const {
 
 int Resource::getAmount() const {
 	checkItemInVault(&this->amount,this->amount);
-	checkItemInVault(&this->balance,this->balance);
-
 	return amount;
 }
 
 int Resource::getBalance() const {
-	checkItemInVault(&this->amount,this->amount);
 	checkItemInVault(&this->balance,this->balance);
-
 	return balance;
 }
 
 void Resource::setAmount(int amount) {
 	checkItemInVault(&this->amount,this->amount);
-	checkItemInVault(&this->balance,this->balance);
-
 	this->amount= amount;
-
 	addItemToVault(&this->amount,this->amount);
 }
 
 void Resource::setBalance(int balance) {
-	checkItemInVault(&this->amount,this->amount);
 	checkItemInVault(&this->balance,this->balance);
-
 	this->balance= balance;
-
 	addItemToVault(&this->balance,this->balance);
 }
 
 bool Resource::decAmount(int i) {
 	checkItemInVault(&this->amount,this->amount);
-	checkItemInVault(&this->balance,this->balance);
-
 	amount -= i;
-
 	addItemToVault(&this->amount,this->amount);
 
     if(amount > 0) {
