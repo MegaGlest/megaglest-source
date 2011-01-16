@@ -339,8 +339,6 @@ void removeFolder(const string path) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
     string deletePath = path + "*";
-    //vector<string> results;
-    //findAll(deletePath, results, false, false);
     vector<string> results = getFolderTreeContentsListRecursively(deletePath, "", true);
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] results.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),results.size());
 
@@ -367,6 +365,9 @@ void removeFolder(const string path) {
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
+
+    int result = rmdir(path.c_str());
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),result);
 }
 
 bool StartsWith(const std::string &str, const std::string &key) {

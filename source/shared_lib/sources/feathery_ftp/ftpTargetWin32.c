@@ -321,7 +321,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 
         if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d about to listen on port: %d using listener socket: %d\n",sessionId,passivePort,*port,dataSocket);
 
-	    if(listen(dataSocket, 1))
+	    if(listen(dataSocket, 100))
 	    {
 	        if(VERBOSE_MODE_ENABLED) printf("\nPASSIVE CONNECTION for sessionId = %d using port #: %d FAILED #2: %d\n",sessionId,passivePort,dataSocket);
 
@@ -390,7 +390,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 		return -2;
 	}
 
-	if(listen(theServer, 16))
+	if(listen(theServer, 100))
 	{
 		ftpCloseSocket(&theServer);
 		return -3;
