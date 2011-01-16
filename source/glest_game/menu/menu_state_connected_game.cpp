@@ -1840,7 +1840,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             if(stats->download_total > 0) {
                 fileProgress = ((stats->download_now / stats->download_total) * 100.0);
             }
-            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
+            //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
         }
