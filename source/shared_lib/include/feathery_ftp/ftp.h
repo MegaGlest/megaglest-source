@@ -189,4 +189,7 @@ extern int ftpSelect(int poll);
 extern int ftpGetPassivePort();
 extern int ftpGetListenPort();
 
+extern int getLastSocketError();
+extern const char * getLastSocketErrorText(int *errNumber);
+
 #endif /* FTP_H_ */

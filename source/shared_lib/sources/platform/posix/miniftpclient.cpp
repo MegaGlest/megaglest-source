@@ -162,7 +162,7 @@ static long file_is_downloaded(void *data) {
 }
 
 int file_progress(struct FtpFile *out,double download_total, double download_now, double upload_total,double upload_now) {
-  if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
+  //if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
   SystemFlags::OutputDebug(SystemFlags::debugNetwork," download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
 
   if(out != NULL &&

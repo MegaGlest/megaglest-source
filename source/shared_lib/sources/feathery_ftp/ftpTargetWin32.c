@@ -480,4 +480,13 @@ int ftpSelect(int poll)
 	}
 }
 
+int getLastSocketError() {
+	return WSAGetLastError();
+}
+
+const char * getLastSocketErrorText(int *errNumber) {
+	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
+	return WSAGetLastErrorMessage("",errId);
+}
+
 #endif

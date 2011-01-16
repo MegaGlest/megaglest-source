@@ -36,6 +36,7 @@
 #include "ftpTypes.h"
 #include "ftpConfig.h"
 #include "ftp.h"
+#include "errno.h"
 
 ip_t ownIp;
 
@@ -445,5 +446,15 @@ int ftpSelect(int poll)
 		return select(maxSockNr+1, &signaledSockets, NULL, NULL, &t);
 	}
 }
+
+int getLastSocketError() {
+	return errno;
+}
+
+const char * getLastSocketErrorText(int *errNumber) {
+	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
+	return strerror(errId);
+}
+
 
 #endif

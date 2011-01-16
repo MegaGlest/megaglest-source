@@ -205,7 +205,9 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 									 LEN_RXBUF - pSession->rxBufWriteIdx);
 					if(len <= 0)											// has client shutdown the connection?
 					{
-						if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR ON RECEIVE for socket = %d\n",ctrlSocket);
+						int errorNumber = len; //getLastSocketError();
+						const char *errText = getLastSocketErrorText(&errorNumber);
+						if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR ON RECEIVE for socket = %d, data len = %d, error = %d [%s]\n",ctrlSocket,(LEN_RXBUF - pSession->rxBufWriteIdx),errorNumber,errText);
 
 						ftpUntrackSocket(ctrlSocket);
 						ftpCloseSession(n);
