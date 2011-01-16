@@ -44,6 +44,7 @@ struct FtpFile {
   FILE *stream;
   FTPClientThread *ftpServer;
   string currentFilename;
+  bool isValidXfer;
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
@@ -82,6 +83,8 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
           SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
           return -1; /* failure, can't open file to write */
         }
+
+        out->isValidXfer = true;
     }
     return fwrite(buffer, size, nmemb, out->stream);
 }
@@ -146,7 +149,8 @@ static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) 
         }
     }
 
-  return CURL_CHUNK_BGN_FUNC_OK;
+    out->isValidXfer = true;
+    return CURL_CHUNK_BGN_FUNC_OK;
 }
 
 static long file_is_downloaded(void *data) {
@@ -237,7 +241,9 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         destFile.c_str(), /* name to store the file as if succesful */
         NULL,
         NULL,
-        this
+        this,
+        "",
+        false
     };
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -377,7 +383,9 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         destFile.c_str(), // name to store the file as if succesful
         destFile.c_str(),
         NULL,
-        this
+        this,
+        "",
+        false
     };
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -426,10 +434,10 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         if(res != CURLE_OK) {
           // we failed
-          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s]\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf);
+          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
+          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
 
-          if(res == CURLE_PARTIAL_FILE) {
+          if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
         	  result = ftp_crt_PARTIALFAIL;
           }
 
