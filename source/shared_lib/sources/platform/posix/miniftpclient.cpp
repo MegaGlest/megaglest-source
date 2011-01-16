@@ -256,6 +256,8 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,mapFileName.c_str(),destFileExt.c_str());
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
+        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
+
         /* Define our callback to get called when there's data to be written */
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
         /* Set a pointer to our struct to pass to the callback */
@@ -403,6 +405,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         }
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
+        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
 
         // turn on wildcard matching
         curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
