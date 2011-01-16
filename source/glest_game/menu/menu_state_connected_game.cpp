@@ -786,7 +786,7 @@ void MenuStateConnectedGame::render() {
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
 
                 string progressLabelPrefix = "Downloading " + iterMap->first + " [" + iterMap->second.second + "] ";
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
+                //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
                 renderer.renderProgressBar(
                     iterMap->second.first,
