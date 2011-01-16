@@ -128,7 +128,7 @@ int ftpExecTransmission(int sessionId)
 				break;
 
 			rxLen += len;
-		}while(rxLen < LEN_SCRATCHBUF);
+		} while(rxLen < LEN_SCRATCHBUF);
 
 		if(rxLen > 0)
         {
@@ -159,7 +159,9 @@ int ftpExecTransmission(int sessionId)
 		return 1;
 	}
 	else
+	{
 		return 0;
+	}
 }
 
 LOCAL int ftpCmdUser(int sessionId, const char* args, int len)

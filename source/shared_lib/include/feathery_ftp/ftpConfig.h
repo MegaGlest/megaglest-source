@@ -25,22 +25,22 @@
 /**
  * @brief max. possible simultaneous FTP client connections
  */
-#define MAX_CONNECTIONS 16
+#define MAX_CONNECTIONS 60
 
 /**
  * @brief max. possible user accounts
  */
-#define MAX_USERS		16
+#define MAX_USERS		20
 
 /**
  * @brief max. length of a user account name
  */
-#define MAXLEN_USERNAME	25
+#define MAXLEN_USERNAME	40
 
 /**
  * @brief max. length of a user account password
  */
-#define MAXLEN_PASSWORD	25
+#define MAXLEN_PASSWORD	40
 
 /**
  * @brief session timeout in seconds
@@ -50,7 +50,7 @@
 /**
  * @brief maximum length of a complete directory path
  */
-#define MAX_PATH_LEN	260
+#define MAX_PATH_LEN	1024
 
 /**
  * @brief Size of the scratch buffer

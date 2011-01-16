@@ -166,7 +166,9 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 CURL *SystemFlags::initHTTP() {
 	if(SystemFlags::curl_global_init_called == false) {
 		SystemFlags::curl_global_init_called = true;
-		curl_global_init(CURL_GLOBAL_ALL);
+		CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
+		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 	}
 	CURL *handle = curl_easy_init();
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
@@ -236,6 +238,7 @@ void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
 			if(SystemFlags::curl_global_init_called == true) {
 				SystemFlags::curl_global_init_called = false;
 				curl_global_cleanup();
+				//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
 	}
