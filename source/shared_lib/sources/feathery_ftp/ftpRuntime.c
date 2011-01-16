@@ -171,6 +171,8 @@ int ftpExecute(void)
 			clientSocket = ftpAcceptServerConnection(server, &remoteIP, &remotePort);
 			if(clientSocket >= 0)
 			{
+				if(VERBOSE_MODE_ENABLED) printf("ftpExecute ftpAcceptServerConnection = %d\n",clientSocket);
+
 				sessionId = ftpOpenSession(clientSocket, remoteIP, remotePort);
 				if(sessionId >= 0)
 				{
@@ -195,6 +197,7 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 
 				if(ftpTestSocket(ctrlSocket))
 				{
+					if(VERBOSE_MODE_ENABLED) printf("ftpExecute socket signalled = %d\n",ctrlSocket);
 					int len;
 					socksRdy--;
 					len = ftpReceive(ctrlSocket,
@@ -202,6 +205,8 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 									 LEN_RXBUF - pSession->rxBufWriteIdx);
 					if(len <= 0)											// has client shutdown the connection?
 					{
+						if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR ON RECEIVE for socket = %d\n",ctrlSocket);
+
 						ftpUntrackSocket(ctrlSocket);
 						ftpCloseSession(n);
 					}
@@ -214,6 +219,8 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 				/// @bug Session-Timeout-Management doesn't work
             	if((ftpGetUnixTime() - pSession->timeLastCmd) > SESSION_TIMEOUT)
             	{
+            		if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR: SESSION TIMED OUT for socket = %d\n",ctrlSocket);
+
             		ftpSendMsg(MSG_NORMAL, n, 421, ftpMsg036);
 					ftpUntrackSocket(ctrlSocket);
 					ftpCloseSession(n);
