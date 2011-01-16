@@ -146,18 +146,6 @@ int ftpExecute(void)
 	int sessionId=0;
 	int activeJobs=0;
 
-	activeJobs = ftpGetActiveTransCnt();								// are there any active transmitions?
-	for(n = 0; (activeJobs > 0) && (n < MAX_CONNECTIONS); n++)
-	{
-		pSession = ftpGetSession(n);
-		if(pSession->activeTrans.op)									// has this session an active transmition?
-		{
-		    processedWork = 1;
-			ftpExecTransmission(n);										// do the job
-			activeJobs--;
-		}
-	}
-
 	if(ftpGetActiveTransCnt())											// don't block if there's still something to do
 	{
 		socksRdy = ftpSelect(TRUE);
@@ -231,6 +219,18 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 					ftpCloseSession(n);
             	}
 			}
+		}
+	}
+
+	activeJobs = ftpGetActiveTransCnt();								// are there any active transmitions?
+	for(n = 0; (activeJobs > 0) && (n < MAX_CONNECTIONS); n++)
+	{
+		pSession = ftpGetSession(n);
+		if(pSession->activeTrans.op)									// has this session an active transmition?
+		{
+		    processedWork = 1;
+			ftpExecTransmission(n);										// do the job
+			activeJobs--;
 		}
 	}
 
