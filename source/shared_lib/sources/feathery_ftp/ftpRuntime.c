@@ -145,6 +145,7 @@ int ftpExecute(void)
 	ftpSession_S *pSession=NULL;
 	int sessionId=0;
 	int activeJobs=0;
+	int len;
 
 	if(ftpGetActiveTransCnt())											// don't block if there's still something to do
 	{
@@ -198,7 +199,6 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 				if(ftpTestSocket(ctrlSocket))
 				{
 					if(VERBOSE_MODE_ENABLED) printf("ftpExecute socket signalled = %d\n",ctrlSocket);
-					int len;
 					socksRdy--;
 					len = ftpReceive(ctrlSocket,
 									 &pSession->rxBuf[pSession->rxBufWriteIdx],
