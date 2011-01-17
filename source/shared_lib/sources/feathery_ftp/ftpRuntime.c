@@ -146,6 +146,20 @@ int ftpExecute(void)
 	int sessionId=0;
 	int activeJobs=0;
 	int len;
+	int bufLen;
+
+	activeJobs = ftpGetActiveTransCnt();								// are there any active transmitions?
+	//for(n = 0; (activeJobs > 0) && (n < MAX_CONNECTIONS); n++)
+	for(n = 0; n < MAX_CONNECTIONS; n++)
+	{
+		pSession = ftpGetSession(n);
+		if(pSession->activeTrans.op)									// has this session an active transmition?
+		{
+		    processedWork = 1;
+			ftpExecTransmission(n);										// do the job
+			activeJobs--;
+		}
+	}
 
 	if(ftpGetActiveTransCnt())											// don't block if there's still something to do
 	{
@@ -182,32 +196,35 @@ int ftpExecute(void)
 				}
 				else
 				{
-if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reached.\n");
+					if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reached, about to close socket = %d\n",clientSocket);
 
+					ftpUntrackSocket(clientSocket);
 					ftpCloseSocket(&clientSocket);
 				}
 			}
 		}
 
+		//socksRdy = ftpSelect(TRUE);
 		for(n = 0; (socksRdy > 0) && (n < MAX_CONNECTIONS); n++)
 		{
 			pSession = ftpGetSession(n);
-            if(pSession->open)
-            {
-                socket_t ctrlSocket = pSession->ctrlSocket;
+	        if(pSession->open)
+	        {
+	            socket_t ctrlSocket = pSession->ctrlSocket;
 
 				if(ftpTestSocket(ctrlSocket))
 				{
-					if(VERBOSE_MODE_ENABLED) printf("ftpExecute socket signalled = %d\n",ctrlSocket);
+					if(VERBOSE_MODE_ENABLED) printf("ftpExecute signaled socket = %d, session = %d\n",ctrlSocket,n);
 					socksRdy--;
+					bufLen = (LEN_RXBUF - pSession->rxBufWriteIdx);
 					len = ftpReceive(ctrlSocket,
 									 &pSession->rxBuf[pSession->rxBufWriteIdx],
-									 LEN_RXBUF - pSession->rxBufWriteIdx);
+									 bufLen);
 					if(len <= 0)											// has client shutdown the connection?
 					{
-						int errorNumber = len; //getLastSocketError();
+						int errorNumber = getLastSocketError();
 						const char *errText = getLastSocketErrorText(&errorNumber);
-						if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR ON RECEIVE for socket = %d, data len = %d, error = %d [%s]\n",ctrlSocket,(LEN_RXBUF - pSession->rxBufWriteIdx),errorNumber,errText);
+						if(VERBOSE_MODE_ENABLED) printf("In ftpExecute ERROR ON RECEIVE session = %d for socket = %d, data len = %d index = %d, len = %d, error = %d [%s]\n",n,ctrlSocket,bufLen,pSession->rxBufWriteIdx,len,errorNumber,errText);
 
 						ftpUntrackSocket(ctrlSocket);
 						ftpCloseSession(n);
@@ -219,27 +236,15 @@ if(VERBOSE_MODE_ENABLED) printf("ERROR: Connection refused; Session limit reache
 					}
 				}
 				/// @bug Session-Timeout-Management doesn't work
-            	if((ftpGetUnixTime() - pSession->timeLastCmd) > SESSION_TIMEOUT)
-            	{
-            		if(VERBOSE_MODE_ENABLED) printf("ftpExecute ERROR: SESSION TIMED OUT for socket = %d\n",ctrlSocket);
+	        	if((ftpGetUnixTime() - pSession->timeLastCmd) > SESSION_TIMEOUT)
+	        	{
+	        		if(VERBOSE_MODE_ENABLED) printf("\nIn ftpExecute ERROR: SESSION TIMED OUT for socket = %d\n",ctrlSocket);
 
-            		ftpSendMsg(MSG_NORMAL, n, 421, ftpMsg036);
+	        		ftpSendMsg(MSG_NORMAL, n, 421, ftpMsg036);
 					ftpUntrackSocket(ctrlSocket);
 					ftpCloseSession(n);
-            	}
+	        	}
 			}
-		}
-	}
-
-	activeJobs = ftpGetActiveTransCnt();								// are there any active transmitions?
-	for(n = 0; (activeJobs > 0) && (n < MAX_CONNECTIONS); n++)
-	{
-		pSession = ftpGetSession(n);
-		if(pSession->activeTrans.op)									// has this session an active transmition?
-		{
-		    processedWork = 1;
-			ftpExecTransmission(n);										// do the job
-			activeJobs--;
 		}
 	}
 

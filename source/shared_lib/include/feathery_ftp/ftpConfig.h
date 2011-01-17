@@ -25,12 +25,12 @@
 /**
  * @brief max. possible simultaneous FTP client connections
  */
-#define MAX_CONNECTIONS 60
+#define MAX_CONNECTIONS 20
 
 /**
  * @brief max. possible user accounts
  */
-#define MAX_USERS		20
+#define MAX_USERS		10
 
 /**
  * @brief max. length of a user account name
@@ -58,7 +58,7 @@
  * The scratch buffer is used for
  *  send / receive of files and directory listings
  */
-#define LEN_SCRATCHBUF		1024
+#define LEN_SCRATCHBUF	1024
 
 /**
  * @brief Size of the receive buffer for ftp commands
