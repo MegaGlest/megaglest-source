@@ -214,9 +214,9 @@ bool UPNP_Tools::enabledUPNP    = false;
 		return acErrorBuffer;
 	}
 
-	Socket::SocketManager Socket::socketManager;
+	//SocketManager Socket::socketManager;
 
-	Socket::SocketManager::SocketManager(){
+	SocketManager::SocketManager() {
 		WSADATA wsaData;
 		WORD wVersionRequested = MAKEWORD(2, 0);
 		WSAStartup(wVersionRequested, &wsaData);
@@ -224,7 +224,7 @@ bool UPNP_Tools::enabledUPNP    = false;
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock initialized.\n");
 	}
 
-	Socket::SocketManager::~SocketManager(){
+	SocketManager::~SocketManager() {
 		WSACleanup();
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock cleanup complete.\n");
 	}

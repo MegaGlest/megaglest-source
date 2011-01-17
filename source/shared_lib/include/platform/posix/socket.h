@@ -92,23 +92,20 @@ public:
 //	class Socket
 // =====================================================
 
-class Socket : public SimpleTaskCallbackInterface {
-
 #ifdef WIN32
-
-private:
-	class SocketManager{
-	public:
-		SocketManager();
-		~SocketManager();
-	};
-
-protected:
-	static SocketManager socketManager;
-
+class SocketManager{
+public:
+	SocketManager();
+	~SocketManager();
+};
 #endif
 
+class Socket : public SimpleTaskCallbackInterface {
+
 protected:
+#ifdef WIN32
+	SocketManager wsaManager;
+#endif
 	PLATFORM_SOCKET sock;
 	time_t lastDebugEvent;
 	static int broadcast_portno;

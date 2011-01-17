@@ -1379,6 +1379,10 @@ int glestMain(int argc, char** argv) {
         disableBacktrace = true;
     }
 
+#ifdef WIN32
+	SocketManager winSockManager;
+#endif
+
     bool haveSpecialOutputCommandLineOption = false;
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
