@@ -39,6 +39,7 @@ ip_t ownIp;
 LOCAL fd_set watchedSockets;
 LOCAL fd_set signaledSockets;
 LOCAL int maxSockNr;
+int wsaInitCount=0;
 
 void ftpArchInit()
 {
@@ -46,12 +47,19 @@ void ftpArchInit()
 	ownIp = 0;
 	maxSockNr = 0;
 	FD_ZERO(&watchedSockets);
+	if(VERBOSE_MODE_ENABLED) printf("Feathery calling WSAStartup...\n");
 	WSAStartup(MAKEWORD(2, 0),&wsaData);
+	wsaInitCount++;
 }
 
 void ftpArchCleanup(void)
 {
-	WSACleanup();                                               // WINSOCK freigeben
+	if(VERBOSE_MODE_ENABLED) printf("Feathery calling WSACleanup...[%d]\n",wsaInitCount);
+	if(wsaInitCount > 0) 
+	{
+		WSACleanup();                                               // WINSOCK freigeben
+		wsaInitCount--;
+	}
 }
 
 int ftpGetLocalTime(ftpTime_S *t)
@@ -319,7 +327,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		myAddr.sin_port = htons(passivePort);
 		//myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
 
-		if(setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)))
+		if(setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)))
 		{
 			if(VERBOSE_MODE_ENABLED) printf("PASSIVE CONNECTION In ftpEstablishDataConnection setsockopt failed about to Close socket = %d, for sessionId = %d\n",dataSocket, sessionId);
 
@@ -428,7 +436,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len))
 	{
-		if(VERBOSE_MODE_ENABLED) printf("\ERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d\n",theServer);
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d\n",theServer);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);
@@ -437,7 +445,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 
 	if(listen(theServer, 100))
 	{
-		if(VERBOSE_MODE_ENABLED) printf("\ERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d\n",theServer);
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d\n",theServer);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);

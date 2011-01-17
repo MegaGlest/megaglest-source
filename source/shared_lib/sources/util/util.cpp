@@ -171,6 +171,9 @@ CURL *SystemFlags::initHTTP() {
 		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 	}
 	CURL *handle = curl_easy_init();
+	if(handle == NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 	return handle;
 }

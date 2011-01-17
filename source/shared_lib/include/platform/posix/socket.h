@@ -104,7 +104,7 @@ class Socket : public SimpleTaskCallbackInterface {
 
 protected:
 #ifdef WIN32
-	SocketManager wsaManager;
+	static SocketManager wsaManager;
 #endif
 	PLATFORM_SOCKET sock;
 	time_t lastDebugEvent;
