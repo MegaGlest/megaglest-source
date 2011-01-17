@@ -87,6 +87,8 @@ int ftpOpenSession(socket_t ctrlSocket, ip_t remoteIp, port_t remotePort)
 			sessions[n].activeTrans.dataSocket = -1;
 			sessions[n].activeTrans.fileSize = 0;
 
+			if(VERBOSE_MODE_ENABLED) printf("ftpOpenSession started for ctrlSocket: %d\n",ctrlSocket);
+
 			return n;
 		}
 	}
@@ -119,29 +121,37 @@ int ftpAuthSession(int id)
  */
 int ftpCloseSession(int id)
 {
-if(VERBOSE_MODE_ENABLED) printf("In ftpCloseSession sessionId = %d, remote IP = %u, port = %d\n",
-           id, sessions[id].remoteIp, sessions[id].remoteFTPServerPassivePort);
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCloseSession sessionId = %d, remote IP = %u, port = %d, ctrlSocket = %d\n",
+           id, sessions[id].remoteIp, sessions[id].remoteFTPServerPassivePort,sessions[id].ctrlSocket);
 
     if(ftpFindExternalFTPServerIp != NULL && ftpFindExternalFTPServerIp(sessions[id].remoteIp) != 0)
     {
-        if(ftpRemoveUPNPPortForward)
-        {
-if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
+        //if(ftpRemoveUPNPPortForward)
+        //{
+    		//if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, removing UPNP port forward [%d]\n", id,sessions[id].remoteFTPServerPassivePort);
 
             //ftpRemoveUPNPPortForward(sessions[id].remoteFTPServerPassivePort, sessions[id].remoteFTPServerPassivePort);
             sessions[id].remoteFTPServerPassivePort = 0;
-        }
+        //}
     }
-    if(sessions[id].open) {
-        ftpCloseSocket(&sessions[id].ctrlSocket);
-        ftpCloseTransmission(id);
-        ftpCloseSocket(&sessions[id].passiveDataSocket);
-    }
-    sessions[id].remoteIp = 0;
-    sessions[id].ctrlSocket = 0;
-    sessions[id].passiveDataSocket = 0;
+    //if(sessions[id].open) {
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCloseSession about to Close socket = %d, dataSocket = %d, activeDataSocket = %d, for sessionId = %d\n",sessions[id].ctrlSocket,sessions[id].passiveDataSocket,sessions[id].activeTrans.dataSocket,id);
+
+	ftpUntrackSocket(sessions[id].ctrlSocket);
+	ftpCloseSocket(&sessions[id].ctrlSocket);
+	ftpCloseTransmission(id);
+	ftpUntrackSocket(sessions[id].passiveDataSocket);
+	ftpCloseSocket(&sessions[id].passiveDataSocket);
+    //}
+    sessions[id].remoteIp 			= 0;
+    sessions[id].ctrlSocket 		= 0;
+    sessions[id].passiveDataSocket  = 0;
+    sessions[id].passiveIp			= 0;
+    sessions[id].passivePort		= 0;
     sessions[id].activeTrans.dataSocket = 0;
-	sessions[id].open = FALSE;
+    sessions[id].activeTrans.op 		= OP_NOP;
+    sessions[id].activeTrans.fileSize 	= 0;
+	sessions[id].open 					= FALSE;
 
 if(VERBOSE_MODE_ENABLED) printf("Session %d closed\n", id);
 
@@ -325,9 +335,17 @@ void ftpOpenTransmission(int id, operation_E op, void* fsHandle, socket_t dataSo
  */
 void ftpCloseTransmission(int id)
 {
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCloseTransmission about to Close socket = %d, for sessionId = %d, fsHandle [%p] op = %d\n",
+			sessions[id].activeTrans.dataSocket, id,sessions[id].activeTrans.fsHandle,sessions[id].activeTrans.op);
+
+	if(sessions[id].activeTrans.dataSocket > 0)
+	{
+		ftpUntrackSocket(sessions[id].activeTrans.dataSocket);
+		ftpCloseSocket(&sessions[id].activeTrans.dataSocket);
+	}
+
 	if(sessions[id].activeTrans.op != OP_NOP)						// is thera an active transmission?
 	{
-		ftpCloseSocket(&sessions[id].activeTrans.dataSocket);
 		if(sessions[id].activeTrans.op == OP_LIST)
 		{
 			ftpCloseDir(sessions[id].activeTrans.fsHandle);
@@ -336,6 +354,7 @@ void ftpCloseTransmission(int id)
 		{
 			ftpCloseFile(sessions[id].activeTrans.fsHandle);
 		}
+		sessions[id].activeTrans.fsHandle = NULL;
 		sessions[id].activeTrans.op = OP_NOP;
 		sessions[id].activeTrans.dataSocket = 0;
 		actTransCnt--;

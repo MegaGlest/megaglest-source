@@ -108,6 +108,7 @@ int ftpExecTransmission(int sessionId)
 		}
 		else
 		{
+			if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpReadFile returned = %d for sessionId = %d\n",len,sessionId);
 	    	ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg001);
 	    	finished = TRUE;
 		}
@@ -124,16 +125,24 @@ int ftpExecTransmission(int sessionId)
 		{
         	len = ftpReceive(pTrans->dataSocket, &scratchBuf[rxLen], LEN_SCRATCHBUF - rxLen);
 
-			if(len <= 0)
+			if(len <= 0) {
+				int errorNumber = getLastSocketError();
+				const char *errText = getLastSocketErrorText(&errorNumber);
+				if(VERBOSE_MODE_ENABLED) printf("ftpExecTransmission ERROR ON RECEIVE for socket = %d, data len = %d, error = %d [%s]\n",pTrans->dataSocket,(LEN_SCRATCHBUF - rxLen),errorNumber,errText);
+
 				break;
+			}
 
 			rxLen += len;
 		} while(rxLen < LEN_SCRATCHBUF);
 
 		if(rxLen > 0)
         {
-	        if(ftpWriteFile(scratchBuf, 1, rxLen, pTrans->fsHandle) != rxLen)
+			int res = ftpWriteFile(scratchBuf, 1, rxLen, pTrans->fsHandle);
+	        if(res != rxLen)
 			{
+	        	if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpWriteFile returned = %d for sessionId = %d\n",res,sessionId);
+
 		    	ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg001);
     	    	finished = TRUE;
 			}
@@ -227,6 +236,9 @@ LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 	clientIp[0] = clientIp[0];
 	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
 	{
+		if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPort about to Close socket = %d for sessionId = %d\n",ftpGetSession(sessionId)->passiveDataSocket,sessionId);
+
+		ftpUntrackSocket(ftpGetSession(sessionId)->passiveDataSocket);
 		ftpCloseSocket(&ftpGetSession(sessionId)->passiveDataSocket);
 		ftpGetSession(sessionId)->passiveDataSocket = -1;
 	}
@@ -283,7 +295,7 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
     	ftpGetLocalTime(&currTime);
 		ftpSendMsg(MSG_NORMAL, sessionId, 150, ftpMsg010);
 
-if(VERBOSE_MODE_ENABLED) printf("about to read dir contents [%s]\n", path);
+		if(VERBOSE_MODE_ENABLED) printf("In sendListing about to read dir contents [%s] for sessionId = %d, dataSocket = %d\n", path,sessionId,dataSocket);
 
         haveAnySuccessfulFiles = 0;
 		while((dirEntry = ftpReadDir(dir)) != NULL)
@@ -291,7 +303,7 @@ if(VERBOSE_MODE_ENABLED) printf("about to read dir contents [%s]\n", path);
 		    const char * realPath = ftpGetRealPath(sessionId, dirEntry, FALSE);
 		    int statResult = ftpStat(realPath, &fileInfo);
 
-if(VERBOSE_MODE_ENABLED) printf("ftpGetRealPath() returned [%s] stat() = %d\n", realPath, statResult);
+		    if(VERBOSE_MODE_ENABLED) printf("ftpGetRealPath() returned [%s] stat() = %d\n", realPath, statResult);
 
 			if(statResult == 0)
 			{
@@ -393,13 +405,19 @@ if(VERBOSE_MODE_ENABLED) printf("ftpGetRealPath() returned [%s] stat() = %d\n", 
 
 		ftpCloseDir(dir);
 		if(err && haveAnySuccessfulFiles == 0)
+		{
+			if(VERBOSE_MODE_ENABLED) printf("ERROR in sendListing err = %d, path = [%s] for sessionId = %d, dataSocket = %d\n",err,path,sessionId,dataSocket);
+
 			ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg039);
+		}
 		else
+		{
 			ftpSendMsg(MSG_NORMAL, sessionId, 226, ftpMsg013);
+		}
 	}
 	else
 	{
-if(VERBOSE_MODE_ENABLED) printf("opendir [%s] returned errno: %#x\n", path,errno);
+		if(VERBOSE_MODE_ENABLED) printf("ERROR opendir [%s] returned errno: %#x for sessionId = %d, dataSocket = %d\n", path,errno,sessionId,dataSocket);
 
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg038);
 	}
@@ -439,7 +457,10 @@ LOCAL int ftpCmdList(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, LIST);
-    ftpCloseSocket(&s);
+
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdList about to Close socket = %d for sessionId = %d\n",s,sessionId);
+	ftpUntrackSocket(s);
+	ftpCloseSocket(&s);
 
 	return 0;
 }
@@ -474,7 +495,10 @@ LOCAL int ftpCmdNlst(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, NLST);
-    ftpCloseSocket(&s);
+
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdNlst about to Close socket = %d for sessionId = %d\n",s,sessionId);
+	ftpUntrackSocket(s);
+	ftpCloseSocket(&s);
 
 	return 0;
 }
@@ -487,13 +511,15 @@ LOCAL int ftpCmdRetr(int sessionId, const char* args, int len)
 	void *fp;
 	int statResult = 0;
 
-if(VERBOSE_MODE_ENABLED) printf("ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdRetr args [%s] realPath [%s]\n", args, realPath);
 
     statResult = ftpStat(realPath, &fileInfo);
-if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
+    if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,fileInfo.type);
 
    	if(statResult || (fileInfo.type != TYPE_FILE)) // file accessible?
     {
+   		if(VERBOSE_MODE_ENABLED) printf("ERROR In ftpCmdRetr [file not available] args [%s] realPath [%s]\n", args, realPath);
+
     	ftpSendMsg(MSG_NORMAL, sessionId, 550, ftpMsg032);
         return 2;
     }
@@ -509,9 +535,13 @@ if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,f
     }
     else
     {
+    	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdRetr about accept passive data connection, args [%s] realPath [%s]\n", args, realPath);
+
     	s = ftpAcceptDataConnection(ftpGetSession(sessionId)->passiveDataSocket);
         if(s < 0)
         {
+        	if(VERBOSE_MODE_ENABLED) printf("ERROR In ftpCmdRetr failed to accept data connection, args [%s] realPath [%s]\n", args, realPath);
+
         	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg012);
             return 1;
         }
@@ -522,12 +552,19 @@ if(VERBOSE_MODE_ENABLED) printf("stat() = %d fileInfo.type = %d\n", statResult,f
 	fp = ftpOpenFile(realPath, "rb");
 	if(fp)
 	{
+		if(VERBOSE_MODE_ENABLED) printf("In ftpCmdRetr opened realPath [%s] [%p] for sessionId = %d for socket = %d\n",realPath,fp,sessionId,s);
+
 		ftpOpenTransmission(sessionId, OP_RETR, fp, s, fileInfo.size);
 		ftpExecTransmission(sessionId);
 	}
 	else
 	{
+		if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpCmdRetr could not open realPath [%s] for sessionId = %d for socket = %d\n",realPath,sessionId,s);
+
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg015);
+
+		if(VERBOSE_MODE_ENABLED) printf("In ftpCmdRetr about to Close socket = %d for sessionId = %d\n",s,sessionId);
+		ftpUntrackSocket(s);
 		ftpCloseSocket(&s);
 	}
 
@@ -569,8 +606,14 @@ LOCAL int ftpCmdStor(int sessionId, const char* args, int len)
     }
     else
     {
+    	if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpCmdStor could not open realPath [%s]\n",realPath);
+
 		ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg015);
-        ftpCloseSocket(&s);
+
+		if(VERBOSE_MODE_ENABLED) printf("In ftpCmdStor about to Close socket = %d for sessionId = %d\n",s,sessionId);
+
+		ftpUntrackSocket(s);
+		ftpCloseSocket(&s);
     }
 
 	return 0;
@@ -661,29 +704,43 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 	socket_t s;
 	uint32_t remoteFTPServerIp;
 
-	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
-	{
-		ftpCloseSocket(&ftpGetSession(sessionId)->passiveDataSocket);
-		ftpGetSession(sessionId)->passiveDataSocket = -1;
-	}
-	//ftpGetSession(sessionId)->passiveDataSocket = -1;
-	s = ftpEstablishDataConnection(TRUE, &ip, &port,sessionId);
-    if(s < 0)
-    {
-       	ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg012);
-        return 1;
-    }
-    ftpGetSession(sessionId)->passiveDataSocket = s;
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, ftpGetSession(sessionId)->passiveDataSocket = %d\n", sessionId, ftpGetSession(sessionId)->passiveDataSocket);
 
-if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p\n",
-           sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,ftpAddUPNPPortForward,ftpRemoveUPNPPortForward);
+	if(ftpGetSession(sessionId)->passiveDataSocket <= 0)
+	{
+		//if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv about to Close socket = %d for sessionId = %d\n",ftpGetSession(sessionId)->passiveDataSocket,sessionId);
+
+		//ftpUntrackSocket(ftpGetSession(sessionId)->passiveDataSocket);
+		//ftpCloseSocket(&ftpGetSession(sessionId)->passiveDataSocket);
+	//}
+	//ftpGetSession(sessionId)->passiveDataSocket = -1;
+		s = ftpEstablishDataConnection(TRUE, &ip, &port,sessionId);
+		if(s < 0)
+		{
+			ftpSendMsg(MSG_NORMAL, sessionId, 425, ftpMsg012);
+			return 1;
+		}
+		ftpGetSession(sessionId)->passiveDataSocket = s;
+		ftpGetSession(sessionId)->passiveIp			= ip;
+		ftpGetSession(sessionId)->passivePort		= port;
+	}
+	else
+	{
+		s  = ftpGetSession(sessionId)->passiveDataSocket;
+		ip = ftpGetSession(sessionId)->passiveIp;
+		port = ftpGetSession(sessionId)->passivePort;
+	}
+
+	//if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, ftpAddUPNPPortForward = %p, ftpRemoveUPNPPortForward = %p using listener socket = %d\n",
+    //       sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,ftpAddUPNPPortForward,ftpRemoveUPNPPortForward,s);
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, client IP = %u, remote IP = %u, port = %d, using listener socket = %d\n",
+           sessionId, ftpGetSession(sessionId)->remoteIp, ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp), port,s);
 
     if(ftpAddUPNPPortForward != NULL && ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp) != 0)
     {
         ftpGetSession(sessionId)->remoteFTPServerPassivePort = port;
 
-if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
-
+        //if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port forward\n", sessionId);
         //ftpAddUPNPPortForward(port, port);
 
         remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
@@ -697,7 +754,7 @@ if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, adding UPNP port 
                 (port >> 8) & 0xFF,
                 port & 0xFF);
 
-if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sessionId, str);
+        if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sessionId, str);
 
     }
     else
@@ -712,7 +769,9 @@ if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, str [%s]\n", sess
                 port & 0xFF);
     }
 
-	ftpSendMsg(MSG_NORMAL, sessionId, 227, str);
+    if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPasv sessionId = %d, ftpGetSession(sessionId)->passiveDataSocket = %d SENDING 227 to client\n", sessionId, ftpGetSession(sessionId)->passiveDataSocket);
+
+    ftpSendMsg(MSG_NORMAL, sessionId, 227, str);
     ftpGetSession(sessionId)->passive = TRUE;
 	return 0;
 }
@@ -826,7 +885,10 @@ LOCAL int ftpCmdMlsd(int sessionId, const char* args, int len)
         }
     }
 	sendListing(s, sessionId, realPath, MLSD);
-    ftpCloseSocket(&s);
+
+	if(VERBOSE_MODE_ENABLED) printf("In ftpCmdMlsd about to Close socket = %d for sessionId = %d\n",s,sessionId);
+	ftpUntrackSocket(s);
+	ftpCloseSocket(&s);
 
 	return 0;
 }
@@ -882,6 +944,8 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 
 	ftpSession_S *pSession = ftpGetSession(sessionId);
 
+	//if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd ARRAY_SIZE(cmds) = %lu for sessionId = %d\n",ARRAY_SIZE(cmds),sessionId);
+	if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd cmd [%s] for sessionId = %d\n",cmd,sessionId);
 
 	for(n = 0; n < ARRAY_SIZE(cmds); n++)
 	{
@@ -893,11 +957,14 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 			{
 				if((pSession->userId == 0) || (pSession->authenticated == FALSE))
 				{
+					if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd User NOT loggedin for sessionId = %d\n",sessionId);
 					ftpSendMsg(MSG_NORMAL, sessionId, 530, ftpMsg033);
 					return 0;
 				}
 				if(ftpCheckAccRights(pSession->userId, cmds[n].neededRights))
 				{
+					if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd User has no ACCESS for sessionId = %d\n",sessionId);
+
 					ftpSendMsg(MSG_NORMAL, sessionId, 550, ftpMsg034);
 					return 0;
 				}
@@ -906,7 +973,10 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 			if((pSession->activeTrans.op != OP_NOP)) 	// transfer in progress?
 			{
 				if(cmds[n].duringTransfer == FALSE)		// command during transfer allowed?
+				{
+					if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd got command during transfer, discarding for sessionId = %d\n",sessionId);
 					return 0;							// no => silently discard command
+				}
 			}
 
 			while(cmd[i] != '\0')
@@ -916,11 +986,23 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 
 				i++;
 			}
+
+			if(VERBOSE_MODE_ENABLED) printf("About to execute cmds[n].cmdToken [%s] command [%s] for sessionId = %d\n",cmds[n].cmdToken,&cmd[i],sessionId);
+
 			ret = cmds[n].handler(sessionId, &cmd[i], strlen(&cmd[i]));	// execute command
+
+			if(VERBOSE_MODE_ENABLED) printf("Executed cmds[n].cmdToken [%s] command [%s] ret = %d for sessionId = %d\n",cmds[n].cmdToken,&cmd[i],ret,sessionId);
+
         	pSession->timeLastCmd = ftpGetUnixTime();
             return ret;
 		}
+		else
+		{
+			//if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd SKIPPED COMMAND cmds[n].cmdToken = [%s] n = %d for sessionId = %d\n",cmds[n].cmdToken,n,sessionId);
+		}
 	}
+
+	if(VERBOSE_MODE_ENABLED) printf("ERROR UNKNOWN COMMAND cmd [%s] for sessionId = %d\n",cmd,sessionId);
 
 	ftpSendMsg(MSG_NORMAL, sessionId, 500, cmd);					// reject unknown commands
 	pSession->timeLastCmd = ftpGetUnixTime();
@@ -951,13 +1033,19 @@ void ftpParseCmd(int sessionId)
 			pSession->rxBuf[c] = toupper(pSession->rxBuf[c]);
 		}
 
-if(VERBOSE_MODE_ENABLED) printf("%02d --> %s\n", sessionId, pSession->rxBuf);
+		if(VERBOSE_MODE_ENABLED) printf("%02d --> %s for socket: %d\n", sessionId, pSession->rxBuf,ctrlSocket);
 
 		if(execFtpCmd(sessionId, pSession->rxBuf, len - 2) == -1)
 		{
+			if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd command triggered close for socket: %d!\n",ctrlSocket);
+
 			ftpUntrackSocket(ctrlSocket);
 			ftpCloseSession(sessionId);
 		}
+	}
+	else
+	{
+		if(VERBOSE_MODE_ENABLED) printf("ERROR In execFtpCmd problem with parsing string [%s] for socket: %d!\n",pSession->rxBuf,ctrlSocket);
 	}
 
 	if(pSession->rxBufWriteIdx >= LEN_RXBUF)	// overflow of receive buffer?
@@ -965,7 +1053,7 @@ if(VERBOSE_MODE_ENABLED) printf("%02d --> %s\n", sessionId, pSession->rxBuf);
 		pSession->rxBufWriteIdx = 0;
 		ftpSendMsg(MSG_NORMAL, sessionId, 500, ftpMsg035);
 
-if(VERBOSE_MODE_ENABLED) printf("Receive buffer overflow. Received data discarded.\n");
+		if(VERBOSE_MODE_ENABLED) printf("ERROR: Receive buffer overflow. Received data discarded.\n");
 	}
 }
 

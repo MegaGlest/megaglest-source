@@ -70,6 +70,8 @@ typedef struct
 	uint32_t timeLastCmd;				///< timestamp of last ftp activity (used for timeout generation)
 	socket_t ctrlSocket;				///< socket for control connection
 	socket_t passiveDataSocket;			///< listener socket for data connections in passive mode
+	ip_t     passiveIp;					///< IP of the FTP Server from the clients perspective related to Passive connection
+	port_t   passivePort; 				///< Port of the FTP Server from the clients perspective related to Passive connection
 	transmission_S activeTrans;			///< infos about a currently active file/directory-transmission
 
 }ftpSession_S;
