@@ -396,7 +396,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len))
 	{
-		if(VERBOSE_MODE_ENABLED) printf("\ERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d\n",theServer);
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d\n",theServer);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);
@@ -405,7 +405,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 
 	if(listen(theServer, 100))
 	{
-		if(VERBOSE_MODE_ENABLED) printf("\ERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d\n",theServer);
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d\n",theServer);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);

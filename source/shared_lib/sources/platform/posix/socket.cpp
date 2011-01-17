@@ -214,17 +214,20 @@ bool UPNP_Tools::enabledUPNP    = false;
 		return acErrorBuffer;
 	}
 
-	//SocketManager Socket::socketManager;
+	// keeps in scope for duration of the application
+	SocketManager Socket::wsaManager;
 
 	SocketManager::SocketManager() {
 		WSADATA wsaData;
 		WORD wVersionRequested = MAKEWORD(2, 0);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("SocketManager calling WSAStartup...\n");
 		WSAStartup(wVersionRequested, &wsaData);
 		//dont throw exceptions here, this is a static initializacion
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock initialized.\n");
 	}
 
 	SocketManager::~SocketManager() {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("SocketManager calling WSACleanup...\n");
 		WSACleanup();
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Winsock cleanup complete.\n");
 	}

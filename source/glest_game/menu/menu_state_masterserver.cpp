@@ -695,7 +695,9 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 if(announcementURL != "") {
 
                     safeMutex.ReleaseLock(true);
-                    std::string announcementTxt = SystemFlags::getHTTP(announcementURL);
+                    CURL *handle = SystemFlags::initHTTP();
+					std::string announcementTxt = SystemFlags::getHTTP(announcementURL,handle);
+					SystemFlags::cleanupHTTP(&handle);
                     if(callingThread->getQuitStatus() == true) {
                         return;
                     }
@@ -728,7 +730,9 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 //printf("\nversionURL=%s\n",versionURL.c_str());
                 if(versionURL != "") {
                     safeMutex.ReleaseLock(true);
-                    std::string versionTxt = SystemFlags::getHTTP(versionURL);
+                    CURL *handle = SystemFlags::initHTTP();
+                    std::string versionTxt = SystemFlags::getHTTP(versionURL,handle);
+					SystemFlags::cleanupHTTP(&handle);
                     if(callingThread->getQuitStatus() == true) {
                         return;
                     }
@@ -769,7 +773,9 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 if(Config::getInstance().getString("Masterserver","") != "") {
 
                     safeMutex.ReleaseLock(true);
-                    std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php");
+					CURL *handle = SystemFlags::initHTTP();
+                    std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php",handle);
+					SystemFlags::cleanupHTTP(&handle);
                     if(callingThread->getQuitStatus() == true) {
                         return;
                     }
