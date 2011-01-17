@@ -26,7 +26,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Command::Command(const CommandType *ct, const Vec2i &pos){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
 
     this->commandType= ct;
     this->pos= pos;
@@ -58,9 +58,9 @@ Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitTy
 	stateType			= cst_None;
 	stateValue 			= -1;
 
-	if(this->unitType != NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->unitType->toString().c_str());
-	}
+	//if(this->unitType != NULL) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->unitType->toString().c_str());
+	//}
 }
 
 int Command::getPriority(){
