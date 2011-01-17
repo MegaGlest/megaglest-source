@@ -873,10 +873,10 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), unit);
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
-                             __FILE__,__FUNCTION__,__LINE__,
-                             currPos.getString().c_str(),
-                             unit->toString().c_str());
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
+                //             __FILE__,__FUNCTION__,__LINE__,
+                //             currPos.getString().c_str(),
+                //             unit->toString().c_str());
 			}
 		}
 	}
@@ -928,10 +928,10 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 					ut->hasEmptyCellMap() == true) {
 				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), NULL);
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
-                             __FILE__,__FUNCTION__,__LINE__,
-                             currPos.getString().c_str(),
-                             unit->toString().c_str());
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
+                //             __FILE__,__FUNCTION__,__LINE__,
+                //             currPos.getString().c_str(),
+                //             unit->toString().c_str());
 			}
 		}
 	}

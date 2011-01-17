@@ -1093,13 +1093,13 @@ void ValueCheckerVault::addItemToVault(const void *ptr,int value) {
 void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 	map<const void *,int32>::const_iterator iterFind = vaultList.find(ptr);
 	if(iterFind == vaultList.end()) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) {
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) {
 //			printf("In [%s::%s Line: %d] check vault key [%p] value [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,value);
 //			for(map<const void *,string>::const_iterator iterFind = vaultList.begin();
 //					iterFind != vaultList.end(); iterFind++) {
 //				printf("In [%s::%s Line: %d] LIST-- check vault key [%p] value [%s]\n",__FILE__,__FUNCTION__,__LINE__,iterFind->first,iterFind->second.c_str());
 //			}
-		}
+//		}
 		throw std::runtime_error("memory value has been unexpectedly modified (not found)!");
 	}
 	Checksum checksum;

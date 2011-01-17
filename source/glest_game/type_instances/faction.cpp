@@ -385,7 +385,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
 				const Resource *resource = unit->getType()->getCost(k);
 				if(resource->getType() == rtApply && resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resource->getType() [%s] store = %d, unit cost = %d\n",__FILE__,__FUNCTION__,__LINE__,resource->getType()->getName().c_str(), getResource(resource->getType())->getAmount(),resource->getAmount());
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resource->getType() [%s] store = %d, unit cost = %d\n",__FILE__,__FUNCTION__,__LINE__,resource->getType()->getName().c_str(), getResource(resource->getType())->getAmount(),resource->getAmount());
 
 					if(resourceIntervalUsage.find(resource->getType()) == resourceIntervalUsage.end()) {
 						resourceIntervalUsage[resource->getType()] = make_pair<int, std::vector<Unit *> >(0,std::vector<Unit *>());
@@ -398,7 +398,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 						resourceIntervalUsage[resource->getType()].second.push_back(unit);
 					}
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage[resource->getType()].first = %d, consumerCount = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage[resource->getType()].first,resourceIntervalUsage[resource->getType()].second.size());
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage[resource->getType()].first = %d, consumerCount = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage[resource->getType()].first,resourceIntervalUsage[resource->getType()].second.size());
 				}
 			}
 		}
@@ -406,7 +406,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 
 	// Apply consumable resource usage
 	if(resourceIntervalUsage.size() > 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage.size());
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage.size());
 
 		for(std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > >::iterator iter = resourceIntervalUsage.begin();
 																							iter != resourceIntervalUsage.end();
@@ -416,7 +416,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			int resourceTypeUsage = iter->second.first;
 			incResourceAmount(rt, resourceTypeUsage);
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rt [%s] resourceTypeUsage = %d store = %d\n",__FILE__,__FUNCTION__,__LINE__,rt->getName().c_str(), resourceTypeUsage,getResource(rt)->getAmount());
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rt [%s] resourceTypeUsage = %d store = %d\n",__FILE__,__FUNCTION__,__LINE__,rt->getName().c_str(), resourceTypeUsage,getResource(rt)->getAmount());
 
 			// Check if we have any unit consumers
 			if(getResource(rt)->getAmount() < 0) {
@@ -425,24 +425,24 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 				// Apply consequences to consumer units of this resource type
 				std::vector<Unit *> &resourceConsumers = iter->second.second;
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceConsumers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceConsumers.size());
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceConsumers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceConsumers.size());
 
 				for(int i = 0; i < resourceConsumers.size(); ++i) {
 					Unit *unit = resourceConsumers[i];
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(rt)->getAmount());
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(rt)->getAmount(),unit->getFullName().c_str(),unit->getId());
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(rt)->getAmount());
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(rt)->getAmount(),unit->getFullName().c_str(),unit->getId());
 
 					//decrease unit hp
 					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
 
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
+						//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
 
 						if(decHpResult) {
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 							world->getStats()->die(unit->getFactionIndex());
 							scriptManager->onUnitDied(unit);
