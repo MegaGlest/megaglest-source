@@ -34,16 +34,16 @@ public:
 	ModelRendererGl();
 	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback);
 	virtual void end();
-	virtual void render(const Model *model);
-	virtual void renderNormalsOnly(const Model *model);
+	virtual void render(Model *model);
+	virtual void renderNormalsOnly(Model *model);
 
 	void setDuplicateTexCoords(bool duplicateTexCoords)			{this->duplicateTexCoords= duplicateTexCoords;}
 	void setSecondaryTexCoordUnit(int secondaryTexCoordUnit)	{this->secondaryTexCoordUnit= secondaryTexCoordUnit;}
 
 private:
 	
-	void renderMesh(const Mesh *mesh, bool isStaticModel);
-	void renderMeshNormals(const Mesh *mesh, bool isStaticModel);
+	void renderMesh(Mesh *mesh, bool isStaticModel);
+	void renderMeshNormals(Mesh *mesh, bool isStaticModel);
 };
 
 }}}//end namespace

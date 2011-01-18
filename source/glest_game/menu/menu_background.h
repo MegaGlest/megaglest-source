@@ -87,6 +87,7 @@ public:
 	const Model *getCharacterModel(int i) const	{return characterModels[i];}
 	Model *getCharacterModelPtr(int i) const	{return characterModels[i];}
 	const Model *getMainModel() const			{return mainModel;}
+	Model *getMainModelPtr() const				{return mainModel;}
 	float getFade() const						{return fade;}
 	Vec2f getRaindropPos(int i) const			{return raindropPos[i];}
 	float getRaindropState(int i) const			{return raindropStates[i];}
