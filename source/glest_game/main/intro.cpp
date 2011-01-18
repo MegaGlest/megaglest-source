@@ -70,7 +70,7 @@ Intro::Intro(Program *program):
 
 	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), 4000));
 	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), 4000, coreData.getMenuFontNormal()));
-	texts.push_back(Text("www.glest.org", Vec2i(w/2, h/2), 12000, coreData.getMenuFontVeryBig()));
+	texts.push_back(Text("www.megaglest.org", Vec2i(w/2, h/2), 12000, coreData.getMenuFontVeryBig()));
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
