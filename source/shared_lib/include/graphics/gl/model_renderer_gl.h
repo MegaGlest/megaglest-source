@@ -42,8 +42,8 @@ public:
 
 private:
 	
-	void renderMesh(const Mesh *mesh);
-	void renderMeshNormals(const Mesh *mesh);
+	void renderMesh(const Mesh *mesh, bool isStaticModel);
+	void renderMeshNormals(const Mesh *mesh, bool isStaticModel);
 };
 
 }}}//end namespace

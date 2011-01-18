@@ -18,6 +18,13 @@
 #include "interpolation.h"
 #include "conversion.h"
 #include "util.h"
+
+#if defined(ENABLE_VBO_CODE)
+
+#include "opengl.h"
+
+#endif
+
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -39,6 +46,7 @@ Mesh::Mesh() {
 	frameCount= 0;
 	vertexCount= 0;
 	indexCount= 0;
+	texCoordFrameCount = 0;
 
 	vertices= NULL;
 	normals= NULL;
@@ -94,13 +102,35 @@ void Mesh::buildInterpolationData(){
 	interpolationData= new InterpolationData(this);
 }
 
-void Mesh::updateInterpolationData(float t, bool cycle) const{
+void Mesh::updateInterpolationData(float t, bool cycle) {
 	interpolationData->update(t, cycle);
 }
 
-void Mesh::updateInterpolationVertices(float t, bool cycle) const{
+void Mesh::updateInterpolationVertices(float t, bool cycle) {
 	interpolationData->updateVertices(t, cycle);
 }
+
+#if defined(ENABLE_VBO_CODE)
+
+void Mesh::BuildVBOs() {
+	// Generate And Bind The Vertex Buffer
+	glGenBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB,  getVertexCount() * 3 * sizeof(float), vertices, GL_STATIC_DRAW_ARB );
+
+	// Generate And Bind The Texture Coordinate Buffer
+	glGenBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords );		// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB, getVertexCount() * 2 * sizeof(float), texCoords, GL_STATIC_DRAW_ARB );
+
+	// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
+	delete [] vertices; vertices = NULL;
+	delete [] texCoords; texCoords = NULL;
+}
+
+#endif
 
 // ==================== load ====================
 
@@ -123,6 +153,7 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,boo
 	frameCount= meshHeader.vertexFrameCount;
 	vertexCount= meshHeader.pointCount;
 	indexCount= meshHeader.indexCount;
+	texCoordFrameCount = meshHeader.texCoordFrameCount;
 
 	init();
 
@@ -176,6 +207,7 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 	frameCount= meshHeader.vertexFrameCount;
 	vertexCount= meshHeader.pointCount;
 	indexCount= meshHeader.indexCount;
+	texCoordFrameCount = meshHeader.texCoordFrameCount;
 
 	init();
 
@@ -366,10 +398,16 @@ Model::Model(){
 	meshCount= 0;
 	meshes= NULL;
 	textureManager= NULL;
+	lastTData		= -1;
+	lastCycleData	= -1;
+	lastTVertex		= -1;
+	lastCycleVertex	= -1;
+	isStaticModel	= false;
 }
 
 Model::~Model(){
 	delete [] meshes;
+	meshes = NULL;
 }
 
 // ==================== data ====================
@@ -380,15 +418,23 @@ void Model::buildInterpolationData() const{
 	}
 }
 
-void Model::updateInterpolationData(float t, bool cycle) const{
-	for(unsigned int i=0; i<meshCount; ++i){
-		meshes[i].updateInterpolationData(t, cycle);
+void Model::updateInterpolationData(float t, bool cycle) {
+	if(lastTData != t || lastCycleData != cycle) {
+		for(unsigned int i=0; i<meshCount; ++i){
+			meshes[i].updateInterpolationData(t, cycle);
+		}
+		lastTData = t;
+		lastCycleData = cycle;
 	}
 }
 
-void Model::updateInterpolationVertices(float t, bool cycle) const{
-	for(unsigned int i=0; i<meshCount; ++i){
-		meshes[i].updateInterpolationVertices(t, cycle);
+void Model::updateInterpolationVertices(float t, bool cycle) {
+	if(lastTVertex != t || lastCycleVertex != cycle) {
+		for(unsigned int i=0; i<meshCount; ++i){
+			meshes[i].updateInterpolationVertices(t, cycle);
+		}
+		lastTVertex = t;
+		lastCycleVertex = cycle;
 	}
 }
 
@@ -492,13 +538,12 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 		fileVersion= fileHeader.version;
 
 		//version 4
-		if(fileHeader.version==4){
-
+		if(fileHeader.version == 4) {
 			//model header
 			ModelHeader modelHeader;
 			readBytes = fread(&modelHeader, sizeof(ModelHeader), 1, f);
 			meshCount= modelHeader.meshCount;
-			if(modelHeader.type!=mtMorphMesh){
+			if(modelHeader.type != mtMorphMesh) {
 				throw runtime_error("Invalid model type");
 			}
 
@@ -508,6 +553,15 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 				meshes[i].load(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
+
+#if defined(ENABLE_VBO_CODE)
+			if(isStaticModel == true) {
+				this->updateInterpolationData(0.f, true);
+				for(uint32 i=0; i<meshCount; ++i){
+					meshes[i].BuildVBOs();
+				}
+			}
+#endif
 		}
 		//version 3
 		else if(fileHeader.version==3){
@@ -518,18 +572,35 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 				meshes[i].loadV3(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
+
+#if defined(ENABLE_VBO_CODE)
+			if(isStaticModel == true) {
+				this->updateInterpolationData(0.f, true);
+				for(uint32 i=0; i<meshCount; ++i){
+					meshes[i].BuildVBOs();
+				}
+			}
+#endif
 		}
 		//version 2
-		else if(fileHeader.version==2){
-
+		else if(fileHeader.version==2) {
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 			meshes= new Mesh[meshCount];
 			for(uint32 i=0; i<meshCount; ++i){
 				meshes[i].loadV2(dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
+
+#if defined(ENABLE_VBO_CODE)
+			if(isStaticModel == true) {
+				this->updateInterpolationData(0.f, true);
+				for(uint32 i=0; i<meshCount; ++i){
+					meshes[i].BuildVBOs();
+				}
+			}
+#endif
 		}
-		else{
+		else {
 			throw runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
 		}
 

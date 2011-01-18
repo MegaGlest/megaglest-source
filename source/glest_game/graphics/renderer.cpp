@@ -736,7 +736,7 @@ void Renderer::renderMouse3d() {
 			modelRenderer->begin(true, true, false);
 			glColor4fv(color.ptr());
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
-			const Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
+			Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 
 			if(gui->getSelectedFacing() != CardinalDir::NORTH) {
 				float rotateAmount = gui->getSelectedFacing() * 90.f;
@@ -1815,7 +1815,7 @@ void Renderer::renderObjects(const int renderFps) {
 			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 		Object *o = qCache.visibleObjectList[visibleIndex];
 
-		const Model *objModel= o->getModel();
+		Model *objModel= o->getModelPtr();
 		const Vec3f &v= o->getConstPos();
 
 		if(modelRenderStarted == false) {
@@ -2078,7 +2078,7 @@ void Renderer::renderUnits(const int renderFps) {
 			}
 
 			//render
-			const Model *model= unit->getCurrentModel();
+			Model *model= unit->getCurrentModelPtr();
 			model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
 
 			modelRenderer->render(model);
@@ -2617,7 +2617,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 			glPushMatrix();
 			glLoadIdentity();
 			glTranslatef(i*2.f-4.f, -1.4f, -7.5f);
-			menuBackground->getCharacterModel(i)->updateInterpolationData(menuBackground->getAnim(), true);
+			menuBackground->getCharacterModelPtr(i)->updateInterpolationData(menuBackground->getAnim(), true);
 			modelRenderer->render(menuBackground->getCharacterModel(i));
 			glPopMatrix();
 		}
@@ -3287,7 +3287,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
 
 			//render
-			const Model *model= unit->getCurrentModel();
+			Model *model= unit->getCurrentModelPtr();
 			model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
 			modelRenderer->render(model);
 

@@ -29,6 +29,7 @@ void ObjectType::init(int modelCount, int objectClass, bool walkable, int height
 
 void ObjectType::loadModel(const string &path){
 	Model *model= Renderer::getInstance().newModel(rsGame);
+	model->setIsStaticModel(true);
 	model->load(path);
 	color= Vec3f(0.f);
 	if(model->getMeshCount()>0 && model->getMesh(0)->getTexture(0) != NULL) {

@@ -98,7 +98,7 @@ public:
 	int getEpCost() const				{return mpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	const Model *getAnimation() const	{return animation;}
+	Model *getAnimation() 		const	{return animation;}
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	

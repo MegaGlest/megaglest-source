@@ -56,7 +56,7 @@ public:
 	int getResourceNumber() const	{return resourceNumber;}
 	int getInterval() const			{return interval;}
 	int getDefResPerPatch() const	{return defResPerPatch;}
-	const Model *getModel() const	{return model;}
+	Model *getModel() const			{return model;}
 	bool getRecoup_cost() const     { return recoup_cost;}
 
 	static ResourceClass strToRc(const string &s);

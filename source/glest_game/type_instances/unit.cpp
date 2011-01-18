@@ -636,6 +636,16 @@ void Unit::setVisible(const bool visible) {
 
 // =============================== Render related ==================================
 
+Model *Unit::getCurrentModelPtr() const {
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+    return currSkill->getAnimation();
+}
+
 const Model *Unit::getCurrentModel() const{
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
