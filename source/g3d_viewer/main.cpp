@@ -73,7 +73,6 @@ MainWindow::MainWindow(const string &modelPath)
 
 	//glCanvas->SetCurrent();
 	//renderer->init();
-
 	menu= new wxMenuBar();
 
 	//menu
@@ -156,6 +155,11 @@ MainWindow::MainWindow(const string &modelPath)
 	timer->Start(100);
 
 	glCanvas->SetFocus();
+
+	fileDialog = new wxFileDialog(this);
+	if(modelPath != "") {
+		fileDialog->SetPath(ToUnicode(modelPath));
+	}
 }
 
 MainWindow::~MainWindow(){
@@ -255,32 +259,31 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	string fileName;
-	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("G3D files (*.g3d)|*.g3d"));
 
-	fileDialog.SetMessage(wxT("Selecting Glest Model for current view."));
+	fileDialog->SetWildcard(wxT("G3D files (*.g3d)|*.g3d"));
 
-	if(fileDialog.ShowModal()==wxID_OK){
+	fileDialog->SetMessage(wxT("Selecting Glest Model for current view."));
+
+	if(fileDialog->ShowModal()==wxID_OK){
 		modelPathList.clear();
-		loadModel((const char*)wxFNCONV(fileDialog.GetPath().c_str()));
+		loadModel((const char*)wxFNCONV(fileDialog->GetPath().c_str()));
 	}
 	isControlKeyPressed = false;
 }
 
 void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 	string fileName;
-	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+	fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 	if(isControlKeyPressed == true) {
-		fileDialog.SetMessage(wxT("Adding Mega-Glest particle to current view."));
+		fileDialog->SetMessage(wxT("Adding Mega-Glest particle to current view."));
 	}
 	else {
-		fileDialog.SetMessage(wxT("Selecting Mega-Glest particle for current view."));
+		fileDialog->SetMessage(wxT("Selecting Mega-Glest particle for current view."));
 	}
 
-	if(fileDialog.ShowModal()==wxID_OK){
-		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+	if(fileDialog->ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 		loadParticle(path);
 	}
 	isControlKeyPressed = false;
@@ -288,18 +291,17 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 
 void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 	string fileName;
-	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+	fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 	if(isControlKeyPressed == true) {
-		fileDialog.SetMessage(wxT("Adding Mega-Glest projectile particle to current view."));
+		fileDialog->SetMessage(wxT("Adding Mega-Glest projectile particle to current view."));
 	}
 	else {
-		fileDialog.SetMessage(wxT("Selecting Mega-Glest projectile particle for current view."));
+		fileDialog->SetMessage(wxT("Selecting Mega-Glest projectile particle for current view."));
 	}
 
-	if(fileDialog.ShowModal()==wxID_OK){
-		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+	if(fileDialog->ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 		loadProjectileParticle(path);
 	}
 	isControlKeyPressed = false;
@@ -307,18 +309,17 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 
 void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 	string fileName;
-	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("XML files (*.xml)|*.xml"));
+	fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 	if(isControlKeyPressed == true) {
-		fileDialog.SetMessage(wxT("Adding Mega-Glest splash particle to current view."));
+		fileDialog->SetMessage(wxT("Adding Mega-Glest splash particle to current view."));
 	}
 	else {
-		fileDialog.SetMessage(wxT("Selecting Mega-Glest splash particle for current view."));
+		fileDialog->SetMessage(wxT("Selecting Mega-Glest splash particle for current view."));
 	}
 
-	if(fileDialog.ShowModal()==wxID_OK){
-		string path = (const char*)wxFNCONV(fileDialog.GetPath().c_str());
+	if(fileDialog->ShowModal()==wxID_OK){
+		string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 		loadSplashParticle(path);
 	}
 	isControlKeyPressed = false;
