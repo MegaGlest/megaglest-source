@@ -76,8 +76,11 @@ private:
 
 #if defined(ENABLE_VBO_CODE)
 	// Vertex Buffer Object Names
-	uint32	m_nVBOVertices;						// Vertex VBO Name
-	uint32	m_nVBOTexCoords;					// Texture Coordinate VBO Name
+	bool    hasBuiltVBOs;
+	uint32	m_nVBOVertices;					// Vertex VBO Name
+	uint32	m_nVBOTexCoords;				// Texture Coordinate VBO Name
+	uint32	m_nVBONormals;					// Normal VBO Name
+	uint32	m_nVBOIndexes;					// Indexes VBO Name
 #endif
 
 public:
@@ -97,9 +100,15 @@ public:
 	uint32 getTriangleCount() const;
 
 #if defined(ENABLE_VBO_CODE)
-	uint32	getVBOVertices() const { return m_nVBOVertices;}
+	uint32	getVBOVertices() const  { return m_nVBOVertices;}
 	uint32	getVBOTexCoords() const { return m_nVBOTexCoords;}
+	uint32	getVBONormals() const   { return m_nVBONormals;}
+	uint32	getVBOIndexes() const   { return m_nVBOIndexes;}
+
+	bool    hasBuiltVBOEntities() const { return hasBuiltVBOs;}
+
 	void BuildVBOs();
+	void ReleaseVBOs();
 #endif
 
 	//data
@@ -159,6 +168,7 @@ private:
 	float lastTVertex;
 	bool lastCycleVertex;
 
+	string fileName;
 	bool isStaticModel;
 
 public:
@@ -177,6 +187,7 @@ public:
 	uint8 getFileVersion() const		{return fileVersion;}
 	uint32 getMeshCount() const			{return meshCount;}
 	const Mesh *getMesh(int i) const	{return &meshes[i];}
+	Mesh *getMeshPtr(int i) const	{return &meshes[i];}
 
 	uint32 getTriangleCount() const;
 	uint32 getVertexCount() const;
@@ -192,6 +203,8 @@ public:
 
 	bool getIsStaticModel() const { return isStaticModel; }
 	void setIsStaticModel(bool value)  { isStaticModel = value; }
+
+	string getFileName() const { return fileName; }
 
 private:
 	void buildInterpolationData() const;

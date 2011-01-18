@@ -97,29 +97,34 @@ void ModelRendererGl::end() {
 	assertGl();
 }
 
-void ModelRendererGl::render(const Model *model) {
+void ModelRendererGl::render(Model *model) {
 	//assertions
 	assert(rendering);
 	assertGl();
 
-	//render every mesh
-	for(uint32 i=0; i<model->getMeshCount(); ++i) {
-		renderMesh(model->getMesh(i),model->getIsStaticModel());
-	}
+	//if(model->getIsStaticModel()) printf("In [%s::%s Line: %d] filename [%s] is static about to render...\n",__FILE__,__FUNCTION__,__LINE__,model->getFileName().c_str());
 
+	//render every mesh
+	//if(model->getIsStaticModel() == true) {
+	for(uint32 i=0; i<model->getMeshCount(); ++i) {
+		renderMesh(model->getMeshPtr(i),model->getIsStaticModel());
+	}
+	//}
 	//assertions
 	assertGl();
 }
 
-void ModelRendererGl::renderNormalsOnly(const Model *model) {
+void ModelRendererGl::renderNormalsOnly(Model *model) {
 	//assertions
 	assert(rendering);
 	assertGl();
 
 	//render every mesh
+	//if(model->getIsStaticModel() == true) {
 	for(uint32 i=0; i<model->getMeshCount(); ++i) {
-		renderMeshNormals(model->getMesh(i),model->getIsStaticModel());
+		renderMeshNormals(model->getMeshPtr(i),model->getIsStaticModel());
 	}
+	//}
 
 	//assertions
 	assertGl();
@@ -127,7 +132,7 @@ void ModelRendererGl::renderNormalsOnly(const Model *model) {
 
 // ===================== PRIVATE =======================
 
-void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
+void ModelRendererGl::renderMesh(Mesh *mesh, bool isStaticModel) {
 
 	//assertions
 	assertGl();
@@ -180,14 +185,21 @@ void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
 
 #if defined(ENABLE_VBO_CODE)
 	if(isStaticModel == true) {
+		if(mesh->hasBuiltVBOEntities() == false) {
+			mesh->BuildVBOs();
+		}
+
 		//vertices
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOVertices() );
 		glVertexPointer( 3, GL_FLOAT, 0, (char *) NULL );		// Set The Vertex Pointer To The Vertex Buffer
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 
 		//normals
 		if(renderNormals) {
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBONormals() );
 			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(GL_FLOAT, 0, mesh->getInterpolationData()->getNormals());
+			glNormalPointer(GL_FLOAT, 0, (char *) NULL);
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 		}
 		else{
 			glDisableClientState(GL_NORMAL_ARRAY);
@@ -195,17 +207,55 @@ void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
 
 		//tex coords
 		if(renderTextures && mesh->getTexture(mtDiffuse) != NULL ) {
-			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
 			if(duplicateTexCoords) {
 				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
-				//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				//glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
+
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+			}
+
+			glActiveTexture(GL_TEXTURE0);
+
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+		}
+		else {
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+			glActiveTexture(GL_TEXTURE0);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+
+/*
+		//normals
+		if(renderNormals) {
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBONormals() );
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glNormalPointer(GL_FLOAT, 0, (char *) NULL);
+		}
+		else{
+			glDisableClientState(GL_NORMAL_ARRAY);
+		}
+
+		//tex coords
+		if(renderTextures && mesh->getTexture(mtDiffuse) != NULL ) {
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
 			}
 
 			glActiveTexture(GL_TEXTURE0);
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
 		}
 		else {
@@ -216,6 +266,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
 			glActiveTexture(GL_TEXTURE0);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
+*/
 	}
 	else
 #endif
@@ -254,14 +305,26 @@ void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
 		}
 	}
 
+#if defined(ENABLE_VBO_CODE)
+	if(isStaticModel == true) {
+		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->getVBOIndexes() );
+		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, (char *)NULL);
+		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
+
+		//glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
+	}
+	else
+#endif
+	{
 	//draw model
-	glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
+		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
+	}
 
 	//assertions
 	assertGl();
 }
 
-void ModelRendererGl::renderMeshNormals(const Mesh *mesh,bool isStaticModel) {
+void ModelRendererGl::renderMeshNormals(Mesh *mesh,bool isStaticModel) {
 
 	glBegin(GL_LINES);
 	for(unsigned int i= 0; i<mesh->getIndexCount(); ++i){

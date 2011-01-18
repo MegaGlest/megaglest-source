@@ -2598,7 +2598,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.5f);
 	modelRenderer->begin(true, true, true);
-	modelRenderer->render(menuBackground->getMainModel());
+	modelRenderer->render(menuBackground->getMainModelPtr());
 	modelRenderer->end();
 	glDisable(GL_ALPHA_TEST);
 
@@ -2618,7 +2618,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 			glLoadIdentity();
 			glTranslatef(i*2.f-4.f, -1.4f, -7.5f);
 			menuBackground->getCharacterModelPtr(i)->updateInterpolationData(menuBackground->getAnim(), true);
-			modelRenderer->render(menuBackground->getCharacterModel(i));
+			modelRenderer->render(menuBackground->getCharacterModelPtr(i));
 			glPopMatrix();
 		}
 		modelRenderer->end();
@@ -3319,7 +3319,7 @@ void Renderer::renderObjectsFast() {
 				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 			Object *o = qCache.visibleObjectList[visibleIndex];
 
-			const Model *objModel= o->getModel();
+			Model *objModel= o->getModelPtr();
 			const Vec3f &v= o->getConstPos();
 
 			if(modelRenderStarted == false) {

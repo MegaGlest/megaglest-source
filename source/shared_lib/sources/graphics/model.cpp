@@ -62,6 +62,16 @@ Mesh::Mesh() {
 
 	twoSided= false;
 	customColor= false;
+
+#if defined(ENABLE_VBO_CODE)
+	hasBuiltVBOs = false;
+	// Vertex Buffer Object Names
+	m_nVBOVertices	= 0;
+	m_nVBOTexCoords	= 0;
+	m_nVBONormals	= 0;
+	m_nVBOIndexes	= 0;
+#endif
+
 }
 
 Mesh::~Mesh() {
@@ -76,6 +86,11 @@ void Mesh::init() {
 }
 
 void Mesh::end() {
+
+#if defined(ENABLE_VBO_CODE)
+	void ReleaseVBOs();
+#endif
+
 	delete [] vertices;
 	delete [] normals;
 	delete [] texCoords;
@@ -113,21 +128,54 @@ void Mesh::updateInterpolationVertices(float t, bool cycle) {
 #if defined(ENABLE_VBO_CODE)
 
 void Mesh::BuildVBOs() {
-	// Generate And Bind The Vertex Buffer
-	glGenBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
-	glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
-	// Load The Data
-	glBufferDataARB( GL_ARRAY_BUFFER_ARB,  getVertexCount() * 3 * sizeof(float), vertices, GL_STATIC_DRAW_ARB );
+	if(hasBuiltVBOs == false) {
+		//printf("In [%s::%s Line: %d] setting up a VBO...\n",__FILE__,__FUNCTION__,__LINE__);
 
-	// Generate And Bind The Texture Coordinate Buffer
-	glGenBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
-	glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords );		// Bind The Buffer
-	// Load The Data
-	glBufferDataARB( GL_ARRAY_BUFFER_ARB, getVertexCount() * 2 * sizeof(float), texCoords, GL_STATIC_DRAW_ARB );
+		// Generate And Bind The Vertex Buffer
+		glGenBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
+		// Load The Data
+		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getVertices(), GL_STATIC_DRAW_ARB );
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
-	// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
-	delete [] vertices; vertices = NULL;
-	delete [] texCoords; texCoords = NULL;
+		// Generate And Bind The Texture Coordinate Buffer
+		glGenBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords );		// Bind The Buffer
+		// Load The Data
+		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f)*vertexCount, texCoords, GL_STATIC_DRAW_ARB );
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+		// Generate And Bind The Normal Buffer
+		glGenBuffersARB( 1, &m_nVBONormals );					// Get A Valid Name
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBONormals );			// Bind The Buffer
+		// Load The Data
+		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getNormals(), GL_STATIC_DRAW_ARB );
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+		// Generate And Bind The Index Buffer
+		glGenBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, m_nVBOIndexes );			// Bind The Buffer
+		// Load The Data
+		glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB,  sizeof(uint32)*indexCount, indices, GL_STATIC_DRAW_ARB );
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+		// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
+		delete [] vertices; vertices = NULL;
+		delete [] texCoords; texCoords = NULL;
+		delete [] normals; normals = NULL;
+		delete [] indices; indices = NULL;
+
+		hasBuiltVBOs = true;
+	}
+}
+
+void Mesh::ReleaseVBOs() {
+	if(hasBuiltVBOs == true) {
+		glDeleteBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
+		glDeleteBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
+		glDeleteBuffersARB( 1, &m_nVBONormals );					// Get A Valid Name
+		glDeleteBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+	}
 }
 
 #endif
@@ -423,6 +471,7 @@ void Model::updateInterpolationData(float t, bool cycle) {
 		for(unsigned int i=0; i<meshCount; ++i){
 			meshes[i].updateInterpolationData(t, cycle);
 		}
+		//if(isStaticModel) printf("In [%s::%s Line: %d] filename [%s] t = [%f] cycle = [%d] lastTData = [%f] lastCycleData [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->fileName.c_str(),t,cycle,lastTData,lastCycleData);
 		lastTData = t;
 		lastCycleData = cycle;
 	}
@@ -433,6 +482,7 @@ void Model::updateInterpolationVertices(float t, bool cycle) {
 		for(unsigned int i=0; i<meshCount; ++i){
 			meshes[i].updateInterpolationVertices(t, cycle);
 		}
+		//if(isStaticModel) printf("In [%s::%s Line: %d] filename [%s] t = [%f] cycle = [%d] lastTData = [%f] lastCycleData [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->fileName.c_str(),t,cycle,lastTData,lastCycleData);
 		lastTVertex = t;
 		lastCycleVertex = cycle;
 	}
@@ -466,6 +516,8 @@ void Model::load(const string &path, bool deletePixMapAfterLoad) {
 	else{
 		throw runtime_error("Unknown model format: " + extension);
 	}
+
+	this->fileName = path;
 }
 
 void Model::save(const string &path) {
@@ -554,14 +606,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 				meshes[i].buildInterpolationData();
 			}
 
-#if defined(ENABLE_VBO_CODE)
-			if(isStaticModel == true) {
-				this->updateInterpolationData(0.f, true);
-				for(uint32 i=0; i<meshCount; ++i){
-					meshes[i].BuildVBOs();
-				}
-			}
-#endif
+//#if defined(ENABLE_VBO_CODE)
+//			if(isStaticModel == true) {
+//				this->updateInterpolationData(0.f, true);
+//				for(uint32 i=0; i<meshCount; ++i){
+//					meshes[i].BuildVBOs();
+//				}
+//			}
+//#endif
 		}
 		//version 3
 		else if(fileHeader.version==3){
@@ -573,14 +625,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 				meshes[i].buildInterpolationData();
 			}
 
-#if defined(ENABLE_VBO_CODE)
-			if(isStaticModel == true) {
-				this->updateInterpolationData(0.f, true);
-				for(uint32 i=0; i<meshCount; ++i){
-					meshes[i].BuildVBOs();
-				}
-			}
-#endif
+//#if defined(ENABLE_VBO_CODE)
+//			if(isStaticModel == true) {
+//				this->updateInterpolationData(0.f, true);
+//				for(uint32 i=0; i<meshCount; ++i){
+//					meshes[i].BuildVBOs();
+//				}
+//			}
+//#endif
 		}
 		//version 2
 		else if(fileHeader.version==2) {
@@ -591,14 +643,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 				meshes[i].buildInterpolationData();
 			}
 
-#if defined(ENABLE_VBO_CODE)
-			if(isStaticModel == true) {
-				this->updateInterpolationData(0.f, true);
-				for(uint32 i=0; i<meshCount; ++i){
-					meshes[i].BuildVBOs();
-				}
-			}
-#endif
+//#if defined(ENABLE_VBO_CODE)
+//			if(isStaticModel == true) {
+//				this->updateInterpolationData(0.f, true);
+//				for(uint32 i=0; i<meshCount; ++i){
+//					meshes[i].BuildVBOs();
+//				}
+//			}
+//#endif
 		}
 		else {
 			throw runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
