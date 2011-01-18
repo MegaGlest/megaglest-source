@@ -63,6 +63,7 @@ private:
 	wxMenu *menuMode;
 	wxMenu *menuSpeed;
 	wxMenu *menuCustomColor;
+	wxFileDialog *fileDialog;
 
 	Model *model;
 
