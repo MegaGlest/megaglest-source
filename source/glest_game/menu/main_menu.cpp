@@ -76,8 +76,8 @@ MainMenu::~MainMenu() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	soundRenderer.stopAllSounds();
+	//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	//soundRenderer.stopAllSounds();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

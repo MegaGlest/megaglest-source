@@ -63,6 +63,9 @@ protected:
 	bool taskSignalled;
 	bool needTaskSignal;
 
+	Mutex mutexLastExecuteTimestamp;
+	time_t lastExecuteTimestamp;
+
 public:
 	SimpleTaskThread();
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
@@ -74,6 +77,8 @@ public:
 
     void setTaskSignalled(bool value);
     bool getTaskSignalled();
+
+    bool isThreadExecutionLagging();
 };
 
 // =====================================================

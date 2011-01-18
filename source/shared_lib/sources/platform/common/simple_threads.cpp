@@ -85,6 +85,18 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
 	setTaskSignalled(false);
+
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+	lastExecuteTimestamp = time(NULL);
+}
+
+bool SimpleTaskThread::isThreadExecutionLagging() {
+	bool result = false;
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
+	safeMutex.ReleaseLock();
+
+	return result;
 }
 
 bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
@@ -124,8 +136,12 @@ void SimpleTaskThread::execute() {
                 else if(runTask == true) {
                     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
                     if(getQuitStatus() == false) {
-                        ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+                    	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
                         this->simpleTaskInterface->simpleTask(this);
+
+                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+                    	lastExecuteTimestamp = time(NULL);
+                    	safeMutex.ReleaseLock();
                     }
                     //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
                 }

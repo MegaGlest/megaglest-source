@@ -79,6 +79,8 @@ public:
 	void loadConfig();
 
 	bool wasInitOk() const;
+
+	bool runningThreaded() const { return runThreadSafe; }
 };
 
 }}//end namespace

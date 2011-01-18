@@ -301,7 +301,7 @@ void Program::loopWorker() {
 		if(prevState == this->programState) {
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(soundThreadManager == NULL) {
+			if(soundThreadManager == NULL || soundThreadManager->isThreadExecutionLagging()) {
 				SoundRenderer::getInstance().update();
 				if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
 				if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
@@ -553,10 +553,11 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
         }
 
 		// Run sound streaming in a background thread if enabled
-		if(config.getBool("ThreadedSoundStream","false") == true) {
-			BaseThread::shutdownAndWait(soundThreadManager);
-			delete soundThreadManager;
-			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,50);
+        if(SoundRenderer::getInstance().runningThreaded() == true) {
+			if(BaseThread::shutdownAndWait(soundThreadManager) == true) {
+				delete soundThreadManager;
+			}
+			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,10);
 			soundThreadManager->setUniqueID(__FILE__);
 			soundThreadManager->start();
 		}
