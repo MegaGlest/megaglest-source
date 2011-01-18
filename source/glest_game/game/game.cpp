@@ -611,7 +611,10 @@ void Game::init(bool initForPreviewOnly)
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//sounds
+
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		soundRenderer.stopAllSounds();
+		soundRenderer= SoundRenderer::getInstance();
 
 		Tileset *tileset= world.getTileset();
 		AmbientSounds *ambientSounds= tileset->getAmbientSounds();

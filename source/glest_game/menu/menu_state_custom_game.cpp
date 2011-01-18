@@ -1361,6 +1361,10 @@ void MenuStateCustomGame::update() {
 	Chrono chrono;
 	chrono.start();
 
+	// Test openal buffer underrun issue
+	//sleep(200);
+	// END
+
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
 
 	try {

@@ -37,8 +37,10 @@ SoundRenderer::SoundRenderer() {
     soundPlayer = NULL;
 	loadConfig();
 
-	runThreadSafe = false;
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	Config &config= Config::getInstance();
+	runThreadSafe = config.getBool("ThreadedSoundStream","true");
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] runThreadSafe = %d\n",__FILE__,__FUNCTION__,__LINE__,runThreadSafe);
 }
 
 bool SoundRenderer::init(Window *window) {
@@ -46,13 +48,17 @@ bool SoundRenderer::init(Window *window) {
 
 	SoundInterface &si= SoundInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
-	Config &config= Config::getInstance();
-	runThreadSafe = config.getBool("ThreadedSoundStream","false");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	Config &config= Config::getInstance();
 	si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
 
 	stopAllSounds();
+
+    MutexSafeWrapper safeMutex(NULL);
+	if(runThreadSafe == true) {
+	    safeMutex.setMutex(&mutex);
+	}
 
 	soundPlayer= si.newSoundPlayer();
 	if(soundPlayer != NULL) {
@@ -61,6 +67,7 @@ bool SoundRenderer::init(Window *window) {
 		soundPlayerParams.strBufferCount= config.getInt("SoundStreamingBuffers");
 		soundPlayer->init(&soundPlayerParams);
 	}
+	safeMutex.ReleaseLock();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -89,6 +96,10 @@ SoundRenderer::~SoundRenderer() {
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    MutexSafeWrapper safeMutex(NULL);
+	if(runThreadSafe == true) {
+	    safeMutex.setMutex(&mutex);
+	}
 	delete soundPlayer;
 	soundPlayer = NULL;
 
