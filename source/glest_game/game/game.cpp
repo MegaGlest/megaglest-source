@@ -610,26 +610,6 @@ void Game::init(bool initForPreviewOnly)
 		SDL_PumpEvents();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//sounds
-
-		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-		soundRenderer.stopAllSounds();
-		soundRenderer= SoundRenderer::getInstance();
-
-		Tileset *tileset= world.getTileset();
-		AmbientSounds *ambientSounds= tileset->getAmbientSounds();
-
-		//rain
-		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
-			logger.add("Starting ambient stream", true);
-			soundRenderer.playAmbient(ambientSounds->getRain());
-		}
-
-		//snow
-		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
-			logger.add("Starting ambient stream", true);
-			soundRenderer.playAmbient(ambientSounds->getSnow());
-		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
 		logger.add("Waiting for network players", true);
@@ -649,6 +629,26 @@ void Game::init(bool initForPreviewOnly)
 		//if(world.getThisFaction()->getType()->getMusic() == NULL) {
 		//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
 		//}
+
+		//sounds
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		soundRenderer.stopAllSounds();
+		soundRenderer= SoundRenderer::getInstance();
+
+		Tileset *tileset= world.getTileset();
+		AmbientSounds *ambientSounds= tileset->getAmbientSounds();
+
+		//rain
+		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
+			logger.add("Starting ambient stream", true);
+			soundRenderer.playAmbient(ambientSounds->getRain());
+		}
+
+		//snow
+		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
+			logger.add("Starting ambient stream", true);
+			soundRenderer.playAmbient(ambientSounds->getSnow());
+		}
 
 		StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 		soundRenderer.playMusic(gameMusic);
