@@ -25,6 +25,8 @@ using std::string;
 using std::map;
 using std::pair;
 
+//#define ENABLE_VBO_CODE
+
 namespace Shared{ namespace Graphics{
 
 class Model;
@@ -39,7 +41,7 @@ class TextureManager;
 //	Part of a 3D model
 // =====================================================
 
-class Mesh{
+class Mesh {
 private:
 	//mesh data
 	Texture2D *textures[meshTextureCount];
@@ -50,6 +52,7 @@ private:
 	uint32 frameCount;
 	uint32 vertexCount;
 	uint32 indexCount;
+	uint32 texCoordFrameCount;
 
 	//vertex data
 	Vec3f *vertices;
@@ -71,6 +74,12 @@ private:
 	InterpolationData *interpolationData;
 	TextureManager *textureManager;
 
+#if defined(ENABLE_VBO_CODE)
+	// Vertex Buffer Object Names
+	uint32	m_nVBOVertices;						// Vertex VBO Name
+	uint32	m_nVBOTexCoords;					// Texture Coordinate VBO Name
+#endif
+
 public:
 	//init & end
 	Mesh();
@@ -86,6 +95,12 @@ public:
 	uint32 getVertexCount() const			{return vertexCount;}
 	uint32 getIndexCount() const			{return indexCount;}
 	uint32 getTriangleCount() const;
+
+#if defined(ENABLE_VBO_CODE)
+	uint32	getVBOVertices() const { return m_nVBOVertices;}
+	uint32	getVBOTexCoords() const { return m_nVBOTexCoords;}
+	void BuildVBOs();
+#endif
 
 	//data
 	const Vec3f *getVertices() const 	{return vertices;}
@@ -109,8 +124,8 @@ public:
 
 	//interpolation
 	void buildInterpolationData();
-	void updateInterpolationData(float t, bool cycle) const;
-	void updateInterpolationVertices(float t, bool cycle) const;
+	void updateInterpolationData(float t, bool cycle);
+	void updateInterpolationVertices(float t, bool cycle);
 
 	//load
 	void loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
@@ -130,7 +145,7 @@ private:
 //	3D Model, than can be loaded from a g3d file
 // =====================================================
 
-class Model{
+class Model {
 private:
 	TextureManager *textureManager;
 
@@ -138,6 +153,13 @@ private:
 	uint8 fileVersion;
 	uint32 meshCount;
 	Mesh *meshes;
+
+	float lastTData;
+	bool lastCycleData;
+	float lastTVertex;
+	bool lastCycleVertex;
+
+	bool isStaticModel;
 
 public:
 	//constructor & destructor
@@ -147,8 +169,8 @@ public:
 	virtual void end()= 0;
 
 	//data
-	void updateInterpolationData(float t, bool cycle) const;
-	void updateInterpolationVertices(float t, bool cycle) const;
+	void updateInterpolationData(float t, bool cycle);
+	void updateInterpolationVertices(float t, bool cycle);
 	void buildShadowVolumeData() const;
 
 	//get
@@ -167,6 +189,9 @@ public:
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
 	void deletePixels();
+
+	bool getIsStaticModel() const { return isStaticModel; }
+	void setIsStaticModel(bool value)  { isStaticModel = value; }
 
 private:
 	void buildInterpolationData() const;

@@ -53,6 +53,10 @@ Object::~Object(){
 	renderer.removeObjectFromQuadCache(this);
 }
 
+Model *Object::getModelPtr() const {
+	return objectType==NULL ?  (resource != NULL && resource->getType() != NULL ? resource->getType()->getModel() : NULL ) : objectType->getModel(variation);
+}
+
 const Model *Object::getModel() const{
 	return objectType==NULL ?  (resource != NULL && resource->getType() != NULL ? resource->getType()->getModel() : NULL ) : objectType->getModel(variation);
 }

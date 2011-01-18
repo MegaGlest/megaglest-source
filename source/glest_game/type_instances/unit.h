@@ -392,6 +392,7 @@ public:
 
 	//render related
     const Model *getCurrentModel() const;
+    Model *getCurrentModelPtr() const;
 	Vec3f getCurrVector() const;
 	Vec3f getCurrVectorFlat() const;
 

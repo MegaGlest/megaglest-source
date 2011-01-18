@@ -104,7 +104,7 @@ void ModelRendererGl::render(const Model *model) {
 
 	//render every mesh
 	for(uint32 i=0; i<model->getMeshCount(); ++i) {
-		renderMesh(model->getMesh(i));
+		renderMesh(model->getMesh(i),model->getIsStaticModel());
 	}
 
 	//assertions
@@ -118,7 +118,7 @@ void ModelRendererGl::renderNormalsOnly(const Model *model) {
 
 	//render every mesh
 	for(uint32 i=0; i<model->getMeshCount(); ++i) {
-		renderMeshNormals(model->getMesh(i));
+		renderMeshNormals(model->getMesh(i),model->getIsStaticModel());
 	}
 
 	//assertions
@@ -127,7 +127,7 @@ void ModelRendererGl::renderNormalsOnly(const Model *model) {
 
 // ===================== PRIVATE =======================
 
-void ModelRendererGl::renderMesh(const Mesh *mesh) {
+void ModelRendererGl::renderMesh(const Mesh *mesh, bool isStaticModel) {
 
 	//assertions
 	assertGl();
@@ -178,37 +178,80 @@ void ModelRendererGl::renderMesh(const Mesh *mesh) {
 	//assertions
 	assertGl();
 
-	//vertices
-	glVertexPointer(3, GL_FLOAT, 0, mesh->getInterpolationData()->getVertices());
+#if defined(ENABLE_VBO_CODE)
+	if(isStaticModel == true) {
+		//vertices
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOVertices() );
+		glVertexPointer( 3, GL_FLOAT, 0, (char *) NULL );		// Set The Vertex Pointer To The Vertex Buffer
 
-	//normals
-	if(renderNormals) {
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glNormalPointer(GL_FLOAT, 0, mesh->getInterpolationData()->getNormals());
-	}
-	else{
-		glDisableClientState(GL_NORMAL_ARRAY);
-	}
+		//normals
+		if(renderNormals) {
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glNormalPointer(GL_FLOAT, 0, mesh->getInterpolationData()->getNormals());
+		}
+		else{
+			glDisableClientState(GL_NORMAL_ARRAY);
+		}
 
-	//tex coords
-	if(renderTextures && mesh->getTexture(mtDiffuse)!=NULL ) {
-		if(duplicateTexCoords) {
-			glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+		//tex coords
+		if(renderTextures && mesh->getTexture(mtDiffuse) != NULL ) {
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+				//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				//glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
+				glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
+			}
+
+			glActiveTexture(GL_TEXTURE0);
+			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			//glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
+			glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
+		}
+		else {
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+			glActiveTexture(GL_TEXTURE0);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+	}
+	else
+#endif
+	{
+		//vertices
+		glVertexPointer(3, GL_FLOAT, 0, mesh->getInterpolationData()->getVertices());
+
+		//normals
+		if(renderNormals) {
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glNormalPointer(GL_FLOAT, 0, mesh->getInterpolationData()->getNormals());
+		}
+		else{
+			glDisableClientState(GL_NORMAL_ARRAY);
+		}
+
+		//tex coords
+		if(renderTextures && mesh->getTexture(mtDiffuse)!=NULL ) {
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
+			}
+
+			glActiveTexture(GL_TEXTURE0);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
 		}
-
-		glActiveTexture(GL_TEXTURE0);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, mesh->getTexCoords());
-	}
-	else {
-		if(duplicateTexCoords) {
-			glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+		else {
+			if(duplicateTexCoords) {
+				glActiveTexture(GL_TEXTURE0 + secondaryTexCoordUnit);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+			glActiveTexture(GL_TEXTURE0);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
-		glActiveTexture(GL_TEXTURE0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
 	//draw model
@@ -218,7 +261,7 @@ void ModelRendererGl::renderMesh(const Mesh *mesh) {
 	assertGl();
 }
 
-void ModelRendererGl::renderMeshNormals(const Mesh *mesh) {
+void ModelRendererGl::renderMeshNormals(const Mesh *mesh,bool isStaticModel) {
 
 	glBegin(GL_LINES);
 	for(unsigned int i= 0; i<mesh->getIndexCount(); ++i){

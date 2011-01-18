@@ -53,6 +53,7 @@ public:
 	const Vec3f & getConstPos() const	{return pos;}
 	float getRotation()					{return rotation;}	
 	const Model *getModel() const;
+	Model *getModelPtr() const;
 	bool getWalkable() const;
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);

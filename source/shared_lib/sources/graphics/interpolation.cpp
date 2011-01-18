@@ -84,9 +84,6 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 			if(iterFind != cacheVertices.end()) {
 				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
 				if(iterFind2 != iterFind->second.end()) {
-					//for(uint32 j=0; j< vertexCount; ++j){
-					//	vertices[j] = iterFind2->second[j];
-					//}
 					memcpy(vertices,iterFind2->second,sizeof(Vec3f) * vertexCount);
 					return;
 				}
@@ -130,9 +127,6 @@ void InterpolationData::updateNormals(float t, bool cycle){
 			if(iterFind != cacheNormals.end()) {
 				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
 				if(iterFind2 != iterFind->second.end()) {
-					//for(uint32 j=0; j< vertexCount; ++j){
-					//	normals[j] = iterFind2->second[j];
-					//}
 					memcpy(normals,iterFind2->second,sizeof(Vec3f) * vertexCount);
 					return;
 				}
