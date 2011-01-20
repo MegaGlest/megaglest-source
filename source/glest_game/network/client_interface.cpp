@@ -19,11 +19,11 @@
 #include "conversion.h"
 #include "config.h"
 #include "lang.h"
-#include "leak_dumper.h"
-
 #include "map.h"
 #include "config.h"
 #include "logger.h"
+#include "window.h"
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
@@ -727,6 +727,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				return;
 			}
+
+			Window::handleEvent();
 			// sleep a bit
 			sleep(waitSleepTime);
 		}

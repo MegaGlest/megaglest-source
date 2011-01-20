@@ -23,6 +23,7 @@
 #include "util.h"
 #include "game_util.h"
 #include "miniftpserver.h"
+#include "window.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -992,6 +993,8 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 				}
 			}
 		}
+
+		Window::handleEvent();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] PART B (telling client we are ready!\n",__FUNCTION__);
 	try {
