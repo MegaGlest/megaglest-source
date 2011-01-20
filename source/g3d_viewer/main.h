@@ -5,6 +5,8 @@
 
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
+//#include <wx/clrpicker.h>
+#include <wx/colordlg.h>
 
 #include "renderer.h"
 #include "util.h"
@@ -36,12 +38,14 @@ public:
 		miFileLoadProjectileParticleXML,
 		miFileLoadSplashParticleXML,
 		miFileClearAll,
+		miFileSaveScreenshot,
 		miModeWireframe,
 		miModeNormals,
 		miModeGrid,
 		miSpeedSlower,
 		miSpeedFaster,
 		miRestart,
+		miChangeBackgroundColor,
 		miColorRed,
 		miColorBlue,
 		miColorGreen,
@@ -64,6 +68,8 @@ private:
 	wxMenu *menuSpeed;
 	wxMenu *menuCustomColor;
 	wxFileDialog *fileDialog;
+
+	wxColourDialog *colorPicker;
 
 	Model *model;
 
@@ -108,6 +114,7 @@ public:
 	void onMenuFileLoadProjectileParticleXML(wxCommandEvent &event);
 	void onMenuFileLoadSplashParticleXML(wxCommandEvent &event);
 	void onMenuFileClearAll(wxCommandEvent &event);
+	void onMenuFileSaveScreenshot(wxCommandEvent &event);
 	void onMenuFileExit(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);
 	void onMenuModeWireframe(wxCommandEvent &event);
@@ -115,6 +122,7 @@ public:
 	void onMenuSpeedSlower(wxCommandEvent &event);
 	void onMenuSpeedFaster(wxCommandEvent &event);
 	void onMenuRestart(wxCommandEvent &event);
+	void OnChangeColor(wxCommandEvent &event);
 	void onMenuColorRed(wxCommandEvent &event);
 	void onMenuColorBlue(wxCommandEvent &event);
 	void onMenuColorGreen(wxCommandEvent &event);
