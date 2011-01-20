@@ -79,6 +79,9 @@ private:
 	bool normals;
 	bool grid;
 
+	int width;
+	int height;
+
 	ModelRenderer *modelRenderer;
 	TextureManager *textureManager;
 	ParticleRenderer *particleRenderer;
@@ -95,6 +98,11 @@ private:
 	Texture2D *customTextureOrange;
 	Texture2D *customTextureMagenta;
 	MeshCallbackTeamColor meshCallbackTeamColor;
+
+	float red;
+	float green;
+	float blue;
+	float alpha;
 
 	Renderer();
 	void checkGlCaps();
@@ -135,6 +143,9 @@ public:
 	void initModelManager();
 
 	void end();
+
+	void setBackgroundColor(float red, float green, float blue, float alpha);
+	void saveScreen(const string &path);
 };
 
 }}//end namespace

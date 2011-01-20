@@ -71,7 +71,7 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh){
 // 	class Renderer
 // ===============================================
 
-Renderer::Renderer(){
+Renderer::Renderer() {
 	normals= false;
 	wireframe= false;
 	grid= true;
@@ -79,9 +79,15 @@ Renderer::Renderer(){
 	textureManager = NULL;
 	particleRenderer = NULL;
 	modelManager = NULL;
+	width=0;
+	height=0;
+	red = 0.3f;
+	green = 0.3f;
+	blue = 0.3f;
+	alpha = 1.0f;
 }
 
-Renderer::~Renderer(){
+Renderer::~Renderer() {
 	delete modelRenderer;
 	delete textureManager;
 	delete particleRenderer;
@@ -91,12 +97,12 @@ Renderer::~Renderer(){
 	delete modelManager;
 }
 
-Renderer * Renderer::getInstance(){
+Renderer * Renderer::getInstance() {
 	static Renderer * renderer = new Renderer();
 	return renderer;
 }
 
-void Renderer::transform(float rotX, float rotY, float zoom){
+void Renderer::transform(float rotX, float rotY, float zoom) {
 	assertGl();
 
 	glMatrixMode(GL_MODELVIEW);
@@ -109,11 +115,9 @@ void Renderer::transform(float rotX, float rotY, float zoom){
 	assertGl();
 }
 
-void Renderer::checkGlCaps(){
-
+void Renderer::checkGlCaps() {
 	//opengl 1.3
-	if(!isGlVersionSupported(1, 3, 0)){
-
+	if(!isGlVersionSupported(1, 3, 0)) {
 		string message;
 
 		message += "Your system supports OpenGL version \"";
@@ -125,13 +129,13 @@ void Renderer::checkGlCaps(){
 	}
 
 	//opengl 1.4 or extension
-	if(!isGlVersionSupported(1, 4, 0)){
+	if(isGlVersionSupported(1, 4, 0) == false) {
 		checkExtension("GL_ARB_texture_env_crossbar", "MegaGlest");
 	}
 }
 
-void Renderer::checkExtension(const string &extension, const string &msg){
-	if(!isGlExtensionSupported(extension.c_str())){
+void Renderer::checkExtension(const string &extension, const string &msg) {
+	if(isGlExtensionSupported(extension.c_str()) == false) {
 		string str= "OpenGL extension not supported: " + extension +  ", required for " + msg;
 		throw runtime_error(str);
 	}
@@ -147,11 +151,19 @@ Model * Renderer::getNewModel() {
 	return newModel;
 }
 
-void Renderer::init(){
-	assertGl();
+void Renderer::setBackgroundColor(float red, float green, float blue, float alpha) {
+	this->red = red;
+	this->green = green;
+	this->blue = blue;
+	this->alpha= alpha;
+	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+	//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	//glFlush();
+	//SwapBuffers();
+}
 
-    //!!!glInitNames();
-    //!!!checkGlCaps();
+void Renderer::init() {
+	assertGl();
 
 	GraphicsFactory *gf= new GraphicsFactoryGl();
 	GraphicsInterface::getInstance().setFactory(gf);
@@ -206,7 +218,7 @@ void Renderer::init(){
 	customTextureMagenta->getPixmap()->init(1, 1, 3);
 	customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
 
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);  //backgroundcolor constant 0.3
+	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
 	glEnable(GL_TEXTURE_2D);
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
@@ -230,8 +242,11 @@ void Renderer::init(){
 	assertGl();
 }
 
-void Renderer::reset(int w, int h, PlayerColor playerColor){
+void Renderer::reset(int w, int h, PlayerColor playerColor) {
 	assertGl();
+
+	width=w;
+	height=h;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, w, h);
@@ -243,7 +258,7 @@ void Renderer::reset(int w, int h, PlayerColor playerColor){
 	glTranslatef(0, -1.5, -5);
 
 	Texture2D *customTexture;
-	switch(playerColor){
+	switch(playerColor) {
 	case pcRed:
 		customTexture= customTextureRed;
 		break;
@@ -273,13 +288,13 @@ void Renderer::reset(int w, int h, PlayerColor playerColor){
 	}
 	meshCallbackTeamColor.setTeamTexture(customTexture);
 
-	if(wireframe){
+	if(wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_LIGHT0);
 	}
-	else{
+	else {
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
@@ -289,10 +304,9 @@ void Renderer::reset(int w, int h, PlayerColor playerColor){
 	assertGl();
 }
 
-void Renderer::renderGrid(){
-	if(grid){
-
-		float i;
+void Renderer::renderGrid() {
+	if(grid) {
+		float i=0;
 
 		assertGl();
 
@@ -302,11 +316,11 @@ void Renderer::renderGrid(){
 
 		glBegin(GL_LINES);
 		glColor3f(1.0f, 1.0f, 1.0f);  // gridcolor constant
-		for(i=-10.0f; i<=10.0f; i+=1.0f){
+		for(i=-10.0f; i<=10.0f; i+=1.0f) {
 			glVertex3f(i, 0.0f, 10.0f);
 			glVertex3f(i, 0.0f, -10.0f);
 		}
-		for(i=-10.0f; i<=10.0f; i+=1.0f){
+		for(i=-10.0f; i<=10.0f; i+=1.0f) {
 			glVertex3f(10.f, 0.0f, i);
 			glVertex3f(-10.f, 0.0f, i);
 		}
@@ -318,32 +332,32 @@ void Renderer::renderGrid(){
 	}
 }
 
-void Renderer::toggleNormals(){
+void Renderer::toggleNormals() {
 	normals= normals? false: true;
 }
 
-void Renderer::toggleWireframe(){
+void Renderer::toggleWireframe() {
 	wireframe= wireframe? false: true;
 }
 
-void Renderer::toggleGrid(){
+void Renderer::toggleGrid() {
 	grid= grid? false: true;
 }
 
-void Renderer::loadTheModel(Model *model, string file){
+void Renderer::loadTheModel(Model *model, string file) {
 	model->setTextureManager(textureManager);
 	model->loadG3d(file);
 	textureManager->init();
 	modelManager->init();
 }
 
-void Renderer::renderTheModel(Model *model, float f){
+void Renderer::renderTheModel(Model *model, float f) {
 	if(model != NULL){
 		modelRenderer->begin(true, true, !wireframe, &meshCallbackTeamColor);
 		model->updateInterpolationData(f, true);
 		modelRenderer->render(model);
 
-		if(normals){
+		if(normals) {
 			glPushAttrib(GL_ENABLE_BIT);
 			glDisable(GL_LIGHTING);
 			glDisable(GL_TEXTURE_2D);
@@ -356,15 +370,15 @@ void Renderer::renderTheModel(Model *model, float f){
 	}
 }
 
-void Renderer::manageParticleSystem(ParticleSystem *particleSystem){
+void Renderer::manageParticleSystem(ParticleSystem *particleSystem) {
 	particleManager->manage(particleSystem);
 }
 
-void Renderer::updateParticleManager(){
+void Renderer::updateParticleManager() {
 	particleManager->update();
 }
 
-void Renderer::renderParticleManager(){
+void Renderer::renderParticleManager() {
 	glPushAttrib(GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
 	glDepthFunc(GL_LESS);
 	particleRenderer->renderManager(particleManager, modelRenderer);
@@ -418,6 +432,19 @@ void Renderer::end() {
 	//textureManager->end();
 	particleManager->end();
 	modelManager->end();
+}
+
+void Renderer::saveScreen(const string &path) {
+	//const Metrics &sm= Metrics::getInstance();
+
+	//Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
+	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 3);
+	glFinish();
+	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
+				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+
+	pixmapScreenShot->save(path);
+	delete pixmapScreenShot;
 }
 
 }}//end namespace

@@ -82,6 +82,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load P&rojectile Particle XML"), wxT("Press ctrl before menu for keeping current projectile particles"));
 	menuFile->Append(miFileLoadSplashParticleXML, wxT("Load &Splash Particle XML"), wxT("Press ctrl before menu for keeping current splash particles"));
 	menuFile->Append(miFileClearAll, wxT("&Clear All"));
+	menuFile->Append(miFileSaveScreenshot, wxT("Sa&ve a Screenshot"));
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
 	menu->Append(menuFile, wxT("&File"));
@@ -103,6 +104,7 @@ MainWindow::MainWindow(const string &modelPath)
 
 	//custom color
 	menuCustomColor= new wxMenu();
+	menuCustomColor->AppendCheckItem(miChangeBackgroundColor, wxT("Change Background Color"));
 	menuCustomColor->AppendCheckItem(miColorRed, wxT("&Red\t0"));
 	menuCustomColor->AppendCheckItem(miColorBlue, wxT("&Blue\t1"));
 	menuCustomColor->AppendCheckItem(miColorGreen, wxT("&Green\t2"));
@@ -257,6 +259,30 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 	lastY= y;
 }
 
+void MainWindow::OnChangeColor(wxCommandEvent &event) {
+	//wxColour color = colorPicker->GetColour();
+	wxColourData data;
+	data.SetChooseFull(true);
+	for (int i = 0; i < 16; i++)
+	{
+	    wxColour colour(i*16, i*16, i*16);
+	    data.SetCustomColour(i, colour);
+	}
+
+	wxColourDialog dialog(this, &data);
+	if (dialog.ShowModal() == wxID_OK)
+	{
+	    wxColourData retData = dialog.GetColourData();
+	    wxColour col = retData.GetColour();
+
+	    renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f, col.Alpha()/255.0f);
+	    //wxBrush brush(col, wxSOLID);
+	    //myWindow->SetBackground(brush);
+	    //myWindow->Clear();
+	    //myWindow->Refresh();
+	}
+}
+
 void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	string fileName;
 
@@ -326,7 +352,29 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 }  // is it possible to join loadParticle(), loadProjectileParticle() and loadSplashParticle() to one method?
 
 
-void MainWindow::onMenuFileClearAll(wxCommandEvent &event){
+void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
+	string path = "screens/";
+	if(isdir(path.c_str()) == true) {
+		//Config &config= Config::getInstance();
+		//string fileFormat = config.getString("ScreenShotFileType","png");
+		string fileFormat = "png";
+
+		for(int i=0; i < 1000; ++i) {
+			path = "screens/";
+			path += string("screen") + intToStr(i) + string(".") + fileFormat;
+			FILE *f= fopen(path.c_str(), "rb");
+			if(f == NULL) {
+				renderer->saveScreen(path);
+				break;
+			}
+			else {
+				fclose(f);
+			}
+		}
+	}
+}
+
+void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 	modelPathList.clear();
 	particlePathList.clear();
 	particleProjectilePathList.clear();
@@ -927,6 +975,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miFileLoadProjectileParticleXML, MainWindow::onMenuFileLoadProjectileParticleXML)
 	EVT_MENU(miFileLoadSplashParticleXML, MainWindow::onMenuFileLoadSplashParticleXML)
 	EVT_MENU(miFileClearAll, MainWindow::onMenuFileClearAll)
+	EVT_MENU(miFileSaveScreenshot, MainWindow::onMenuFileSaveScreenshot)
 	EVT_MENU(wxID_EXIT, MainWindow::onMenuFileExit)
 
 	EVT_MENU(miModeWireframe, MainWindow::onMenuModeWireframe)
@@ -945,6 +994,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miColorCyan, MainWindow::onMenuColorCyan)
 	EVT_MENU(miColorOrange, MainWindow::onMenuColorOrange)
 	EVT_MENU(miColorMagenta, MainWindow::onMenuColorMagenta)
+
+	EVT_MENU(miChangeBackgroundColor, MainWindow::OnChangeColor)
 END_EVENT_TABLE()
 
 // =====================================================
