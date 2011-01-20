@@ -20,6 +20,7 @@
 #include "xml_parser.h"
 #include "platform_util.h"
 #include "game_util.h"
+#include "window.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -62,6 +63,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         for(int i=0; i<filenames.size(); ++i){
             str=dir+"/resources/"+filenames[i];
             resourceTypes[i].load(str, checksum, &checksumValue);
+            Window::handleEvent();
 			SDL_PumpEvents();
         }
 
@@ -77,6 +79,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+    Window::handleEvent();
 	SDL_PumpEvents();
 
 	//load tech tree xml info
@@ -97,6 +100,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
 			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
 			attackTypes[i].setId(i);
+			Window::handleEvent();
 			SDL_PumpEvents();
 		}
 
@@ -111,6 +115,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
 			armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
 			armorTypes[i].setId(i);
+			Window::handleEvent();
 			SDL_PumpEvents();
 		}
 
@@ -123,6 +128,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
 			float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
 			damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
+			Window::handleEvent();
 			SDL_PumpEvents();
 		}
     }
@@ -155,6 +161,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
+		    Window::handleEvent();
 			SDL_PumpEvents();
         }
     }

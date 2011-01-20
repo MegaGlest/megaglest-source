@@ -112,6 +112,8 @@ private:
 	bool photoModeEnabled;
 	Program *program;
 
+	bool gameStarted;
+
 public:
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();
@@ -168,6 +170,7 @@ public:
 	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
 
 	bool getGameOver() { return gameOver; }
+	bool hasGameStarted() { return gameStarted;}
 
 private:
 	//render

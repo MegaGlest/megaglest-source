@@ -49,6 +49,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 
 	this->program = program;
 	Unit::setGame(this);
+	gameStarted = false;
 
 	original_updateFps = GameConstants::updateFps;
 	original_cameraFps = GameConstants::cameraFps;
@@ -368,6 +369,7 @@ void Game::load(LoadGameItem loadTypes) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		Game::findFactionLogoFile(&gameSettings, &logger);
 
+		Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -393,6 +395,7 @@ void Game::load(LoadGameItem loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+    Window::handleEvent();
 	SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -430,6 +433,7 @@ void Game::load(LoadGameItem loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+    Window::handleEvent();
 	SDL_PumpEvents();
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -442,6 +446,7 @@ void Game::load(LoadGameItem loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
+    Window::handleEvent();
 	SDL_PumpEvents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -501,6 +506,7 @@ void Game::init(bool initForPreviewOnly)
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
+		Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -511,6 +517,7 @@ void Game::init(bool initForPreviewOnly)
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
+		Window::handleEvent();
 		SDL_PumpEvents();
 
 		gui.init(this);
@@ -537,6 +544,7 @@ void Game::init(bool initForPreviewOnly)
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
+		Window::handleEvent();
 		SDL_PumpEvents();
 
 		scriptManager.init(&world, &gameCamera);
@@ -570,6 +578,7 @@ void Game::init(bool initForPreviewOnly)
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
+		Window::handleEvent();
 		SDL_PumpEvents();
 
 		//weather particle systems
@@ -607,6 +616,7 @@ void Game::init(bool initForPreviewOnly)
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
+		Window::handleEvent();
 		SDL_PumpEvents();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -659,6 +669,8 @@ void Game::init(bool initForPreviewOnly)
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
 	SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
+
+	gameStarted = true;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");
@@ -933,9 +945,12 @@ void Game::tick() {
 
 // ==================== events ====================
 
-void Game::mouseDownLeft(int x, int y){
-
+void Game::mouseDownLeft(int x, int y) {
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		Map *map= world.getMap();
 		const Metrics &metrics= Metrics::getInstance();
 		NetworkManager &networkManager= NetworkManager::getInstance();
@@ -1028,8 +1043,12 @@ void Game::mouseDownLeft(int x, int y){
 	}
 }
 
-void Game::mouseDownRight(int x, int y){
+void Game::mouseDownRight(int x, int y) {
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		Map *map= world.getMap();
 		const Metrics &metrics= Metrics::getInstance();
 
@@ -1057,13 +1076,25 @@ void Game::mouseDownRight(int x, int y){
 	}
 }
 
- void Game::mouseUpCenter(int x, int y){
- 	if (!mouseMoved) gameCamera.resetPosition();
- 	else mouseMoved = false;
+ void Game::mouseUpCenter(int x, int y) {
+	if(gameStarted == false) {
+		return;
+	}
+
+ 	if(mouseMoved == false) {
+ 		gameCamera.resetPosition();
+ 	}
+ 	else {
+ 		mouseMoved = false;
+ 	}
 }
 
-void Game::mouseUpLeft(int x, int y){
+void Game::mouseUpLeft(int x, int y) {
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		gui.mouseUpLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
@@ -1077,8 +1108,12 @@ void Game::mouseUpLeft(int x, int y){
 	}
 }
 
-void Game::mouseDoubleClickLeft(int x, int y){
+void Game::mouseDoubleClickLeft(int x, int y) {
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		const Metrics &metrics= Metrics::getInstance();
 
 		//display panel
@@ -1104,8 +1139,12 @@ void Game::mouseDoubleClickLeft(int x, int y){
 	}
 }
 
-void Game::mouseMove(int x, int y, const MouseState *ms){
+void Game::mouseMove(int x, int y, const MouseState *ms) {
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		const Metrics &metrics = Metrics::getInstance();
 
 		mouseX = x;
@@ -1219,7 +1258,10 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 
 void Game::keyDown(char key) {
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key, gameStarted);
+		if(gameStarted == false) {
+			return;
+		}
 
 		Lang &lang= Lang::getInstance();
 		bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
@@ -1388,6 +1430,10 @@ void Game::keyDown(char key) {
 
 void Game::keyUp(char key){
 	try {
+		if(gameStarted == false) {
+			return;
+		}
+
 		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
 			chatManager.keyUp(key);
@@ -1428,6 +1474,10 @@ void Game::keyUp(char key){
 }
 
 void Game::keyPress(char c){
+	if(gameStarted == false) {
+		return;
+	}
+
 	chatManager.keyPress(c);
 }
 
