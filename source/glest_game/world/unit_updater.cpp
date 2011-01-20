@@ -1155,7 +1155,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	// Esnure we have the right unit to repair
+	// Ensure we have the right unit to repair
 	if(peerUnitBuilder != NULL) {
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] peerUnitBuilder = %p\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder);
 
@@ -1195,18 +1195,49 @@ void UnitUpdater::updateRepair(Unit *unit) {
 				if(nextToRepaired == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-					CommandStateType commandStateType = unit->getCurrCommand()->getStateType();
-					SwapActiveCommand(unit,peerUnitBuilder);
-					int oldPeerUnitId = peerUnitBuilder->getId();
-					int newPeerUnitId = unit->getId();
-					SwapActiveCommandState(unit,commandStateType,unit->getCurrCommand()->getCommandType(),oldPeerUnitId,newPeerUnitId);
+					Command *peerCommand = peerUnitBuilder->getCurrCommand();
+					const RepairCommandType *rct = dynamic_cast<const RepairCommandType*>(peerCommand->getCommandType());
+					// If the peer is also scheduled to do a repair we CANNOT swap their commands or
+					// it will result in a stack overflow as each swaps the others repair command.
+					// We must convert this unit's repair into a build right now!
+					if(rct != NULL) {
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-					// Give the swapped unit a fresh chance to help build in case they
-					// were or are about to be blocked
-					peerUnitBuilder->getPath()->clear();
-					peerUnitBuilder->setRetryCurrCommandCount(1);
-					updateUnitCommand(unit);
-					//updateUnitCommand(peerUnitBuilder);
+						const CommandType *ctbuild = unit->getType()->getFirstCtOfClass(ccBuild);
+						NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), ctbuild->getId(), command->getPos(),
+														command->getUnitType()->getId(), -1, CardinalDir::NORTH, true, command->getStateType(),
+														command->getStateValue());
+
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						Command* command= this->game->getCommander()->buildCommand(&networkCommand);
+						CommandResult cr= unit->checkCommand(command);
+						if(cr == crSuccess) {
+							SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							unit->replaceCurrCommand(command);
+						}
+						else {
+							SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							delete command;
+
+				            unit->setCurrSkill(scStop);
+				            unit->finishCommand();
+						}
+					}
+					else {
+						CommandStateType commandStateType = unit->getCurrCommand()->getStateType();
+						SwapActiveCommand(unit,peerUnitBuilder);
+						int oldPeerUnitId = peerUnitBuilder->getId();
+						int newPeerUnitId = unit->getId();
+						SwapActiveCommandState(unit,commandStateType,unit->getCurrCommand()->getCommandType(),oldPeerUnitId,newPeerUnitId);
+
+						// Give the swapped unit a fresh chance to help build in case they
+						// were or are about to be blocked
+						peerUnitBuilder->getPath()->clear();
+						peerUnitBuilder->setRetryCurrCommandCount(1);
+						updateUnitCommand(unit);
+						//updateUnitCommand(peerUnitBuilder);
+					}
 					return;
 				}
 			}

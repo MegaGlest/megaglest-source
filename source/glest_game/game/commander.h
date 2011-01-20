@@ -101,10 +101,11 @@ public:
 	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
 	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
 
+	Command* buildCommand(const NetworkCommand* networkCommand) const;
+
 private:
     CommandResult computeResult(const CommandResultContainer &results) const;
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
-	Command* buildCommand(const NetworkCommand* networkCommand) const;
 
 	virtual void commanderNetworkUpdateTask(int id);
 };
