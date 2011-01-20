@@ -161,6 +161,8 @@ private:
 	wxMenu *menuBrushStartLocation;
 	wxMenu *menuRadius;
 
+	wxFileDialog *fileDialog;
+
 	string currentFile;
 
 	BrushType currentBrush;

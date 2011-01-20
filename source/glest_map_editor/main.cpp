@@ -334,7 +334,7 @@ MainWindow::MainWindow()
 #endif
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
-
+	fileDialog = new wxFileDialog(this);
 	lastPaintEvent.start();
 
 	glCanvas->SetFocus();
@@ -354,6 +354,7 @@ void MainWindow::init(string fname) {
 		program->loadMap(fname);
 		currentFile = fname;
 		fileName = cutLastExt(extractFileFromDirectoryPath(fname.c_str()));
+		fileDialog->SetPath(ToUnicode(fname));
 	}
 	SetTitle(ToUnicode(currentFile + " - " + winHeader));
 	setDirty(false);
@@ -489,10 +490,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 }
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
-	wxFileDialog fileDialog(this);
-	fileDialog.SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
-	if (fileDialog.ShowModal() == wxID_OK) {
-		currentFile = fileDialog.GetPath().ToAscii();
+	fileDialog->SetMessage(wxT("Select Glestmap to load"));
+	fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
+	if (fileDialog->ShowModal() == wxID_OK) {
+		currentFile = fileDialog->GetPath().ToAscii();
 		program->loadMap(currentFile);
 		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
 		setDirty(false);
@@ -513,10 +514,13 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
-	wxFileDialog fileDialog(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
-	fileDialog.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
-	if (fileDialog.ShowModal() == wxID_OK) {
-		currentFile = fileDialog.GetPath().ToAscii();
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
+
+	fd.SetPath(fileDialog->GetPath());
+	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
+	if (fd.ShowModal() == wxID_OK) {
+		currentFile = fd.GetPath().ToAscii();
+		fileDialog->SetPath(fd.GetPath());
 		setExtension();
 		program->saveMap(currentFile);
 		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
