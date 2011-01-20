@@ -32,9 +32,9 @@ using namespace Shared::Util;
 
 namespace Glest { namespace Game {
 
-double maxFrameCountLagAllowed 							= 30;
-double maxClientLagTimeAllowed 							= 20;
-double maxFrameCountLagAllowedEver 						= 50;
+double maxFrameCountLagAllowed 							= 25;
+double maxClientLagTimeAllowed 							= 30;
+double maxFrameCountLagAllowedEver 						= 60;
 double warnFrameCountLagPercent 						= 0.65;
 double LAG_CHECK_GRACE_PERIOD 							= 15;
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 1;
