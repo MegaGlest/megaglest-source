@@ -504,7 +504,7 @@ void IRCThread::execute() {
                 return;
             }
 
-            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), 0, "megaglest")) {
+            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->nick.c_str(), "megaglest")) {
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
                 return;
             }
