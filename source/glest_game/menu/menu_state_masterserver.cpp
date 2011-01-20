@@ -217,6 +217,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight);
 	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
 
+	ircOnlinePeopleStatusLabel.registerGraphicComponent(containerName,"ircOnlinePeopleStatusLabel");
+	ircOnlinePeopleStatusLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight-20);
+	ircOnlinePeopleStatusLabel.setText("");
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	NetworkManager::getInstance().end();
@@ -530,16 +534,29 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
-        MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+		Lang &lang= Lang::getInstance();
+		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
         if(ircClient != NULL &&
            ircClient->isConnected() == true &&
            ircClient->getHasJoinedChannel() == true) {
             const Vec4f titleLabelColor = GREEN;
+
+            if(ircOnlinePeopleStatusLabel.getText() != "") {
+            	ircOnlinePeopleStatusLabel.setText("");
+            }
+
             renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
+            //renderer.renderLabel(&ircOnlinePeopleStatusLabel,&titleLabelColor);
         }
         else {
             const Vec4f titleLabelColor = RED;
+
+            if(ircOnlinePeopleStatusLabel.getText() != lang.get("Connecting")) {
+            	ircOnlinePeopleStatusLabel.setText(lang.get("Connecting"));
+            }
+
             renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
+            renderer.renderLabel(&ircOnlinePeopleStatusLabel,&titleLabelColor);
         }
         safeMutexIRCPtr.ReleaseLock();
 

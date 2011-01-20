@@ -68,6 +68,7 @@ private:
 	int mainMessageBoxState;
 
     GraphicLabel ircOnlinePeopleLabel;
+    GraphicLabel ircOnlinePeopleStatusLabel;
 
 	bool announcementLoaded;
 	bool needUpdateFromServer;
