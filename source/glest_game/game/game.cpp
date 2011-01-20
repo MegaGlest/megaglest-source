@@ -357,6 +357,9 @@ void Game::load(LoadGameItem loadTypes) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] loadTypes = %d, gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,loadTypes,this->gameSettings.toString().c_str());
 
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	soundRenderer.stopAllSounds();
+
 	Config &config = Config::getInstance();
 	Logger &logger= Logger::getInstance();
 
