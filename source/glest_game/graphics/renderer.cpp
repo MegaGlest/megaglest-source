@@ -1670,6 +1670,16 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 
 // ==================== complex rendering ====================
 
+class SurfaceData {
+public:
+	SurfaceData(){};
+	int textureHandle;
+	vector<Vec2f> texCoords;
+	vector<Vec2f> texCoordsSurface;
+	vector<Vec3f> vertices;
+	vector<Vec3f> normals;
+};
+
 void Renderer::renderSurface(const int renderFps) {
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
@@ -1721,67 +1731,243 @@ void Renderer::renderSurface(const int renderFps) {
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleScaledCellList.size() > 0) {
-		for(int visibleIndex = 0;
-				visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
-			Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
-			SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
-			SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
-			SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
-			SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+		bool legacyRendering = true;
 
-			if(tc00 == NULL) {
-				throw runtime_error("tc00 == NULL");
+		if(legacyRendering) {
+			for(int visibleIndex = 0;
+					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+				SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+				SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+				if(tc00 == NULL) {
+					throw runtime_error("tc00 == NULL");
+				}
+				if(tc10 == NULL) {
+					throw runtime_error("tc10 == NULL");
+				}
+				if(tc01 == NULL) {
+					throw runtime_error("tc01 == NULL");
+				}
+				if(tc11 == NULL) {
+					throw runtime_error("tc11 == NULL");
+				}
+
+				triangleCount+= 2;
+				pointCount+= 4;
+
+				//set texture
+				if(tc00->getSurfaceTexture() == NULL) {
+					throw runtime_error("tc00->getSurfaceTexture() == NULL");
+				}
+				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+				if(currTex != lastTex) {
+					lastTex = currTex;
+					glBindTexture(GL_TEXTURE_2D, lastTex);
+				}
+
+				const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+				glBegin(GL_TRIANGLE_STRIP);
+
+				//draw quad using immediate mode
+				glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
+				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
+				glNormal3fv(tc01->getNormal().ptr());
+				glVertex3fv(tc01->getVertex().ptr());
+
+				glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
+				glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
+				glNormal3fv(tc00->getNormal().ptr());
+				glVertex3fv(tc00->getVertex().ptr());
+
+				glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
+				glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
+				glNormal3fv(tc11->getNormal().ptr());
+				glVertex3fv(tc11->getVertex().ptr());
+
+				glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
+				glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
+				glNormal3fv(tc10->getNormal().ptr());
+				glVertex3fv(tc10->getVertex().ptr());
+
+				glEnd();
 			}
-			if(tc10 == NULL) {
-				throw runtime_error("tc10 == NULL");
+		}
+		else {
+			std::vector<SurfaceData> surface;
+			for(int visibleIndex = 0;
+					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+				SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+				SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+				if(tc00 == NULL) {
+					throw runtime_error("tc00 == NULL");
+				}
+				if(tc10 == NULL) {
+					throw runtime_error("tc10 == NULL");
+				}
+				if(tc01 == NULL) {
+					throw runtime_error("tc01 == NULL");
+				}
+				if(tc11 == NULL) {
+					throw runtime_error("tc11 == NULL");
+				}
+
+				triangleCount+= 2;
+				pointCount+= 4;
+
+				//set texture
+				if(tc00->getSurfaceTexture() == NULL) {
+					throw runtime_error("tc00->getSurfaceTexture() == NULL");
+				}
+				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+
+				int surfaceDataIndex = -1;
+				for(int i = 0; i < surface.size(); ++i) {
+					SurfaceData &data = surface[i];
+					if(data.textureHandle == currTex) {
+						surfaceDataIndex = i;
+						break;
+					}
+				}
+				if(surfaceDataIndex < 0) {
+					SurfaceData newData;
+					newData.textureHandle = currTex;
+					surface.push_back(newData);
+
+					surfaceDataIndex = surface.size()-1;
+				}
+
+				const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+				//int dataIndex = surface[surfaceDataIndex].texCoords.size();
+				surface[surfaceDataIndex].texCoords.push_back(tc01->getFowTexCoord());
+				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
+				surface[surfaceDataIndex].vertices.push_back(tc01->getVertex());
+				surface[surfaceDataIndex].normals.push_back(tc01->getNormal());
+
+				surface[surfaceDataIndex].texCoords.push_back(tc00->getFowTexCoord());
+				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y));
+				surface[surfaceDataIndex].vertices.push_back(tc00->getVertex());
+				surface[surfaceDataIndex].normals.push_back(tc00->getNormal());
+
+				surface[surfaceDataIndex].texCoords.push_back(tc11->getFowTexCoord());
+				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
+				surface[surfaceDataIndex].vertices.push_back(tc11->getVertex());
+				surface[surfaceDataIndex].normals.push_back(tc11->getNormal());
+
+				surface[surfaceDataIndex].texCoords.push_back(tc10->getFowTexCoord());
+				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
+				surface[surfaceDataIndex].vertices.push_back(tc10->getVertex());
+				surface[surfaceDataIndex].normals.push_back(tc10->getNormal());
 			}
-			if(tc01 == NULL) {
-				throw runtime_error("tc01 == NULL");
+
+			for(int i = 0; i < surface.size(); ++i) {
+			//for(int i = surface.size()-1; i >= 0; --i) {
+				SurfaceData &data = surface[i];
+
+				//Vec2f *texCoords		= &data.texCoords[0];
+				//Vec2f *texCoordsSurface	= &data.texCoordsSurface[0];
+				//Vec3f *vertices			= &data.vertices[0];
+				//Vec3f *normals			= &data.normals[0];
+
+				Vec2f *texCoords		= new Vec2f[data.texCoords.size()];
+				Vec2f *texCoordsSurface	= new Vec2f[data.texCoordsSurface.size()];
+				Vec3f *vertices			= new Vec3f[data.vertices.size()];
+				Vec3f *normals			= new Vec3f[data.normals.size()];
+				for(int j = 0; j < data.texCoords.size(); ++j) {
+					texCoords[j]		= data.texCoords[j];
+					texCoordsSurface[j]	= data.texCoordsSurface[j];
+					vertices[j]			= data.vertices[j];
+					normals[j]			= data.normals[j];
+				}
+				//memcpy( texCoords, &data.texCoords[0], sizeof( Vec2f ) * data.texCoords.size() );
+				//memcpy( texCoordsSurface, &data.texCoordsSurface[0], sizeof( Vec2f ) * data.texCoordsSurface.size() );
+				//memcpy( vertices, &data.vertices[0], sizeof( Vec3f ) * data.vertices.size() );
+				//memcpy( normals, &data.normals[0], sizeof( Vec3f ) * data.normals.size() );
+
+
+				assertGl();
+				glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+				assertGl();
+				glEnableClientState(GL_VERTEX_ARRAY);
+				assertGl();
+				glEnableClientState(GL_NORMAL_ARRAY);
+				assertGl();
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				assertGl();
+
+				//glActiveTexture(baseTexUnit);
+
+				//glBindTexture(GL_TEXTURE_2D, fowTexUnit);
+				//glActiveTexture(GL_TEXTURE0 + 1);
+
+//				glActiveTexture(fowTexUnit);
+//				assertGl();
+//				glEnable(GL_TEXTURE_2D);
+//				assertGl();
+//				glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+//				assertGl();
+//				glClientActiveTexture(fowTexUnit);
+//				assertGl();
+//				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//				assertGl();
+//				glTexCoordPointer(2, GL_FLOAT, 0,texCoords);
+//				assertGl();
+
+				glActiveTexture(baseTexUnit);
+				assertGl();
+				glEnable(GL_TEXTURE_2D);
+				assertGl();
+				glBindTexture(GL_TEXTURE_2D, data.textureHandle);
+				assertGl();
+				glClientActiveTexture(baseTexUnit);
+				assertGl();
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				assertGl();
+				glTexCoordPointer(2, GL_FLOAT, 0, texCoordsSurface);
+				assertGl();
+
+				glEnableClientState(GL_VERTEX_ARRAY);
+				assertGl();
+				glVertexPointer(3, GL_FLOAT, 0, vertices);
+				assertGl();
+				glEnableClientState(GL_NORMAL_ARRAY);
+				assertGl();
+				glNormalPointer(GL_FLOAT, 0, normals);
+				assertGl();
+
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, data.vertices.size());
+				assertGl();
+
+//				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//				assertGl();
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				assertGl();
+				glDisableClientState(GL_NORMAL_ARRAY);
+				assertGl();
+				glDisableClientState(GL_VERTEX_ARRAY);
+				assertGl();
+
+				//glPopAttrib();
+				assertGl();
+				glPopClientAttrib();
+				assertGl();
+
+				delete [] texCoords; texCoords = NULL;
+				delete [] texCoordsSurface; texCoordsSurface = NULL;
+				delete [] vertices; vertices = NULL;
+				delete [] normals; normals = NULL;
 			}
-			if(tc11 == NULL) {
-				throw runtime_error("tc11 == NULL");
-			}
-
-			triangleCount+= 2;
-			pointCount+= 4;
-
-			//set texture
-			if(tc00->getSurfaceTexture() == NULL) {
-				throw runtime_error("tc00->getSurfaceTexture() == NULL");
-			}
-			currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
-			if(currTex != lastTex) {
-				lastTex = currTex;
-				glBindTexture(GL_TEXTURE_2D, lastTex);
-			}
-
-			const Vec2f &surfCoord= tc00->getSurfTexCoord();
-
-			glBegin(GL_TRIANGLE_STRIP);
-
-			//draw quad using immediate mode
-			glMultiTexCoord2fv(fowTexUnit, tc01->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y + coordStep);
-			glNormal3fv(tc01->getNormal().ptr());
-			glVertex3fv(tc01->getVertex().ptr());
-
-			glMultiTexCoord2fv(fowTexUnit, tc00->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x, surfCoord.y);
-			glNormal3fv(tc00->getNormal().ptr());
-			glVertex3fv(tc00->getVertex().ptr());
-
-			glMultiTexCoord2fv(fowTexUnit, tc11->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x+coordStep, surfCoord.y+coordStep);
-			glNormal3fv(tc11->getNormal().ptr());
-			glVertex3fv(tc11->getVertex().ptr());
-
-			glMultiTexCoord2fv(fowTexUnit, tc10->getFowTexCoord().ptr());
-			glMultiTexCoord2f(baseTexUnit, surfCoord.x + coordStep, surfCoord.y);
-			glNormal3fv(tc10->getNormal().ptr());
-			glVertex3fv(tc10->getVertex().ptr());
-
-			glEnd();
 		}
 	}
 
