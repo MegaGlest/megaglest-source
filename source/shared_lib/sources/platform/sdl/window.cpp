@@ -202,7 +202,7 @@ bool Window::handleEvent() {
 				case SDL_ACTIVEEVENT:
 				{
 					codeLocation = "k";
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT.\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",__FILE__,__FUNCTION__,__LINE__,event.active.state,event.active.gain);
 
 					// Check if the program has lost keyboard focus
 					/*
