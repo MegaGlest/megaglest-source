@@ -25,6 +25,8 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+const int IRC_SERVER_PORT = 6667;
+
 void addlog (const char * fmt, ...) {
 	FILE * fp;
 	char buf[1024];
@@ -66,9 +68,18 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 	if(ctx != NULL) {
         if(difftime(time(NULL),ctx->getLastNickListUpdate()) >= 7) {
             ctx->setLastNickListUpdate(time(NULL));
-            ctx->GetIRCConnectedNickList(ctx->getArgs()[2],false);
+            ctx->GetIRCConnectedNickList(ctx->getChannel(),false);
         }
 	}
+}
+
+void get_nickname(const char *sourceNick,char *destNick,size_t maxDestBufferSize) {
+	string sourceNickStr = sourceNick;
+	if(sourceNickStr != "" && sourceNickStr[0] == '@') {
+		sourceNickStr.erase(0,1);
+	}
+
+	irc_target_get_nick(sourceNickStr.c_str(),destNick,maxDestBufferSize);
 }
 
 void event_join(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
@@ -81,11 +92,11 @@ void event_join(irc_session_t * session, const char * event, const char * origin
             //irc_cmd_msg (session, params[0], "MG Bot says hello!");
             ctx->setHasJoinedChannel(true);
 
-            ctx->GetIRCConnectedNickList(ctx->getArgs()[2],true);
+            ctx->GetIRCConnectedNickList(ctx->getChannel(),true);
         }
         else {
             char realNick[128]="";
-            irc_target_get_nick(origin,&realNick[0],127);
+            get_nickname(origin,realNick,127);
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user joined channel realNick [%s] origin [%s]\n", realNick,origin);
 
             bool foundNick = false;
@@ -94,7 +105,7 @@ void event_join(irc_session_t * session, const char * event, const char * origin
             std::vector<string> nickList = ctx->getCachedNickList();
             for(unsigned int i = 0;
                              i < nickList.size(); ++i) {
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: lookingfor match [%s] realNick [%s]\n", nickList[i].c_str(),realNick);
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: looking for match [%s] realNick [%s]\n", nickList[i].c_str(),realNick);
 
                 if(nickList[i] == realNick) {
                     foundNick = true;
@@ -111,10 +122,10 @@ void event_join(irc_session_t * session, const char * event, const char * origin
 void event_connect (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 
-	dump_event (session, event, origin, params, count);
+	dump_event(session, event, origin, params, count);
 
     if(ctx != NULL) {
-        irc_cmd_join (session, ctx->getChannel().c_str(), 0);
+        irc_cmd_join(session, ctx->getChannel().c_str(), 0);
     }
 }
 
@@ -176,8 +187,6 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 }
 
 void event_channel(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
-	char nickbuf[128]="";
-
 	if ( count != 2 )
 		return;
 
@@ -187,14 +196,16 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 		return;
 	}
 
-	irc_target_get_nick(origin, nickbuf, sizeof(nickbuf));
+    char realNick[128]="";
+    get_nickname(origin,realNick,127);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: event signalled realNick [%s] origin [%s]\n", realNick,origin);
 
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
         MutexSafeWrapper safeMutex(ctx->getMutexIRCCB());
         IRCCallbackInterface *cb = ctx->getCallbackObj(false);
         if(cb != NULL) {
-            cb->IRC_CallbackEvent(IRC_evt_chatText, nickbuf, params, count);
+            cb->IRC_CallbackEvent(IRC_evt_chatText, realNick, params, count);
         }
 	}
 
@@ -206,21 +217,21 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 	}
 
 	if ( !strcmp (params[1], "ctcp") ) {
-		irc_cmd_ctcp_request (session, nickbuf, "PING 223");
-		irc_cmd_ctcp_request (session, nickbuf, "FINGER");
-		irc_cmd_ctcp_request (session, nickbuf, "VERSION");
-		irc_cmd_ctcp_request (session, nickbuf, "TIME");
+		irc_cmd_ctcp_request (session, realNick, "PING 223");
+		irc_cmd_ctcp_request (session, realNick, "FINGER");
+		irc_cmd_ctcp_request (session, realNick, "VERSION");
+		irc_cmd_ctcp_request (session, realNick, "TIME");
 	}
 
 	if ( !strcmp (params[1], "dcc chat") ) {
 		irc_dcc_t dccid;
-		irc_dcc_chat (session, 0, nickbuf, dcc_recv_callback, &dccid);
+		irc_dcc_chat (session, 0, realNick, dcc_recv_callback, &dccid);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC chat ID: %d\n", dccid);
 	}
 
 	if ( !strcmp (params[1], "dcc send") ) {
 		irc_dcc_t dccid;
-		irc_dcc_sendfile (session, 0, nickbuf, "irctest.c", dcc_file_recv_callback, &dccid);
+		irc_dcc_sendfile (session, 0, realNick, "irctest.c", dcc_file_recv_callback, &dccid);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC send ID: %d\n", dccid);
 	}
 
@@ -266,9 +277,8 @@ void event_leave(irc_session_t *session, const char *event, const char *origin, 
 	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user left channel [%s]\n", origin);
 
         char realNick[128]="";
-        irc_target_get_nick(origin,&realNick[0],127);
-
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user left channel realNick [%s]\n", realNick);
+        get_nickname(origin,realNick,127);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user left channel realNick [%s] origin [%s]\n", realNick,origin);
 
         IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
         if(ctx != NULL) {
@@ -296,6 +306,9 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
 		case LIBIRC_RFC_ERR_NICKNAMEINUSE :
 		case LIBIRC_RFC_ERR_NICKCOLLISION :
 			//irc_auto_rename_nick(session);
+			//IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+			//if(ctx != NULL) {
+
 			break;
 		case LIBIRC_RFC_RPL_TOPIC :
 			break;
@@ -309,7 +322,12 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
                             Tokenize(params[i],tokens," ");
 
                             for(unsigned int j = 0; j < tokens.size(); ++j) {
-                                nickList.push_back(tokens[j]);
+
+                                char realNick[128]="";
+                                get_nickname(tokens[j].c_str(),realNick,127);
+                                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user joined channel realNick [%s] tokens[j] [%s]\n", realNick,tokens[j].c_str());
+
+                                nickList.push_back(realNick);
                             }
                         }
                     }
@@ -486,7 +504,7 @@ void IRCThread::execute() {
                 return;
             }
 
-            if(irc_connect(ircSession, argv[0].c_str(), 6667, 0, argv[1].c_str(), 0, 0)) {
+            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), 0, "megaglest")) {
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
                 return;
             }
