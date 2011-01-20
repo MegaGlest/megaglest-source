@@ -13,6 +13,7 @@
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
 				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-D_WIN32" />
@@ -121,6 +122,7 @@
 				<Option type="3" />
 				<Option compiler="mingw32_compiler" />
 				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-D_WIN32" />
 					<Add option="-DWIN32" />
@@ -476,6 +478,8 @@
 		</Unit>
 		<Unit filename="../../source/shared_lib/include/platform/sdl/window.h" />
 		<Unit filename="../../source/shared_lib/include/platform/sdl/window_gl.h" />
+		<Unit filename="../../source/shared_lib/include/sound/openal/sound_factory_openal.h" />
+		<Unit filename="../../source/shared_lib/include/sound/openal/sound_player_openal.h" />
 		<Unit filename="../../source/shared_lib/include/sound/sound.h" />
 		<Unit filename="../../source/shared_lib/include/sound/sound_factory.h" />
 		<Unit filename="../../source/shared_lib/include/sound/sound_file_loader.h" />

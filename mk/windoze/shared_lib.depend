@@ -1,1 +1,2223 @@
 # depslib dependency file v1.0
+1293569421 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpAccount.c
+	<string.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+
+1294379131 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpTypes.h
+	<stdint.h>
+
+1293778866 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpConfig.h
+
+1294268940 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftp.h
+
+1294271739 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpCmds.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<errno.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+	"ftpIfc.h"
+	"ftpMessages.h"
+
+1294538873 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpIfc.h
+	"ftpTypes.h"
+
+1281749348 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/feathery_ftp/ftpMessages.h
+
+1281749348 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpLib.c
+	<string.h>
+	<stdarg.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+	"ftpIfc.h"
+
+1281749348 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpMessages.c
+
+1293565704 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpServer.c
+	"ftpIfc.h"
+
+1294271739 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpSession.c
+	<stdio.h>
+	<string.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+
+1294381103 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetPosix.c
+	<stdio.h>
+	<string.h>
+	<time.h>
+	<grp.h>
+	<pwd.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<unistd.h>
+	<sys/sendfile.h>
+	<fcntl.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<dirent.h>
+	<arpa/inet.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+
+1294381787 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpTargetWin32.c
+	<windows.h>
+	<stdio.h>
+	<string.h>
+	<time.h>
+	<sys/types.h>
+	<sys/stat.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+
+1284479244 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/BMPReader.cpp
+	"BMPReader.h"
+	"types.h"
+	"pixmap.h"
+	<stdexcept>
+	"leak_dumper.h"
+
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/BMPReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1287645654 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/FileReader.h
+	"platform_util.h"
+	<map>
+	<string>
+	<vector>
+	<fstream>
+	<iostream>
+	<stdexcept>
+	<typeinfo>
+	<vector>
+	"leak_dumper.h"
+
+1288939635 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/win32/platform_util.h
+	<windows.h>
+	<string>
+	<stdexcept>
+	"platform_common.h"
+	"leak_dumper.h"
+
+1289200417 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/platform_common.h
+	<windows.h>
+	<string>
+	<vector>
+	<stdexcept>
+	<list>
+	"types.h"
+	"checksum.h"
+	<utility>
+	<SDL.h>
+	"leak_dumper.h"
+
+1287676545 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/win32/types.h
+	<windows.h>
+	"leak_dumper.h"
+
+1293985768 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/leak_dumper.h
+	<new>
+	<cstdlib>
+	<cstdio>
+
+1283810444 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/checksum.h
+	<string>
+	<map>
+	"types.h"
+	"leak_dumper.h"
+
+1291360192 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/map
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
+
+1291399086 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_config.h
+	"SDL_platform.h"
+	<stdarg.h>
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_platform.h
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/begin_code.h
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/close_code.h
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_endian.h
+	"SDL_stdinc.h"
+	<endian.h>
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_cpuinfo.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846669 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_active.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_keysym.h
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1289289536 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/pixmap.h
+	<string>
+	"vec.h"
+	"types.h"
+	<map>
+	"leak_dumper.h"
+
+1283889536 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/vec.h
+	"math_wrapper.h"
+	<string>
+	<sstream>
+	"leak_dumper.h"
+
+1283810434 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/math_wrapper.h
+	"streflop_cond.h"
+	<cmath>
+	"leak_dumper.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/streflop_cond.h
+	"streflop.h"
+	<cmath>
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/streflop.h
+	"X87DenormalSquasher.h"
+	"SoftFloatWrapper.h"
+	"FPUSettings.h"
+	"SMath.h"
+	"Random.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/X87DenormalSquasher.h
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/FPUSettings.h
+	"softfloat/softfloat.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/SMath.h
+	"streflop.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/Random.h
+	"IntegerTypes.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/IntegerTypes.h
+
+1269393843 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/FileReader.cpp
+	"FileReader.h"
+
+1269715072 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/ImageReaders.cpp
+	"ImageReaders.h"
+	"leak_dumper.h"
+
+1283809810 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/ImageReaders.h
+	"FileReader.h"
+	"BMPReader.h"
+	"JPGReader.h"
+	"PNGReader.h"
+	"TGAReader.h"
+	"leak_dumper.h"
+
+1283809810 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/JPGReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1283809814 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/PNGReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1283809817 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/TGAReader.h
+	"FileReader.h"
+	"pixmap.h"
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/JPGReader.cpp
+	"JPGReader.h"
+	"FileReader.h"
+	"types.h"
+	"pixmap.h"
+	<stdexcept>
+	<jpeglib.h>
+	<setjmp.h>
+	"leak_dumper.h"
+
+1258371882 /home/softcoder/Code/megaglest/trunk/source/win32_deps/jpeg-8b/jpeglib.h
+	"jconfig.h"
+	"jmorecfg.h"
+	"jpegint.h"
+	"jerror.h"
+
+1291432433 /home/softcoder/Code/megaglest/trunk/source/win32_deps/jpeg-8b/jconfig.h
+
+1258704084 /home/softcoder/Code/megaglest/trunk/source/win32_deps/jpeg-8b/jmorecfg.h
+
+1253350284 /home/softcoder/Code/megaglest/trunk/source/win32_deps/jpeg-8b/jpegint.h
+
+1237929872 /home/softcoder/Code/megaglest/trunk/source/win32_deps/jpeg-8b/jerror.h
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/PNGReader.cpp
+	"PNGReader.h"
+	"types.h"
+	"pixmap.h"
+	<stdexcept>
+	<png.h>
+	<setjmp.h>
+	"leak_dumper.h"
+
+1290847506 /home/softcoder/Code/megaglest/trunk/source/win32_deps/lpng141/png.h
+	"zlib.h"
+	"pngconf.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/zlib.h
+	"zconf.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/zconf.h
+	<windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<unixio.h>
+
+1290847506 /home/softcoder/Code/megaglest/trunk/source/win32_deps/lpng141/pngconf.h
+	<limits.h>
+	"config.h"
+	"pngusr.h"
+	<stdio.h>
+	<stdio.h>
+	<sys/types.h>
+	<setjmp.h>
+	<strings.h>
+	<string.h>
+	<time.h>
+	<dos.h>
+
+1284479244 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/TGAReader.cpp
+	"TGAReader.h"
+	"types.h"
+	"pixmap.h"
+	<stdexcept>
+	<iostream>
+	"leak_dumper.h"
+
+1268371626 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/buffer.cpp
+	"buffer.h"
+	"leak_dumper.h"
+
+1283809806 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/buffer.h
+	<string>
+	"leak_dumper.h"
+
+1268371626 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/camera.cpp
+	"camera.h"
+	"leak_dumper.h"
+
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/camera.h
+	"vec.h"
+	"quaternion.h"
+	"leak_dumper.h"
+
+1283809814 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/quaternion.h
+	<string>
+	"vec.h"
+	"matrix.h"
+	"leak_dumper.h"
+
+1283809810 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/matrix.h
+	"vec.h"
+	"leak_dumper.h"
+
+1284445965 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/context.cpp
+	"context.h"
+	"leak_dumper.h"
+
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/context.h
+	"types.h"
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/font.cpp
+	"font.h"
+	<stdexcept>
+	"conversion.h"
+	"leak_dumper.h"
+
+1283809807 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/font.h
+	<string>
+	"leak_dumper.h"
+
+1287674559 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/conversion.h
+	<string>
+	"types.h"
+	"leak_dumper.h"
+
+1281396601 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/font_manager.cpp
+	"font_manager.h"
+	"graphics_interface.h"
+	"graphics_factory.h"
+	"leak_dumper.h"
+
+1283809808 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/font_manager.h
+	"font.h"
+	<vector>
+	"leak_dumper.h"
+
+1291761306 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/graphics_interface.h
+	"map_preview.h"
+	"leak_dumper.h"
+
+1291360192 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/map/map_preview.h
+	"util.h"
+	"types.h"
+	"randomgen.h"
+	<vector>
+
+1293760456 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/util.h
+	<string>
+	<fstream>
+	<map>
+	"thread.h"
+	<curl/curl.h>
+	<cstdio>
+	"leak_dumper.h"
+
+1293954873 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/thread.h
+	<SDL_thread.h>
+	<SDL_mutex.h>
+	<string>
+	"leak_dumper.h"
+
+1293860895 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/curl.h
+	"curlver.h"
+	"curlbuild.h"
+	"curlrules.h"
+	<stdio.h>
+	<limits.h>
+	<osreldate.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"typecheck-gcc.h"
+
+1293860897 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/curlver.h
+
+1293880942 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/curlbuild.h
+	<windows.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/types.h>
+	<stdint.h>
+	<inttypes.h>
+	<sys/socket.h>
+
+1293860897 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/curlrules.h
+
+1293860897 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/easy.h
+
+1293860899 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/multi.h
+	"curl.h"
+
+1293860900 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/typecheck-gcc.h
+
+1283810447 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/randomgen.h
+	"leak_dumper.h"
+
+1283809809 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/graphics_factory.h
+	<cstdlib>
+	"leak_dumper.h"
+
+1291761306 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/base_renderer.cpp
+	"base_renderer.h"
+	<cassert>
+	"opengl.h"
+	"vec.h"
+
+1291761306 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/base_renderer.h
+	"graphics_interface.h"
+	"leak_dumper.h"
+
+1283809804 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/opengl.h
+	<cassert>
+	<stdexcept>
+	<string>
+	"conversion.h"
+	"gl_wrap.h"
+	"leak_dumper.h"
+
+1290849919 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/gl_wrap.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<glprocs.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<string>
+	"font.h"
+	"types.h"
+	<SDL.h>
+	"leak_dumper.h"
+
+1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/glprocs.h
+	"glext.h"
+	"wglext.h"
+	<GL/glext.h>
+
+1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/glext.h
+	<windows.h>
+	<stddef.h>
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/wglext.h
+	<windows.h>
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
+
+1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/gl.h
+
+1287674976 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/types.h
+	<SDL_types.h>
+	"leak_dumper.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_types.h
+	"SDL_stdinc.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/context_gl.cpp
+	"context_gl.h"
+	<cassert>
+	<stdexcept>
+	"opengl.h"
+	"util.h"
+	"leak_dumper.h"
+
+1284446028 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/context_gl.h
+	"context.h"
+	"gl_wrap.h"
+	"leak_dumper.h"
+
+1286655888 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/font_gl.cpp
+	"font_gl.h"
+	"opengl.h"
+	"gl_wrap.h"
+	"leak_dumper.h"
+
+1286656082 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/font_gl.h
+	"font.h"
+	"opengl.h"
+	<string>
+	"leak_dumper.h"
+
+1288125974 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/model_renderer_gl.cpp
+	"model_renderer_gl.h"
+	"opengl.h"
+	"gl_wrap.h"
+	"texture_gl.h"
+	"interpolation.h"
+	"leak_dumper.h"
+
+1283809804 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/model_renderer_gl.h
+	"model_renderer.h"
+	"model.h"
+	"opengl.h"
+	"leak_dumper.h"
+
+1283809813 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/model_renderer.h
+	"model.h"
+	"leak_dumper.h"
+
+1288219978 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/model.h
+	<string>
+	<map>
+	"types.h"
+	"pixmap.h"
+	"texture_manager.h"
+	"texture.h"
+	"model_header.h"
+	"leak_dumper.h"
+
+1288298041 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/texture_manager.h
+	<vector>
+	"texture.h"
+	"leak_dumper.h"
+
+1289287333 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/texture.h
+	"types.h"
+	"pixmap.h"
+	<string>
+	"leak_dumper.h"
+
+1283809812 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/model_header.h
+	"types.h"
+	"leak_dumper.h"
+
+1288481118 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/texture_gl.h
+	"texture.h"
+	"opengl.h"
+	"leak_dumper.h"
+
+1283809809 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/interpolation.h
+	"vec.h"
+	"model.h"
+	<map>
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/opengl.cpp
+	"opengl.h"
+	<stdexcept>
+	"graphics_interface.h"
+	"context_gl.h"
+	"gl_wrap.h"
+	"leak_dumper.h"
+
+1277687539 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/particle_renderer_gl.cpp
+	"particle_renderer_gl.h"
+	"opengl.h"
+	"texture_gl.h"
+	"model_renderer.h"
+	"math_util.h"
+	"leak_dumper.h"
+
+1283809805 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/particle_renderer_gl.h
+	"particle_renderer.h"
+	"leak_dumper.h"
+
+1283809813 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/particle_renderer.h
+	"particle.h"
+	"leak_dumper.h"
+
+1286391150 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/particle.h
+	<list>
+	<cassert>
+	"vec.h"
+	"pixmap.h"
+	"texture_manager.h"
+	"randomgen.h"
+	"leak_dumper.h"
+
+1284079013 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/math_util.h
+	"vec.h"
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/shader_gl.cpp
+	"shader_gl.h"
+	<fstream>
+	"opengl.h"
+	"leak_dumper.h"
+
+1283809805 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/shader_gl.h
+	<map>
+	<vector>
+	"shader.h"
+	"opengl.h"
+	"leak_dumper.h"
+
+1283809815 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/shader.h
+	"vec.h"
+	"matrix.h"
+	"texture.h"
+	"leak_dumper.h"
+
+1277443607 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/text_renderer_gl.cpp
+	"text_renderer_gl.h"
+	"opengl.h"
+	"font_gl.h"
+	"leak_dumper.h"
+
+1283809806 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/text_renderer_gl.h
+	"text_renderer.h"
+	"leak_dumper.h"
+
+1283809816 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/text_renderer.h
+	<string>
+	"vec.h"
+	"font.h"
+	"leak_dumper.h"
+
+1288950548 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/gl/texture_gl.cpp
+	"texture_gl.h"
+	<stdexcept>
+	"opengl.h"
+	<iostream>
+	<vector>
+	"conversion.h"
+	<algorithm>
+	"util.h"
+	"leak_dumper.h"
+
+1268371626 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/graphics_interface.cpp
+	"graphics_interface.h"
+	<cstddef>
+	"context.h"
+	"leak_dumper.h"
+
+1281396615 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/interpolation.cpp
+	"interpolation.h"
+	<cassert>
+	<algorithm>
+	"model.h"
+	"conversion.h"
+	"util.h"
+	"leak_dumper.h"
+
+1289287314 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/model.cpp
+	"model.h"
+	<cstdio>
+	<cassert>
+	<stdexcept>
+	"interpolation.h"
+	"conversion.h"
+	"util.h"
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/model_manager.cpp
+	"model_manager.h"
+	"graphics_interface.h"
+	"graphics_factory.h"
+	<cstdlib>
+	<stdexcept>
+	"leak_dumper.h"
+
+1283809812 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/model_manager.h
+	"model.h"
+	<vector>
+	"leak_dumper.h"
+
+1289278529 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/particle.cpp
+	"math_wrapper.h"
+	"particle.h"
+	<stdexcept>
+	<cassert>
+	<algorithm>
+	"util.h"
+	"particle_renderer.h"
+	"math_util.h"
+	"platform_common.h"
+	"leak_dumper.h"
+
+1289289537 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/pixmap.cpp
+	"math_wrapper.h"
+	"pixmap.h"
+	<stdexcept>
+	<cstdio>
+	<cassert>
+	"util.h"
+	"math_util.h"
+	"randomgen.h"
+	"FileReader.h"
+	"ImageReaders.h"
+	<png.h>
+	<setjmp.h>
+	"leak_dumper.h"
+
+1272744481 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/quaternion.cpp
+	"math_wrapper.h"
+	"quaternion.h"
+	"leak_dumper.h"
+
+1268371626 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/shader.cpp
+	"shader.h"
+	<stdexcept>
+	<fstream>
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/shader_manager.cpp
+	"shader_manager.h"
+	<stdexcept>
+	"graphics_interface.h"
+	"graphics_factory.h"
+	"leak_dumper.h"
+
+1283809816 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/shader_manager.h
+	"shader.h"
+	<vector>
+	"leak_dumper.h"
+
+1288247901 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/texture.cpp
+	"texture.h"
+	"util.h"
+	"leak_dumper.h"
+
+1288362689 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/graphics/texture_manager.cpp
+	"texture_manager.h"
+	<cstdlib>
+	<stdexcept>
+	"graphics_interface.h"
+	"graphics_factory.h"
+	"leak_dumper.h"
+
+1293437648 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/libircclient.c
+	"portable.c"
+	"sockets.c"
+	"libircclient.h"
+	"libirc_session.h"
+	"utils.c"
+	"errors.c"
+	"colors.c"
+	"dcc.c"
+
+1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/portable.c
+	"config.h"
+	<stdio.h>
+	<stdarg.h>
+	<unistd.h>
+	<string.h>
+	<stdlib.h>
+	<sys/stat.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netdb.h>
+	<arpa/inet.h>
+	<netinet/in.h>
+	<fcntl.h>
+	<errno.h>
+	<ctype.h>
+	<time.h>
+	<pthread.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<windows.h>
+	<time.h>
+	<stdio.h>
+	<stdarg.h>
+	<string.h>
+	<stdlib.h>
+	<sys/stat.h>
+
+1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/sockets.c
+	<sys/socket.h>
+	<netdb.h>
+	<arpa/inet.h>
+	<netinet/in.h>
+	<fcntl.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<windows.h>
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libircclient.h
+	<sys/select.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	"libirc_errors.h"
+	"libirc_rfcnumeric.h"
+	"libirc_events.h"
+	"libirc_options.h"
+	"libirc_session.h"
+	"libirc_dcc.h"
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_errors.h
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_rfcnumeric.h
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_events.h
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_options.h
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_session.h
+	"libirc_params.h"
+	"libirc_dcc.h"
+	"libirc_events.h"
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_params.h
+
+1293049124 /home/softcoder/Code/megaglest/trunk/source/win32_deps/libircclient/include/libirc_dcc.h
+
+1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/utils.c
+
+1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/errors.c
+	"libircclient.h"
+	"libirc_session.h"
+
+1293437647 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/colors.c
+	<ctype.h>
+
+1293437648 /home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/libircclient/src/dcc.c
+	"libircclient.h"
+
+1287699123 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/lua/lua_script.cpp
+	"lua_script.h"
+	<stdexcept>
+	"conversion.h"
+	"util.h"
+	"leak_dumper.h"
+
+1286620732 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/lua/lua_script.h
+	<string>
+	<lua.hpp>
+	<vec.h>
+	"leak_dumper.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lua.hpp
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<stdio.h>
+	<stdio.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lualib.h
+	"lua.h"
+
+1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1293223726 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/map/map_preview.cpp
+	"map_preview.h"
+	"math_wrapper.h"
+	<cstdlib>
+	<stdexcept>
+
+1293955026 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/base_thread.cpp
+	"base_thread.h"
+	"platform_common.h"
+	"util.h"
+	<time.h>
+
+1293955026 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/base_thread.h
+	"leak_dumper.h"
+	"thread.h"
+	<string>
+
+1294123991 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/cache_manager.cpp
+	"cache_manager.h"
+
+1294123991 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/cache_manager.h
+	"thread.h"
+	<map>
+	<string>
+	<stdexcept>
+	"leak_dumper.h"
+
+1294124067 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/platform_common.cpp
+	"platform_common.h"
+	"cache_manager.h"
+	<io.h>
+	<dbghelp.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<direct.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<unistd.h>
+	<iostream>
+	<sstream>
+	<cassert>
+	<glob.h>
+	<errno.h>
+	<string.h>
+	<SDL.h>
+	"util.h"
+	"conversion.h"
+	"leak_dumper.h"
+	"sdl_private.h"
+	"window.h"
+	"noimpl.h"
+	"checksum.h"
+	"socket.h"
+	<algorithm>
+	<map>
+	"leak_dumper.h"
+
+1290850290 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/dbghelp.h
+	<pshpack4.h>
+	<poppack.h>
+
+1283810439 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/win32/glob.h
+	"leak_dumper.h"
+
+1283810437 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/sdl_private.h
+	"leak_dumper.h"
+
+1294092988 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/window.h
+	<map>
+	<string>
+	<SDL.h>
+	<cassert>
+	"types.h"
+	"vec.h"
+	"leak_dumper.h"
+
+1283810436 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/noimpl.h
+	"leak_dumper.h"
+
+1294380558 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/socket.h
+	<string>
+	<errno.h>
+	<sys/types.h>
+	<fcntl.h>
+	<map>
+	<vector>
+	"base_thread.h"
+	"simple_threads.h"
+	"types.h"
+	<winsock2.h>
+	<winsock.h>
+	<unistd.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	"leak_dumper.h"
+
+1293947142 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/common/simple_threads.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"util.h"
+	"leak_dumper.h"
+
+1294174201 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/common/simple_threads.cpp
+	"simple_threads.h"
+	"util.h"
+	"platform_common.h"
+	<algorithm>
+	"leak_dumper.h"
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/igd_desc_parse.c
+	"igd_desc_parse.h"
+	<stdio.h>
+	<string.h>
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/igd_desc_parse.h
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/minisoap.c
+	<stdio.h>
+	<string.h>
+	<io.h>
+	<winsock2.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	"minisoap.h"
+	"miniupnpcstrings.h"
+	<stdlib.h>
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/minisoap.h
+
+1292887418 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/miniupnpcstrings.h
+
+1292911346 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/minissdpc.c
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<sys/types.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<io.h>
+	<sys/socket.h>
+	<sys/un.h>
+	<unistd.h>
+	"minissdpc.h"
+	"miniupnpc.h"
+	"codelength.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/minissdpc.h
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/miniupnpc.h
+	"declspec.h"
+	"igd_desc_parse.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/declspec.h
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/codelength.h
+
+1292887431 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/miniupnpc.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<io.h>
+	<unistd.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/types.h>
+	<sys/param.h>
+	<netinet/in.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<poll.h>
+	<netdb.h>
+	<strings.h>
+	<errno.h>
+	<sys/time.h>
+	"miniupnpc.h"
+	"minissdpc.h"
+	"miniwget.h"
+	"minisoap.h"
+	"minixml.h"
+	"upnpcommands.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/miniwget.h
+	"declspec.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/minixml.h
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/upnpcommands.h
+	"upnpreplyparse.h"
+	"declspec.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/upnpreplyparse.h
+	"bsdqueue.h"
+	<sys/queue.h>
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/bsdqueue.h
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/miniwget.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"miniupnpc.h"
+	<winsock2.h>
+	<io.h>
+	<unistd.h>
+	<sys/param.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<netdb.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<errno.h>
+	<time.h>
+	"miniupnpcstrings.h"
+	"miniwget.h"
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/minixml.c
+	"minixml.h"
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/upnpcommands.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"upnpcommands.h"
+	"miniupnpc.h"
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/upnperrors.c
+	<string.h>
+	"upnperrors.h"
+	"upnpcommands.h"
+
+1279815665 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/miniupnpc/upnperrors.h
+	"declspec.h"
+
+1279815665 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/miniupnpc/upnpreplyparse.c
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+	"upnpreplyparse.h"
+	"minixml.h"
+
+1294030538 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/ircclient.cpp
+	"ircclient.h"
+	"util.h"
+	"platform_common.h"
+	"libircclient.h"
+	<stdio.h>
+	<stdarg.h>
+	<string.h>
+	<stdlib.h>
+
+1293941385 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/ircclient.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1294373603 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpclient.cpp
+	"miniftpclient.h"
+	"util.h"
+	"platform_common.h"
+	<curl/curl.h>
+	<curl/types.h>
+	<curl/easy.h>
+	<algorithm>
+
+1294130310 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpclient.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"leak_dumper.h"
+
+1293860901 /home/softcoder/Code/megaglest/trunk/source/win32_deps/curl-7.21.3/include/curl/types.h
+
+1284712042 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/sdl/gl_wrap.cpp
+	"gl_wrap.h"
+	<iostream>
+	<sstream>
+	<stdexcept>
+	<cassert>
+	"opengl.h"
+	"sdl_private.h"
+	"noimpl.h"
+	"util.h"
+	"window.h"
+	<vector>
+	"leak_dumper.h"
+
+1292700162 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/sdl/thread.cpp
+	"thread.h"
+	<iostream>
+	<sstream>
+	<stdexcept>
+	<assert.h>
+	"noimpl.h"
+
+1294092988 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/sdl/window.cpp
+	"window.h"
+	<iostream>
+	<stdexcept>
+	<cassert>
+	<cctype>
+	"conversion.h"
+	"platform_util.h"
+	"sdl_private.h"
+	"noimpl.h"
+	"util.h"
+	"SDL_syswm.h"
+	"leak_dumper.h"
+
+1290846670 /home/softcoder/Code/megaglest/trunk/source/win32_deps/SDL-1.2.x/include/SDL_syswm.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_version.h"
+	"begin_code.h"
+	<X11/Xlib.h>
+	<X11/Xatom.h>
+	<microwin/nano-X.h>
+	<windows.h>
+	<sys/neutrino.h>
+	<Ph.h>
+	"close_code.h"
+
+1281396638 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/sdl/window_gl.cpp
+	"window_gl.h"
+	"gl_wrap.h"
+	"graphics_interface.h"
+	"leak_dumper.h"
+
+1283810439 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/window_gl.h
+	"context_gl.h"
+	"window.h"
+	"leak_dumper.h"
+
+1284648940 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/win32/factory_repository.cpp
+	"factory_repository.h"
+	"leak_dumper.h"
+
+1283810436 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/sdl/factory_repository.h
+	<string>
+	"graphics_factory.h"
+	"sound_factory.h"
+	"graphics_factory_gl.h"
+	"graphics_factory_gl2.h"
+	"sound_factory_ds8.h"
+	"sound_factory_openal.h"
+	"sound_factory_none.h"
+	"leak_dumper.h"
+
+1283810442 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_factory.h
+	"sound_player.h"
+	"leak_dumper.h"
+
+1283810444 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_player.h
+	"sound.h"
+	"types.h"
+	"leak_dumper.h"
+
+1283810441 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound.h
+	<string>
+	"sound_file_loader.h"
+	"leak_dumper.h"
+
+1283810443 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_file_loader.h
+	<string>
+	<fstream>
+	"types.h"
+	"factory.h"
+	"leak_dumper.h"
+
+1283810446 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/factory.h
+	<map>
+	<string>
+	<stdexcept>
+	"leak_dumper.h"
+
+1283809803 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/graphics_factory_gl.h
+	"texture_manager.h"
+	"model_manager.h"
+	"particle.h"
+	"font_manager.h"
+	"graphics_factory.h"
+	"text_renderer_gl.h"
+	"model_renderer_gl.h"
+	"particle_renderer_gl.h"
+	"context_gl.h"
+	"model_gl.h"
+	"texture_gl.h"
+	"font_gl.h"
+	"leak_dumper.h"
+
+1283809804 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/model_gl.h
+	"model.h"
+	"leak_dumper.h"
+
+1283809802 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/graphics/gl/graphics_factory_gl2.h
+	"texture_manager.h"
+	"model_manager.h"
+	"font_manager.h"
+	"particle.h"
+	"graphics_factory.h"
+	"text_renderer_gl.h"
+	"model_renderer_gl.h"
+	"particle_renderer_gl.h"
+	"context_gl.h"
+	"model_gl.h"
+	"texture_gl.h"
+	"font_gl.h"
+	"shader_gl.h"
+	"shader_manager.h"
+	"leak_dumper.h"
+
+1268371626 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/ds8/sound_factory_ds8.h
+	"sound_factory.h"
+	"sound_player_ds8.h"
+
+1292050233 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/ds8/sound_player_ds8.h
+	"sound_player.h"
+	"platform_util.h"
+	<mmsystem.h>
+	<dsound.h>
+	<vector>
+
+1290847560 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/dsound.h
+	<objbase.h>
+	<float.h>
+
+1283810440 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/openal/sound_factory_openal.h
+	"sound_factory.h"
+	"sound_player_openal.h"
+	"leak_dumper.h"
+
+1284181805 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/openal/sound_player_openal.h
+	"sound_player.h"
+	"platform_util.h"
+	"platform_common.h"
+	<SDL.h>
+	<OpenAL/alc.h>
+	<OpenAL/al.h>
+	<AL/alc.h>
+	<AL/al.h>
+	<vector>
+	"leak_dumper.h"
+
+1290846892 /home/softcoder/Code/megaglest/trunk/source/win32_deps/openal-soft-1.12.854/include/AL/alc.h
+
+1290846892 /home/softcoder/Code/megaglest/trunk/source/win32_deps/openal-soft-1.12.854/include/AL/al.h
+
+1283810442 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_factory_none.h
+	"sound_factory.h"
+	"leak_dumper.h"
+
+1284712045 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/win32/gl_wrap_billy.cpp
+	"gl_wrap.h"
+	<iostream>
+	<sstream>
+	<stdexcept>
+	<cassert>
+	"opengl.h"
+	"sdl_private.h"
+	"noimpl.h"
+	"util.h"
+	"window.h"
+	<vector>
+	"leak_dumper.h"
+
+1284648940 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/win32/glob.c
+	<glob.h>
+	<assert.h>
+	<errno.h>
+	<stdlib.h>
+	<windows.h>
+
+1291451047 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/win32/platform_util.cpp
+	"platform_util.h"
+	<io.h>
+	<dbghelp.h>
+	<cassert>
+	<algorithm>
+	<string.h>
+	"SDL_syswm.h"
+	<iostream>
+	"leak_dumper.h"
+
+1287645655 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/ds8/sound_player_ds8.cpp
+	"sound_player_ds8.h"
+	<cassert>
+	"math_wrapper.h"
+	"util.h"
+	"leak_dumper.h"
+
+1293912147 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/openal/sound_player_openal.cpp
+	"sound_player_openal.h"
+	<cassert>
+	<iostream>
+	<sstream>
+	<stdexcept>
+	"platform_util.h"
+	"util.h"
+	"leak_dumper.h"
+
+1270342395 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/sound.cpp
+	"sound.h"
+	<fstream>
+	<stdexcept>
+	"leak_dumper.h"
+
+1281396666 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/sound_file_loader.cpp
+	"sound_file_loader.h"
+	<vorbis/codec.h>
+	<vorbis/vorbisfile.h>
+	"sound.h"
+	"util.h"
+	"leak_dumper.h"
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/vorbis/codec.h
+	<ogg/ogg.h>
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/ogg/ogg.h
+	<ogg/os_types.h>
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/ogg/os_types.h
+	<_G_config.h>
+	<sys/types.h>
+	<sys/types.h>
+	<inttypes.h>
+	<sys/types.h>
+	<ogg/config_types.h>
+
+1290847561 /home/softcoder/Code/megaglest/trunk/source/win32_deps/include/vorbis/vorbisfile.h
+	<stdio.h>
+	"codec.h"
+
+1269665886 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/sound_interface.cpp
+	"sound_interface.h"
+	"util.h"
+	"leak_dumper.h"
+
+1283810443 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/sound/sound_interface.h
+	"sound_factory.h"
+	"leak_dumper.h"
+
+1269714658 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/sound/sound_player.cpp
+	"sound_player.h"
+	"leak_dumper.h"
+
+1268772031 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/streflop/Random.cpp
+	<time.h>
+	<iostream>
+	"streflop.h"
+	"System.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/System.h
+	<endian.h>
+	"IntegerTypes.h"
+
+1268772031 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/streflop/SMath.cpp
+	"streflop.h"
+
+1268772031 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/streflop/streflopC.cpp
+	"streflopC.h"
+	"streflop_cond.h"
+
+1268772031 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/streflop/streflopC.h
+
+1289094492 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/checksum.cpp
+	"checksum.h"
+	<cassert>
+	<stdexcept>
+	<fcntl.h>
+	<io.h>
+	<sys/stat.h>
+	"util.h"
+	"platform_common.h"
+	"leak_dumper.h"
+
+1287685459 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/conversion.cpp
+	"conversion.h"
+	<stdexcept>
+	<cstdio>
+	<cstdlib>
+	"leak_dumper.h"
+
+1283985450 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/leak_dumper.cpp
+	"leak_dumper.h"
+
+1291926711 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/profiler.cpp
+	"profiler.h"
+	<stdexcept>
+	"leak_dumper.h"
+
+1283810446 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/profiler.h
+	"platform_util.h"
+	"platform_common.h"
+	<list>
+	<string>
+	"leak_dumper.h"
+
+1291504461 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/properties.cpp
+	"properties.h"
+	<fstream>
+	<stdexcept>
+	<cstring>
+	"conversion.h"
+	"util.h"
+	"leak_dumper.h"
+
+1294086734 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/util/properties.h
+	<string>
+	<map>
+	<vector>
+	"leak_dumper.h"
+
+1275979690 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/randomgen.cpp
+	"randomgen.h"
+	<cassert>
+	"util.h"
+	<stdexcept>
+	"leak_dumper.h"
+
+1293760456 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/util/util.cpp
+	"util.h"
+	<ctime>
+	<cassert>
+	<stdexcept>
+	<cstring>
+	<cstdio>
+	<stdarg.h>
+	<time.h>
+	<fcntl.h>
+	<io.h>
+	<sys/stat.h>
+	"platform_util.h"
+	"platform_common.h"
+	"conversion.h"
+	"simple_threads.h"
+	"leak_dumper.h"
+
+1288410729 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/xml/xml_parser.cpp
+	"xml_parser.h"
+	<fstream>
+	<stdexcept>
+	"conversion.h"
+	<xercesc/dom/DOM.hpp>
+	<xercesc/util/PlatformUtils.hpp>
+	<xercesc/framework/LocalFileFormatTarget.hpp>
+	"util.h"
+	"types.h"
+	"leak_dumper.h"
+
+1288410409 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/xml/xml_parser.h
+	<string>
+	<vector>
+	<xercesc/util/XercesDefs.hpp>
+	"leak_dumper.h"
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XercesDefs.hpp
+	<xercesc/util/XercesVersion.hpp>
+	<xercesc/util/AutoSense.hpp>
+	<xercesc/util/Platforms/Win32/Win32Defs.hpp>
+	<xercesc/util/Platforms/Cygwin/CygwinDefs.hpp>
+	<xercesc/util/Platforms/AIX/AIXDefs.hpp>
+	<xercesc/util/Platforms/Solaris/SolarisDefs.hpp>
+	<xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp>
+	<xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp>
+	<xercesc/util/Platforms/HPUX/HPUXDefs.hpp>
+	<xercesc/util/Platforms/IRIX/IRIXDefs.hpp>
+	<xercesc/util/Platforms/Interix/InterixDefs.hpp>
+	<xercesc/util/Platforms/Tandem/TandemDefs.hpp>
+	<xercesc/util/Platforms/BeOS/BeOSDefs.hpp>
+	<xercesc/util/Platforms/Linux/LinuxDefs.hpp>
+	<xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp>
+	<xercesc/util/Platforms/OS390/OS390Defs.hpp>
+	<xercesc/util/Platforms/PTX/PTXDefs.hpp>
+	<xercesc/util/Platforms/OS2/OS2Defs.hpp>
+	<xercesc/util/Platforms/MacOS/MacOSDefs.hpp>
+	<xercesc/util/Platforms/OS400/OS400Defs.hpp>
+	<xercesc/util/Platforms/Tru64/Tru64Defs.hpp>
+	<xercesc/util/Platforms/QNX/QNXDefs.hpp>
+	<xercesc/util/Compilers/VCPPDefs.hpp>
+	<xercesc/util/Compilers/CSetDefs.hpp>
+	<xercesc/util/Compilers/BorlandCDefs.hpp>
+	<xercesc/util/Compilers/SunCCDefs.hpp>
+	<xercesc/util/Compilers/SCOCCDefs.hpp>
+	<xercesc/util/Compilers/SunKaiDefs.hpp>
+	<xercesc/util/Compilers/HPCCDefs.hpp>
+	<xercesc/util/Compilers/MIPSproDefs.hpp>
+	<xercesc/util/Compilers/TandemCCDefs.hpp>
+	<xercesc/util/Compilers/GCCDefs.hpp>
+	<xercesc/util/Compilers/MVSCPPDefs.hpp>
+	<xercesc/util/Compilers/IBMVAW32Defs.hpp>
+	<xercesc/util/Compilers/IBMVAOS2Defs.hpp>
+	<xercesc/util/Compilers/CodeWarriorDefs.hpp>
+	<xercesc/util/Compilers/PTXCCDefs.hpp>
+	<xercesc/util/Compilers/OS400SetDefs.hpp>
+	<xercesc/util/Compilers/DECCXXDefs.hpp>
+	<xercesc/util/Compilers/QCCDefs.hpp>
+	<xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XercesVersion.hpp
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/AutoSense.hpp
+
+1188326649 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Win32/Win32Defs.hpp
+
+1188326646 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Cygwin/CygwinDefs.hpp
+
+1188326643 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/AIX/AIXDefs.hpp
+
+1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Solaris/SolarisDefs.hpp
+	<sys/isa_defs.h>
+
+1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp
+
+1188326647 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp
+
+1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/HPUX/HPUXDefs.hpp
+
+1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/IRIX/IRIXDefs.hpp
+
+1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Interix/InterixDefs.hpp
+
+1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Tandem/TandemDefs.hpp
+
+1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/BeOS/BeOSDefs.hpp
+
+1188326645 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Linux/LinuxDefs.hpp
+	<endian.h>
+
+1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp
+
+1188326652 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS390/OS390Defs.hpp
+
+1188326651 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/PTX/PTXDefs.hpp
+
+1188326649 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS2/OS2Defs.hpp
+
+1188326647 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/MacOS/MacOSDefs.hpp
+
+1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/OS400/OS400Defs.hpp
+
+1188326644 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/Tru64/Tru64Defs.hpp
+
+1188326650 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/QNX/QNXDefs.hpp
+	<gulliver.h>
+	<stdio.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/VCPPDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/CSetDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/BorlandCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SunCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SCOCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/SunKaiDefs.hpp
+	<memory.h>
+	<strings.h>
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/HPCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/MIPSproDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/TandemCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/GCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/MVSCPPDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/IBMVAW32Defs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/IBMVAOS2Defs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/CodeWarriorDefs.hpp
+	<wchar.h>
+	<wctype.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/PTXCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/OS400SetDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/DECCXXDefs.hpp
+	<sys/types.h>
+	<limits.h>
+
+1188326639 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Compilers/QCCDefs.hpp
+	<sys/types.h>
+	<limits.h>
+	<inttypes.h>
+
+1188326643 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOM.hpp
+	<xercesc/dom/DOMAttr.hpp>
+	<xercesc/dom/DOMCDATASection.hpp>
+	<xercesc/dom/DOMCharacterData.hpp>
+	<xercesc/dom/DOMComment.hpp>
+	<xercesc/dom/DOMDocument.hpp>
+	<xercesc/dom/DOMDocumentFragment.hpp>
+	<xercesc/dom/DOMDocumentType.hpp>
+	<xercesc/dom/DOMElement.hpp>
+	<xercesc/dom/DOMEntity.hpp>
+	<xercesc/dom/DOMEntityReference.hpp>
+	<xercesc/dom/DOMException.hpp>
+	<xercesc/dom/DOMImplementation.hpp>
+	<xercesc/dom/DOMNamedNodeMap.hpp>
+	<xercesc/dom/DOMNode.hpp>
+	<xercesc/dom/DOMNodeList.hpp>
+	<xercesc/dom/DOMNotation.hpp>
+	<xercesc/dom/DOMProcessingInstruction.hpp>
+	<xercesc/dom/DOMText.hpp>
+	<xercesc/dom/DOMDocumentRange.hpp>
+	<xercesc/dom/DOMDocumentTraversal.hpp>
+	<xercesc/dom/DOMNodeFilter.hpp>
+	<xercesc/dom/DOMNodeIterator.hpp>
+	<xercesc/dom/DOMRange.hpp>
+	<xercesc/dom/DOMRangeException.hpp>
+	<xercesc/dom/DOMTreeWalker.hpp>
+	<xercesc/dom/DOMBuilder.hpp>
+	<xercesc/dom/DOMConfiguration.hpp>
+	<xercesc/dom/DOMEntityResolver.hpp>
+	<xercesc/dom/DOMError.hpp>
+	<xercesc/dom/DOMErrorHandler.hpp>
+	<xercesc/dom/DOMImplementationLS.hpp>
+	<xercesc/dom/DOMImplementationRegistry.hpp>
+	<xercesc/dom/DOMImplementationSource.hpp>
+	<xercesc/dom/DOMInputSource.hpp>
+	<xercesc/dom/DOMLocator.hpp>
+	<xercesc/dom/DOMTypeInfo.hpp>
+	<xercesc/dom/DOMUserDataHandler.hpp>
+	<xercesc/dom/DOMWriter.hpp>
+	<xercesc/dom/DOMWriterFilter.hpp>
+	<xercesc/dom/DOMXPathEvaluator.hpp>
+	<xercesc/dom/DOMXPathNSResolver.hpp>
+	<xercesc/dom/DOMXPathException.hpp>
+	<xercesc/dom/DOMXPathExpression.hpp>
+	<xercesc/dom/DOMXPathResult.hpp>
+	<xercesc/dom/DOMXPathNamespace.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMAttr.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNode.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMCDATASection.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMText.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMText.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMCharacterData.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMCharacterData.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMComment.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMCharacterData.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMDocument.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+	<xercesc/dom/DOMDocumentRange.hpp>
+	<xercesc/dom/DOMDocumentTraversal.hpp>
+	<xercesc/dom/DOMXPathEvaluator.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMDocumentRange.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMDocumentTraversal.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathEvaluator.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMDocumentFragment.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMDocumentType.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMElement.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMEntity.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMEntityReference.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMException.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/util/PlatformUtils.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/PlatformUtils.hpp
+	<xercesc/util/XMLException.hpp>
+	<xercesc/util/PanicHandler.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMLException.hpp
+	<xercesc/util/XMemory.hpp>
+	<xercesc/util/XMLExceptMsgs.hpp>
+	<xercesc/util/XMLUni.hpp>
+	<xercesc/framework/XMLErrorReporter.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMemory.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<stdlib.h>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMLExceptMsgs.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMError.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMError.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMLUni.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326578 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/framework/XMLErrorReporter.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/PanicHandler.hpp
+	<xercesc/util/XMemory.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMImplementation.hpp
+	<xercesc/dom/DOMImplementationLS.hpp>
+	<xercesc/dom/DOMException.hpp>
+	<xercesc/dom/DOMRangeException.hpp>
+	<xercesc/util/PlatformUtils.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMImplementationLS.hpp
+	<xercesc/util/PlatformUtils.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMRangeException.hpp
+	<xercesc/dom/DOMException.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNamedNodeMap.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNodeList.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNotation.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMProcessingInstruction.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNodeFilter.hpp
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMNodeIterator.hpp
+	<xercesc/dom/DOMNodeFilter.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMRange.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMTreeWalker.hpp
+	<xercesc/dom/DOMNode.hpp>
+	<xercesc/dom/DOMNodeFilter.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMBuilder.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMConfiguration.hpp
+	<xercesc/util/XMLString.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMLString.hpp
+	<xercesc/util/BaseRefVectorOf.hpp>
+	<xercesc/framework/XMLBuffer.hpp>
+	<xercesc/framework/MemoryManager.hpp>
+	<string.h>
+	<assert.h>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/BaseRefVectorOf.hpp
+	<xercesc/util/ArrayIndexOutOfBoundsException.hpp>
+	<xercesc/util/XMLEnumerator.hpp>
+	<xercesc/util/PlatformUtils.hpp>
+	<xercesc/framework/MemoryManager.hpp>
+	<xercesc/util/BaseRefVectorOf.c>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/ArrayIndexOutOfBoundsException.hpp
+	<xercesc/util/XMLException.hpp>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/XMLEnumerator.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326578 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/framework/MemoryManager.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<stdlib.h>
+
+1188326692 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/util/BaseRefVectorOf.c
+	<xercesc/util/BaseRefVectorOf.hpp>
+
+1188326578 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/framework/XMLBuffer.hpp
+	<xercesc/util/XMemory.hpp>
+	<xercesc/util/PlatformUtils.hpp>
+	<xercesc/framework/MemoryManager.hpp>
+	<string.h>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMEntityResolver.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMErrorHandler.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMImplementationRegistry.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMImplementationSource.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMInputSource.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMLocator.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMTypeInfo.hpp
+	<xercesc/util/XMLString.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMUserDataHandler.hpp
+	<xercesc/util/XercesDefs.hpp>
+	<xercesc/dom/DOMNode.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMWriter.hpp
+	<xercesc/dom/DOMNode.hpp>
+	<xercesc/dom/DOMWriterFilter.hpp>
+	<xercesc/dom/DOMErrorHandler.hpp>
+	<xercesc/framework/XMLFormatter.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMWriterFilter.hpp
+	<xercesc/dom/DOMNodeFilter.hpp>
+
+1188326578 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/framework/XMLFormatter.hpp
+	<xercesc/util/PlatformUtils.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathNSResolver.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathException.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathExpression.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathResult.hpp
+	<xercesc/util/XercesDefs.hpp>
+
+1188326563 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/dom/DOMXPathNamespace.hpp
+	<xercesc/dom/DOMNode.hpp>
+
+1188326578 /home/softcoder/Code/megaglest/trunk/source/win32_deps/xerces-c-src_2_8_0/src/xercesc/framework/LocalFileFormatTarget.hpp
+	<xercesc/framework/XMLFormatter.hpp>
+
+1290890555 source:/home/softcoder/Code/megaglest/trunk/source/win32_deps/src/glprocs.c
+	<assert.h>
+	<stdlib.h>
+	<windows.h>
+	"gl.h"
+	"glprocs.h"
+	<GL/gl.h>
+	<GL/glx.h>
+	<GL/glprocs.h>
+
+1294538873 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/feathery_ftp/ftpRuntime.c
+	<stdio.h>
+	"ftpTypes.h"
+	"ftpConfig.h"
+	"ftp.h"
+	"ftpMessages.h"
+
+1294538921 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/miniftpserver.cpp
+	"miniftpserver.h"
+	"util.h"
+	"platform_common.h"
+	"ftpIfc.h"
+	"socket.h"
+	<stdio.h>
+	<stdarg.h>
+	<string.h>
+	<stdlib.h>
+
+1294380558 /home/softcoder/Code/megaglest/trunk/source/shared_lib/include/platform/posix/miniftpserver.h
+	"base_thread.h"
+	<vector>
+	<string>
+	"types.h"
+	"socket.h"
+	"leak_dumper.h"
+
+1294539079 source:/home/softcoder/Code/megaglest/trunk/source/shared_lib/sources/platform/posix/socket.cpp
+	"socket.h"
+	<cstring>
+	<cstdio>
+	<cstdlib>
+	<stdexcept>
+	<sys/ioctl.h>
+	<sys/filio.h>
+	"conversion.h"
+	"util.h"
+	"platform_util.h"
+	<algorithm>
+	<windows.h>
+	<winsock.h>
+	<iphlpapi.h>
+	<strstream>
+	<unistd.h>
+	<stdlib.h>
+	<sys/socket.h>
+	<netdb.h>
+	<netinet/in.h>
+	<net/if.h>
+	<string.h>
+	<sys/stat.h>
+	<time.h>
+	"miniwget.h"
+	"miniupnpc.h"
+	"upnpcommands.h"
+	"leak_dumper.h"
+	<ifaddrs.h>
+
