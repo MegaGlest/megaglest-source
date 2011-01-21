@@ -165,6 +165,9 @@
 		*/
 		else  // connection to game server succeeded, protocol verification succeeded
 		{ // add this game server to the database
+			if ( extension_loaded('geoip') ) {
+				$country = geoip_country_code_by_name( $remote_ip );
+			}
 			mysql_db_query( MYSQL_DATABASE, 'INSERT INTO glestserver SET ' .
 				'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
 				'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
@@ -177,8 +180,9 @@
 				'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
 				'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
 				'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-                                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\'
-;' );
+				'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+				'country=\''           . mysql_real_escape_string( $country )           . '\';' 
+			);
 			echo 'OK';
 			addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		}

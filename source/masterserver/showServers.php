@@ -58,6 +58,7 @@ echo <<<END
 				<th>networkSlots</th>
 				<th>connectedClients</th>
 				<th>externalServerPort</th>
+				<th>country</th>
 			</tr>
 
 END;
@@ -77,7 +78,15 @@ END;
 		echo "\t\t\t\t<td>" . htmlspecialchars( $server['activeSlots'],         ENT_QUOTES ) . '</td>' . PHP_EOL;
 		echo "\t\t\t\t<td>" . htmlspecialchars( $server['networkSlots'],        ENT_QUOTES ) . '</td>' . PHP_EOL;
 		echo "\t\t\t\t<td>" . htmlspecialchars( $server['connectedClients'],    ENT_QUOTES ) . '</td>' . PHP_EOL;
-                echo "\t\t\t\t<td>" . htmlspecialchars( $server['externalServerPort'],  ENT_QUOTES ) . '</td>' . PHP_EOL;
+		echo "\t\t\t\t<td>" . htmlspecialchars( $server['externalServerPort'],  ENT_QUOTES ) . '</td>' . PHP_EOL;
+		if ( $server['country'] !== '' ) {
+			$flagfile = 'flags/' . strtolower( $server['country'] ).'.png';
+			if ( file_exists( $flagfile ) ) {
+		                echo "\t\t\t\t<td>" . '<img src="' . $flagfile . '" title="' . $server['country'] . '" alt="' . $server['country'] . ' country flag" />' . '</td>' . PHP_EOL;
+			} else {
+				echo "\t\t\t\t<td>" . 'unknown' . '</td>' . PHP_EOL;
+			}
+		}
 		echo "\t\t\t" . '</tr>' . PHP_EOL;
 	}
 	unset( $all_servers );
