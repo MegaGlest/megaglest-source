@@ -462,9 +462,9 @@ Model::Model(){
 	meshes= NULL;
 	textureManager= NULL;
 	lastTData		= -1;
-	lastCycleData	= -1;
+	lastCycleData	= false;
 	lastTVertex		= -1;
-	lastCycleVertex	= -1;
+	lastCycleVertex	= false;
 	isStaticModel	= false;
 }
 
