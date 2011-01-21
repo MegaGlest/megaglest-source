@@ -1670,6 +1670,132 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 
 // ==================== complex rendering ====================
 
+#if defined(ENABLE_VBO_CODE)
+
+VisibleQuadContainerVBOCache Renderer::SetupSurfaceVBO(Vec2i &pos, SurfaceCell *cell, Vec2f surfCoord) {
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+	const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
+	float coordStep= world->getTileset()->getSurfaceAtlas()->getCoordStep();
+
+	if(cell == NULL) {
+		throw runtime_error("cell == NULL");
+	}
+
+	VisibleQuadContainerVBOCache item1;
+	//printf("In [%s::%s Line: %d] setting up a VBO...\n",__FILE__,__FUNCTION__,__LINE__);
+
+	assertGl();
+	// Generate And Bind The Vertex Buffer
+	glGenBuffersARB( 1, &item1.m_nVBOVertices );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, item1.m_nVBOVertices );			// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * 1, cell->getVertex().ptr(), GL_STATIC_DRAW_ARB );
+	glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+	assertGl();
+	// Generate And Bind The Texture Coordinate Buffer
+	glGenBuffersARB( 1, &item1.m_nVBOFowTexCoords );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, item1.m_nVBOFowTexCoords );		// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * 1, cell->getFowTexCoord().ptr(), GL_STATIC_DRAW_ARB );
+	glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+	assertGl();
+	// Generate And Bind The Texture Coordinate Buffer
+	glGenBuffersARB( 1, &item1.m_nVBOSurfaceTexCoords );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, item1.m_nVBOSurfaceTexCoords );		// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * 1, surfCoord.ptr(), GL_STATIC_DRAW_ARB );
+	glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+	assertGl();
+	// Generate And Bind The Normal Buffer
+	glGenBuffersARB( 1, &item1.m_nVBONormals );					// Get A Valid Name
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, item1.m_nVBONormals );			// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * 1, cell->getNormal().ptr(), GL_STATIC_DRAW_ARB );
+	glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+
+	item1.hasBuiltVBOs = true;
+/*
+	// Generate And Bind The Index Buffer
+	glGenBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+	glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, m_nVBOIndexes );			// Bind The Buffer
+	// Load The Data
+	glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB,  sizeof(uint32)*indexCount, indices, GL_STATIC_DRAW_ARB );
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+*/
+	// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
+	//delete [] vertices; vertices = NULL;
+	//delete [] texCoords; texCoords = NULL;
+	//delete [] normals; normals = NULL;
+	//delete [] indices; indices = NULL;
+
+	return item1;
+}
+
+vector<VisibleQuadContainerVBOCache> & Renderer::GetSurfaceVBOs(Vec2i &pos) {
+	std::map<Vec2i,std::vector<VisibleQuadContainerVBOCache> >::iterator iterFind = mapSurfaceVBOCache.find(pos);
+	if(iterFind == mapSurfaceVBOCache.end()) {
+
+		const World *world= game->getWorld();
+		const Map *map= world->getMap();
+		const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
+		float coordStep= world->getTileset()->getSurfaceAtlas()->getCoordStep();
+		SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+		SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+		SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+		SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+		std::vector<VisibleQuadContainerVBOCache> vboCache;
+
+		assertGl();
+		VisibleQuadContainerVBOCache item1 = SetupSurfaceVBO(pos, tc01, Vec2f(pos.x, pos.y+1));
+		vboCache.push_back(item1);
+
+		assertGl();
+		VisibleQuadContainerVBOCache item2 = SetupSurfaceVBO(pos, tc00, Vec2f(pos.x, pos.y));
+		vboCache.push_back(item2);
+
+		assertGl();
+		VisibleQuadContainerVBOCache item3 = SetupSurfaceVBO(pos, tc11, Vec2f(pos.x+1, pos.y+1));
+		vboCache.push_back(item3);
+
+		assertGl();
+		VisibleQuadContainerVBOCache item4 = SetupSurfaceVBO(pos, tc10, Vec2f(pos.x+1, pos.y));
+		vboCache.push_back(item4);
+
+		mapSurfaceVBOCache[pos] = vboCache;
+	}
+
+	return mapSurfaceVBOCache[pos];
+}
+
+void Renderer::ReleaseSurfaceVBOs() {
+	for(std::map<Vec2i,std::vector<VisibleQuadContainerVBOCache> >::iterator iterFind = mapSurfaceVBOCache.begin();
+			iterFind != mapSurfaceVBOCache.end(); ++iterFind) {
+
+		std::vector<VisibleQuadContainerVBOCache> &vboCache = iterFind->second;
+		for(int i = 0; i < vboCache.size(); ++i) {
+			assertGl();
+			VisibleQuadContainerVBOCache &item = vboCache[i];
+			if(item.hasBuiltVBOs == true) {
+				glDeleteBuffersARB( 1, &item.m_nVBOVertices );					// Get A Valid Name
+				glDeleteBuffersARB( 1, &item.m_nVBOFowTexCoords );					// Get A Valid Name
+				glDeleteBuffersARB( 1, &item.m_nVBOSurfaceTexCoords );					// Get A Valid Name
+				glDeleteBuffersARB( 1, &item.m_nVBONormals );					// Get A Valid Name
+				//glDeleteBuffersARB( 1, &item.m_nVBOIndexes );					// Get A Valid Name
+			}
+		}
+	}
+
+	mapSurfaceVBOCache.clear();
+}
+
+#endif
+
+
 class SurfaceData {
 public:
 	SurfaceData(){};
@@ -1680,6 +1806,7 @@ public:
 	vector<Vec3f> normals;
 };
 
+
 void Renderer::renderSurface(const int renderFps) {
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
@@ -1687,7 +1814,7 @@ void Renderer::renderSurface(const int renderFps) {
 		} else {
 	)
 	int lastTex=-1;
-	int currTex;
+	int currTex=-1;
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 	const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
@@ -1732,9 +1859,78 @@ void Renderer::renderSurface(const int renderFps) {
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleScaledCellList.size() > 0) {
 
-		bool legacyRendering = true;
+#if defined(ENABLE_VBO_CODE)
 
+		for(int visibleIndex = 0;
+				visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+			Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+			SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+			SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+			SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+			SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+			if(tc00 == NULL) {
+				throw runtime_error("tc00 == NULL");
+			}
+			if(tc10 == NULL) {
+				throw runtime_error("tc10 == NULL");
+			}
+			if(tc01 == NULL) {
+				throw runtime_error("tc01 == NULL");
+			}
+			if(tc11 == NULL) {
+				throw runtime_error("tc11 == NULL");
+			}
+
+			triangleCount+= 2;
+			pointCount+= 4;
+
+			//set texture
+			if(tc00->getSurfaceTexture() == NULL) {
+				throw runtime_error("tc00->getSurfaceTexture() == NULL");
+			}
+			currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+			if(currTex != lastTex) {
+				lastTex = currTex;
+				glBindTexture(GL_TEXTURE_2D, lastTex);
+			}
+
+			const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+			vector<VisibleQuadContainerVBOCache> &vboCache = GetSurfaceVBOs(pos);
+
+			glBegin(GL_TRIANGLE_STRIP);
+
+			assertGl();
+
+			//draw quad using immediate mode
+			for(int i = 0; i < vboCache.size(); ++i) {
+
+				assertGl();
+
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache[i].m_nVBOFowTexCoords );
+				glMultiTexCoord2fv(fowTexUnit, 0);
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache[i].m_nVBOSurfaceTexCoords );
+				glMultiTexCoord2fv(baseTexUnit, 0);
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache[i].m_nVBONormals );
+				glNormal3fv(0);
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache[i].m_nVBOVertices );
+				glVertex3fv(0);
+
+				assertGl();
+			}
+
+			assertGl();
+
+			glEnd();
+		}
+
+#else
+		bool legacyRendering = true;
 		if(legacyRendering) {
+		    //printf("\LEGACY qCache.visibleScaledCellList.size() = %d \n",qCache.visibleScaledCellList.size());
+
 			for(int visibleIndex = 0;
 					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
@@ -1799,7 +1995,10 @@ void Renderer::renderSurface(const int renderFps) {
 			}
 		}
 		else {
+		    int lastSurfaceDataIndex = -1;
 			std::vector<SurfaceData> surface;
+			//surface.reserve(qCache.visibleScaledCellList.size());
+
 			for(int visibleIndex = 0;
 					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
@@ -1829,23 +2028,30 @@ void Renderer::renderSurface(const int renderFps) {
 				if(tc00->getSurfaceTexture() == NULL) {
 					throw runtime_error("tc00->getSurfaceTexture() == NULL");
 				}
-				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
 
 				int surfaceDataIndex = -1;
-				for(int i = 0; i < surface.size(); ++i) {
-					SurfaceData &data = surface[i];
-					if(data.textureHandle == currTex) {
-						surfaceDataIndex = i;
-						break;
-					}
+				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+				if(currTex != lastTex) {
+					lastTex = currTex;
 				}
+				else {
+                    surfaceDataIndex = lastSurfaceDataIndex;
+				}
+
 				if(surfaceDataIndex < 0) {
 					SurfaceData newData;
 					newData.textureHandle = currTex;
 					surface.push_back(newData);
 
 					surfaceDataIndex = surface.size()-1;
+
+					//surface[surfaceDataIndex].texCoords.reserve(100);
+					//surface[surfaceDataIndex].texCoordsSurface.reserve(100);
+					//surface[surfaceDataIndex].vertices.reserve(100);
+					//surface[surfaceDataIndex].normals.reserve(100);
 				}
+
+				lastSurfaceDataIndex = surfaceDataIndex;
 
 				const Vec2f &surfCoord= tc00->getSurfTexCoord();
 
@@ -1871,104 +2077,45 @@ void Renderer::renderSurface(const int renderFps) {
 				surface[surfaceDataIndex].normals.push_back(tc10->getNormal());
 			}
 
+            //printf("\nsurface.size() = %d vs qCache.visibleScaledCellList.size() = %d \n",surface.size(),qCache.visibleScaledCellList.size());
+
 			for(int i = 0; i < surface.size(); ++i) {
-			//for(int i = surface.size()-1; i >= 0; --i) {
 				SurfaceData &data = surface[i];
 
-				//Vec2f *texCoords		= &data.texCoords[0];
-				//Vec2f *texCoordsSurface	= &data.texCoordsSurface[0];
-				//Vec3f *vertices			= &data.vertices[0];
-				//Vec3f *normals			= &data.normals[0];
+				Vec2f *texCoords		= &data.texCoords[0];
+				Vec2f *texCoordsSurface	= &data.texCoordsSurface[0];
+				Vec3f *vertices			= &data.vertices[0];
+				Vec3f *normals			= &data.normals[0];
 
-				Vec2f *texCoords		= new Vec2f[data.texCoords.size()];
-				Vec2f *texCoordsSurface	= new Vec2f[data.texCoordsSurface.size()];
-				Vec3f *vertices			= new Vec3f[data.vertices.size()];
-				Vec3f *normals			= new Vec3f[data.normals.size()];
-				for(int j = 0; j < data.texCoords.size(); ++j) {
-					texCoords[j]		= data.texCoords[j];
-					texCoordsSurface[j]	= data.texCoordsSurface[j];
-					vertices[j]			= data.vertices[j];
-					normals[j]			= data.normals[j];
-				}
-				//memcpy( texCoords, &data.texCoords[0], sizeof( Vec2f ) * data.texCoords.size() );
-				//memcpy( texCoordsSurface, &data.texCoordsSurface[0], sizeof( Vec2f ) * data.texCoordsSurface.size() );
-				//memcpy( vertices, &data.vertices[0], sizeof( Vec3f ) * data.vertices.size() );
-				//memcpy( normals, &data.normals[0], sizeof( Vec3f ) * data.normals.size() );
-
-
-				assertGl();
-				glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-				assertGl();
-				glEnableClientState(GL_VERTEX_ARRAY);
-				assertGl();
-				glEnableClientState(GL_NORMAL_ARRAY);
-				assertGl();
+				glClientActiveTexture(fowTexUnit);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				assertGl();
+				glTexCoordPointer(2, GL_FLOAT, 0,texCoords);
 
-				//glActiveTexture(baseTexUnit);
-
-				//glBindTexture(GL_TEXTURE_2D, fowTexUnit);
-				//glActiveTexture(GL_TEXTURE0 + 1);
-
-//				glActiveTexture(fowTexUnit);
-//				assertGl();
-//				glEnable(GL_TEXTURE_2D);
-//				assertGl();
-//				glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
-//				assertGl();
-//				glClientActiveTexture(fowTexUnit);
-//				assertGl();
-//				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//				assertGl();
-//				glTexCoordPointer(2, GL_FLOAT, 0,texCoords);
-//				assertGl();
-
-				glActiveTexture(baseTexUnit);
-				assertGl();
-				glEnable(GL_TEXTURE_2D);
-				assertGl();
 				glBindTexture(GL_TEXTURE_2D, data.textureHandle);
-				assertGl();
 				glClientActiveTexture(baseTexUnit);
-				assertGl();
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				assertGl();
 				glTexCoordPointer(2, GL_FLOAT, 0, texCoordsSurface);
-				assertGl();
 
+				assertGl();
 				glEnableClientState(GL_VERTEX_ARRAY);
-				assertGl();
-				glVertexPointer(3, GL_FLOAT, 0, vertices);
-				assertGl();
 				glEnableClientState(GL_NORMAL_ARRAY);
 				assertGl();
+
+				glVertexPointer(3, GL_FLOAT, 0, vertices);
 				glNormalPointer(GL_FLOAT, 0, normals);
-				assertGl();
 
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, data.vertices.size());
-				assertGl();
 
-//				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//				assertGl();
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				assertGl();
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+				//assertGl();
 				glDisableClientState(GL_NORMAL_ARRAY);
-				assertGl();
 				glDisableClientState(GL_VERTEX_ARRAY);
-				assertGl();
-
-				//glPopAttrib();
-				assertGl();
-				glPopClientAttrib();
-				assertGl();
-
-				delete [] texCoords; texCoords = NULL;
-				delete [] texCoordsSurface; texCoordsSurface = NULL;
-				delete [] vertices; vertices = NULL;
-				delete [] normals; normals = NULL;
+				//assertGl();
 			}
 		}
+#endif
 	}
 
 	//Restore
