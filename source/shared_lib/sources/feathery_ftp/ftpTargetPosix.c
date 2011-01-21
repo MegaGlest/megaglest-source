@@ -26,7 +26,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <sys/sendfile.h>
+
+#if defined(__FreeBSD__)
+    #include <sys/uio.h>
+#else
+    #include <sys/sendfile.h>
+#endif
+
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
