@@ -66,7 +66,7 @@ MainWindow::MainWindow(const string &modelPath)
 
 	speed= 0.025f;
 
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER }; // to prevent flicker
+	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
 
     //getGlPlatformExtensions();
@@ -82,6 +82,7 @@ MainWindow::MainWindow(const string &modelPath)
 	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load P&rojectile Particle XML"), wxT("Press ctrl before menu for keeping current projectile particles"));
 	menuFile->Append(miFileLoadSplashParticleXML, wxT("Load &Splash Particle XML"), wxT("Press ctrl before menu for keeping current splash particles"));
 	menuFile->Append(miFileClearAll, wxT("&Clear All"));
+	menuFile->AppendCheckItem(miFileToggleScreenshotTransparent, wxT("&Transparent Screenshots"));
 	menuFile->Append(miFileSaveScreenshot, wxT("Sa&ve a Screenshot"));
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
@@ -104,7 +105,7 @@ MainWindow::MainWindow(const string &modelPath)
 
 	//custom color
 	menuCustomColor= new wxMenu();
-	menuCustomColor->AppendCheckItem(miChangeBackgroundColor, wxT("Change Background Color"));
+	menuCustomColor->Append(miChangeBackgroundColor, wxT("Change Background Color"));
 	menuCustomColor->AppendCheckItem(miColorRed, wxT("&Red\t0"));
 	menuCustomColor->AppendCheckItem(miColorBlue, wxT("&Blue\t1"));
 	menuCustomColor->AppendCheckItem(miColorGreen, wxT("&Green\t2"));
@@ -277,36 +278,6 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 	}
 }
 
-void MainWindow::OnChangeColor(wxCommandEvent &event) {
-	try {
-		//wxColour color = colorPicker->GetColour();
-		wxColourData data;
-		data.SetChooseFull(true);
-		for (int i = 0; i < 16; i++)
-		{
-			wxColour colour(i*16, i*16, i*16);
-			data.SetCustomColour(i, colour);
-		}
-
-		wxColourDialog dialog(this, &data);
-		if (dialog.ShowModal() == wxID_OK)
-		{
-			wxColourData retData = dialog.GetColourData();
-			wxColour col = retData.GetColour();
-
-			renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f, col.Alpha()/255.0f);
-			//wxBrush brush(col, wxSOLID);
-			//myWindow->SetBackground(brush);
-			//myWindow->Clear();
-			//myWindow->Refresh();
-		}
-	}
-	catch(std::runtime_error e) {
-		std::cout << e.what() << std::endl;
-		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
-	}
-}
-
 void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	try {
 		string fileName;
@@ -397,6 +368,45 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 	}
 }  // is it possible to join loadParticle(), loadProjectileParticle() and loadSplashParticle() to one method?
 
+
+void MainWindow::OnChangeColor(wxCommandEvent &event) {
+	try {
+		//wxColour color = colorPicker->GetColour();
+		wxColourData data;
+		data.SetChooseFull(true);
+		for (int i = 0; i < 16; i++)
+		{
+			wxColour colour(i*16, i*16, i*16);
+			data.SetCustomColour(i, colour);
+		}
+
+		wxColourDialog dialog(this, &data);
+		if (dialog.ShowModal() == wxID_OK)
+		{
+			wxColourData retData = dialog.GetColourData();
+			wxColour col = retData.GetColour();
+
+			//renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f, col.Alpha()/255.0f);
+			renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f);
+			//renderer->setBackgroundColor(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+	catch(std::runtime_error e) {
+		std::cout << e.what() << std::endl;
+		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
+	}
+}
+
+void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
+    try {
+        float alpha = (event.IsChecked() == true ? 0.0f : 1.0f);
+        renderer->setAlphaColor(alpha);
+	}
+	catch(std::runtime_error e) {
+		std::cout << e.what() << std::endl;
+		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
+	}
+}
 
 void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
 	try {
@@ -1129,6 +1139,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miFileLoadProjectileParticleXML, MainWindow::onMenuFileLoadProjectileParticleXML)
 	EVT_MENU(miFileLoadSplashParticleXML, MainWindow::onMenuFileLoadSplashParticleXML)
 	EVT_MENU(miFileClearAll, MainWindow::onMenuFileClearAll)
+	EVT_MENU(miFileToggleScreenshotTransparent, MainWindow::onMenumFileToggleScreenshotTransparent)
 	EVT_MENU(miFileSaveScreenshot, MainWindow::onMenuFileSaveScreenshot)
 	EVT_MENU(wxID_EXIT, MainWindow::onMenuFileExit)
 
@@ -1175,6 +1186,7 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow):
 GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
 	this->mainWindow = mainWindow;
+	//
 }
 
 // for the mousewheel

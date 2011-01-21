@@ -2,6 +2,8 @@
 
 #include "graphics_factory_gl.h"
 #include "graphics_interface.h"
+#include <png.h>
+#include <memory>
 
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;
@@ -151,17 +153,6 @@ Model * Renderer::getNewModel() {
 	return newModel;
 }
 
-void Renderer::setBackgroundColor(float red, float green, float blue, float alpha) {
-	this->red = red;
-	this->green = green;
-	this->blue = blue;
-	this->alpha= alpha;
-	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
-	//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	//glFlush();
-	//SwapBuffers();
-}
-
 void Renderer::init() {
 	assertGl();
 
@@ -219,6 +210,13 @@ void Renderer::init() {
 	customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
 
 	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* once the GL context is valid : */
+    GLint alpha_bits;
+    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //printf("#1 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+
 	glEnable(GL_TEXTURE_2D);
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
@@ -248,7 +246,14 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
 	width=w;
 	height=h;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* once the GL context is valid : */
+    GLint alpha_bits;
+    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //printf("#2 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -434,14 +439,79 @@ void Renderer::end() {
 	modelManager->end();
 }
 
+void Renderer::setBackgroundColor(float red, float green, float blue) {
+	this->red = red;
+	this->green = green;
+	this->blue = blue;
+
+	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* once the GL context is valid : */
+    GLint alpha_bits;
+    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //printf("#3 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+}
+
+void Renderer::setAlphaColor(float alpha) {
+	this->alpha= alpha;
+
+	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* once the GL context is valid : */
+    GLint alpha_bits;
+    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //printf("#3.1 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+}
+
 void Renderer::saveScreen(const string &path) {
-	//const Metrics &sm= Metrics::getInstance();
+
+/*
+    int x = 0;
+    int y = 0;
+    int w = width;
+    int h = height;
+
+    // get data
+    std::auto_ptr<png_byte> imdata(new png_byte[w*h*4]);
+    std::auto_ptr<png_byte*> imrow(new png_byte*[h]);
+    for(int i=0; i<h; ++i)
+        imrow.get()[i] = imdata.get()+(h-1-i)*w*4;
+    glPixelStorei(GL_PACK_ALIGNMENT,1);
+    glReadPixels(x,y,w,h,GL_RGBA,GL_UNSIGNED_BYTE,imdata.get());
+
+    // once the GL context is valid
+    //GLint alpha_bits;
+    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //printf("#4 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+
+    // create file
+    FILE *fp = fopen(path.c_str(), "wb");
+    if (!fp) {
+        perror(path.c_str());
+        return;
+    }
+
+    // initialize stuff
+    png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
+    png_infop infop = png_create_info_struct(imgp);
+    png_init_io(imgp, fp);
+    png_set_IHDR(imgp, infop, w, h,
+		 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // write file
+    png_write_info(imgp, infop);
+    png_write_image(imgp, imrow.get());
+    png_write_end(imgp, NULL);
+    fclose(fp);
+*/
 
 	//Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
-	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 3);
+	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 4);
 	glFinish();
-	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
-				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
 	pixmapScreenShot->save(path);
 	delete pixmapScreenShot;

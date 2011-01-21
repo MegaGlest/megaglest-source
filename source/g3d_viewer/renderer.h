@@ -144,7 +144,8 @@ public:
 
 	void end();
 
-	void setBackgroundColor(float red, float green, float blue, float alpha);
+	void setBackgroundColor(float red, float green, float blue);
+	void setAlphaColor(float alpha);
 	void saveScreen(const string &path);
 };
 
