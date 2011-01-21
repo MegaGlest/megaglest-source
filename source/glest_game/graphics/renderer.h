@@ -47,6 +47,17 @@ namespace Glest{ namespace Game{
 using namespace Shared::Graphics;
 using namespace Shared::PlatformCommon;
 
+//non shared classes
+class Config;
+class Game;
+class MainMenu;
+class Console;
+class MenuBackground;
+class ChatManager;
+class Object;
+class ConsoleLineInfo;
+class SurfaceCell;
+
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
@@ -62,15 +73,6 @@ public:
 	static bool noTeamColors;
 };
 
-//non shared classes
-class Config;
-class Game;
-class MainMenu;
-class Console;
-class MenuBackground;
-class ChatManager;
-class Object;
-class ConsoleLineInfo;
 // ===========================================================
 // 	class Renderer
 //
@@ -131,6 +133,19 @@ public:
 	//std::vector<Vec2i> visibleCellList;
 	std::vector<Vec2i> visibleScaledCellList;
 };
+
+#if defined(ENABLE_VBO_CODE)
+class VisibleQuadContainerVBOCache {
+public:
+	// Vertex Buffer Object Names
+	bool    hasBuiltVBOs;
+	uint32	m_nVBOVertices;					// Vertex VBO Name
+	uint32	m_nVBOFowTexCoords;				// Texture Coordinate VBO Name
+	uint32	m_nVBOSurfaceTexCoords;			// Texture Coordinate VBO Name
+	uint32	m_nVBONormals;					// Normal VBO Name
+	//uint32	m_nVBOIndexes;					// Indexes VBO Name
+};
+#endif
 
 
 class Renderer : public RendererInterface, public BaseRenderer, public SimpleTaskCallbackInterface {
@@ -247,6 +262,14 @@ private:
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
 	std::map<Vec3f,Vec3f> worldToScreenPosCache;
+
+#if defined(ENABLE_VBO_CODE)
+	std::map<Vec2i,std::vector<VisibleQuadContainerVBOCache> > mapSurfaceVBOCache;
+
+	VisibleQuadContainerVBOCache SetupSurfaceVBO(Vec2i &pos, SurfaceCell *cell, Vec2f surfCoord);
+	vector<VisibleQuadContainerVBOCache> & GetSurfaceVBOs(Vec2i &pos);
+	void ReleaseSurfaceVBOs();
+#endif
 
 private:
 	Renderer();
