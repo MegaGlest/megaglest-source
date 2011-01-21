@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2010 Martiño Figueroa and others
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -152,14 +152,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		T* ret = NULL;
 		file.seekg(0, ios::beg); //Set position to first
 		try {
-			FileReader<T> const * reader = *i;		
+			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath); //It is guaranteed that at least the filepath matches ...
 		} catch (...) { //TODO: Specific exceptions
 			continue;
 		}
 		if (ret != NULL) {
 			return ret;
-		} 
+		}
 	}
 	return NULL;
 }
@@ -169,7 +169,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 	//try to assign file
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
-		throw runtime_error("Could not open file " + filepath);
+		throw runtime_error("Could not open file [" + filepath + "]");
 	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
 		T* ret = NULL;
@@ -182,7 +182,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		}
 		if (ret != NULL) {
 			return ret;
-		} 
+		}
 	}
 	return NULL;
 }
@@ -228,7 +228,7 @@ T* FileReader<T>::readPath(const string& filepath, T* object) {
 	T* ret = readFromFileReaders(&(getFileReaders()), filepath, object); //Try all other
 	if (ret == NULL) {
 		std::cerr << "Could not parse filepath: " << filepath << std::endl;
-		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file		
+		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file
 		if (ret == NULL) {
 			throw runtime_error(string("Could not parse ") + filepath + " as object of type " + typeid(T).name());
 		}

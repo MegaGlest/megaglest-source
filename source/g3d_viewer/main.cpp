@@ -310,7 +310,7 @@ void MainWindow::OnChangeColor(wxCommandEvent &event) {
 void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	try {
 		string fileName;
-		fileDialog->SetWildcard(wxT("G3D files (*.g3d)|*.g3d"));
+		fileDialog->SetWildcard(wxT("G3D files (*.g3d)|*.g3d;*.G3D"));
 		fileDialog->SetMessage(wxT("Selecting Glest Model for current view."));
 
 		if(fileDialog->ShowModal()==wxID_OK){
@@ -467,27 +467,33 @@ void MainWindow::onMenuFileExit(wxCommandEvent &event) {
 }
 
 void MainWindow::loadModel(string path) {
-	if(path != "" && fileExists(path) == true) {
-		this->modelPathList.push_back(path);
+    try {
+        if(path != "" && fileExists(path) == true) {
+            this->modelPathList.push_back(path);
+        }
+
+        string titlestring=winHeader;
+        for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
+            string modelPath = this->modelPathList[idx];
+
+            timer->Stop();
+            delete model;
+            Model *tmpModel= new ModelGl();
+            renderer->loadTheModel(tmpModel, modelPath);
+            model= tmpModel;
+
+            statusbarText = getModelInfo();
+            string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+            GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+            timer->Start(100);
+            titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
+        }
+        SetTitle(ToUnicode(titlestring));
+    }
+	catch(std::runtime_error e) {
+		std::cout << e.what() << std::endl;
+		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
-
-    string titlestring=winHeader;
-	for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
-		string modelPath = this->modelPathList[idx];
-
-		timer->Stop();
-		delete model;
-		Model *tmpModel= new ModelGl();
-		renderer->loadTheModel(tmpModel, modelPath);
-		model= tmpModel;
-
-		statusbarText = getModelInfo();
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
-		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
-		timer->Start(100);
-		titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
-	}
-	SetTitle(ToUnicode(titlestring));
 }
 
 void MainWindow::loadParticle(string path) {

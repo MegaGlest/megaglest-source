@@ -18,6 +18,7 @@
 #include "interpolation.h"
 #include "conversion.h"
 #include "util.h"
+#include "platform_common.h"
 
 #if defined(ENABLE_VBO_CODE)
 
@@ -28,6 +29,7 @@
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
+using namespace Shared::PlatformCommon;
 
 using namespace std;
 
@@ -212,7 +214,11 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,boo
 	//texture
 	if(meshHeader.hasTexture && textureManager!=NULL){
 		texturePaths[mtDiffuse]= toLower(reinterpret_cast<char*>(meshHeader.texName));
-		string texPath= dir+"/"+texturePaths[mtDiffuse];
+		string texPath= dir;
+        if(texPath != "") {
+            texPath += "/";
+        }
+		texPath += texturePaths[mtDiffuse];
 
 		textures[mtDiffuse]= static_cast<Texture2D*>(textureManager->getTexture(texPath));
 		if(textures[mtDiffuse]==NULL){
@@ -266,7 +272,12 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 	//texture
 	if(!(meshHeader.properties & mp3NoTexture) && textureManager!=NULL){
 		texturePaths[mtDiffuse]= toLower(reinterpret_cast<char*>(meshHeader.texName));
-		string texPath= dir+"/"+texturePaths[mtDiffuse];
+
+		string texPath= dir;
+        if(texPath != "") {
+            texPath += "/";
+        }
+		texPath += texturePaths[mtDiffuse];
 
 		textures[mtDiffuse]= static_cast<Texture2D*>(textureManager->getTexture(texPath));
 		if(textures[mtDiffuse]==NULL){
@@ -327,7 +338,11 @@ void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,bool 
 			readBytes = fread(cMapPath, mapPathSize, 1, f);
 			string mapPath= toLower(reinterpret_cast<char*>(cMapPath));
 
-			string mapFullPath= dir + "/" + mapPath;
+			string mapFullPath= dir;
+			if(mapFullPath != "") {
+                mapFullPath += "/";
+			}
+			mapFullPath += mapPath;
 
 			textures[i]= static_cast<Texture2D*>(textureManager->getTexture(mapFullPath));
 			if(textures[i]==NULL){
@@ -573,19 +588,19 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
     try{
 		FILE *f=fopen(path.c_str(),"rb");
-		if (f==NULL){
-			throw runtime_error("Error opening 3d model file");
+		if (f == NULL) {
+		    printf("In [%s::%s] cannot load file = [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+			throw runtime_error("Error opening g3d model file [" + path + "]");
 		}
 
-		string dir= cutLastFile(path);
+		string dir= extractDirectoryPathFromFile(path);
 
 		//file header
 		FileHeader fileHeader;
 		size_t readBytes = fread(&fileHeader, sizeof(FileHeader), 1, f);
-		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3)!=0){
-
+		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
 		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",__FILE__,__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
-			throw runtime_error("Not a valid S3D model");
+			throw runtime_error("Not a valid G3D model");
 		}
 		fileVersion= fileHeader.version;
 
