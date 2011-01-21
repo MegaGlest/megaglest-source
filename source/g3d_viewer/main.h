@@ -38,6 +38,7 @@ public:
 		miFileLoadProjectileParticleXML,
 		miFileLoadSplashParticleXML,
 		miFileClearAll,
+		miFileToggleScreenshotTransparent,
 		miFileSaveScreenshot,
 		miModeWireframe,
 		miModeNormals,
@@ -114,6 +115,7 @@ public:
 	void onMenuFileLoadProjectileParticleXML(wxCommandEvent &event);
 	void onMenuFileLoadSplashParticleXML(wxCommandEvent &event);
 	void onMenuFileClearAll(wxCommandEvent &event);
+	void onMenumFileToggleScreenshotTransparent(wxCommandEvent &event);
 	void onMenuFileSaveScreenshot(wxCommandEvent &event);
 	void onMenuFileExit(wxCommandEvent &event);
 	void onMenuModeNormals(wxCommandEvent &event);

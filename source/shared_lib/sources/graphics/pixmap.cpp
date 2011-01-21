@@ -23,6 +23,7 @@
 #include "ImageReaders.h"
 #include <png.h>
 #include <setjmp.h>
+#include <memory>
 
 #include "leak_dumper.h"
 
@@ -417,6 +418,28 @@ void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
 }
 
 void PixmapIoPng::write(uint8 *pixels) {
+
+    // initialize stuff
+    std::auto_ptr<png_byte*> imrow(new png_byte*[h]);
+    for(int i = 0; i < h; ++i) {
+        imrow.get()[i] = pixels+(h-1-i) * w * components;
+    }
+
+    png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
+    png_infop infop = png_create_info_struct(imgp);
+    png_init_io(imgp, file);
+    png_set_IHDR(imgp, infop, w, h,
+		 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // write file
+    png_write_info(imgp, infop);
+    png_write_image(imgp, imrow.get());
+    png_write_end(imgp, NULL);
+
+
+
+/*
 	// Allocate write & info structures
    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
    if(!png_ptr) {
@@ -435,7 +458,7 @@ void PixmapIoPng::write(uint8 *pixels) {
    // setjmp() must be called in every function that calls a PNG-writing
    // libpng function, unless an alternate error handler was installed--
    // but compatible error handlers must either use longjmp() themselves
-   // (as in this program) or exit immediately, so here we go: */
+   // (as in this program) or exit immediately, so here we go:
 
    if(setjmp(png_jmpbuf(png_ptr))) {
 	 png_destroy_write_struct(&png_ptr, &info_ptr);
@@ -470,15 +493,16 @@ void PixmapIoPng::write(uint8 *pixels) {
 
    //  color_type = PNG_COLOR_TYPE_GRAY;
    //  color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-   color_type = PNG_COLOR_TYPE_RGB;
-   numChannels = 3;
+   color_type = PNG_COLOR_TYPE_RGBA;
+   numChannels = 4;
    // color_type = PNG_COLOR_TYPE_RGB_ALPHA;
 
    interlace_type =  PNG_INTERLACE_NONE;
    // interlace_type = PNG_INTERLACE_ADAM7;
 
    int bit_depth = 8;
-   png_set_IHDR(png_ptr, info_ptr, this->w, this->h, bit_depth,
+   png_set_IHDR(png_ptr, info_ptr, this->w, this->h,
+                bit_depth,
 				color_type,
 				interlace_type,
 				PNG_COMPRESSION_TYPE_BASE,
@@ -488,12 +512,15 @@ void PixmapIoPng::write(uint8 *pixels) {
    // as to the correct gamma of the image. (we don't have a guess)
    //
    // png_set_gAMA(png_ptr, info_ptr, image_gamma);
+   //png_set_strip_alpha(png_ptr);
 
    // write all chunks up to (but not including) first IDAT
    png_write_info(png_ptr, info_ptr);
 
-   // set up the row pointers for the image so we can use png_write_image
+   //png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL );
 
+
+   // set up the row pointers for the image so we can use png_write_image
    png_bytep* row_pointers = new png_bytep[this->h];
    if (row_pointers == 0) {
 	 png_destroy_write_struct(&png_ptr, &info_ptr);
@@ -513,7 +540,7 @@ void PixmapIoPng::write(uint8 *pixels) {
 
    // since that's it, we also close out the end of the PNG file now--if we
    // had any text or time info to write after the IDATs, second argument
-   // would be info_ptr, but we optimize slightly by sending NULL pointer: */
+   // would be info_ptr, but we optimize slightly by sending NULL pointer:
 
    png_write_end(png_ptr, info_ptr);
 
@@ -524,7 +551,7 @@ void PixmapIoPng::write(uint8 *pixels) {
    png_destroy_write_struct(&png_ptr, &info_ptr);
 
    delete [] row_pointers;
-	//fclose(file);
+*/
 }
 
 // =====================================================
@@ -1068,7 +1095,7 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 }
 
 void Pixmap3D::loadSliceTga(const string &path, int slice){
-	this->path = path; 
+	this->path = path;
 
 	PixmapIoTga plt;
 	plt.openRead(path);
