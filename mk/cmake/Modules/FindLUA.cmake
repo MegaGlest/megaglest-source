@@ -13,18 +13,28 @@
 # a generic (version-independent) include directory for LUA...
 
 IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
-	SET(LUA_FIND_QUIETLY TRUE)
+	#SET(LUA_FIND_QUIETLY TRUE)
 ENDIF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 
 FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp 
 		PATHS 	/usr/include
 				/usr/include/lua
 				/usr/include/lua5.1
+		IF(FreeBSD)
+                	SET(PATHS "/usr/local/include/lua51")
+                ENDIF()
 				$ENV{LUA_HOME}
 		)
 
 FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.1 lua
-		PATHS   $ENV{LUA_HOME})
+		PATHS 
+                IF(FreeBSD)
+                       SET(PATHS "/usr/local/lib/lua51")
+                ENDIF()
+                $ENV{LUA_HOME})
+
+MESSAGE(STATUS "LUA_INC: ${LUA_INCLUDE_DIR}")
+MESSAGE(STATUS "LUA_LIB: ${LUA_LIBRARIES}")
 
 IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 	SET(LUA_FOUND TRUE)
