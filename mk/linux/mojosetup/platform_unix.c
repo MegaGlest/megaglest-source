@@ -356,7 +356,9 @@ char *MojoPlatform_appBinaryPath(void)
     const char *argv0 = GArgv[0];
     char *retval = NULL;
 
-    if (strchr(argv0, '/') != NULL)  
+    // !!! FIXME: try /proc/$PID/exe here?
+
+    if (strchr(argv0, '/') != NULL)
         retval = MojoPlatform_realpath(argv0); // argv[0] contains a path?
     else  // slow path...have to search the whole $PATH for this one...
     {
@@ -466,7 +468,7 @@ char *MojoPlatform_osType(void)
 } // MojoPlatform_ostype
 
 
-char *MojoPlatform_osVersion()
+char *MojoPlatform_osVersion(void)
 {
 #if PLATFORM_MACOSX
     SInt32 ver, major, minor, patch;
@@ -518,6 +520,15 @@ char *MojoPlatform_osVersion()
 
     return NULL;
 } // MojoPlatform_osversion
+
+
+char *MojoPlatform_osMachine(void)
+{
+    struct utsname un;
+    if (uname(&un) == 0)
+        return xstrdup(un.machine);
+    return NULL;
+} // MojoPlatform_osMachine
 
 
 void MojoPlatform_sleep(uint32 ticks)

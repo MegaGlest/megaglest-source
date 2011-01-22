@@ -884,6 +884,13 @@ char *MojoPlatform_osVersion(void)
 } // MojoPlatform_osversion
 
 
+char *MojoPlatform_osMachine(void)
+{
+    // !!! FIXME: return "x86" for win32 and "x64" (bleh!) for win64.
+    return NULL;
+} // MojoPlatform_osMachine
+
+
 void MojoPlatform_sleep(uint32 ticks)
 {
     Sleep(ticks);

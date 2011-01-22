@@ -150,7 +150,7 @@ int fatal(const char *fmt, ...);
 // The platform layer should set up signal/exception handlers before calling
 //  MojoSetup_main(), that will call these functions. "crashed" for bug
 //  signals (SIGSEGV, GPF, etc), and "terminated" for external forces that
-//  destroy the process (SIGKILL, SIGINT, etc). These functions do not return.
+//  destroy the process (SIGTERM, SIGINT, etc). These functions do not return.
 void MojoSetup_crashed(void);
 void MojoSetup_terminated(void);
 

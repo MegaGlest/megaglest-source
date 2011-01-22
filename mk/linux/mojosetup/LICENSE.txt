@@ -24,9 +24,9 @@
 
 
 (Please note that other pieces of code in MojoSetup fall under BSD-like and/or
- public domain licenses: lua, libfetch, zlib, bzlib, stb_image, etc. All
- software statically linked to MojoSetup was explicitly chosen to be friendly
- with closed-source software, in case the installer needs a proprietary
- change. I am not a lawyer and this is not legal advice. Please have a lawyer
- consider the licenses if you have any concerns.)
+ public domain licenses: lua, libfetch, zlib, bzlib, liblzma, stb_image, etc.
+ All software statically linked to MojoSetup was explicitly chosen to be
+ friendly with closed-source software, in case the installer needs a
+ proprietary change. I am not a lawyer and this is not legal advice. Please
+ have a lawyer consider the licenses if you have any concerns.)
 

@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <limits.h>
+#include <sys/stat.h>
 
 #if sun
 #ifdef u_int32_t

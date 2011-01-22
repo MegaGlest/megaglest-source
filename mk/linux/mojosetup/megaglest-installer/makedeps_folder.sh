@@ -34,7 +34,7 @@ sync_support_libs(){
 		echo 'scanning for deps TO KEEP...'
 	fi
 
- 
+	
 	# get rid of blanks and (0x00007fff0117f000)
 	files="$(ldd $pFILE |  awk '{ print $3 }' | sed -e '/^$/d' -e '/(*)$/d')"
  
@@ -49,14 +49,14 @@ sync_support_libs(){
 		skipfile=0
 
 		if [ $scan_via_skiplist -eq 1 ]; then 
-		for j in $(echo $skip_deps)
-		do
-			if [ `awk "BEGIN {print index(\"$i\", \"$j\")}"` -ne 0 ]; then
-#			    echo Skipping file = [$i]
-				skipfile=1
+			for j in $(echo $skip_deps)
+			do
+				if [ `awk "BEGIN {print index(\"$i\", \"$j\")}"` -ne 0 ]; then
+#			    	echo Skipping file = [$i]
+					skipfile=1
 					break
-			fi
-		done
+				fi
+			done
 		elif [ $scan_via_skiplist -eq 0 ]; then 
 			skipfile=1
 			for j in $(echo $keep_deps)

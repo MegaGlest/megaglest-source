@@ -1,11 +1,11 @@
 local GAME_INSTALL_SIZE = 510000000;
-local GAME_VERSION = "3.3.7.2";
+local GAME_VERSION = "3.4.0";
 
 local _ = MojoSetup.translate
 
 Setup.Package
 {
-    vendor = "glest.org",
+    vendor = "megaglest.org",
     id = "megaglest",
     description = _("Mega Glest v" .. GAME_VERSION),
     version = GAME_VERSION,
@@ -21,7 +21,7 @@ Setup.Package
     },
 
     postinstall = function(package)
-        MojoSetup.launchbrowser("http://www.glest.org/glest_board/index.php?topic=4930.0")
+        MojoSetup.launchbrowser("http://www.megaglest.org")
     end,
 
     Setup.Eula

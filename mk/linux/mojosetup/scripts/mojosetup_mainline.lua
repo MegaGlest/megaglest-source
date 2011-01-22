@@ -997,6 +997,14 @@ local function install_control_app(desc, key)
     -- okay, we're written out.
 end
 
+local function shquote_string(str)
+    -- Quote the string so it can safely be passed to the shell
+    str = string.gsub(str, "\\", "\\\\")
+    str = string.gsub(str, "[$]", "\\$")
+    str = string.gsub(str, "\"", "\\\"")
+    str = string.gsub(str, "`", "\\`")
+    return "\"" ..str.. "\""
+end
 
 local function install_unix_uninstaller(desc, key)
     -- Write a script out that calls the uninstaller.
@@ -1004,16 +1012,12 @@ local function install_unix_uninstaller(desc, key)
                   "uninstall-" .. MojoSetup.install.id .. ".sh"
 
     -- Man, I hate escaping shell strings...
-    local bin = "\"`dirname \"$0\"`\"'/" .. MojoSetup.metadatadirname .. "/" ..
-                MojoSetup.controlappname .. "'"
-    string.gsub(bin, "'", "'\\''")  -- !!! FIXME: no-op!-- Escape single quotes for shell.
-
-    local id = MojoSetup.install.id
-    string.gsub(id, "'", "'\\''")  -- !!! FIXME: no-op!
+    local bin = "\"`dirname \\\"$0\\\"`\"/" ..
+                shquote_string(MojoSetup.metadatadirname .. "/" .. MojoSetup.controlappname)
 
     local script =
         "#!/bin/sh\n" ..
-        "exec " .. bin .. " uninstall '" .. id .. "' \"$@\"\n\n"
+        "exec " .. bin .. " uninstall " .. shquote_string(MojoSetup.install.id) .. " \"$@\"\n"
 
     install_parent_dirs(fname, key)
     install_file_from_string(fname, script, "0755", desc, key)
@@ -1140,6 +1144,10 @@ local function install_freedesktop_menuitem(pkg, idx, item)  -- only for Unix.
 
     if item.mimetype ~= nil then
         addpair("MimeType", flatten_list(item.mimetype))
+    end
+
+    if item.workingdir ~= nil then
+        addpair("Path", MojoSetup.format(item.workingdir, dest))
     end
 
     t[#t+1] = '\n'
@@ -1991,7 +1999,7 @@ local function manifest_management()
             end
             MojoSetup.loginfo("Resync '" .. fname .. "' in manifest")
             fname = MojoSetup.destination .. "/" .. fname
-            if not MojoSetup.platform..exists(fname) then
+            if not MojoSetup.platform.exists(fname) then
                 MojoSetup.fatal(MojoSetup.format(_("File %0 not found"), fname))
             end
             manifest_resync(package.manifest, fname)
