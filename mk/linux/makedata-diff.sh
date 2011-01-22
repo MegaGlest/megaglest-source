@@ -2,16 +2,13 @@
 
 # This script compares two mega-glest data content folders for file differences, 
 # then creates an archive of ONLY the differences (including files ONLY in new version)
-
-# Below is the old version to compare with. The new version is pulled from
-# configure.ac
-OLD_VERSION=3.3.7.2
+OLD_VERSION=`./mg-version.sh --oldversion`
 
 cd release
 
 CURDIR="`pwd`"
 cd ..
-VERSION=`autoconf -t AC_INIT | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:\([^:]*\):.*/\1/g'`
+VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data-updates-$VERSION
 
 cd $CURDIR

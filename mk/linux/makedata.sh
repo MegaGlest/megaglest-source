@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=`autoconf -t AC_INIT | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:\([^:]*\):.*/\1/g'`
+VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data
 RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
 
@@ -20,7 +20,6 @@ find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prun
 find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find scenarios/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-#find screens/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'

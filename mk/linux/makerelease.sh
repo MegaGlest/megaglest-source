@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=`autoconf -t AC_INIT | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:\([^:]*\):.*/\1/g'`
+VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-source
 RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
 
@@ -17,9 +17,9 @@ find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $
 find configurator/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find masterserver/ \( -name "*.php" -o -name "*.sql" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 popd
-AUTOCONFSTUFF="configure.ac autogen.sh Jamrules Jamfile `find mk/jam -name "*.jam"` `find mk/autoconf -name "*.m4" -o -name "config.*" -o -name "*sh"`"
+#AUTOCONFSTUFF="configure.ac autogen.sh Jamrules Jamfile `find mk/jam -name "*.jam"` `find mk/autoconf -name "*.m4" -o -name "config.*" -o -name "*sh"`"
 
-cp -p --parents $AUTOCONFSTUFF $RELEASEDIR
+#cp -p --parents $AUTOCONFSTUFF $RELEASEDIR
 cp -p ../../docs/readme*.txt ../../docs/*license*.txt $RELEASEDIR
 cp -p glest.ini $RELEASEDIR
 cp -p glestkeys.ini $RELEASEDIR
