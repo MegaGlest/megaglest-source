@@ -83,7 +83,10 @@
 #  License text for the above reference.)
 
 INCLUDE(FindPackageMessage)
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 INCLUDE(CMakeParseArguments)
+ENDIF()
 
 # internal helper macro
 MACRO(_FPHSA_FAILURE_MESSAGE _msg)
