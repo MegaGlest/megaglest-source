@@ -428,8 +428,13 @@ void PixmapIoPng::write(uint8 *pixels) {
     png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
     png_infop infop = png_create_info_struct(imgp);
     png_init_io(imgp, file);
+
+    int color_type = PNG_COLOR_TYPE_RGB;
+    if(components == 4) {
+    	color_type = PNG_COLOR_TYPE_RGBA;
+    }
     png_set_IHDR(imgp, infop, w, h,
-		 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+		 8, color_type, PNG_INTERLACE_NONE,
 		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     // write file
