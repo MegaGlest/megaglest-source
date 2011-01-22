@@ -840,7 +840,10 @@ DBG_MSG("wxWidgets_USE_FILE        : ${wxWidgets_USE_FILE}")
 
 #=====================================================================
 #=====================================================================
+IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 INCLUDE("${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake")
+ENDIF()
+
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(wxWidgets DEFAULT_MSG wxWidgets_FOUND)
 # Maintain consistency with all other variables.
 SET(wxWidgets_FOUND ${WXWIDGETS_FOUND})
