@@ -5,7 +5,7 @@
 
 # Below is the old version to compare with. The new version is pulled from
 # configure.ac
-OLD_VERSION=3.3.7
+OLD_VERSION=3.3.7.2
 
 cd release
 
@@ -18,9 +18,9 @@ cd $CURDIR
 
 echo "Creating data package $RELEASENAME (comparing against $OLD_VERSION)"
 
-if [ ! -e megaglest-data-$VERSION-changes.txt ]; then
-	diff --brief -r -x "*~" megaglest-data-$OLD_VERSION megaglest-data-$VERSION > megaglest-data-$VERSION-changes.txt
-fi
+#if [ ! -e megaglest-data-$VERSION-changes.txt ]; then
+diff --strip-trailing-cr --brief -r -x "*~" megaglest-data-$OLD_VERSION megaglest-data-$VERSION > megaglest-data-$VERSION-changes.txt
+#fi
 
 cd megaglest-data-$VERSION
 
