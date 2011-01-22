@@ -27,13 +27,13 @@ Setup.Package
     Setup.Eula
     {
         description = _("Megaglest License"),
-        source = _("docs/license.txt")
+        source = _("docs/LICENSE")
     },
 
     Setup.Readme
     {
         description = _("Megaglest README"),
-        source = _("docs/readme.txt")
+        source = _("docs/README")
     },
 
     Setup.Option
