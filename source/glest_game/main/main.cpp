@@ -978,7 +978,9 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 }
 
 void runTechValidationReport(int argc, char** argv) {
-    printf("====== Started Validation ======\n");
+	disableBacktrace=true;
+
+	printf("====== Started Validation ======\n");
 
     // Did the user pass a specific list of factions to validate?
     std::vector<string> filteredFactionList;
@@ -1038,6 +1040,8 @@ void runTechValidationReport(int argc, char** argv) {
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
+        //printf("techPath [%s]\n",techPath.c_str());
+
         for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
             string &techName = techTreeFiles[idx2];
 
