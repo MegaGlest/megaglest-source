@@ -152,6 +152,12 @@ void fatal(const char *s, ...)    // failure exit
         }
     }
 
+    // Now try to shutdown threads if possible
+	Program *program = Program::getInstance();
+    delete program;
+    program = NULL;
+    // END
+
     exit(EXIT_FAILURE);
 }
 
@@ -382,6 +388,12 @@ public:
 #endif
 			message(err);
         }
+
+        // Now try to shutdown threads if possible
+        delete program;
+        program = NULL;
+        // END
+
         showCursor(true);
         restoreVideoMode(true);
 
@@ -412,7 +424,13 @@ public:
         	showCursor(true);
             restoreVideoMode(true);
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
-			//SystemFlags::Close();
+
+		    // Now try to shutdown threads if possible
+			Program *program = Program::getInstance();
+		    delete program;
+		    program = NULL;
+		    // END
+
             exit(0);
         }
 
@@ -978,7 +996,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 }
 
 void runTechValidationReport(int argc, char** argv) {
-	disableBacktrace=true;
+	//disableBacktrace=true;
 
 	printf("====== Started Validation ======\n");
 
