@@ -300,6 +300,10 @@ char *MojoPlatform_osType(void);
 
 // !!! FIXME: document me.
 // Caller must free() the returned pointer!
+char *MojoPlatform_osMachine(void);
+
+// !!! FIXME: document me.
+// Caller must free() the returned pointer!
 char *MojoPlatform_osVersion(void);
 
 // !!! FIXME: document me.

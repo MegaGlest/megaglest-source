@@ -455,6 +455,7 @@ function Setup.DesktopMenuItem(tab)
         { "builtin_icon", nil, mustBeBool },
         { "icon", nil, mustExist, mustBeString, cantBeEmpty },
         { "commandline", nil, mustExist, mustBeString, cantBeEmpty },
+        { "workingdir", nil, mustBeString, cantBeEmpty },
         { "category", nil, mustExist, mustBeStringOrTableOfStrings },
         { "mimetype", nil, mustBeStringOrTableOfStrings },
     })

@@ -30,18 +30,23 @@ megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/lin
 #    { "tbz", MojoArchive_createTAR, true },
 #    { "uz2", MojoArchive_createUZ2, false },
 #    { "pck", MojoArchive_createPCK, true },
+#    { "tar.xz", MojoArchive_createTAR, true },
+#    { "txz", MojoArchive_createTAR, true },
+
 # };
 #
-megaglest_archiver_app="zip -9r "
-megaglest_archivefilename="mgdata.zip"
+megaglest_archiver_app="tar -c --xz -f "
+megaglest_archivefilename="mgdata.tar.xz"
+#megaglest_archiver_app="zip -9r "
+#megaglest_archivefilename="mgdata.zip"
 #megaglest_archiver_app="tar -c --bzip2 -f "
 #megaglest_archivefilename="mgdata.tar.bz2"
 
-# Grab the version # from autoconf
+# Grab the version #
 #
 pushd "`pwd`/${megaglest_linux_path}"
 echo "Linux project root path [`pwd`/${megaglest_linux_path}]"
-VERSION=`autoconf -t AC_INIT | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:\([^:]*\):.*/\1/g'`
+VERSION=`./mg-version.sh --version`
 echo "About to build Installer for $VERSION"
 popd
 
@@ -204,6 +209,7 @@ cmake \
     -DMOJOSETUP_ARCHIVE_TAR=TRUE \
     -DMOJOSETUP_ARCHIVE_TAR_BZ2=TRUE \
     -DMOJOSETUP_ARCHIVE_TAR_GZ=TRUE \
+    -DMOJOSETUP_ARCHIVE_TAR_XZ=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2_STATIC=TRUE \
     -DMOJOSETUP_GUI_NCURSES=TRUE \

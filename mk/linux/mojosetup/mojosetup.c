@@ -160,12 +160,13 @@ static boolean initEverything(void)
     {
         // This could terminate the process (and relaunch).
         if (!trySpawnTerminalGui())
-            panic("Initial GUI setup failed. Cannot continue.");
+            panic("Failed to start GUI. Is your download incomplete or corrupt?");
     } // if
 
     else if (!MojoLua_initLua())
     {
-        panic("Initial Lua setup failed. Cannot continue.");
+        // (...but if you're the developer: are your files in the wrong place?)
+        panic("Failed to start. Is your download incomplete or corrupt?");
     } // else if
 
     crashedmsg = xstrdup(_("The installer has crashed due to a bug."));

@@ -1733,6 +1733,7 @@ boolean MojoLua_initLua(void)
     char *locale = (envr != NULL) ? xstrdup(envr) : MojoPlatform_locale();
     char *ostype = MojoPlatform_osType();
     char *osversion = MojoPlatform_osVersion();
+    char *osmachine = MojoPlatform_osMachine();
     lua_Integer uid = (lua_Integer) MojoPlatform_getuid();
     lua_Integer euid = (lua_Integer) MojoPlatform_geteuid();
     lua_Integer gid = (lua_Integer) MojoPlatform_getgid();
@@ -1746,6 +1747,7 @@ boolean MojoLua_initLua(void)
     if (locale == NULL) locale = xstrdup("???");
     if (ostype == NULL) ostype = xstrdup("???");
     if (osversion == NULL) osversion = xstrdup("???");
+    if (osmachine == NULL) osmachine = xstrdup("???");
 
     assert(luaState == NULL);
     luaState = lua_newstate(MojoLua_alloc, NULL);  // calls fatal() on failure.
@@ -1796,6 +1798,7 @@ boolean MojoLua_initLua(void)
             set_string(luaState, locale, "locale");
             set_string(luaState, PLATFORM_NAME, "platform");
             set_string(luaState, PLATFORM_ARCH, "arch");
+            set_string(luaState, osmachine, "machine");
             set_string(luaState, ostype, "ostype");
             set_string(luaState, osversion, "osversion");
             set_string(luaState, GGui->name(), "ui");
@@ -1869,6 +1872,7 @@ boolean MojoLua_initLua(void)
         lua_setfield(luaState, -2, "archive");
     lua_setglobal(luaState, MOJOSETUP_NAMESPACE);
 
+    free(osmachine);
     free(osversion);
     free(ostype);
     free(locale);

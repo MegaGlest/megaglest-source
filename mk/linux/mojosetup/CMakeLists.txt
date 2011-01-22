@@ -26,6 +26,14 @@ ENDIF(NOT BEOS)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.4)
 
+# !!! FIXME: correct this to new policy and bump minimum cmake requirement.
+IF(COMMAND CMAKE_POLICY)
+    # Use old policy when it comes to escaping macros,
+    # Specifically the one in quotes below.
+    CMAKE_POLICY(SET CMP0005 OLD)
+ENDIF(COMMAND CMAKE_POLICY)
+
+
 EXECUTE_PROCESS(
     COMMAND hg tip --template hg-{rev}:{node|short}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -69,12 +77,23 @@ INCLUDE(CheckCSourceCompiles)
 INCLUDE(CheckCCompilerFlag)
 INCLUDE(TestBigEndian)
 
-# !!! FIXME: correct this to new policy and bump minimum cmake requirement.
-IF(COMMAND CMAKE_POLICY)
-    # Use old policy when it comes to escaping macros,
-    # Specifically the one in quotes below.
-    CMAKE_POLICY(SET CMP0005 OLD)
-ENDIF(COMMAND CMAKE_POLICY)
+# See if C99 "restrict" keyword is available to us.
+CHECK_C_SOURCE_COMPILES(
+    "int test_restrict(const char * restrict ptr); int main(void) { return 0; }"
+    MOJOSETUP_HAVE_RESTRICT_KEYWORD
+)
+IF(NOT MOJOSETUP_HAVE_RESTRICT_KEYWORD)
+    # See if __restrict__ keyword is available to us.
+    CHECK_C_SOURCE_COMPILES(
+        "int test_restrict(const char * __restrict__ ptr); int main(void) { return 0; }"
+        MOJOSETUP_HAVE_GNU_RESTRICT_KEYWORD
+    )
+    #IF(MOJOSETUP_HAVE_GNU_RESTRICT_KEYWORD)
+    #    ADD_DEFINITIONS(-Drestrict=__restrict__)
+    #ELSE(MOJOSETUP_HAVE_GNU_RESTRICT_KEYWORD)
+        ADD_DEFINITIONS("-Drestrict=\"\"")
+    #ENDIF(MOJOSETUP_HAVE_GNU_RESTRICT_KEYWORD)
+ENDIF(NOT MOJOSETUP_HAVE_RESTRICT_KEYWORD)
 
 ADD_DEFINITIONS(-D__MOJOSETUP__=1)
 ADD_DEFINITIONS(-DAPPID=mojosetup)
@@ -106,6 +125,7 @@ IF(BEOS)
 ENDIF(BEOS)
 
 IF(UNIX)
+    ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64)
     ADD_DEFINITIONS(-DPLATFORM_UNIX=1)
     ADD_DEFINITIONS(-DLUA_USE_MKSTEMP=1)  # as opposed to tmpnam(), yuck!
     # No _setjmp/_longjmp in BeOS 5 (or Haiku, at the moment).
@@ -189,6 +209,44 @@ SET(BZLIB_SRCS
     ${BZLIB_DIR}/compress.c
     ${BZLIB_DIR}/decompress.c
     ${BZLIB_DIR}/bzlib.c
+)
+
+SET(LIBLZMA_DIR liblzma)
+SET(LIBLZMA_SRCS
+    ${LIBLZMA_DIR}/check/check.c
+    ${LIBLZMA_DIR}/common/block_buffer_decoder.c
+    ${LIBLZMA_DIR}/common/block_decoder.c
+    ${LIBLZMA_DIR}/common/block_header_decoder.c
+    ${LIBLZMA_DIR}/common/block_util.c
+    ${LIBLZMA_DIR}/common/common.c
+    ${LIBLZMA_DIR}/common/easy_decoder_memusage.c
+    ${LIBLZMA_DIR}/common/easy_preset.c
+    ${LIBLZMA_DIR}/common/filter_buffer_decoder.c
+    ${LIBLZMA_DIR}/common/filter_common.c
+    ${LIBLZMA_DIR}/common/filter_decoder.c
+    ${LIBLZMA_DIR}/common/filter_flags_decoder.c
+    ${LIBLZMA_DIR}/common/index.c
+    ${LIBLZMA_DIR}/common/index_decoder.c
+    ${LIBLZMA_DIR}/common/index_hash.c
+    ${LIBLZMA_DIR}/common/stream_decoder.c
+    ${LIBLZMA_DIR}/common/stream_flags_common.c
+    ${LIBLZMA_DIR}/common/stream_flags_decoder.c
+    ${LIBLZMA_DIR}/common/vli_decoder.c
+    ${LIBLZMA_DIR}/common/vli_size.c
+    ${LIBLZMA_DIR}/delta/delta_common.c
+    ${LIBLZMA_DIR}/delta/delta_decoder.c
+    ${LIBLZMA_DIR}/lz/lz_decoder.c
+    ${LIBLZMA_DIR}/lzma/lzma2_decoder.c
+    ${LIBLZMA_DIR}/lzma/lzma_decoder.c
+    ${LIBLZMA_DIR}/lzma/lzma_encoder_presets.c
+    ${LIBLZMA_DIR}/simple/arm.c
+    ${LIBLZMA_DIR}/simple/armthumb.c
+    ${LIBLZMA_DIR}/simple/ia64.c
+    ${LIBLZMA_DIR}/simple/powerpc.c
+    ${LIBLZMA_DIR}/simple/simple_coder.c
+    ${LIBLZMA_DIR}/simple/simple_decoder.c
+    ${LIBLZMA_DIR}/simple/sparc.c
+    ${LIBLZMA_DIR}/simple/x86.c
 )
 
 SET(LIBFETCH_DIR libfetch)
@@ -439,7 +497,7 @@ IF(NOT MACOSX)
 #PKGCONFIG(libgtk-2.0 LIBGTK_INCLUDE_DIR LIBGTK_LINK_DIR LIBGTK_LINK_FLAGS LIBGTK_CFLAGS)
 # !!! FIXME
 SET(LIBGTK_LINK_FLAGS "-lgtk-x11-2.0")
-SET(LIBGTK_CFLAGS "-DPNG_NO_MMX_CODE -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12")
+SET(LIBGTK_CFLAGS "-DPNG_NO_MMX_CODE -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12")
 IF(NOT LIBGTK_LINK_FLAGS)
     MESSAGE(STATUS "Can't find GTK+v2 headers/libraries. Can't build GTK+ GUI.")
 ELSE(NOT LIBGTK_LINK_FLAGS)
@@ -496,6 +554,8 @@ ENDIF(MOJOSETUP_ARCHIVE_ZIP)
 # BINARY SIZE += 2
 OPTION(MOJOSETUP_ARCHIVE_TAR "Enable TAR support" TRUE)
 IF(MOJOSETUP_ARCHIVE_TAR)
+    # !!! FIXME: the gzip/bzip2/xz support doesn't require .tar archives now.
+    # !!! FIXME: Maybe not ask here, so the questions look the same everywhere.
     ADD_DEFINITIONS(-DSUPPORT_TAR=1)
     OPTION(MOJOSETUP_ARCHIVE_TAR_GZ "Enable TAR.GZ support" TRUE)
     IF(MOJOSETUP_ARCHIVE_TAR_GZ)
@@ -506,6 +566,11 @@ IF(MOJOSETUP_ARCHIVE_TAR)
     IF(MOJOSETUP_ARCHIVE_TAR_BZ2)
         SET(MOJOSETUP_INPUT_BZIP2 TRUE)
     ENDIF(MOJOSETUP_ARCHIVE_TAR_BZ2)
+
+    OPTION(MOJOSETUP_ARCHIVE_TAR_XZ "Enable TAR.XZ support" TRUE)
+    IF(MOJOSETUP_ARCHIVE_TAR_XZ)
+        SET(MOJOSETUP_INPUT_XZ TRUE)
+    ENDIF(MOJOSETUP_ARCHIVE_TAR_XZ)
 ENDIF(MOJOSETUP_ARCHIVE_TAR)
 
 OPTION(MOJOSETUP_ARCHIVE_UZ2 "Enable UZ2 support" FALSE)
@@ -543,6 +608,15 @@ IF(MOJOSETUP_INPUT_BZIP2)
     SET(MOJOSETUP_NEED_BZLIB TRUE)
 ENDIF(MOJOSETUP_INPUT_BZIP2)
 
+# BINARY SIZE += ???
+IF(NOT MOJOSETUP_INPUT_XZ)  # optional if something didn't force it.
+    OPTION(MOJOSETUP_INPUT_XZ "Enable XZ support" FALSE)
+ENDIF(NOT MOJOSETUP_INPUT_XZ)
+
+IF(MOJOSETUP_INPUT_XZ)
+    ADD_DEFINITIONS(-DSUPPORT_XZ=1)
+    SET(MOJOSETUP_NEED_LIBLZMA TRUE)
+ENDIF(MOJOSETUP_INPUT_XZ)
 
 
 # Image decoders for GUIs...
@@ -677,6 +751,39 @@ IF(MOJOSETUP_NEED_BZLIB)
         SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} bz2)
     ENDIF(MOJOSETUP_INTERNAL_BZLIB)
 ENDIF(MOJOSETUP_NEED_BZLIB)
+
+IF(MOJOSETUP_NEED_LIBLZMA)
+    SET(HAVE_SYSTEM_LIBLZMA FALSE)
+    CHECK_INCLUDE_FILE(lzma.h HAVE_LZMA_H)
+    IF(HAVE_LZMA_H)
+        CHECK_LIBRARY_EXISTS("lzma" "lzma_stream_decoder" "" HAVE_LIBLZMA)
+        IF(HAVE_LIBLZMA)
+            SET(HAVE_SYSTEM_LIBLZMA TRUE)
+        ENDIF(HAVE_LIBLZMA)
+    ENDIF(HAVE_LZMA_H)
+
+    IF(HAVE_SYSTEM_LIBLZMA)
+        OPTION(MOJOSETUP_INTERNAL_LIBLZMA "Link own liblzma instead of system library" FALSE)
+    ELSE(HAVE_SYSTEM_LIBLZMA)
+        SET(MOJOSETUP_INTERNAL_LIBLZMA TRUE)
+    ENDIF(HAVE_SYSTEM_LIBLZMA)
+
+    # BINARY SIZE += ???
+    IF(MOJOSETUP_INTERNAL_LIBLZMA)
+        ADD_DEFINITIONS(-DMOJOSETUP_INTERNAL_LIBLZMA=1)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/api)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/common)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/check)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/delta)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/lz)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/lzma)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/rangecoder)
+        INCLUDE_DIRECTORIES(${LIBLZMA_DIR}/simple)
+        SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${LIBLZMA_SRCS})
+    ELSE(MOJOSETUP_INTERNAL_LIBLZMA)
+        SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} lzma)
+    ENDIF(MOJOSETUP_INTERNAL_LIBLZMA)
+ENDIF(MOJOSETUP_NEED_LIBLZMA)
 
 IF(UNIX)
     CHECK_INCLUDE_FILE(sys/ucred.h HAVE_UCRED_H)
