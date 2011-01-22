@@ -18,7 +18,7 @@ MojoSetup.applocalization = {
         it = "Informazioni su Megaglest",
     };
 
-	["docs/readme.txt"] = {
+	["docs/README"] = {
     };
 
     ["Megaglest License"] = {
@@ -30,7 +30,7 @@ MojoSetup.applocalization = {
         it = "Licenza di Megaglest",
     };
 
-	["docs/code_license.txt"] = {
+	["docs/LICENSE"] = {
     };
 
 };
