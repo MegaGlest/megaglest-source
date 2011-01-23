@@ -652,16 +652,15 @@ void Gui::computeInfoString(int posDisplay){
 						}
 						else{
 							if(ct->getClass()==ccUpgrade){
+								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 								if(unit->getFaction()->getUpgradeManager()->isUpgrading(uct->getProducedUpgrade())){
-									display.setInfoText(lang.get("Upgrading"));
+									text=lang.get("Upgrading")+"\n\n";
 								}
 								else if(unit->getFaction()->getUpgradeManager()->isUpgraded(uct->getProducedUpgrade())){
-									display.setInfoText(lang.get("AlreadyUpgraded"));
+									text=lang.get("AlreadyUpgraded")+"\n\n";
 								}
-								else{
-									display.setInfoText(ct->getReqDesc());
-								}
+								display.setInfoText(text+ct->getReqDesc());
 							}
 							else{
 								display.setInfoText(ct->getReqDesc());
