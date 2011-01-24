@@ -47,6 +47,7 @@ Setup.Package
         Setup.File
         {
             -- Just install everything we see...
+	    source = "base:///mgdata.tar.xz",
         },
 
         Setup.DesktopMenuItem

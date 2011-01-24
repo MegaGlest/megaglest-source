@@ -1,4 +1,3 @@
-#!/bin/bash
 
 # This script is not robust for all platforms or situations. Use as a rough
 #  example, but invest effort in what it's trying to do, and what it produces.
@@ -9,6 +8,7 @@
 megaglest_release_folder="trunk"
 #megaglest_release_folder="release-3.3.5.1"
 
+mg_installer_bin_name=megaglest-installer.run
 # below describe various folder paths relative to the installer root folder
 megaglest_project_root=../../../../../
 megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
@@ -35,10 +35,14 @@ megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/lin
 
 # };
 #
+megaglest_archiver_app_data="tar -c --xz -f "
+megaglest_archivefilename_data="mgdata.tar.xz"
 #megaglest_archiver_app="tar -c --xz -f "
 #megaglest_archivefilename="mgdata.tar.xz"
-megaglest_archiver_app="zip -9r "
-megaglest_archivefilename="mgdata.zip"
+#megaglest_archiver_app="zip -9r "
+#megaglest_archivefilename="mgdata.zip"
+megaglest_archiver_app="zip -0r "
+megaglest_archivefilename="mgpkg.zip"
 #megaglest_archiver_app="tar -c --bzip2 -f "
 #megaglest_archivefilename="mgdata.tar.bz2"
 
@@ -55,10 +59,11 @@ set -e
 
 REPACKONLY=0
 DEBUG=0
-if [ "$1" = "--debug" ]; then
+if [ "$1" = "--debug" -o "$2" = "--debug" ]; then
     echo "debug build!"
     DEBUG=1
-elif [ "$1" = "--repackonly" ]; then
+fi
+if [ "$1" = "--repackonly" -o "$2" = "--repackonly" ]; then
     echo "reacking installer only!"
     REPACKONLY=1
 fi
@@ -113,7 +118,7 @@ else
 fi
 
 # Clean up previous run, build fresh dirs for Base Archive.
-rm -rf image megaglest-installer ${megaglest_archivefilename}
+rm -rf image ${mg_installer_bin_name} ${megaglest_archivefilename}
 mkdir image
 mkdir image/guis
 mkdir image/scripts
@@ -222,10 +227,10 @@ cmake \
     -DMOJOSETUP_GUI_WWW=FALSE \
     -DMOJOSETUP_GUI_WWW_STATIC=FALSE \
     -DMOJOSETUP_LUALIB_DB=FALSE \
-    -DMOJOSETUP_LUALIB_IO=FALSE \
+    -DMOJOSETUP_LUALIB_IO=TRUE \
     -DMOJOSETUP_LUALIB_MATH=FALSE \
-    -DMOJOSETUP_LUALIB_OS=FALSE \
-    -DMOJOSETUP_LUALIB_PACKAGE=FALSE \
+    -DMOJOSETUP_LUALIB_OS=TRUE \
+    -DMOJOSETUP_LUALIB_PACKAGE=TRUE \
     -DMOJOSETUP_LUA_PARSER=TRUE \
     -DMOJOSETUP_IMAGE_BMP=TRUE \
     -DMOJOSETUP_IMAGE_JPG=FALSE \
@@ -246,7 +251,7 @@ if [ "$DEBUG" != "1" ]; then
     strip ./mojosetup
 fi
 
-mv ./mojosetup ../megaglest-installer/megaglest-installer
+mv ./mojosetup ../megaglest-installer/${mg_installer_bin_name}
 for feh in *.so *.dll *.dylib ; do
     if [ -f $feh ]; then
         if [ "$DEBUG" != "1" ]; then
@@ -271,6 +276,12 @@ rm -f ../megaglest-installer/image/scripts/app_localization.luac
 
 # Fill in the rest of the Base Archive...
 cd ../megaglest-installer
+
+cd data
+${megaglest_archiver_app_data} ${megaglest_archivefilename_data} *
+shopt -s extglob
+rm -rf !(docs|${megaglest_archivefilename_data})
+cd ..
 
 cp -R data/* image/data/
 
@@ -305,6 +316,7 @@ if [ "$OSTYPE" = "Darwin" ]; then
     rmdir image
     ibtool --compile "${APPBUNDLE}/Contents/Resources/MojoSetup.nib" ../misc/MojoSetup.xib
 else
+
     # Make an archive of the Base Archive dirs and nuke the originals...
     cd image
 
@@ -315,7 +327,7 @@ else
     cd ..
     rm -rf image
     # Append the archive to the mojosetup binary, so it's "self-extracting."
-    cat ${megaglest_archivefilename} >> ./megaglest-installer
+    cat ${megaglest_archivefilename} >> ./${mg_installer_bin_name}
     rm -f ${megaglest_archivefilename}
 fi
 
