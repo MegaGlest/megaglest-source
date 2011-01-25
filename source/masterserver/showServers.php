@@ -8,7 +8,7 @@
 	// consider replacing this by a cron job
 	cleanupServerList( MYSQL_DATABASE );
 
-	$servers_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestserver ORDER BY lasttime DESC;' );
+	$servers_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestserver ORDER BY status, (networkSlots - connectedClients) DESC, lasttime DESC;' );
 	$all_servers = array();
 	while ( $server = mysql_fetch_array( $servers_in_db ) )
 	{
