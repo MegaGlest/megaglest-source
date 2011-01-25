@@ -1841,6 +1841,7 @@ void MenuStateCustomGame::publishToMasterserver()
 
 	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
+	publishToServerInfo["privacyPlease"] = config.getBool("PrivacyPlease","false");
 
 	publishToServerInfo["gameStatus"] = intToStr(game_status_waiting_for_players);
 	if(slotCountHumans <= slotCountConnectedPlayers) {
