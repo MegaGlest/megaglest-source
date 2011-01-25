@@ -66,19 +66,22 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	country.setText(masterServerInfo.getCountry());
 
     string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	string countryLogoPath = data_path + "data/core/misc_textures/";
+	string countryLogoPath = data_path + "data/core/misc_textures/flags";
 
 	Config &config = Config::getInstance();
 	if(config.getString("CountryTexturePath","") != "") {
 		countryLogoPath = config.getString("CountryTexturePath","");
 	}
 
-	if(fileExists(countryLogoPath + "/" + masterServerInfo.getCountry() + ".png") == true) {
+	string logoFile = countryLogoPath + "/" + toLower(masterServerInfo.getCountry()) + ".png";
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFile.c_str());
+
+	if(fileExists(logoFile) == true) {
 		countryTexture=GraphicsInterface::getInstance().getFactory()->newTexture2D();
 		//loadingTexture = renderer.newTexture2D(rsGlobal);
 		countryTexture->setMipmap(true);
 		//loadingTexture->getPixmap()->load(filepath);
-		countryTexture->load(countryLogoPath + "/" + masterServerInfo.getCountry() + ".png");
+		countryTexture->load(logoFile);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
