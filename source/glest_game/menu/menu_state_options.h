@@ -94,6 +94,9 @@ private:
 	GraphicLabel labelFTPServerDataPortsLabel;
 	GraphicLabel labelFTPServerDataPorts;
 
+	GraphicLabel labelEnablePrivacy;
+	GraphicCheckBox checkBoxEnablePrivacy;
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 
