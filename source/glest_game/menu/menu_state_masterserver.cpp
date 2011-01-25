@@ -149,38 +149,34 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.get("MGGameTitle"));
 
-	i+=80;
+	i+=140;
 	countryLabel.registerGraphicComponent(containerName,"countryLabel");
 	countryLabel.init(i,startOffset-lineOffset);
 	countryLabel.setText(lang.get("MGGameCountry"));
 
-	i+=80;
-	statusLabel.registerGraphicComponent(containerName,"statusLabel");
-	statusLabel.init(i,startOffset-lineOffset);
-	statusLabel.setText(lang.get("MGGameStatus"));
-
 	i+=90;
-	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
-	ipAddressLabel.init(i,startOffset-lineOffset);
-	ipAddressLabel.setText(lang.get("MGGameIP"));
+
+//	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
+//	ipAddressLabel.init(i,startOffset-lineOffset);
+//	ipAddressLabel.setText(lang.get("MGGameIP"));
+//	i+=100;
 
 	//game setup info:
-	i+=100;
 	techLabel.registerGraphicComponent(containerName,"techLabel");
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(lang.get("TechTree"));
 
-	i+=100;
+	i+=120;
 	mapLabel.registerGraphicComponent(containerName,"mapLabel");
 	mapLabel.init(i,startOffset-lineOffset);
 	mapLabel.setText(lang.get("Map"));
 
-	i+=100;
-	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel");
-	tilesetLabel.init(i,startOffset-lineOffset);
-	tilesetLabel.setText(lang.get("Tileset"));
+	i+=120;
+//	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel");
+//	tilesetLabel.init(i,startOffset-lineOffset);
+//	tilesetLabel.setText(lang.get("Tileset"));
+//	i+=100;
 
-	i+=100;
 	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel");
 	activeSlotsLabel.init(i,startOffset-lineOffset);
 	activeSlotsLabel.setText(lang.get("MGGameSlots"));
@@ -190,7 +186,12 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	externalConnectPort.init(i,startOffset-lineOffset);
 	externalConnectPort.setText(lang.get("Port"));
 
-	i+=50;
+	i+=80;
+	statusLabel.registerGraphicComponent(containerName,"statusLabel");
+	statusLabel.init(i,startOffset-lineOffset);
+	statusLabel.setText(lang.get("MGGameStatus"));
+
+	i+=130;
 	selectButton.registerGraphicComponent(containerName,"selectButton");
 	selectButton.init(i, startOffset-lineOffset);
 	selectButton.setText(lang.get("MGJoinGameSlots"));
@@ -536,12 +537,12 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&serverTitleLabel,&titleLabelColor);
 		renderer.renderLabel(&countryLabel,&titleLabelColor);
 		renderer.renderLabel(&statusLabel,&titleLabelColor);
-		renderer.renderLabel(&ipAddressLabel,&titleLabelColor);
+		//renderer.renderLabel(&ipAddressLabel,&titleLabelColor);
 
 		//game setup info:
 		renderer.renderLabel(&techLabel,&titleLabelColor);
 		renderer.renderLabel(&mapLabel,&titleLabelColor);
-		renderer.renderLabel(&tilesetLabel,&titleLabelColor);
+		//renderer.renderLabel(&tilesetLabel,&titleLabelColor);
 		renderer.renderLabel(&activeSlotsLabel,&titleLabelColor);
 		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
 		renderer.renderLabel(&selectButton,&titleLabelColor);

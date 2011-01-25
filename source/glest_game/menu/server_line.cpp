@@ -61,7 +61,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	serverTitleLabel.init(i,baseY-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
-	i+=80;
+	i+=140;
 	country.init(i,baseY-lineOffset);
 	country.setText(masterServerInfo.getCountry());
 
@@ -89,32 +89,27 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 		renderer.initTexture(rsGlobal,countryTexture);
 	}
 
-	i+=80;
-	status.init(i,baseY-lineOffset);
-	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
-
 	i+=90;
-	ipAddressLabel.init(i,baseY-lineOffset);
-	ipAddressLabel.setText(masterServerInfo.getIpAddress());
-
+//	ipAddressLabel.init(i,baseY-lineOffset);
+//	ipAddressLabel.setText(masterServerInfo.getIpAddress());
+//	i+=100;
 
 	wrongVersionLabel.init(i,baseY-lineOffset);
 	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
 
 	//game setup info:
-	i+=100;
 	techLabel.init(i,baseY-lineOffset);
 	techLabel.setText(masterServerInfo.getTech());
 
-	i+=100;
+	i+=120;
 	mapLabel.init(i,baseY-lineOffset);
 	mapLabel.setText(masterServerInfo.getMap());
+	i+=120;
 
-	i+=100;
-	tilesetLabel.init(i,baseY-lineOffset);
-	tilesetLabel.setText(masterServerInfo.getTileset());
+//	tilesetLabel.init(i,baseY-lineOffset);
+//	tilesetLabel.setText(masterServerInfo.getTileset());
+//	i+=100;
 
-	i+=100;
 	activeSlotsLabel.init(i,baseY-lineOffset);
 	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots())+"/"+intToStr(masterServerInfo.getNetworkSlots())+"/"+intToStr(masterServerInfo.getConnectedClients()));
 
@@ -122,7 +117,11 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	externalConnectPort.init(i,baseY-lineOffset);
 	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
-	i+=50;
+	i+=80;
+	status.init(i,baseY-lineOffset);
+	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
+
+	i+=130;
 	selectButton.init(i, baseY-lineOffset, 30);
 	selectButton.setText(">");
 
@@ -199,17 +198,17 @@ void ServerLine::render() {
 		renderer.renderLabel(&country);
 	}
 
-	renderer.renderLabel(&status);
 	if(gameFull.getEnabled() == false) {
 		if (compatible) {
-			renderer.renderLabel(&ipAddressLabel);
+			//renderer.renderLabel(&ipAddressLabel);
 
 			//game setup info:
 			renderer.renderLabel(&techLabel);
 			renderer.renderLabel(&mapLabel);
-			renderer.renderLabel(&tilesetLabel);
+			//renderer.renderLabel(&tilesetLabel);
 			renderer.renderLabel(&activeSlotsLabel);
 			renderer.renderLabel(&externalConnectPort);
+			renderer.renderLabel(&status);
 		}
 		else {
 			renderer.renderLabel(&wrongVersionLabel);
@@ -231,12 +230,12 @@ void ServerLine::setY(int y) {
 	serverTitleLabel.setY(y);
 	country.setY(y);
 	status.setY(y);
-	ipAddressLabel.setY(y);
+	//ipAddressLabel.setY(y);
 
 	//game setup info:
 	techLabel.setY(y);
 	mapLabel.setY(y);
-	tilesetLabel.setY(y);
+	//tilesetLabel.setY(y);
 	activeSlotsLabel.setY(y);
 
 	externalConnectPort.setY(y);
