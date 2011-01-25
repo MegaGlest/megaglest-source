@@ -75,6 +75,13 @@ enum FactionPersonalityType {
 	fpt_EndCount
 };
 
+enum MasterServerGameStatusType {
+	game_status_waiting_for_players = 0,
+	game_status_waiting_for_start = 1,
+	game_status_in_progress = 2,
+	game_status_finished = 3
+};
+
 class GameConstants {
 public:
 	static const int specialFactions = fpt_EndCount - 1;

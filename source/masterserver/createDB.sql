@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `glestserver` (
   `connectedClients` int(11) NOT NULL,
   `externalServerPort` int(11) NOT NULL,
   `country` varchar(2) collate utf8_unicode_ci NOT NULL,
+  `status` int(11) NOT NULL default 0, -- valid statuses: 0 waiting for players, 1 = game full pending start, 2 game in progress, 3 game over
   KEY `lasttime` (`lasttime`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MASTERSERVERINFO_H_
 
 #include <string>
+#include "game_constants.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -25,7 +26,7 @@ namespace Glest{ namespace Game{
 ///	A type of particle system
 // ===========================================================
 
-class MasterServerInfo{
+class MasterServerInfo {
 protected:
 	//general info:
 	string glestVersion;
@@ -44,6 +45,8 @@ protected:
 	int networkSlots;
 	int connectedClients;
 	int externalconnectport;
+	string country;
+	int status;
 
 public:
 	const string &getGlestVersion() const	{return glestVersion;}
@@ -60,7 +63,8 @@ public:
 	const int getNetworkSlots() const	{return networkSlots;}
 	const int getConnectedClients() const	{return connectedClients;}
 	const int getExternalConnectPort() const	{return externalconnectport;}
-	
+	const string &getCountry() const { return country;}
+	const int getStatus() const { return status;}
 	
 	
 	//general info:
@@ -81,6 +85,8 @@ public:
 	void setNetworkSlots(int value) { networkSlots = value; }
 	void setConnectedClients(int value) { connectedClients = value; }	
 	void setExternalConnectPort(int value) { externalconnectport = value; }
+	void setCountry(string value) { country = value; }
+	void setStatus(int value) { status = value; }
 };
 
 }}//end namespace

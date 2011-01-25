@@ -1361,7 +1361,7 @@ void MenuStateCustomGame::render() {
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-		//throw runtime_error(szBuf);!!!
+		//throw runtime_error(szBuf);
 		showGeneralError=true;
 		generalErrorToShow = ex.what();
 	}
@@ -1842,6 +1842,11 @@ void MenuStateCustomGame::publishToMasterserver()
 	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
 
+	publishToServerInfo["gameStatus"] = intToStr(game_status_waiting_for_players);
+	if(slotCountHumans <= slotCountConnectedPlayers) {
+		publishToServerInfo["gameStatus"] = intToStr(game_status_waiting_for_start);
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1988,7 +1993,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
 		if(callingThread->getQuitStatus() == false) {
-            //throw runtime_error(szBuf);!!!
+            //throw runtime_error(szBuf);
             showGeneralError=true;
             generalErrorToShow = ex.what();
 		}
@@ -2631,7 +2636,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-		//throw runtime_error(szBuf);!!!
+		//throw runtime_error(szBuf);
 		showGeneralError=true;
 		generalErrorToShow = ex.what();
 

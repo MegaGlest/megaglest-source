@@ -149,13 +149,23 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.get("MGGameTitle"));
 
-	i+=200;
+	i+=80;
+	countryLabel.registerGraphicComponent(containerName,"countryLabel");
+	countryLabel.init(i,startOffset-lineOffset);
+	countryLabel.setText(lang.get("MGGameCountry"));
+
+	i+=80;
+	statusLabel.registerGraphicComponent(containerName,"statusLabel");
+	statusLabel.init(i,startOffset-lineOffset);
+	statusLabel.setText(lang.get("MGGameStatus"));
+
+	i+=90;
 	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 	ipAddressLabel.init(i,startOffset-lineOffset);
 	ipAddressLabel.setText(lang.get("MGGameIP"));
 
 	//game setup info:
-	i+=120;
+	i+=100;
 	techLabel.registerGraphicComponent(containerName,"techLabel");
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(lang.get("TechTree"));
@@ -524,6 +534,8 @@ void MenuStateMasterserver::render(){
 
 		//game info:
 		renderer.renderLabel(&serverTitleLabel,&titleLabelColor);
+		renderer.renderLabel(&countryLabel,&titleLabelColor);
+		renderer.renderLabel(&statusLabel,&titleLabelColor);
 		renderer.renderLabel(&ipAddressLabel,&titleLabelColor);
 
 		//game setup info:
@@ -820,6 +832,8 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
     Lang &lang= Lang::getInstance();
     try {
 		if(serverInfo != "") {
+			//printf("--------------> serverInfo [%s]\n",serverInfo.c_str());
+
 			std::vector<std::string> serverList;
 			Tokenize(serverInfo,serverList,"\n");
 			for(int i=0; i < serverList.size(); i++) {
@@ -827,7 +841,9 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 				std::vector<std::string> serverEntities;
 				Tokenize(server,serverEntities,"|");
 
-				const int MIN_FIELDS_EXPECTED = 12;
+				//printf("--------------> server [%s] serverEntities.size() = %d\n",server.c_str(),serverEntities.size());
+
+				const int MIN_FIELDS_EXPECTED = 14;
 				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 					labelTitle.setText(lang.get("AvailableServers"));
 
@@ -854,6 +870,10 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					masterServerInfo->setNetworkSlots(strToInt(serverEntities[9]));
 					masterServerInfo->setConnectedClients(strToInt(serverEntities[10]));
 					masterServerInfo->setExternalConnectPort(strToInt(serverEntities[11]));
+					masterServerInfo->setCountry(serverEntities[12]);
+					masterServerInfo->setStatus(strToInt(serverEntities[13]));
+
+					//printf("--------------> Country [%s] Status [%d]\n",masterServerInfo->getCountry().c_str(),masterServerInfo->getStatus());
 
 					//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
 					//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);

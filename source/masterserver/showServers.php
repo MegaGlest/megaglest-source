@@ -59,6 +59,7 @@ echo <<<END
 				<th>connectedClients</th>
 				<th>externalServerPort</th>
 				<th>country</th>
+				<th>status</th>
 			</tr>
 
 END;
@@ -87,6 +88,38 @@ END;
 				echo "\t\t\t\t<td>" . 'unknown' . '</td>' . PHP_EOL;
 			}
 		}
+		else {
+			echo "\t\t\t\t<td>" . htmlspecialchars( $server['country'],  ENT_QUOTES ) . '</td>' . PHP_EOL;
+		}
+
+		$calculatedStatus = $server['status'];
+		if($calculatedStatus == 0)
+		{
+			$gameFull = ($server['networkSlots'] <= $server['connectedClients']);
+			if($gameFull == true)
+			{
+				$calculatedStatus = 1;
+			}
+		}
+
+		switch($calculatedStatus) 
+		{
+			case 0:
+				echo "\t\t\t\t<td>" . htmlspecialchars( "waiting for players",    ENT_QUOTES ) . '</td>' . PHP_EOL;
+				break;
+			case 1:
+				echo "\t\t\t\t<td>" . htmlspecialchars( "game full, pending start",    ENT_QUOTES ) . '</td>' . PHP_EOL;
+				break;
+			case 2:
+				echo "\t\t\t\t<td>" . htmlspecialchars( "in progress",    ENT_QUOTES ) . '</td>' . PHP_EOL;
+				break;
+			case 3:
+				echo "\t\t\t\t<td>" . htmlspecialchars( "finished",    ENT_QUOTES ) . '</td>' . PHP_EOL;
+				break;
+			default:
+				echo "\t\t\t\t<td>" . htmlspecialchars( "unknown: " . $server['status'],    ENT_QUOTES ) . '</td>' . PHP_EOL;
+		}
+
 		echo "\t\t\t" . '</tr>' . PHP_EOL;
 	}
 	unset( $all_servers );

@@ -44,11 +44,16 @@
 	$activeSlots       = (int)    clean_str( $_GET['activeSlots'] );
 	$networkSlots      = (int)    clean_str( $_GET['networkSlots'] );
 	$connectedClients  = (int)    clean_str( $_GET['connectedClients'] );
+	
+	$status = 0;
+    	if(isset($_GET["gameStatus"])) {
+        	$status  	   = (int)    clean_str( $_GET['gameStatus'] );
+	}
     
-    $gameCmd = "";
-    if(isset($_GET["gameCmd"])) {
-        $gameCmd = (string)    clean_str( $_GET['gameCmd'] );
-}
+	$gameCmd = "";
+    	if(isset($_GET["gameCmd"])) {
+        	$gameCmd = (string)    clean_str( $_GET['gameCmd'] );
+	}
 	
 	define( 'DB_LINK', db_connect() );
 
@@ -81,6 +86,7 @@
 			'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
 			'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
 			'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+			'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
 			'lasttime='            . 'now()'                                        .    ' ' .
 			'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
 		updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
@@ -181,7 +187,8 @@
 				'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
 				'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
 				'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-				'country=\''           . mysql_real_escape_string( $country )           . '\';' 
+				'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
+				'status=\''            . mysql_real_escape_string( $status )            . '\';'  
 			);
 			echo 'OK';
 			addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);

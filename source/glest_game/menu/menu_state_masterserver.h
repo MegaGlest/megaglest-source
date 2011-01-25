@@ -52,6 +52,9 @@ private:
 
 	//game info:
 	GraphicLabel serverTitleLabel;
+	GraphicLabel countryLabel;
+	GraphicLabel statusLabel;
+
 	GraphicLabel ipAddressLabel;
 
 	//game setup info:
