@@ -1408,7 +1408,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	publishToServerInfo["glestVersion"] = glestVersionString;
 	publishToServerInfo["platform"] = getPlatformNameString();
 	publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
-	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game *IN PROGRESS*";
+	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
 	publishToServerInfo["tech"] = this->getGameSettings()->getTech();
 	publishToServerInfo["map"] = this->getGameSettings()->getMap();
 	publishToServerInfo["tileset"] = this->getGameSettings()->getTileset();
@@ -1417,9 +1417,11 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
 	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
+	publishToServerInfo["gameStatus"] = intToStr(game_status_in_progress);
+
 	if(publishToMasterserverThread == NULL) {
-		publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game *FINISHED*";
 		publishToServerInfo["gameCmd"]= "gameOver";
+		publishToServerInfo["gameStatus"] = intToStr(game_status_finished);
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return publishToServerInfo;

@@ -32,6 +32,7 @@ namespace Glest{ namespace Game{
 
 ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY, int lineHeight, const char * containerName) {
 	this->containerName = containerName;
+	this->countryTexture = NULL;
 	Lang &lang= Lang::getInstance();
 
 	this->lineHeight=lineHeight;
@@ -60,7 +61,36 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	serverTitleLabel.init(i,baseY-lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
-	i+=200;
+	i+=80;
+	country.init(i,baseY-lineOffset);
+	country.setText(masterServerInfo.getCountry());
+
+    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	string countryLogoPath = data_path + "data/core/misc_textures/";
+
+	Config &config = Config::getInstance();
+	if(config.getString("CountryTexturePath","") != "") {
+		countryLogoPath = config.getString("CountryTexturePath","");
+	}
+
+	if(fileExists(countryLogoPath + "/" + masterServerInfo.getCountry() + ".png") == true) {
+		countryTexture=GraphicsInterface::getInstance().getFactory()->newTexture2D();
+		//loadingTexture = renderer.newTexture2D(rsGlobal);
+		countryTexture->setMipmap(true);
+		//loadingTexture->getPixmap()->load(filepath);
+		countryTexture->load(countryLogoPath + "/" + masterServerInfo.getCountry() + ".png");
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.initTexture(rsGlobal,countryTexture);
+	}
+
+	i+=80;
+	status.init(i,baseY-lineOffset);
+	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
+
+	i+=90;
 	ipAddressLabel.init(i,baseY-lineOffset);
 	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 
@@ -69,7 +99,7 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
 
 	//game setup info:
-	i+=120;
+	i+=100;
 	techLabel.init(i,baseY-lineOffset);
 	techLabel.setText(masterServerInfo.getTech());
 
@@ -107,6 +137,18 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 
 ServerLine::~ServerLine() {
 	//delete masterServerInfo;
+
+	if(countryTexture != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		countryTexture->end();
+		delete countryTexture;
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//delete loadingTexture;
+		countryTexture=NULL;
+	}
 }
 
 bool ServerLine::buttonMouseClick(int x, int y){
@@ -147,7 +189,15 @@ void ServerLine::render() {
 
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
-	if(!gameFull.getEnabled()){
+	if(countryTexture != NULL) {
+		renderer.renderTextureQuad(country.getX() + 20,country.getY(),countryTexture->getTextureWidth(),countryTexture->getTextureHeight(),countryTexture,0.7f);
+	}
+	else {
+		renderer.renderLabel(&country);
+	}
+
+	renderer.renderLabel(&status);
+	if(gameFull.getEnabled() == false) {
 		if (compatible) {
 			renderer.renderLabel(&ipAddressLabel);
 
@@ -176,6 +226,8 @@ void ServerLine::setY(int y) {
 
 	//game info:
 	serverTitleLabel.setY(y);
+	country.setY(y);
+	status.setY(y);
 	ipAddressLabel.setY(y);
 
 	//game setup info:

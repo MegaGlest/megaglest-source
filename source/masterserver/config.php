@@ -12,4 +12,5 @@
 	define( 'MYSQL_LINK_PERSIST', false );
 	// How many recently seen servers to store
 	define( 'MAX_RECENT_SERVERS', 5 );
+	define( 'DEFAULT_COUNTRY',     '?' );
 ?>

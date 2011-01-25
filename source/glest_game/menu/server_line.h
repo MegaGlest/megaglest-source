@@ -53,6 +53,11 @@ private:
 
 	GraphicLabel externalConnectPort;
 
+	GraphicLabel country;
+	GraphicLabel status;
+
+	Texture2D *countryTexture;
+
 	const char * containerName;
 
 public:
