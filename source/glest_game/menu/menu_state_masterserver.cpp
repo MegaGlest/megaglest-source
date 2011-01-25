@@ -833,7 +833,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
     Lang &lang= Lang::getInstance();
     try {
 		if(serverInfo != "") {
-			//printf("--------------> serverInfo [%s]\n",serverInfo.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> serverInfo [%s]\n",serverInfo.c_str());
 
 			std::vector<std::string> serverList;
 			Tokenize(serverInfo,serverList,"\n");
@@ -841,10 +841,10 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 				string &server = serverList[i];
 				std::vector<std::string> serverEntities;
 				Tokenize(server,serverEntities,"|");
-
-				//printf("--------------> server [%s] serverEntities.size() = %d\n",server.c_str(),serverEntities.size());
-
 				const int MIN_FIELDS_EXPECTED = 14;
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> server [%s] serverEntities.size() = %d MIN_FIELDS_EXPECTED = %d\n",server.c_str(),serverEntities.size(),MIN_FIELDS_EXPECTED);
+
 				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 					labelTitle.setText(lang.get("AvailableServers"));
 
@@ -888,7 +888,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 				}
 				else {
 					Lang &lang= Lang::getInstance();
-					labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + serverInfo + "]");
+					labelTitle.setText("*** " + lang.get("AvailableServers") + "[" + intToStr(serverEntities.size()) + "][" + intToStr(MIN_FIELDS_EXPECTED) + "] [" + serverInfo + "]");
 
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
 				}
