@@ -198,7 +198,8 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
 	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[fromPlayerIndex],intToStr(__LINE__) + "_" + intToStr(fromPlayerIndex));
 	MutexSafeWrapper safeMutexSlot2(&slotAccessorMutexes[toPlayerIndex],intToStr(__LINE__) + "_" + intToStr(toPlayerIndex));
-	if(slots[toPlayerIndex]->isConnected() == false) {
+	if(slots[toPlayerIndex] != NULL && slots[toPlayerIndex] != NULL &&
+	   slots[toPlayerIndex]->isConnected() == false) {
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
 		slots[toPlayerIndex]->setPlayerIndex(fromPlayerIndex);
 		ConnectionSlot *tmp = slots[toPlayerIndex];
