@@ -172,7 +172,16 @@
 		else  // connection to game server succeeded, protocol verification succeeded
 		{ // add this game server to the database
 			if ( extension_loaded('geoip') ) {
-				$country = geoip_country_code_by_name( $remote_ip );
+					
+				$privacyPlease = 0;
+			    	if(isset($_GET["privacyPlease"])) {
+					$privacyPlease = (int)    clean_str( $_GET['privacyPlease'] );
+				}
+
+				if($privacyPlease != 0)
+				{
+					$country = geoip_country_code_by_name( $remote_ip );
+				}
 			}
 			mysql_db_query( MYSQL_DATABASE, 'INSERT INTO glestserver SET ' .
 				'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .

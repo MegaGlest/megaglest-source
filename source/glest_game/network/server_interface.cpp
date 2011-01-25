@@ -1418,6 +1418,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
 	string externalport = config.getString("MasterServerExternalPort", "61357");
 	publishToServerInfo["externalconnectport"] = externalport;
+	publishToServerInfo["privacyPlease"] = config.getBool("PrivacyPlease","false");
 	publishToServerInfo["gameStatus"] = intToStr(game_status_in_progress);
 
 	if(publishToMasterserverThread == NULL) {
