@@ -368,6 +368,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	currentLine-=30;
     // FTP config end
 
+	// Privacy flag
+	labelEnablePrivacy.registerGraphicComponent(containerName,"labelEnablePrivacy");
+	labelEnablePrivacy.init(currentLabelStart ,currentLine);
+	labelEnablePrivacy.setText(lang.get("PrivacyPlease"));
+
+	checkBoxEnablePrivacy.registerGraphicComponent(containerName,"checkBoxEnablePrivacy");
+	checkBoxEnablePrivacy.init(currentColumnStart ,currentLine );
+	checkBoxEnablePrivacy.setValue(config.getBool("PrivacyPlease","false"));
+	currentLine-=30;
+	// end
+
+
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
 	buttonOk.init(200, buttonRowPos, 100);
@@ -517,6 +529,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
         checkBoxEnableFTP.mouseClick(x, y);
         checkBoxEnableFTPServer.mouseClick(x, y);
+
+        checkBoxEnablePrivacy.mouseClick(x, y);
 	}
 }
 
@@ -548,6 +562,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 
 	checkBoxEnableFTP.mouseMove(x, y);
 	checkBoxEnableFTPServer.mouseMove(x, y);
+
+	checkBoxEnablePrivacy.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -656,6 +672,9 @@ void MenuStateOptions::render(){
         renderer.renderLabel(&labelFTPServerPort);
         renderer.renderLabel(&labelFTPServerDataPortsLabel);
         renderer.renderLabel(&labelFTPServerDataPorts);
+
+        renderer.renderLabel(&labelEnablePrivacy);
+        renderer.renderCheckBox(&checkBoxEnablePrivacy);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -693,6 +712,7 @@ void MenuStateOptions::saveConfig(){
 	config.setInt("FTPServerPort",config.getInt("MasterServerExternalPort")+1);
     config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
     config.setBool("EnableFTPServer", checkBoxEnableFTPServer.getValue());
+    config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
