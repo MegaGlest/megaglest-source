@@ -857,6 +857,16 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                 }
                 else if(listBoxFactions[i].mouseClick(x, y)) {
 
+                    //printf("factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] i = %d selIndex = %d\n",factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),i,listBoxFactions[i].getSelectedItemIndex());
+
+                    // Disallow CPU players to be observers
+        			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+        				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+        				 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+        				listBoxFactions[i].setSelectedItemIndex(0);
+        			}
+        			//
+
                     if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                         needToRepublishToMasterserver = true;
                     }
