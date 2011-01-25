@@ -41,7 +41,7 @@
 			$gameFull = ($server['networkSlots'] <= $server['connectedClients']);
 			if($gameFull == true)
 			{
-				$outString = $outString . "1|\n";
+				$outString = $outString . "1|";
 			}
 		}
 		$outString = $outString . "$calculatedStatus|\n";
