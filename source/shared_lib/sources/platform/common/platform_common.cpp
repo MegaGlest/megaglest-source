@@ -266,11 +266,11 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
-	if(res < 0)
+	if(res < 0 && errorOnNotFound == true)
 	{
 		if(errorOnNotFound) {
 			std::stringstream msg;
-			msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+			msg << "#1 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 			throw runtime_error(msg.str());
 		}
 	}
@@ -455,7 +455,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#2 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
@@ -494,7 +494,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 #endif
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#3 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
@@ -592,7 +592,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#4 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
@@ -630,7 +630,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 #endif
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#5 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
@@ -692,7 +692,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#6 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
@@ -729,7 +729,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 #endif
 	if(res < 0) {
 		std::stringstream msg;
-		msg << "Couldn't scan directory '" << mypath << "': " << strerror(errno);
+		msg << "#7 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
 
