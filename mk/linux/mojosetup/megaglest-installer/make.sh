@@ -13,6 +13,7 @@ mg_installer_bin_name=megaglest-installer.run
 megaglest_project_root=../../../../../
 megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
 megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
+megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
 
 # Below is the name of the archive to create and tack onto the installer.
 # *NOTE: The filename's extension is of critical importance as the installer
@@ -173,15 +174,25 @@ if [ $REPACKONLY -eq 0 ]; then
 	find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-
 	popd
+
+	# Now copy all glest data
+	echo Copying live Mega Glest country logo files...
+
+	pushd "`pwd`/$megaglest_linux_masterserverpath"
+	
+	find flags/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" ${INSTALLDATADIR}data/core/misc_textures/ ';'
+	
+	popd
+
+	#exit
 
 	# Now remove svn and temp files
 	echo removing temp and svn files...
 
 	find data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
 	find data/ -name "*~" -exec rm -rf {} \;
-    find data/ -name "*.bak" -exec rm -rf {} \;
+        find data/ -name "*.bak" -exec rm -rf {} \;
 
 	# Copy shared lib dependencies for glest.bin
 	cd data
