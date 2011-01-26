@@ -1231,10 +1231,8 @@ void World::computeFow(int factionIdxToTick) {
 			for(int j = 0; j < map.getSurfaceH(); ++j) {
 				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
 					if(fogOfWar || k != thisTeamIndex) {
+						map.getSurfaceCell(i, j)->setVisible(k, false);
 						if(showWorldForPlayer(k) == true) {
-							//map.getSurfaceCell(i, j)->setVisible(k, true);
-							//map.getSurfaceCell(i, j)->setExplored(k, true);
-
 							const Vec2i pos(i,j);
 							Vec2i surfPos= pos;
 
@@ -1255,9 +1253,9 @@ void World::computeFow(int factionIdxToTick) {
 							float alpha=maxAlpha;
 							minimap.incFowTextureAlphaSurface(surfPos, alpha);
 						}
-						else {
-							map.getSurfaceCell(i, j)->setVisible(k, false);
-						}
+						//else {
+						//	map.getSurfaceCell(i, j)->setVisible(k, false);
+						//}
 					}
 				}
 			}
