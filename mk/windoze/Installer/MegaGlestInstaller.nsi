@@ -3,8 +3,8 @@
 
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.3.7
-!define APVER 3.3.7.2
+!define APVER_OLD 3.3.7.2
+!define APVER 3.4.0
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -23,12 +23,12 @@ RequestExecutionLevel none
 
 PageEx license
        LicenseText "Megaglest License"
-       LicenseData "..\..\..\data\glest_game\docs\license.txt"
+       LicenseData "..\..\..\data\glest_game\docs\LICENSE"
 PageExEnd
 
 PageEx license
        LicenseText "Megaglest README"
-       LicenseData "..\..\..\data\glest_game\docs\readme.txt"
+       LicenseData "..\..\..\data\glest_game\docs\README"
 PageExEnd
 
 ;--------------------------------
@@ -170,7 +170,10 @@ Section "${APNAME} (required)"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
 #  File /r /x .svn "..\..\..\data\glest_game\screens"
-
+  SetOutPath "$INSTDIR\data\core\misc_textures\"
+  File /r /x .svn /x mydata "..\..\..\source\masterserver\flags"
+  SetOutPath $INSTDIR
+  
   ; Write the installation path into the registry
   WriteRegStr HKLM Software\${APNAME} "Install_Dir" "$INSTDIR"
   WriteRegStr HKLM Software\${APNAME} "Version" "${APVER}"
