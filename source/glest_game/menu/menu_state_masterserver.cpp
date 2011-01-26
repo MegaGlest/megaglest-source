@@ -843,7 +843,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 				Tokenize(server,serverEntities,"|");
 				const int MIN_FIELDS_EXPECTED = 14;
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> server [%s] serverEntities.size() = %d MIN_FIELDS_EXPECTED = %d\n",server.c_str(),serverEntities.size(),MIN_FIELDS_EXPECTED);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> server [%s] serverEntities.size() = %lu MIN_FIELDS_EXPECTED = %d\n",server.c_str(),serverEntities.size(),MIN_FIELDS_EXPECTED);
 
 				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 					labelTitle.setText(lang.get("AvailableServers"));

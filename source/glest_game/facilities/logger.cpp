@@ -44,27 +44,6 @@ Logger::Logger() {
 }
 
 Logger::~Logger() {
-	cleanupLoadingTexture();
-}
-
-void Logger::cleanupLoadingTexture() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(loadingTexture!=NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//Renderer &renderer= Renderer::getInstance();
-		//renderer.endTexture(rsGlobal,loadingTexture);
-		loadingTexture->end();
-		delete loadingTexture;
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//delete loadingTexture;
-		loadingTexture=NULL;
-	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 Logger & Logger::getInstance() {
@@ -102,8 +81,6 @@ void Logger::loadLoadingScreen(string filepath) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	cleanupLoadingTexture();
-
 	if(filepath=="")
 	{
 		loadingTexture=NULL;
@@ -111,18 +88,7 @@ void Logger::loadLoadingScreen(string filepath) {
 	else
 	{
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
-
-		loadingTexture=GraphicsInterface::getInstance().getFactory()->newTexture2D();
-		//loadingTexture = renderer.newTexture2D(rsGlobal);
-		loadingTexture->setMipmap(true);
-		//loadingTexture->getPixmap()->load(filepath);
-		loadingTexture->load(filepath);
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		Renderer &renderer= Renderer::getInstance();
-		renderer.initTexture(rsGlobal,loadingTexture);
-
+		loadingTexture = Renderer::findFactionLogoTexture(filepath);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
@@ -137,7 +103,7 @@ void Logger::renderLoadingScreen() {
 
 	renderer.reset2d();
 	renderer.clearBuffers();
-	if(loadingTexture==NULL){
+	if(loadingTexture == NULL) {
 		renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 	}
 	else{

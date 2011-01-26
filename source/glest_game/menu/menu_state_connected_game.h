@@ -180,7 +180,6 @@ private:
 	string getHumanPlayerName();
 	void setActiveInputLabel(GraphicLabel *newLable);
 
-	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
 	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
 	void showMessageBox(const string &text, const string &header, bool toggle);

@@ -176,6 +176,18 @@ int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
     return 0;
 }
 
+Texture2D * Game::findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter, bool useTechDefaultIfFilterNotFound) {
+	Texture2D *result = NULL;
+	string logoFilename = Game::findFactionLogoFile(settings, logger,factionLogoFilter);
+	if(logoFilename == "" && factionLogoFilter != "" && useTechDefaultIfFilterNotFound == true) {
+		logoFilename = Game::findFactionLogoFile(settings, logger);
+	}
+
+	result = Renderer::findFactionLogoTexture(logoFilename);
+
+	return result;
+}
+
 string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,string factionLogoFilter) {
 	string result = "";
 	if(settings == NULL) {

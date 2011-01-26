@@ -44,6 +44,7 @@ public:
 		debugUnitCommands,
 		debugPathFinder,
 		debugLUA,
+		debugSound,
 		debugError
     };
 

@@ -422,6 +422,8 @@ public:
 
 	void renderProgressBar(int size, int x, int y, Font2D *font,int customWidth=-1, string prefixLabel="");
 
+	static Texture2D * findFactionLogoTexture(string logoFilename);
+
 private:
 	//private misc
 	float computeSunAngle(float time);

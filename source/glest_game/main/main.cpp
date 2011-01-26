@@ -917,6 +917,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  	= config.getBool("DebugUnitCommands","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  	= config.getBool("DebugPathFinder","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  			= config.getBool("DebugLUA","false");
+    SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled  		= config.getBool("DebugSound","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
 
     string debugLogFile 			= config.getString("DebugLogFile","");
@@ -971,6 +972,14 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
         debugLUALogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLUALogFile;
     }
 
+    string debugSoundLogFile = config.getString("DebugLogFileSound","");
+    if(debugSoundLogFile == "") {
+        debugSoundLogFile = debugLogFile;
+    }
+    else {
+        debugSoundLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugSoundLogFile;
+    }
+
     string debugErrorLogFile = config.getString("DebugLogFileError","");
 
     SystemFlags::getSystemSettingType(SystemFlags::debugSystem).debugLogFileName      = debugLogFile;
@@ -980,10 +989,11 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).debugLogFileName = debugUnitCommandsLogFile;
     SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).debugLogFileName   = debugPathFinderLogFile;
     SystemFlags::getSystemSettingType(SystemFlags::debugLUA).debugLogFileName  		   = debugLUALogFile;
+    SystemFlags::getSystemSettingType(SystemFlags::debugSound).debugLogFileName  	   = debugSoundLogFile;
     SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
 
     if(haveSpecialOutputCommandLineOption == false) {
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugError [%d]\n",
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugSound [%d], debugError [%d]\n",
                 SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
                 SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
                 SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
@@ -991,6 +1001,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
                 SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
                 SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled,
                 SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled,
+                SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled,
                 SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled);
     }
 }

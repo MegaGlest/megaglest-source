@@ -184,7 +184,6 @@ private:
 	void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);
 
-	void cleanupFactionTexture();
 	void loadFactionTexture(string filepath);
 
 	void RestoreLastGameSettings();
