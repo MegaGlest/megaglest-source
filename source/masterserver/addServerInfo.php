@@ -58,9 +58,9 @@
 	define( 'DB_LINK', db_connect() );
 
 	// consider replacing this by a cron job
-	cleanupServerList( MYSQL_DATABASE );
+	cleanupServerList();
 
-	$server_in_db = @mysql_db_query( MYSQL_DATABASE, 'SELECT ip, externalServerPort FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
        	$server       = @mysql_fetch_row( $server_in_db );
 
 
@@ -69,12 +69,12 @@
 
 	if ( (version_compare($glestVersion,"v3.4.0-dev","<") && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
 	{ // delete server; no checks are performed
-		mysql_db_query( MYSQL_DATABASE, 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+		mysql_query( 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
 		echo 'OK' ;	
 	}
 	else if ( $remote_ip == $server[0] && $service_port == $server[1] )    // this server is contained in the database
 	{ // update database info on this game server; no checks are performed
-		mysql_db_query( MYSQL_DATABASE, 'UPDATE glestserver SET ' .
+		mysql_query( 'UPDATE glestserver SET ' .
 			'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
 			'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
 			'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
@@ -89,7 +89,7 @@
 			'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
 			'lasttime='            . 'now()'                                        .    ' ' .
 			'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
-		updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
+		//updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		echo 'OK';
 	}
 	else                                        // this game server is not listed in the database, yet
@@ -171,10 +171,11 @@
 		*/
 		else  // connection to game server succeeded, protocol verification succeeded
 		{ // add this game server to the database
+			$country = "";
 			if ( extension_loaded('geoip') ) {
 					
 				$privacyPlease = 0;
-			    	if(isset($_GET["privacyPlease"])) {
+				if(isset($_GET["privacyPlease"])) {
 					$privacyPlease = (int)    clean_str( $_GET['privacyPlease'] );
 				}
 
@@ -183,7 +184,7 @@
 					$country = geoip_country_code_by_name( $remote_ip );
 				}
 			}
-			mysql_db_query( MYSQL_DATABASE, 'INSERT INTO glestserver SET ' .
+			mysql_query( 'INSERT INTO glestserver SET ' .
 				'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
 				'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
 				'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
@@ -200,7 +201,7 @@
 				'status=\''            . mysql_real_escape_string( $status )            . '\';'  
 			);
 			echo 'OK';
-			addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
+			//addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		}
 	}
 	db_disconnect( DB_LINK );

@@ -8,7 +8,7 @@
 
 	define( 'DB_LINK', db_connect() );
 
-	cleanupServerList( MYSQL_DATABASE );
+	cleanupServerList();
 
 	db_disconnect( DB_LINK );
 ?>

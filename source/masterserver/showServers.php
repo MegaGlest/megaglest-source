@@ -6,9 +6,9 @@
 	define( 'DB_LINK', db_connect() );
 
 	// consider replacing this by a cron job
-	cleanupServerList( MYSQL_DATABASE );
+	cleanupServerList();
 
-	$servers_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestserver ORDER BY status, (networkSlots - connectedClients) DESC, lasttime DESC;' );
+	$servers_in_db = mysql_query( 'SELECT * FROM glestserver ORDER BY status, (networkSlots - connectedClients) DESC, lasttime DESC;' );
 	$all_servers = array();
 	while ( $server = mysql_fetch_array( $servers_in_db ) )
 	{
