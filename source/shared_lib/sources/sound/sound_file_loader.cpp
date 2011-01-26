@@ -166,7 +166,7 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	soundInfo->setChannels(vi->channels);
 	soundInfo->setsamplesPerSecond(vi->rate);
 	soundInfo->setBitsPerSample(16);
-	soundInfo->setSize(samples * 2);
+	soundInfo->setSize(samples * 2 * vi->channels);
 }
 
 uint32 OggSoundFileLoader::read(int8 *samples, uint32 size){
