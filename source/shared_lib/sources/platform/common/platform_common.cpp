@@ -453,11 +453,13 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#2 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
+#endif
 
 	int fileLoopCount = 0;
 	int fileMatchCount = 0;
@@ -492,11 +494,14 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 #else
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
 #endif
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#3 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
+#endif
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
@@ -590,12 +595,13 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#4 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
-
+#endif
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 
@@ -628,11 +634,14 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 #else //APPLE doesn't have the GLOB_ONLYDIR definition..
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
 #endif
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#5 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
+#endif
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
@@ -690,11 +699,14 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#6 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
+#endif
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
@@ -727,11 +739,14 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 #else //APPLE doesn't have the GLOB_ONLYDIR definition..
 	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
 #endif
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#7 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 		throw runtime_error(msg.str());
 	}
+#endif
 
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
