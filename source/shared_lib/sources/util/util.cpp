@@ -186,13 +186,14 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	if(SystemFlags::debugLogFileList == NULL) {
 		SystemFlags::debugLogFileList = new std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>();
 
-		(*SystemFlags::debugLogFileList)[SystemFlags::debugSystem] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugSystem] 	 		= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugNetwork] 	 	= SystemFlags::SystemFlagsType(SystemFlags::debugNetwork);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugPerformance] 	= SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugWorldSynch]  	= SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
-		(*SystemFlags::debugLogFileList)[SystemFlags::debugError]  		= SystemFlags::SystemFlagsType(SystemFlags::debugError);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugSound]  			= SystemFlags::SystemFlagsType(SystemFlags::debugSound);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugError]  			= SystemFlags::SystemFlagsType(SystemFlags::debugError);
 	}
 
     if(threadLogger == NULL) {

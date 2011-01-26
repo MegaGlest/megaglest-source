@@ -420,8 +420,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 }
 
 MenuStateConnectedGame::~MenuStateConnectedGame() {
-	cleanupFactionTexture();
-
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);
 	    if(ftpClientThread->shutdownAndWait() == true) {
@@ -1662,47 +1660,16 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	cleanupFactionTexture();
-
 	if(enableFactionTexturePreview == true) {
 		if(filepath == "") {
 			factionTexture=NULL;
 		}
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
-
-			factionTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
-			//loadingTexture = renderer.newTexture2D(rsGlobal);
-			factionTexture->setMipmap(true);
-			//loadingTexture->getPixmap()->load(filepath);
-			factionTexture->load(filepath);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			Renderer &renderer= Renderer::getInstance();
-			renderer.initTexture(rsGlobal,factionTexture);
-
+			factionTexture = Renderer::findFactionLogoTexture(filepath);
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
-}
-
-void MenuStateConnectedGame::cleanupFactionTexture() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(factionTexture!=NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		factionTexture->end();
-		delete factionTexture;
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//delete loadingTexture;
-		factionTexture=NULL;
-	}
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {

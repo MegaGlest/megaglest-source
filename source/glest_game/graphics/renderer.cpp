@@ -416,6 +416,9 @@ void Renderer::reset3dMenu() {
 // ==================== end ====================
 
 void Renderer::end() {
+	std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
+	crcFactionPreviewTextureCache.clear();
+
 	//delete resources
 	modelManager[rsGlobal]->end();
 	textureManager[rsGlobal]->end();
@@ -4797,5 +4800,33 @@ uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 
 	return result;
 }
+
+Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+
+	Texture2D *result = NULL;
+	if(logoFilename != "") {
+		// Cache faction preview textures
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
+
+		if(crcFactionPreviewTextureCache.find(logoFilename) != crcFactionPreviewTextureCache.end()) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			result = crcFactionPreviewTextureCache[logoFilename];
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			Renderer &renderer= Renderer::getInstance();
+			result = renderer.newTexture2D(rsGlobal);
+			result->setMipmap(true);
+			result->load(logoFilename);
+			renderer.initTexture(rsGlobal,result);
+			crcFactionPreviewTextureCache[logoFilename] = result;
+		}
+	}
+
+	return result;
+}
+
 
 }}//end namespace

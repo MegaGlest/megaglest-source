@@ -159,30 +159,24 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 		throw runtime_error("Can't read ogg header info for file: "+path);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %ld, vi->bitrate_upper = %ld, vi->bitrate_nominal = %ld, vi->bitrate_lower = %ld, vi->bitrate_window = %ld\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window);
+	uint32 samples = static_cast<uint32>(ov_pcm_total(vf, -1));
+
+	SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %ld, vi->bitrate_upper = %ld, vi->bitrate_nominal = %ld, vi->bitrate_lower = %ld, vi->bitrate_window = %ld, samples = %lu\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window,samples);
 
 	soundInfo->setChannels(vi->channels);
 	soundInfo->setsamplesPerSecond(vi->rate);
 	soundInfo->setBitsPerSample(16);
-
-	uint32 samples = static_cast<uint32>(ov_pcm_total(vf, -1));
-
-	//if(vi->channels == 1) {
-		soundInfo->setSize(samples * 2);
-	//}
-	//else {
-	//	soundInfo->setSize(samples * 4);
-	//}
+	soundInfo->setSize(samples * 2);
 }
 
 uint32 OggSoundFileLoader::read(int8 *samples, uint32 size){
 	int section;
 	int totalBytesRead= 0;
 
-	while(size>0){
+	while(size>0) {
 		int bytesRead= ov_read(vf, reinterpret_cast<char*> (samples), size,
 							   0, 2, 1, &section);
-		if(bytesRead==0){
+		if(bytesRead==0) {
 			break;
 		}
 		size-= bytesRead;

@@ -167,6 +167,7 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
+	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter="loading_screen.*", bool useTechDefaultIfFilterNotFound=true);
 	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
 
 	bool getGameOver() { return gameOver; }
