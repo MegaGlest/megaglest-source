@@ -1641,6 +1641,9 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	const SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
 	const SurfaceCell *tsc= map->getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()));
 	bool visible= sc->isVisible(world->getThisTeamIndex()) || tsc->isVisible(world->getThisTeamIndex());
+	if(visible == false && world->showWorldForPlayer(world->getThisFactionIndex()) == true) {
+		visible = true;
+	}
 
 	//projectile
 	if(pstProj!=NULL){
