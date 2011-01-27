@@ -2652,7 +2652,13 @@ void Renderer::renderWaterEffects(){
 			//render only if visible
 			Vec2i intPos= Vec2i(static_cast<int>(ws->getPos().x), static_cast<int>(ws->getPos().y));
 			const Vec2i &mapPos = Map::toSurfCoords(intPos);
-			if(map->getSurfaceCell(mapPos)->isVisible(world->getThisTeamIndex())){
+
+			bool visible = map->getSurfaceCell(mapPos)->isVisible(world->getThisTeamIndex());
+			if(visible == false && world->showWorldForPlayer(world->getThisFactionIndex()) == true) {
+				visible = true;
+			}
+
+			if(visible == true) {
 
 				float scale= ws->getAnim()*ws->getSize();
 
