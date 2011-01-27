@@ -10,6 +10,13 @@
 	$glestVersion      = (string) clean_str( $_GET['glestVersion'] );
 	$platform          = (string) clean_str( $_GET['platform'] );
 	$binaryCompileDate = (string) clean_str( $_GET['binaryCompileDate'] );
+	if ( isset( $_GET['privacyPlease'] ) ) {
+		$privacyPlease = (int) $_GET['privacyPlease'];
+	}
+	else
+	{
+		$privacyPlease = 0;
+	}
 
 	// game info:
 	$serverTitle       = (string) clean_str( $_GET['serverTitle'] );
@@ -171,17 +178,15 @@
 		*/
 		else  // connection to game server succeeded, protocol verification succeeded
 		{ // add this game server to the database
-			$country = "";
 			if ( extension_loaded('geoip') ) {
 					
-				$privacyPlease = 0;
-				if(isset($_GET["privacyPlease"])) {
-					$privacyPlease = (int)    clean_str( $_GET['privacyPlease'] );
-				}
-
-				if($privacyPlease != 0)
+				if ( $privacyPlease == 0 )
 				{
 					$country = geoip_country_code_by_name( $remote_ip );
+				}
+				else
+				{
+					$country = '';
 				}
 			}
 			mysql_query( 'INSERT INTO glestserver SET ' .
