@@ -10,7 +10,8 @@ FIND_PATH(CURL_INCLUDE_DIR NAMES curl/curl.h)
 MARK_AS_ADVANCED(CURL_INCLUDE_DIR)
 
 # Look for the library.
-FIND_LIBRARY(CURL_LIBRARY NAMES curl curl-gnutls)
+FIND_LIBRARY(CURL_LIBRARY NAMES curl curl-gnutls
+                          PATHS "/usr/local/lib/")
 MARK_AS_ADVANCED(CURL_LIBRARY)
 
 # handle the QUIETLY and REQUIRED arguments and set CURL_FOUND to TRUE if 
