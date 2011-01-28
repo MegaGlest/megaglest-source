@@ -395,27 +395,57 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		closedNodesList[node->heuristic].push_back(node);
 		openPosList[node->pos] = true;
 
-		for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
-			for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
-				Vec2i sucPos= node->pos + Vec2i(i, j);
+		int tryDirection = random.randRange(0,1);
+		if(tryDirection > 0) {
+			for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
+				for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
+					Vec2i sucPos= node->pos + Vec2i(i, j);
 
-				//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos, &moveLookupCacheApproxCanMove);
-				bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
+					//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos, &moveLookupCacheApproxCanMove);
+					bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
 
-				if(openPos(sucPos) == false && canUnitMoveToCell == true) {
-					//if node is not open and canMove then generate another node
-					Node *sucNode= newNode();
-					if(sucNode != NULL) {
-						sucNode->pos= sucPos;
-						sucNode->heuristic= heuristic(sucNode->pos, finalPos); 
-						sucNode->prev= node;
-						sucNode->next= NULL;
-						sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-						openNodesList[sucNode->heuristic].push_back(sucNode);
-						openPosList[sucNode->pos] = true;
+					if(openPos(sucPos) == false && canUnitMoveToCell == true) {
+						//if node is not open and canMove then generate another node
+						Node *sucNode= newNode();
+						if(sucNode != NULL) {
+							sucNode->pos= sucPos;
+							sucNode->heuristic= heuristic(sucNode->pos, finalPos);
+							sucNode->prev= node;
+							sucNode->next= NULL;
+							sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+							openNodesList[sucNode->heuristic].push_back(sucNode);
+							openPosList[sucNode->pos] = true;
+						}
+						else {
+							nodeLimitReached= true;
+						}
 					}
-					else {
-						nodeLimitReached= true;
+				}
+			}
+		}
+		else {
+			for(int i = 1; i >= -1 && nodeLimitReached == false; --i) {
+				for(int j = 1; j >= -1 && nodeLimitReached == false; --j) {
+					Vec2i sucPos= node->pos + Vec2i(i, j);
+
+					//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos, &moveLookupCacheApproxCanMove);
+					bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
+
+					if(openPos(sucPos) == false && canUnitMoveToCell == true) {
+						//if node is not open and canMove then generate another node
+						Node *sucNode= newNode();
+						if(sucNode != NULL) {
+							sucNode->pos= sucPos;
+							sucNode->heuristic= heuristic(sucNode->pos, finalPos);
+							sucNode->prev= node;
+							sucNode->next= NULL;
+							sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+							openNodesList[sucNode->heuristic].push_back(sucNode);
+							openPosList[sucNode->pos] = true;
+						}
+						else {
+							nodeLimitReached= true;
+						}
 					}
 				}
 			}
