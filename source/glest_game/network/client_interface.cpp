@@ -125,7 +125,7 @@ void ClientInterface::update() {
 	}
 
 	double lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
-	if(lastNetworkCommandListSendTime > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed);
+	if(lastSendElapsed > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f, networkMessageCommandList.getCommandCount() = %d, requestedCommands.empty() = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed,networkMessageCommandList.getCommandCount(),requestedCommands.empty());
 
 	if(networkMessageCommandList.getCommandCount() > 0 ||
 	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {

@@ -793,7 +793,7 @@ void ServerInterface::updateKeyframe(int frameCount) {
 	Chrono chrono;
 	chrono.start();
 	currentFrameCount = frameCount;
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount,requestedCommands.size());
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
 	while(requestedCommands.empty() == false) {
 		if(networkMessageCommandList.addCommand(&requestedCommands.back())){
@@ -1471,7 +1471,7 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 		}
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 
