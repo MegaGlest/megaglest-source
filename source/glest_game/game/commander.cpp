@@ -251,7 +251,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 	assert(commandType != NULL);
 	assert(unitType != NULL);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -262,7 +262,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CommandResult result = pushNetworkCommand(&networkCommand);
 
@@ -340,7 +340,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 
 	if(selection->isEmpty() == false){
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
@@ -357,11 +357,11 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = [%s] commandType = %p\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(), commandType);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = [%s] commandType = %p\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(), commandType);
 
 			//give commands
 			if(commandType!=NULL) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandType->toString() [%s]\n",__FILE__,__FUNCTION__,__LINE__,commandType->toString().c_str());
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandType->toString() [%s]\n",__FILE__,__FUNCTION__,__LINE__,commandType->toString().c_str());
 
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
@@ -377,7 +377,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 				results.push_back(result);
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				results.push_back(crFailUndefined);
 			}
@@ -634,7 +634,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	const CommandType* ct= NULL;
 	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//validate unit
 	if(unit == NULL) {
@@ -727,7 +727,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw runtime_error(sError);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CardinalDir facing;
 	// get facing/target ... the target might be dead due to lag, cope with it
@@ -739,7 +739,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		target= world->findUnitById(networkCommand->getTargetId());
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//create command
 	Command *command= NULL;

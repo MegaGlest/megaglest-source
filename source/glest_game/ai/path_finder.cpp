@@ -201,6 +201,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			//printf("#1 BAILOUT test unitid [%d]\n",unit->getId());
 
 			bool useBailoutRadius = true;
+			/*
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
 				const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
@@ -231,6 +232,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					}
 				}
 			}
+			*/
 
 			if(useBailoutRadius == true) {
 				//int tryRadius = random.randRange(-PathFinder::pathFindBailoutRadius, PathFinder::pathFindBailoutRadius);
