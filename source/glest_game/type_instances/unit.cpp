@@ -1876,6 +1876,9 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 void Unit::cleanupOldBadHarvestPos() {
 	const int cleanupInterval = (GameConstants::updateFps * 5);
 	bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
+
+	//printf("========================> cleanupOldBadHarvestPos() [%d] badHarvestPosList.size [%ld] cleanupInterval [%d] getFrameCount() [%d] needToCleanup [%d]\n",getFrameCount(),badHarvestPosList.size(),cleanupInterval,getFrameCount(),needToCleanup);
+
 	if(needToCleanup == true) {
 		//printf("========================> cleanupOldBadHarvestPos() [%d] badHarvestPosList.size [%ld]\n",getFrameCount(),badHarvestPosList.size());
 

@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
@@ -21,12 +20,14 @@
 #include "platform_common.h"
 #include "command.h"
 #include "faction.h"
+#include "randomgen.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -36,10 +37,11 @@ namespace Glest{ namespace Game{
 
 // ===================== PUBLIC ======================== 
 
-const int PathFinder::maxFreeSearchRadius= 10;	
+const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
-const int PathFinder::pathFindNodesMax= 200;
-const int PathFinder::pathFindRefresh= 10;
+const int PathFinder::pathFindNodesMax		= 200;
+const int PathFinder::pathFindRefresh		= 10;
+const int PathFinder::pathFindBailoutRadius	= 20;
 
 
 PathFinder::PathFinder() {
@@ -195,22 +197,84 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				*wasStuck = true;
 			}
 			unit->setInBailOutAttempt(true);
-			// Try to bail out up to 20 cells away
-			for(int bailoutX = -20; bailoutX <= 20 && ts == tsBlocked; ++bailoutX) {
-				for(int bailoutY = -20; bailoutY <= 20 && ts == tsBlocked; ++bailoutY) {
-					const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
-					//if(map->canMove(unit, unit->getPos(), newFinalPos, &lookupCacheCanMove)) {
-					bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-						char szBuf[4096]="";
-						sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
-								finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
-						unit->logSynchData(__FILE__,__LINE__,szBuf);
+			//printf("#1 BAILOUT test unitid [%d]\n",unit->getId());
+
+			bool useBailoutRadius = true;
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL) {
+					Resource *r = map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
+					if(r != NULL && r->getType() != NULL) {
+						Vec2i newFinalPos = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, r->getType());
+
+						//printf("#2 BAILOUT test unitid [%d] newFinalPos [%s] finalPos [%s]\n",unit->getId(),newFinalPos.getString().c_str(),finalPos.getString().c_str());
+
+						if(newFinalPos != finalPos) {
+							bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
+
+							//printf("#3 BAILOUT test unitid [%d] newFinalPos [%s] finalPos [%s] canUnitMove [%d]\n",unit->getId(),newFinalPos.getString().c_str(),finalPos.getString().c_str(),canUnitMove);
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+								char szBuf[4096]="";
+								sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+										finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
+								unit->logSynchData(__FILE__,__LINE__,szBuf);
+							}
+
+							if(canUnitMove) {
+								useBailoutRadius = false;
+								ts= aStar(unit, newFinalPos, true);
+							}
+						}
 					}
+				}
+			}
 
-					if(canUnitMove) {
-						ts= aStar(unit, newFinalPos, true);
+			if(useBailoutRadius == true) {
+				//int tryRadius = random.randRange(-PathFinder::pathFindBailoutRadius, PathFinder::pathFindBailoutRadius);
+				int tryRadius = random.randRange(0,1);
+
+				//printf("#4 BAILOUT test unitid [%d] useBailoutRadius [%d] tryRadius [%d]\n",unit->getId(),useBailoutRadius,tryRadius);
+
+				// Try to bail out up to PathFinder::pathFindBailoutRadius cells away
+				if(tryRadius > 0) {
+					for(int bailoutX = -PathFinder::pathFindBailoutRadius; bailoutX >= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutX) {
+						for(int bailoutY = -PathFinder::pathFindBailoutRadius; bailoutY >= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutY) {
+							const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
+							bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+								char szBuf[4096]="";
+								sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+										finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
+								unit->logSynchData(__FILE__,__LINE__,szBuf);
+							}
+
+							if(canUnitMove) {
+								ts= aStar(unit, newFinalPos, true);
+							}
+						}
+					}
+				}
+				else {
+					for(int bailoutX = PathFinder::pathFindBailoutRadius; bailoutX >= -tryRadius && ts == tsBlocked; --bailoutX) {
+						for(int bailoutY = PathFinder::pathFindBailoutRadius; bailoutY >= -PathFinder::pathFindBailoutRadius && ts == tsBlocked; --bailoutY) {
+							const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
+							bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+								char szBuf[4096]="";
+								sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+										finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
+								unit->logSynchData(__FILE__,__LINE__,szBuf);
+							}
+
+							if(canUnitMove) {
+								ts= aStar(unit, newFinalPos, true);
+							}
+						}
 					}
 				}
 			}

@@ -56,6 +56,7 @@ public:
 	static const int maxFreeSearchRadius;
 	static const int pathFindNodesMax;
 	static const int pathFindRefresh;
+	static const int pathFindBailoutRadius;
 
 private:
 	std::map<Vec2i, bool> openPosList;
@@ -65,6 +66,7 @@ private:
 	std::vector<Node> nodePool;
 	int nodePoolCount;
 	const Map *map;
+	RandomGen random;
 
 	//std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > lookupCacheCanMove;
 	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > moveLookupCacheApproxCanMove;
