@@ -94,7 +94,7 @@ GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnN
 }
 
 ServerInterface* NetworkManager::getServerInterface(bool throwErrorOnNull) {
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+    //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
     //printf("==========] GET gameNetworkInterface (server) [%p]\n",gameNetworkInterface);
 
     if(throwErrorOnNull) {

@@ -239,9 +239,6 @@ void Program::loopWorker() {
 	Chrono chrono;
 	chrono.start();
 
-	//getWindow()->makeCurrentGl();
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	//render
     assert(programState != NULL);
 
@@ -260,16 +257,7 @@ void Program::loopWorker() {
     }
     ProgramState *prevState = this->programState;
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    //if(skipRenderFrameCount <= 0) {
     programState->render();
-    //}
-    //else {
-    //	skipRenderFrameCount--;
-    //}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP RENDERING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
@@ -279,8 +267,6 @@ void Program::loopWorker() {
 	while(updateCameraTimer.isTime()){
 		programState->updateCamera();
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP CAMERA UPDATING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	if(chrono.getMillis() > 0) chrono.start();
@@ -317,13 +303,11 @@ void Program::loopWorker() {
 		}
 		updateCount++;
 	}
-	//if(chrono.getMillis() >= 100) {
-	//	skipRenderFrameCount = (chrono.getMillis() / 100);
-	//}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
 	if(chrono.getMillis() > 0) chrono.start();
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
+	if(chrono.getMillis() > 0) chrono.start();
 
 	if(prevState == this->programState) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -336,6 +320,10 @@ void Program::loopWorker() {
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(chrono.getMillis() > 0) chrono.start();
+
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) chrono.start();
+
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
