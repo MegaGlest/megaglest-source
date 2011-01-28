@@ -73,7 +73,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	findDirs(dirList, results);
     scenarioFiles = results;
 	if(results.size() == 0) {
-        throw runtime_error("There are no scenarios");
+        throw runtime_error("There are no scenarios found to load");
 	}
 	for(int i= 0; i<results.size(); ++i){
 		results[i] = formatString(results[i]);
@@ -215,9 +215,10 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     const XmlNode *scenarioNode= xmlTree.getRootNode();
 	const XmlNode *difficultyNode= scenarioNode->getChild("difficulty");
 	scenarioInfo->difficulty = difficultyNode->getAttribute("value")->getIntValue();
-	if( scenarioInfo->difficulty < dVeryEasy || scenarioInfo->difficulty > dInsane )
-	{
-		throw std::runtime_error("Invalid difficulty");
+	if( scenarioInfo->difficulty < dVeryEasy || scenarioInfo->difficulty > dInsane ) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"Invalid difficulty value specified in scenario: %d must be between %d and %d",scenarioInfo->difficulty,dVeryEasy,dInsane);
+		throw std::runtime_error(szBuf);
 	}
 
 	const XmlNode *playersNode= scenarioNode->getChild("players");
@@ -262,9 +263,10 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
         if(factionControl != ctClosed){
             int teamIndex = playerNode->getAttribute("team")->getIntValue();
 
-            if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers )
-            {
-                throw runtime_error("Team out of range: " + intToStr(teamIndex) );
+            if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers ) {
+        		char szBuf[4096]="";
+        		sprintf(szBuf,"Invalid team value specified in scenario: %d must be between %d and %d",teamIndex,1,GameConstants::maxPlayers);
+        		throw std::runtime_error(szBuf);
             }
 
             scenarioInfo->teams[i]= playerNode->getAttribute("team")->getIntValue();
@@ -372,7 +374,9 @@ ControlType MenuStateScenario::strToControllerType(const string &str){
 	    return ctHuman;
     }
 
-    throw std::runtime_error("Unknown controller type: " + str);
+	char szBuf[4096]="";
+	sprintf(szBuf,"Invalid controller value specified in scenario: [%s] must be one of the following: closed, cpu-easy, cpu, cpu-ultra, cpu-mega, human",str.c_str());
+	throw std::runtime_error(szBuf);
 }
 
 void MenuStateScenario::showMessageBox(const string &text, const string &header, bool toggle){
