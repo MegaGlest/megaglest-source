@@ -81,6 +81,7 @@ private:
 
 	float speed;
 	float anim;
+	int particleLoopStart;
 	float rotX, rotY, zoom;
 	float backBrightness, gridBrightness, lightBrightness;
 	int lastX, lastY;
@@ -104,7 +105,10 @@ private:
 	void saveScreenshot();
 
 public:
-	MainWindow(const string &modelPath);
+	MainWindow(	const string modelPath,const string particlePath,
+				const string projectileParticlePath,const string splashParticlePath,
+				float defaultAnimation,int defaultParticleLoopStart,
+				float defaultZoom,float defaultXRot, float defaultYRot);
 	~MainWindow();
 	void init();
 

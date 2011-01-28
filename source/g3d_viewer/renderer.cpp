@@ -210,11 +210,11 @@ void Renderer::init() {
 	customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
 
 	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /* once the GL context is valid : */
-    GLint alpha_bits;
-    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //GLint alpha_bits;
+    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
     //printf("#1 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
 
 	glEnable(GL_TEXTURE_2D);
@@ -222,7 +222,8 @@ void Renderer::init() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.5f);
+	//glAlphaFunc(GL_GREATER, 0.5f);
+	glAlphaFunc(GL_GREATER, 0.0f);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
@@ -246,12 +247,12 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
 	width=w;
 	height=h;
 
-	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
+	//glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /* once the GL context is valid : */
-    GLint alpha_bits;
-    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //GLint alpha_bits;
+    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
     //printf("#2 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
 
 	glViewport(0, 0, w, h);
@@ -445,11 +446,11 @@ void Renderer::setBackgroundColor(float red, float green, float blue) {
 	this->blue = blue;
 
 	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /* once the GL context is valid : */
-    GLint alpha_bits;
-    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //GLint alpha_bits;
+    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
     //printf("#3 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
 }
 
@@ -457,11 +458,11 @@ void Renderer::setAlphaColor(float alpha) {
 	this->alpha= alpha;
 
 	glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /* once the GL context is valid : */
-    GLint alpha_bits;
-    glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+    //GLint alpha_bits;
+    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
     //printf("#3.1 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
 }
 
