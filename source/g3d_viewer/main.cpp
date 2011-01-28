@@ -11,6 +11,11 @@
 #include <iostream>
 #include <wx/event.h>
 #include "game_constants.h"
+#ifndef WIN32
+  #define stricmp strcasecmp
+  #define strnicmp strncasecmp
+  #define _strnicmp strncasecmp
+#endif
 
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
@@ -31,6 +36,8 @@ const char *folderDelimiter = "/";
 int GameConstants::updateFps= 40;
 int GameConstants::cameraFps= 100;
 
+const string g3dviewerVersionString= "v1.3.6";
+
 namespace Shared{ namespace G3dViewer{
 
 // ===============================================
@@ -45,11 +52,82 @@ wxString ToUnicode(const string& str) {
 	return wxString(str.c_str(), wxConvUTF8);
 }
 
+const wxChar  *GAME_ARGS[] = {
+	wxT("--help"),
+	wxT("--autoscreenshot"),
+	wxT("--loadmodel")
+};
+
+enum GAME_ARG_TYPE {
+	GAME_ARG_HELP = 0,
+	GAME_ARG_AUTO_SCREENSHOT,
+	GAME_ARG_LOAD_MODEL
+};
+
+bool hasCommandArgument(int argc, wxChar** argv,const string argName,
+						int *foundIndex=NULL, int startLookupIndex=1,
+						bool useArgParamLen=false) {
+	bool result = false;
+
+	if(foundIndex != NULL) {
+		*foundIndex = -1;
+	}
+	int compareLen = strlen(argName.c_str());
+
+	for(int idx = startLookupIndex; idx < argc; idx++) {
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx]);
+		//printf("tmp_buf [%s]\n",(const char *)tmp_buf);
+		if(useArgParamLen == true) {
+			compareLen = strlen(tmp_buf);
+		}
+		if(_strnicmp(argName.c_str(),tmp_buf,compareLen) == 0) {
+			result = true;
+			if(foundIndex != NULL) {
+				*foundIndex = idx;
+			}
+
+			break;
+		}
+	}
+	return result;
+}
+
+void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
+	if(foundInvalidArgs == true) {
+			printf("\n");
+	}
+
+	printf("\n%s %s, usage\n",argv0,g3dviewerVersionString.c_str());
+
+	printf("\n%s [G3D FILE]\n\n",argv0);
+	printf("Displays glest 3D-models and unit/projectile/splash particle systems.\n");
+	printf("rotate with left mouse button, zoom with right mouse button or mousewheel.\n");
+	printf("Use ctrl to load more than one particle system.\n");
+	printf("Press R to restart particles, this also reloads all files if they are changed.\n\n");
+
+	printf("optionally you may use any of the following:\n");
+	printf("Parameter:\t\tDescription:");
+	printf("\n----------------------\t------------");
+	printf("\n%s\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
+	printf("\n%s=x\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n                     \tWhere x is a G3d filename to load:");
+	printf("\n                     \texample: %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n%s=x\tAutomatically takes a screenshot of the items you are loading.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]));
+	printf("\n                     \tWhere x is a comma-delimited list of one or more of the optional settings:");
+	printf("\n                     \ttransparent, enable_grid, enable_wireframe, enable_normals,");
+	printf("\n                     \tdisable_grid, disable_wireframe, disable_normals, saveas-<filename>");
+	printf("\n                     \texample: %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+
+	printf("\n\n");
+}
+
+bool autoScreenShotAndExit = false;
+vector<string> autoScreenShotParams;
+
 // ===============================================
 // 	class MainWindow
 // ===============================================
 
-const string g3dviewerVersionString= "v1.3.6";
 const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
 MainWindow::MainWindow(const string &modelPath)
@@ -119,6 +197,57 @@ MainWindow::MainWindow(const string &modelPath)
 	menuMode->Check(miModeGrid, true);
 	menuCustomColor->Check(miColorRed, true);
 
+    for(int i = 0; i < autoScreenShotParams.size(); ++i) {
+    	if(autoScreenShotParams[i] == "transparent") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuFile->Check(miFileToggleScreenshotTransparent,true);
+            float alpha = 0.0f;
+            renderer->setAlphaColor(alpha);
+    	}
+    	if(autoScreenShotParams[i] == "enable_grid") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeGrid,true);
+    		if(renderer->getGrid() == false) {
+    			renderer->toggleGrid();
+    		}
+    	}
+    	if(autoScreenShotParams[i] == "enable_wireframe") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeWireframe,true);
+    		if(renderer->getWireframe() == false) {
+    			renderer->toggleWireframe();
+    		}
+    	}
+    	if(autoScreenShotParams[i] == "enable_normals") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeNormals,true);
+    		if(renderer->getNormals() == false) {
+    			renderer->toggleNormals();
+    		}
+    	}
+    	if(autoScreenShotParams[i] == "disable_grid") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeGrid,false);
+    		if(renderer->getGrid() == true) {
+    			renderer->toggleGrid();
+    		}
+    	}
+    	if(autoScreenShotParams[i] == "enable_wireframe") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeWireframe,false);
+    		if(renderer->getWireframe() == true) {
+    			renderer->toggleWireframe();
+    		}
+    	}
+    	if(autoScreenShotParams[i] == "enable_normals") {
+    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+    		menuMode->Check(miModeNormals,false);
+    		if(renderer->getNormals() == true) {
+    			renderer->toggleNormals();
+    		}
+    	}
+    }
+
 	SetMenuBar(menu);
 
 	//misc
@@ -173,7 +302,7 @@ MainWindow::~MainWindow(){
 
 }
 
-void MainWindow::init(){
+void MainWindow::init() {
 	glCanvas->SetCurrent();
 	renderer->init();
 
@@ -195,8 +324,13 @@ void MainWindow::onPaint(wxPaintEvent &event){
 	}
 
 	renderer->renderParticleManager();
-
 	glCanvas->SwapBuffers();
+
+	if(autoScreenShotAndExit == true) {
+		autoScreenShotAndExit = false;
+		saveScreenshot();
+		Close();
+	}
 }
 
 void MainWindow::onClose(wxCloseEvent &event){
@@ -408,24 +542,45 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
 	}
 }
 
-void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
+void MainWindow::saveScreenshot() {
 	try {
-		string path = "screens/";
-		if(isdir(path.c_str()) == true) {
-			//Config &config= Config::getInstance();
-			//string fileFormat = config.getString("ScreenShotFileType","png");
-			string fileFormat = "png";
+		int autoSaveScreenshotIndex = -1;
+	    for(int i = 0; i < autoScreenShotParams.size(); ++i) {
+			if(_strnicmp(autoScreenShotParams[i].c_str(),"saveas-",7) == 0) {
+	    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+	    		autoSaveScreenshotIndex = i;
+	    		break;
+	    	}
+	    }
+	    if(autoSaveScreenshotIndex >= 0) {
+	    	string saveAsFilename = autoScreenShotParams[autoSaveScreenshotIndex];
+	    	saveAsFilename.erase(0,7);
+			FILE *f= fopen(saveAsFilename.c_str(), "rb");
+			if(f == NULL) {
+				renderer->saveScreen(saveAsFilename.c_str());
+			}
+			else {
+				fclose(f);
+			}
+	    }
+	    else {
+			string path = "screens/";
+			if(isdir(path.c_str()) == true) {
+				//Config &config= Config::getInstance();
+				//string fileFormat = config.getString("ScreenShotFileType","png");
+				string fileFormat = "png";
 
-			for(int i=0; i < 1000; ++i) {
-				path = "screens/";
-				path += string("screen") + intToStr(i) + string(".") + fileFormat;
-				FILE *f= fopen(path.c_str(), "rb");
-				if(f == NULL) {
-					renderer->saveScreen(path);
-					break;
-				}
-				else {
-					fclose(f);
+				for(int i=0; i < 1000; ++i) {
+					path = "screens/";
+					path += string("screen") + intToStr(i) + string(".") + fileFormat;
+					FILE *f= fopen(path.c_str(), "rb");
+					if(f == NULL) {
+						renderer->saveScreen(path);
+						break;
+					}
+					else {
+						fclose(f);
+					}
 				}
 			}
 		}
@@ -434,6 +589,10 @@ void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
+}
+
+void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
+	saveScreenshot();
 }
 
 void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
@@ -1222,17 +1381,98 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit(){
-	std::string modelPath;
-	if(argc==2){
-		if(argv[1][0]=='-') {   // any flag gives help and exits program.
-			std::cout << "G3D viewer " << g3dviewerVersionString << std::endl << std::endl;
-			std::cout << "glest_g3dviewer [G3D 3D-MODEL FILE]" << std::endl << std::endl;
-			std::cout << "Displays glest 3D-models and unit/projectile/splash particle systems."  << std::endl;
-			std::cout << "rotate with left mouse button, zoom with right mouse button or mousewheel."  << std::endl;
-			std::cout << "Use ctrl to load more than one particle system." << std::endl;
-			std::cout << "Press R to restart particles, this also reloads all files if they are changed."  << std::endl << std::endl;
-			exit (0);
+	std::string modelPath="";
+
+/*
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]),&foundParamIndIndex);
+        }
+        string customPath = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
+        }
+        else {
+
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(argv[0],false);
+            return -1;
+        }
+    }
+*/
+
+	bool foundInvalidArgs = false;
+	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
+	for(int idx = 1; idx < argc; ++idx) {
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx]);
+		if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp_buf, NULL, 0, true) == false &&
+			argv[idx][0] == '-') {
+			foundInvalidArgs = true;
+
+			printf("\nInvalid argument: %s",(const char*)tmp_buf);
 		}
+	}
+
+    if(foundInvalidArgs == true ||
+    	hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP])) == true) {
+    	printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),foundInvalidArgs);
+		return false;
+    }
+
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT])) == true) {
+    	autoScreenShotAndExit = true;
+
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string options = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(options,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string optionsValue = paramPartTokens[1];
+
+            autoScreenShotParams.clear();
+            Tokenize(optionsValue,autoScreenShotParams,",");
+        }
+    }
+
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            modelPath = customPathValue;
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	if(argc == 2 && argv[1][0] != '-') {
 
 #if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
