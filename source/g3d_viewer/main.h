@@ -101,6 +101,8 @@ private:
 	void loadProjectileParticle(string path);
 	void loadSplashParticle(string path);
 
+	void saveScreenshot();
+
 public:
 	MainWindow(const string &modelPath);
 	~MainWindow();
