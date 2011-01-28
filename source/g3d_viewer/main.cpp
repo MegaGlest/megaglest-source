@@ -54,14 +54,30 @@ wxString ToUnicode(const string& str) {
 
 const wxChar  *GAME_ARGS[] = {
 	wxT("--help"),
-	wxT("--autoscreenshot"),
-	wxT("--loadmodel")
+	wxT("--auto-screenshot"),
+	wxT("--load-model"),
+	wxT("--load-model-animation-value"),
+	wxT("--load-particle"),
+	wxT("--load-projectile-particle"),
+	wxT("--load-splash-particle"),
+	wxT("--load-particle-loop-value"),
+	wxT("--zoom-value"),
+	wxT("--rotate-x-value"),
+	wxT("--rotate-y-value"),
 };
 
 enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
 	GAME_ARG_AUTO_SCREENSHOT,
-	GAME_ARG_LOAD_MODEL
+	GAME_ARG_LOAD_MODEL,
+	GAME_ARG_LOAD_MODEL_ANIMATION_VALUE,
+	GAME_ARG_LOAD_PARTICLE,
+	GAME_ARG_LOAD_PARTICLE_PROJECTILE,
+	GAME_ARG_LOAD_PARTICLE_SPLASH,
+	GAME_ARG_LOAD_PARTICLE_LOOP_VALUE,
+	GAME_ARG_ZOOM_VALUE,
+	GAME_ARG_ROTATE_X_VALUE,
+	GAME_ARG_ROTATE_Y_VALUE,
 };
 
 bool hasCommandArgument(int argc, wxChar** argv,const string argName,
@@ -106,17 +122,42 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("Press R to restart particles, this also reloads all files if they are changed.\n\n");
 
 	printf("optionally you may use any of the following:\n");
-	printf("Parameter:\t\tDescription:");
-	printf("\n----------------------\t------------");
-	printf("\n%s\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
-	printf("\n%s=x\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
-	printf("\n                     \tWhere x is a G3d filename to load:");
-	printf("\n                     \texample: %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
-	printf("\n%s=x\tAutomatically takes a screenshot of the items you are loading.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]));
-	printf("\n                     \tWhere x is a comma-delimited list of one or more of the optional settings:");
-	printf("\n                     \ttransparent, enable_grid, enable_wireframe, enable_normals,");
-	printf("\n                     \tdisable_grid, disable_wireframe, disable_normals, saveas-<filename>");
-	printf("\n                     \texample: %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("Parameter:\t\t\tDescription:");
+	printf("\n----------------------\t\t------------");
+	printf("\n%s\t\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
+	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n                     \t\tWhere x is a G3d filename to load:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n%s=x\t\tAnimation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
+	printf("\n                     \t\tWhere x is a decimal value from -1.0 to 1.0:");
+	printf("\n                     \t\texample: %s %s=0.5",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
+	printf("\n%s=x\t\tAutomatically takes a screenshot of the items you are loading.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]));
+	printf("\n                     \t\tWhere x is a comma-delimited list of one or more of the optional settings:");
+	printf("\n                     \t\ttransparent, enable_grid, enable_wireframe, enable_normals,");
+	printf("\n                     \t\tdisable_grid, disable_wireframe, disable_normals, saveas-<filename>");
+	printf("\n                     \t\texample: %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n%s=x\t\tAuto load the particle specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
+	printf("\n                     \t\tWhere x is a Particle Definition XML filename to load:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/persian/units/genie/glow_particles.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
+	printf("\n%s=x\tAuto load the projectile particle specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
+	printf("\n                     \t\tWhere x is a Projectile Particle Definition XML filename to load:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/persian/units/genie/particle_proj.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
+	printf("\n%s=x\tAuto load the splash particle specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
+	printf("\n                     \t\tWhere x is a Splash Particle Definition XML filename to load:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/persian/units/genie/particle_splash.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
+	printf("\n%s=x\tParticle loop value when loading one or more particles",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
+	printf("\n                     \t\tWhere x is an integer value from 1 to particle count:");
+	printf("\n                     \t\texample: %s %s=25",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
+
+	printf("\n%s=x\t\t\tZoom value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]));
+	printf("\n                     \t\tWhere x is a decimal value from 0.1 to 10.0:");
+	printf("\n                     \t\texample: %s %s=4.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]));
+	printf("\n%s=x\t\tX Coordinate Rotation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]));
+	printf("\n                     \t\tWhere x is a decimal value from -10.0 to 10.0:");
+	printf("\n                     \t\texample: %s %s=2.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]));
+	printf("\n%s=x\t\tY Coordinate Rotation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
+	printf("\n                     \t\tWhere x is a decimal value from -10.0 to 10.0:");
+	printf("\n                     \t\texample: %s %s=2.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
 
 	printf("\n\n");
 }
@@ -130,7 +171,13 @@ vector<string> autoScreenShotParams;
 
 const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
-MainWindow::MainWindow(const string &modelPath)
+MainWindow::MainWindow(	const string modelPath,
+						const string particlePath,
+						const string projectileParticlePath,
+						const string splashParticlePath,
+						float defaultAnimation,
+						int defaultParticleLoopStart,
+						float defaultZoom,float defaultXRot, float defaultYRot)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),wxPoint(Renderer::windowX, Renderer::windowY),
 		wxSize(Renderer::windowW, Renderer::windowH))
 {
@@ -139,6 +186,22 @@ MainWindow::MainWindow(const string &modelPath)
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
 	}
+	if(particlePath != "") {
+		this->particlePathList.push_back(particlePath);
+	}
+	if(projectileParticlePath != "") {
+		this->particleProjectilePathList.push_back(projectileParticlePath);
+	}
+	if(splashParticlePath != "") {
+		this->particleSplashPathList.push_back(splashParticlePath);
+	}
+
+	anim = defaultAnimation;
+	particleLoopStart = defaultParticleLoopStart;
+	rotX= defaultXRot;
+	rotY= defaultYRot;
+	zoom= defaultZoom;
+
 	model= NULL;
 	playerColor= Renderer::pcRed;
 
@@ -148,20 +211,17 @@ MainWindow::MainWindow(const string &modelPath)
 	glCanvas = new GlCanvas(this, args);
 
     //getGlPlatformExtensions();
-
-	//glCanvas->SetCurrent();
-	//renderer->init();
 	menu= new wxMenuBar();
 
 	//menu
 	menuFile= new wxMenu();
-	menuFile->Append(miFileLoad, wxT("&Load G3d model"), wxT("Load 3D model"));
-	menuFile->Append(miFileLoadParticleXML, wxT("Load &Particle XML"), wxT("Press ctrl before menu for keeping current particles"));
-	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load P&rojectile Particle XML"), wxT("Press ctrl before menu for keeping current projectile particles"));
-	menuFile->Append(miFileLoadSplashParticleXML, wxT("Load &Splash Particle XML"), wxT("Press ctrl before menu for keeping current splash particles"));
-	menuFile->Append(miFileClearAll, wxT("&Clear All"));
-	menuFile->AppendCheckItem(miFileToggleScreenshotTransparent, wxT("&Transparent Screenshots"));
-	menuFile->Append(miFileSaveScreenshot, wxT("Sa&ve a Screenshot"));
+	menuFile->Append(miFileLoad, wxT("&Load G3d model\tCtrl+L"), wxT("Load 3D model"));
+	menuFile->Append(miFileLoadParticleXML, wxT("Load &Particle XML\tCtrl+P"), wxT("Press ctrl before menu for keeping current particles"));
+	menuFile->Append(miFileLoadProjectileParticleXML, wxT("Load Pro&jectile Particle XML\tCtrl+J"), wxT("Press ctrl before menu for keeping current projectile particles"));
+	menuFile->Append(miFileLoadSplashParticleXML, wxT("Load &Splash Particle XML\tCtrl+S"), wxT("Press ctrl before menu for keeping current splash particles"));
+	menuFile->Append(miFileClearAll, wxT("&Clear All\tCtrl+C"));
+	menuFile->AppendCheckItem(miFileToggleScreenshotTransparent, wxT("&Transparent Screenshots\tCtrl+T"));
+	menuFile->Append(miFileSaveScreenshot, wxT("Sa&ve a Screenshot\tCtrl+V"));
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
 	menu->Append(menuFile, wxT("&File"));
@@ -252,15 +312,12 @@ MainWindow::MainWindow(const string &modelPath)
 
 	//misc
 	model= NULL;
-	rotX= 0.0f;
-	rotY= 0.0f;
-	zoom= 1.0f;
 	backBrightness= 0.3f;
 	gridBrightness= 1.0f;
 	lightBrightness= 0.3f;
 	lastX= 0;
 	lastY= 0;
-	anim= 0.0f;
+
 	statusbarText="";
 	CreateStatusBar();
 
@@ -306,7 +363,8 @@ void MainWindow::init() {
 	glCanvas->SetCurrent();
 	renderer->init();
 
-	loadModel("");
+	wxCommandEvent event;
+	onMenuRestart(event);
 }
 
 void MainWindow::onPaint(wxPaintEvent &event){
@@ -315,10 +373,14 @@ void MainWindow::onPaint(wxPaintEvent &event){
 	renderer->transform(rotX, rotY, zoom);
 	renderer->renderGrid();
 
+	//printf("anim [%f] particleLoopStart [%d]\n",anim,particleLoopStart);
+
 	renderer->renderTheModel(model, anim);
 
 	//int updateLoops = 100;
-	int updateLoops = 1;
+	int updateLoops = particleLoopStart;
+	particleLoopStart = 1;
+
 	for(int i=0; i< updateLoops; ++i) {
 		renderer->updateParticleManager();
 	}
@@ -364,6 +426,10 @@ void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 		wxPaintEvent paintEvent;
 		zoom*= 1.1f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
+
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
 		onPaint(paintEvent);
 	}
 	catch(std::runtime_error e) {
@@ -377,6 +443,10 @@ void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
 		wxPaintEvent paintEvent;
 		zoom*= 0.90909f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
+
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
 		onPaint(paintEvent);
 	}
 	catch(std::runtime_error e) {
@@ -395,11 +465,19 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 		if(event.LeftIsDown()){
 			rotX+= clamp(lastX-x, -10, 10);
 			rotY+= clamp(lastY-y, -10, 10);
+
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
 			onPaint(paintEvent);
 		}
 		else if(event.RightIsDown()){
 			zoom*= 1.0f+(lastX-x+lastY-y)/100.0f;
 			zoom= clamp(zoom, 0.1f, 10.0f);
+
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
 			onPaint(paintEvent);
 		}
 
@@ -519,10 +597,7 @@ void MainWindow::OnChangeColor(wxCommandEvent &event) {
 		{
 			wxColourData retData = dialog.GetColourData();
 			wxColour col = retData.GetColour();
-
-			//renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f, col.Alpha()/255.0f);
 			renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f);
-			//renderer->setBackgroundColor(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 	}
 	catch(std::runtime_error e) {
@@ -652,7 +727,7 @@ void MainWindow::loadModel(string path) {
             model= tmpModel;
 
             statusbarText = getModelInfo();
-            string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+            string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
             GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
             timer->Start(100);
             titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
@@ -832,14 +907,6 @@ void MainWindow::loadProjectileParticle(string path) {
 
 				ps->setVisible(true);
 				renderer->manageParticleSystem(ps);
-
-				//MessageBox(NULL,"hi","hi",MB_OK);
-				//psProj= pstProj->create();
-				//psProj->setPath(startPos, endPos);
-				//psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
-				//psProj->setVisible(visible);
-				//psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-				//renderer.manageParticleSystem(psProj, rsGame);
 			}
 		}
 		SetTitle(ToUnicode(titlestring));
@@ -996,7 +1063,7 @@ void MainWindow::onMenuSpeedSlower(wxCommandEvent &event){
 			speed = 0;
 		}
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
 	catch(std::runtime_error e) {
@@ -1012,7 +1079,7 @@ void MainWindow::onMenuSpeedFaster(wxCommandEvent &event){
 			speed = 1;
 		}
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 );
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 ) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
 	catch(std::runtime_error e) {
@@ -1168,12 +1235,11 @@ void MainWindow::onMenuColorMagenta(wxCommandEvent &event) {
 
 
 void MainWindow::onTimer(wxTimerEvent &event) {
-	wxPaintEvent paintEvent;
-
 	anim = anim + speed;
 	if(anim > 1.0f){
 		anim -= 1.f;
 	}
+	wxPaintEvent paintEvent;
 	onPaint(paintEvent);
 }
 
@@ -1213,7 +1279,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 				speed = 1.0;
 			}
 
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 		}
@@ -1222,7 +1288,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 			if(speed < 0) {
 				speed = 0;
 			}
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 		}
 		else if (e.GetKeyCode() == 87) {
@@ -1381,31 +1447,11 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit(){
-	std::string modelPath="";
+	string modelPath="";
+	string particlePath="";
+	string projectileParticlePath="";
+	string splashParticlePath="";
 
-/*
-    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
-        int foundParamIndIndex = -1;
-        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]) + string("="),&foundParamIndIndex);
-        if(foundParamIndIndex < 0) {
-            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DATA_PATH]),&foundParamIndIndex);
-        }
-        string customPath = argv[foundParamIndIndex];
-        vector<string> paramPartTokens;
-        Tokenize(customPath,paramPartTokens,"=");
-        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-            string customPathValue = paramPartTokens[1];
-            pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
-            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
-        }
-        else {
-
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(argv[0],false);
-            return -1;
-        }
-    }
-*/
 
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
@@ -1472,6 +1518,198 @@ bool App::OnInit(){
         }
     }
 
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            particlePath = customPathValue;
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            projectileParticlePath = customPathValue;
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            splashParticlePath = customPathValue;
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	float newAnimValue = 0.0f;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	newAnimValue = strToFloat(paramPartTokens[1]);
+        	//printf("newAnimValue = %f\n",newAnimValue);
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	int newParticleLoopValue = 1;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	newParticleLoopValue = strToInt(paramPartTokens[1]);
+        	//printf("newParticleLoopValue = %d\n",newParticleLoopValue);
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	float newZoomValue = 1.0f;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	newZoomValue = strToFloat(paramPartTokens[1]);
+        	//printf("newAnimValue = %f\n",newAnimValue);
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	float newXRotValue = 0.0f;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	newXRotValue = strToFloat(paramPartTokens[1]);
+        	//printf("newAnimValue = %f\n",newAnimValue);
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+	float newYRotValue = 0.0f;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	newYRotValue = strToFloat(paramPartTokens[1]);
+        	//printf("newAnimValue = %f\n",newAnimValue);
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
 	if(argc == 2 && argv[1][0] != '-') {
 
 #if defined(__MINGW32__)
@@ -1483,7 +1721,15 @@ bool App::OnInit(){
 
 	}
 
-	mainWindow= new MainWindow(modelPath);
+	mainWindow= new MainWindow(	modelPath,
+								particlePath,
+								projectileParticlePath,
+								splashParticlePath,
+								newAnimValue,
+								newParticleLoopValue,
+								newZoomValue,
+								newXRotValue,
+								newYRotValue);
 	mainWindow->Show();
 	mainWindow->init();
 
