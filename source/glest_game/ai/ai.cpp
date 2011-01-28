@@ -466,7 +466,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 
 		bool alreadyAttacking= (unit->getCurrSkill()->getClass() == scAttack);
 		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			aiInterface->giveCommand(i, act, pos);
 		}
