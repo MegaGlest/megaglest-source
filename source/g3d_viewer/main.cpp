@@ -189,19 +189,12 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						float defaultZoom,float defaultXRot, float defaultYRot)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
-		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true)
+		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true), timer(NULL)
 {
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
 	glCanvas->SetCurrent();
-	//assertGl();
-	GLenum error= glGetError();
-
-	if(error != GL_NO_ERROR){
-		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
-		throw runtime_error("OpenGL error: "+string(errorString));
-	}
 
 	renderer= Renderer::getInstance();
 
@@ -363,15 +356,16 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 #endif
 	SetIcon(icon);
 
-	timer = new wxTimer(this);
-	timer->Start(100);
-
-	glCanvas->SetFocus();
-
 	fileDialog = new wxFileDialog(this);
 	if(modelPath != "") {
 		fileDialog->SetPath(ToUnicode(modelPath));
 	}
+
+	glCanvas->SetCurrent();
+	glCanvas->SetFocus();
+
+	timer = new wxTimer(this);
+	timer->Start(100);
 }
 
 MainWindow::~MainWindow(){
@@ -389,6 +383,14 @@ MainWindow::~MainWindow(){
 void MainWindow::init() {
 	glCanvas->SetCurrent();
 	renderer->init();
+
+	//assertGl();
+	GLenum error= glGetError();
+
+	if(error != GL_NO_ERROR){
+		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
+		throw runtime_error("OpenGL error: "+string(errorString));
+	}
 
 	wxCommandEvent event;
 	onMenuRestart(event);
@@ -480,8 +482,8 @@ void MainWindow::onClose(wxCloseEvent &event){
 	particleProjectilePathList.clear();
 	particleSplashPathList.clear(); // as above
 
-	timer->Stop();
-	renderer->end();
+	if(timer) timer->Stop();
+	if(renderer) renderer->end();
 
 	unitParticleSystems.clear();
 	unitParticleSystemTypes.clear();
@@ -760,8 +762,8 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		particleProjectilePathList.clear();
 		particleSplashPathList.clear(); // as above
 
-		timer->Stop();
-		renderer->end();
+		if(timer) timer->Stop();
+		if(renderer) renderer->end();
 
 		unitParticleSystems.clear();
 		unitParticleSystemTypes.clear();
@@ -786,7 +788,7 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		printf("END onMenuFileClearAll\n");
 		fflush(stdout);
 
-		timer->Start(100);
+		if(timer) timer->Start(100);
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -807,8 +809,8 @@ void MainWindow::loadUnit(string path, string skillName) {
 
 	try{
 	if(this->unitPath.first != "") {
-		timer->Stop();
-		renderer->end();
+		if(timer) timer->Stop();
+		if(renderer) renderer->end();
 
 		string titlestring = winHeader;
 
@@ -941,16 +943,16 @@ void MainWindow::loadModel(string path) {
 
             printf("Loading model [%s] %u of %lu\n",modelPath.c_str(),idx, this->modelPathList.size());
 
-            timer->Stop();
+            if(timer) timer->Stop();
             delete model;
             Model *tmpModel= new ModelGl();
-            renderer->loadTheModel(tmpModel, modelPath);
+            if(renderer) renderer->loadTheModel(tmpModel, modelPath);
             model= tmpModel;
 
             statusbarText = getModelInfo();
             string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
             GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
-            timer->Start(100);
+            if(timer) timer->Start(100);
             titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
         }
         SetTitle(ToUnicode(titlestring));
@@ -962,7 +964,7 @@ void MainWindow::loadModel(string path) {
 }
 
 void MainWindow::loadParticle(string path) {
-	timer->Stop();
+	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		unitParticleSystems.clear();
@@ -1047,11 +1049,11 @@ void MainWindow::loadParticle(string path) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	timer->Start(100);
+	if(timer) timer->Start(100);
 }
 
 void MainWindow::loadProjectileParticle(string path) {
-	timer->Stop();
+	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		projectileParticleSystems.clear();
@@ -1147,11 +1149,11 @@ void MainWindow::loadProjectileParticle(string path) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	timer->Start(100);
+	if(timer) timer->Start(100);
 }
 
 void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
-	timer->Stop();
+	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		splashParticleSystems.clear();
@@ -1248,7 +1250,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	timer->Start(100);
+	if(timer) timer->Start(100);
 }
 
 void MainWindow::onMenuModeNormals(wxCommandEvent &event){
@@ -1564,8 +1566,8 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 void MainWindow::onMenuRestart(wxCommandEvent &event) {
 	try {
 		// std::cout << "pressed R (restart particle animation)" << std::endl;
-		timer->Stop();
-		renderer->end();
+		if(timer) timer->Stop();
+		if(renderer) renderer->end();
 
 		unitParticleSystems.clear();
 		unitParticleSystemTypes.clear();
@@ -1584,7 +1586,7 @@ void MainWindow::onMenuRestart(wxCommandEvent &event) {
         if(initTextureManager) {
         	renderer->initTextureManager();
         }
-		timer->Start(100);
+        if(timer) timer->Start(100);
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -1635,12 +1637,6 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 	x += cx;
 	y += cy;
 #endif
-}
-
-GlCanvas::GlCanvas(MainWindow *	mainWindow):
-    wxGLCanvas(mainWindow, -1, wxDefaultPosition)
-{
-    this->mainWindow = mainWindow;
 }
 
 // to prevent flicker

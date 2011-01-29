@@ -167,7 +167,6 @@ private:
 	DECLARE_EVENT_TABLE()
 
 public:
-	GlCanvas(MainWindow *mainWindow);
 	GlCanvas(MainWindow *mainWindow, int *args);
 
 	void onMouseWheel(wxMouseEvent &event);
