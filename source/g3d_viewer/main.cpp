@@ -11,6 +11,7 @@
 #include <iostream>
 #include <wx/event.h>
 #include "game_constants.h"
+
 #ifndef WIN32
   #define stricmp strcasecmp
   #define strnicmp strncasecmp
@@ -55,6 +56,7 @@ wxString ToUnicode(const string& str) {
 const wxChar  *GAME_ARGS[] = {
 	wxT("--help"),
 	wxT("--auto-screenshot"),
+	wxT("--load-unit"),
 	wxT("--load-model"),
 	wxT("--load-model-animation-value"),
 	wxT("--load-particle"),
@@ -69,6 +71,7 @@ const wxChar  *GAME_ARGS[] = {
 enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
 	GAME_ARG_AUTO_SCREENSHOT,
+	GAME_ARG_LOAD_UNIT,
 	GAME_ARG_LOAD_MODEL,
 	GAME_ARG_LOAD_MODEL_ANIMATION_VALUE,
 	GAME_ARG_LOAD_PARTICLE,
@@ -125,8 +128,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("Parameter:\t\t\tDescription:");
 	printf("\n----------------------\t\t------------");
 	printf("\n%s\t\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
+
+	printf("\n%s=x\t\t\tAuto load the unit / skill information specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
+	printf("\n                     \t\tWhere x is a g3d filename to load seperated with a comma and the skill name to load:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
-	printf("\n                     \t\tWhere x is a G3d filename to load:");
+	printf("\n                     \t\tWhere x is a g3d filename to load:");
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 	printf("\n%s=x\t\tAnimation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -1.0 to 1.0:");
@@ -171,7 +179,8 @@ vector<string> autoScreenShotParams;
 
 const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
-MainWindow::MainWindow(	const string modelPath,
+MainWindow::MainWindow(	std::pair<string,string> unitToLoad,
+						const string modelPath,
 						const string particlePath,
 						const string projectileParticlePath,
 						const string splashParticlePath,
@@ -183,6 +192,9 @@ MainWindow::MainWindow(	const string modelPath,
 {
     //getGlPlatformExtensions();
 	renderer= Renderer::getInstance();
+
+	unitPathList = unitToLoad;
+
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
 	}
@@ -196,8 +208,11 @@ MainWindow::MainWindow(	const string modelPath,
 		this->particleSplashPathList.push_back(splashParticlePath);
 	}
 
+	resetAnimation = false;
 	anim = defaultAnimation;
 	particleLoopStart = defaultParticleLoopStart;
+	resetAnim 				= anim;
+	resetParticleLoopStart 	= particleLoopStart;
 	rotX= defaultXRot;
 	rotY= defaultYRot;
 	zoom= defaultZoom;
@@ -392,6 +407,22 @@ void MainWindow::onPaint(wxPaintEvent &event){
 		autoScreenShotAndExit = false;
 		saveScreenshot();
 		Close();
+	}
+	else if(resetAnimation) {
+		bool haveLoadedParticles = (particleProjectilePathList.size() > 0 || particleSplashPathList.size() > 0);
+		if(haveLoadedParticles) {
+		//	renderer->hasActiveParticleSystem(ParticleSystem::pst_ProjectileParticleSystem) == false &&
+		//	renderer->hasActiveParticleSystem(ParticleSystem::pst_SplashParticleSystem) == false) {
+
+			if(anim >= resetAnim) {
+				resetAnimation 		= false;
+				//anim 				= resetAnim;
+				particleLoopStart 	= resetParticleLoopStart;
+
+				wxCommandEvent event;
+				onMenuRestart(event);
+			}
+		}
 	}
 }
 
@@ -708,6 +739,119 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 
 void MainWindow::onMenuFileExit(wxCommandEvent &event) {
 	Close();
+}
+
+void MainWindow::loadUnit(string path, string skillName) {
+	timer->Stop();
+	wxCommandEvent event;
+	onMenuFileClearAll(event);
+
+	if(path != "" && fileExists(path) == true) {
+		// std::cout << "Clearing list..." << std::endl;
+		this->unitPathList.first = path;
+		this->unitPathList.second = skillName;
+	}
+
+	try{
+	if(this->unitPathList.first != "") {
+        string titlestring = winHeader;
+
+		string unitPath = this->unitPathList.first;
+		//string dir= extractDirectoryPathFromFile(unitPath);
+		string dir = unitPath;
+
+		//size_t pos = dir.find_last_of(folderDelimiter);
+		//if(pos == dir.length()-1) {
+		//	dir.erase(dir.length() -1);
+		//}
+		string name= lastDir(dir);
+		string path= dir + "/" + name + ".xml";
+
+		//unitPath= extractFileFromDirectoryPath(unitPath);
+		titlestring = unitPath  + " - "+ titlestring;
+
+		std::string unitXML = path;
+
+		string skillModelFile 				= "";
+		string skillParticleFile 			= "";
+		string skillParticleProjectileFile 	= "";
+		string skillParticleSplashFile 		= "";
+
+		printf("Loading unit from file [%s] skill [%s]\n",unitXML.c_str(),this->unitPathList.second.c_str());
+
+		if(fileExists(unitXML) == true) {
+			XmlTree xmlTree;
+			xmlTree.load(unitXML);
+			const XmlNode *unitNode= xmlTree.getRootNode();
+			const XmlNode *skillsNode= unitNode->getChild("skills");
+			for(int i = 0; i < skillsNode->getChildCount(); ++i) {
+				const XmlNode *sn= skillsNode->getChild("skill", i);
+				const XmlNode *typeNode= sn->getChild("type");
+				const XmlNode *nameNode= sn->getChild("name");
+				string skillXmlName = nameNode->getAttribute("value")->getRestrictedValue();
+				if(skillXmlName == this->unitPathList.second) {
+					if(sn->getChild("animation") != NULL)
+					skillModelFile = unitPath + '/' + sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
+
+					const XmlNode *particlesNode= sn->getChild("particles");
+					for(int j = 0; particlesNode != NULL && particlesNode->getAttribute("value")->getRestrictedValue() == "true" &&
+						j < particlesNode->getChildCount(); ++j) {
+						const XmlNode *pf= particlesNode->getChild("particle-file", j);
+						if(pf != NULL) {
+							skillParticleFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+							break;
+						}
+					}
+					const XmlNode *particlesProjectileNode= sn->getChild("projectile");
+					for(int j = 0; particlesProjectileNode != NULL && particlesProjectileNode->getAttribute("value")->getRestrictedValue() == "true" &&
+						j < particlesProjectileNode->getChildCount(); ++j) {
+						const XmlNode *pf= particlesProjectileNode->getChild("particle", j);
+						if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
+							skillParticleProjectileFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+							break;
+						}
+					}
+					const XmlNode *particlesSplashNode= sn->getChild("splash");
+					for(int j = 0; particlesSplashNode != NULL && particlesSplashNode->getAttribute("value")->getRestrictedValue() == "true" &&
+						j < particlesSplashNode->getChildCount(); ++j) {
+						const XmlNode *pf= particlesSplashNode->getChild("particle", j);
+						if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
+							skillParticleSplashFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+							break;
+						}
+					}
+
+					break;
+				}
+			}
+
+			if(skillModelFile != "") {
+				this->modelPathList.push_back(skillModelFile);
+			}
+			if(skillParticleFile != "") {
+				this->particlePathList.push_back(skillParticleFile);
+			}
+			if(skillParticleProjectileFile != "") {
+				this->particleProjectilePathList.push_back(skillParticleProjectileFile);
+			}
+			if(skillParticleSplashFile != "") {
+				this->particleSplashPathList.push_back(skillParticleSplashFile);
+			}
+
+			glCanvas->SetCurrent();
+			renderer->init();
+
+			//wxCommandEvent event;
+			//onMenuRestart(event);
+		}
+		SetTitle(ToUnicode(titlestring));
+	}
+	}
+	catch(std::runtime_error e) {
+		std::cout << e.what() << std::endl;
+		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
+	}
+	timer->Start(100);
 }
 
 void MainWindow::loadModel(string path) {
@@ -1238,6 +1382,7 @@ void MainWindow::onTimer(wxTimerEvent &event) {
 	anim = anim + speed;
 	if(anim > 1.0f){
 		anim -= 1.f;
+		resetAnimation = true;
 	}
 	wxPaintEvent paintEvent;
 	onPaint(paintEvent);
@@ -1342,6 +1487,7 @@ void MainWindow::onMenuRestart(wxCommandEvent &event) {
 		splashParticleSystems.clear(); // as above
 		splashParticleSystemTypes.clear();
 
+		loadUnit("", "");
 		loadModel("");
 		loadParticle("");
 		loadProjectileParticle("");
@@ -1491,6 +1637,43 @@ bool App::OnInit(){
 
             autoScreenShotParams.clear();
             Tokenize(optionsValue,autoScreenShotParams,",");
+        }
+    }
+
+    std::pair<string,string> unitToLoad;
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]);
+    	//printf("param = [%s]\n",(const char*)param);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            std::vector<string> delimitedList;
+            Tokenize(customPathValue,delimitedList,",");
+
+            if(delimitedList.size() >= 2) {
+            	unitToLoad.first = delimitedList[0];
+            	unitToLoad.second = delimitedList[1];
+            }
+            else {
+            	printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            	printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            	return false;
+            }
+
+        }
+        else {
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
         }
     }
 
@@ -1721,7 +1904,8 @@ bool App::OnInit(){
 
 	}
 
-	mainWindow= new MainWindow(	modelPath,
+	mainWindow= new MainWindow(	unitToLoad,
+								modelPath,
 								particlePath,
 								projectileParticlePath,
 								splashParticlePath,

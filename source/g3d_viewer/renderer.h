@@ -147,6 +147,7 @@ public:
 	void setBackgroundColor(float red, float green, float blue);
 	void setAlphaColor(float alpha);
 	void saveScreen(const string &path);
+	bool hasActiveParticleSystem(ParticleSystem::ParticleSystemType typeName) const;
 };
 
 }}//end namespace

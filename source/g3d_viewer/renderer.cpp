@@ -384,6 +384,10 @@ void Renderer::updateParticleManager() {
 	particleManager->update();
 }
 
+bool Renderer::hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const {
+	return particleManager->hasActiveParticleSystem(type);
+}
+
 void Renderer::renderParticleManager() {
 	glPushAttrib(GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
 	glDepthFunc(GL_LESS);
@@ -467,49 +471,6 @@ void Renderer::setAlphaColor(float alpha) {
 }
 
 void Renderer::saveScreen(const string &path) {
-
-/*
-    int x = 0;
-    int y = 0;
-    int w = width;
-    int h = height;
-
-    // get data
-    std::auto_ptr<png_byte> imdata(new png_byte[w*h*4]);
-    std::auto_ptr<png_byte*> imrow(new png_byte*[h]);
-    for(int i=0; i<h; ++i)
-        imrow.get()[i] = imdata.get()+(h-1-i)*w*4;
-    glPixelStorei(GL_PACK_ALIGNMENT,1);
-    glReadPixels(x,y,w,h,GL_RGBA,GL_UNSIGNED_BYTE,imdata.get());
-
-    // once the GL context is valid
-    //GLint alpha_bits;
-    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
-    //printf("#4 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
-
-    // create file
-    FILE *fp = fopen(path.c_str(), "wb");
-    if (!fp) {
-        perror(path.c_str());
-        return;
-    }
-
-    // initialize stuff
-    png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
-    png_infop infop = png_create_info_struct(imgp);
-    png_init_io(imgp, fp);
-    png_set_IHDR(imgp, infop, w, h,
-		 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
-		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    // write file
-    png_write_info(imgp, infop);
-    png_write_image(imgp, imrow.get());
-    png_write_end(imgp, NULL);
-    fclose(fp);
-*/
-
-	//Pixmap2D pixmap(sm.getScreenW(), sm.getScreenH(), 3);
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 4);
 	glFinish();
 	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());

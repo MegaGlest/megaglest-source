@@ -941,6 +941,38 @@ void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
 	}
 }
 
+bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const {
+	bool result = false;
+
+	size_t particleSystemCount = particleSystems.size();
+	int currentParticleCount = 0;
+
+	vector<ParticleSystem *> cleanupParticleSystemsList;
+	for (unsigned int i = 0; i < particleSystems.size(); i++) {
+		ParticleSystem *ps = particleSystems[i];
+		if(ps != NULL) {
+			currentParticleCount += ps->getAliveParticleCount();
+
+			bool showParticle = true;
+			if( dynamic_cast<UnitParticleSystem *>(ps) != NULL ||
+				dynamic_cast<FireParticleSystem *>(ps) != NULL	) {
+				showParticle = ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
+			}
+			if(showParticle == true) {
+				//printf("Looking for [%d] current id [%d] i = %d\n",type,ps->getParticleSystemType(),i);
+
+				if(type == ParticleSystem::pst_All || type == ps->getParticleSystemType()) {
+					//printf("FOUND particle system type match for [%d] current id [%d] i = %d\n",type,ps->getParticleSystemType(),i);
+					result = true;
+					break;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
 void ParticleManager::update(int renderFps) {
 	Chrono chrono;
 	chrono.start();

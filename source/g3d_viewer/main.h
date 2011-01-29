@@ -74,10 +74,15 @@ private:
 
 	Model *model;
 
+	std::pair<string,string> unitPathList;
 	std::vector<string> modelPathList;
 	std::vector<string> particlePathList;
 	std::vector<string> particleProjectilePathList;
 	std::vector<string> particleSplashPathList; // as above
+
+	bool resetAnimation;
+	float resetAnim;
+	int resetParticleLoopStart;
 
 	float speed;
 	float anim;
@@ -97,6 +102,8 @@ private:
 	string statusbarText;
 
 	bool isControlKeyPressed;
+
+	void loadUnit(string path, string skillName);
 	void loadModel(string path);
 	void loadParticle(string path);
 	void loadProjectileParticle(string path);
@@ -105,7 +112,8 @@ private:
 	void saveScreenshot();
 
 public:
-	MainWindow(	const string modelPath,const string particlePath,
+	MainWindow(	std::pair<string,string> unitToLoad,
+				const string modelPath,const string particlePath,
 				const string projectileParticlePath,const string splashParticlePath,
 				float defaultAnimation,int defaultParticleLoopStart,
 				float defaultZoom,float defaultXRot, float defaultYRot);
