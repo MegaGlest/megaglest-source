@@ -82,11 +82,18 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
 	luaScript.registerFunction(createUnit, "createUnit");
+	luaScript.registerFunction(destroyUnit, "destroyUnit");
+	luaScript.registerFunction(morphToUnit, "morphToUnit");
+	luaScript.registerFunction(playStaticSound, "playStaticSound");
+	luaScript.registerFunction(playStreamingSound, "playStreamingSound");
+	luaScript.registerFunction(stopStreamingSound, "stopStreamingSound");
+	luaScript.registerFunction(stopAllSound, "stopAllSound");
 	luaScript.registerFunction(giveResource, "giveResource");
 	luaScript.registerFunction(givePositionCommand, "givePositionCommand");
 	luaScript.registerFunction(giveProductionCommand, "giveProductionCommand");
 	luaScript.registerFunction(giveAttackCommand, "giveAttackCommand");
 	luaScript.registerFunction(giveUpgradeCommand, "giveUpgradeCommand");
+	luaScript.registerFunction(giveAttackStoppedCommand, "giveAttackStoppedCommand");
 	luaScript.registerFunction(disableAi, "disableAi");
 	luaScript.registerFunction(enableAi, "enableAi");
 	luaScript.registerFunction(getAiEnabled, "getAiEnabled");
@@ -412,6 +419,48 @@ void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i p
 	world->createUnit(unitName, factionIndex, pos);
 }
 
+void ScriptManager::destroyUnit(int unitId){
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	Unit *unit = world->findUnitById(unitId);
+	if(unit != NULL) {
+		// Make sure they die
+		unit->decHp(unit->getHp() * unit->getHp());
+		unit->kill();
+		// If called from an existing die event we get a stack overflow
+		//onUnitDied(unit);
+	}
+}
+
+void ScriptManager::playStaticSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->playStaticSound(playSound);
+}
+void ScriptManager::playStreamingSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->playStreamingSound(playSound);
+}
+
+void ScriptManager::stopStreamingSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->stopStreamingSound(playSound);
+}
+
+void ScriptManager::stopAllSound() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->stopAllSound();
+}
+
+void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRequirements) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->morphToUnit(unitId,morphName,ignoreRequirements);
+}
+
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -440,6 +489,12 @@ void ScriptManager::giveUpgradeCommand(int unitId, const string &producedName){
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->giveUpgradeCommand(unitId, producedName);
+}
+
+void ScriptManager::giveAttackStoppedCommand(int unitId, const string &itemName,int ignoreRequirements) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->giveAttackStoppedCommand(unitId, itemName, ignoreRequirements);
 }
 
 void ScriptManager::disableAi(int factionIndex){
@@ -780,7 +835,7 @@ int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
-int ScriptManager::createUnit(LuaHandle* luaHandle){
+int ScriptManager::createUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
@@ -789,6 +844,52 @@ int ScriptManager::createUnit(LuaHandle* luaHandle){
 		luaArguments.getString(-3),
 		luaArguments.getInt(-2),
 		luaArguments.getVec2i(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::destroyUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+
+	thisScriptManager->destroyUnit(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::morphToUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgrade = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-3),luaArguments.getString(-2).c_str(),luaArguments.getInt(-1));
+
+	thisScriptManager->morphToUnit(luaArguments.getInt(-3),luaArguments.getString(-2),luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::playStaticSound(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->playStaticSound(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::playStreamingSound(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->playStreamingSound(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::stopStreamingSound(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->stopStreamingSound(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	thisScriptManager->stopAllSound();
 	return luaArguments.getReturnCount();
 }
 
@@ -828,6 +929,15 @@ int ScriptManager::giveUpgradeCommand(LuaHandle* luaHandle){
 	thisScriptManager->giveUpgradeCommand(
 		luaArguments.getInt(-2),
 		luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::giveAttackStoppedCommand(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->giveAttackStoppedCommand(
+		luaArguments.getInt(-3),
+		luaArguments.getString(-2),
+		luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 

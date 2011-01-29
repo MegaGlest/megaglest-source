@@ -23,8 +23,9 @@
 #include "game_settings.h"
 #include "cache_manager.h"
 #include "route_planner.h"
-
 #include <iostream>
+#include "sound.h"
+#include "sound_renderer.h"
 
 #include "leak_dumper.h"
 
@@ -101,6 +102,18 @@ World::~World() {
 	delete routePlanner;
 	routePlanner = 0;
 
+	for(std::map<string,StaticSound *>::iterator iterMap = staticSoundList.begin();
+		iterMap != staticSoundList.end(); iterMap++) {
+		delete iterMap->second;
+	}
+	staticSoundList.clear();
+
+	for(std::map<string,StrSound *>::iterator iterMap = streamSoundList.begin();
+		iterMap != streamSoundList.end(); iterMap++) {
+		delete iterMap->second;
+	}
+	streamSoundList.clear();
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete cartographer;
@@ -121,6 +134,7 @@ void World::end(){
 	}
 	factions.clear();
 	fogOfWarOverride = false;
+
 	//stats will be deleted by BattleEnd
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -639,6 +653,53 @@ bool World::toRenderUnit(const Unit *unit) const {
          map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isExplored(thisTeamIndex));
 }
 
+void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequirements) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		//const SkillType *st = unit->getType()->getSkillType(morphName, scMorph);
+
+		for(int i = 0; i < unit->getType()->getCommandTypeCount(); ++i) {
+			const CommandType *ct = unit->getType()->getCommandType(i);
+			const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+			if(mct != NULL && mct->getName() == morphName) {
+				SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str());
+
+				CommandResult cr = crFailUndefined;
+				try {
+					if(unit->getFaction()->reqsOk(mct) == false && ignoreRequirements == true) {
+						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] mct->getUpgradeReqCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),mct->getUpgradeReqCount());
+						unit->setIgnoreCheckCommand(true);
+					}
+
+					const UnitType* unitType = mct->getMorphUnit();
+					cr = this->game->getCommander()->tryGiveCommand(unit, mct,unit->getPos(), unitType,CardinalDir::NORTH);
+				}
+				catch(const exception &ex) {
+					SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					unit->setIgnoreCheckCommand(false);
+
+					throw runtime_error(ex.what());
+				}
+
+				if(cr == crSuccess) {
+					SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+
+				SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] returned = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),cr);
+
+				break;
+			}
+		}
+
+
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
 void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos) {
 	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 
@@ -771,6 +832,92 @@ void World::giveProductionCommand(int unitId, const string &producedName) {
 		throw runtime_error("Invalid unitId index in giveProductionCommand: " + intToStr(unitId) + " producedName = " + producedName);
 	}
 }
+
+void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ignoreRequirements) {
+	Unit *unit= findUnitById(unitId);
+	if(unit != NULL) {
+		const UnitType *ut= unit->getType();
+
+		//Search for a command that can produce the unit
+		for(int i= 0; i < ut->getCommandTypeCount(); ++i) {
+			const CommandType* ct= ut->getCommandType(i);
+			if(ct != NULL && ct->getClass() == ccAttackStopped) {
+				const AttackStoppedCommandType *act= static_cast<const AttackStoppedCommandType*>(ct);
+				if(act != NULL && act->getName() == itemName) {
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					try {
+						if(unit->getFaction()->reqsOk(act) == false && ignoreRequirements == true) {
+							SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							unit->setIgnoreCheckCommand(true);
+						}
+
+						unit->giveCommand(new Command(act));
+					}
+					catch(const exception &ex) {
+						SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						unit->setIgnoreCheckCommand(false);
+
+						throw runtime_error(ex.what());
+					}
+
+
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
+			}
+		}
+	}
+	else {
+		throw runtime_error("Invalid unitId index in giveAttackStoppedCommand: " + intToStr(unitId) + " itemName = " + itemName);
+	}
+}
+
+void World::playStaticSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+	if(staticSoundList.find(playSound) == staticSoundList.end()) {
+		StaticSound *sound = new StaticSound();
+		sound->load(playSound);
+		staticSoundList[playSound] = sound;
+	}
+	StaticSound *playSoundItem = staticSoundList[playSound];
+	soundRenderer.playFx(playSoundItem);
+}
+
+void World::playStreamingSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+	if(streamSoundList.find(playSound) == streamSoundList.end()) {
+		StrSound *sound = new StrSound();
+		sound->open(playSound);
+		sound->setNext(sound);
+		streamSoundList[playSound] = sound;
+	}
+	StrSound *playSoundItem = streamSoundList[playSound];
+	soundRenderer.playMusic(playSoundItem);
+}
+
+void World::stopStreamingSound(const string &playSound) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+	if(streamSoundList.find(playSound) != streamSoundList.end()) {
+		StrSound *playSoundItem = streamSoundList[playSound];
+		soundRenderer.stopMusic(playSoundItem);
+	}
+}
+
+void World::stopAllSound() {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	soundRenderer.stopAllSounds();
+}
+
 
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);

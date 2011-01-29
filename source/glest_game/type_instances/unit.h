@@ -313,6 +313,8 @@ private:
 
 	static Game *game;
 
+	bool ignoreCheckCommand;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -320,6 +322,8 @@ public:
     static void setGame(Game *value) { game=value;}
 
     //queries
+    void setIgnoreCheckCommand(bool value)      { ignoreCheckCommand=value;}
+    bool getIgnoreCheckCommand() const			{return ignoreCheckCommand;}
 	int getId() const							{return id;}
 	Field getCurrField() const					{return currField;}
 	int getLoadCount() const					{return loadCount;}

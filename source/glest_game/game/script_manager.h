@@ -176,11 +176,21 @@ private:
 	void DisplayFormattedText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
+
+	void destroyUnit(int unitId);
+	void morphToUnit(int unitId,const string &morphName, int ignoreRequirements);
+	void giveAttackStoppedCommand(int unitId, const string &valueName,int ignoreRequirements);
+	void playStaticSound(const string &playSound);
+	void playStreamingSound(const string &playSound);
+	void stopStreamingSound(const string &playSound);
+	void stopAllSound();
+
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	void givePositionCommand(int unitId, const string &producedName, const Vec2i &pos);
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
+
 	void disableAi(int factionIndex);
 	void enableAi(int factionIndex);
 	void disableConsume(int factionIndex);
@@ -230,6 +240,15 @@ private:
 	static int clearDisplayText(LuaHandle* luaHandle);
 	static int setCameraPosition(LuaHandle* luaHandle);
 	static int createUnit(LuaHandle* luaHandle);
+
+	static int destroyUnit(LuaHandle* luaHandle);
+	static int morphToUnit(LuaHandle* luaHandle);
+	static int giveAttackStoppedCommand(LuaHandle* luaHandle);
+	static int playStaticSound(LuaHandle* luaHandle);
+	static int playStreamingSound(LuaHandle* luaHandle);
+	static int stopStreamingSound(LuaHandle* luaHandle);
+	static int stopAllSound(LuaHandle* luaHandle);
+
 	static int giveResource(LuaHandle* luaHandle);
 	static int givePositionCommand(LuaHandle* luaHandle);
 	static int giveProductionCommand(LuaHandle* luaHandle);
