@@ -489,8 +489,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	if(panel) panel->Update();
 	if(menuBar) menuBar->Update();
 
-	program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
-	glCanvas->SwapBuffers();
+	if(program && glCanvas) {
+		program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
+		glCanvas->SwapBuffers();
+	}
 	event.Skip();
 }
 

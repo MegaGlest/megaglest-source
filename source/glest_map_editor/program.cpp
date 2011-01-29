@@ -155,15 +155,16 @@ Program::Program(int w, int h) {
 
 Program::~Program() {
 	delete map;
+	map = NULL;
 }
 
 int Program::getObject(int x, int y) {
 	int i=(x - ofsetX) / cellSize;
 	int j= (y + ofsetY) / cellSize;
-	if (map->inside(i, j)) {
+	if (map && map->inside(i, j)) {
 		return map->getObject(i,j);
 	}
-	else{
+	else {
 		return 0;
 	}
 }
@@ -171,37 +172,37 @@ int Program::getObject(int x, int y) {
 int Program::getResource(int x, int y) {
 	int i=(x - ofsetX) / cellSize;
 	int j= (y + ofsetY) / cellSize;
-	if (map->inside(i, j)) {
+	if (map && map->inside(i, j)) {
 		return map->getResource(i,j);
 	}
-	else{
+	else {
 		return 0;
 	}
 }
 
 // TODO: move editor-specific code from shared_lib to here.
 void Program::glestChangeMapHeight(int x, int y, int Height, int radius) {
-	map->glestChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
+	if(map) map->glestChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
 }
 
 void Program::pirateChangeMapHeight(int x, int y, int Height, int radius) {
-	map->pirateChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
+	if(map) map->pirateChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
 }
 
 void Program::changeMapSurface(int x, int y, int surface, int radius) {
-	map->changeSurface((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, static_cast<MapSurfaceType>(surface), radius);
+	if(map) map->changeSurface((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, static_cast<MapSurfaceType>(surface), radius);
 }
 
 void Program::changeMapObject(int x, int y, int object, int radius) {
-	map->changeObject((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, object, radius);
+	if(map) map->changeObject((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, object, radius);
 }
 
 void Program::changeMapResource(int x, int y, int resource, int radius) {
-	map->changeResource((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, resource, radius);
+	if(map) map->changeResource((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, resource, radius);
 }
 
 void Program::changeStartLocation(int x, int y, int player) {
-	map->changeStartLocation((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, player);
+	if(map) map->changeStartLocation((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, player);
 }
 
 void Program::setUndoPoint(ChangeType change) {
@@ -240,309 +241,337 @@ bool Program::redo() {
 }
 
 void Program::renderMap(int w, int h) {
-	renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid);
+	if(map) renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid);
 }
 
 void Program::setRefAlt(int x, int y) {
-	map->setRefAlt((x - ofsetX) / cellSize, (y + ofsetY) / cellSize);
+	if(map) map->setRefAlt((x - ofsetX) / cellSize, (y + ofsetY) / cellSize);
 }
 
 void Program::flipX() {
-	map->flipX();
+	if(map) map->flipX();
 }
 
 void Program::flipY() {
-	map->flipY();
+	if(map) map->flipY();
 }
 
 void Program::mirrorX() { // copy left to right
-    int w=map->getW();
-    int h=map->getH();
-	for (int i = 0; i < w/2; i++) {
-		for (int j = 0; j < h; j++) {
-			map->copyXY(w-i-1,j  ,  i,j);
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		for (int i = 0; i < w/2; i++) {
+			for (int j = 0; j < h; j++) {
+				map->copyXY(w-i-1,j  ,  i,j);
+			}
 		}
-	}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationX(i) >= w/2) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if((map->getStartLocationX(i) < w/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
-                    map->changeStartLocation(w-map->getStartLocationX(i)-1, map->getStartLocationY(i), ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationX(i) >= w/2) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if((map->getStartLocationX(i) < w/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
+						map->changeStartLocation(w-map->getStartLocationX(i)-1, map->getStartLocationY(i), ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::mirrorY() { // copy top to bottom
-    int w=map->getW();
-    int h=map->getH();
-	for (int i = 0; i < w; i++) {
-		for (int j = 0; j < h/2; j++) {
-			map->copyXY(i,h-j-1  ,  i,j);
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		for (int i = 0; i < w; i++) {
+			for (int j = 0; j < h/2; j++) {
+				map->copyXY(i,h-j-1  ,  i,j);
+			}
 		}
-	}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationY(i) >= h/2) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if((map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
-                    map->changeStartLocation(map->getStartLocationX(i), h-map->getStartLocationY(i)-1, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationY(i) >= h/2) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if((map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
+						map->changeStartLocation(map->getStartLocationX(i), h-map->getStartLocationY(i)-1, ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::mirrorXY() { // copy leftbottom to topright, can handle non-sqaure maps
-    int w=map->getW();
-    int h=map->getH();
-    if (h==w) {
-        for (int i = 0; i < w-1; i++) {
-            for (int j = i+1; j < h; j++) {
-                map->copyXY(j,i  ,  i,j);
-            }
-        }
-    }
-    // Non-sqaure maps:
-    else if (h < w) { // copy horizontal strips
-        int s=w/h; // 2 if twice as wide as heigh
-        for (int i = 0; i < w/s-1; i++) {
-            for (int j = i+1; j < h; j++) {
-                for (int p = 0; p < s; p++) map->copyXY(j*s+p,i  ,  i*s+p,j);
-            }
-        }
-    }
-    else { // copy vertical strips
-        int s=h/w; // 2 if twice as heigh as wide
-        for (int i = 0; i < w-1; i++) {
-            for (int j = i+1; j < h/s; j++) {
-                for (int p = 0; p < s; p++) map->copyXY(j,i*s+p  ,  i,j*s+p);
-            }
-        }
-    }
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		if (h==w) {
+			for (int i = 0; i < w-1; i++) {
+				for (int j = i+1; j < h; j++) {
+					map->copyXY(j,i  ,  i,j);
+				}
+			}
+		}
+		// Non-sqaure maps:
+		else if (h < w) { // copy horizontal strips
+			int s=w/h; // 2 if twice as wide as heigh
+			for (int i = 0; i < w/s-1; i++) {
+				for (int j = i+1; j < h; j++) {
+					for (int p = 0; p < s; p++) map->copyXY(j*s+p,i  ,  i*s+p,j);
+				}
+			}
+		}
+		else { // copy vertical strips
+			int s=h/w; // 2 if twice as heigh as wide
+			for (int i = 0; i < w-1; i++) {
+				for (int j = i+1; j < h/s; j++) {
+					for (int p = 0; p < s; p++) map->copyXY(j,i*s+p  ,  i,j*s+p);
+				}
+			}
+		}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationX(i) > map->getStartLocationY(i)) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if(map->getStartLocationX(i) < map->getStartLocationY(i)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii) == 0) { // first free one
-                    map->changeStartLocation(map->getStartLocationY(i)*w/h, map->getStartLocationX(i)*h/w, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationX(i) > map->getStartLocationY(i)) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if(map->getStartLocationX(i) < map->getStartLocationY(i)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii) == 0) { // first free one
+						map->changeStartLocation(map->getStartLocationY(i)*w/h, map->getStartLocationX(i)*h/w, ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::rotatecopyX() {
-    int w=map->getW();
-    int h=map->getH();
-	for (int i = 0; i < w/2; i++) {
-		for (int j = 0; j < h; j++) {
-			map->copyXY(w-i-1,h-j-1  ,  i,j);
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		for (int i = 0; i < w/2; i++) {
+			for (int j = 0; j < h; j++) {
+				map->copyXY(w-i-1,h-j-1  ,  i,j);
+			}
 		}
-	}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationX(i) >= w/2) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if((map->getStartLocationX(i) < w/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
-                    map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationX(i) >= w/2) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if((map->getStartLocationX(i) < w/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
+						map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::rotatecopyY() {
-    int w=map->getW();
-    int h=map->getH();
-	for (int i = 0; i < w; i++) {
-		for (int j = 0; j < h/2; j++) {
-			map->copyXY(w-i-1,h-j-1  ,  i,j);
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		for (int i = 0; i < w; i++) {
+			for (int j = 0; j < h/2; j++) {
+				map->copyXY(w-i-1,h-j-1  ,  i,j);
+			}
 		}
-	}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationY(i) >= h/2) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if((map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
-                    map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationY(i) >= h/2) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if((map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
+						map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::rotatecopyXY() {
-    int w=map->getW();
-    int h=map->getH();
-    int sw=w/h; if(sw<1) sw=1; // x-squares per y
-    int sh=h/w; if(sh<1) sh=1; // y-squares per x
-    if (sh==1)
-        for (int j = 0; j < h-1; j++) { // row by row!
-            for (int i = j*sw; i < w; i++) {
-                map->copyXY(i,j  ,  w-i-1,h-j-1);
-            }
-        }
-    else
-        for (int i = 0; i <w; i++) { // column for colum!
-            for (int j = h-1-i*sh; j >= 0; j--) {
-                map->copyXY(w-i-1,j  ,  i,h-j-1);
-            }
-        }
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		int sw=w/h; if(sw<1) sw=1; // x-squares per y
+		int sh=h/w; if(sh<1) sh=1; // y-squares per x
+		if (sh==1)
+			for (int j = 0; j < h-1; j++) { // row by row!
+				for (int i = j*sw; i < w; i++) {
+					map->copyXY(i,j  ,  w-i-1,h-j-1);
+				}
+			}
+		else
+			for (int i = 0; i <w; i++) { // column for colum!
+				for (int j = h-1-i*sh; j >= 0; j--) {
+					map->copyXY(w-i-1,j  ,  i,h-j-1);
+				}
+			}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationX(i) > map->getStartLocationY(i)) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if(map->getStartLocationX(i) < map->getStartLocationY(i)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii) == 0) { // first free one
-                    map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationX(i) > map->getStartLocationY(i)) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if(map->getStartLocationX(i) < map->getStartLocationY(i)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii) == 0) { // first free one
+						map->changeStartLocation(w-map->getStartLocationX(i)-1, h-map->getStartLocationY(i)-1, ii);
+						break;
+					}
+		}
 	}
 }
 
 void Program::rotatecopyCorner() { // rotate top left 1/4 to top right 1/4
-    int w=map->getW();
-    int h=map->getH();
-    if (h==w) {
-        for (int i = 0; i < w/2; i++) {
-            for (int j = 0; j < h/2; j++) {
-                map->copyXY(w-j-1,i  ,  i,j);
-            }
-        }
-    }
-    // Non-sqaure maps:
-    else if (h < w) { // copy horizontal strips
-        int s=w/h; // 2 if twice as wide as heigh
-        for (int i = 0; i < w/s/2; i++) {
-            for (int j = 0; j < h/2; j++) {
-                for (int p = 0; p < s; p++) map->copyXY(w-j*s-1-p,i  ,  i*s+p,j);
-            }
-        }
-    }
-    else { // copy vertical strips
-        int s=h/w; // 2 if twice as heigh as wide
-        for (int i = 0; i < w/2; i++) {
-            for (int j = 0; j < h/s/2; j++) {
-                for (int p = 0; p < s; p++) map->copyXY(w-j-1,i*s+p  ,  i,j*s+p);
-            }
-        }
-    }
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		if (h==w) {
+			for (int i = 0; i < w/2; i++) {
+				for (int j = 0; j < h/2; j++) {
+					map->copyXY(w-j-1,i  ,  i,j);
+				}
+			}
+		}
+		// Non-sqaure maps:
+		else if (h < w) { // copy horizontal strips
+			int s=w/h; // 2 if twice as wide as heigh
+			for (int i = 0; i < w/s/2; i++) {
+				for (int j = 0; j < h/2; j++) {
+					for (int p = 0; p < s; p++) map->copyXY(w-j*s-1-p,i  ,  i*s+p,j);
+				}
+			}
+		}
+		else { // copy vertical strips
+			int s=h/w; // 2 if twice as heigh as wide
+			for (int i = 0; i < w/2; i++) {
+				for (int j = 0; j < h/s/2; j++) {
+					for (int p = 0; p < s; p++) map->copyXY(w-j-1,i*s+p  ,  i,j*s+p);
+				}
+			}
+		}
 
-    // move players
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
-        if (map->getStartLocationX(i) >= w/2 && map->getStartLocationY(i) < h/2) map->changeStartLocation(0,0,i);
-	for (int i = 0; i < map->getMaxFactions(); ++i) {
-        if((map->getStartLocationX(i) < w/2 && map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
-            for (int ii = 0; ii < map->getMaxFactions(); ++ii)
-                if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
-                    map->changeStartLocation(w-map->getStartLocationY(i)*w/h-1, map->getStartLocationX(i)*h/w, ii);
-                    break;
-                }
+		// move players
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // first remove players from target corner
+			if (map->getStartLocationX(i) >= w/2 && map->getStartLocationY(i) < h/2) map->changeStartLocation(0,0,i);
+		for (int i = 0; i < map->getMaxFactions(); ++i) {
+			if((map->getStartLocationX(i) < w/2 && map->getStartLocationY(i) < h/2) && (map->getStartLocationX(i)!=0 || map->getStartLocationY(i)!=0)) // any startpositions to copy?
+				for (int ii = 0; ii < map->getMaxFactions(); ++ii)
+					if(map->getStartLocationX(ii)==0 && map->getStartLocationY(ii)==0) { // first free one
+						map->changeStartLocation(w-map->getStartLocationY(i)*w/h-1, map->getStartLocationX(i)*h/w, ii);
+						break;
+					}
+		}
 	}
 }
 
 
 void Program::shiftLeft() {
-    int w=map->getW()-1;
-    int h=map->getH();
-	for (int i=0; i<w; i++)
-		for (int j=0; j<h; j++)
-			map->copyXY(i,j  ,  i+1,j);
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
-        map->changeStartLocation(map->getStartLocationX(i)-1, map->getStartLocationY(i), i); // it allready check limits
+	if(map) {
+		int w=map->getW()-1;
+		int h=map->getH();
+		for (int i=0; i<w; i++)
+			for (int j=0; j<h; j++)
+				map->copyXY(i,j  ,  i+1,j);
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
+			map->changeStartLocation(map->getStartLocationX(i)-1, map->getStartLocationY(i), i); // it allready check limits
+	}
 }
 void Program::shiftRight() {
-    int w=map->getW()-1;
-    int h=map->getH();
-	for (int i=w; i>0; i--)
-		for (int j=0; j<h; j++)
-			map->copyXY(i,j  ,  i-1,j);
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
-        if (map->getStartLocationX(i) != 0 || map->getStartLocationY(i) != 0) // don't move the unset ones
-            map->changeStartLocation(map->getStartLocationX(i)+1, map->getStartLocationY(i), i); // it allready check limits
+	if(map) {
+		int w=map->getW()-1;
+		int h=map->getH();
+		for (int i=w; i>0; i--)
+			for (int j=0; j<h; j++)
+				map->copyXY(i,j  ,  i-1,j);
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
+			if (map->getStartLocationX(i) != 0 || map->getStartLocationY(i) != 0) // don't move the unset ones
+				map->changeStartLocation(map->getStartLocationX(i)+1, map->getStartLocationY(i), i); // it allready check limits
+	}
 }
 void Program::shiftUp() {
-    int w=map->getW();
-    int h=map->getH()-1;
-	for (int i=0; i<w; i++)
-		for (int j=0; j<h; j++)
-			map->copyXY(i,j  ,  i,j+1);
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
-        map->changeStartLocation(map->getStartLocationX(i), map->getStartLocationY(i)-1, i); // it allready check limits
+	if(map) {
+		int w=map->getW();
+		int h=map->getH()-1;
+		for (int i=0; i<w; i++)
+			for (int j=0; j<h; j++)
+				map->copyXY(i,j  ,  i,j+1);
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
+			map->changeStartLocation(map->getStartLocationX(i), map->getStartLocationY(i)-1, i); // it allready check limits
+	}
 }
 void Program::shiftDown() {
-    int w=map->getW();
-    int h=map->getH()-1;
-	for (int i=0; i<w; i++)
-		for (int j=h; j>0; j--)
-			map->copyXY(i,j  ,  i,j-1);
-	for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
-        if (map->getStartLocationX(i) != 0 || map->getStartLocationY(i) != 0) // don't move the unset ones
-            map->changeStartLocation(map->getStartLocationX(i), map->getStartLocationY(i)+1, i); // it allready check limits
+	if(map) {
+		int w=map->getW();
+		int h=map->getH()-1;
+		for (int i=0; i<w; i++)
+			for (int j=h; j>0; j--)
+				map->copyXY(i,j  ,  i,j-1);
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
+			if (map->getStartLocationX(i) != 0 || map->getStartLocationY(i) != 0) // don't move the unset ones
+				map->changeStartLocation(map->getStartLocationX(i), map->getStartLocationY(i)+1, i); // it allready check limits
+	}
 }
 
 
 void Program::randomizeMapHeights() {
-	map->randomizeHeights();
+	if(map) map->randomizeHeights();
 }
 
 void Program::randomizeMap() {
-	map->randomize();
+	if(map) map->randomize();
 }
 
 void Program::switchMapSurfaces(int surf1, int surf2) {
-	map->switchSurfaces(static_cast<MapSurfaceType>(surf1), static_cast<MapSurfaceType>(surf2));
+	if(map) map->switchSurfaces(static_cast<MapSurfaceType>(surf1), static_cast<MapSurfaceType>(surf2));
 }
 
 void Program::reset(int w, int h, int alt, int surf) {
 	undoStack.clear();
 	redoStack.clear();
-	map->reset(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
+	if(map) map->reset(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
 }
 
 void Program::resize(int w, int h, int alt, int surf) {
-	map->resize(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
+	if(map) map->resize(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
 }
 
 void Program::resetFactions(int maxFactions) {
-	map->resetFactions(maxFactions);
+	if(map) map->resetFactions(maxFactions);
 }
 
 bool Program::setMapTitle(const string &title) {
-	if (map->getTitle() != title) {
-		map->setTitle(title);
-		return true;
+	if(map) {
+		if (map->getTitle() != title) {
+			map->setTitle(title);
+			return true;
+		}
 	}
 	return false;
 }
 
 bool Program::setMapDesc(const string &desc) {
-	if (map->getDesc() != desc) {
-		map->setDesc(desc);
-		return true;
+	if(map) {
+		if (map->getDesc() != desc) {
+			map->setDesc(desc);
+			return true;
+		}
 	}
 	return false;
 }
 
 bool Program::setMapAuthor(const string &author) {
-	if (map->getAuthor() != author) {
-		map->setAuthor(author);
-		return true;
+	if(map) {
+		if (map->getAuthor() != author) {
+			map->setAuthor(author);
+			return true;
+		}
 	}
 	return false;
 }
@@ -553,15 +582,16 @@ void Program::setOfset(int x, int y) {
 }
 
 void Program::incCellSize(int i) {
+	if(map) {
+		int minInc = 2 - cellSize;
 
-	int minInc = 2 - cellSize;
-
-	if (i < minInc) {
-		i = minInc;
+		if (i < minInc) {
+			i = minInc;
+		}
+		cellSize += i;
+		ofsetX -= (map->getW() * i) / 2;
+		ofsetY += (map->getH() * i) / 2;
 	}
-	cellSize += i;
-	ofsetX -= (map->getW() * i) / 2;
-	ofsetY += (map->getH() * i) / 2;
 }
 
 void Program::resetOfset() {
@@ -576,7 +606,7 @@ bool Program::setGridOnOff() {
 }
 
 void Program::setMapAdvanced(int altFactor, int waterLevel) {
-	map->setAdvanced(altFactor, waterLevel);
+	if(map) map->setAdvanced(altFactor, waterLevel);
 }
 
 void Program::loadMap(const string &path) {
@@ -586,7 +616,7 @@ void Program::loadMap(const string &path) {
 }
 
 void Program::saveMap(const string &path) {
-	map->saveToFile(path);
+	if(map) map->saveToFile(path);
 }
 
 }// end namespace
