@@ -458,7 +458,7 @@ void ScriptManager::stopAllSound() {
 void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRequirements) {
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	world->morphToUnit(unitId,morphName,ignoreRequirements);
+	world->morphToUnit(unitId,morphName,(ignoreRequirements == 1));
 }
 
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
@@ -494,7 +494,7 @@ void ScriptManager::giveUpgradeCommand(int unitId, const string &producedName){
 void ScriptManager::giveAttackStoppedCommand(int unitId, const string &itemName,int ignoreRequirements) {
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	world->giveAttackStoppedCommand(unitId, itemName, ignoreRequirements);
+	world->giveAttackStoppedCommand(unitId, itemName, (ignoreRequirements == 1));
 }
 
 void ScriptManager::disableAi(int factionIndex){

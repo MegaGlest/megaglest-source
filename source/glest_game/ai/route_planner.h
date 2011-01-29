@@ -251,7 +251,7 @@ class TransitionHeuristic {
 public:
 	TransitionHeuristic(const Vec2i &target) : dd(target) {}
 	bool operator()(const Transition *t) const {
-		return dd(t->nwPos);
+		return (dd(t->nwPos) != 0);
 	}
 };
 
