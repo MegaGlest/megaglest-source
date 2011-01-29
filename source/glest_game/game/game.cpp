@@ -1279,7 +1279,6 @@ void Game::keyDown(char key) {
 		}
 
 		Lang &lang= Lang::getInstance();
-		bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 
 		//send key to the chat manager
 		chatManager.keyDown(key);
@@ -1352,16 +1351,8 @@ void Game::keyDown(char key) {
 			}
 			//pause
 			else if(key == configKeys.getCharKey("PauseGame")) {
-				if(speedChangesAllowed){
-					if(paused){
-						console.addLine(lang.get("GameResumed"));
-						paused= false;
-					}
-					else{
-						console.addLine(lang.get("GamePaused"));
-						paused= true;
-					}
-				}
+				//printf("Toggle pause paused = %d\n",paused);
+				setPaused(!paused);
 			}
 			//switch display color
 			else if(key == configKeys.getCharKey("ChangeFontColor")) {
@@ -1369,12 +1360,14 @@ void Game::keyDown(char key) {
 			}
 			//increment speed
 			else if(key == configKeys.getCharKey("GameSpeedIncrease")) {
+				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 				if(speedChangesAllowed){
 					incSpeed();
 				}
 			}
 			//decrement speed
 			else if(key == configKeys.getCharKey("GameSpeedDecrease")) {
+				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 				if(speedChangesAllowed){
 					decSpeed();
 				}
@@ -1990,6 +1983,23 @@ void Game::decSpeed() {
 		break;
 	default:
 		break;
+	}
+}
+
+void Game::setPaused(bool value) {
+	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
+	//printf("Toggle pause value = %d, speedChangesAllowed = %d\n",value,speedChangesAllowed);
+
+	if(speedChangesAllowed) {
+		Lang &lang= Lang::getInstance();
+		if(value == false) {
+			console.addLine(lang.get("GameResumed"));
+			paused= false;
+		}
+		else {
+			console.addLine(lang.get("GamePaused"));
+			paused= true;
+		}
 	}
 }
 

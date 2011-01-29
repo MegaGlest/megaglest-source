@@ -185,6 +185,7 @@ private:
 	void playStreamingSound(const string &playSound);
 	void stopStreamingSound(const string &playSound);
 	void stopAllSound();
+	void togglePauseGame(int pauseStatus);
 
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	void givePositionCommand(int unitId, const string &producedName, const Vec2i &pos);
@@ -250,6 +251,7 @@ private:
 	static int playStreamingSound(LuaHandle* luaHandle);
 	static int stopStreamingSound(LuaHandle* luaHandle);
 	static int stopAllSound(LuaHandle* luaHandle);
+	static int togglePauseGame(LuaHandle* luaHandle);
 
 	static int giveResource(LuaHandle* luaHandle);
 	static int givePositionCommand(LuaHandle* luaHandle);

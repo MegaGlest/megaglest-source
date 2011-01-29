@@ -133,6 +133,8 @@ public:
 	World *getWorld()						{return &world;}
 	const World *getWorld() const			{return &world;}
 
+	bool getPaused() const					{ return paused;}
+	void setPaused(bool value);
 	const int getTotalRenderFps() const					{return totalRenderFps;}
     //init
     virtual void load(LoadGameItem loadTypes);

@@ -89,6 +89,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(playStreamingSound, "playStreamingSound");
 	luaScript.registerFunction(stopStreamingSound, "stopStreamingSound");
 	luaScript.registerFunction(stopAllSound, "stopAllSound");
+	luaScript.registerFunction(togglePauseGame, "togglePauseGame");
 	luaScript.registerFunction(giveResource, "giveResource");
 	luaScript.registerFunction(givePositionCommand, "givePositionCommand");
 	luaScript.registerFunction(giveProductionCommand, "giveProductionCommand");
@@ -454,6 +455,12 @@ void ScriptManager::stopAllSound() {
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->stopAllSound();
+}
+
+void ScriptManager::togglePauseGame(int pauseStatus) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] pauseStatus = %d\n",__FILE__,__FUNCTION__,__LINE__,pauseStatus);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->togglePauseGame((pauseStatus != 0));
 }
 
 void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRequirements) {
@@ -909,6 +916,12 @@ int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::togglePauseGame(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+	thisScriptManager->togglePauseGame(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
 int ScriptManager::giveResource(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->giveResource(luaArguments.getString(-3), luaArguments.getInt(-2), luaArguments.getInt(-1));

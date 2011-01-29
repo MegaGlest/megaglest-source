@@ -935,6 +935,10 @@ void World::moveToUnit(int unitId, int destUnitId) {
 	}
 }
 
+void World::togglePauseGame(bool pauseStatus) {
+	game->setPaused(pauseStatus);
+}
+
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);
 	if(unit != NULL) {
