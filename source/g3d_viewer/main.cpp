@@ -194,6 +194,14 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
+	glCanvas->SetCurrent();
+	//assertGl();
+	GLenum error= glGetError();
+
+	if(error != GL_NO_ERROR){
+		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
+		throw runtime_error("OpenGL error: "+string(errorString));
+	}
 
 	renderer= Renderer::getInstance();
 
