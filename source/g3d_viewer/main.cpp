@@ -189,7 +189,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						float defaultZoom,float defaultXRot, float defaultYRot)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
-		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL)
+		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true)
 {
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
@@ -1026,7 +1026,9 @@ void MainWindow::loadParticle(string path) {
 
                 if(path != "" && fileExists(path) == true) {
                     renderer->initModelManager();
-                    renderer->initTextureManager();
+                    if(initTextureManager) {
+                    	renderer->initTextureManager();
+                    }
                 }
 			}
 		}
@@ -1127,7 +1129,9 @@ void MainWindow::loadProjectileParticle(string path) {
 
 		if(path != "" && fileExists(path) == true) {
 			renderer->initModelManager();
-			renderer->initTextureManager();
+            if(initTextureManager) {
+            	renderer->initTextureManager();
+            }
 		}
 	}
 	}
@@ -1226,7 +1230,9 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 		if(path != "" && fileExists(path) == true) {
 			renderer->initModelManager();
-			renderer->initTextureManager();
+            if(initTextureManager) {
+            	renderer->initTextureManager();
+            }
 		}
 	}
 	}
@@ -1567,7 +1573,9 @@ void MainWindow::onMenuRestart(wxCommandEvent &event) {
 		loadSplashParticle(""); // as above
 
 		renderer->initModelManager();
-		renderer->initTextureManager();
+        if(initTextureManager) {
+        	renderer->initTextureManager();
+        }
 		timer->Start(100);
 	}
 	catch(std::runtime_error e) {
