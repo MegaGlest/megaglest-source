@@ -84,15 +84,25 @@ class ParticleSystem {
 
 public:
 
-enum State{
+enum State {
 	sPause,	// No updates
 	sPlay,
 	sFade	// No new particles
 };
 
-enum BlendMode{
+enum BlendMode {
 	bmOne,
 	bmOneMinusAlpha
+};
+
+enum ParticleSystemType {
+	pst_All,
+	pst_FireParticleSystem,
+	pst_UnitParticleSystem,
+	pst_RainParticleSystem,
+	pst_SnowParticleSystem,
+	pst_ProjectileParticleSystem,
+	pst_SplashParticleSystem,
 };
 
 protected:
@@ -128,6 +138,8 @@ public:
 	//conmstructor and destructor
 	ParticleSystem(int particleCount);
 	virtual ~ParticleSystem();
+
+	virtual ParticleSystemType getParticleSystemType() const = 0;
 
 	//public
 	virtual void update();
@@ -191,6 +203,8 @@ private:
 public:
 	FireParticleSystem(int particleCount= 2000);
 
+	virtual ParticleSystemType getParticleSystemType() const { return pst_FireParticleSystem;}
+
 	//virtual
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
@@ -233,6 +247,8 @@ public:
 public:
 	UnitParticleSystem(int particleCount= 2000);
 
+	virtual ParticleSystemType getParticleSystemType() const { return pst_UnitParticleSystem;}
+
 	//virtual
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
@@ -270,6 +286,8 @@ private:
 public:
 	RainParticleSystem(int particleCount= 4000);
 
+	virtual ParticleSystemType getParticleSystemType() const { return pst_RainParticleSystem;}
+
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
 	virtual void initParticle(Particle *p, int particleIndex);
@@ -290,6 +308,8 @@ private:
 
 public:
 	SnowParticleSystem(int particleCount= 4000);
+
+	virtual ParticleSystemType getParticleSystemType() const { return pst_SnowParticleSystem;}
 
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual bool deathTest(Particle *p);
@@ -323,6 +343,8 @@ protected:
 
 public:
 	AttackParticleSystem(int particleCount);
+
+	virtual ParticleSystemType getParticleSystemType() const { return pst_ProjectileParticleSystem;}
 
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
@@ -374,6 +396,8 @@ private:
 public:
 	ProjectileParticleSystem(int particleCount= 1000);
 	virtual ~ProjectileParticleSystem();
+
+	virtual ParticleSystemType getParticleSystemType() const { return pst_SplashParticleSystem;}
 
 	void link(SplashParticleSystem *particleSystem);
 	
@@ -442,6 +466,7 @@ public:
 	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems);
 	int findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const;
 	bool validateParticleSystemStillExists(ParticleSystem * particleSystem) const;
+	bool hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const;
 }; 
 
 }}//end namespace
