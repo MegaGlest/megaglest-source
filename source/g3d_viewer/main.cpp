@@ -2006,6 +2006,7 @@ bool App::OnInit(){
 								newYRotValue);
 	mainWindow->Show();
 	mainWindow->init();
+	mainWindow->Update();
 
 	return true;
 }
