@@ -74,7 +74,7 @@ private:
 
 	Model *model;
 
-	std::pair<string,string> unitPathList;
+	std::pair<string,vector<string> > unitPath;
 	std::vector<string> modelPathList;
 	std::vector<string> particlePathList;
 	std::vector<string> particleProjectilePathList;
@@ -112,7 +112,7 @@ private:
 	void saveScreenshot();
 
 public:
-	MainWindow(	std::pair<string,string> unitToLoad,
+	MainWindow(	std::pair<string,vector<string> > unitToLoad,
 				const string modelPath,const string particlePath,
 				const string projectileParticlePath,const string splashParticlePath,
 				float defaultAnimation,int defaultParticleLoopStart,
