@@ -131,7 +131,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s=x\t\t\tAuto load the unit / skill information specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
 	printf("\n                     \t\tWhere x is a g3d filename to load seperated with a comma and one or more skill names to try loading:");
-	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
 
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 	printf("\n                     \t\tWhere x is a g3d filename to load:");
@@ -187,16 +187,19 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						float defaultAnimation,
 						int defaultParticleLoopStart,
 						float defaultZoom,float defaultXRot, float defaultYRot)
-    :	wxFrame(NULL, -1, ToUnicode(winHeader),wxPoint(Renderer::windowX, Renderer::windowY),
-		wxSize(Renderer::windowW, Renderer::windowH))
+    :	wxFrame(NULL, -1, ToUnicode(winHeader),
+    	        wxPoint(Renderer::windowX, Renderer::windowY),
+		        wxSize(Renderer::windowW, Renderer::windowH))
 {
     //getGlPlatformExtensions();
 	renderer= Renderer::getInstance();
 
+	model= NULL;
 	unitPath = unitToLoad;
 
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
+		printf("Startup Adding model [%s] list size %d\n",modelPath.c_str(),this->modelPathList.size());
 	}
 	if(particlePath != "") {
 		this->particlePathList.push_back(particlePath);
@@ -216,8 +219,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	rotX= defaultXRot;
 	rotY= defaultYRot;
 	zoom= defaultZoom;
-
-	model= NULL;
 	playerColor= Renderer::pcRed;
 
 	speed= 0.025f;
@@ -326,7 +327,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	SetMenuBar(menu);
 
 	//misc
-	model= NULL;
 	backBrightness= 0.3f;
 	gridBrightness= 1.0f;
 	lightBrightness= 0.3f;
@@ -368,9 +368,13 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 MainWindow::~MainWindow(){
 	delete renderer;
+	renderer = NULL;
 	delete model;
+	model = NULL;
 	delete timer;
+	timer = NULL;
 	delete glCanvas;
+	glCanvas = NULL;
 
 }
 
@@ -383,6 +387,9 @@ void MainWindow::init() {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event){
+	//printf("Start onPaint\n");
+	//fflush(stdout);
+
 	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
 
 	renderer->transform(rotX, rotY, zoom);
@@ -392,7 +399,6 @@ void MainWindow::onPaint(wxPaintEvent &event){
 
 	renderer->renderTheModel(model, anim);
 
-	//int updateLoops = 100;
 	int updateLoops = particleLoopStart;
 	particleLoopStart = 1;
 
@@ -403,31 +409,63 @@ void MainWindow::onPaint(wxPaintEvent &event){
 	renderer->renderParticleManager();
 	glCanvas->SwapBuffers();
 
+	bool haveLoadedParticles = (particleProjectilePathList.size() > 0 || particleSplashPathList.size() > 0);
+
 	if(autoScreenShotAndExit == true) {
+		printf("Auto exiting app...\n");
+		fflush(stdout);
+
 		autoScreenShotAndExit = false;
 		saveScreenshot();
 		Close();
+		return;
 	}
-	else if(resetAnimation) {
-		bool haveLoadedParticles = (particleProjectilePathList.size() > 0 || particleSplashPathList.size() > 0);
-		if(haveLoadedParticles) {
-		//	renderer->hasActiveParticleSystem(ParticleSystem::pst_ProjectileParticleSystem) == false &&
-		//	renderer->hasActiveParticleSystem(ParticleSystem::pst_SplashParticleSystem) == false) {
+	else if((modelPathList.size() > 0) && resetAnimation && haveLoadedParticles) {
+		if(anim >= resetAnim && resetAnim > 0) {
+			printf("RESETTING EVERYTHING [%f][%f]...\n",anim,resetAnim);
+			fflush(stdout);
 
-			if(anim >= resetAnim) {
-				resetAnimation 		= false;
-				//anim 				= resetAnim;
-				particleLoopStart 	= resetParticleLoopStart;
+			resetAnimation 		= false;
+			particleLoopStart 	= resetParticleLoopStart;
 
-				wxCommandEvent event;
+			wxCommandEvent event;
+			if(unitPath.first != "") {
+				//onMenuFileClearAll(event);
+
+				modelPathList.clear();
+				particlePathList.clear();
+				particleProjectilePathList.clear();
+				particleSplashPathList.clear(); // as above
+
 				onMenuRestart(event);
 			}
+			else {
+				onMenuRestart(event);
+			}
+		}
+	}
+	else if(modelPathList.size() == 0 && haveLoadedParticles) {
+		if(renderer->hasActiveParticleSystem(ParticleSystem::pst_ProjectileParticleSystem) == false &&
+		   renderer->hasActiveParticleSystem(ParticleSystem::pst_SplashParticleSystem) == false) {
+
+			printf("RESETTING PARTICLES...\n");
+			fflush(stdout);
+
+			resetAnimation 		= false;
+			anim				= 0.f;
+			particleLoopStart 	= resetParticleLoopStart;
+
+			wxCommandEvent event;
+			onMenuRestart(event);
 		}
 	}
 }
 
 void MainWindow::onClose(wxCloseEvent &event){
 	// release memory first (from onMenuFileClearAll)
+
+	printf("OnClose START\n");
+	fflush(stdout);
 
 	modelPathList.clear();
 	particlePathList.clear();
@@ -447,6 +485,9 @@ void MainWindow::onClose(wxCloseEvent &event){
 
 	delete model;
 	model = NULL;
+
+	printf("OnClose about to END\n");
+	fflush(stdout);
 
 	delete this;
 }
@@ -703,6 +744,9 @@ void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
 
 void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 	try {
+		printf("Start onMenuFileClearAll\n");
+		fflush(stdout);
+
 		modelPathList.clear();
 		particlePathList.clear();
 		particleProjectilePathList.clear();
@@ -722,14 +766,19 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		delete model;
 		model = NULL;
 
+		loadUnit("","");
 		loadModel("");
 		loadParticle("");
 		loadProjectileParticle("");
 		loadSplashParticle(""); // as above
 
 		GetStatusBar()->SetStatusText(ToUnicode(statusbarText.c_str()));
-		timer->Start(100);
 		isControlKeyPressed = false;
+
+		printf("END onMenuFileClearAll\n");
+		fflush(stdout);
+
+		timer->Start(100);
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -742,10 +791,6 @@ void MainWindow::onMenuFileExit(wxCommandEvent &event) {
 }
 
 void MainWindow::loadUnit(string path, string skillName) {
-	timer->Stop();
-	wxCommandEvent event;
-	onMenuFileClearAll(event);
-
 	if(path != "" && fileExists(path) == true) {
 		// std::cout << "Clearing list..." << std::endl;
 		this->unitPath.first = path;
@@ -754,7 +799,10 @@ void MainWindow::loadUnit(string path, string skillName) {
 
 	try{
 	if(this->unitPath.first != "") {
-        string titlestring = winHeader;
+		timer->Stop();
+		renderer->end();
+
+		string titlestring = winHeader;
 
 		string unitPath = this->unitPath.first;
 		string dir = unitPath;
@@ -782,15 +830,18 @@ void MainWindow::loadUnit(string path, string skillName) {
 				string lookipForSkillName = this->unitPath.second[skillIdx];
 
 				const XmlNode *skillsNode= unitNode->getChild("skills");
-				for(int i = 0; i < skillsNode->getChildCount(); ++i) {
+				for(int i = 0; foundSkillName == false && i < skillsNode->getChildCount(); ++i) {
 					const XmlNode *sn= skillsNode->getChild("skill", i);
 					const XmlNode *typeNode= sn->getChild("type");
 					const XmlNode *nameNode= sn->getChild("name");
 					string skillXmlName = nameNode->getAttribute("value")->getRestrictedValue();
 					if(skillXmlName == lookipForSkillName) {
+						printf("Found skill [%s]\n",lookipForSkillName.c_str());
 						foundSkillName = true;
+
 						if(sn->getChild("animation") != NULL) {
 							skillModelFile = unitPath + '/' + sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
+							printf("Found skill model [%s]\n",skillModelFile.c_str());
 						}
 
 						if(sn->hasChild("particles") == true) {
@@ -802,7 +853,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 								const XmlNode *pf= particlesNode->getChild("particle-file");
 								if(pf != NULL) {
 									skillParticleFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
-									break;
+									printf("Found skill skill particle [%s]\n",skillParticleFile.c_str());
 								}
 							}
 						}
@@ -815,6 +866,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 								const XmlNode *pf= particlesProjectileNode->getChild("particle");
 								if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
 									skillParticleProjectileFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+									printf("Found skill skill projectile particle [%s]\n",skillParticleProjectileFile.c_str());
 								}
 							}
 						}
@@ -827,29 +879,33 @@ void MainWindow::loadUnit(string path, string skillName) {
 								const XmlNode *pf= particlesSplashNode->getChild("particle");
 								if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
 									skillParticleSplashFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+									printf("Found skill skill splash particle [%s]\n",skillParticleSplashFile.c_str());
 								}
 							}
 						}
-						break;
 					}
 				}
 			}
 
 			if(skillModelFile != "") {
 				this->modelPathList.push_back(skillModelFile);
+				printf("Added skill model [%s]\n",skillModelFile.c_str());
 			}
 			if(skillParticleFile != "") {
 				this->particlePathList.push_back(skillParticleFile);
+				printf("Added skill particle [%s]\n",skillParticleFile.c_str());
 			}
 			if(skillParticleProjectileFile != "") {
 				this->particleProjectilePathList.push_back(skillParticleProjectileFile);
+				printf("Added skill projectile particle [%s]\n",skillParticleProjectileFile.c_str());
 			}
 			if(skillParticleSplashFile != "") {
 				this->particleSplashPathList.push_back(skillParticleSplashFile);
+				printf("Added skill splash particle [%s]\n",skillParticleSplashFile.c_str());
 			}
 
-			glCanvas->SetCurrent();
-			renderer->init();
+			//glCanvas->SetCurrent();
+			//renderer->init();
 
 			//wxCommandEvent event;
 			//onMenuRestart(event);
@@ -861,18 +917,21 @@ void MainWindow::loadUnit(string path, string skillName) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	timer->Start(100);
+	//timer->Start(100);
 }
 
 void MainWindow::loadModel(string path) {
     try {
         if(path != "" && fileExists(path) == true) {
             this->modelPathList.push_back(path);
+            printf("Adding model [%s] list size %d\n",path.c_str(),this->modelPathList.size());
         }
 
         string titlestring=winHeader;
         for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
             string modelPath = this->modelPathList[idx];
+
+            printf("Loading model [%s] %d of %d\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             timer->Stop();
             delete model;
@@ -920,7 +979,7 @@ void MainWindow::loadParticle(string path) {
 			string dir= extractDirectoryPathFromFile(particlePath);
 
 			size_t pos = dir.find_last_of(folderDelimiter);
-			if(pos == dir.length()-1) {
+			if(pos == dir.length() - 1 && dir.length() > 0) {
 				dir.erase(dir.length() -1);
 			}
 
@@ -941,33 +1000,34 @@ void MainWindow::loadParticle(string path) {
 				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 				//height
 				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-			}
 
-			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
-			UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-			unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
-			unitParticleSystemTypes.push_back(unitParticleSystemType);
+                // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
-			for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
-				UnitParticleSystem *ups= new UnitParticleSystem(200);
-				(*it)->setValues(ups);
-				if(size > 0) {
-					//getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
-					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
-					ups->setPos(vec);
-				}
-				//ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-				ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
-				unitParticleSystems.push_back(ups);
-				renderer->manageParticleSystem(ups);
+                UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+                unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
+                unitParticleSystemTypes.push_back(unitParticleSystemType);
 
-				ups->setVisible(true);
-			}
+                for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
+                    UnitParticleSystem *ups= new UnitParticleSystem(200);
+                    (*it)->setValues(ups);
+                    if(size > 0) {
+                        //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
+                        Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+                        ups->setPos(vec);
+                    }
+                    //ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+                    ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+                    unitParticleSystems.push_back(ups);
+                    renderer->manageParticleSystem(ups);
 
-			if(path != "" && fileExists(path) == true) {
-				renderer->initModelManager();
-				renderer->initTextureManager();
+                    ups->setVisible(true);
+                }
+
+                if(path != "" && fileExists(path) == true) {
+                    renderer->initModelManager();
+                    renderer->initTextureManager();
+                }
 			}
 		}
 		SetTitle(ToUnicode(titlestring));
@@ -1416,7 +1476,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 	try {
 		// std::cout << "e.ControlDown() = " << e.ControlDown() << " e.GetKeyCode() = " << e.GetKeyCode() << " isCtrl = " << (e.GetKeyCode() == WXK_CONTROL) << std::endl;
 
-		// Note: This ctrl-key handling is buggy since it never resests when ctrl is released later, so I reset it at end of loadcommands for now.
+		// Note: This ctrl-key handling is buggy since it never resets when ctrl is released later, so I reset it at end of loadcommands for now.
 		if(e.ControlDown() == true || e.GetKeyCode() == WXK_CONTROL) {
 			isControlKeyPressed = true;
 		}
@@ -1446,7 +1506,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 		}
-		else if (e.GetKeyCode() == 87) {
+		else if (e.GetKeyCode() == 'W') {
 			glClearColor(0.6f, 0.6f, 0.6f, 1.0f); //w  key //backgroundcolor constant 0.3 -> 0.6
 
 		}
@@ -1478,6 +1538,8 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 			Vec4f ambientNEW= Vec4f(lightBrightness, lightBrightness, lightBrightness, 1.0f);
 			glLightfv(GL_LIGHT0,GL_AMBIENT, ambientNEW.ptr());
 		}
+
+		std::cout << "pressed " << e.GetKeyCode() << std::endl;
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -1488,6 +1550,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 void MainWindow::onMenuRestart(wxCommandEvent &event) {
 	try {
 		// std::cout << "pressed R (restart particle animation)" << std::endl;
+		timer->Stop();
 		renderer->end();
 
 		unitParticleSystems.clear();
@@ -1505,6 +1568,7 @@ void MainWindow::onMenuRestart(wxCommandEvent &event) {
 
 		renderer->initModelManager();
 		renderer->initTextureManager();
+		timer->Start(100);
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -1689,7 +1753,8 @@ bool App::OnInit(){
         }
     }
 
-    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL])) == true) {
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL])) == true &&
+    	hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE])) == false) {
     	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]);
     	//printf("param = [%s]\n",(const char*)param);
 
@@ -1713,7 +1778,8 @@ bool App::OnInit(){
         }
     }
 
-    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE])) == true) {
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE])) == true &&
+       hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE])) == false) {
     	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]);
     	//printf("param = [%s]\n",(const char*)param);
 
@@ -1800,7 +1866,7 @@ bool App::OnInit(){
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
         	newAnimValue = strToFloat(paramPartTokens[1]);
-        	//printf("newAnimValue = %f\n",newAnimValue);
+        	printf("newAnimValue = %f\n",newAnimValue);
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
