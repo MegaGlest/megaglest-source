@@ -97,6 +97,8 @@ private:
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
 	time_t lastNetworkPing;
+	time_t mapPublishingDelayTimer;
+	bool needToPublishMap;
 
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
