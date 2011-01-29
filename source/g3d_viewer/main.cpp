@@ -273,7 +273,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	menuMode->Check(miModeGrid, true);
 	menuCustomColor->Check(miColorRed, true);
 
-    for(int i = 0; i < autoScreenShotParams.size(); ++i) {
+    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
     	if(autoScreenShotParams[i] == "transparent") {
     		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
     		menuFile->Check(miFileToggleScreenshotTransparent,true);
@@ -692,7 +692,7 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
 void MainWindow::saveScreenshot() {
 	try {
 		int autoSaveScreenshotIndex = -1;
-	    for(int i = 0; i < autoScreenShotParams.size(); ++i) {
+	    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
 			if(_strnicmp(autoScreenShotParams[i].c_str(),"saveas-",7) == 0) {
 	    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
 	    		autoSaveScreenshotIndex = i;
@@ -826,11 +826,11 @@ void MainWindow::loadUnit(string path, string skillName) {
 			const XmlNode *unitNode= xmlTree.getRootNode();
 
 			bool foundSkillName = false;
-			for(int skillIdx = 0; foundSkillName == false && skillIdx < this->unitPath.second.size(); ++skillIdx) {
+			for(unsigned int skillIdx = 0; foundSkillName == false && skillIdx < this->unitPath.second.size(); ++skillIdx) {
 				string lookipForSkillName = this->unitPath.second[skillIdx];
 
 				const XmlNode *skillsNode= unitNode->getChild("skills");
-				for(int i = 0; foundSkillName == false && i < skillsNode->getChildCount(); ++i) {
+				for(unsigned int i = 0; foundSkillName == false && i < skillsNode->getChildCount(); ++i) {
 					const XmlNode *sn= skillsNode->getChild("skill", i);
 					const XmlNode *typeNode= sn->getChild("type");
 					const XmlNode *nameNode= sn->getChild("name");
@@ -1735,7 +1735,7 @@ bool App::OnInit(){
 
             if(delimitedList.size() >= 2) {
             	unitToLoad.first = delimitedList[0];
-            	for(int i = 1; i < delimitedList.size(); ++i) {
+            	for(unsigned int i = 1; i < delimitedList.size(); ++i) {
             		unitToLoad.second.push_back(delimitedList[i]);
             	}
             }
