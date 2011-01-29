@@ -179,6 +179,7 @@ private:
 
 	void destroyUnit(int unitId);
 	void morphToUnit(int unitId,const string &morphName, int ignoreRequirements);
+	void moveToUnit(int unitId,int destUnitId);
 	void giveAttackStoppedCommand(int unitId, const string &valueName,int ignoreRequirements);
 	void playStaticSound(const string &playSound);
 	void playStreamingSound(const string &playSound);
@@ -243,6 +244,7 @@ private:
 
 	static int destroyUnit(LuaHandle* luaHandle);
 	static int morphToUnit(LuaHandle* luaHandle);
+	static int moveToUnit(LuaHandle* luaHandle);
 	static int giveAttackStoppedCommand(LuaHandle* luaHandle);
 	static int playStaticSound(LuaHandle* luaHandle);
 	static int playStreamingSound(LuaHandle* luaHandle);

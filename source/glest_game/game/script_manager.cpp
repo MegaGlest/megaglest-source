@@ -84,6 +84,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(createUnit, "createUnit");
 	luaScript.registerFunction(destroyUnit, "destroyUnit");
 	luaScript.registerFunction(morphToUnit, "morphToUnit");
+	luaScript.registerFunction(moveToUnit, "moveToUnit");
 	luaScript.registerFunction(playStaticSound, "playStaticSound");
 	luaScript.registerFunction(playStreamingSound, "playStreamingSound");
 	luaScript.registerFunction(stopStreamingSound, "stopStreamingSound");
@@ -459,6 +460,12 @@ void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRe
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->morphToUnit(unitId,morphName,(ignoreRequirements == 1));
+}
+
+void ScriptManager::moveToUnit(int unitId,int destUnitId) {
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] destUnitId [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId,destUnitId);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->moveToUnit(unitId,destUnitId);
 }
 
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
@@ -862,6 +869,15 @@ int ScriptManager::morphToUnit(LuaHandle* luaHandle) {
 	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgrade = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-3),luaArguments.getString(-2).c_str(),luaArguments.getInt(-1));
 
 	thisScriptManager->morphToUnit(luaArguments.getInt(-3),luaArguments.getString(-2),luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::moveToUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] dest unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-2),luaArguments.getInt(-1));
+
+	thisScriptManager->moveToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 
