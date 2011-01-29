@@ -61,6 +61,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	currentFactionName_factionPreview="";
 	mapPreviewTexture=NULL;
 	hasCheckedForUPNP = false;
+	needToPublishMap=false;
+	mapPublishingDelayTimer=time(NULL);
 
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
@@ -663,8 +665,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
             if(hasNetworkGameSettings() == true)
             {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
+            	//delay publishing for 5 seconds
+            	needToPublishMap=true;
+            	mapPublishingDelayTimer=time(NULL);
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
@@ -1704,28 +1707,38 @@ void MenuStateCustomGame::update() {
 			// give it to me baby, aha aha ...
 			publishToMasterserver();
 		}
+		if(needToPublishMap){
+					// this delay is done to make it possible to switch over maps which are not meant to be distributed
+					if(difftime(time(NULL), mapPublishingDelayTimer) >= 5){
+						// after 5 seconds we are allowed to publish again!
+		                needToSetChangedGameSettings = true;
+		                lastSetChangedGameSettings   = time(NULL);
+						// set to normal....
+						needToPublishMap=false;
+					}
+				}
+		if(!needToPublishMap){
+			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
 
-		bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
+			if(broadCastSettings == true) {
+				needToBroadcastServerSettings=true;
+			}
 
-		if(broadCastSettings == true) {
-			needToBroadcastServerSettings=true;
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) chrono.start();
+
+			//call the chat manager
+			chatManager.updateNetwork();
+
+			//console
+			console.update();
+
+			broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
+			if (broadCastSettings == true) {// reset timer here on bottom becasue used for different things
+				lastSetChangedGameSettings = time(NULL);
+			}
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		if(chrono.getMillis() > 0) chrono.start();
-
-		//call the chat manager
-		chatManager.updateNetwork();
-
-		//console
-		console.update();
-
-		broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
-
-		if(broadCastSettings == true)
-		{// reset timer here on bottom becasue used for different things
-			lastSetChangedGameSettings      = time(NULL);
-		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
