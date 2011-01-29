@@ -337,6 +337,8 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	statusbarText="";
 	CreateStatusBar();
 
+	this->Layout();
+
 	wxInitAllImageHandlers();
 #ifdef WIN32
 
@@ -361,7 +363,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		fileDialog->SetPath(ToUnicode(modelPath));
 	}
 
-	glCanvas->SetCurrent();
 	glCanvas->SetFocus();
 
 	timer = new wxTimer(this);
@@ -383,14 +384,6 @@ MainWindow::~MainWindow(){
 void MainWindow::init() {
 	glCanvas->SetCurrent();
 	renderer->init();
-
-	//assertGl();
-	GLenum error= glGetError();
-
-	if(error != GL_NO_ERROR){
-		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
-		throw runtime_error("OpenGL error: "+string(errorString));
-	}
 
 	wxCommandEvent event;
 	onMenuRestart(event);
