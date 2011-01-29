@@ -91,6 +91,7 @@ private:
 	float backBrightness, gridBrightness, lightBrightness;
 	int lastX, lastY;
 	Renderer::PlayerColor playerColor;
+	bool initTextureManager;
 
 	std::vector<UnitParticleSystemType *> unitParticleSystemTypes;
 	std::vector<UnitParticleSystem *> unitParticleSystems;
