@@ -918,6 +918,22 @@ void World::stopAllSound() {
 	soundRenderer.stopAllSounds();
 }
 
+void World::moveToUnit(int unitId, int destUnitId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		CommandClass cc= ccMove;
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
+		Unit* destUnit = findUnitById(destUnitId);
+		if(destUnit != NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s] destUnit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str(),destUnit->getFullName().c_str());
+			unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), destUnit));
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+	}
+	else {
+		throw runtime_error("Invalid unitId index in followUnit: " + intToStr(unitId));
+	}
+}
 
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);
