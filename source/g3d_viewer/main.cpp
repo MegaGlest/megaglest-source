@@ -189,9 +189,12 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						float defaultZoom,float defaultXRot, float defaultYRot)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
-		        wxSize(Renderer::windowW, Renderer::windowH))
+		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL)
 {
     //getGlPlatformExtensions();
+	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+	glCanvas = new GlCanvas(this, args);
+
 	renderer= Renderer::getInstance();
 
 	model= NULL;
@@ -222,9 +225,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	playerColor= Renderer::pcRed;
 
 	speed= 0.025f;
-
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
-	glCanvas = new GlCanvas(this, args);
 
     //getGlPlatformExtensions();
 	menu= new wxMenuBar();
