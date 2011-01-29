@@ -63,7 +63,7 @@ MainWindow::MainWindow()
 	this->panel = new wxPanel(this, wxID_ANY);
 
 	//gl canvas
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER };
+	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
 	glCanvas = new GlCanvas(this, this->panel, args);
 
 	//menus
