@@ -130,8 +130,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
 
 	printf("\n%s=x\t\t\tAuto load the unit / skill information specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
-	printf("\n                     \t\tWhere x is a g3d filename to load seperated with a comma and the skill name to load:");
-	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n                     \t\tWhere x is a g3d filename to load seperated with a comma and one or more skill names to try loading:");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 	printf("\n                     \t\tWhere x is a g3d filename to load:");
@@ -179,7 +179,7 @@ vector<string> autoScreenShotParams;
 
 const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
-MainWindow::MainWindow(	std::pair<string,string> unitToLoad,
+MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						const string modelPath,
 						const string particlePath,
 						const string projectileParticlePath,
@@ -193,7 +193,7 @@ MainWindow::MainWindow(	std::pair<string,string> unitToLoad,
     //getGlPlatformExtensions();
 	renderer= Renderer::getInstance();
 
-	unitPathList = unitToLoad;
+	unitPath = unitToLoad;
 
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
@@ -748,26 +748,19 @@ void MainWindow::loadUnit(string path, string skillName) {
 
 	if(path != "" && fileExists(path) == true) {
 		// std::cout << "Clearing list..." << std::endl;
-		this->unitPathList.first = path;
-		this->unitPathList.second = skillName;
+		this->unitPath.first = path;
+		this->unitPath.second.push_back(skillName);
 	}
 
 	try{
-	if(this->unitPathList.first != "") {
+	if(this->unitPath.first != "") {
         string titlestring = winHeader;
 
-		string unitPath = this->unitPathList.first;
-		//string dir= extractDirectoryPathFromFile(unitPath);
+		string unitPath = this->unitPath.first;
 		string dir = unitPath;
-
-		//size_t pos = dir.find_last_of(folderDelimiter);
-		//if(pos == dir.length()-1) {
-		//	dir.erase(dir.length() -1);
-		//}
 		string name= lastDir(dir);
 		string path= dir + "/" + name + ".xml";
 
-		//unitPath= extractFileFromDirectoryPath(unitPath);
 		titlestring = unitPath  + " - "+ titlestring;
 
 		std::string unitXML = path;
@@ -777,51 +770,68 @@ void MainWindow::loadUnit(string path, string skillName) {
 		string skillParticleProjectileFile 	= "";
 		string skillParticleSplashFile 		= "";
 
-		printf("Loading unit from file [%s] skill [%s]\n",unitXML.c_str(),this->unitPathList.second.c_str());
+		printf("Loading unit from file [%s]\n",unitXML.c_str());
 
 		if(fileExists(unitXML) == true) {
 			XmlTree xmlTree;
 			xmlTree.load(unitXML);
 			const XmlNode *unitNode= xmlTree.getRootNode();
-			const XmlNode *skillsNode= unitNode->getChild("skills");
-			for(int i = 0; i < skillsNode->getChildCount(); ++i) {
-				const XmlNode *sn= skillsNode->getChild("skill", i);
-				const XmlNode *typeNode= sn->getChild("type");
-				const XmlNode *nameNode= sn->getChild("name");
-				string skillXmlName = nameNode->getAttribute("value")->getRestrictedValue();
-				if(skillXmlName == this->unitPathList.second) {
-					if(sn->getChild("animation") != NULL)
-					skillModelFile = unitPath + '/' + sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
 
-					const XmlNode *particlesNode= sn->getChild("particles");
-					for(int j = 0; particlesNode != NULL && particlesNode->getAttribute("value")->getRestrictedValue() == "true" &&
-						j < particlesNode->getChildCount(); ++j) {
-						const XmlNode *pf= particlesNode->getChild("particle-file", j);
-						if(pf != NULL) {
-							skillParticleFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
-							break;
-						}
-					}
-					const XmlNode *particlesProjectileNode= sn->getChild("projectile");
-					for(int j = 0; particlesProjectileNode != NULL && particlesProjectileNode->getAttribute("value")->getRestrictedValue() == "true" &&
-						j < particlesProjectileNode->getChildCount(); ++j) {
-						const XmlNode *pf= particlesProjectileNode->getChild("particle", j);
-						if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
-							skillParticleProjectileFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
-							break;
-						}
-					}
-					const XmlNode *particlesSplashNode= sn->getChild("splash");
-					for(int j = 0; particlesSplashNode != NULL && particlesSplashNode->getAttribute("value")->getRestrictedValue() == "true" &&
-						j < particlesSplashNode->getChildCount(); ++j) {
-						const XmlNode *pf= particlesSplashNode->getChild("particle", j);
-						if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
-							skillParticleSplashFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
-							break;
-						}
-					}
+			bool foundSkillName = false;
+			for(int skillIdx = 0; foundSkillName == false && skillIdx < this->unitPath.second.size(); ++skillIdx) {
+				string lookipForSkillName = this->unitPath.second[skillIdx];
 
-					break;
+				const XmlNode *skillsNode= unitNode->getChild("skills");
+				for(int i = 0; i < skillsNode->getChildCount(); ++i) {
+					const XmlNode *sn= skillsNode->getChild("skill", i);
+					const XmlNode *typeNode= sn->getChild("type");
+					const XmlNode *nameNode= sn->getChild("name");
+					string skillXmlName = nameNode->getAttribute("value")->getRestrictedValue();
+					if(skillXmlName == lookipForSkillName) {
+						foundSkillName = true;
+						if(sn->getChild("animation") != NULL) {
+							skillModelFile = unitPath + '/' + sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
+						}
+
+						if(sn->hasChild("particles") == true) {
+							const XmlNode *particlesNode= sn->getChild("particles");
+							//for(int j = 0; particlesNode != NULL && particlesNode->getAttribute("value")->getRestrictedValue() == "true" &&
+							//	j < particlesNode->getChildCount(); ++j) {
+							if(particlesNode != NULL && particlesNode->getAttribute("value")->getRestrictedValue() == "true" &&
+									particlesNode->hasChild("particle-file") == true) {
+								const XmlNode *pf= particlesNode->getChild("particle-file");
+								if(pf != NULL) {
+									skillParticleFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+									break;
+								}
+							}
+						}
+						if(sn->hasChild("projectile") == true) {
+							const XmlNode *particlesProjectileNode= sn->getChild("projectile");
+							//for(int j = 0; particlesProjectileNode != NULL && particlesProjectileNode->getAttribute("value")->getRestrictedValue() == "true" &&
+							//	j < particlesProjectileNode->getChildCount(); ++j) {
+							if(particlesProjectileNode != NULL && particlesProjectileNode->getAttribute("value")->getRestrictedValue() == "true" &&
+								particlesProjectileNode->hasChild("particle") == true) {
+								const XmlNode *pf= particlesProjectileNode->getChild("particle");
+								if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
+									skillParticleProjectileFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+								}
+							}
+						}
+						if(sn->hasChild("splash") == true) {
+							const XmlNode *particlesSplashNode= sn->getChild("splash");
+							//for(int j = 0; particlesSplashNode != NULL && particlesSplashNode->getAttribute("value")->getRestrictedValue() == "true" &&
+							//	j < particlesSplashNode->getChildCount(); ++j) {
+							if(particlesSplashNode != NULL && particlesSplashNode->getAttribute("value")->getRestrictedValue() == "true" &&
+								particlesSplashNode->hasChild("particle") == true) {
+								const XmlNode *pf= particlesSplashNode->getChild("particle");
+								if(pf != NULL && pf->getAttribute("value")->getRestrictedValue() == "true") {
+									skillParticleSplashFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
+								}
+							}
+						}
+						break;
+					}
 				}
 			}
 
@@ -1640,7 +1650,7 @@ bool App::OnInit(){
         }
     }
 
-    std::pair<string,string> unitToLoad;
+    std::pair<string,vector<string> > unitToLoad;
     if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT])) == true) {
     	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]);
     	//printf("param = [%s]\n",(const char*)param);
@@ -1661,7 +1671,9 @@ bool App::OnInit(){
 
             if(delimitedList.size() >= 2) {
             	unitToLoad.first = delimitedList[0];
-            	unitToLoad.second = delimitedList[1];
+            	for(int i = 1; i < delimitedList.size(); ++i) {
+            		unitToLoad.second.push_back(delimitedList[i]);
+            	}
             }
             else {
             	printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
