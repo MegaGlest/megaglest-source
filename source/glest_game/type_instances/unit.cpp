@@ -182,6 +182,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->visible = true;
 	this->retryCurrCommandCount=0;
 	this->screenPos = Vec3f(0.0);
+	this->ignoreCheckCommand = false;
 	this->inBailOutAttempt = false;
 	this->lastHarvestResourceTarget.first = Vec2i(0);
 	//this->lastBadHarvestListPurge = 0;
@@ -854,6 +855,7 @@ CommandResult Unit::finishCommand() {
 	this->setCurrentUnitTitle("");
 	//is empty?
 	if(commands.empty()) {
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -882,6 +884,7 @@ CommandResult Unit::cancelCommand() {
 
 	//is empty?
 	if(commands.empty()){
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -1506,7 +1509,8 @@ CommandResult Unit::checkCommand(Command *command) const {
 	if(isOperative() == false ||
        command->getUnit() == this ||
        getType()->hasCommandType(command->getCommandType()) == false ||
-       this->getFaction()->reqsOk(command->getCommandType()) == false) {
+       (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",__FILE__,__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
         return crFailUndefined;
 	}
 
@@ -1514,6 +1518,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(map->isInside(command->getPos()) == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
         return crFailUndefined;
 	}
 
@@ -1528,11 +1533,11 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL) {
-		if(faction->reqsOk(produced) == false) {
+		if(ignoreCheckCommand == false && faction->reqsOk(produced) == false) {
             return crFailReqs;
 		}
 
-		if(faction->checkCosts(produced) == false) {
+		if(ignoreCheckCommand == false && faction->checkCosts(produced) == false) {
 			return crFailRes;
 		}
 	}
@@ -1557,7 +1562,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		}
     }
     //upgrade command specific, check that upgrade is not upgraded
-    else if(command->getCommandType()->getClass()==ccUpgrade) {
+    else if(command->getCommandType()->getClass() == ccUpgrade) {
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
 		if(uct == NULL) {
@@ -1567,6 +1572,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		}
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
+			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
             return crFailUndefined;
 		}
 	}

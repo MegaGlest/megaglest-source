@@ -158,27 +158,29 @@ void Faction::finishUpgrade(const UpgradeType *ut){
 // ==================== reqs ====================
 
 //checks if all required units and upgrades are present and maxUnitCount is within limit
-bool Faction::reqsOk(const RequirableType *rt) const{
+bool Faction::reqsOk(const RequirableType *rt) const {
 	assert(rt != NULL);
 	//required units
-    for(int i=0; i<rt->getUnitReqCount(); ++i){
-        bool found=false;
-        for(int j=0; j<getUnitCount(); ++j){
+    for(int i = 0; i < rt->getUnitReqCount(); ++i) {
+        bool found = false;
+        for(int j = 0; j < getUnitCount(); ++j) {
 			Unit *unit= getUnit(j);
             const UnitType *ut= unit->getType();
-            if(rt->getUnitReq(i)==ut && unit->isOperative()){
+            if(rt->getUnitReq(i) == ut && unit->isOperative()) {
                 found= true;
                 break;
             }
         }
-		if(!found){
+		if(found == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
             return false;
 		}
     }
 
 	//required upgrades
-    for(int i=0; i<rt->getUpgradeReqCount(); ++i) {
+    for(int i = 0; i < rt->getUpgradeReqCount(); ++i) {
 		if(upgradeManager.isUpgraded(rt->getUpgradeReq(i)) == false) {
+			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 			return false;
 		}
     }
@@ -187,6 +189,7 @@ bool Faction::reqsOk(const RequirableType *rt) const{
     	const UnitType *producedUnitType=(UnitType *) rt;
    		if(producedUnitType != NULL && producedUnitType->getMaxUnitCount() > 0) {
 			if(producedUnitType->getMaxUnitCount() <= getCountForMaxUnitCount(producedUnitType)) {
+				SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		        return false;
 			}
    		}
@@ -218,12 +221,14 @@ bool Faction::reqsOk(const CommandType *ct) const {
 	}
 
 	if(ct->getProduced() != NULL && reqsOk(ct->getProduced()) == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] reqsOk FAILED\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
 	if(ct->getClass() == ccUpgrade) {
 		const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 		if(upgradeManager.isUpgradingOrUpgraded(uct->getProducedUpgrade())) {
+			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] upgrade check FAILED\n",__FILE__,__FUNCTION__,__LINE__);
 			return false;
 		}
 	}

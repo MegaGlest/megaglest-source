@@ -199,7 +199,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
-		printf("Startup Adding model [%s] list size %d\n",modelPath.c_str(),this->modelPathList.size());
+		printf("Startup Adding model [%s] list size %lu\n",modelPath.c_str(),this->modelPathList.size());
 	}
 	if(particlePath != "") {
 		this->particlePathList.push_back(particlePath);
@@ -924,14 +924,14 @@ void MainWindow::loadModel(string path) {
     try {
         if(path != "" && fileExists(path) == true) {
             this->modelPathList.push_back(path);
-            printf("Adding model [%s] list size %d\n",path.c_str(),this->modelPathList.size());
+            printf("Adding model [%s] list size %lu\n",path.c_str(),this->modelPathList.size());
         }
 
         string titlestring=winHeader;
         for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
             string modelPath = this->modelPathList[idx];
 
-            printf("Loading model [%s] %d of %d\n",modelPath.c_str(),idx, this->modelPathList.size());
+            printf("Loading model [%s] %u of %lu\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             timer->Stop();
             delete model;

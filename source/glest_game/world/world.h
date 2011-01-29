@@ -46,6 +46,8 @@ class GameSettings;
 class ScriptManager;
 class Cartographer;
 class RoutePlanner;
+class StaticSound;
+class StrSound;
 
 // =====================================================
 // 	class World
@@ -134,6 +136,8 @@ private:
 	bool perfTimerEnabled;
 
 	bool staggeredFactionUpdates;
+	std::map<string,StaticSound *> staticSoundList;
+	std::map<string,StrSound *> streamSoundList;
 
 public:
 	World();
@@ -186,11 +190,18 @@ public:
 	void addAttackEffects(const Unit *unit);
 
 	//scripting interface
+	void morphToUnit(int unitId,const string &morphName,bool ignoreRequirements);
 	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos);
 	void givePositionCommand(int unitId, const string &commandName, const Vec2i &pos);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
+	void giveAttackStoppedCommand(int unitId, const string &itemName,bool ignoreRequirements);
+	void playStaticSound(const string &playSound);
+	void playStreamingSound(const string &playSound);
+	void stopStreamingSound(const string &playSound);
+	void stopAllSound();
+
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	int getResourceAmount(const string &resourceName, int factionIndex);
 	Vec2i getStartLocation(int factionIndex);
