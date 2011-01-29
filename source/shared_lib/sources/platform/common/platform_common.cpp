@@ -61,6 +61,8 @@ using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace std;
 
+#define _DISABLE MEMORY_VAULT_CHECKS 1
+
 namespace Shared { namespace PlatformCommon {
 
 namespace Private {
@@ -1099,13 +1101,15 @@ string ModeInfo::getString() const{
 }
 
 void ValueCheckerVault::addItemToVault(const void *ptr,int value) {
+#ifndef _DISABLE MEMORY_VAULT_CHECKS
 	Checksum checksum;
 	vaultList[ptr] = checksum.addInt(value);
-
+#endif
 //	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add vault key [%p] value [%s] [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,intToStr(checksum.getSum()).c_str(),value);
 }
 
 void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
+#ifndef _DISABLE MEMORY_VAULT_CHECKS
 	map<const void *,int32>::const_iterator iterFind = vaultList.find(ptr);
 	if(iterFind == vaultList.end()) {
 //		if(SystemFlags::VERBOSE_MODE_ENABLED) {
@@ -1128,6 +1132,7 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 //		}
 		throw std::runtime_error("memory value has been unexpectedly modified (changed)!");
 	}
+#endif
 }
 
 
