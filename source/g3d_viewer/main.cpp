@@ -116,7 +116,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 			printf("\n");
 	}
 
-	printf("\n%s %s, usage\n",argv0,g3dviewerVersionString.c_str());
+	printf("\n%s %s, [Using %s] usage:\n",argv0,g3dviewerVersionString.c_str(),(const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING));
 
 	printf("\n%s [G3D FILE]\n\n",argv0);
 	printf("Displays glest 3D-models and unit/projectile/splash particle systems.\n");

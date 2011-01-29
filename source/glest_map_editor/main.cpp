@@ -1176,12 +1176,13 @@ bool App::OnInit() {
 	string fileparam;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
-			std::cout << "MegaGlest map editor " << mapeditorVersionString << std::endl << std::endl;
+			std::cout << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING) << "]" << std::endl << std::endl;
 			std::cout << "glest_map_editor [GBM OR MGM FILE]" << std::endl << std::endl;
 			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
 			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;
 			std::cout << "Pan trough the map with right mouse button"  << std::endl;
 			std::cout << "Zoom with middle mouse button or mousewheel"  << std::endl;
+
 //			std::cout << " ~ more helps should be written here ~"  << std::endl;
 			std::cout << std::endl;
 			exit (0);
