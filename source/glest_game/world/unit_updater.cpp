@@ -428,6 +428,12 @@ void UnitUpdater::updateAttackStopped(Unit *unit) {
     const AttackStoppedCommandType *asct= static_cast<const AttackStoppedCommandType*>(command->getCommandType());
     Unit *enemy;
 
+    if(unit->getCommandSize()>1)
+    {
+    	unit->finishCommand(); // attackStopped is skipped if somthing else is queued after this.
+    	return;
+    }
+
     if(attackableOnRange(unit, &enemy, asct->getAttackSkillType())){
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(enemy);

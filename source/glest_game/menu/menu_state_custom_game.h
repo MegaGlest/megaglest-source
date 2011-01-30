@@ -98,7 +98,7 @@ private:
 	time_t lastMasterserverPublishing;
 	time_t lastNetworkPing;
 	time_t mapPublishingDelayTimer;
-	bool needToPublishMap;
+	bool needToPublishDelayed;
 
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;

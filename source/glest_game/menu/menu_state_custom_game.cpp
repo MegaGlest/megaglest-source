@@ -61,7 +61,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	currentFactionName_factionPreview="";
 	mapPreviewTexture=NULL;
 	hasCheckedForUPNP = false;
-	needToPublishMap=false;
+	needToPublishDelayed=false;
 	mapPublishingDelayTimer=time(NULL);
 
 	publishToMasterserverThread = NULL;
@@ -666,7 +666,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             if(hasNetworkGameSettings() == true)
             {
             	//delay publishing for 5 seconds
-            	needToPublishMap=true;
+            	needToPublishDelayed=true;
             	mapPublishingDelayTimer=time(NULL);
             }
         }
@@ -734,8 +734,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
             if(hasNetworkGameSettings() == true)
             {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
+
+            	//delay publishing for 5 seconds
+            	needToPublishDelayed=true;
+            	mapPublishingDelayTimer=time(NULL);
             }
         }
         else if(listBoxMapFilter.mouseClick(x, y)){
@@ -1707,17 +1709,17 @@ void MenuStateCustomGame::update() {
 			// give it to me baby, aha aha ...
 			publishToMasterserver();
 		}
-		if(needToPublishMap){
+		if(needToPublishDelayed){
 					// this delay is done to make it possible to switch over maps which are not meant to be distributed
 					if(difftime(time(NULL), mapPublishingDelayTimer) >= 5){
 						// after 5 seconds we are allowed to publish again!
 		                needToSetChangedGameSettings = true;
 		                lastSetChangedGameSettings   = time(NULL);
 						// set to normal....
-						needToPublishMap=false;
+						needToPublishDelayed=false;
 					}
 				}
-		if(!needToPublishMap){
+		if(!needToPublishDelayed){
 			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
 
 			if(broadCastSettings == true) {
