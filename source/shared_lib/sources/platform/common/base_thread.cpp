@@ -13,6 +13,7 @@
 #include "base_thread.h"
 #include "platform_common.h"
 #include "util.h"
+#include "conversion.h"
 #include <time.h>
 
 using namespace Shared::Util;
@@ -48,14 +49,14 @@ Mutex * BaseThread::getMutexThreadOwnerValid() {
 }
 
 void BaseThread::setThreadOwnerValid(bool value) {
-	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid);
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,string(__FILE__) + "_" + intToStr(__LINE__));
 	threadOwnerValid = value;
 	safeMutex.ReleaseLock();
 }
 
 bool BaseThread::getThreadOwnerValid() {
 	bool ret = false;
-	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid);
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,string(__FILE__) + "_" + intToStr(__LINE__));
 	ret = threadOwnerValid;
 	safeMutex.ReleaseLock();
 
@@ -73,7 +74,7 @@ void BaseThread::signalQuit() {
 void BaseThread::setQuitStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-	MutexSafeWrapper safeMutex(&mutexQuit);
+	MutexSafeWrapper safeMutex(&mutexQuit,string(__FILE__) + "_" + intToStr(__LINE__));
 	quit = value;
 	safeMutex.ReleaseLock();
 
@@ -84,7 +85,7 @@ bool BaseThread::getQuitStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexQuit);
+	MutexSafeWrapper safeMutex(&mutexQuit,string(__FILE__) + "_" + intToStr(__LINE__));
 	retval = quit;
 	safeMutex.ReleaseLock();
 
@@ -95,7 +96,7 @@ bool BaseThread::getQuitStatus() {
 
 bool BaseThread::getHasBeginExecution() {
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexBeginExecution);
+	MutexSafeWrapper safeMutex(&mutexBeginExecution,string(__FILE__) + "_" + intToStr(__LINE__));
 	retval = hasBeginExecution;
 	safeMutex.ReleaseLock();
 
@@ -107,7 +108,7 @@ bool BaseThread::getHasBeginExecution() {
 void BaseThread::setHasBeginExecution(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-	MutexSafeWrapper safeMutex(&mutexBeginExecution);
+	MutexSafeWrapper safeMutex(&mutexBeginExecution,string(__FILE__) + "_" + intToStr(__LINE__));
 	hasBeginExecution = value;
 	safeMutex.ReleaseLock();
 
@@ -118,7 +119,7 @@ bool BaseThread::getRunningStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexRunning);
+	MutexSafeWrapper safeMutex(&mutexRunning,string(__FILE__) + "_" + intToStr(__LINE__));
 	retval = running;
 	safeMutex.ReleaseLock();
 
@@ -134,7 +135,7 @@ bool BaseThread::getRunningStatus() {
 void BaseThread::setRunningStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] value = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),value);
 
-	MutexSafeWrapper safeMutex(&mutexRunning);
+	MutexSafeWrapper safeMutex(&mutexRunning,string(__FILE__) + "_" + intToStr(__LINE__));
 	running = value;
 	setHasBeginExecution(true);
 	safeMutex.ReleaseLock();
@@ -143,14 +144,14 @@ void BaseThread::setRunningStatus(bool value) {
 }
 
 void BaseThread::setExecutingTask(bool value) {
-	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	MutexSafeWrapper safeMutex(&mutexExecutingTask,string(__FILE__) + "_" + intToStr(__LINE__));
 	executingTask = value;
 	safeMutex.ReleaseLock();
 }
 
 bool BaseThread::getExecutingTask() {
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexExecutingTask);
+	MutexSafeWrapper safeMutex(&mutexExecutingTask,string(__FILE__) + "_" + intToStr(__LINE__));
 	retval = executingTask;
 	safeMutex.ReleaseLock();
 
@@ -159,7 +160,7 @@ bool BaseThread::getExecutingTask() {
 
 bool BaseThread::getDeleteSelfOnExecutionDone() {
     bool retval = false;
-    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone);
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,string(__FILE__) + "_" + intToStr(__LINE__));
     retval = deleteSelfOnExecutionDone;
     safeMutex.ReleaseLock();
 
@@ -167,7 +168,7 @@ bool BaseThread::getDeleteSelfOnExecutionDone() {
 }
 
 void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
-    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone);
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,string(__FILE__) + "_" + intToStr(__LINE__));
     deleteSelfOnExecutionDone = value;
 }
 

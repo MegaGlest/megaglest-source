@@ -61,7 +61,7 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
 
 	if(event != NULL) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 		eventList.push_back(*event);
 		safeMutex.ReleaseLock();
 	}
@@ -73,7 +73,7 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(eventId > 0) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 		//event->eventCompleted = true;
 		for(int i = 0; i < eventList.size(); ++i) {
 		    ConnectionSlotEvent &slotEvent = eventList[i];
@@ -90,13 +90,13 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 }
 
 void ConnectionSlotThread::purgeAllEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
     eventList.clear();
     safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::setAllEventsCompleted() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
     for(int i = 0; i < eventList.size(); ++i) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == false) {
@@ -107,7 +107,7 @@ void ConnectionSlotThread::setAllEventsCompleted() {
 }
 
 void ConnectionSlotThread::purgeCompletedEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
     //event->eventCompleted = true;
     for(int i = eventList.size() - 1; i >= 0; i--) {
         ConnectionSlotEvent &slotEvent = eventList[i];
@@ -130,7 +130,7 @@ bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
-	MutexSafeWrapper safeMutex(&triggerIdMutex);
+	MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	//bool result = (event != NULL ? event->eventCompleted : true);
 	bool result = false;
     if(event != NULL) {
@@ -172,7 +172,7 @@ void ConnectionSlotThread::execute() {
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            MutexSafeWrapper safeMutex(&triggerIdMutex);
+            MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
             int eventCount = eventList.size();
             if(eventCount > 0) {
                 ConnectionSlotEvent eventCopy;
@@ -293,13 +293,13 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 			// Is the listener socket ready to be read?
 			if(checkForNewClients == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,serverInterface->getOpenSlotCount());
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
 				if(serverInterface->getServerSocket() != NULL &&
 					serverInterface->getServerSocket()->hasDataToRead() == true) {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					socket = serverInterface->getServerSocket()->accept();
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					if(socket != NULL) {
 						this->connectedTime = time(NULL);
 						this->clearChatInfo();
@@ -309,7 +309,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						this->receivedNetworkGameStatus = false;
 						this->gotIntro = false;
 
-						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
 						this->vctPendingNetworkCommandList.clear();
 						safeMutexSlot.ReleaseLock();
 
@@ -426,7 +426,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									lastReceiveCommandListTime = time(NULL);
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-                                    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+                                    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
@@ -682,8 +682,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							if(gotIntro == true) {
 								SwitchSetupRequest switchSetupRequest;
 								if(receiveMessage(&switchSetupRequest)) {
-									Mutex *mutex = getServerSynchAccessor();
-									if(mutex != NULL) mutex->p();
+									MutexSafeWrapper safeMutex(getServerSynchAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
 
 									int factionIdx = switchSetupRequest.getCurrentFactionIndex();
 									if(serverInterface->getSwitchSetupRequests()[factionIdx] == NULL) {
@@ -692,8 +691,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
 
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getSwitchFlags());
-
-									if(mutex != NULL) mutex->v();
 								}
 							}
 							break;
@@ -810,7 +807,7 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 }
 
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
-	MutexSafeWrapper safeMutex(&socketSynchAccessor);
+	MutexSafeWrapper safeMutex(&socketSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	NetworkInterface::sendMessage(networkMessage);
 }
 
@@ -819,7 +816,7 @@ string ConnectionSlot::getHumanPlayerName(int index) {
 }
 
 vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
-    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
     vector<NetworkCommand> ret = vctPendingNetworkCommandList;
     if(clearList == true) {
         vctPendingNetworkCommandList.clear();
@@ -830,7 +827,7 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 }
 
 void ConnectionSlot::clearPendingNetworkCommandList() {
-    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,intToStr(__LINE__));
+    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
     vctPendingNetworkCommandList.clear();
 }
 

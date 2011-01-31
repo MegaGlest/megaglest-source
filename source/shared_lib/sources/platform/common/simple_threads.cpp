@@ -14,6 +14,7 @@
 #include "util.h"
 #include "platform_common.h"
 #include <algorithm>
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -86,13 +87,13 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->needTaskSignal			 = needTaskSignal;
 	setTaskSignalled(false);
 
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
 	lastExecuteTimestamp = time(NULL);
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
 	bool result = false;
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
 	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
 	safeMutex.ReleaseLock();
 
@@ -139,7 +140,7 @@ void SimpleTaskThread::execute() {
                     	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
                         this->simpleTaskInterface->simpleTask(this);
 
-                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp);
+                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
                     	lastExecuteTimestamp = time(NULL);
                     	safeMutex.ReleaseLock();
                     }
@@ -179,7 +180,7 @@ void SimpleTaskThread::execute() {
 void SimpleTaskThread::setTaskSignalled(bool value) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller);
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller,string(__FILE__) + "_" + intToStr(__LINE__));
 	taskSignalled = value;
 	safeMutex.ReleaseLock();
 
@@ -190,7 +191,7 @@ bool SimpleTaskThread::getTaskSignalled() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller);
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller,string(__FILE__) + "_" + intToStr(__LINE__));
 	retval = taskSignalled;
 	safeMutex.ReleaseLock();
 
@@ -207,7 +208,7 @@ LogFileThread::LogFileThread() : BaseThread() {
 }
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
-    MutexSafeWrapper safeMutex(&mutexLogList);
+    MutexSafeWrapper safeMutex(&mutexLogList,string(__FILE__) + "_" + intToStr(__LINE__));
 	LogFileEntry entry;
 	entry.type = type;
 	entry.entry = logEntry;
@@ -273,14 +274,14 @@ void LogFileThread::execute() {
 }
 
 std::size_t LogFileThread::getLogEntryBufferCount() {
-    MutexSafeWrapper safeMutex(&mutexLogList);
+    MutexSafeWrapper safeMutex(&mutexLogList,string(__FILE__) + "_" + intToStr(__LINE__));
     std::size_t logCount = logList.size();
     safeMutex.ReleaseLock();
     return logCount;
 }
 
 void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
-    MutexSafeWrapper safeMutex(NULL);
+    MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
     if(logListAlreadyLocked == false) {
         safeMutex.setMutex(&mutexLogList);
     }

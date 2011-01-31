@@ -265,7 +265,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     ircArgs.push_back(szIRCNick);
     ircArgs.push_back(IRC_CHANNEL);
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
     ircClient = new IRCThread(ircArgs,this);
     ircClient->setUniqueID(__FILE__);
     ircClient->start();
@@ -288,7 +288,7 @@ void MenuStateMasterserver::setButtonLinePosition(int pos){
 }
 
 void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) {
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         if(evt == IRC_evt_exitThread) {
             ircClient = NULL;
@@ -313,7 +313,7 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
 void MenuStateMasterserver::cleanup() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+    MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     needUpdateFromServer = false;
     safeMutex.ReleaseLock();
 
@@ -332,7 +332,7 @@ void MenuStateMasterserver::cleanup() {
 	clearServerLines();
 	clearUserButtons();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -395,7 +395,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonRefresh.mouseClick(x, y)){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+		MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = true;
 
@@ -419,7 +419,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else if(buttonCreateGame.mouseClick(x, y)){
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
 		safeMutex.ReleaseLock();
@@ -434,12 +434,12 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundA());
 		autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
     }
     else {
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     	bool clicked=false;
     	if(!clicked && serverScrollBar.getElementCount()!=0){
     		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
@@ -482,7 +482,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
@@ -515,7 +515,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateMasterserver::render(){
 	Renderer &renderer= Renderer::getInstance();
 
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
@@ -548,7 +548,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
 		Lang &lang= Lang::getInstance();
-		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
         if(ircClient != NULL &&
            ircClient->isConnected() == true &&
            ircClient->getHasJoinedChannel() == true) {
@@ -609,7 +609,7 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update() {
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
 		needUpdateFromServer = true;
 		lastRefreshTimer= time(NULL);
@@ -637,7 +637,7 @@ void MenuStateMasterserver::update() {
     //console
     consoleIRC.update();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
         bool isNew=false;
@@ -708,7 +708,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
 	if(callingThread->getQuitStatus() == true) {
 		return;
 	}
-	MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor());
+	MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
 	bool needUpdate = needUpdateFromServer;
 
 	if(needUpdate == true) {
@@ -979,7 +979,7 @@ void MenuStateMasterserver::keyDown(char key) {
 		//chatmanger only if connected to irc!
 		if (chatManager.getEditEnabled() == true) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
-			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient);
+			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
 			if (key == vkReturn && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}

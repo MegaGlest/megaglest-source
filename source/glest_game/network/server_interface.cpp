@@ -107,7 +107,7 @@ ServerInterface::~ServerInterface() {
 	exitServer = true;
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		if(slots[i] != NULL) {
-			MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			delete slots[i];
 			slots[i]=NULL;
 		}
@@ -125,7 +125,7 @@ ServerInterface::~ServerInterface() {
 		delete ftpServer;
 		ftpServer = NULL;
 	}
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	delete publishToMasterserverThread;
 	publishToMasterserverThread = NULL;
 	safeMutex.ReleaseLock();
@@ -140,7 +140,7 @@ int ServerInterface::isValidClientType(uint32 clientIp) {
 	int result = 0;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		if(slots[i] != NULL) {
-			MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutex(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 
 			Socket *socket = slots[i]->getSocket();
 			if(socket != NULL) {
@@ -162,14 +162,14 @@ void ServerInterface::addClientToServerIPAddress(uint32 clientIp, uint32 ServerI
 void ServerInterface::addSlot(int playerIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(serverSocket.isPortBound() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		serverSocket.bind(serverSocket.getBindPort());
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + "_" + intToStr(playerIndex));
+	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(playerIndex));
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ConnectionSlot *slot = slots[playerIndex];
 	if(slot != NULL) {
@@ -195,9 +195,9 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 		return false;
 	}
 
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
-	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[fromPlayerIndex],intToStr(__LINE__) + "_" + intToStr(fromPlayerIndex));
-	MutexSafeWrapper safeMutexSlot2(&slotAccessorMutexes[toPlayerIndex],intToStr(__LINE__) + "_" + intToStr(toPlayerIndex));
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[fromPlayerIndex],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(fromPlayerIndex));
+	MutexSafeWrapper safeMutexSlot2(&slotAccessorMutexes[toPlayerIndex],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(toPlayerIndex));
 	if(slots[toPlayerIndex] != NULL && slots[toPlayerIndex] != NULL &&
 	   slots[toPlayerIndex]->isConnected() == false) {
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
@@ -224,11 +224,11 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 
 void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
-	MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(playerIndex));
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(NULL,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(playerIndex));
 	if(playerIndex != lockedSlotIndex) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-		safeMutexSlot.setMutex(&slotAccessorMutexes[playerIndex],intToStr(__LINE__) + string("_") + intToStr(playerIndex));
+		safeMutexSlot.setMutex(&slotAccessorMutexes[playerIndex],string(__FILE__) + "_" + intToStr(__LINE__) + string("_") + intToStr(playerIndex));
 	}
 	ConnectionSlot *slot = slots[playerIndex];
 	bool notifyDisconnect = false;
@@ -274,7 +274,7 @@ ConnectionSlot *ServerInterface::getSlot(int playerIndex) {
 bool ServerInterface::hasClientConnection() {
 	bool result = false;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		if(slots[i] != NULL && slots[i]->isConnected() == true) {
 			result = true;
 			break;
@@ -286,7 +286,7 @@ bool ServerInterface::hasClientConnection() {
 int ServerInterface::getConnectedSlotCount() {
 	int connectedSlotCount = 0;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		if(slots[i] != NULL) {
 			++connectedSlotCount;
 		}
@@ -333,7 +333,7 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		ConnectionSlot *connectionSlot = NULL;
 		MutexSafeWrapper safeMutexSlot(NULL);
 		if(event->triggerId >= 0 && event->triggerId < GameConstants::maxPlayers) {
-			safeMutexSlot.setMutex(&slotAccessorMutexes[event->triggerId],intToStr(__LINE__) + "_" + intToStr(event->triggerId));
+			safeMutexSlot.setMutex(&slotAccessorMutexes[event->triggerId],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(event->triggerId));
 			connectionSlot = slots[event->triggerId];
 		}
 		else {
@@ -492,7 +492,7 @@ bool ServerInterface::signalClientReceiveCommands(ConnectionSlot *connectionSlot
 
 void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList) {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot= slots[i];
 		if(connectionSlot != NULL && connectionSlot->getSocket() != NULL &&
 		   slots[i]->getSocket()->isSocketValid() == true) {
@@ -503,7 +503,7 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 
 void ServerInterface::validateConnectedClients() {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot = slots[i];
 
 		if(connectionSlot != NULL) {
@@ -517,7 +517,7 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 												 std::map<int,bool> & mapSlotSignalledList) {
 	bool checkForNewClients = true;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot = slots[i];
 
 		bool socketTriggered = false;
@@ -540,7 +540,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 		threadsDone = true;
 		// Examine all threads for completion of delegation
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + string("_") + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + string("_") + intToStr(i));
 			ConnectionSlot* connectionSlot = slots[i];
 			if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
 			   slotsCompleted.find(i) == slotsCompleted.end()) {
@@ -591,7 +591,7 @@ void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalled
 		threadsDone = true;
 		// Examine all threads for completion of delegation
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot* connectionSlot = slots[i];
 			if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
 			   slotsCompleted.find(i) == slotsCompleted.end()) {
@@ -668,7 +668,7 @@ void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalled
 void ServerInterface::executeNetworkCommandsFromClients() {
 	if(gameHasBeenInitiated == true) {
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				vector<NetworkCommand> pendingList = connectionSlot->getPendingNetworkCommandList(true);
@@ -685,7 +685,7 @@ void ServerInterface::executeNetworkCommandsFromClients() {
 
 void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsgList) {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot= slots[i];
 		if(connectionSlot != NULL &&
 		   connectionSlot->getChatTextList().empty() == false) {
@@ -940,7 +940,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 		vector<string> waitingForHosts;
 		allReady= true;
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i)	{
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true)	{
 				if(connectionSlot->isReady() == false) {
@@ -1001,7 +1001,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 	try {
 		//send ready message after, so clients start delayed
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				NetworkMessageReady networkMessageReady(checksum->getSum());
@@ -1020,7 +1020,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 }
 
 void ServerInterface::processBroadCastMessageQueue() {
-	MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(broadcastMessageQueue.size() > 0) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] broadcastMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,broadcastMessageQueue.size());
 	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
@@ -1036,7 +1036,7 @@ void ServerInterface::processBroadCastMessageQueue() {
 }
 
 void ServerInterface::queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot) {
-	MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	pair<const NetworkMessage*,int> item;
 	item.first = networkMessage;
 	item.second = excludeSlot;
@@ -1044,7 +1044,7 @@ void ServerInterface::queueBroadcastMessage(const NetworkMessage *networkMessage
 }
 
 void ServerInterface::processTextMessageQueue() {
-	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(textMessageQueue.size() > 0) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] textMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,textMessageQueue.size());
 	for(int i = 0; i < textMessageQueue.size(); ++i) {
@@ -1056,7 +1056,7 @@ void ServerInterface::processTextMessageQueue() {
 }
 
 void ServerInterface::queueTextMessage(const string & text, int teamIndex, bool echoLocal) {
-	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	TextMessageQueue item;
 	item.text = text;
 	item.teamIndex = teamIndex;
@@ -1093,7 +1093,7 @@ string ServerInterface::getNetworkStatus() {
 	Lang &lang = Lang::getInstance();
 	string str="";
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot= slots[i];
 
 		str+= intToStr(i)+ ": ";
@@ -1122,7 +1122,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	bool bOkToStart = true;
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot *connectionSlot= slots[i];
 		if(connectionSlot != NULL &&
 		   connectionSlot->getAllowDownloadDataSynch() == true &&
@@ -1145,7 +1145,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
-		MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
+		MutexSafeWrapper safeMutex(&masterServerThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		delete publishToMasterserverThread;
 		publishToMasterserverThread = NULL;
 		lastMasterserverHeartbeatTime = 0;
@@ -1180,7 +1180,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 void ServerInterface::broadcastGameSetup(const GameSettings *gameSettings) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtBroadCastSetup);
 	broadcastMessage(&networkMessageLaunch);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1190,7 +1190,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int
 	try {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	    MutexSafeWrapper safeMutexSlotBroadCastAccessor(&inBroadcastMessageThreadAccessor,intToStr(__LINE__));
+	    MutexSafeWrapper safeMutexSlotBroadCastAccessor(&inBroadcastMessageThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    if(inBroadcastMessage == true && dynamic_cast<const NetworkMessageText *>(networkMessage) != NULL) {
 	    	safeMutexSlotBroadCastAccessor.ReleaseLock();
 	    	const NetworkMessageText *txtMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
@@ -1204,10 +1204,10 @@ void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int
 	    }
 
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(NULL,intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(NULL,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			if(i != lockedSlotIndex) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] i = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,i,lockedSlotIndex);
-				safeMutexSlot.setMutex(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+				safeMutexSlot.setMutex(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			}
 
 			ConnectionSlot* connectionSlot= slots[i];
@@ -1242,7 +1242,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 
-		MutexSafeWrapper safeMutexSlotBroadCastAccessor(&inBroadcastMessageThreadAccessor,intToStr(__LINE__));
+		MutexSafeWrapper safeMutexSlotBroadCastAccessor(&inBroadcastMessageThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    inBroadcastMessage = false;
 	    safeMutexSlotBroadCastAccessor.ReleaseLock();
 
@@ -1255,7 +1255,7 @@ void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage *n
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	try {
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot *connectionSlot= slots[i];
 
 			if(i != excludeSlot && connectionSlot != NULL) {
@@ -1304,7 +1304,7 @@ int ServerInterface::getOpenSlotCount() {
 
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
-	MutexSafeWrapper safeMutex(&serverSynchAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	gameSettings = *serverGameSettings;
 	if(getAllowGameDataSynchCheck() == true) {
 		if(waitForClientAck == true && gameSettingsUpdateCount > 0) {
@@ -1315,7 +1315,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 			while(gotAckFromAllClients == false && difftime(time(NULL),tStart) <= 5) {
 				gotAckFromAllClients = true;
 				for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-					MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+					MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 					ConnectionSlot *connectionSlot = slots[i];
 					if(connectionSlot != NULL && connectionSlot->isConnected()) {
 						if(connectionSlot->getReceivedNetworkGameStatus() == false) {
@@ -1329,7 +1329,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 		}
 
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 			ConnectionSlot *connectionSlot = slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected()) {
 				connectionSlot->setReceivedNetworkGameStatus(false);
@@ -1347,7 +1347,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 			while(gotAckFromAllClients == false && difftime(time(NULL),tStart) <= 5) {
 				gotAckFromAllClients = true;
 				for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-					MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+					MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 					ConnectionSlot *connectionSlot = slots[i];
 					if(connectionSlot != NULL && connectionSlot->isConnected()) {
 						if(connectionSlot->getReceivedNetworkGameStatus() == false) {
@@ -1396,7 +1396,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	std::map < string, string > publishToServerInfo;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		if(slots[i] != NULL) {
 			slotCountUsed++;
 			slotCountHumans++;
@@ -1430,7 +1430,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 }
 
 void ServerInterface::simpleTask(BaseThread *callingThread) {
-	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&masterServerThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

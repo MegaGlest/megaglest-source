@@ -61,7 +61,7 @@ void CommanderNetworkThread::setQuitStatus(bool value) {
 void CommanderNetworkThread::signalUpdate(int id) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
 
-	MutexSafeWrapper safeMutex(&idMutex);
+	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	this->idStatus.first = id;
 	this->idStatus.second = false;
 	safeMutex.ReleaseLock();
@@ -73,7 +73,7 @@ void CommanderNetworkThread::signalUpdate(int id) {
 void CommanderNetworkThread::setTaskCompleted(int id) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    MutexSafeWrapper safeMutex(&idMutex);
+    MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
     this->idStatus.second = true;
     safeMutex.ReleaseLock();
 
@@ -82,7 +82,7 @@ void CommanderNetworkThread::setTaskCompleted(int id) {
 
 bool CommanderNetworkThread::isSignalCompleted(int id) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
-	MutexSafeWrapper safeMutex(&idMutex);
+	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	bool result = this->idStatus.second;
 	safeMutex.ReleaseLock();
 	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
@@ -113,7 +113,7 @@ void CommanderNetworkThread::execute() {
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            MutexSafeWrapper safeMutex(&idMutex);
+            MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
             if(idStatus.first > 0) {
                 int updateId = this->idStatus.first;
                 safeMutex.ReleaseLock();
