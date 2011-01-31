@@ -71,6 +71,9 @@ private:
 private:
 	vector<Text> texts;
 	int timer;
+	int mouseX;
+	int mouseY;
+	int mouse2d;
 
 public:
 	Intro(Program *program);
@@ -78,6 +81,7 @@ public:
 	virtual void render();
 	virtual void keyDown(char key);
 	virtual void mouseUpLeft(int x, int y);
+	void mouseMove(int x, int y, const MouseState *ms);
 };
 
 }}//end namespace
