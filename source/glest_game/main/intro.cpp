@@ -67,6 +67,9 @@ Intro::Intro(Program *program):
 	int w= metrics.getVirtualW();
 	int h= metrics.getVirtualH();
 	timer=0;
+	mouseX = 0;
+	mouseY = 0;
+	mouse2d = 0;
 
 	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), 4000));
 	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), 4000, coreData.getMenuFontNormal()));
@@ -97,6 +100,8 @@ void Intro::update(){
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+
+	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 }
 
 void Intro::render(){
@@ -136,6 +141,8 @@ void Intro::render(){
 
 	if(program != NULL) program->renderProgramMsgBox();
 
+	if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
+
 	renderer.swapBuffers();
 }
 
@@ -158,6 +165,11 @@ void Intro::mouseUpLeft(int x, int y){
 	program->setState(new MainMenu(program));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Intro::mouseMove(int x, int y, const MouseState *ms) {
+	mouseX = x;
+	mouseY = y;
 }
 
 }}//end namespace

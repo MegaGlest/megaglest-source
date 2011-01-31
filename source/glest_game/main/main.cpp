@@ -1314,6 +1314,7 @@ void CheckForDuplicateData() {
         throw runtime_error("No maps were found!");
     }
 
+	vector<string> duplicateMapsToRename;
 	for(int i = 0; i < maps.size(); ++i) {
 	    string map1 = maps[i];
 	    for(int j = 0; j < maps.size(); ++j) {
@@ -1323,12 +1324,40 @@ void CheckForDuplicateData() {
                 //printf("i = %d map1 [%s] j = %d map2 [%s]\n",i,map1.c_str(),j,map2.c_str());
 
                 if(map1 == map2) {
-                    char szBuf[4096]="";
-                    sprintf(szBuf,"You have duplicate maps for map [%s] in [%s] and [%s]",map1.c_str(),mapPaths[0].c_str(),mapPaths[1].c_str());
-                    throw runtime_error(szBuf);
+                	if(std::find(duplicateMapsToRename.begin(),duplicateMapsToRename.end(),map1) == duplicateMapsToRename.end()) {
+                		duplicateMapsToRename.push_back(map1);
+                	}
                 }
 	        }
 	    }
+	}
+	if(duplicateMapsToRename.size() > 0) {
+		string errorMsg = "Warning duplicate maps were detected and renamed:\n";
+		for(int i = 0; i < duplicateMapsToRename.size(); ++i) {
+			string oldFile = mapPaths[1] + "/" + duplicateMapsToRename[i];
+			string newFile = mapPaths[1] + "/" + duplicateMapsToRename[i];
+			string ext = extractExtension(newFile);
+			newFile = newFile.substr( 0, newFile.length()-ext.length()-1);
+			newFile = newFile + "_custom." + ext;
+
+			char szBuf[4096]="";
+			int result = rename(oldFile.c_str(),newFile.c_str());
+			if(result != 0) {
+				char *errmsg = strerror(errno);
+				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				throw runtime_error(szBuf);
+			}
+			else {
+				sprintf(szBuf,"map [%s] in [%s]\nwas renamed to [%s]",duplicateMapsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+			}
+			errorMsg += szBuf;
+		}
+        //throw runtime_error(szBuf);
+        Program *program = Program::getInstance();
+        if(program) {
+        	program->getState()->setForceMouseRender(true);
+        }
+        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
 	}
 
 	//tilesets

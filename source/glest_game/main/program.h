@@ -49,9 +49,13 @@ protected:
 
 	int startX;
     int startY;
+    bool forceMouseRender;
 
 public:
-	ProgramState(Program *program)	{this->program= program;}
+	ProgramState(Program *program) {
+		this->program= program;
+		this->forceMouseRender = false;
+	}
 	virtual ~ProgramState(){};
 
 	virtual void render()=0;
@@ -81,6 +85,7 @@ public:
 	virtual bool quitTriggered() { return false; }
 	virtual Stats quitAndToggleState() { return Stats(); };
 	virtual Program * getProgram() { return program; }
+	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
 };
 
 // ===============================
