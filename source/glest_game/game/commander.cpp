@@ -664,12 +664,17 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL && gameNetworkInterface->isConnected() == true) {
             char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Unit / Faction mismatch for unitId: %d\nLocal faction index = %d, remote index = %d. Game out of synch.",networkCommand->getUnitId(),unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
+            sprintf(szMsg,"Player detected an error: Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true);
+            sprintf(szMsg,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
+            gameNetworkInterface->sendTextMessage(szMsg,-1, true);
+
         }
         else {
             char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Connection lost, possible Unit / Faction mismatch for unitId: %d\nLocal faction index = %d, remote index = %d. Game out of synch.",networkCommand->getUnitId(),unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
+            sprintf(szMsg,"Player detected an error: Connection lost, possible Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
+            gameNetworkInterface->sendTextMessage(szMsg,-1, true);
+            sprintf(szMsg,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true);
         }
 
