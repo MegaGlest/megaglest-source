@@ -1,4 +1,4 @@
-					Mega-Glest
+					MegaGlest
         	        	by Titus Tscharntke and Mark Vejvoda
 
         			original Glest code
@@ -21,7 +21,7 @@ and has been reported to run successfully on Windows 2000 - Windows 7.
 The game depends on some tools and libraries to be present, before you can
 start compiling it. Here's a list of them:
 
-* Microsoft Visual C++ Express 2008 or higher
+* Microsoft Visual C++ Express 2008
 OR
 * mingw32
 
