@@ -15,17 +15,22 @@
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #include <string>
+#include "platform_common.h"
+//#include "util.h"
 #include "leak_dumper.h"
 
 //#define DEBUG_MUTEXES
+//#define DEBUG_PERFORMANCE_MUTEXES
 
 // =====================================================
 //	class Thread
 // =====================================================
 
 using namespace std;
+using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Platform{
+
+namespace Shared { namespace Platform {
 
 class Thread{
 public:
@@ -75,6 +80,10 @@ class MutexSafeWrapper {
 protected:
 	Mutex *mutex;
 	string ownerId;
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+	Chrono chrono;
+#endif
+
 public:
 
 	MutexSafeWrapper(Mutex *mutex,string ownerId="") {
@@ -103,7 +112,16 @@ public:
             }
             #endif
 
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+    		chrono.start();
+#endif
+
 			this->mutex->p();
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+			if(chrono.getMillis() > 5) printf("In [%s::%s Line: %d] MUTEX LOCK took msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());
+			chrono.start();
+#endif
 
             #ifdef DEBUG_MUTEXES
             if(ownerId != "") {
@@ -121,6 +139,10 @@ public:
             #endif
 
 			this->mutex->v();
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+			if(chrono.getMillis() > 100) printf("In [%s::%s Line: %d] MUTEX UNLOCKED and held locked for msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());
+#endif
 
             #ifdef DEBUG_MUTEXES
             if(ownerId != "") {

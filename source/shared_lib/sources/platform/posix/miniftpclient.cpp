@@ -18,6 +18,7 @@
 #include <curl/types.h>
 #include <curl/easy.h>
 #include <algorithm>
+#include "conversion.h"
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -185,7 +186,7 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
          stats.upload_now       = upload_now;
          stats.currentFilename  = out->currentFilename;
 
-         MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex());
+         MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
          out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(out->itemName, ftp_cct_DownloadProgress, ftp_crt_SUCCESS, &stats);
   }
 
@@ -309,21 +310,21 @@ void FTPClientThread::getMapFromServer(string mapFileName) {
         }
     }
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(mapFileName,ftp_cct_Map,result,NULL);
     }
 }
 
 void FTPClientThread::addMapToRequests(string mapFilename) {
-    MutexSafeWrapper safeMutex(&mutexMapFileList);
+    MutexSafeWrapper safeMutex(&mutexMapFileList,string(__FILE__) + "_" + intToStr(__LINE__));
     if(std::find(mapFileList.begin(),mapFileList.end(),mapFilename) == mapFileList.end()) {
         mapFileList.push_back(mapFilename);
     }
 }
 
 void FTPClientThread::addTilesetToRequests(string tileSetName) {
-    MutexSafeWrapper safeMutex(&mutexTilesetList);
+    MutexSafeWrapper safeMutex(&mutexTilesetList,string(__FILE__) + "_" + intToStr(__LINE__));
     if(std::find(tilesetList.begin(),tilesetList.end(),tileSetName) == tilesetList.end()) {
         tilesetList.push_back(tileSetName);
     }
@@ -335,7 +336,7 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
         result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD);
     }
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(tileSetName,ftp_cct_Tileset,result,NULL);
     }
@@ -492,12 +493,12 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 }
 
 FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
-    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
     return pCBObject;
 }
 
 void FTPClientThread::setCallBackObject(FTPClientCallbackInterface *value) {
-    MutexSafeWrapper safeMutex(this->getProgressMutex());
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
     pCBObject = value;
 }
 
@@ -515,7 +516,7 @@ void FTPClientThread::execute() {
 
         try	{
             while(this->getQuitStatus() == false) {
-                MutexSafeWrapper safeMutex(&mutexMapFileList);
+                MutexSafeWrapper safeMutex(&mutexMapFileList,string(__FILE__) + "_" + intToStr(__LINE__));
                 if(mapFileList.size() > 0) {
                     string mapFilename = mapFileList[0];
                     mapFileList.erase(mapFileList.begin() + 0);
@@ -531,7 +532,7 @@ void FTPClientThread::execute() {
                     break;
                 }
 
-                MutexSafeWrapper safeMutex2(&mutexTilesetList);
+                MutexSafeWrapper safeMutex2(&mutexTilesetList,string(__FILE__) + "_" + intToStr(__LINE__));
                 if(tilesetList.size() > 0) {
                     string tileset = tilesetList[0];
                     tilesetList.erase(tilesetList.begin() + 0);

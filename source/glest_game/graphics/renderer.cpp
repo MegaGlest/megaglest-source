@@ -237,7 +237,7 @@ void Renderer::simpleTask(BaseThread *callingThread) {
 	// This code reads pixmaps from a queue and saves them to disk
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(saveScreenQueue.size() > 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
 
@@ -3537,7 +3537,7 @@ void Renderer::saveScreen(const string &path) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// Signal the threads queue to add a screenshot save request
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	saveScreenQueue.push_back(make_pair(path,pixmapScreenShot));
 	safeMutex.ReleaseLock();
 
@@ -3545,7 +3545,7 @@ void Renderer::saveScreen(const string &path) {
 }
 
 unsigned int Renderer::getSaveScreenQueueSize() {
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	int queueSize = saveScreenQueue.size();
 	safeMutex.ReleaseLock();
 

@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include "conversion.h"
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -101,7 +102,7 @@ void event_join(irc_session_t * session, const char * event, const char * origin
 
             bool foundNick = false;
 
-            MutexSafeWrapper safeMutex(ctx->getMutexNickList());
+            MutexSafeWrapper safeMutex(ctx->getMutexNickList(),string(__FILE__) + "_" + intToStr(__LINE__));
             std::vector<string> nickList = ctx->getCachedNickList();
             for(unsigned int i = 0;
                              i < nickList.size(); ++i) {
@@ -202,7 +203,7 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
-        MutexSafeWrapper safeMutex(ctx->getMutexIRCCB());
+        MutexSafeWrapper safeMutex(ctx->getMutexIRCCB(),string(__FILE__) + "_" + intToStr(__LINE__));
         IRCCallbackInterface *cb = ctx->getCallbackObj(false);
         if(cb != NULL) {
             cb->IRC_CallbackEvent(IRC_evt_chatText, realNick, params, count);
@@ -282,7 +283,7 @@ void event_leave(irc_session_t *session, const char *event, const char *origin, 
 
         IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
         if(ctx != NULL) {
-            MutexSafeWrapper safeMutex(ctx->getMutexNickList());
+            MutexSafeWrapper safeMutex(ctx->getMutexNickList(),string(__FILE__) + "_" + intToStr(__LINE__));
             std::vector<string> &nickList = ctx->getCachedNickList();
             for(unsigned int i = 0;
                              i < nickList.size(); ++i) {
@@ -334,7 +335,7 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
 
                     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
                     if(ctx != NULL) {
-                        MutexSafeWrapper safeMutex(ctx->getMutexNickList());
+                        MutexSafeWrapper safeMutex(ctx->getMutexNickList(),string(__FILE__) + "_" + intToStr(__LINE__));
                         ctx->setCachedNickList(nickList);
                     }
                 }
@@ -407,7 +408,7 @@ std::vector<string> IRCThread::GetIRCConnectedNickList(string target, bool waitF
         }
     }
 
-    MutexSafeWrapper safeMutex(&mutexNickList);
+    MutexSafeWrapper safeMutex(&mutexNickList,string(__FILE__) + "_" + intToStr(__LINE__));
     std::vector<string> nickList = eventData;
     safeMutex.ReleaseLock();
 
@@ -424,7 +425,7 @@ bool IRCThread::isConnected() {
 }
 
 std::vector<string> IRCThread::getNickList() {
-    MutexSafeWrapper safeMutex(&mutexNickList);
+    MutexSafeWrapper safeMutex(&mutexNickList,string(__FILE__) + "_" + intToStr(__LINE__));
     std::vector<string> nickList = eventData;
     safeMutex.ReleaseLock();
 
@@ -432,14 +433,14 @@ std::vector<string> IRCThread::getNickList() {
 }
 
 IRCCallbackInterface * IRCThread::getCallbackObj(bool lockObj) {
-    MutexSafeWrapper safeMutex(NULL);
+    MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
     if(lockObj == true) {
         safeMutex.setMutex(&mutexIRCCB);
     }
     return callbackObj;
 }
 void IRCThread::setCallbackObj(IRCCallbackInterface *cb) {
-    MutexSafeWrapper safeMutex(&mutexIRCCB);
+    MutexSafeWrapper safeMutex(&mutexIRCCB,string(__FILE__) + "_" + intToStr(__LINE__));
     callbackObj=cb;
 }
 
@@ -541,7 +542,7 @@ void IRCThread::execute() {
 
     // Delete ourself when the thread is done (no other actions can happen after this
     // such as the mutex which modifies the running status of this method
-    MutexSafeWrapper safeMutex(&mutexIRCCB);
+    MutexSafeWrapper safeMutex(&mutexIRCCB,string(__FILE__) + "_" + intToStr(__LINE__));
     IRCCallbackInterface *cb = getCallbackObj(false);
     if(cb != NULL) {
        cb->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);

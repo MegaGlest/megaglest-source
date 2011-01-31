@@ -441,7 +441,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
             }
 
             if(currentDebugLog.fileStream->is_open() == true) {
-				MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+				MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(__FILE__) + "_" + intToStr(__LINE__));
 
 				(*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
 				(*currentDebugLog.fileStream).flush();
@@ -453,7 +453,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
         assert(currentDebugLog.fileStream != NULL);
 
         if(currentDebugLog.fileStream->is_open() == true) {
-			MutexSafeWrapper safeMutex(currentDebugLog.mutex);
+			MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(__FILE__) + "_" + intToStr(__LINE__));
 
 			// All items in the if clause we don't want timestamps
 			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {

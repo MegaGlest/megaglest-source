@@ -619,7 +619,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 
             soundRenderer.playFx(coreData.getClickSoundA());
 
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
             needToBroadcastServerSettings = false;
             needToRepublishToMasterserver = false;
             lastNetworkPing               = time(NULL);
@@ -652,7 +652,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         else if(listBoxMap.mouseClick(x, y)){
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
             labelMapInfo.setText(mapInfo.desc);
@@ -671,7 +671,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -684,7 +684,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -698,7 +698,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -711,7 +711,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -727,7 +727,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             //TODO
         }
         else if(listBoxTileset.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -741,7 +741,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if(listBoxMapFilter.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
             switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
@@ -763,7 +763,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         else if(listBoxTechTree.mouseClick(x, y)){
             reloadFactions(false);
 
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -776,12 +776,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
             needToRepublishToMasterserver = true;
             soundRenderer.playFx(coreData.getClickSoundC());
         }
         else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
@@ -796,7 +796,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         }
         else {
             for(int i=0; i<mapInfo.players; ++i) {
-                MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+                MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
                 if (listBoxAdvanced.getSelectedItemIndex() == 1) {
                     // set multiplier
@@ -982,7 +982,7 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	serverInterface->setGameSettings(&gameSettings,false);
 
-	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	if(listBoxPublishServer.getSelectedItemIndex() == 0) {
 		needToRepublishToMasterserver = true;
@@ -996,7 +996,7 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 }
 
 void MenuStateCustomGame::PlayNow() {
-	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	saveGameSettingsToFile("lastCustomGamSettings.mgg");
 
 	closeUnusedSlots();
@@ -1379,7 +1379,7 @@ void MenuStateCustomGame::update() {
 	//sleep(200);
 	// END
 
-	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	try {
 		if(serverInitError == true) {
@@ -1870,14 +1870,14 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
     try {
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - A\n");
 
-        MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid());
+        MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
         if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
             return;
         }
 
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - B\n");
 
-        MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor());
+        MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
         bool republish                                  = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
         needToRepublishToMasterserver                   = false;
         std::map<string,string> newPublishToServerInfo  = publishToServerInfo;
@@ -1923,7 +1923,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             std::string serverInfo = SystemFlags::getHTTP(request,handle);
             SystemFlags::cleanupHTTP(&handle);
 
-            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
             if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
                 return;
             }
@@ -1951,7 +1951,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - D\n");
 
         if(broadCastSettings == true) {
-            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
             if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
                 return;
             }
@@ -1979,7 +1979,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - E\n");
 
         if(needPing == true) {
-            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid());
+            MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
             if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {
                 return;
             }
@@ -2674,7 +2674,7 @@ void MenuStateCustomGame::keyDown(char key) {
 
 			activeInputLabel->setText(text);
 
-			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	        if(hasNetworkGameSettings() == true) {
 	            needToSetChangedGameSettings = true;
 	            lastSetChangedGameSettings   = time(NULL);
@@ -2731,7 +2731,7 @@ void MenuStateCustomGame::keyPress(char c) {
 						text.insert(text.end()-1, c);
 						activeInputLabel->setText(text);
 
-						MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL));
+						MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				        if(hasNetworkGameSettings() == true) {
 				            needToSetChangedGameSettings = true;
 				            lastSetChangedGameSettings   = time(NULL);

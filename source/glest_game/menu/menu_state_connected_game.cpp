@@ -877,7 +877,7 @@ void MenuStateConnectedGame::update() {
 
             if(clientInterface->getAllowGameDataSynchCheck() == false) {
                 Config &config = Config::getInstance();
-                MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL);
+                MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL,string(__FILE__) + "_" + intToStr(__LINE__));
                 const GameSettings *gameSettings = clientInterface->getGameSettings();
                 int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
                 // Test data synch
@@ -1816,7 +1816,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         getMissingMapFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
@@ -1854,7 +1854,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         getMissingTilesetFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex());
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 

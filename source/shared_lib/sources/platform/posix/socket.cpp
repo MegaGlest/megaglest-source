@@ -811,7 +811,7 @@ void Socket::simpleTask(BaseThread *callingThread)  {
 
 	for(std::map<string,double>::iterator iterMap = pingCache.begin();
 		iterMap != pingCache.end(); iterMap++) {
-		MutexSafeWrapper safeMutex(&pingThreadAccessor);
+		MutexSafeWrapper safeMutex(&pingThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		iterMap->second = getAveragePingMS(iterMap->first, 1);
 		safeMutex.ReleaseLock();
 	}
@@ -835,7 +835,7 @@ void Socket::disconnectSocket() {
     if(isSocketValid() == true) {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling shutdown and close for socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
-        MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
         ::shutdown(sock,2);
 #ifndef WIN32
         ::close(sock);
@@ -1032,7 +1032,7 @@ int Socket::send(const void *data, int dataSize) {
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		errno = 0;
 
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 #ifdef __APPLE__
@@ -1066,7 +1066,7 @@ int Socket::send(const void *data, int dataSize) {
             if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
@@ -1106,7 +1106,7 @@ int Socket::send(const void *data, int dataSize) {
             if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
-                MutexSafeWrapper safeMutex(&dataSynchAccessor);
+                MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	        	const char *sendBuf = (const char *)data;
 #ifdef __APPLE__
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
@@ -1163,7 +1163,7 @@ int Socket::receive(void *data, int dataSize) {
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1184,7 +1184,7 @@ int Socket::receive(void *data, int dataSize) {
 	            break;
 	        }
 	        else if(Socket::isReadable() == true) {
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived);
@@ -1207,7 +1207,7 @@ int Socket::peek(void *data, int dataSize) {
 
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 	}
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1230,7 +1230,7 @@ int Socket::peek(void *data, int dataSize) {
 	            break;
 	        }
 	        else if(Socket::isReadable() == true) {
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,err);
@@ -1285,7 +1285,7 @@ bool Socket::isReadable() {
 
 	int i = 0;
 	{
-		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
 	if(i < 0) {
@@ -1323,7 +1323,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
 
     	int i = 0;
     	{
-    		MutexSafeWrapper safeMutex(&dataSynchAccessor);
+    		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
         	i = select((int)sock + 1, NULL, &set, NULL, &tv);
     	}
         if(i < 0 ) {
@@ -1506,7 +1506,7 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_SET(sock, &myset);
 
                {
-            	   MutexSafeWrapper safeMutex(&dataSynchAccessor);
+            	   MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
                }
 
@@ -1887,7 +1887,7 @@ Socket *ServerSocket::accept() {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	char client_host[100]="";
-	MutexSafeWrapper safeMutex(&dataSynchAccessor);
+	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
 	safeMutex.ReleaseLock();
 
