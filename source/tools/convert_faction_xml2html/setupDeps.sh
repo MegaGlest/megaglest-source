@@ -16,6 +16,8 @@ else
   sudo apt-get install graphviz
   sudo apt-get install libgraphviz-perl
   sudo apt-get install libconfig-inifiles-perl
+  #sudo apt-get install libimage-size-perl
+  sudo apt-get install perlmagick
 fi
 
 echo "To run the techtree html builder edit mg.ini and run the script as follows:"

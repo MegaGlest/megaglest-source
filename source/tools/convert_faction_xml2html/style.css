@@ -1,0 +1,256 @@
+body {
+    margin: 0 auto;
+    width: 1016px;
+
+    background-color: #161616;
+    font-size: 0.8em;
+    color: #fff6c0;
+    font-family: "Lucida Sans Unicode","Lucida Grande","Lucida Sans", sans-serif;
+}
+
+/*
+ * Structure
+ */
+
+/* Header */
+#header {
+    width: 1016px;
+    height: 313px;
+    margin: 0 auto;
+    background: url("header/header.jpg") no-repeat;
+}
+
+/* Horizontal menu */
+#menu {
+    background-image: url("menu.jpg");
+    background-repeat: no-repeat;
+    height: 65px;
+}
+
+/* Side menus */
+#menu #first { float: left }
+#menu #second { float: right }
+
+/* Main content */
+#content {
+    width: 512px;
+    margin: 0 auto;
+    background: url("wood_panel.jpg") repeat-y;
+}
+
+/* Article (core text of the page) */
+#article {
+    font-size: 1.1em;
+    line-height: 1.5em;
+    padding: 2em;
+    text-align: justify;
+}
+
+/* end of article has to be below side modules */
+#end_article {
+    clear: both;
+}
+
+/* Side modules */
+#aside_left {
+    float: left;
+    width: 420px;
+    margin-left: -168px;
+}
+#aside_left ul {
+    padding: 0 17px 0 168px;
+    margin: 0 2em 2em 2em;
+}
+
+#aside_right {
+    float: right;
+    width: 420px;
+    margin-right: -168px;
+}
+#aside_right ul {
+    padding: 0 140px 0 25px;
+    margin: 0 2em;
+}
+
+.aside .up_image {
+    width: 420px;
+    height: 278px;
+}
+.aside .down_image {
+    width: 420px;
+    height: 191px;
+}
+
+/* fill .up_image and .down_image with content */
+.aside .content {
+    margin-top: -210px;
+    margin-bottom: -80px;
+}
+
+/* Footer */
+#footer {
+    width: 1016px;
+    height: 143px;
+    margin: 0 auto;
+    background-image: url("footer/footer.jpg");
+}
+
+
+/*
+ * Text display: side, colors, etc.
+ */
+p { text-indent: 2em }
+a { color: #ecc72d }
+a:link { text-decoration: none }
+a:hover { text-decoration: underline }
+a img { border: 0; }
+img.right {
+    float: right;
+    margin: 0 0 10px 10px;
+}
+img.left {
+    float: left;
+    margin: 0 10px 10px 0;
+}
+
+/* news dates, scores: gold */
+.info, .date, #content h3 { color: #ecc72d; }
+#content h3 { font-weight: normal; text-indent: 3em }
+
+/* Logo */
+#header h1 {
+    width: 365px;
+    margin: 0 auto;
+}
+
+/* Download image */
+h2#download {
+    margin: 0 auto;
+    margin-top: -2em;
+    text-align: center;
+}
+
+/* Module titles */
+.aside h3 { display: block; }
+
+.aside h3#news { margin-left: 240px; }
+.aside h3#servers { margin-left: 50px; }
+.aside h3.forums { margin-left: 230px; }
+.aside h3#links { margin-left: 110px; }
+
+/* Menu links */
+#menu ul { margin: 0; padding: 0}
+#menu li { display: inline; }
+/* left horizontal menu should not "touch" the wood */
+#menu #second li:first-child { margin-left: 10px; }
+
+#menu a {
+    /* fixed available space: fixed size */
+    font-size: 14px;
+    color: #b5dbb5;
+    font-variant: small-caps;
+    margin: 0 8px;
+}
+
+/* 
+ * Modules
+ */
+#aside_left { background: url("modules/l_repeat.jpg") repeat-y }
+#aside_left .up_image {   background: url("modules/l_up.jpg") }
+#aside_left .down_image { background: url("modules/l_down.jpg") }
+
+#aside_right {background: url("modules/r_repeat.jpg") repeat-y}
+#aside_right .up_image {background: url("modules/r_up.jpg")}
+#aside_right .down_image {background: url("modules/r_down.jpg")}
+
+.aside ul li {
+    list-style-image: url("modules/star.png");
+    clear: right;
+}
+
+/* News module */
+.date {
+    display: block;
+    float: right;
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+    /* Font */
+    font-family: "DejaVu Serif Condensed", serif;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* Servers module */
+.aside table {
+    width: 200px;
+    margin-left: 50px;
+    text-align:center;
+}
+
+.aside table td:first-child {
+    text-align: left;
+}
+
+
+
+/* Forums module */
+.forums .date {
+    margin-top: 3px;
+    font-size: 1em;
+}
+
+/* Footer */
+#footer ul {
+    margin: 0 auto;
+    padding-top: 90px;
+    width: 25em;
+}
+#footer li {
+    list-style-type: none;
+    display: inline;
+    margin: 0 1em;
+}
+/* links in the dark space, images above */
+#footer img {
+    vertical-align: -20%;
+}
+
+/*
+ * Additional background images
+ */
+#header_left {
+    float: left;
+    width: 140px;
+    height: 882px;
+
+    background-image: url("header/left.jpg");
+    background-repeat: no-repeat;
+    margin-left: -140px;
+}
+
+#header_right {
+    float: right;
+    height: 843px;
+    width: 143px;
+
+    background-image: url("header/right.jpg");
+    background-repeat: no-repeat;
+    margin-right: -143px;
+}
+
+#footer_left {
+    float: left;
+    height: 143px;
+    width: 101px;
+    margin-left: -101px;
+    background: url("footer/footer_left.jpg") no-repeat;
+}
+
+#footer_right {
+    float: right;
+    height: 143px;
+    width: 106px;
+    margin-right: -106px;
+    background: url("footer/footer_right.jpg") no-repeat;
+
+}
