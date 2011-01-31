@@ -1,7 +1,28 @@
-MegaGlest source code v3.2.x and higher - Copyright (C) 2009-2010 Titus Tscharntke (info@titusgames.de) and Mark Vejvoda (mark_vejvoda@hotmail.com).
+MegaGlest source code v3.2.x and higher - 
+Copyright (C) 2009-2010 Titus Tscharntke (info@titusgames.de) 
+and Mark Vejvoda (mark_vejvoda@hotmail.com).
 
-Glest source code v3.2.x - Copyright (C) 2002-2009 Martiño Figueroa (www.glest.org - contact_game@glest.org).
+Glest source code v3.2.x - 
+Copyright (C) 2002-2009 Martiño Figueroa (www.glest.org - contact_game@glest.org).
 
-You can redistribute this code and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the license, or (at your option) any later version. Please refer to code_license.txt for the complete license.
+You can redistribute this code and/or modify it under the terms of the GNU 
+General Public License as published by the Free Software Foundation; either 
+version 3 of the License, or (at your option) any later version.
+(http://www.gnu.org/licenses/gpl.html)
 
-For compilation instructions or any other info please visit the development documentation at http://megaglest.org/.
+Except where otherwise noted, all of the documentation, multimedia and software 
+included in the Mega-Glest Game setup package is copyrighted by The Mega-Glest 
+Team.
+
+Copyright (C) 2001-2011 The Mega-Glest Team. All rights reserved.
+
+This software is provided without any express or implied warranty. In no event 
+shall the author be held liable for any damages arising from the use of this 
+software.
+
+This software may be redistributed freely, but all redistributions must retain 
+all occurences of the above copyright notice and web site addresses that are 
+currently in place and provide full source code with ALL modifications.
+
+For compilation instructions or any other info please visit 
+the development documentation at http://megaglest.org/.
