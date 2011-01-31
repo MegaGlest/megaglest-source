@@ -420,7 +420,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 		*recursiveChecksum = checksum;
 	}
 
-	printf("In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
+	//printf("In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
 
 	crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
@@ -526,7 +526,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	}
 
 	if(topLevelCaller == true) {
-		printf("In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
+		//printf("In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
 
 		crcTreeCache[cacheKey] = checksum.getFinalFileListSum();
