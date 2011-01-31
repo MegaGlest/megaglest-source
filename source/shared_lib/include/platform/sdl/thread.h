@@ -12,23 +12,27 @@
 #ifndef _SHARED_PLATFORM_THREAD_H_
 #define _SHARED_PLATFORM_THREAD_H_
 
+//#define DEBUG_MUTEXES
+//#define DEBUG_PERFORMANCE_MUTEXES
+
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #include <string>
+#ifdef DEBUG_PERFORMANCE_MUTEXES
 #include "platform_common.h"
+#endif
+
 //#include "util.h"
 #include "leak_dumper.h"
-
-//#define DEBUG_MUTEXES
-//#define DEBUG_PERFORMANCE_MUTEXES
 
 // =====================================================
 //	class Thread
 // =====================================================
 
 using namespace std;
+#ifdef DEBUG_PERFORMANCE_MUTEXES
 using namespace Shared::PlatformCommon;
-
+#endif
 
 namespace Shared { namespace Platform {
 

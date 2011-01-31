@@ -65,4 +65,4 @@ if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\sour
 msbuild /p:Configuration=Release Glest.sln
 
 rem pause execution so we can see the output before the batch file exits
-pause
+if not "%1" == "nopause" pause
