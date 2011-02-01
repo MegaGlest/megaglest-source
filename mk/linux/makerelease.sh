@@ -10,12 +10,13 @@ rm -rf $RELEASEDIR
 mkdir -p $RELEASEDIR
 # copy sources
 pushd "`pwd`/../../source"
-find glest_game/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find shared_lib/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find configurator/ \( -name "*.cpp" -o -name "*.h" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find glest_game/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find shared_lib/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find configurator/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find masterserver/ \( -name "*.php" -o -name "*.sql" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find tools/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "*.pl" -o -name "*.sh" -o -name "*.css" -o -name "*.html" -o -name "*.ini" -o -name "*.ico" -o -name "*.txt" -o -name "*.dtd" -o -name "*.png" -o -name "*.py" -o -name "README" -o -name "INSTALL" -o -name "COPYING" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 popd
 #AUTOCONFSTUFF="configure.ac autogen.sh Jamrules Jamfile `find mk/jam -name "*.jam"` `find mk/autoconf -name "*.m4" -o -name "config.*" -o -name "*sh"`"
 
