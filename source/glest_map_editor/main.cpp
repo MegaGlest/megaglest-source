@@ -58,13 +58,22 @@ MainWindow::MainWindow()
 		, menuBar(NULL)
 		, panel(NULL)
         , glCanvas(NULL)
-        , program(NULL) {
+        , program(NULL), boxsizer(NULL) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
 	//gl canvas
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
 	glCanvas = new GlCanvas(this, this->panel, args);
+	glCanvas->SetFocus();
+}
+
+void MainWindow::onToolPlayer(wxCommandEvent& event){
+	PopupMenu(menuBrushStartLocation);
+}
+
+void MainWindow::init(string fname) {
+	glCanvas->SetCurrent();
 
 	//menus
 	menuBar = new wxMenuBar();
@@ -305,14 +314,6 @@ MainWindow::MainWindow()
 	toolbar2->AddTool(miRadius + 9, _("radius9"), wxBitmap(radius_9), _("9 (17x17)"));
 	toolbar2->Realize();
 
-	wxBoxSizer *boxsizer = new wxBoxSizer(wxVERTICAL);
-	boxsizer->Add(toolbar, 0, wxEXPAND);
-	boxsizer->Add(toolbar2, 0, wxEXPAND);
-	boxsizer->Add(glCanvas, 1, wxEXPAND);
-
-	this->panel->SetSizer(boxsizer);
-	this->Layout();
-
 	//std::cout << "A" << std::endl;
 	wxInitAllImageHandlers();
 #ifdef WIN32
@@ -337,15 +338,13 @@ MainWindow::MainWindow()
 	fileDialog = new wxFileDialog(this);
 	lastPaintEvent.start();
 
-	glCanvas->SetFocus();
-}
+	boxsizer = new wxBoxSizer(wxVERTICAL);
+	boxsizer->Add(toolbar, 0, wxEXPAND);
+	boxsizer->Add(toolbar2, 0, wxEXPAND);
+	boxsizer->Add(glCanvas, 1, wxEXPAND);
 
-void MainWindow::onToolPlayer(wxCommandEvent& event){
-	PopupMenu(menuBrushStartLocation);
-}
-
-void MainWindow::init(string fname) {
-	glCanvas->SetCurrent();
+	this->panel->SetSizer(boxsizer);
+	this->Layout();
 
 	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
@@ -475,7 +474,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
-	if(lastPaintEvent.getMillis() < 70) {
+	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
 		return;
 	}

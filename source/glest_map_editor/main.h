@@ -181,6 +181,8 @@ private:
 	bool fileModified;
 	Chrono lastPaintEvent;
 
+	wxBoxSizer *boxsizer;
+
 public:
 	MainWindow();
 	~MainWindow();
