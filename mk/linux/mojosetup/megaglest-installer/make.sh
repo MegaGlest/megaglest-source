@@ -36,8 +36,11 @@ megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_fo
 
 # };
 #
-megaglest_archiver_app_data="tar -c --xz -f "
+#megaglest_archiver_app_data="tar -c --xz -f "
+#megaglest_archivefilename_data="mgdata.tar.xz"
+megaglest_archiver_app_data='tar -cf - * | xz -9 > mgdata.tar.xz'
 megaglest_archivefilename_data="mgdata.tar.xz"
+
 #megaglest_archiver_app="tar -c --xz -f "
 #megaglest_archivefilename="mgdata.tar.xz"
 #megaglest_archiver_app="zip -9r "
@@ -289,7 +292,9 @@ rm -f ../megaglest-installer/image/scripts/app_localization.luac
 cd ../megaglest-installer
 
 cd data
-${megaglest_archiver_app_data} ${megaglest_archivefilename_data} *
+#${megaglest_archiver_app_data} ${megaglest_archivefilename_data} *
+#${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
+tar -cf - * | xz -9 > mgdata.tar.xz
 shopt -s extglob
 rm -rf !(docs|${megaglest_archivefilename_data})
 cd ..
