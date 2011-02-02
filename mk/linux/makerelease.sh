@@ -8,27 +8,34 @@ echo "Creating source package in $RELEASEDIR"
 
 rm -rf $RELEASEDIR
 mkdir -p $RELEASEDIR
+mkdir -p $RELEASEDIR/source
 # copy sources
 pushd "`pwd`/../../source"
-find glest_game/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find shared_lib/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find configurator/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find masterserver/ \( -name "*.php" -o -name "*.sql" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find tools/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "*.pl" -o -name "*.sh" -o -name "*.css" -o -name "*.html" -o -name "*.ini" -o -name "*.ico" -o -name "*.txt" -o -name "*.dtd" -o -name "*.png" -o -name "*.py" -o -name "README" -o -name "INSTALL" -o -name "COPYING" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-popd
-#AUTOCONFSTUFF="configure.ac autogen.sh Jamrules Jamfile `find mk/jam -name "*.jam"` `find mk/autoconf -name "*.m4" -o -name "config.*" -o -name "*sh"`"
+find glest_game/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find shared_lib/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find configurator/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find masterserver/ \( -name "*.php" -o -name "*.sql" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+find tools/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "*.pl" -o -name "*.sh" -o -name "*.css" -o -name "*.html" -o -name "*.ini" -o -name "*.ico" -o -name "*.txt" -o -name "*.dtd" -o -name "*.png" -o -name "*.py" -o -name "README" -o -name "INSTALL" -o -name "COPYING" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
 
-#cp -p --parents $AUTOCONFSTUFF $RELEASEDIR
+pushd "../"
+find mk/cmake/ \( -name "*.cmake" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find mk/macosx/ \( -name "*.txt" -o -name "*.plist" -o -name "*.icns" -o -name "PkgInfo" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+popd
+
+popd
+
 cp -p ../../docs/readme*.txt ../../docs/*license*.txt $RELEASEDIR
 cp -p glest.ini $RELEASEDIR
 cp -p glestkeys.ini $RELEASEDIR
 cp -p servers.ini $RELEASEDIR
 cp -p glest.ico $RELEASEDIR
+cp -p glest.ico $RELEASEDIR
+cp -p ../../CMake* $RELEASEDIR
 
 pushd $RELEASEDIR
-./autogen.sh
+#./autogen.sh
 popd
 
 pushd release
