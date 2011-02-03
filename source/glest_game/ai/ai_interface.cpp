@@ -358,13 +358,17 @@ int AiInterface::getMyUpgradeCount() const{
 	return world->getFaction(factionIndex)->getUpgradeManager()->getUpgradeCount();
 }
 
-int AiInterface::onSightUnitCount(){
+int AiInterface::onSightUnitCount() {
     int count=0;
 	Map *map= world->getMap();
-	for(int i=0; i<world->getFactionCount(); ++i){
-		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(world->getFaction(i)->getUnit(j)->getPos()));
-			if(sc->isVisible(teamIndex)){
+	for(int i=0; i<world->getFactionCount(); ++i) {
+		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
+			Unit *unit = world->getFaction(i)->getUnit(j);
+			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
+			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
+								  unit->getType()->getAllowEmptyCellMap() == true &&
+								  unit->getType()->hasEmptyCellMap() == true);
+			if(sc->isVisible(teamIndex) && cannotSeeUnit == false) {
 				count++;
 			}
 		}
@@ -386,19 +390,24 @@ const Unit *AiInterface::getMyUnit(int unitIndex){
 	return world->getFaction(factionIndex)->getUnit(unitIndex);
 }
 
-const Unit *AiInterface::getOnSightUnit(int unitIndex){
+const Unit *AiInterface::getOnSightUnit(int unitIndex) {
 
     int count=0;
 	Map *map= world->getMap();
 
-	for(int i=0; i<world->getFactionCount(); ++i){
-        for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j){
-            Unit *u= world->getFaction(i)->getUnit(j);
-            if(map->getSurfaceCell(Map::toSurfCoords(u->getPos()))->isVisible(teamIndex)){
-				if(count==unitIndex){
-					return u;
+	for(int i=0; i<world->getFactionCount(); ++i) {
+        for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
+            Unit * unit= world->getFaction(i)->getUnit(j);
+            SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
+			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
+								  unit->getType()->getAllowEmptyCellMap() == true &&
+								  unit->getType()->hasEmptyCellMap() == true);
+
+            if(sc->isVisible(teamIndex)  && cannotSeeUnit == false) {
+				if(count==unitIndex) {
+					return unit;
 				}
-				else{
+				else {
 					count ++;
 				}
             }
