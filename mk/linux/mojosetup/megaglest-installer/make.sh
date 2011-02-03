@@ -1,4 +1,3 @@
-
 # This script is not robust for all platforms or situations. Use as a rough
 #  example, but invest effort in what it's trying to do, and what it produces.
 #  (make sure you don't build in features you don't need, etc).
@@ -167,6 +166,7 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	find configuration.xml -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find megaglest_uninstall.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
 	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
 	find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'

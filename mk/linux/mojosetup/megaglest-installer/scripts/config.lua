@@ -1,4 +1,4 @@
-local GAME_INSTALL_SIZE = 510000000;
+local GAME_INSTALL_SIZE = 680000000;
 local GAME_VERSION = "3.4.0";
 
 local _ = MojoSetup.translate
@@ -53,37 +53,49 @@ Setup.Package
         Setup.DesktopMenuItem
         {
             disabled = false,
-            name = _("MegaGlest"),
+            name = _("MegaGlest v" .. GAME_VERSION),
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "megaglest.ico",
             commandline = "%0/glest",
-            category = "Game"
+            category = "Game;StrategyGame"
         },
 
         Setup.DesktopMenuItem
         {
             disabled = false,
-            name = _("MegaGlest Map Editor"),
+            name = _("MegaGlest Map Editor v" .. GAME_VERSION),
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "editor.ico",
             commandline = "%0/editor",
-            category = "Game"
+            category = "Game;StrategyGame"
         },
 
         Setup.DesktopMenuItem
         {
             disabled = false,
-            name = _("MegaGlest G3D Model Viewer"),
+            name = _("MegaGlest G3D Model Viewer v" .. GAME_VERSION),
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "g3dviewer.ico",
             commandline = "%0/g3dviewer",
-            category = "Game"
+            category = "Game;StrategyGame"
+        },
+
+        Setup.DesktopMenuItem
+        {
+            disabled = false,
+            name = _("MegaGlest Uninstall v" .. GAME_VERSION),
+            genericname = _("MegaGlest"),
+            tooltip = _("A real time strategy game."),
+            builtin_icon = false,
+	    icon = "megaglest_uninstall.ico",
+            commandline = "%0/uninstall-megaglest.sh",
+            category = "Game;StrategyGame"
         }
 		
     }
