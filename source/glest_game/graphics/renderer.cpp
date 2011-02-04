@@ -1857,6 +1857,8 @@ void Renderer::renderSurface(const int renderFps) {
 
 	    int lastSurfaceDataIndex = -1;
 		if(mapSurfaceData.find(visibleQuad) == mapSurfaceData.end()) {
+			printf("Calculating surface for Rendering VBO style [%s]\n",visibleQuad.getString().c_str());
+
 			//std::vector<SurfaceData> surface;
 			std::vector<SurfaceData> &surface = mapSurfaceData[visibleQuad];
 
@@ -1982,8 +1984,8 @@ void Renderer::renderSurface(const int renderFps) {
 		}
 
 #else
-		bool legacyRendering = true;
-		if(legacyRendering) {
+		bool useVertexArrayRendering = true;
+		if(useVertexArrayRendering == false) {
 		    //printf("\LEGACY qCache.visibleScaledCellList.size() = %d \n",qCache.visibleScaledCellList.size());
 
 			for(int visibleIndex = 0;
@@ -2051,88 +2053,99 @@ void Renderer::renderSurface(const int renderFps) {
 		}
 		else {
 		    int lastSurfaceDataIndex = -1;
-			std::vector<SurfaceData> surface;
-			//surface.reserve(qCache.visibleScaledCellList.size());
+		    std::vector<SurfaceData> surface;
+			//if(mapSurfaceData.find(visibleQuad) == mapSurfaceData.end())
+		    {
+				//printf("Calculating surface for Rendering using VA's [%s]\n",visibleQuad.getString().c_str());
 
-			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
-				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+				//std::vector<SurfaceData> surface;
+				//std::vector<SurfaceData> &surface = mapSurfaceData[visibleQuad];
+				surface.reserve(qCache.visibleScaledCellList.size());
 
-				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
-				SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
-				SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
-				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+				for(int visibleIndex = 0;
+						visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+					Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
-				if(tc00 == NULL) {
-					throw runtime_error("tc00 == NULL");
+					SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+					SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+					SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+					SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+					if(tc00 == NULL) {
+						throw runtime_error("tc00 == NULL");
+					}
+					if(tc10 == NULL) {
+						throw runtime_error("tc10 == NULL");
+					}
+					if(tc01 == NULL) {
+						throw runtime_error("tc01 == NULL");
+					}
+					if(tc11 == NULL) {
+						throw runtime_error("tc11 == NULL");
+					}
+
+					triangleCount+= 2;
+					pointCount+= 4;
+
+					//set texture
+					if(tc00->getSurfaceTexture() == NULL) {
+						throw runtime_error("tc00->getSurfaceTexture() == NULL");
+					}
+
+					int surfaceDataIndex = -1;
+					currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+					if(currTex != lastTex) {
+						lastTex = currTex;
+					}
+					else {
+						surfaceDataIndex = lastSurfaceDataIndex;
+					}
+
+					if(surfaceDataIndex < 0) {
+						SurfaceData newData;
+						newData.textureHandle = currTex;
+						surface.push_back(newData);
+
+						surfaceDataIndex = surface.size()-1;
+
+						surface[surfaceDataIndex].texCoords.reserve(100);
+						surface[surfaceDataIndex].texCoordsSurface.reserve(100);
+						surface[surfaceDataIndex].vertices.reserve(100);
+						surface[surfaceDataIndex].normals.reserve(100);
+					}
+
+					lastSurfaceDataIndex = surfaceDataIndex;
+
+					const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+					//int dataIndex = surface[surfaceDataIndex].texCoords.size();
+					surface[surfaceDataIndex].texCoords.push_back(tc01->getFowTexCoord());
+					surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
+					surface[surfaceDataIndex].vertices.push_back(tc01->getVertex());
+					surface[surfaceDataIndex].normals.push_back(tc01->getNormal());
+
+					surface[surfaceDataIndex].texCoords.push_back(tc00->getFowTexCoord());
+					surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y));
+					surface[surfaceDataIndex].vertices.push_back(tc00->getVertex());
+					surface[surfaceDataIndex].normals.push_back(tc00->getNormal());
+
+					surface[surfaceDataIndex].texCoords.push_back(tc11->getFowTexCoord());
+					surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
+					surface[surfaceDataIndex].vertices.push_back(tc11->getVertex());
+					surface[surfaceDataIndex].normals.push_back(tc11->getNormal());
+
+					surface[surfaceDataIndex].texCoords.push_back(tc10->getFowTexCoord());
+					surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
+					surface[surfaceDataIndex].vertices.push_back(tc10->getVertex());
+					surface[surfaceDataIndex].normals.push_back(tc10->getNormal());
 				}
-				if(tc10 == NULL) {
-					throw runtime_error("tc10 == NULL");
-				}
-				if(tc01 == NULL) {
-					throw runtime_error("tc01 == NULL");
-				}
-				if(tc11 == NULL) {
-					throw runtime_error("tc11 == NULL");
-				}
-
-				triangleCount+= 2;
-				pointCount+= 4;
-
-				//set texture
-				if(tc00->getSurfaceTexture() == NULL) {
-					throw runtime_error("tc00->getSurfaceTexture() == NULL");
-				}
-
-				int surfaceDataIndex = -1;
-				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
-				if(currTex != lastTex) {
-					lastTex = currTex;
-				}
-				else {
-                    surfaceDataIndex = lastSurfaceDataIndex;
-				}
-
-				if(surfaceDataIndex < 0) {
-					SurfaceData newData;
-					newData.textureHandle = currTex;
-					surface.push_back(newData);
-
-					surfaceDataIndex = surface.size()-1;
-
-					//surface[surfaceDataIndex].texCoords.reserve(100);
-					//surface[surfaceDataIndex].texCoordsSurface.reserve(100);
-					//surface[surfaceDataIndex].vertices.reserve(100);
-					//surface[surfaceDataIndex].normals.reserve(100);
-				}
-
-				lastSurfaceDataIndex = surfaceDataIndex;
-
-				const Vec2f &surfCoord= tc00->getSurfTexCoord();
-
-				//int dataIndex = surface[surfaceDataIndex].texCoords.size();
-				surface[surfaceDataIndex].texCoords.push_back(tc01->getFowTexCoord());
-				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
-				surface[surfaceDataIndex].vertices.push_back(tc01->getVertex());
-				surface[surfaceDataIndex].normals.push_back(tc01->getNormal());
-
-				surface[surfaceDataIndex].texCoords.push_back(tc00->getFowTexCoord());
-				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y));
-				surface[surfaceDataIndex].vertices.push_back(tc00->getVertex());
-				surface[surfaceDataIndex].normals.push_back(tc00->getNormal());
-
-				surface[surfaceDataIndex].texCoords.push_back(tc11->getFowTexCoord());
-				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
-				surface[surfaceDataIndex].vertices.push_back(tc11->getVertex());
-				surface[surfaceDataIndex].normals.push_back(tc11->getNormal());
-
-				surface[surfaceDataIndex].texCoords.push_back(tc10->getFowTexCoord());
-				surface[surfaceDataIndex].texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
-				surface[surfaceDataIndex].vertices.push_back(tc10->getVertex());
-				surface[surfaceDataIndex].normals.push_back(tc10->getNormal());
 			}
-
             //printf("\nsurface.size() = %d vs qCache.visibleScaledCellList.size() = %d \n",surface.size(),qCache.visibleScaledCellList.size());
+
+			//std::vector<SurfaceData> &surface = mapSurfaceData[visibleQuad];
+
+		    glEnableClientState(GL_VERTEX_ARRAY);
+		    glEnableClientState(GL_NORMAL_ARRAY);
 
 			for(int i = 0; i < surface.size(); ++i) {
 				SurfaceData &data = surface[i];
@@ -2151,24 +2164,20 @@ void Renderer::renderSurface(const int renderFps) {
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexCoordPointer(2, GL_FLOAT, 0, texCoordsSurface);
 
-				assertGl();
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glEnableClientState(GL_NORMAL_ARRAY);
-				assertGl();
-
 				glVertexPointer(3, GL_FLOAT, 0, vertices);
 				glNormalPointer(GL_FLOAT, 0, normals);
 
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, data.vertices.size());
 
+				glClientActiveTexture(fowTexUnit);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glClientActiveTexture(baseTexUnit);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-				//assertGl();
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
-				//assertGl();
 			}
+
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+
 		}
 #endif
 	}
