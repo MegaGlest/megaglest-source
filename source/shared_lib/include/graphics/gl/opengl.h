@@ -30,6 +30,10 @@ using Util::intToStr;
 //	Globals
 // =====================================================
 
+bool getVBOSupported();
+void setVBOSupported(bool value);
+
+void overrideGlExtensionSupport(const char *extensionName,bool value);
 bool isGlExtensionSupported(const char *extensionName);
 bool isGlVersionSupported(int major, int minor, int release);
 const char *getGlVersion();

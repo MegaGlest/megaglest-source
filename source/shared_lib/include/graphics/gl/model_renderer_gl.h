@@ -17,13 +17,13 @@
 #include "opengl.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
 
 // =====================================================
 //	class ModelRendererGl
 // =====================================================
 
-class ModelRendererGl: public ModelRenderer{
+class ModelRendererGl: public ModelRenderer {
 private:
 	bool rendering;
 	bool duplicateTexCoords;
@@ -42,8 +42,8 @@ public:
 
 private:
 	
-	void renderMesh(Mesh *mesh, bool isStaticModel);
-	void renderMeshNormals(Mesh *mesh, bool isStaticModel);
+	void renderMesh(Mesh *mesh);
+	void renderMeshNormals(Mesh *mesh);
 };
 
 }}}//end namespace
