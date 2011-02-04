@@ -42,6 +42,8 @@
 
 #include "leak_dumper.h"
 
+//#define ENABLE_VBO_CODE 1
+
 namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;
