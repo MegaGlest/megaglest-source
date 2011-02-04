@@ -227,6 +227,18 @@ public:
 
 		return 0.5f * ((v0.x * v1.y) - (v0.y * v1.x));
 	}
+
+	std::string getString() const {
+		std::ostringstream streamOut;
+		streamOut << "#1: " << this->p[0].getString();
+		streamOut << "#2: " << this->p[1].getString();
+		streamOut << "#3: " << this->p[2].getString();
+		streamOut << "#4: " << this->p[3].getString();
+		std::string result = streamOut.str();
+		streamOut.str(std::string());
+		return result;
+	}
+
 };
 
 typedef Quad2<int> Quad2i;
