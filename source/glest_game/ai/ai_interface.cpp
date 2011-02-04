@@ -587,4 +587,31 @@ bool AiInterface::isFreeCells(const Vec2i &pos, int size, Field field){
     return world->getMap()->isFreeCells(pos, size, field);
 }
 
+const Unit *AiInterface::getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius) {
+	Map *map= world->getMap();
+
+	for(int i = 0; i < world->getFactionCount(); ++i) {
+        for(int j = 0; j < world->getFaction(i)->getUnitCount(); ++j) {
+            Unit * unit= world->getFaction(i)->getUnit(j);
+            SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
+			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
+								  unit->getType()->getAllowEmptyCellMap() == true &&
+								  unit->getType()->hasEmptyCellMap() == true);
+
+            if(sc->isVisible(teamIndex)  && cannotSeeUnit == false &&
+               isAlly(unit) == false && unit->isAlive() == true) {
+                pos= unit->getPos();
+    			field= unit->getCurrField();
+                if(pos.dist(getHomeLocation()) < radius) {
+                    printLog(2, "Being attacked at pos "+intToStr(pos.x)+","+intToStr(pos.y)+"\n");
+
+                    return unit;
+                }
+            }
+        }
+	}
+    return NULL;
+}
+
+
 }}//end namespace

@@ -244,6 +244,10 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
 }
 
 bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
+
+	const Unit *enemy = aiInterface->getFirstOnSightEnemyUnit(pos, field, radius);
+	return (enemy != NULL);
+/*
     int count= aiInterface->onSightUnitCount();
     const Unit *unit;
 
@@ -259,6 +263,7 @@ bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
         }
     }
     return false;
+*/
 }
 
 bool Ai::isStableBase(){
