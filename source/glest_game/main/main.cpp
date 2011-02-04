@@ -98,6 +98,7 @@ const char  *GAME_ARGS[] = {
 	"--log-path",
 	"--show-ini-settings",
 	"--disable-backtrace",
+	"--disable-vbo",
 	"--verbose"
 
 };
@@ -120,6 +121,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_DISABLE_BACKTRACE,
+	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -1574,6 +1576,12 @@ int glestMain(int argc, char** argv) {
         if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
             ShowINISettings(argc,argv,config,configKeys);
             return -1;
+        }
+
+        // Explicitly disable VBO's
+        if(config.getBool("DisableVBO","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_VBO]) == true) {
+        	setVBOSupported(false);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Disabling VBO's\n");
         }
 
         // Setup the file crc thread

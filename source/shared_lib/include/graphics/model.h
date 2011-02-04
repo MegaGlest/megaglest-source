@@ -25,9 +25,7 @@ using std::string;
 using std::map;
 using std::pair;
 
-//#define ENABLE_VBO_CODE
-
-namespace Shared{ namespace Graphics{
+namespace Shared { namespace Graphics {
 
 class Model;
 class Mesh;
@@ -74,14 +72,12 @@ private:
 	InterpolationData *interpolationData;
 	TextureManager *textureManager;
 
-#if defined(ENABLE_VBO_CODE)
 	// Vertex Buffer Object Names
 	bool    hasBuiltVBOs;
 	uint32	m_nVBOVertices;					// Vertex VBO Name
 	uint32	m_nVBOTexCoords;				// Texture Coordinate VBO Name
 	uint32	m_nVBONormals;					// Normal VBO Name
 	uint32	m_nVBOIndexes;					// Indexes VBO Name
-#endif
 
 public:
 	//init & end
@@ -99,17 +95,13 @@ public:
 	uint32 getIndexCount() const			{return indexCount;}
 	uint32 getTriangleCount() const;
 
-#if defined(ENABLE_VBO_CODE)
 	uint32	getVBOVertices() const  { return m_nVBOVertices;}
 	uint32	getVBOTexCoords() const { return m_nVBOTexCoords;}
 	uint32	getVBONormals() const   { return m_nVBONormals;}
 	uint32	getVBOIndexes() const   { return m_nVBOIndexes;}
-
 	bool    hasBuiltVBOEntities() const { return hasBuiltVBOs;}
-
 	void BuildVBOs();
 	void ReleaseVBOs();
-#endif
 
 	//data
 	const Vec3f *getVertices() const 	{return vertices;}
@@ -169,7 +161,6 @@ private:
 	bool lastCycleVertex;
 
 	string fileName;
-	bool isStaticModel;
 
 public:
 	//constructor & destructor
@@ -200,9 +191,6 @@ public:
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
 	void deletePixels();
-
-	bool getIsStaticModel() const { return isStaticModel; }
-	void setIsStaticModel(bool value)  { isStaticModel = value; }
 
 	string getFileName() const { return fileName; }
 

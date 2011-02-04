@@ -77,7 +77,6 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 string path=dir+"/" + modelNode->getAttribute("path")->getRestrictedValue();
 
                 model= renderer.newModel(rsGame);
-                model->setIsStaticModel(true);
                 model->load(path);
 
                 //default resources
