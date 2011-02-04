@@ -42,8 +42,6 @@
 
 #include "leak_dumper.h"
 
-//#define ENABLE_VBO_CODE 1
-
 namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;
@@ -136,7 +134,7 @@ public:
 	std::vector<Vec2i> visibleScaledCellList;
 };
 
-#if defined(ENABLE_VBO_CODE)
+//#if defined(ENABLE_VBO_CODE)
 class VisibleQuadContainerVBOCache {
 public:
 	// Vertex Buffer Object Names
@@ -147,7 +145,7 @@ public:
 	uint32	m_nVBONormals;					// Normal VBO Name
 	//uint32	m_nVBOIndexes;					// Indexes VBO Name
 };
-#endif
+//#endif
 
 
 class Renderer : public RendererInterface, public BaseRenderer, public SimpleTaskCallbackInterface {
@@ -265,13 +263,25 @@ private:
 
 	std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
-#if defined(ENABLE_VBO_CODE)
+//#if defined(ENABLE_VBO_CODE)
 	std::map<Vec2i,std::vector<VisibleQuadContainerVBOCache> > mapSurfaceVBOCache;
 
 	VisibleQuadContainerVBOCache SetupSurfaceVBO(Vec2i &pos, SurfaceCell *cell, Vec2f surfCoord);
 	vector<VisibleQuadContainerVBOCache> & GetSurfaceVBOs(Vec2i &pos);
 	void ReleaseSurfaceVBOs();
-#endif
+//#endif
+
+	class SurfaceData {
+	public:
+		SurfaceData(){};
+		int textureHandle;
+		vector<Vec2f> texCoords;
+		vector<Vec2f> texCoordsSurface;
+		vector<Vec3f> vertices;
+		vector<Vec3f> normals;
+	};
+
+	std::map<Quad2i,std::vector<SurfaceData> > mapSurfaceData;
 
 private:
 	Renderer();

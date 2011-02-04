@@ -68,15 +68,12 @@ private:
 	const Map *map;
 	RandomGen random;
 
-	//std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > lookupCacheCanMove;
-	std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > moveLookupCacheApproxCanMove;
-
 public:
 	PathFinder();
 	PathFinder(const Map *map);
 	~PathFinder();
 	void init(const Map *map);
-	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,bool clearLookupCache=true);
+	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL);
 
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout);
@@ -86,6 +83,9 @@ private:
 	bool openPos(const Vec2i &sucPos);
 
 	Node * minHeuristicFastLookup();
+
+	void processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached);
+	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 };
 
 }}//end namespace

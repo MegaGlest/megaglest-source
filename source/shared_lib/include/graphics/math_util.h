@@ -86,6 +86,16 @@ public:
 			}
 		}
 	}
+
+	std::string getString() const {
+		std::ostringstream streamOut;
+		streamOut << "#1: " << this->p[0].getString();
+		streamOut << "#2: " << this->p[1].getString();
+		std::string result = streamOut.str();
+		streamOut.str(std::string());
+		return result;
+	}
+
 };
 
 typedef Rect2<int> Rect2i;

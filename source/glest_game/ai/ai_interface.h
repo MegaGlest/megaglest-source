@@ -93,6 +93,7 @@ public:
 	bool reqsOk(const CommandType *ct);
     bool checkCosts(const ProducibleType *pt);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
+	const Unit *getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius);
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
