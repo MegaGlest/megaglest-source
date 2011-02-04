@@ -192,14 +192,14 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 		//vertices
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOVertices() );
 		glVertexPointer( 3, GL_FLOAT, 0, (char *) NULL );		// Set The Vertex Pointer To The Vertex Buffer
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+		//glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 
 		//normals
 		if(renderNormals) {
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBONormals() );
 			glEnableClientState(GL_NORMAL_ARRAY);
 			glNormalPointer(GL_FLOAT, 0, (char *) NULL);
-			glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+			//glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 		}
 		else{
 			glDisableClientState(GL_NORMAL_ARRAY);
@@ -213,7 +213,7 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 				glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
-				glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+				//glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 			}
 
 			glActiveTexture(GL_TEXTURE0);
@@ -221,7 +221,7 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mesh->getVBOTexCoords() );
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer( 2, GL_FLOAT, 0, (char *) NULL );		// Set The TexCoord Pointer To The TexCoord Buffer
-			glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+			//glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 		}
 		else {
 			if(duplicateTexCoords) {
@@ -273,6 +273,7 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->getVBOIndexes() );
 		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, (char *)NULL);
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 
 		//glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
 	}
@@ -312,6 +313,7 @@ void ModelRendererGl::renderMeshNormals(Mesh *mesh) {
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->getVBOIndexes() );
 		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, (char *)NULL);
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 	}
 	else {
 		//printf("Rendering Mesh Normals WITHOUT VBO's\n");
