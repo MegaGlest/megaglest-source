@@ -101,6 +101,7 @@
 	}
 	else                                        // this game server is not listed in the database, yet
 	{ // check whether this game server is available from the Internet; if it is, add it to the database
+		sleep(3);
 		$socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
 		if ( $socket < 0 ) {
 		    echo 'socket_create() failed.' . PHP_EOL . ' Reason: ' . socket_strerror( $socket ) . PHP_EOL;
