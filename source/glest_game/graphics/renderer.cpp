@@ -154,6 +154,7 @@ Renderer::Renderer() {
 	textRenderer = NULL;
 	particleRenderer = NULL;
 	saveScreenShotThread = NULL;
+	mapSurfaceData.clear();
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
@@ -231,6 +232,7 @@ Renderer::~Renderer() {
 		}
 	}
 
+	mapSurfaceData.clear();
 	this->menu = NULL;
 	this->game = NULL;
 }
@@ -310,6 +312,7 @@ void Renderer::initGame(const Game *game){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SurfaceData::nextUniqueId = 1;
+	mapSurfaceData.clear();
 	this->game= game;
 	worldToScreenPosCache.clear();
 
@@ -430,6 +433,8 @@ void Renderer::end() {
 
 	//delete 2d list
 	glDeleteLists(list2d, 1);
+
+	mapSurfaceData.clear();
 }
 
 void Renderer::endGame() {
@@ -449,6 +454,7 @@ void Renderer::endGame() {
 
 	worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
+	mapSurfaceData.clear();
 }
 
 void Renderer::endMenu() {
