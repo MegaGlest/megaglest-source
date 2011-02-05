@@ -88,8 +88,6 @@ protected:
 		visibleObjectList	= obj.visibleObjectList;
 		visibleUnitList		= obj.visibleUnitList;
 		visibleQuadUnitList = obj.visibleQuadUnitList;
-		//inVisibleUnitList	= obj.inVisibleUnitList;
-		//visibleCellList		= obj.visibleCellList;
 		visibleScaledCellList = obj.visibleScaledCellList;
 		lastVisibleQuad		= obj.lastVisibleQuad;
 	}
@@ -129,23 +127,19 @@ public:
 	std::vector<Object *> visibleObjectList;
 	std::vector<Unit   *> visibleQuadUnitList;
 	std::vector<Unit   *> visibleUnitList;
-	//std::vector<Unit   *> inVisibleUnitList;
-	//std::vector<Vec2i> visibleCellList;
 	std::vector<Vec2i> visibleScaledCellList;
 };
 
-//#if defined(ENABLE_VBO_CODE)
 class VisibleQuadContainerVBOCache {
 public:
 	// Vertex Buffer Object Names
 	bool    hasBuiltVBOs;
 	uint32	m_nVBOVertices;					// Vertex VBO Name
-	uint32	m_nVBOFowTexCoords;				// Texture Coordinate VBO Name
-	uint32	m_nVBOSurfaceTexCoords;			// Texture Coordinate VBO Name
+	uint32	m_nVBOFowTexCoords;				// Texture Coordinate VBO Name for fog of war texture coords
+	uint32	m_nVBOSurfaceTexCoords;			// Texture Coordinate VBO Name for surface texture coords
 	uint32	m_nVBONormals;					// Normal VBO Name
 	//uint32	m_nVBOIndexes;					// Indexes VBO Name
 };
-//#endif
 
 
 class Renderer : public RendererInterface, public BaseRenderer, public SimpleTaskCallbackInterface {
@@ -263,17 +257,14 @@ private:
 
 	std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
-//#if defined(ENABLE_VBO_CODE)
-	std::map<Vec2i,std::vector<VisibleQuadContainerVBOCache> > mapSurfaceVBOCache;
-
-	VisibleQuadContainerVBOCache SetupSurfaceVBO(Vec2i &pos, SurfaceCell *cell, Vec2f surfCoord);
-	vector<VisibleQuadContainerVBOCache> & GetSurfaceVBOs(Vec2i &pos);
-	void ReleaseSurfaceVBOs();
-//#endif
+	std::map<uint32,VisibleQuadContainerVBOCache > mapSurfaceVBOCache;
 
 	class SurfaceData {
 	public:
 		SurfaceData(){};
+		static uint32 nextUniqueId;
+		uint32 uniqueId;
+		int bufferCount;
 		int textureHandle;
 		vector<Vec2f> texCoords;
 		vector<Vec2f> texCoordsSurface;
@@ -281,7 +272,9 @@ private:
 		vector<Vec3f> normals;
 	};
 
-	std::map<Quad2i,std::vector<SurfaceData> > mapSurfaceData;
+	VisibleQuadContainerVBOCache * GetSurfaceVBOs(SurfaceData *cellData);
+	void ReleaseSurfaceVBOs();
+	std::map<string,std::pair<Chrono, std::vector<SurfaceData> > > mapSurfaceData;
 
 private:
 	Renderer();
