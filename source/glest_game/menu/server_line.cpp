@@ -197,7 +197,9 @@ void ServerLine::render() {
 	else {
 		renderer.renderLabel(&country);
 	}
-
+	if (compatible) {
+		renderer.renderLabel(&status);
+	}
 	if(gameFull.getEnabled() == false) {
 		if (compatible) {
 			//renderer.renderLabel(&ipAddressLabel);
