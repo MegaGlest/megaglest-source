@@ -664,9 +664,15 @@ void MainWindow::eventKeyDown(char key){
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+
 			Renderer &renderer= Renderer::getInstance();
-			bool showDebugUI = renderer.getShowDebugUI();
-			renderer.setShowDebugUI(!showDebugUI);
+			if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+				renderer.cycleShowDebugUILevel();
+			}
+			else {
+				bool showDebugUI = renderer.getShowDebugUI();
+				renderer.setShowDebugUI(!showDebugUI);
+			}
 		}
 		else if(key == configKeys.getCharKey("ReloadINI")) {
 			Config &config = Config::getInstance();
@@ -1579,6 +1585,7 @@ int glestMain(int argc, char** argv) {
             return -1;
         }
 
+        //setVBOSupported(false);
         // Explicitly disable VBO's
         if(config.getBool("DisableVBO","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_VBO]) == true) {
         	setVBOSupported(false);

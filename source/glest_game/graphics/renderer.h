@@ -42,6 +42,11 @@
 
 #include "leak_dumper.h"
 
+enum DebugUILevelType {
+	debugui_fps 		= 0x01,
+	debugui_unit_titles = 0x02
+};
+
 namespace Glest{ namespace Game{
 
 using namespace Shared::Graphics;
@@ -246,6 +251,7 @@ private:
 
 	bool no2DMouseRendering;
 	bool showDebugUI;
+	int showDebugUILevel;
 
 	int lastRenderFps;
 	float smoothedRenderFps;
@@ -411,6 +417,10 @@ public:
 
 	bool getShowDebugUI() const { return showDebugUI; }
 	void setShowDebugUI(bool value) { showDebugUI = value; }
+
+	int getShowDebugUILevel() const { return showDebugUILevel; }
+	void setShowDebugUILevel(int value) { showDebugUILevel=value; }
+	void cycleShowDebugUILevel();
 
 	void setLastRenderFps(int value);
 	int getLastRenderFps() const { return lastRenderFps;}

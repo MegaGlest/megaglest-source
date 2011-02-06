@@ -83,12 +83,18 @@ void Mesh::end() {
 	ReleaseVBOs();
 
 	delete [] vertices;
+	vertices=NULL;
 	delete [] normals;
+	normals=NULL;
 	delete [] texCoords;
+	texCoords=NULL;
 	delete [] tangents;
+	tangents=NULL;
 	delete [] indices;
+	indices=NULL;
 
 	delete interpolationData;
+	interpolationData=NULL;
 
 	if(textureManager != NULL) {
 		for(int i = 0; i < meshTextureCount; ++i) {
@@ -109,11 +115,15 @@ void Mesh::buildInterpolationData(){
 }
 
 void Mesh::updateInterpolationData(float t, bool cycle) {
-	interpolationData->update(t, cycle);
+	if(interpolationData != NULL) {
+		interpolationData->update(t, cycle);
+	}
 }
 
 void Mesh::updateInterpolationVertices(float t, bool cycle) {
-	interpolationData->updateVertices(t, cycle);
+	if(interpolationData != NULL) {
+		interpolationData->updateVertices(t, cycle);
+	}
 }
 
 void Mesh::BuildVBOs() {
@@ -155,6 +165,9 @@ void Mesh::BuildVBOs() {
 			delete [] normals; normals = NULL;
 			delete [] indices; indices = NULL;
 
+			delete interpolationData;
+			interpolationData = NULL;
+
 			hasBuiltVBOs = true;
 		}
 	}
@@ -167,6 +180,7 @@ void Mesh::ReleaseVBOs() {
 			glDeleteBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
 			glDeleteBuffersARB( 1, &m_nVBONormals );					// Get A Valid Name
 			glDeleteBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+			hasBuiltVBOs = false;
 		}
 	}
 }

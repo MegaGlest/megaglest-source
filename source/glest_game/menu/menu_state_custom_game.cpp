@@ -513,7 +513,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
-	publishToMasterserverThread = new SimpleTaskThread(this,0,25);
+	publishToMasterserverThread = new SimpleTaskThread(this,0,200);
 	publishToMasterserverThread->setUniqueID(__FILE__);
 	publishToMasterserverThread->start();
 
