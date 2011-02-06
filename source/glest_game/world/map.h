@@ -212,7 +212,7 @@ public:
 	bool isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const;
 	bool isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const;
 	bool isFreeCells(const Vec2i &pos, int size, Field field) const;
-	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
+	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit, const UnitType *munit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
 
 	bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);

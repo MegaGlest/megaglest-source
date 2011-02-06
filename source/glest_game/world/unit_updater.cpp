@@ -148,7 +148,53 @@ void UnitUpdater::updateUnit(Unit *unit) {
 			unit->setCurrSkill(scStop);
 			unit->cancelCommand();
 		}
+		if(unit->getCurrSkill()->getClass() != scAttack){
+unit->computeHp();
+		}
+		else{
+		Command *command= unit->getCurrCommand();
+    const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
+	if(act->getAttackSkillType()->getSpawnUnit() != ""){
+		for (int y=0; y < act->getAttackSkillType()->getSpawnUnitCount(); ++y) {
+		Unit *spawned;
+		UnitPathInterface *newpath = NULL;
+			switch(this->game->getGameSettings()->getPathFinderType()) {
+				case pfBasic:
+					newpath = new UnitPathBasic();
+					break;
+				case pfRoutePlanner:
+					newpath = new UnitPath();
+					break;
+				default:
+					throw runtime_error("detected unsupported pathfinder type!");
+		    }
+				const FactionType *ft= unit->getFaction()->getType();
+ spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0),ft->getUnitType(act->getAttackSkillType()->getSpawnUnit()), unit->getFaction(), world->getMap(),CardinalDir::NORTH);
+ SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
+  if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
 
+				delete spawned;
+			}
+			else{
+				spawned->create();
+				spawned->born();
+				world->getStats()->produce(unit->getFactionIndex());
+				const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
+				if(ct!=NULL){
+				    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
+				}
+				scriptManager->onUnitCreated(spawned);
+
+				//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			}
+		}
+
+
+	}
+		}
+		
 		//move unit in cells
 		if(unit->getCurrSkill()->getClass() == scMove) {
 			world->moveUnitCells(unit);
@@ -1501,7 +1547,7 @@ void UnitUpdater::updateMorph(Unit *unit){
 
     if(unit->getCurrSkill()->getClass()!=scMorph){
 		//if not morphing, check space
-		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), unit->getCurrField(), unit)){
+		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), unit->getCurrField(), unit, mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 		}
 		else{
@@ -1628,6 +1674,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	    }
 		scriptManager->onUnitDied(attacked);
 	}
+	attacker->computeHp();
 }
 
 void UnitUpdater::startAttackParticleSystem(Unit *unit){

@@ -47,6 +47,11 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 
 	//ep cost
 	mpCost= sn->getChild("ep-cost")->getAttribute("value")->getIntValue();
+	if (sn->hasChild("hp-cost")) {
+		hpCost = sn->getChild("hp-cost")->getAttribute("value")->getIntValue();
+	} else {
+		hpCost = 0;
+	}
 
 	//speed
 	speed= sn->getChild("speed")->getAttribute("value")->getIntValue();
@@ -196,6 +201,14 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 	attackType= tt->getAttackType(attackTypeName);
 	attackStartTime= sn->getChild("attack-start-time")->getAttribute("value")->getFloatValue();
 
+	if (sn->hasChild("unit")) {
+		spawnUnit = sn->getChild("unit")->getAttribute("value")->getValue();
+		spawnUnitcount
+				= sn->getChild("unit")->getAttribute("amount")->getIntValue();
+	} else {
+		spawnUnit = "";
+		spawnUnitcount = 0;
+	}
 	//attack fields
 	const XmlNode *attackFieldsNode= sn->getChild("attack-fields");
 	for(int i=0; i<attackFieldsNode->getChildCount(); ++i){

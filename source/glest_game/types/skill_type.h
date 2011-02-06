@@ -79,6 +79,7 @@ protected:
     SkillClass skillClass;
 	string name;
 	int mpCost;
+	int hpCost;
     int speed;
     int animSpeed;
     Model *animation;
@@ -96,6 +97,7 @@ public:
 	const string &getName() const		{return name;}
 	SkillClass getClass() const			{return skillClass;}
 	int getEpCost() const				{return mpCost;}
+	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
 	Model *getAnimation() 		const	{return animation;}
@@ -144,6 +146,8 @@ private:
 	bool attackFields[fieldCount];
 	float attackStartTime;
 
+	string spawnUnit;
+	int spawnUnitcount;
     bool projectile;
     ParticleSystemTypeProjectile* projectileParticleSystemType;
 	SoundContainer projSounds;
@@ -166,6 +170,8 @@ public:
 	const AttackType *getAttackType() const		{return attackType;}
 	bool getAttackField(Field field) const		{return attackFields[field];}
 	float getAttackStartTime() const			{return attackStartTime;}
+	string getSpawnUnit() const					{return spawnUnit;}
+	int getSpawnUnitCount() const					{return spawnUnitcount;}
 
 	//get proj
 	bool getProjectile() const									{return projectile;}
