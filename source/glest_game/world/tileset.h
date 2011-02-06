@@ -100,7 +100,7 @@ public:
 class Tileset{
 public:
 	static const int waterTexCount= 1;
-	static const int surfCount= 5;
+	static const int surfCount= 6;
 	static const int objCount= 10;
 	static const int transitionVars= 2; //number or different transition textures
 

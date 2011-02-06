@@ -136,7 +136,15 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		//surfaces
 		const XmlNode *surfacesNode= tilesetNode->getChild("surfaces");
 		for(int i=0; i<surfCount; ++i){
-			const XmlNode *surfaceNode= surfacesNode->getChild("surface", i);
+			const XmlNode *surfaceNode;
+			if(surfacesNode->hasChildAtIndex("surface",i)){
+				surfaceNode= surfacesNode->getChild("surface", i);
+			}
+			else {
+				// cliff texture does not exist, use texture 2 instead
+				surfaceNode= surfacesNode->getChild("surface", 2);
+			}
+
 
 			int childCount= surfaceNode->getChildCount();
 			surfPixmaps[i].resize(childCount);
