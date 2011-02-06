@@ -1809,7 +1809,8 @@ void Renderer::renderSurface(const int renderFps) {
 
 		Quad2i snapshotOfvisibleQuad = visibleQuad;
 
-		bool useVertexArrayRendering = getVBOSupported();
+		//bool useVertexArrayRendering = getVBOSupported();
+		bool useVertexArrayRendering = false;
 		if(useVertexArrayRendering == false) {
 		    //printf("\LEGACY qCache.visibleScaledCellList.size() = %d \n",qCache.visibleScaledCellList.size());
 
@@ -1880,7 +1881,7 @@ void Renderer::renderSurface(const int renderFps) {
 		    int lastSurfaceDataIndex = -1;
 
 		    const bool useVBOs = false;
-		    const bool useSurfaceCache = true;
+		    const bool useSurfaceCache = false;
 
 		    std::vector<SurfaceData> surfaceData;
 		    bool recalcSurface = false;
