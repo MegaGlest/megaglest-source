@@ -175,7 +175,7 @@ public:
 	~Map();
 	Checksum * getChecksumValue() { return &checksumValue; }
 
-	void init();
+	void init(Tileset *tileset);
 	Checksum load(const string &path, TechTree *techTree, Tileset *tileset);
 
 	//get
@@ -250,7 +250,7 @@ public:
 
 private:
 	//compute
-	void smoothSurface();
+	void smoothSurface(Tileset *tileset);
 	void computeNearSubmerged();
 	void computeCellColors();
 };

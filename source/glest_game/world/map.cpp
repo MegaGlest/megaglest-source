@@ -271,9 +271,9 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 	return mapChecksum;
 }
 
-void Map::init() {
+void Map::init(Tileset *tileset) {
 	Logger::getInstance().add("Heightmap computations", true);
-	smoothSurface();
+	smoothSurface(tileset);
 	computeNormals();
 	computeInterpolatedHeights();
 	computeNearSubmerged();
@@ -1076,34 +1076,61 @@ void Map::computeInterpolatedHeights(){
 }
 
 
-void Map::smoothSurface(){
+void Map::smoothSurface(Tileset *tileset) {
 
-	float *oldHeights= new float[getSurfaceCellArraySize()];
+	float minCliffHeightDifference=0.0f;
+	float *oldHeights = new float[getSurfaceCellArraySize()];
 
-	for(int i=0; i < getSurfaceCellArraySize(); ++i) {
-		oldHeights[i]= surfaceCells[i].getHeight();
+	for (int i = 0; i < getSurfaceCellArraySize(); ++i) {
+		oldHeights[i] = surfaceCells[i].getHeight();
 	}
 
-	for(int i=1; i<surfaceW-1; ++i){
-		for(int j=1; j<surfaceH-1; ++j){
+	for (int i = 1; i < surfaceW - 1; ++i) {
+		for (int j = 1; j < surfaceH - 1; ++j) {
 
-			float height= 0.f;
-			for(int k=-1; k<=1; ++k){
-				for(int l=-1; l<=1; ++l){
-					height+= oldHeights[(j+k)*surfaceW+(i+l)];
+			float height = 0.f;
+			float numUsedToSmooth = 0.f;
+			for (int k = -1; k <= 1; ++k) {
+				for (int l = -1; l <= 1; ++l) {
+					if (minCliffHeightDifference<=0.1f || minCliffHeightDifference > abs(oldHeights[(j) * surfaceW + (i)]
+							- oldHeights[(j + k) * surfaceW + (i + l)])) {
+						height += oldHeights[(j + k) * surfaceW + (i + l)];
+						numUsedToSmooth++;
+					} else {
+						// we have something which should not be smoothed!
+						// This is a cliff and must be textured -> set cliff texture
+						getSurfaceCell(i, j)->setSurfaceType(5);
+						//set invisible blocking object and replace resource objects
+						//and non blocking objects with invisible blocker too
+						Object *formerObject =
+								getSurfaceCell(i, j)->getObject();
+						if (formerObject != NULL) {
+							if (formerObject->getWalkable()
+									|| formerObject->getResource() != NULL) {
+								delete formerObject;
+								formerObject = NULL;
+							}
+						}
+						if (formerObject == NULL) {
+							Object *o = new Object(tileset->getObjectType(9),
+									getSurfaceCell(i, j)->getVertex(), Vec2i(i,
+											j));
+							getSurfaceCell(i, j)->setObject(o);
+						}
+					}
 				}
 			}
-			height/= 9.f;
+
+			height /= numUsedToSmooth;
 
 			getSurfaceCell(i, j)->setHeight(height);
-			Object *object= getSurfaceCell(i, j)->getObject();
-			if(object!=NULL){
+			Object *object = getSurfaceCell(i, j)->getObject();
+			if (object != NULL) {
 				object->setHeight(height);
 			}
 		}
 	}
-
-	delete [] oldHeights;
+	delete[] oldHeights;
 }
 
 void Map::computeNearSubmerged(){

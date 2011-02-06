@@ -3,6 +3,9 @@
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-source
 RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
+RELEASESOURCEDIR=$RELEASEDIR/source
+MKDIR=$RELEASEDIR/mk
+CMAKEDIR=$MKDIR/cmake
 
 echo "Creating source package in $RELEASEDIR"
 
@@ -27,10 +30,12 @@ popd
 popd
 
 cp -p ../../docs/readme*.txt ../../docs/*license*.txt $RELEASEDIR
+cp -p ../../build-mg*.sh $RELEASEDIR
+cp -p ../../CMakeLists.txt $RELEASEDIR
 cp -p glest.ini $RELEASEDIR
 cp -p glestkeys.ini $RELEASEDIR
 cp -p servers.ini $RELEASEDIR
-cp -p glest.ico $RELEASEDIR
+cp -p megaglest.ico $RELEASEDIR
 cp -p glest.ico $RELEASEDIR
 cp -p ../../CMake* $RELEASEDIR
 
