@@ -426,6 +426,7 @@ public:
 	const CommandType *computeCommandType(const Vec2i &pos, const Unit *targetUnit= NULL) const;
 	string getDesc() const;
     bool computeEp();
+    bool computeHp();
     bool repair();
     bool decHp(int i);
     int update2();

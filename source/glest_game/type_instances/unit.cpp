@@ -1203,6 +1203,38 @@ bool Unit::computeEp() {
 
     return false;
 }
+bool Unit::computeHp() {
+
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	if(!isBeingBuilt()){
+			//cost hp
+		if(currSkill->getHpCost() > 0) {
+			bool decHpResult = decHp(currSkill->getHpCost());
+            if(decHpResult) {
+                Unit::game->getWorld()->getStats()->die(getFactionIndex());
+                game->getScriptManager()->onUnitDied(this);
+            }
+		}
+		// If we have negative costs then add life
+		else {
+			checkItemInVault(&this->hp,this->hp);
+            hp += -currSkill->getHpCost();
+            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+                hp = type->getTotalMaxHp(&totalUpgrade);
+            }
+        	addItemToVault(&this->hp,this->hp);
+            
+		}
+	}
+	
+
+    return true;
+}
 
 bool Unit::repair(){
 
@@ -1404,7 +1436,7 @@ bool Unit::morph(const MorphCommandType *mct){
     Field morphUnitField=fLand;
     if(morphUnitType->getField(fAir)) morphUnitField=fAir;
     if(morphUnitType->getField(fLand)) morphUnitField=fLand;
-    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this)){
+    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)){
 		map->clearUnitCells(this, pos);
 		faction->deApplyStaticCosts(type);
 
