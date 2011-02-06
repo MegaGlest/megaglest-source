@@ -330,6 +330,8 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		bool checkForNewClients = true;
 
 		// Safety check since we can experience a disconnect and the slot is NULL
+		//Chrono chrono;
+		//chrono.start();
 		ConnectionSlot *connectionSlot = NULL;
 		MutexSafeWrapper safeMutexSlot(NULL);
 		if(event->triggerId >= 0 && event->triggerId < GameConstants::maxPlayers) {
@@ -341,17 +343,29 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR CONDITION, event->triggerId = %d\n",__FILE__,__FUNCTION__,__LINE__,event->triggerId);
 		}
 
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 		if(connectionSlot != NULL &&
 		   (gameHasBeenInitiated == false ||
 			(connectionSlot->getSocket() != NULL && socketTriggered == true))) {
 			if(connectionSlot->isConnected() == false || socketTriggered == true) {
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				safeMutexSlot.ReleaseLock(true);
 				connectionSlot->update(checkForNewClients,event->triggerId);
+
+				//chrono.start();
+				safeMutexSlot.Lock();
+				connectionSlot = slots[event->triggerId];
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				// This means no clients are trying to connect at the moment
 				if(connectionSlot != NULL && connectionSlot->getSocket() == NULL) {
 					checkForNewClients = false;
 				}
 			}
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		}
 		safeMutexSlot.ReleaseLock();
 	}

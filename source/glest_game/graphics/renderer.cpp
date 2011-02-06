@@ -150,6 +150,7 @@ Renderer::Renderer() {
 	this->menu = NULL;
 	this->game = NULL;
 	showDebugUI = false;
+	showDebugUILevel = debugui_fps;
 	modelRenderer = NULL;
 	textRenderer = NULL;
 	particleRenderer = NULL;
@@ -2439,7 +2440,9 @@ void Renderer::renderSelectionEffects() {
 
 		//selection circle
 		if(world->getThisFactionIndex() == unit->getFactionIndex()) {
-			if(	showDebugUI == true && unit->getCommandSize() > 0 &&
+			if(	showDebugUI == true &&
+				((showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) &&
+				unit->getCommandSize() > 0 &&
 				dynamic_cast<const BuildCommandType *>(unit->getCurrCommand()->getCommandType()) != NULL) {
 				glColor4f(unit->getHpRatio(), unit->getHpRatio(), unit->getHpRatio(), 0.3f);
 			}
@@ -4744,5 +4747,15 @@ Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
 	return result;
 }
 
+void Renderer::cycleShowDebugUILevel() {
+	if((showDebugUILevel & debugui_fps) != debugui_fps ||
+		(showDebugUILevel & debugui_unit_titles) != debugui_unit_titles) {
+		showDebugUILevel  |= debugui_fps;
+		showDebugUILevel  |= debugui_unit_titles;
+	}
+	else {
+		showDebugUILevel  = debugui_fps;
+	}
+}
 
 }}//end namespace

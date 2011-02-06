@@ -1744,10 +1744,12 @@ void Game::render2d(){
 					10, metrics.getVirtualH() - mh - 90 - 210 - (i * 16), false);
 		}
 
-		if(renderer.getAllowRenderUnitTitles() == false) {
-			renderer.setAllowRenderUnitTitles(true);
+		if((renderer.getShowDebugUILevel() & debugui_unit_titles) == debugui_unit_titles) {
+			if(renderer.getAllowRenderUnitTitles() == false) {
+				renderer.setAllowRenderUnitTitles(true);
+			}
+			renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 		}
-		renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 	}
 
 	//network status

@@ -71,10 +71,11 @@ class Mutex {
 private:
 	SDL_mutex* mutex;
 	int refCount;
-
+	string ownerId;
 public:
-	Mutex();
+	Mutex(string ownerId="");
 	~Mutex();
+	void setOwnerId(string ownerId) { this->ownerId = ownerId; }
 	void p();
 	void v();
 	int getRefCount() const { return refCount; }

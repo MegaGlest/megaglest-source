@@ -298,9 +298,13 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				if(serverInterface->getServerSocket() != NULL &&
 					serverInterface->getServerSocket()->hasDataToRead() == true) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
-					socket = serverInterface->getServerSocket()->accept();
+					Socket *newSocket = serverInterface->getServerSocket()->accept();
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
-					if(socket != NULL) {
+					if(newSocket != NULL) {
+						// Set Socket as non-blocking
+						newSocket->setBlock(false);
+						socket = newSocket;
+
 						this->connectedTime = time(NULL);
 						this->clearChatInfo();
 						this->name = "";
