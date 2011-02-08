@@ -137,13 +137,13 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 	//assertions
 	assertGl();
 
+	glPolygonOffset(0.05f, 0.0f);
 	//set cull face
 	if(mesh->getTwoSided()) {
 		glDisable(GL_CULL_FACE);
 	}
 	else{
 		glEnable(GL_CULL_FACE);
-		glPolygonOffset(0.05f, 0.0f);
 	}
 
 	//set color

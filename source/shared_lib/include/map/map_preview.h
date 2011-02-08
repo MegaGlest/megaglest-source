@@ -60,19 +60,6 @@ static const int DEFAULT_CLIFF_HEIGHT				= 0;
 
 static const int MAP_FORMAT_VERSION=2;
 
-
-typedef union {
-	int8 description[MAX_DESCRIPTION_LENGTH];
-
-	struct {
-		int8 short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
-		int32 magic; // 0x01020304 for meta
-		int32 cliffLevel;
-		int8 meta[120];
-	} version2;
-} uniondata;
-
-
 struct MapFileHeader {
 	int32 version;
 	int32 maxFactions;
@@ -82,7 +69,15 @@ struct MapFileHeader {
 	int32 waterLevel;
 	int8 title[MAX_TITLE_LENGTH];
 	int8 author[MAX_AUTHOR_LENGTH];
-	uniondata extension_data;
+	union {
+		int8 description[MAX_DESCRIPTION_LENGTH];
+		struct {
+			int8 short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
+			int32 magic; // 0x01020304 for meta
+			int32 cliffLevel;
+			int8 meta[120];
+		} version2;
+	};
 };
 
 // ===============================================
