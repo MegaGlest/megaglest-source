@@ -4457,6 +4457,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	float playerCrossSize	= 2;
 	float clientW			= renderMapWidth * cellSize;
 	float clientH			= renderMapHeight * cellSize;;
+	float minDimension 		= std::min(metrics.getVirtualW(), metrics.getVirtualH());
 
 	// stretch small maps to 128x128
 	if(map->getW() < map->getH()) {
@@ -4477,7 +4478,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
 		texture->setMipmap(false);
 		Pixmap2D *pixmapScreenShot = texture->getPixmap();
-		pixmapScreenShot->init(metrics.getVirtualW(), metrics.getVirtualH(), 4);
+		pixmapScreenShot->init(minDimension, minDimension, 4);
 		texture->setForceCompressionDisabled(true);
 		texture->init(textureFilter,maxAnisotropy);
 		texture->setup_FBO_RBO();
@@ -4492,8 +4493,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	if(supportFBOs == true && renderToTexture != NULL) {
 		cellSize  =1;
-		clientW = metrics.getVirtualW();
-		clientH = metrics.getVirtualH();
+		clientW = minDimension;
+		clientH = minDimension;
 		int mapMaxDimensionSize = std::max(map->getW(),map->getH());
 		switch(mapMaxDimensionSize) {
 			case 8:
