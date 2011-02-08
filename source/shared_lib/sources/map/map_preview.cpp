@@ -29,8 +29,9 @@ namespace Shared { namespace Map {
 
 MapPreview::MapPreview() {
 	fileLoaded = false;
-	altFactor 	= DEFAULT_MAP_CELL_HEIGHT_FACTOR;
+	heightFactor 	= DEFAULT_MAP_CELL_HEIGHT_FACTOR;
 	waterLevel 	= DEFAULT_MAP_WATER_DEPTH;
+	cliffLevel = DEFAULT_CLIFF_HEIGHT;
 	//cells = NULL;
 	cells.clear();
 	//startLocations = NULL;
@@ -58,6 +59,24 @@ MapPreview::~MapPreview() {
 
 float MapPreview::getHeight(int x, int y) const {
 	return cells[x][y].height;
+}
+
+bool MapPreview::isCliff(int x, int y){
+	if(cliffLevel == 0)
+		return false;
+	for(int k= -1; k <= 1; ++k){
+		for(int l= -1; l <= 1; ++l){
+			int xToCheck= x + l;
+			int yToCheck= y + k;
+			if(xToCheck < 0 || yToCheck < 0 || xToCheck >= w || yToCheck >= h){
+				//ignore
+			}
+			else if(cliffLevel <= abs(getHeight(x, y) - getHeight(xToCheck, yToCheck))){
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 MapSurfaceType MapPreview::getSurface(int x, int y) const {
@@ -588,17 +607,10 @@ void MapPreview::setAuthor(const string &author) {
 	this->author = author;
 }
 
-void MapPreview::setAdvanced(int altFactor, int waterLevel) {
-	this->altFactor = altFactor;
+void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel) {
+	this->heightFactor = heightFactor;
 	this->waterLevel = waterLevel;
-}
-
-int MapPreview::getHeightFactor() const {
-	return altFactor;
-}
-
-int MapPreview::getWaterLevel() const {
-	return waterLevel;
+	this->cliffLevel = cliffLevel;
 }
 
 void MapPreview::randomizeHeights() {
@@ -651,11 +663,18 @@ void MapPreview::loadFromFile(const string &path) {
 		MapFileHeader header;
 		size_t bytes = fread(&header, sizeof(MapFileHeader), 1, f1);
 
-		altFactor = header.altFactor;
+		heightFactor = header.heightFactor;
 		waterLevel = header.waterLevel;
 		title = header.title;
 		author = header.author;
-		desc = header.description;
+		cliffLevel = 0;
+		if(header.version==1){
+			desc = header.extension_data.description;
+		}
+		else if(header.version==2){
+			desc = header.extension_data.version2.short_desc;
+			cliffLevel=header.extension_data.version2.cliffLevel;
+		}
 
 		//read start locations
 		resetFactions(header.maxFactions);
@@ -711,15 +730,18 @@ void MapPreview::saveToFile(const string &path) {
 		//write header
 		MapFileHeader header;
 
-		header.version = 1;
+		header.version = MAP_FORMAT_VERSION;
 		header.maxFactions = maxFactions;
 		header.width = w;
 		header.height = h;
-		header.altFactor = altFactor;
+		header.heightFactor = heightFactor;
 		header.waterLevel = waterLevel;
-		strncpy(header.title, title.c_str(), 128);
-		strncpy(header.author, author.c_str(), 128);
-		strncpy(header.description, desc.c_str(), 256);
+		strncpy(header.title, title.c_str(), MAX_TITLE_LENGTH);
+		strncpy(header.author, author.c_str(), MAX_AUTHOR_LENGTH);
+		strncpy(header.extension_data.version2.short_desc, desc.c_str(), MAX_DESCRIPTION_LENGTH_VERSION2);
+		header.extension_data.version2.magic= 0x01020304;
+		header.extension_data.version2.cliffLevel= cliffLevel;
+
 
 		fwrite(&header, sizeof(MapFileHeader), 1, f1);
 

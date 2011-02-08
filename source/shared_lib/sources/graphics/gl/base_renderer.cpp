@@ -61,7 +61,7 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					&& i * cellSize + x < clientW
 					&& clientH - cellSize - j * cellSize + y > -cellSize
 					&& clientH - cellSize - j * cellSize + y < clientH) {
-
+				bool isCliff=false; // needed to speedup things
 				//surface
 				alt = map->getHeight(i, j) / 20.f;
 				showWater = map->getWaterLevel()/ 20.f - alt;
@@ -74,7 +74,13 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					case st_Stone: surfColor = Vec3f(0.7f * alt, 0.7f * alt, 0.7f * alt + showWater); break;
 					case st_Ground: surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater); break;
 				}
-
+				if(map->getCliffLevel()>0)
+				{// we maybe need to render cliff surfColor
+					if(map->isCliff(i, j)){
+						surfColor = Vec3f(0.95f * alt, 0.8f * alt, 0.0f * alt + showWater);
+						isCliff=true;
+					}
+				}
 				glColor3fv(surfColor.ptr());
 
 				glBegin(GL_TRIANGLE_STRIP);
@@ -99,7 +105,7 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					case 10: glColor3f(1.f, 0.2f, 0.8f); break;
 				}
 
-				if (map->getObject(i, j) != 0) {
+				if (map->getObject(i, j) != 0 || isCliff ) {
 					glPointSize(cellSize / 2.f);
 					glBegin(GL_POINTS);
 					glVertex2i(i * cellSize + cellSize / 2, clientH - j * cellSize - cellSize / 2);

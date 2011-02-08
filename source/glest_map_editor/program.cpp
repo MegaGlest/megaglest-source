@@ -605,8 +605,8 @@ bool Program::setGridOnOff() {
     return grid;
 }
 
-void Program::setMapAdvanced(int altFactor, int waterLevel) {
-	if(map) map->setAdvanced(altFactor, waterLevel);
+void Program::setMapAdvanced(int altFactor, int waterLevel, int cliffLevel) {
+	if(map) map->setAdvanced(altFactor, waterLevel, cliffLevel);
 }
 
 void Program::loadMap(const string &path) {

@@ -36,6 +36,7 @@ enum MapSurfaceType {
 static const int MAX_TITLE_LENGTH 		= 128;
 static const int MAX_AUTHOR_LENGTH 		= 128;
 static const int MAX_DESCRIPTION_LENGTH = 256;
+static const int MAX_DESCRIPTION_LENGTH_VERSION2 = 128;
 
 static const int MIN_MAP_CELL_DIMENSION		= 16;
 static const int MAX_MAP_CELL_DIMENSION		= 1024;
@@ -55,17 +56,33 @@ static const MapSurfaceType DEFAULT_MAP_CELL_SURFACE_TYPE 	= st_Grass;
 
 static const int DEFAULT_MAP_CELL_HEIGHT_FACTOR		= 3;
 static const int DEFAULT_MAP_WATER_DEPTH			= 4;
+static const int DEFAULT_CLIFF_HEIGHT				= 0;
+
+static const int MAP_FORMAT_VERSION=2;
+
+
+typedef union {
+	int8 description[MAX_DESCRIPTION_LENGTH];
+
+	struct {
+		int8 short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
+		int32 magic; // 0x01020304 for meta
+		int32 cliffLevel;
+		int8 meta[120];
+	} version2;
+} uniondata;
+
 
 struct MapFileHeader {
 	int32 version;
 	int32 maxFactions;
 	int32 width;
 	int32 height;
-	int32 altFactor;
+	int32 heightFactor;
 	int32 waterLevel;
 	int8 title[MAX_TITLE_LENGTH];
 	int8 author[MAX_AUTHOR_LENGTH];
-	int8 description[MAX_DESCRIPTION_LENGTH];
+	uniondata extension_data;
 };
 
 // ===============================================
@@ -98,8 +115,9 @@ private:
 	int type;
 	int h;
 	int w;
-	int altFactor;
+	int heightFactor;
 	int waterLevel;
+	int cliffLevel;
 	//Cell **cells;
 	std::vector<std::vector<Cell> > cells;
 
@@ -114,17 +132,19 @@ public:
 	MapPreview();
 	~MapPreview();
 	float getHeight(int x, int y) const;
+	bool isCliff(int x,int y);
 	MapSurfaceType getSurface(int x, int y) const;
 	int getObject(int x, int y) const;
 	int getResource(int x, int y) const;
 	int getStartLocationX(int index) const;
 	int getStartLocationY(int index) const;
-	int getHeightFactor() const;
-	int getWaterLevel() const;
+	int getHeightFactor() const{return heightFactor;}
+	int getWaterLevel() const{return waterLevel;}
+	int getCliffLevel() const{return cliffLevel;}
 	bool inside(int x, int y);
 
 	void setRefAlt(int x, int y);
-	void setAdvanced(int altFactor, int waterLevel);
+	void setAdvanced(int heightFactor, int waterLevel, int cliffLevel);
 	void setTitle(const string &title);
 	void setDesc(const string &desc);
 	void setAuthor(const string &author);

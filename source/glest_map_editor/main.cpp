@@ -725,12 +725,14 @@ void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"(lower means map is more more zoomed in)");
 	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(water is visible below this, and walkable until 1.5 less)");
+	simpleDialog.addValue("Cliff Level", intToStr(program->getMap()->getCliffLevel()),"(neighboring fields with at least this heights difference are cliffs)");
 	if (!simpleDialog.show("Advanced")) return;
 
 	try {
 		program->setMapAdvanced(
 			strToInt(simpleDialog.getValue("Height Factor")),
-			strToInt(simpleDialog.getValue("Water Level")));
+			strToInt(simpleDialog.getValue("Water Level")),
+			strToInt(simpleDialog.getValue("Cliff Level")));
 	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
