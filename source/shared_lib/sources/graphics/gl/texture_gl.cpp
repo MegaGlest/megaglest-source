@@ -21,10 +21,38 @@
 
 using namespace std;
 
+// Define FBO's (Frame Buffer Objects) for win32
+
+#ifdef WIN32
+
+PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+
+#endif
+
 namespace Shared { namespace Graphics { namespace Gl {
 
 using namespace Platform;
 using namespace Shared::Util;
+
+void setupGLExtensionMethods() {
+#ifdef WIN32
+
+	static bool setupExtensions=true;
+	if(setupExtensions == true) {
+		setupExtensions = false;
+		glGenFramebuffersEXT= (PFNGLGENFRAMEBUFFERSEXTPROC)SDL_GL_GetProcAddress("glGenFramebuffersEXT");
+		glBindFramebufferEXT= (PFNGLBINDFRAMEBUFFEREXTPROC)SDL_GL_GetProcAddress("glBindFramebufferEXT");
+		glFramebufferTexture2DEXT= (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
+		glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
+		glCheckFramebufferStatusEXT= (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
+	}
+
+#endif
+}
 
 const uint64 MIN_BYTES_TO_COMPRESS = 12;
 
@@ -425,6 +453,11 @@ TextureGl::TextureGl() {
 	handle 			= 0;
 	renderBufferId 	= 0;
 	frameBufferId  	= 0;
+	setupGLExtensionMethods();
+}
+
+bool TextureGl::supports_FBO_RBO() {
+	return (glGenFramebuffersEXT != NULL);
 }
 
 void TextureGl::setup_FBO_RBO() {
@@ -432,158 +465,149 @@ void TextureGl::setup_FBO_RBO() {
 		throw runtime_error("getTextureWidth() < 0 || getTextureHeight() < 0");
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"getTextureWidth() = %d, getTextureHeight() = %d\n",getTextureWidth(),getTextureHeight());
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"getTextureWidth() = %d, getTextureHeight() = %d\n",getTextureWidth(),getTextureHeight());
 
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	// Did we successfully setup FBO's?
+	if(glGenFramebuffersEXT) {
+		GLint width=0;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
+		GLint height=0;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
 
-	GLint width=0;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
-	GLint height=0;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"width = %d, height = %d\n",width,height);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"width = %d, height = %d\n",width,height);
-
-	//RGBA8 2D texture, 24 bit depth texture, 256x256
-	//glGenTextures(1, &color_tex);
-	//glBindTexture(GL_TEXTURE_2D, color_tex);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//NULL means reserve texture memory, but texels are undefined
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-	//-------------------------
-	glGenFramebuffersEXT(1, &frameBufferId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
-	//Attach 2D texture to this FBO
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, handle, 0);
-	//-------------------------
-	glGenRenderbuffersEXT(1, &renderBufferId);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, getTextureWidth(), getTextureHeight());
-	//-------------------------
-	//Attach depth buffer to FBO
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderBufferId);
-	//-------------------------
-	//Does the GPU support current FBO configuration?
-	GLenum status;
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
-	{
-	 case GL_FRAMEBUFFER_COMPLETE_EXT:
-		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment OK!\n");
-		 break;
-	 default:
-		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment BAD!\n");
-		break;
+		//RGBA8 2D texture, 24 bit depth texture, 256x256
+		//glGenTextures(1, &color_tex);
+		//glBindTexture(GL_TEXTURE_2D, color_tex);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//NULL means reserve texture memory, but texels are undefined
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+		//-------------------------
+		glGenFramebuffersEXT(1, &frameBufferId);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+		//Attach 2D texture to this FBO
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, handle, 0);
+		//-------------------------
+		glGenRenderbuffersEXT(1, &renderBufferId);
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
+		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, getTextureWidth(), getTextureHeight());
+		//-------------------------
+		//Attach depth buffer to FBO
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderBufferId);
+		//-------------------------
+		//Does the GPU support current FBO configuration?
+		GLenum status;
+		status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		switch(status)
+		{
+		 case GL_FRAMEBUFFER_COMPLETE_EXT:
+			 //SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment OK!\n");
+			 break;
+		 default:
+			 //SystemFlags::OutputDebug(SystemFlags::debugSystem,"FBO attachment BAD!\n");
+			break;
+		}
+		//-------------------------
+		//and now you can render to GL_TEXTURE_2D
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+		glClearColor(0.0, 0.0, 0.0, 0.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-	//-------------------------
-	//and now you can render to GL_TEXTURE_2D
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-#endif
 }
 
 void TextureGl::teardown_FBO_RBO() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-
-	//----------------
-	//Bind 0, which means render to back buffer
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	//And in the end, cleanup
-	//Delete resources
-	//glDeleteTextures(1, &handle);
-	glDeleteRenderbuffersEXT(1, &frameBufferId);
-	//Bind 0, which means render to back buffer, as a result, fb is unbound
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	glDeleteFramebuffersEXT(1, &frameBufferId);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		//----------------
+		//Bind 0, which means render to back buffer
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		//And in the end, cleanup
+		//Delete resources
+		//glDeleteTextures(1, &handle);
+		glDeleteRenderbuffersEXT(1, &frameBufferId);
+		//Bind 0, which means render to back buffer, as a result, fb is unbound
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glDeleteFramebuffersEXT(1, &frameBufferId);
+	}
 }
 
 void TextureGl::initRenderBuffer() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-
-	// create a renderbuffer object to store depth info
-	glGenRenderbuffersEXT(1, &renderBufferId);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT,getTextureWidth(), getTextureHeight());
-	//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// create a renderbuffer object to store depth info
+		glGenRenderbuffersEXT(1, &renderBufferId);
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderBufferId);
+		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT,getTextureWidth(), getTextureHeight());
+		//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	}
 }
 
 void TextureGl::initFrameBuffer() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-	// create a framebuffer object
-	glGenFramebuffersEXT(1, &frameBufferId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// create a framebuffer object
+		glGenFramebuffersEXT(1, &frameBufferId);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
+}
 }
 
 void TextureGl::attachRenderBuffer() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-	// attach the renderbuffer to depth attachment point
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT, renderBufferId);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// attach the renderbuffer to depth attachment point
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT, renderBufferId);
+}
 }
 
 void TextureGl::attachFrameBufferToTexture() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-	// attach the texture to FBO color attachment point
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D, handle, 0);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// attach the texture to FBO color attachment point
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D, handle, 0);
+}
 }
 
 bool TextureGl::checkFrameBufferStatus() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-
-	// check FBO status
-	// Does the GPU support current FBO configuration?
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	if(status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"checkFrameBufferStatus() status = %d [%X]\n",status,status);
-	    return false;
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// check FBO status
+		// Does the GPU support current FBO configuration?
+		GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		if(status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"checkFrameBufferStatus() status = %d [%X]\n",status,status);
+			return false;
+		}
+		return true;
 	}
-	return true;
 
-#else
 	return false;
-#endif
 }
 
 void TextureGl::dettachFrameBufferFromTexture() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-
-	// switch back to window-system-provided framebuffer
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-#endif
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		// switch back to window-system-provided framebuffer
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	}
 }
 
 TextureGl::~TextureGl() {
-// Need some work to get extensions properly working in Windows (use Glew lib)
-#ifndef WIN32
-
-	if(renderBufferId != 0) {
-		glDeleteRenderbuffersEXT(1, &renderBufferId);
-		renderBufferId = 0;
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		if(renderBufferId != 0) {
+			glDeleteRenderbuffersEXT(1, &renderBufferId);
+			renderBufferId = 0;
+		}
+		if(frameBufferId != 0) {
+			glDeleteFramebuffersEXT(1, &frameBufferId);
+			frameBufferId = 0;
+		}
+		//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
-	if(frameBufferId != 0) {
-		glDeleteFramebuffersEXT(1, &frameBufferId);
-		frameBufferId = 0;
-	}
-
-	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-#endif
 }
 
 // =====================================================

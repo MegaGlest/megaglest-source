@@ -674,6 +674,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
+            cleanupMapPreviewTexture();
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
                 needToRepublishToMasterserver = true;
             }
@@ -1213,8 +1214,7 @@ void MenuStateCustomGame::render() {
 			renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
 		}
 		if(mapPreviewTexture != NULL) {
-			//renderer.renderTextureQuad(10,350,-1,-1,mapPreviewTexture,0.7);
-			renderer.renderTextureQuad(800,300,200,150,mapPreviewTexture,0.7f);
+			renderer.renderTextureQuad(5,165,180,180,mapPreviewTexture,1.0f);
 			//printf("=================> Rendering map preview texture\n");
 		}
 
@@ -1349,9 +1349,9 @@ void MenuStateCustomGame::render() {
 		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,&mapPreviewTexture);
 		    	//printf("=================> Rendering map preview into a texture AFTER (%p)\n", mapPreviewTexture);
 		    }
-		    else {
-		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
-		    }
+		    //else {
+		    	//renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
+		    //}
 		}
 
 		if(hasNetworkGameSettings() == true) {
