@@ -3,6 +3,7 @@
 OSTYPE=`uname -m`
 echo "Detected distro: [$OSTYPE]"
 
+# This should actually use /etc/issue
 if [ -f /etc/fedora-release ]; then
   echo "Fedora..."
   #sudo yum groupinstall "Development Tools"
@@ -10,14 +11,13 @@ if [ -f /etc/fedora-release ]; then
 elif [ -f /etc/SuSE-release ]; then
   echo "SuSE..."
   #sudo zypper install subversion gcc gcc-c++ automake
-else
+elif [ -f /etc/debian_version ]; then
   echo "Debian / Ubuntu..."
-  sudo apt-get install perl
-  sudo apt-get install graphviz
-  sudo apt-get install libgraphviz-perl
-  sudo apt-get install libconfig-inifiles-perl
+  sudo apt-get install perl graphviz libgraphviz-perl libconfig-inifiles-perl perlmagick
   #sudo apt-get install libimage-size-perl
-  sudo apt-get install perlmagick
+else
+  echo 'Unknown distribution. Stopping here.' >&2
+  exit 1
 fi
 
 echo "To run the techtree html builder edit mg.ini and run the script as follows:"

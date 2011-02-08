@@ -4,11 +4,10 @@
 # 20110120, bugs & feedback to olaus@rupp.de
 # license: GPLv3 or newer
 
-our $version = "0.4 alpha";
-# this code is far from perfect, just published on popular demand ;)
+our $version = "0.7 beta";
 
 # general comments for running:
-# - developed on ubuntu linux 10.04 and with modules from ubuntu (install with "apt-get install libgraphviz-perl libconfig-inifiles-perl libxml-xpath-perl")
+# - developed on ubuntu linux 10.04 and with modules from ubuntu (install with "apt-get install libgraphviz-perl libconfig-inifiles-perl libxml-xpath-perl perlmagick")
 # - on non-ubuntu systems install "graphviz" using your package manager and try to also find the right perl modules with it.
 # - if the package manager doesn't work install the needed perl modules using "cpan" on the command line: (untested):
 # 	cpan> install XML::XPath;
@@ -24,14 +23,20 @@ our $version = "0.4 alpha";
 # - watch out for singular & plural in the variable-names, $harvested_resources{} ne $harvested_resource
 # - if you need to read some new stuff from the XML-files, google the xpath-documentation. check if it's single- or multi-valued. use xpath.pl to check the location.
 # - if you want to rewrite this in your favorite language i recommend your local xpath-module, then you can reuse the xpath-locations from this script
+# - uses jquery.com and datatables.net for table sorting and searching. i recommend the firefox add-onswebdeveloper and firebug if touching these
 
 # TODO:
-# - where is specified what levels (f.e. elite after x kills) add to sight and armor?
 # - requirement page per faction with all buildings and producing units and the units they produce (footnotes for requirements) (collect in $production{ $u } and $production_units{ $u }
 
 # DONE
+# 0.6:
+# - add png images rendered by g3d_viewer (by softcoder, thanks)
+# 0.5:
+# - allow relative & absolut path at the same time (relative can't start with / )
+# - show what levels (f.e. elite after x kills) add to sight, armor, ...
+# - show what available upgrades add to stats in each unit
 # 0.4:
-# - show updates available for this unit
+# - show updates available for each unit
 # - fix paths with spaces
 # 0.3
 # - @all_html_pages with with page-title, sort by faction, special pages (keys & armor/attack)
@@ -85,6 +90,10 @@ else {
 	$cfg_file ="glest.ini";
 }
 
+if ( ! -e $cfg_file ) {
+	die "\nusage: $0 [glest.ini]\n\n";
+}
+
 $cfg = new Config::IniFiles( -file => "./$cfg_file" );
 
 
@@ -111,24 +120,27 @@ our $debug = $cfg->val( 'all', 'debug');
 our $glest_version = $cfg->val( 'all', 'version');
 
 our $factions_path=$cfg->val( 'files' , 'factions_path');
-$factions_path = "$ENV{APP_ROOT}/$factions_path" if ( $use_relative_paths );
+
+
+$factions_path = "$ENV{APP_ROOT}/$factions_path" if ( $use_relative_paths && $factions_path !~ /^\//);
 our $g3dviewer_path=$cfg->val( 'files' , 'g3dviewer_path');
 $g3dviewer_path = "$ENV{APP_ROOT}/$g3dviewer_path" if ( $use_relative_paths );
 
 our $resources_path=$cfg->val( 'files' , 'resources_path');
-$resources_path = "$ENV{APP_ROOT}/$resources_path" if ( $use_relative_paths );
+$resources_path = "$ENV{APP_ROOT}/$resources_path" if ( $use_relative_paths && $resources_path !~ /^\// );
 our $out_path=$cfg->val( 'files' , 'out_path');
-$out_path = "$ENV{APP_ROOT}/$out_path" if ( $use_relative_paths );
+$out_path = "$ENV{APP_ROOT}/$out_path" if ( $use_relative_paths && $out_path !~ /^\// );
 
 our $pack_file=$cfg->val( 'files' , 'pack_file');
-$pack_file = "$ENV{APP_ROOT}/$pack_file" if ( $use_relative_paths );
+$pack_file = "$ENV{APP_ROOT}/$pack_file" if ( $use_relative_paths && $pack_file !~ /^\// );
+
 
 our $units_path=$cfg->val( 'files' , 'units_path');
 our $upgrades_path=$cfg->val( 'files' , 'upgrades_path');
 our $images_path=$cfg->val( 'files' , 'images_path');
 
 our $glestkeys=$cfg->val( 'files' , 'glestkeys');
-$glestkeys = "$ENV{APP_ROOT}/$glestkeys" if ( $use_relative_paths );
+$glestkeys = "$ENV{APP_ROOT}/$glestkeys" if ( $use_relative_paths && $glestkeys !~ /^\// );
 
 our $summary = $cfg->val('files', 'summary');
 
@@ -149,6 +161,10 @@ our $map_legend = $cfg->val('style', 'map_legend');
 $footer =~ s/VAR_CREATED_BY/<I><A HREF=\"http:\/\/rupp.de\/glest\/\">$me<\/A><\/I> version <I>$version<\/I> using config-file <I>$cfg_file<\/I> on <I>$now_string<\/I> /;
 
 
+our $level_hp = $cfg->val('all', 'level_hp');
+our $level_ep = $cfg->val('all', 'level_ep');
+our $level_sight = $cfg->val('all', 'level_sight');
+our $level_armor = $cfg->val('all', 'level_armor');
 
 
 $|=1;
@@ -182,6 +198,7 @@ our @all_html_pages;
 our %h_all_html_pages;
 our @special_html_pages;
 push @special_html_pages, "compare.html;Compare Units";
+push @special_html_pages, "all.html;All Units of all Factions";
 
 our %damage_multiplier;
 
@@ -194,6 +211,8 @@ our %building;
 our %armor;
 our %armor_type;
 our %sight;
+our %time;
+our %height;
 
 our %upgrade;
 our %upgrade_effects;
@@ -359,6 +378,8 @@ foreach my $faction_path ( @factions ) {
 
 		push @{ $c_all{"$faction"} }, $unit;
 
+		my $u = "$faction:$unit";
+
 		print "reading unit: $faction:$unit in $faction_path\n" if ( $debug );
 		my $unit_file ="$faction_path/$units_path/$unit/$unit.xml";
 
@@ -366,24 +387,48 @@ foreach my $faction_path ( @factions ) {
 
 		my ( $icon ) = &read_unit( $unit_file, $faction, $faction_path, $unit);
 
+		system "cp $faction_path/$units_path/$unit/images/$icon $out_path/$images_path/${faction}/$unit";
+
 		if ($generate_g3d_images == 1) {
 			my $full_png = $icon;
 			$full_png=~ s/\.[^.]+$//;
-			my $g3d_generate_cmd = "$g3dviewer_path --load-unit=$faction_path/$units_path/$unit,attack_skill,stop_skill --load-model-animation-value=0.5 --load-particle-loop-value=8 --zoom-value=0.74 --rotate-x-value=-42 --rotate-y-value=-14 --auto-screenshot=disable_grid,saveas-$out_path/$images_path/${faction}/$unit/$full_png-full.png";
 
-			print "generating G3D using: [$g3d_generate_cmd]\n" if ( $debug );
-			system "$g3d_generate_cmd";
+			# use the height from the units XML-file for a rough guess on zooming the model to the right size
+			my $unit_height = $height{ $u };
+			# max to 6
+			$unit_height = 6 if ( $unit_height > 6 );
 
-			# if we need to resize the image the code below does it
-                        #
-			#my $image = new Image::Magick;
-			#$image->Read("$out_path/$images_path/${faction}/$unit/$icon");
-			#$image->Resize(width=>64,height=>64);
-			#$image->Write("$out_path/$images_path/${faction}/$unit/$icon");
-			#exit;
-		}
-		else {
-			system "cp $faction_path/$units_path/$unit/images/$icon $out_path/$images_path/${faction}/$unit";
+			my $zoom = $cfg->val('style', 'unit_png_unit_zoom') - ( $unit_height * 0.15 );
+
+			# set buildings to config-value because some have just height=2 in XML
+			$zoom = $cfg->val('style', 'unit_png_building_zoom') if ( $building{ $u } );
+
+			my $save_as = "$out_path/$images_path/${faction}/$unit/$full_png-full.png";
+
+			if ( ! -e $save_as ) {
+				my $g3d_generate_cmd = "$g3dviewer_path --load-unit=$faction_path/$units_path/$unit,attack_skill,stop_skill --load-model-animation-value=0.5 --load-particle-loop-value=8 --zoom-value=$zoom --rotate-x-value=".$cfg->val('style', 'unit_png_rotate_x_value')." --rotate-y-value=".$cfg->val('style', 'unit_png_rotate_y_value')." --auto-screenshot=disable_grid,saveas-$save_as";
+
+				print "generating G3D using: [$g3d_generate_cmd]\n" if ( $debug );
+				my $ret = `$g3d_generate_cmd`;
+				print "g3d_generate said: $ret\n";
+
+				# if we need to resize the image the code below does it
+				#
+				my $image = new Image::Magick;
+				$image->Read($save_as);
+				#$image->Resize(
+					#width  =>$cfg->val('style', 'unit_png_width'),
+					#height =>$cfg->val('style', 'unit_png_height')
+					#);
+				$image->Trim();
+				$image->Write($save_as);
+				#exit;
+
+			}
+			else {
+				print "g3d image already exist, skipping: $save_as\n";
+			}
+
 		}
 	}
 
@@ -516,19 +561,17 @@ foreach my $faction_path ( @factions ) {
 ####################################################################################
 # now that we have all the unit- and upgrade-requirements: export HTML
 ####################################################################################
+
+# for all and everything table:
+my $all_html_table="";
+my ( @col_order ) =split(/,\s+/, $cfg->val('style', 'columns_all_table') );
+
 foreach my $faction_path ( @factions ) {
 
 	my $faction = $faction_path;
 	$faction =~ s/.+\///;
 
 	my $faction_pretty = &format_name( $faction );
-
-	my $html_page = "${faction}_techtree.html";
-	my $outfile = "$out_path/$html_page";
-	open (HTML, "> $outfile") || die "can't write outfile: $outfile\n";
-	push @all_html_pages, $html_page;
-	my $title = "$faction_pretty Techtree of Glest - Version $version\n";
-	$h_all_html_pages{"$faction:techtree"} .= "$outfile:$title;";
 
 
 	my $full_all = "<P>&nbsp;<P><HR><H1>Unit Details for Faction $faction_pretty</H1>\n";
@@ -570,6 +613,9 @@ foreach my $faction_path ( @factions ) {
 
 		my $full = "";
 
+		# collect all columns seperatly and build tables in the end as configured
+		my %col = ();
+
 		my $u = "$faction:$unit";
 		print "doing HTML for $u\n" if ( $debug );
 
@@ -578,29 +624,39 @@ foreach my $faction_path ( @factions ) {
 
 		my $unit_pretty = &format_name( $unit );
 
+		$col{'name'} = $unit;
+		$col{'name_pretty'} = $unit_pretty;
+		$col{'name_link'} = &link_unit($faction, $unit);
+		$col{'faction'} = $faction;
+		$col{'faction_pretty'} = &format_name( $faction );
+
 		# FULL
 		$full .= "\n<TABLE BORDER=1>";
 		$full .= "<TR><TD WIDTH=250><A NAME=\"${unit}_full\"></A>".&html_icon( $u, 64 )."</TD><TD WIDTH=500> <B>$unit_pretty</B></TD></TR>\n";
 
 		if ($generate_g3d_images == 1) {
-			$full .= "<TR><TD COLSPAN=2 WIDTH=750><A NAME=\"${unit}_G3Dfull\"></A>".&html_icon_png( $u, 450 )."</TD></TR>\n";
+			$full .= "<TR><TD COLSPAN=2 WIDTH=750><A NAME=\"${unit}_G3Dfull\"></A>".&html_icon_png( $u, $cfg->val('style', 'unit_png_width'), $cfg->val('style', 'unit_png_height') )."</TD></TR>\n";
 		}
 
 		if ( $upgrade{$u} ) {
 			$full .= "<TR><TD>Type:</TD><TD>Upgrade</TD></TR>\n";
+			$col{'type'} = "Upgrade";
 		}
 		elsif ( $building{$u} ) {
 			$full .= "<TR><TD>Type:</TD><TD>Building</TD></TR>\n";
+			$col{'type'} = "Building";
 		}
 		else {
 
 			$full .= "<TR><TD>Type:</TD><TD>";
 			if ( $worker{$u} ) {
 				$full .= "Worker Unit<br>\n";
+				$col{'type'} = "Worker Unit";
 			}
 			# a unit might fight and build so no elsif!
 			if ( $combat{$u} ) {
 				$full .= "Combat Unit\n";
+				$col{'type'} = "Combat Unit";
 
 				
 			}
@@ -609,30 +665,8 @@ foreach my $faction_path ( @factions ) {
 
 		if ( $tips{ $unit } ) {
 			$full .= "<TR><TD>Description:</TD><TD> ".$tips{ "${unit}_info" }."</TD></TR>\n";
+			$col{'tip'} = $tips{ "${unit}_info" };
 		}
-
-		$full .= "<TR><TD>Creation:</TD><TD>";
-		foreach my $created_by_unit_tmp ( @{$created_by_unit{ $u }} ) {
-
-			my ( $created_by_u, $method, $discount ) = split(/:/, $created_by_unit_tmp );
-
-			print "$u created by unit: $created_by_u method: $method\n";
-
-
-			if ( $method eq "morph" ) {
-				$full .= "Morphing from ".&link_unit($faction, ${created_by_u})."<BR>\n";
-			}
-			elsif ( $method eq "produce" ) {
-				$full .= "Produced by ".&link_unit($faction, ${created_by_u})."<BR>\n";
-			}
-			elsif ( $method eq "build" ) {
-				$full .= "Built by ".&link_unit($faction, ${created_by_u})."<BR>\n";
-			}
-			elsif ( $method eq "upgrade" ) {
-				$full .= "Upgraded by ".&link_unit($faction, ${created_by_u})."<BR>\n";
-			}
-		}
-		$full .= "</TD></TR>\n";
 
 		# put cost together
 
@@ -642,35 +676,58 @@ foreach my $faction_path ( @factions ) {
 		# loop over creation-methods because f.e. guard might be produced in barracks or upgraded from swordman
 
 		my $num_creation_methods =@{$created_by_unit{ $u }}; 
+		my $num_method=0;
+		$full .= "<TR><TD>Creation:</TD><TD>";
 
 		foreach my $created_by_unit_tmp ( @{$created_by_unit{ $u }} ) {
+
+			$num_method++;
 
 			my ( $created_by_u, $method, $discount ) = split(/:/, $created_by_unit_tmp );
 
 			my ( $cost_tmp, $cost_icon_tmp, $cost_icon_overview_tmp ) = &calc_cost_of_unit( $u, $created_by_u, $method, $discount );
 			$cost_icon .= $cost_icon_tmp;
 
+			my %cost_hash;
+			my ( @cost_resources ) = split(/,/, $cost_tmp );
+			foreach my $cost_res ( @cost_resources ) {
+				my ( $resource, $amount ) = split(/:/, $cost_res );
+				$col{"${resource}_${num_method}"} = $amount;
+				$cost_hash{ $resource } = $amount;
+			}
+			
+
+			my $created;
+			if ( $method eq "morph" ) {
+				$created = "upgraded from";
+				$full .= "Morphing from ".&link_unit($faction, ${created_by_u})."<BR>\n";
+				$col{"creation_${num_method}"} = "Morphed from ".&link_unit( $faction, ${created_by_u});
+			}
+			elsif ( $method eq "produce" ) {
+				$created = "produced by";
+				$full .= "Produced by ".&link_unit($faction, ${created_by_u})."<BR>\n";
+				$col{"creation_${num_method}"} = "Produced by  ".&link_unit( $faction, ${created_by_u});
+			}
+			elsif ( $method eq "build" ) {
+				$created = "built by";
+				$full .= "Built by ".&link_unit($faction, ${created_by_u})."<BR>\n";
+				$col{"creation_${num_method}"} = "Built by ".&link_unit( $faction, ${created_by_u});
+			}
+			elsif ( $method eq "upgrade" ) {
+				$created = "upgraded by";
+				$full .= "Upgraded by ".&link_unit($faction, ${created_by_u})."<BR>\n";
+				$col{"creation_${num_method}"} = "Upgraded by ".&link_unit( $faction, ${created_by_u});
+			}
+			else {
+				print "method: $method for $u $created_by_u\n";
+			}
+
+
 			if ( $num_creation_methods == 1 ) {
 				$full_tmp_cost .= "<TR><TD>Total Cost: </TD><TD> $cost_icon_tmp\n";
 			}
 			else {
 				# f.e. guard might be produced in barracks or upgraded from swordman
-				my $created;
-				if ( $method eq "morph" ) {
-					$created = "upgraded from";
-				}
-				elsif ( $method eq "produce" ) {
-					$created = "produced by";
-				}
-				elsif ( $method eq "build" ) {
-					$created = "built by";
-				}
-				elsif ( $method eq "upgrade" ) {
-					$created = "upgraded by";
-				}
-				else {
-					print "method: $method for $u $created_by_u\n";
-				}
 				$full_tmp_cost .= "<TR><TD>Total Cost when ${created} ".&format_name($created_by_u).": </TD><TD> $cost_icon_tmp\n";
 			}
 
@@ -684,6 +741,8 @@ foreach my $faction_path ( @factions ) {
 			}
 		}
 
+		$full .= "</TD></TR>\n";
+
 
 		# put storage of resources together
 		my $storage="";
@@ -693,11 +752,14 @@ foreach my $faction_path ( @factions ) {
 
 			$storage .= &format_name($resource).":&nbsp;$amount, ";
 			$storage_icon .= &html_icon_resource($resource, 16)."&nbsp;$amount&nbsp;";
+
 		}
 		# remove trailing ", "
 		chop $storage;
 		chop $storage;
 		print "storage: $storage\n";
+
+		$col{"storage"} = $storage;
 
 		# do commands & skills
 
@@ -716,7 +778,10 @@ foreach my $faction_path ( @factions ) {
 		my $max_range            = 0;
 		my $max_move_speed       = 0;
 
+		my $num_move_command=0;
+
 		foreach my $c ( @{$commands_of_unit{"$u:move"}} ) {
+			$num_move_command++;
 			################################################################
 			# MOVE-command
 			################################################################
@@ -727,11 +792,14 @@ foreach my $faction_path ( @factions ) {
 
 			$full_move_tmp .= "<TR><TD> Move Command: ".&format_name($command)." </TD><TD> Speed: ".$speed{ $s }."</TD></TR>\n";
 
+			$col{"move_speed_${num_move_command}"} = $speed{ $s };
+
 			if ( $speed{ $s } > $max_move_speed ) {
 				$max_move_speed = $speed{ $s };
 			}
 
 		}
+
 
 		my $skill_on_hold_position="";
 
@@ -771,12 +839,15 @@ foreach my $faction_path ( @factions ) {
 
 		}
 
+
 		# do all commands with <type value=attack>
 		foreach my $c ( @{$commands_of_unit{"$u:attack"}} ) {
 
 			my ( $faction, $unit, $command ) = split(/:/, $c );
 			my $command_pretty = &format_name( $command );
 			$commands .= "$command_pretty, ";
+
+			$num_move_command++;
 
 
 			my $full_attack_tmp_tmp;
@@ -786,16 +857,41 @@ foreach my $faction_path ( @factions ) {
 
 			$full_attack_tmp .= $full_attack_tmp_tmp;
 
+			my $move_skill = $move_skill{ $c };
+			if ( $move_skill) {
+				my $ms = "$faction:$unit:$move_skill";
+				$col{"move_speed_${num_move_command}"} = $speed{ $ms };
 
+			}
 		}
+
+		$col{"max_move_speed"} = $max_move_speed;
 
 
 		# show levels
 		if ( defined @{ $u_levels{ $u }} ) {
+
+			my $level_num = 0;
+
 			$full_attack_tmp .= "<TR><TD>Level(s):</TD><TD>\n";
+
+
 			foreach my $level ( @{ $u_levels{ $u }} ) {
+				$level_num++;
+				$col{"max_level"} = $level_num;
+
 				my ( $name, $kills ) = split(/:/, $level );
-				$full_attack_tmp .= &format_name($name)." at $kills kills (HP +50%, EP +50%, Sight +20%, Armor +50%)<BR>\n";
+				$full_attack_tmp .= "<B>".&format_name($name)."</b> at $kills kills<BR>\n";
+
+				# let do some mathz:
+				$full_attack_tmp .= "Hitpoints: ".int( $max_hp{ $u } * $level_hp ** ( $level_num - 1))." -> ".  int( $max_hp{ $u } * ( $level_hp ** $level_num) )."<BR>\n";
+
+				if ( $max_ep{ $u } ) {
+					$full_attack_tmp .= "Energy Points: ".int( $max_ep{ $u } * $level_ep ** ( $level_num -1))." -> ".int( $max_ep{ $u } * $level_ep ** $level_num)."<BR>\n";
+				}
+
+				$full_attack_tmp .= "Armor Strength: ".int($armor{ $u } * $level_armor ** ($level_num-1))." -> ".int( $armor{ $u } * $level_armor ** $level_num )."<BR>\n";
+				$full_attack_tmp .= "Sight: ".int($sight{ $u } * $level_sight ** ( $level_num -1))." -> ".int( $sight{ $u } * $level_sight ** $level_num )."<BR>\n";
 
 				# as specified in the code, thanks titi for digging it out
 				#maxHp+= ut->getMaxHp()*50/100;
@@ -806,7 +902,6 @@ foreach my $faction_path ( @factions ) {
 			$full_attack_tmp .= "</TD></TR>\n";
 		}
 
-
 		# show available upgrades for this unit
 		if ( defined @{ $upgrades_for{ $u }} ) {
 
@@ -814,14 +909,25 @@ foreach my $faction_path ( @factions ) {
 
 			foreach my $upgrade_tmp ( @{ $upgrades_for{ $u }} ) {
 				my ( $u_faction, $u_upgrade ) = split(/:/, $upgrade_tmp );
-				$full_attack_tmp .= &link_unit($faction, $u_upgrade)."<BR>\n";
+
+                                my ( $upgrade_benefits, $upgrade_benefits_html ) = &do_upgrade_benefits( $upgrade_tmp );
+
+                                my $str_tmp = &link_unit($faction, $u_upgrade);
+				$str_tmp .= " ($upgrade_benefits)" if ( $upgrade_benefits );
+				$str_tmp .= "<BR>\n";
+                                $full_attack_tmp .= $str_tmp;
+				$col{"available_upgrades"} .= $str_tmp;
+
+
 			}
 
 			$full_attack_tmp .= "</TD></TR>\n";
 		}
 	
 		# morphing
+		my $num_morph_skill=0;
 		foreach my $c ( @{$commands_of_unit{"$u:morph"}} ) {
+
 			my ( $faction, $unit, $command ) = split(/:/, $c );
 
 			my $skill = $morph_skill{ $c };
@@ -842,6 +948,12 @@ foreach my $faction_path ( @factions ) {
 					$full_morph_tmp .= "Morphing to: ".&link_unit($faction, $morph_unit{ $c }).&html_icon($faction.":".$morph_unit{ $c }, 64)."<BR>\n";
 					$full_morph_tmp .= "Refund (Discount): ".$morph_discount{ $c }."&nbsp;%<BR>\n";
 					$full_morph_tmp .="Morph Speed: ".$speed{ $s }."<BR>\n";
+
+					$num_morph_skill++;
+					$col{"morphing_to_$num_morph_skill"} = &link_unit($faction, $morph_unit{ $c });
+					$col{"morphing_discount_$num_morph_skill"} = $morph_discount{ $c }."&nbsp;%<BR>\n";
+					$col{"morphing_speed_$num_morph_skill"} = $speed{ $s }."<BR>\n";
+
 				}
 			}
 			$full_morph_tmp .= "</TD></TR>\n";
@@ -849,7 +961,9 @@ foreach my $faction_path ( @factions ) {
 		}
 
 		# repairing
+		my $num_heal=0;
 		foreach my $c ( @{$commands_of_unit{"$u:repair"}} ) {
+			$num_heal++;
 			my ( $faction, $unit, $command ) = split(/:/, $c );
 
 			my $skill = $repair_skill{ $c };
@@ -859,21 +973,28 @@ foreach my $faction_path ( @factions ) {
 
 			print "repair_command: $command $c\n";
 			$full_repair_tmp .= "<TR><TD> Repair/Heal Skill: ".&format_name($skill_short)." </TD><TD>".&format_name($skill_short)."ing: ";
+			$col{"heal_skill_$num_heal"} = &format_name($skill_short);
 
 			foreach my $uu ( @{$c_repaired_units{$c}} ) {
 				$full_repair_tmp .= &link_unit($faction, $uu).", ";
+				$col{"heal_units_$num_heal"}  .= &link_unit($faction, $uu).", ";
 			}
 			chop $full_repair_tmp;
 			chop $full_repair_tmp;
+			chop $col{"heal_units_$num_heal"};
+			chop $col{"heal_units_$num_heal"};
 			$full_repair_tmp .="<BR>\n";
 	
 			$full_repair_tmp .="Repair/Heal Speed: ".$speed{ $s }."<BR>\n";
 			$full_repair_tmp .= "</TD></TR>\n";
+			$col{"heal_speed_$num_heal"} = $speed{ $s };
 			
 		}
 
 		# harvesting/mining
+		my $num_mine=0;
 		foreach my $c ( @{$commands_of_unit{"$u:harvest"}} ) {
+			$num_mine++;
 			my ( $faction, $unit, $command ) = split(/:/, $c );
 
 			my $skill = $harvest_skill{ $c };
@@ -883,10 +1004,15 @@ foreach my $faction_path ( @factions ) {
 
 			print "harvest_command: $command $c\n";
 			$full_harvest_tmp .= "<TR><TD> Harvest/Mine Skill: ".&format_name($skill_short)." </TD><TD>";
+			$col{"mine_speed_$num_heal"} = $speed{ $s };
 
+			$col{"mine_resource_$num_mine"} = "";
 			foreach my $resource ( @{$c_harvested_resources{$c}} ) {
 				$full_harvest_tmp .= &html_icon_resource( $resource, 32 );
+				$col{"mine_resource_$num_mine"} .= &format_name( $resource ).", ";
 			}
+			chop $col{"mine_resource_$num_mine"};
+			chop $col{"mine_resource_$num_mine"};
 
 			$full_harvest_tmp .="<BR>\n";
 	
@@ -895,6 +1021,9 @@ foreach my $faction_path ( @factions ) {
 			$full_harvest_tmp .="Hits per Unit: ".$hits_per_unit{ $c }."<BR>\n";
 			$full_harvest_tmp .= "</TD></TR>\n";
 			
+			$col{"mine_speed_$num_mine"} = $speed{ $s };
+			$col{"mine_max_load_$num_mine"} = $max_load{ $c };
+			$col{"mine_hits_per_unit_$num_mine"} = $hits_per_unit{ $c };
 		}
 
 
@@ -916,11 +1045,14 @@ foreach my $faction_path ( @factions ) {
 			$full .= "<TR><TD>Storage:</TD><TD>$storage_icon\n";
 
 			if ( $storage =~ /wood/i && $storage !~ /gold/i ) {
-				$full .= "(Hint: This also means a worker can drop all of his harvested wood into this building so it's useful to build it near trees.)";
+                                $full .= "(Hint: This also means a worker can drop of his harvested wood into this building so it's useful to build it near trees.)";
+
 			}
 			$full .= "</TD></TR>\n";
 		}
 
+		$full .= "<TR><TD>Production Time:</TD><TD>".$time{$u}."</TD></TR>\n";
+		$col{"production_time"} = $time{$u};
 
 		if ( !$upgrade{$u} ) {
 			# OVERVIEW
@@ -938,47 +1070,54 @@ foreach my $faction_path ( @factions ) {
 			$full .= "<TR><TD>Armor-Type:</TD><TD>".&link_attack_and_armor_types($armor_type{$u})."</TD></TR>\n";
 			$full .= "<TR><TD>Sight-Range:</TD><TD>".($sight{$u} || "-")."</TD></TR>\n";
 
+			$col{"max_hp"}          = $max_hp{$u};
+			$col{"regeneration"}    = $regeneration{$u};
+			$col{"max_ep"}          = $max_ep{$u} if ( $max_ep{$u});
+			$col{"regeneration_ep"} = $regeneration_ep{$u} if ( $regeneration_ep{$u});
+			$col{"armor"}           = $armor{$u};
+			$col{"armor_type"}      = &link_attack_and_armor_types($armor_type{$u});
+			$col{"sight"}           = $sight{$u};
+
 		}
 		else {
 			# handle upgrades
 			print "handling upgrade $u - $production_speed{$u} - $armor{$u}\n";
 
-			my $upgrade_benefits="";
-			$upgrade_benefits .= "<TR><TD>Increase Hitpoints: </TD><TD>+".$max_hp{$u}."</TD></TR>\n" if ( $max_hp{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Energy-Points: </TD><TD>+".$max_ep{$u}."</TD></TR>\n" if ( $max_ep{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Sight Range: </TD><TD>+".$sight{$u}."</TD></TR>\n" if ( $sight{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Attack Strength: </TD><TD>+".$attack_strenght{$u}."</TD></TR>\n" if ( $attack_strenght{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Attack Range: </TD><TD>+".$attack_range{$u}."</TD></TR>\n" if ( $attack_range{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Armor Strength: </TD><TD>+".$armor{$u}."</TD></TR>\n" if ( $armor{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Move Speed: </TD><TD>+".$move_speed{$u}."</TD></TR>\n" if ( $move_speed{$u} );
-			$upgrade_benefits .= "<TR><TD>Increase Production Speed: </TD><TD>+".$production_speed{$u}."</TD></TR>\n" if ( $production_speed{$u} );
+			# do Increases:
+			my ( $upgrade_benefits, $upgrade_benefits_html ) = &do_upgrade_benefits( $u );
 
-			$full .= $upgrade_benefits;
-			$upgrade_benefits =~ s/<\/?TR>//gi;
-			$upgrade_benefits =~ s/<\/?TD>//gi;
-			$upgrade_benefits =~ s/Increase //gi;
+			$full .= $upgrade_benefits_html;
+
+
+
 			$overview_tmp .= "<TD ALIGN=CENTER   >&nbsp;".$upgrade_benefits;
 
 			$overview_tmp .= "<TD ALIGN=CENTER>&nbsp;";
 
+			$col{"upgrade_affects"} ="";
+
 			my $units="";
 			foreach my $unit_tmp ( @{$upgrade_effects{$u}} ) {
 				$units .= &link_unit($faction, $unit_tmp).", ";
+				$col{"upgrade_affects"} .= &link_unit($faction, $unit_tmp).", ";
 			}
 			chop ($units);
 			chop ($units);
+			chop $col{"upgrade_affects"};
+			chop $col{"upgrade_affects"};
 			$overview_tmp .= ($units || "")."\n";
 
 			$full .= "<TR><TD>Affects Units:</TD><TD> ".($units || "")."</TD></TR>\n" if ( $units );
 		}
 
+		# handle requirements. this won't go into $col for the all-table because that's not usefull in a 2D-sheet
 		my $req_overview_tmp;
 		for my $relation ('Build', 'Produce', 'Upgrade', 'Requirement', 'Upgrade-Requirement', 'Command' ) {
 
 			$found = 0;
 
 			if ( $relation =~ /Require/i ) {
-				$full_tmp = "<TR><TD>$unit_pretty is an $relation for:</TD><TD>";
+				$full_tmp = "<TR><TD>$unit_pretty is a $relation for:</TD><TD>";
 			}
 			elsif ( $relation =~ /Command/i ) {
 				$full_tmp = "<TR><TD>$unit_pretty enables commands:</TD><TD>";
@@ -1054,6 +1193,7 @@ foreach my $faction_path ( @factions ) {
 			$overview_worker .= "<TD ALIGN=CENTER>".($max_move_speed || "--" )."</TD>\n";
 			my ( $o_tmp, $f_tmp ) = &do_air_ground( $u );
 			$overview_worker .= $o_tmp;
+			$col{"air_ground"} = $o_tmp;
 			$full            .= $f_tmp;
 		}
 
@@ -1064,7 +1204,13 @@ foreach my $faction_path ( @factions ) {
 			$overview_combat .= "<TD ALIGN=CENTER>".($max_move_speed || "--" )."\n";
 			my ( $o_tmp, $f_tmp ) = &do_air_ground( $u );
 			$overview_combat .= $o_tmp;
-			$full            .= $f_tmp;
+			$col{"air_ground"} = $o_tmp;
+
+			# avoid writting the movement-type twice into technician (worker+combat unit)
+			if ( !$worker{$u} ) {
+				$full            .= $f_tmp;
+			}
+
 
 
 			$overview_combat .= "<TD ALIGN=CENTER>";
@@ -1072,6 +1218,9 @@ foreach my $faction_path ( @factions ) {
 				# next line is showing damage as plus/minus, e.g. 300+-150 (which i prefer because otherwise everybody has to calculate the
 				# average to tell that 200-400 is stronger than 50-450)
 				$overview_combat .= "$max_strength_vs_land&nbsp;+-&nbsp;$max_strength_vs_land_var";
+
+				$col{"max_strength_vs_land"} = $max_strength_vs_land;
+				$col{"max_strength_vs_land_var"} = $max_strength_vs_land_var;
 
 				# next line is showing damage as range, e.g. 150-450
 				#$overview_combat .= ($max_strength_vs_land - $max_strength_vs_land_var )."-".($max_strength_vs_land + $max_strength_vs_land_var );
@@ -1085,6 +1234,9 @@ foreach my $faction_path ( @factions ) {
 			if ($max_strength_vs_air ) {
 				$overview_combat .= "$max_strength_vs_air&nbsp;+-&nbsp;$max_strength_vs_air_var";
 				#$overview_combat .= ($max_strength_vs_air - $max_strength_vs_air_var )."-".($max_strength_vs_air + $max_strength_vs_air_var );
+
+				$col{"max_strength_vs_air"} = $max_strength_vs_air;
+				$col{"max_strength_vs_air_var"} = $max_strength_vs_air_var;
 			}
 			else {
 				$overview_combat .= "--\n";
@@ -1092,6 +1244,7 @@ foreach my $faction_path ( @factions ) {
 			$overview_combat .= "</TD>";
 
 			$overview_combat .= "<TD ALIGN=CENTER>".($max_range || "--" )."</TD>\n";
+			$col{"max_range"} = $max_range;
 		}
 
 		$full .= $full_move_tmp;
@@ -1115,6 +1268,19 @@ foreach my $faction_path ( @factions ) {
 		print UNIT $footer;
 		close UNIT;
 
+		# do all all everything table
+		$all_html_table .= "<TR>\n";
+		foreach my $co ( @col_order ) {
+
+			# align everything centered except numbers
+			my $align ="CENTER";
+			if ( $col{"$co"} && $col{"$co"} =~ /^\d+$/ ) {
+				$align="RIGHT";
+			}
+			$all_html_table .= "	<TD ALIGN=$align>".($col{"$co"} || "")."</TD>\n";
+			
+		}
+		$all_html_table .= "</TR>\n";
 	}
 
 	$overview_combat   .= "</TABLE>\n";
@@ -1128,6 +1294,14 @@ foreach my $faction_path ( @factions ) {
 	$overview_html .= $overview_building;
 	$overview_html .= $overview_upgrades;
 
+
+	# create full-page for this faction
+	my $html_page = "${faction}_techtree.html";
+	my $outfile = "$out_path/$html_page";
+	open (HTML, "> $outfile") || die "can't write outfile: $outfile\n";
+	push @all_html_pages, $html_page;
+	my $title = "$faction_pretty Techtree of Glest - Version $version\n";
+	$h_all_html_pages{"$faction:techtree"} .= "$outfile:$title";
 
 	print HTML &header( $title, $faction );
 	print HTML &choose_faction_html( $faction )."<P>\n";
@@ -1156,18 +1330,46 @@ foreach my $faction_path ( @factions ) {
 	print HTML $overview_html;
 	print HTML $footer;
 	close (HTML);
+
 }
 
+print "creating all and everything table\n";
+my $outfile = "$out_path/all.html";
+open (HTML_ALL, "> $outfile") || die "can't write all table $outfile\n";
+push @all_html_pages, $outfile;
+
+my $title = "All Units of all Factions\n";
+
+$h_all_html_pages{"all"} = "$outfile:$title";
+
+print HTML_ALL &header( $title );
+print HTML_ALL &choose_faction_html()."<P>\n";
+print HTML_ALL &show_special_pages()."<P>\n";
+
+print HTML_ALL "<TABLE BORDER=0 ID=table_all><THEAD><TR>";
+
+# do table header
+foreach my $co ( @col_order ) {
+	print HTML_ALL "<TH>".&format_name( $co )."</TH>";
+}
+
+print HTML_ALL "</THEAD><TBODY>";
+print HTML_ALL $all_html_table;
+print HTML_ALL "</TBODY></TABLE>\n";
+
+print HTML_ALL $footer;
+close (HTML_ALL);
 
 print "creating global summary page\n";
 
-my $outfile = "$out_path/$summary";
+$outfile = "$out_path/$summary";
 
 open (HTML, "> $outfile") || die "can't write summary page $outfile\n";
 
 print HTML &header("Glest Autodocumentation Summary");
 print HTML &choose_faction_html()."<P>\n";
 print HTML &show_special_pages()."<P>\n";
+
 
 print HTML "<A NAME=factions></a><H2>Factions:</H2>\n";
 
@@ -1180,16 +1382,34 @@ foreach my $faction_path ( @factions ) {
 	print HTML "<A NAME=$faction></a>\n";
 	print HTML "<H3>".&format_name($faction).":</H3>\n";
 
+
 	my ( $overview_page, $overview_title ) = split(/:/, $h_all_html_pages{"$faction:overview"} );
-	print HTML "<B>Overview</B>: <a href=\"$overview_page\">$overview_title</a>\n";
+	$overview_page =~ s/$out_path\///;
+	print HTML "<B>Overview:</B> <a href=\"$overview_page\">$overview_title</a><BR>\n";
+
+	my ( $full_page, $full_title ) = split(/:/, $h_all_html_pages{"$faction:techtree"} );
+	$full_page =~ s/$out_path\///;
+	print HTML "<B>All in one Page:</B> <a href=\"$full_page\">$full_title</a><BR>\n";
 
 	print HTML "<H4>Techtree Diagrams:</H4>\n";
 	print HTML "<UL>\n";
+
 	foreach my $map ('all', 'buildings', 'buildings_units') {
-		my ( $page, $title ) = split(/:/, $h_all_html_pages{"$faction:$map"} );
-		print HTML "<LI><a href=\"$page\">$title</a>\n";
+		if ( $cfg->val('all', 'build_clickable_map') ) {
+			my ( $page, $title ) = split(/:/, $h_all_html_pages{"$faction:$map"} );
+			$page =~ s/$out_path\///;
+			print HTML "<LI><a href=\"$page\">$title</a>\n";
+		}
+		else {
+			# do SVG-diagrams
+			my $page = $graph_files{ "$faction:svg:$map" };
+			$page =~ s/$out_path\///;
+			my $title = "Techtree Diagram for ".&format_name( $faction )." - ".&format_name($map) ;
+			print HTML "<LI><a href=\"$page\">$title</a>\n";
+		}
 	}
 	print HTML "</UL>\n";
+
 
 	print HTML "<H4>Units, Buildings & Upgrades:</H4>\n";
 	print HTML "<UL>\n";
@@ -1205,13 +1425,11 @@ foreach my $faction_path ( @factions ) {
 print HTML $footer;
 close HTML;
 
-#for ( 1..7 ) {
-#	print "ATTTTTTTTTTTTTTTTTTTTTTTENTION: you have to manually copy compare.html, compare_help.html, favicon.ico and the style.css into $out_path!!!!\n";
-#}
 
 system "cp $ENV{APP_ROOT}/compare.html $out_path/compare.html";
 system "cp $ENV{APP_ROOT}/compare_help.html $out_path/compare_help.html";
-system "cp $ENV{APP_ROOT}/style.css $out_path/style.css";
+mkdir "$out_path/css";
+system "cp $ENV{APP_ROOT}/style.css $out_path/css/style.css";
 
 exit 0;
 
@@ -1222,13 +1440,13 @@ exit 0;
  
 sub create_glestkey_page {
 	my $html_page = "glestkeys.html";
-	my $title = "Keyboard Assignment";
+	my $title = "Keyboard Assingment";
 	push @special_html_pages, "$html_page;$title";
 	my $outfile = "$out_path/$html_page";
 	open (HTML, "> $outfile") || die "can't write $outfile\n";
 
 	print HTML header($title);
-	print HTML "Note: Keyboard assignment can be changed in glestuserkeys.ini.<P>\n";
+	print HTML "Note: Keyboard assingment can be changed in glestuserkeys.ini.<P>\n";
 	
 	print HTML "<TABLE BORDER=1><TH>Name<TH>Key\n";
 
@@ -1284,8 +1502,9 @@ sub read_unit {
 	if ( $upgrade{$u} ) {
 		$icon{$u}         = get_value($xpath,  "/upgrade/image/\@path");
 		# where to find resource-requirements, used below
-                $resource_requirements = $xpath->find("/upgrade/resource-requirements/resource");
+		$resource_requirements = $xpath->find("/upgrade/resource-requirements/resource");
 
+		# effects is a typo in the original glest-XML, i'll keep it in some variables
                 my $effects = $xpath->find("/upgrade/effects/unit");
 		foreach my $effected ( $effects->get_nodelist ) {
 			XML::XPath::XMLParser::as_string( $effected ) =~ /name=\"(.+?)\"/;
@@ -1302,6 +1521,7 @@ sub read_unit {
 		$armor{$u}            = get_value($xpath, "/upgrade/armor" );
 		$move_speed{$u}       = get_value($xpath, "/upgrade/move-speed" );
 		$production_speed{$u} = get_value($xpath, "/upgrade/production-speed" );
+		$time{$u}             = get_value($xpath, "/upgrade/time/\@value");
 
 	}
 	else {
@@ -1319,6 +1539,8 @@ sub read_unit {
 		$armor{$u}           = get_value($xpath,  "/unit/parameters/armor/\@value");
 		$armor_type{$u}      = get_value($xpath,  "/unit/parameters/armor-type/\@value");
 		$sight{$u}           = get_value($xpath,  "/unit/parameters/sight/\@value");
+		$time{$u}            = get_value($xpath,  "/unit/parameters/time/\@value");
+		$height{$u}          = get_value($xpath,  "/unit/parameters/height/\@value");
 
 		if ( get_value($xpath,  "/unit/parameters/fields/field[\@value='land']") ) {
 			$land_unit{ $u } = 1;
@@ -1816,6 +2038,8 @@ sub export_graphs {
 				open (OUTGRAPH, "> $graph_file") || die "cant write graph-file: $graph_file\n";
 				print OUTGRAPH $graph_buildings_units->$as_function;
 				close OUTGRAPH;
+
+
 		}
 		else {
 			die "ERROR: wrong function in ini-files: export_graph: $as_function\n\n";
@@ -2015,7 +2239,7 @@ sub html_icon {
 }
 
 sub html_icon_png {
-	my ( $u, $size ) = @_;
+	my ( $u, $width, $height ) = @_;
 	my ( $faction, $unit ) = split(/:/, $u );
 
 	my $full_png = $icon{$u};
@@ -2024,7 +2248,8 @@ sub html_icon_png {
 	$full_png = $full_png."-full.png";
 	#print("==================> USING G3D image [$unit_full_image]\n");
 
-	return "<IMG SRC=\"$images_path/$faction/$unit/".$full_png."\" HEIGHT=$size WIDTH=$size ALT=\"".&format_name( $unit )."\">";
+	return "<IMG SRC=\"$images_path/$faction/$unit/".$full_png."\"  ALT=\"".&format_name( $unit )."\">";
+	#return "<IMG SRC=\"$images_path/$faction/$unit/".$full_png."\" HEIGHT=$height WIDTH=$width ALT=\"".&format_name( $unit )."\">";
 }
 
 
@@ -2154,7 +2379,7 @@ sub show_attack {
 	$full_attack_tmp .= "Type: ".&link_attack_and_armor_types($attack_type{ $s })." <BR>\n";
 	$full_attack_tmp .= "Attack Speed: ".$speed{ $s }."<BR>\n";
 	$full_attack_tmp .= "Start Time: ".$attack_start_time{ $s }."<BR>\n";
-	$full_attack_tmp .= "Energy-Cost:".$ep_cost{ $s }."<BR>\n" if ( $ep_cost{ $s });
+	$full_attack_tmp .= "Energy-Cost: ".$ep_cost{ $s }."<BR>\n" if ( $ep_cost{ $s });
 	if ( $skill_on_hold_position ) {
 		my ( $s, $requirement ) = split(/;/, $skill_on_hold_position );
 		if ( $skill eq $s ) {
@@ -2238,8 +2463,7 @@ sub diagram_links_html {
 			#$graph_file = $graph_files{ "$faction:click_map:$type" };
 		}
 		elsif ( $graph_files{ "$faction:svg:$type" } ) {
-			$graph_file =~ s/.+?\///g;
-			$graph_file ="$images_path/$faction/$graph_file";
+                        $graph_file = "${faction}_techtree_graph_${type}.svg";
 		}
 		$graph_file =~ s/.+\///;
 		$html .= "<a href=\"$graph_file\">".&format_name($type)."</a> |\n";
@@ -2262,7 +2486,7 @@ sub create_armor_vs_attack {
 		XML::XPath::XMLParser::as_string( $armor_type ) =~ /name=\"(.+?)\"/;
 		my $armor_type_tmp = $1;
 		push @armor_types, $armor_type_tmp;
-		print "armor-tyype: $armor_type_tmp\n";
+		print "armor-type: $armor_type_tmp\n";
 	}
 
 	my $attack_types_xml = $xpath->find("/tech-tree/attack-types/attack-type");
@@ -2372,4 +2596,36 @@ sub do_air_ground {
 
 sub show_special_pages {
 	return "<H4>$special_pages</H4>";
+}
+
+sub do_upgrade_benefits {
+
+	# show the benefit of an upgrade 
+	my ( $u ) = @_;
+
+	my $upgrade_benefits="";
+	my $upgrade_benefits_html="";
+
+	$upgrade_benefits_html .= "<TR><TD>Increase Hitpoints:&nbsp;</TD><TD>+".$max_hp{$u}."</TD></TR>\n" if ( $max_hp{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Energy-Points:&nbsp;</TD><TD>+".$max_ep{$u}."</TD></TR>\n" if ( $max_ep{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Sight:&nbsp;</TD><TD>+".$sight{$u}."</TD></TR>\n" if ( $sight{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Attack&nbsp;Strength:&nbsp;</TD><TD>+".$attack_strenght{$u}."</TD></TR>\n" if ( $attack_strenght{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Attack&nbsp;Range:&nbsp;</TD><TD>+".$attack_range{$u}."</TD></TR>\n" if ( $attack_range{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Armor:&nbsp;</TD><TD>+".$armor{$u}."</TD></TR>\n" if ( $armor{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Move:&nbsp;</TD><TD>+".$move_speed{$u}."</TD></TR>\n" if ( $move_speed{$u} );
+	$upgrade_benefits_html .= "<TR><TD>Increase Production&nbsp;Speed:&nbsp;</TD><TD>+".$production_speed{$u}."</TD></TR>\n" if ( $production_speed{$u} );
+
+	$upgrade_benefits = $upgrade_benefits_html;
+	# for overview remove HTML-tags
+	$upgrade_benefits =~ s/<\/?TD>//gi;
+	$upgrade_benefits =~ s/<TR>//gi;
+	$upgrade_benefits =~ s/<\/TR>/, /gi;
+	$upgrade_benefits =~ s/Increase //gi;
+
+	# remove last coma
+	$upgrade_benefits =~ s/, $//g;
+	# remove trailing whitespace
+	$upgrade_benefits =~ s/\s+$//g;
+
+	return ( $upgrade_benefits, $upgrade_benefits_html );
 }

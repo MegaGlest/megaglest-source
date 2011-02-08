@@ -254,3 +254,47 @@ h2#download {
     background: url("footer/footer_right.jpg") no-repeat;
 
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables sorting
+ */
+
+.sorting_asc {
+        background-image: url('../images/datatables/sort_asc.png');
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+
+.sorting_desc {
+        background-image: url('../images/datatables/sort_desc.png');
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+
+.sorting {
+        background-image: url('../images/datatables/sort_both.png');
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+
+.sorting_asc_disabled {
+        background-image: url('../images/datatables/sort_asc_disabled.png')  ;
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+
+.sorting_desc_disabled {
+        background-image: url('../images/datatables/sort_desc_disabled.png')  ;
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+
+tr.odd {
+	background-color: #7E2217;
+}
+
+tr.even {
+	background-color: #7F462C;
+}
+
