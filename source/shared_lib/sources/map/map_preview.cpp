@@ -75,8 +75,8 @@ bool MapPreview::isCliff(int x, int y){
 				return true;
 			}
 		}
-		return false;
 	}
+	return false;
 }
 
 MapSurfaceType MapPreview::getSurface(int x, int y) const {
