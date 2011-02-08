@@ -300,10 +300,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_map_editor\map.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\source\glest_map_editor\program.cpp"
 				>
 			</File>
