@@ -27,6 +27,7 @@
 #include "faction.h"
 #include "command.h"
 #include "leak_dumper.h"
+#include "map_preview.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -157,19 +158,6 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 
 Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
     Checksum mapChecksum;
-
-	struct MapFileHeader{
-		int32 version;
-		int32 maxPlayers;
-		int32 width;
-		int32 height;
-		int32 altFactor;
-		int32 waterLevel;
-		int8 title[128];
-		int8 author[128];
-		int8 description[256];
-	};
-
 	try{
 		FILE *f = fopen(path.c_str(), "rb");
 		if(f != NULL) {
@@ -187,15 +175,27 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				throw runtime_error("Map height is not a power of 2");
 			}
 
-			heightFactor= header.altFactor;
+			heightFactor= header.heightFactor;
 			waterLevel= static_cast<float>((header.waterLevel-0.01f)/heightFactor);
 			title= header.title;
-			maxPlayers= header.maxPlayers;
+			maxPlayers= header.maxFactions;
 			surfaceW= header.width;
 			surfaceH= header.height;
 			w= surfaceW*cellScale;
 			h= surfaceH*cellScale;
-
+			cliffLevel = 0;
+			if(header.version==1){
+				//desc = header.description;
+			}
+			else if(header.version==2){
+				//desc = header.extension_data.extension_data.version2.short_desc;
+				if(header.extension_data.version2.cliffLevel>0){
+					cliffLevel=static_cast<float>((header.extension_data.version2.cliffLevel)/heightFactor);
+				}
+				else {
+					cliffLevel=0;
+				}
+			}
 
 			//start locations
 			startLocations= new Vec2i[maxPlayers];
@@ -1092,24 +1092,20 @@ void Map::computeInterpolatedHeights(){
 	}
 }
 
-
 void Map::smoothSurface(Tileset *tileset) {
-
-	float minCliffHeightDifference=0.0f;
 	float *oldHeights = new float[getSurfaceCellArraySize()];
 
 	for (int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		oldHeights[i] = surfaceCells[i].getHeight();
 	}
-
+	printf("argh %f\n",cliffLevel);
 	for (int i = 1; i < surfaceW - 1; ++i) {
 		for (int j = 1; j < surfaceH - 1; ++j) {
-
 			float height = 0.f;
 			float numUsedToSmooth = 0.f;
 			for (int k = -1; k <= 1; ++k) {
 				for (int l = -1; l <= 1; ++l) {
-					if (minCliffHeightDifference<=0.1f || minCliffHeightDifference > abs(oldHeights[(j) * surfaceW + (i)]
+					if (cliffLevel<=0.1f || cliffLevel > abs(oldHeights[(j) * surfaceW + (i)]
 							- oldHeights[(j + k) * surfaceW + (i + l)])) {
 						height += oldHeights[(j + k) * surfaceW + (i + l)];
 						numUsedToSmooth++;

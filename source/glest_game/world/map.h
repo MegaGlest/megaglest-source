@@ -156,6 +156,7 @@ private:
 	string title;
 	float waterLevel;
 	float heightFactor;
+	float cliffLevel;
 	int w;
 	int h;
 	int surfaceW;
@@ -192,6 +193,7 @@ public:
 	int getMaxPlayers() const									{return maxPlayers;}
 	float getHeightFactor() const								{return heightFactor;}
 	float getWaterLevel() const									{return waterLevel;}
+	float getCliffLevel() const									{return cliffLevel;}
 	Vec2i getStartLocation(int locationIndex) const;
 	bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}

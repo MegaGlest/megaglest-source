@@ -29,6 +29,7 @@
 #include <time.h>
 #include "cache_manager.h"
 #include "leak_dumper.h"
+#include "map_preview.h"
 
 
 namespace Glest{ namespace Game{
@@ -1674,16 +1675,6 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 
 bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 
-	struct MapFileHeader{
-		int32 version;
-		int32 maxPlayers;
-		int32 width;
-		int32 height;
-		int32 altFactor;
-		int32 waterLevel;
-		int8 title[128];
-	};
-
 	Lang &lang= Lang::getInstance();
 
 	bool mapLoaded = false;
@@ -1707,7 +1698,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 			mapInfo->size.x= header.width;
 			mapInfo->size.y= header.height;
-			mapInfo->players= header.maxPlayers;
+			mapInfo->players= header.maxFactions;
 
 			mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
 			mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
