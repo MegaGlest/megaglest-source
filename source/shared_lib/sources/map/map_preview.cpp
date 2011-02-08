@@ -669,11 +669,11 @@ void MapPreview::loadFromFile(const string &path) {
 		author = header.author;
 		cliffLevel = 0;
 		if(header.version==1){
-			desc = header.extension_data.description;
+			desc = header.description;
 		}
 		else if(header.version==2){
-			desc = header.extension_data.version2.short_desc;
-			cliffLevel=header.extension_data.version2.cliffLevel;
+			desc = header.version2.short_desc;
+			cliffLevel=header.version2.cliffLevel;
 		}
 
 		//read start locations
@@ -738,9 +738,9 @@ void MapPreview::saveToFile(const string &path) {
 		header.waterLevel = waterLevel;
 		strncpy(header.title, title.c_str(), MAX_TITLE_LENGTH);
 		strncpy(header.author, author.c_str(), MAX_AUTHOR_LENGTH);
-		strncpy(header.extension_data.version2.short_desc, desc.c_str(), MAX_DESCRIPTION_LENGTH_VERSION2);
-		header.extension_data.version2.magic= 0x01020304;
-		header.extension_data.version2.cliffLevel= cliffLevel;
+		strncpy(header.version2.short_desc, desc.c_str(), MAX_DESCRIPTION_LENGTH_VERSION2);
+		header.version2.magic= 0x01020304;
+		header.version2.cliffLevel= cliffLevel;
 
 
 		fwrite(&header, sizeof(MapFileHeader), 1, f1);
