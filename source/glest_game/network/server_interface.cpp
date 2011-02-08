@@ -351,11 +351,11 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 			if(connectionSlot->isConnected() == false || socketTriggered == true) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-				safeMutexSlot.ReleaseLock(true);
+				//safeMutexSlot.ReleaseLock(true);
 				connectionSlot->update(checkForNewClients,event->triggerId);
 
 				//chrono.start();
-				safeMutexSlot.Lock();
+				//safeMutexSlot.Lock();
 				connectionSlot = slots[event->triggerId];
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());

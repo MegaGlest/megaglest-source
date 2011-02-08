@@ -1206,22 +1206,40 @@ int Socket::receive(void *data, int dataSize) {
 	return static_cast<int>(bytesReceived);
 }
 
-int Socket::peek(void *data, int dataSize) {
+int Socket::peek(void *data, int dataSize,bool mustGetData) {
+	//Chrono chrono;
+	//chrono.start();
+
     const int MAX_PEEK_WAIT_SECONDS = 3;
 
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
+
+	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
+	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 	if(err < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR PEEKING SOCKET DATA error while sending socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 		//throwException(szBuf);
 
+	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 		disconnectSocket();
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
-	else if(err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) {
+	else if(err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN && mustGetData == true) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 ERROR EAGAIN during peek, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
@@ -1241,15 +1259,26 @@ int Socket::peek(void *data, int dataSize) {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,err);
 	        }
 	    }
+
+	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
+
+	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	if(err <= 0) {
-	    int iErr = getLastSocketError();
-	    disconnectSocket();
+		if(mustGetData == true || getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
+			int iErr = getLastSocketError();
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
-	    //throwException(szBuf);
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+			disconnectSocket();
+
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
+			//throwException(szBuf);
+		}
 	}
+
+	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	return static_cast<int>(err);
 }
@@ -1369,12 +1398,11 @@ bool Socket::isConnected() {
 	if(isWritable(false) == false) {
 		return false;
 	}
-
 	//if the socket is readable it is connected if we can read a byte from it
 	if(isReadable()) {
 		char tmp;
-		int err = peek(&tmp, 1);
-		if(err <= 0) {
+		int err = peek(&tmp, 1, false);
+		if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
 			return false;
 		}
 	}

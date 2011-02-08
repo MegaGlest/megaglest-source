@@ -18,6 +18,7 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
+#include "opengl.h"
 
 #ifdef WIN32
 
@@ -381,6 +382,13 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
+
+	// setup LOD bias factor
+	//const float lodBias = std::max(std::min( configHandler->Get("TextureLODBias", 0.0f) , 4.0f), -4.0f);
+	const float lodBias = std::max(std::min( 0.0f , 4.0f), -4.0f);
+	if (fabs(lodBias)>0.01f) {
+		glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS, lodBias );
+	}
 }
 
 #ifdef WIN32
