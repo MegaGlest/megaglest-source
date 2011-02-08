@@ -4391,16 +4391,19 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 								 int screenPosX, int screenPosY,
 								 Texture2D **renderToTexture) {
-	float alt=0;
-	float showWater=0;
-	int renderMapHeight=64;
-	int renderMapWidth=64;
-	float cellSize=2;
-	float playerCrossSize=2;
-	float clientW=renderMapWidth*cellSize;
-	float clientH=renderMapHeight*cellSize;;
 
+	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
+	//static bool supportFBOs = false;
 	const Metrics &metrics= Metrics::getInstance();
+
+	float alt				= 0;
+	float showWater			= 0;
+	int renderMapHeight		= 64;
+	int renderMapWidth		= 64;
+	float cellSize			= 2;
+	float playerCrossSize	= 2;
+	float clientW			= renderMapWidth * cellSize;
+	float clientH			= renderMapHeight * cellSize;;
 
 	// stretch small maps to 128x128
 	if(map->getW() < map->getH()) {
@@ -4412,30 +4415,18 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	assertGl();
 
-/*
-	if(renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL) {
 		Config &config= Config::getInstance();
 		Texture2D::Filter textureFilter = strToTextureFilter(config.getString("Filter"));
 		int maxAnisotropy				= config.getInt("FilterMaxAnisotropy");
 
 		*renderToTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
-		//texture->setFormat(Texture::fAlpha);
 		texture->setMipmap(false);
 		Pixmap2D *pixmapScreenShot = texture->getPixmap();
-		pixmapScreenShot->init(metrics.getVirtualW(), metrics.getVirtualH(), 3);
-		//pixmapScreenShot->init(map->getW(),map->getH(),3);
-		//pixmapScreenShot->init(200, 360, 3);
+		pixmapScreenShot->init(metrics.getVirtualW(), metrics.getVirtualH(), 4);
 		texture->setForceCompressionDisabled(true);
 		texture->init(textureFilter,maxAnisotropy);
-
-
-		//texture->initFrameBuffer();
-		//texture->attachFrameBufferToTexture();
-
-		//texture->initRenderBuffer();
-		//texture->attachRenderBuffer();
-
 		texture->setup_FBO_RBO();
 
 		if(texture->checkFrameBufferStatus() == false) {
@@ -4445,212 +4436,253 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 			*renderToTexture=NULL;
 		}
 	}
-*/
+
+	if(supportFBOs == true && renderToTexture != NULL) {
+		cellSize  =1;
+		clientW = metrics.getVirtualW();
+		clientH = metrics.getVirtualH();
+		int mapMaxDimensionSize = std::max(map->getW(),map->getH());
+		switch(mapMaxDimensionSize) {
+			case 8:
+				cellSize = 96;
+				break;
+			case 16:
+				cellSize = 48;
+				break;
+			case 32:
+				cellSize = 24;
+				break;
+			case 64:
+				cellSize = 12;
+				break;
+			case 128:
+				cellSize = 6;
+				break;
+			case 256:
+				cellSize = 3;
+				break;
+			case 512:
+				cellSize = 2;
+				break;
+		}
+	}
 
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
-	//glDisable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-
 	glLoadIdentity();
-	//glViewport(screenPosX, screenPosY, metrics.getVirtualW(),metrics.getVirtualH());
-	//	glOrtho(0, clientW, 0, clientH, -1, 1);
 
-	//glOrtho(screenPosX, screenPosX+clientW, screenPosY+clientH, screenPosY, 0, 1);
-	glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
-	//gluOrtho2D (0, metrics.getVirtualW(), 0, metrics.getVirtualH());
+	GLint viewport[4];	// Where The original Viewport Values Will Be Stored
 
-	//glEnable( GL_SCISSOR_TEST );
-	//glScissor(screenPosX, screenPosY,metrics.getVirtualW(), metrics.getVirtualH());
+	if(supportFBOs == true && renderToTexture != NULL) {
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		glOrtho(0, clientW, 0, clientH, 0, 1);
+		glViewport(0, 0, clientW, clientH);
+	}
+	else {
+		glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 
 	glPushMatrix();
 	glLoadIdentity();
 
-	glTranslatef(static_cast<float>(screenPosX),static_cast<float>(screenPosY)-clientH,0.0f);
-
-	//glEnable( GL_SCISSOR_TEST );
-	//glScissor(screenPosX, screenPosY,screenPosX-clientW, screenPosY-clientH);
-
-	//int newX = screenPosX - (metrics.getVirtualW() / 2);
-	//int newY = screenPosY - (metrics.getVirtualH() / 2);
-	//int newX = 0;
-	//int newY = 0;
-	//glTranslatef(static_cast<float>(newX),static_cast<float>(newY),0.0f);
+	if(supportFBOs == false || renderToTexture == NULL) {
+		glTranslatef(static_cast<float>(screenPosX),static_cast<float>(screenPosY)-clientH,0.0f);
+	}
 
 	glPushAttrib(GL_CURRENT_BIT);
-	//glTranslatef(static_cast<float>(x), static_cast<float>(y), 0.0f);
 	glLineWidth(1);
-	//glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(0, 0, 0);
 
 	for (int j = 0; j < map->getH(); j++) {
 		for (int i = 0; i < map->getW(); i++) {
-		//surface
-		alt = map->getHeight(i, j) / 20.f;
-		showWater = map->getWaterLevel()/ 20.f - alt;
-		showWater = (showWater > 0)? showWater:0;
-		Vec3f surfColor;
-		switch (map->getSurface(i, j)) {
-			case st_Grass:
-				surfColor = Vec3f(0.0, 0.8f * alt, 0.f + showWater);
-				break;
-			case st_Secondary_Grass:
-				surfColor = Vec3f(0.4f * alt, 0.6f * alt, 0.f + showWater);
-				break;
-			case st_Road:
-				surfColor = Vec3f(0.6f * alt, 0.3f * alt, 0.f + showWater);
-				break;
-			case st_Stone:
-				surfColor = Vec3f(0.7f * alt, 0.7f * alt, 0.7f * alt + showWater);
-				break;
-			case st_Ground:
-				surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater);
-				break;
-		}
-
-		glColor3fv(surfColor.ptr());
-
-		glBegin(GL_TRIANGLE_STRIP);
-		glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
-		glVertex2f(i * cellSize, clientH - j * cellSize);
-		glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
-		glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
-		glEnd();
-
-		//objects
-		if(renderAll == true) {
-			switch (map->getObject(i, j)) {
-				case 0:
-					glColor3f(0.f, 0.f, 0.f);
+			//surface
+			alt = map->getHeight(i, j) / 20.f;
+			showWater = map->getWaterLevel()/ 20.f - alt;
+			showWater = (showWater > 0)? showWater:0;
+			Vec3f surfColor;
+			switch (map->getSurface(i, j)) {
+				case st_Grass:
+					surfColor = Vec3f(0.0, 0.8f * alt, 0.f + showWater);
 					break;
-				case 1:
-					glColor3f(1.f, 0.f, 0.f);
+				case st_Secondary_Grass:
+					surfColor = Vec3f(0.4f * alt, 0.6f * alt, 0.f + showWater);
 					break;
-				case 2:
-					glColor3f(1.f, 1.f, 1.f);
+				case st_Road:
+					surfColor = Vec3f(0.6f * alt, 0.3f * alt, 0.f + showWater);
 					break;
-				case 3:
-					glColor3f(0.5f, 0.5f, 1.f);
+				case st_Stone:
+					surfColor = Vec3f(0.7f * alt, 0.7f * alt, 0.7f * alt + showWater);
 					break;
-				case 4:
-					glColor3f(0.f, 0.f, 1.f);
+				case st_Ground:
+					surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater);
 					break;
-				case 5:
-					glColor3f(0.5f, 0.5f, 0.5f);
-					break;
-				case 6:
-					glColor3f(1.f, 0.8f, 0.5f);
-					break;
-				case 7:
-					glColor3f(0.f, 1.f, 1.f);
-					break;
-				case 8:
-					glColor3f(0.7f, 0.1f, 0.3f);
-					break;
-				case 9:
-					glColor3f(0.5f, 1.f, 0.1f);
-					break;
-				case 10:
-					glColor3f(1.f, 0.2f, 0.8f);
-					break;// we don't render unvisible blocking objects
 			}
 
-			if ( renderAll && (map->getObject(i, j) != 0) && (map->getObject(i, j) != 10) ) {
-				glPointSize(cellSize / 2.f);
-				glBegin(GL_POINTS);
-				glVertex2f(i * cellSize + cellSize / 2.f, clientH - j * cellSize - cellSize / 2.f);
-				glEnd();
-			}
-		}
+			glColor3fv(surfColor.ptr());
 
-//		bool found = false;
+			glBegin(GL_TRIANGLE_STRIP);
+			glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
+			glVertex2f(i * cellSize, clientH - j * cellSize);
+			glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+			glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
+			glEnd();
 
-		//height lines
-//		if (!found) {
-
-			//left
-			if (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j)) {
-				glColor3fv((surfColor*0.5f).ptr());
-				glBegin(GL_LINES);
-				glVertex2f(i * cellSize, clientH - (j + 1) * cellSize);
-				glVertex2f(i * cellSize, clientH - j * cellSize);
-				glEnd();
-			}
-			//down
-			if (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j)) {
-				glColor3fv((surfColor*0.5f).ptr());
-				glBegin(GL_LINES);
-				glVertex2f(i * cellSize, clientH - j * cellSize);
-				glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
-				glEnd();
-			}
-
-
-			//left
-			if (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j)) {
-				glColor3fv((surfColor*2.f).ptr());
-				glBegin(GL_LINES);
-				glVertex2f(i * cellSize, clientH - (j + 1)  * cellSize);
-				glVertex2f(i * cellSize, clientH - j * cellSize);
-				glEnd();
-			}
-			if (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j)) {
-				glColor3fv((surfColor*2.f).ptr());
-				glBegin(GL_LINES);
-				glVertex2f(i * cellSize, clientH - j * cellSize);
-				glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
-				glEnd();
-			}
-//				}
-
-			//resources
+			//objects
 			if(renderAll == true) {
-				switch (map->getResource(i, j)) {
-					case 1: glColor3f(1.f, 1.f, 0.f); break;
-					case 2: glColor3f(0.5f, 0.5f, 0.5f); break;
-					case 3: glColor3f(1.f, 0.f, 0.f); break;
-					case 4: glColor3f(0.f, 0.f, 1.f); break;
-					case 5: glColor3f(0.5f, 0.5f, 1.f); break;
+				switch (map->getObject(i, j)) {
+					case 0:
+						glColor3f(0.f, 0.f, 0.f);
+						break;
+					case 1:
+						glColor3f(1.f, 0.f, 0.f);
+						break;
+					case 2:
+						glColor3f(1.f, 1.f, 1.f);
+						break;
+					case 3:
+						glColor3f(0.5f, 0.5f, 1.f);
+						break;
+					case 4:
+						glColor3f(0.f, 0.f, 1.f);
+						break;
+					case 5:
+						glColor3f(0.5f, 0.5f, 0.5f);
+						break;
+					case 6:
+						glColor3f(1.f, 0.8f, 0.5f);
+						break;
+					case 7:
+						glColor3f(0.f, 1.f, 1.f);
+						break;
+					case 8:
+						glColor3f(0.7f, 0.1f, 0.3f);
+						break;
+					case 9:
+						glColor3f(0.5f, 1.f, 0.1f);
+						break;
+					case 10:
+						glColor3f(1.f, 0.2f, 0.8f);
+						break;// we don't render unvisible blocking objects
 				}
 
-				if (renderAll && map->getResource(i, j) != 0) {
-					glBegin(GL_LINES);
-					glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
-					glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
-					glVertex2f(i * cellSize, clientH - j * cellSize);
-					glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+				if ( renderAll && (map->getObject(i, j) != 0) && (map->getObject(i, j) != 10) ) {
+					glPointSize(cellSize / 2.f);
+					glBegin(GL_POINTS);
+					glVertex2f(i * cellSize + cellSize / 2.f, clientH - j * cellSize - cellSize / 2.f);
 					glEnd();
 				}
 			}
-		}
 
+	//		bool found = false;
+
+			//height lines
+	//		if (!found) {
+
+				//left
+				if (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j)) {
+					glColor3fv((surfColor*0.5f).ptr());
+					glBegin(GL_LINES);
+					glVertex2f(i * cellSize, clientH - (j + 1) * cellSize);
+					glVertex2f(i * cellSize, clientH - j * cellSize);
+					glEnd();
+				}
+				//down
+				if (j > 0 && map->getHeight(i, j - 1) > map->getHeight(i, j)) {
+					glColor3fv((surfColor*0.5f).ptr());
+					glBegin(GL_LINES);
+					glVertex2f(i * cellSize, clientH - j * cellSize);
+					glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
+					glEnd();
+				}
+
+
+				//left
+				if (i > 0 && map->getHeight(i - 1, j) < map->getHeight(i, j)) {
+					glColor3fv((surfColor*2.f).ptr());
+					glBegin(GL_LINES);
+					glVertex2f(i * cellSize, clientH - (j + 1)  * cellSize);
+					glVertex2f(i * cellSize, clientH - j * cellSize);
+					glEnd();
+				}
+				if (j > 0 && map->getHeight(i, j - 1) < map->getHeight(i, j)) {
+					glColor3fv((surfColor*2.f).ptr());
+					glBegin(GL_LINES);
+					glVertex2f(i * cellSize, clientH - j * cellSize);
+					glVertex2f((i + 1) * cellSize, clientH - j * cellSize);
+					glEnd();
+				}
+	//				}
+
+				//resources
+				if(renderAll == true) {
+					switch (map->getResource(i, j)) {
+						case 1: glColor3f(1.f, 1.f, 0.f); break;
+						case 2: glColor3f(0.5f, 0.5f, 0.5f); break;
+						case 3: glColor3f(1.f, 0.f, 0.f); break;
+						case 4: glColor3f(0.f, 0.f, 1.f); break;
+						case 5: glColor3f(0.5f, 0.5f, 1.f); break;
+					}
+
+					if (renderAll && map->getResource(i, j) != 0) {
+						glBegin(GL_LINES);
+						glVertex2f(i * cellSize, clientH - j * cellSize - cellSize);
+						glVertex2f(i * cellSize + cellSize, clientH - j * cellSize);
+						glVertex2f(i * cellSize, clientH - j * cellSize);
+						glVertex2f(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
+						glEnd();
+					}
+				}
+		}
 	}
 
 	//start locations
 	glLineWidth(3);
 
-	// force playerCrossSize to be at least of size 4
-	if(cellSize < 4) {
-		playerCrossSize = 4;
+	if(supportFBOs == true && renderToTexture != NULL) {
+		glLineWidth(14);
+		playerCrossSize = 24;
 	}
 	else {
-		playerCrossSize = cellSize;
+		// force playerCrossSize to be at least of size 4
+		if(cellSize < 4) {
+			playerCrossSize = 4;
+		}
+		else {
+			playerCrossSize = cellSize;
+		}
 	}
 
 	for (int i = 0; i < map->getMaxFactions(); i++) {
 		switch (i) {
-			case 0: glColor3f(1.f, 0.f, 0.f); break;
-			case 1: glColor3f(0.f, 0.f, 1.f); break;
-			case 2: glColor3f(0.f, 1.f, 0.f); break;
-			case 3: glColor3f(1.f, 1.f, 0.f); break;
-			case 4: glColor3f(1.f, 1.f, 1.f); break;
-			case 5: glColor3f(0.f, 1.f, 0.8f); break;
-			case 6: glColor3f(1.f, 0.5f, 0.f); break;
-			case 7: glColor3f(1.f, 0.5f, 1.f); break;
+			case 0:
+				glColor3f(1.f, 0.f, 0.f);
+				break;
+			case 1:
+				glColor3f(0.f, 0.f, 1.f);
+				break;
+			case 2:
+				glColor3f(0.f, 1.f, 0.f);
+				break;
+			case 3:
+				glColor3f(1.f, 1.f, 0.f);
+				break;
+			case 4:
+				glColor3f(1.f, 1.f, 1.f);
+				break;
+			case 5:
+				glColor3f(0.f, 1.f, 0.8f);
+				break;
+			case 6:
+				glColor3f(1.f, 0.5f, 0.f);
+				break;
+			case 7:
+				glColor3f(1.f, 0.5f, 1.f);
+				break;
    		}
 		glBegin(GL_LINES);
 		glVertex2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
@@ -4665,29 +4697,15 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
-	//glDisable( GL_SCISSOR_TEST );
-	//glViewport(0, 0, 0, 0);
-
-	if(renderToTexture != NULL) {
-
-		// *renderToTexture = saveScreenToTexture(screenPosX, screenPosY, metrics.getVirtualW(), metrics.getVirtualH());
-		// *renderToTexture = saveScreenToTexture(0, 0, metrics.getVirtualW(), metrics.getVirtualH());
-/*
+	if(supportFBOs == true && renderToTexture != NULL) {
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
 		if(texture != NULL) {
-			// *renderToTexture = saveScreenToTexture(screenPosX, screenPosY, clientW, clientH);
 			texture->dettachFrameBufferFromTexture();
-
-			// Signal the threads queue to add a screenshot save request
-			// MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor);
-			// saveScreenQueue.push_back(make_pair("bob.png",texture->getPixmap()));
-			// *renderToTexture=NULL;
-			// safeMutex.ReleaseLock();
-
-			// texture->teardown_FBO_RBO();
 		}
-*/
+
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
+
 	assertGl();
 }
 

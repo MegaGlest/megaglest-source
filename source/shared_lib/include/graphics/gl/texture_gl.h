@@ -28,6 +28,10 @@ protected:
 	GLuint renderBufferId;
 	GLuint frameBufferId;
 
+	void initRenderBuffer();
+	void initFrameBuffer();
+	void attachRenderBuffer();
+
 public:
 	TextureGl();
 	virtual ~TextureGl();
@@ -36,14 +40,11 @@ public:
 	GLuint getRenderBufferHandle() const	{return renderBufferId;}
 	GLuint getFrameBufferHandle() const		{return frameBufferId;}
 
-	void initRenderBuffer();
-	void initFrameBuffer();
-	void attachRenderBuffer();
-	void attachFrameBufferToTexture();
-	bool checkFrameBufferStatus();
-	void dettachFrameBufferFromTexture();
-
+	bool supports_FBO_RBO();
 	void setup_FBO_RBO();
+	void attachFrameBufferToTexture();
+	void dettachFrameBufferFromTexture();
+	bool checkFrameBufferStatus();
 	void teardown_FBO_RBO();
 
 	virtual int getTextureWidth() const  = 0;
