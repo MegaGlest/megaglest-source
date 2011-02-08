@@ -1815,6 +1815,13 @@ void Renderer::renderSurface(const int renderFps) {
 		if(useVertexArrayRendering == false) {
 		    //printf("\LEGACY qCache.visibleScaledCellList.size() = %d \n",qCache.visibleScaledCellList.size());
 
+			Vec2f texCoords[4];
+			Vec2f texCoordsSurface[4];
+			Vec3f vertices[4];
+			Vec3f normals[4];
+		    glEnableClientState(GL_VERTEX_ARRAY);
+		    glEnableClientState(GL_NORMAL_ARRAY);
+
 			for(int visibleIndex = 0;
 					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
@@ -1847,11 +1854,52 @@ void Renderer::renderSurface(const int renderFps) {
 				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
 				if(currTex != lastTex) {
 					lastTex = currTex;
-					glBindTexture(GL_TEXTURE_2D, lastTex);
+					//glBindTexture(GL_TEXTURE_2D, lastTex);
 				}
 
 				const Vec2f &surfCoord= tc00->getSurfTexCoord();
 
+				texCoords[0]		= tc01->getFowTexCoord();
+				texCoordsSurface[0]	= Vec2f(surfCoord.x, surfCoord.y + coordStep);
+				vertices[0]			= tc01->getVertex();
+				normals[0]			= tc01->getNormal();;
+
+				texCoords[1]		= tc00->getFowTexCoord();
+				texCoordsSurface[1]	= Vec2f(surfCoord.x, surfCoord.y);
+				vertices[1]			= tc00->getVertex();
+				normals[1]			= tc00->getNormal();
+
+				texCoords[2]		= tc11->getFowTexCoord();
+				texCoordsSurface[2]	= Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep);
+				vertices[2]			= tc11->getVertex();
+				normals[2]			= tc11->getNormal();
+
+				texCoords[3]		= tc10->getFowTexCoord();
+				texCoordsSurface[3]	= Vec2f(surfCoord.x+coordStep, surfCoord.y);
+				vertices[3]			= tc10->getVertex();
+				normals[3]			= tc10->getNormal();
+
+				//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+				glClientActiveTexture(fowTexUnit);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0,&texCoords[0]);
+
+				glBindTexture(GL_TEXTURE_2D, lastTex);
+				glClientActiveTexture(baseTexUnit);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0, &texCoordsSurface[0]);
+
+				glVertexPointer(3, GL_FLOAT, 0, &vertices[0]);
+				glNormalPointer(GL_FLOAT, 0, &normals[0]);
+
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+				glClientActiveTexture(fowTexUnit);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glClientActiveTexture(baseTexUnit);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+/*
 				glBegin(GL_TRIANGLE_STRIP);
 
 				//draw quad using immediate mode
@@ -1876,7 +1924,12 @@ void Renderer::renderSurface(const int renderFps) {
 				glVertex3fv(tc10->getVertex().ptr());
 
 				glEnd();
+*/
 			}
+
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+
 		}
 		else {
 		    int lastSurfaceDataIndex = -1;
