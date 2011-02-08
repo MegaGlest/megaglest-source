@@ -143,6 +143,7 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 	}
 	else{
 		glEnable(GL_CULL_FACE);
+		glPolygonOffset(0.05, 0);
 	}
 
 	//set color
