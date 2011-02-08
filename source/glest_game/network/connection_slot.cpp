@@ -278,12 +278,16 @@ ConnectionSlot::~ConnectionSlot() {
 }
 
 void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
+	//Chrono chrono;
+	//chrono.start();
 	try {
 		clearThreadErrorList();
 
 	    if(slotThreadWorker != NULL) {
 	        slotThreadWorker->purgeCompletedEvents();
 	    }
+
+	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 		if(socket == NULL) {
 			if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
@@ -293,10 +297,22 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 			// Is the listener socket ready to be read?
 			if(checkForNewClients == true) {
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
-				if(serverInterface->getServerSocket() != NULL &&
-					serverInterface->getServerSocket()->hasDataToRead() == true) {
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				bool hasData = (serverInterface->getServerSocket() != NULL && serverInterface->getServerSocket()->hasDataToRead() == true);
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				if(hasData == true) {
+
+					//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					Socket *newSocket = serverInterface->getServerSocket()->accept();
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
@@ -304,6 +320,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						// Set Socket as non-blocking
 						newSocket->setBlock(false);
 						socket = newSocket;
+
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 						this->connectedTime = time(NULL);
 						this->clearChatInfo();
@@ -313,9 +331,13 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						this->receivedNetworkGameStatus = false;
 						this->gotIntro = false;
 
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
 						this->vctPendingNetworkCommandList.clear();
 						safeMutexSlot.ReleaseLock();
+
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 						this->currentFrameCount = 0;
 						this->currentLagCount = 0;
@@ -329,10 +351,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
                         //    this->slotThreadWorker->start();
                         //}
 
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 						serverInterface->updateListen();
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 					}
+
+					//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 				}
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				//send intro message when connected
 				if(socket != NULL) {
@@ -348,6 +377,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							sendMessage(&networkMessageIntro);
 						}
 
+						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 						close();
 					}
 					else {
@@ -356,15 +387,23 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(socket != NULL) {
 							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort());
 							sendMessage(&networkMessageIntro);
+
+							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 						}
 					}
 				}
 			}
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		}
 		else {
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(socket != NULL && socket->isConnected()) {
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
@@ -724,12 +763,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					}
 				}
 
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				validateConnection();
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 			}
 			else {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] calling close...\n",__FILE__,__FUNCTION__,__LINE__);
 
 				close();
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -740,7 +785,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 
 		threadErrorList.push_back(ex.what());
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
+
+	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 }
 
 void ConnectionSlot::validateConnection() {
