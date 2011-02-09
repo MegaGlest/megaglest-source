@@ -126,7 +126,7 @@ const float Renderer::magicCircleRadius= 1.f;
 
 //perspective values
 const float Renderer::perspFov= 60.f;
-const float Renderer::perspNearPlane= 1.f;
+const float Renderer::perspNearPlane= 2.f;
 //const float Renderer::perspFarPlane= 50.f;
 const float Renderer::perspFarPlane= 1000.f;
 
@@ -664,7 +664,7 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
     color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
 
     glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
-        glEnable(GL_BLEND);
+    glEnable(GL_BLEND);
 
 		//inside
 		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
@@ -2605,10 +2605,20 @@ void Renderer::renderWaterEffects(){
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_COLOR_MATERIAL);
 
-	glNormal3f(0.f, 1.f, 0.f);
+	//glNormal3f(0.f, 1.f, 0.f);
 
 	//splashes
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(coreData.getWaterSplashTexture())->getHandle());
+
+	//!!!
+	Vec2f texCoords[4];
+	Vec3f vertices[4];
+	Vec3f normals[4];
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	for(int i=0; i<we->getWaterSplashCount(); ++i){
 		const WaterSplash *ws= we->getWaterSplash(i);
 
@@ -2625,10 +2635,31 @@ void Renderer::renderWaterEffects(){
 			}
 
 			if(visible == true) {
-
 				float scale= ws->getAnim()*ws->getSize();
+				texCoords[0]		= Vec2f(0.f, 1.f);
+				vertices[0]			= Vec3f(ws->getPos().x-scale, height, ws->getPos().y+scale);
+				normals[0]			= Vec3f(0.f, 1.f, 0.f);
 
-				glColor4f(1.f, 1.f, 1.f, 1.f-ws->getAnim());
+				texCoords[1]		= Vec2f(0.f, 0.f);
+				vertices[1]			= Vec3f(ws->getPos().x-scale, height, ws->getPos().y-scale);
+				normals[1]			= Vec3f(0.f, 1.f, 0.f);
+
+				texCoords[2]		= Vec2f(1.f, 1.f);
+				vertices[2]			= Vec3f(ws->getPos().x+scale, height, ws->getPos().y+scale);
+				normals[2]			= Vec3f(0.f, 1.f, 0.f);
+
+				texCoords[3]		= Vec2f(1.f, 0.f);
+				vertices[3]			= Vec3f(ws->getPos().x+scale, height, ws->getPos().y-scale);
+				normals[3]			= Vec3f(0.f, 1.f, 0.f);
+
+				glColor4f(1.f, 1.f, 1.f, 1.f - ws->getAnim());
+				glTexCoordPointer(2, GL_FLOAT, 0,&texCoords[0]);
+				glVertexPointer(3, GL_FLOAT, 0, &vertices[0]);
+				glNormalPointer(GL_FLOAT, 0, &normals[0]);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+
+/*
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2f(0.f, 1.f);
 					glVertex3f(ws->getPos().x-scale, height, ws->getPos().y+scale);
@@ -2639,9 +2670,14 @@ void Renderer::renderWaterEffects(){
 					glTexCoord2f(1.f, 0.f);
 					glVertex3f(ws->getPos().x+scale, height, ws->getPos().y-scale);
 				glEnd();
+*/
 			}
 		}
 	}
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glPopAttrib();
 
@@ -2714,12 +2750,18 @@ void Renderer::renderMinimap(){
 	glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);
-	// draw attack alarm
-	for(int i=0; i<attackEffects->getWaterSplashCount(); ++i){
-		const WaterSplash *ws= attackEffects->getWaterSplash(i);
 
+	const int itemCount = attackEffects->getWaterSplashCount() * 12;
+	Vec2f vertices[itemCount];
+	Vec4f colors[itemCount];
+
+	// draw attack alarm
+    int vertexIndex = 0;
+    //int vertexIndex1 = 0;
+	for(int i = 0; i < attackEffects->getWaterSplashCount(); ++i) {
+		const WaterSplash *ws = attackEffects->getWaterSplash(i);
 		float scale= (1/ws->getAnim()*ws->getSize())*5;
-		glColor4f(1.f, 1.f, 0.f, 1.f-ws->getAnim());
+		//glColor4f(1.f, 1.f, 0.f, 1.f-ws->getAnim());
 		float alpha=(1.f-ws->getAnim())*0.01f;
 		Vec2f pos= ws->getPos()/Map::cellScale;
 		float attackX=mx +pos.x*zoom.x;
@@ -2731,6 +2773,45 @@ void Renderer::renderMinimap(){
 //				glVertex2f(attackX+scale, attackY+scale);
 //				glVertex2f(attackX+scale, attackY-scale);
 //			glEnd();
+
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+			vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+			vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+			vertices[vertexIndex] = Vec2f(attackX, attackY);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX, attackY);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+			vertices[vertexIndex] = Vec2f(attackX, attackY);
+			vertexIndex++;
+			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+			vertices[vertexIndex] = Vec2f(attackX, attackY);
+			vertexIndex++;
+
+/*
 			glBegin(GL_TRIANGLES);
 				glColor4f(1.f, 1.f, 0.f, alpha);
 				glVertex2f(attackX-scale, attackY-scale);
@@ -2759,24 +2840,58 @@ void Renderer::renderMinimap(){
 				glColor4f(1.f, 1.f, 0.f, 0.8f);
 				glVertex2f(attackX, attackY);
 			glEnd();
+*/
 
 		}
 	}
+
+	if(vertexIndex > 0) {
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glColorPointer(4,GL_FLOAT, 0, &colors[0]);
+		glVertexPointer(2, GL_FLOAT, 0, &vertices[0]);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexIndex);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+
     glDisable(GL_BLEND);
 
 	//draw units
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleUnitList.size() > 0) {
+		uint32 unitIdx=0;
+		Vec2f unit_vertices[qCache.visibleUnitList.size()*4];
+		Vec3f unit_colors[qCache.visibleUnitList.size()*4];
+
 		for(int visibleIndex = 0;
 				visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
 			Unit *unit = qCache.visibleUnitList[visibleIndex];
-			if (!unit->isAlive()) {
+			if (unit->isAlive() == false) {
 				continue;
 			}
 
 			Vec2i pos= unit->getPos() / Map::cellScale;
 			int size= unit->getType()->getSize();
 			Vec3f color=  unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+
+			unit_colors[unitIdx] = color;
+			unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
+			unitIdx++;
+
+			unit_colors[unitIdx] = color;
+			unit_vertices[unitIdx] = Vec2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
+			unitIdx++;
+
+			unit_colors[unitIdx] = color;
+			unit_vertices[unitIdx] = Vec2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
+			unitIdx++;
+
+			unit_colors[unitIdx] = color;
+			unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
+			unitIdx++;
+
+/*
 			glColor3fv(color.ptr());
 
 			glBegin(GL_QUADS);
@@ -2787,7 +2902,19 @@ void Renderer::renderMinimap(){
 			glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
 
 			glEnd();
+*/
 		}
+
+		if(unitIdx > 0) {
+			glEnableClientState(GL_COLOR_ARRAY);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glColorPointer(3,GL_FLOAT, 0, &unit_colors[0]);
+			glVertexPointer(2, GL_FLOAT, 0, &unit_vertices[0]);
+			glDrawArrays(GL_QUADS, 0, unitIdx);
+			glDisableClientState(GL_COLOR_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
+
 	}
 
     //draw camera

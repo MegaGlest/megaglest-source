@@ -58,6 +58,11 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_BLEND);
 
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	//glEnable(GL_POLYGON_OFFSET_LINE);
+	//glEnable(GL_POLYGON_OFFSET_POINT);
+	glPolygonOffset(1.0f, 1.0f);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	if(renderNormals){
@@ -88,6 +93,11 @@ void ModelRendererGl::end() {
 
 	//set render state
 	rendering= false;
+
+	glPolygonOffset( 0.0f, 0.0f );
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	//glDisable(GL_POLYGON_OFFSET_LINE);
+	//glDisable(GL_POLYGON_OFFSET_POINT);
 
 	//pop
 	glPopAttrib();
