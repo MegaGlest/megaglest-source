@@ -666,15 +666,47 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
     glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
     glEnable(GL_BLEND);
 
-		//inside
+	//inside
+	Vec2i vertices[3];
+	vertices[0] = Vec2i(x, y);
+	vertices[1] = Vec2i(x+20, y-10);
+	vertices[2] = Vec2i(x+10, y-20);
+
+	glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+/*
 		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
         glBegin(GL_TRIANGLES);
             glVertex2i(x, y);
             glVertex2i(x+20, y-10);
             glVertex2i(x+10, y-20);
         glEnd();
+*/
 
-		//border
+	//border
+	vertices[0] = Vec2i(x, y);
+	vertices[1] = Vec2i(x+20, y-10);
+	vertices[2] = Vec2i(x+10, y-20);
+
+	Vec4f colors[4];
+	colors[0] = Vec4f(1.f, 0.2f, 0, color1);
+	colors[1] = Vec4f(1.f, 0.4f, 0, color2);
+	colors[2] = Vec4f(1.f, 0.4f, 0, color2);
+
+	glLineWidth(2);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4, GL_FLOAT, 0, &colors[0]);
+    glDrawArrays(GL_LINE_LOOP, 0, 3);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+/*
         glLineWidth(2);
         glBegin(GL_LINE_LOOP);
             glColor4f(1.f, 0.2f, 0, color1);
@@ -684,6 +716,7 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
             glColor4f(1.f, 0.4f, 0, color2);
             glVertex2i(x+10, y-20);
         glEnd();
+*/
     glPopAttrib();
 }
 
@@ -1068,6 +1101,20 @@ void Renderer::renderSelectionQuad() {
 
     if(gui->isSelecting()) {
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
+
+    	Vec2i vertices[4];
+    	vertices[0] = Vec2i(down.x, down.y);
+    	vertices[1] = Vec2i(up.x, down.y);
+    	vertices[2] = Vec2i(up.x, up.y);
+    	vertices[3] = Vec2i(down.x, up.y);
+
+    	glColor3f(0,1,0);
+    	glEnableClientState(GL_VERTEX_ARRAY);
+    	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+        glDrawArrays(GL_LINE_LOOP, 0, 4);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+/*
             glColor3f(0,1,0);
             glBegin(GL_LINE_LOOP);
                 glVertex2i(down.x, down.y);
@@ -1075,6 +1122,7 @@ void Renderer::renderSelectionQuad() {
                 glVertex2i(up.x, up.y);
                 glVertex2i(down.x, up.y);
             glEnd();
+*/
         glPopAttrib();
     }
 }
@@ -2726,17 +2774,63 @@ void Renderer::renderMinimap(){
 	glActiveTexture(baseTexUnit);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(minimap->getTexture())->getHandle());
 
+/*
+	Vec2f texCoords[4];
+	Vec2f texCoords2[4];
+	Vec2i vertices[4];
+
+    texCoords[0] = Vec2f(0.0f, 1.0f);
+    texCoords2[0] = Vec2f(0.0f, 1.0f);
+    vertices[0] = Vec2i(mx, my);
+
+    texCoords[1] = Vec2f(0.0f, 0.0f);
+    texCoords2[1] = Vec2f(0.0f, 0.0f);
+    vertices[1] = Vec2i(mx, my+mh);
+
+    texCoords[2] = Vec2f(1.0f, 1.0f);
+    texCoords2[2] = Vec2f(1.0f, 1.0f);
+    vertices[2] = Vec2i(mx+mw, my);
+
+    texCoords[3] = Vec2f(1.0f, 0.0f);
+    texCoords2[3] = Vec2f(1.0f, 0.0f);
+    vertices[3] = Vec2i(mx+mw, my+mh);
+
+    glClientActiveTexture(baseTexUnit);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, 0,&texCoords[0]);
+
+	glClientActiveTexture(fowTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0,&texCoords2[0]);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+
+	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glClientActiveTexture(baseTexUnit);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glClientActiveTexture(fowTexUnit);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+*/
+
 	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.0f, 1.0f);
 		glMultiTexCoord2f(fowTexUnit, 0.0f, 1.0f);
 		glVertex2i(mx, my);
+
 		glTexCoord2f(0.0f, 0.0f);
 		glMultiTexCoord2f(fowTexUnit, 0.0f, 0.0f);
 		glVertex2i(mx, my+mh);
+
 		glTexCoord2f(1.0f, 1.0f);
 		glMultiTexCoord2f(fowTexUnit, 1.0f, 1.0f);
 		glVertex2i(mx+mw, my);
+
 		glTexCoord2f(1.0f, 0.0f);
 		glMultiTexCoord2f(fowTexUnit, 1.0f, 0.0f);
 		glVertex2i(mx+mw, my+mh);
@@ -2760,7 +2854,6 @@ void Renderer::renderMinimap(){
 
 		// draw attack alarm
 		int vertexIndex = 0;
-		//int vertexIndex1 = 0;
 		for(int i = 0; i < attackEffects->getWaterSplashCount(); ++i) {
 			const WaterSplash *ws = attackEffects->getWaterSplash(i);
 			float scale= (1/ws->getAnim()*ws->getSize())*5;
@@ -2784,31 +2877,34 @@ void Renderer::renderMinimap(){
 				vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
 				vertexIndex++;
 				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
 				vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
 				vertexIndex++;
-				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
-				vertexIndex++;
-				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
-				vertexIndex++;
 				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
 				vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
 				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+
 				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
 				vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
 				vertexIndex++;
 				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
 				vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
-				vertexIndex++;
-				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
-				vertices[vertexIndex] = Vec2f(attackX, attackY);
-				vertexIndex++;
-				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-				vertices[vertexIndex] = Vec2f(attackX, attackY);
-				vertexIndex++;
-				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-				vertices[vertexIndex] = Vec2f(attackX, attackY);
 				vertexIndex++;
 				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
 				vertices[vertexIndex] = Vec2f(attackX, attackY);
@@ -3446,6 +3542,11 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 			glMultMatrixf(matrix2.ptr());
 			glMultMatrixf(matrix3.ptr());
 			glGetFloatv(GL_TRANSPOSE_PROJECTION_MATRIX_ARB, shadowMapMatrix.ptr());
+
+			//if(shadows == sShadowMapping) {
+			//	glDisable(GL_POLYGON_OFFSET_FILL);
+			//	glPolygonOffset(0.0f, 0.0f);
+			//}
 
 			//pop
 			glPopMatrix();
@@ -4342,6 +4443,31 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
 	}
 
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+
+	Vec2i texCoords[4];
+	Vec2i vertices[4];
+    texCoords[0] 	= Vec2i(0, 1);
+    vertices[0] 	= Vec2i(x, y+h);
+    texCoords[1] 	= Vec2i(0, 0);
+    vertices[1] 	= Vec2i(x, y);
+    texCoords[2] 	= Vec2i(1, 1);
+    vertices[2] 	= Vec2i(x+w, y+h);
+    texCoords[3] 	= Vec2i(1, 0);
+    vertices[3] 	= Vec2i(x+w, y);
+
+	//glClientActiveTexture(GL_TEXTURE0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_INT, 0,&texCoords[0]);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    //glClientActiveTexture(GL_TEXTURE0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+/*
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2i(0, 1);
 		glVertex2i(x, y+h);
@@ -4352,6 +4478,7 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
 		glTexCoord2i(1, 0);
 		glVertex2i(x+w, y);
 	glEnd();
+*/
 }
 
 Renderer::Shadows Renderer::strToShadows(const string &s){
