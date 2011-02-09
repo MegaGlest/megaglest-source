@@ -2752,107 +2752,111 @@ void Renderer::renderMinimap(){
 	glEnable(GL_BLEND);
 
 	const int itemCount = attackEffects->getWaterSplashCount() * 12;
-	Vec2f vertices[itemCount];
-	Vec4f colors[itemCount];
+	if(itemCount > 0) {
+		vector<Vec2f> vertices;
+		vertices.resize(itemCount);
+		vector<Vec4f> colors;
+		colors.resize(itemCount);
 
-	// draw attack alarm
-    int vertexIndex = 0;
-    //int vertexIndex1 = 0;
-	for(int i = 0; i < attackEffects->getWaterSplashCount(); ++i) {
-		const WaterSplash *ws = attackEffects->getWaterSplash(i);
-		float scale= (1/ws->getAnim()*ws->getSize())*5;
-		//glColor4f(1.f, 1.f, 0.f, 1.f-ws->getAnim());
-		float alpha=(1.f-ws->getAnim())*0.01f;
-		Vec2f pos= ws->getPos()/Map::cellScale;
-		float attackX=mx +pos.x*zoom.x;
-		float attackY=my +mh -pos.y*zoom.y;
-		if(ws->getEnabled()){
-//			glBegin(GL_QUADS);
-//				glVertex2f(attackX-scale, attackY-scale);
-//				glVertex2f(attackX-scale, attackY+scale);
-//				glVertex2f(attackX+scale, attackY+scale);
-//				glVertex2f(attackX+scale, attackY-scale);
-//			glEnd();
+		// draw attack alarm
+		int vertexIndex = 0;
+		//int vertexIndex1 = 0;
+		for(int i = 0; i < attackEffects->getWaterSplashCount(); ++i) {
+			const WaterSplash *ws = attackEffects->getWaterSplash(i);
+			float scale= (1/ws->getAnim()*ws->getSize())*5;
+			//glColor4f(1.f, 1.f, 0.f, 1.f-ws->getAnim());
+			float alpha=(1.f-ws->getAnim())*0.01f;
+			Vec2f pos= ws->getPos()/Map::cellScale;
+			float attackX=mx +pos.x*zoom.x;
+			float attackY=my +mh -pos.y*zoom.y;
+			if(ws->getEnabled()){
+	//			glBegin(GL_QUADS);
+	//				glVertex2f(attackX-scale, attackY-scale);
+	//				glVertex2f(attackX-scale, attackY+scale);
+	//				glVertex2f(attackX+scale, attackY+scale);
+	//				glVertex2f(attackX+scale, attackY-scale);
+	//			glEnd();
 
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
-			vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
-			vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
-			vertices[vertexIndex] = Vec2f(attackX, attackY);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX, attackY);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
-			vertices[vertexIndex] = Vec2f(attackX, attackY);
-			vertexIndex++;
-			colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
-			vertices[vertexIndex] = Vec2f(attackX, attackY);
-			vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX-scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY+scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX+scale, attackY-scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX-scale, attackY-scale);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, alpha);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
+				colors[vertexIndex] = Vec4f(1.f, 1.f, 0.f, 0.8f);
+				vertices[vertexIndex] = Vec2f(attackX, attackY);
+				vertexIndex++;
 
-/*
-			glBegin(GL_TRIANGLES);
-				glColor4f(1.f, 1.f, 0.f, alpha);
-				glVertex2f(attackX-scale, attackY-scale);
-				glVertex2f(attackX-scale, attackY+scale);
-				glColor4f(1.f, 1.f, 0.f, 0.8f);
-				glVertex2f(attackX, attackY);
-			glEnd();
-			glBegin(GL_TRIANGLES);
-				glColor4f(1.f, 1.f, 0.f, alpha);
-				glVertex2f(attackX-scale, attackY+scale);
-				glVertex2f(attackX+scale, attackY+scale);
-				glColor4f(1.f, 1.f, 0.f, 0.8f);
-				glVertex2f(attackX, attackY);
-			glEnd();
-			glBegin(GL_TRIANGLES);
-				glColor4f(1.f, 1.f, 0.f, alpha);
-				glVertex2f(attackX+scale, attackY+scale);
-				glVertex2f(attackX+scale, attackY-scale);
-				glColor4f(1.f, 1.f, 0.f, 0.8f);
-				glVertex2f(attackX, attackY);
-			glEnd();
-			glBegin(GL_TRIANGLES);
-				glColor4f(1.f, 1.f, 0.f, alpha);
-				glVertex2f(attackX+scale, attackY-scale);
-				glVertex2f(attackX-scale, attackY-scale);
-				glColor4f(1.f, 1.f, 0.f, 0.8f);
-				glVertex2f(attackX, attackY);
-			glEnd();
-*/
+	/*
+				glBegin(GL_TRIANGLES);
+					glColor4f(1.f, 1.f, 0.f, alpha);
+					glVertex2f(attackX-scale, attackY-scale);
+					glVertex2f(attackX-scale, attackY+scale);
+					glColor4f(1.f, 1.f, 0.f, 0.8f);
+					glVertex2f(attackX, attackY);
+				glEnd();
+				glBegin(GL_TRIANGLES);
+					glColor4f(1.f, 1.f, 0.f, alpha);
+					glVertex2f(attackX-scale, attackY+scale);
+					glVertex2f(attackX+scale, attackY+scale);
+					glColor4f(1.f, 1.f, 0.f, 0.8f);
+					glVertex2f(attackX, attackY);
+				glEnd();
+				glBegin(GL_TRIANGLES);
+					glColor4f(1.f, 1.f, 0.f, alpha);
+					glVertex2f(attackX+scale, attackY+scale);
+					glVertex2f(attackX+scale, attackY-scale);
+					glColor4f(1.f, 1.f, 0.f, 0.8f);
+					glVertex2f(attackX, attackY);
+				glEnd();
+				glBegin(GL_TRIANGLES);
+					glColor4f(1.f, 1.f, 0.f, alpha);
+					glVertex2f(attackX+scale, attackY-scale);
+					glVertex2f(attackX-scale, attackY-scale);
+					glColor4f(1.f, 1.f, 0.f, 0.8f);
+					glVertex2f(attackX, attackY);
+				glEnd();
+	*/
 
+			}
 		}
-	}
 
-	if(vertexIndex > 0) {
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glColorPointer(4,GL_FLOAT, 0, &colors[0]);
-		glVertexPointer(2, GL_FLOAT, 0, &vertices[0]);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexIndex);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		if(vertexIndex > 0) {
+			glEnableClientState(GL_COLOR_ARRAY);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glColorPointer(4,GL_FLOAT, 0, &colors[0]);
+			glVertexPointer(2, GL_FLOAT, 0, &vertices[0]);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexIndex);
+			glDisableClientState(GL_COLOR_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
 	}
 
     glDisable(GL_BLEND);
@@ -2861,8 +2865,10 @@ void Renderer::renderMinimap(){
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleUnitList.size() > 0) {
 		uint32 unitIdx=0;
-		Vec2f unit_vertices[qCache.visibleUnitList.size()*4];
-		Vec3f unit_colors[qCache.visibleUnitList.size()*4];
+		vector<Vec2f> unit_vertices;
+		unit_vertices.resize(qCache.visibleUnitList.size()*4);
+		vector<Vec3f> unit_colors;
+		unit_colors.resize(qCache.visibleUnitList.size()*4);
 
 		for(int visibleIndex = 0;
 				visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
