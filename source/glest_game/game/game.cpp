@@ -1823,7 +1823,6 @@ void Game::checkWinnerStandard() {
 			if( this->gameSettings.isNetworkGame() == false ||
 				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the happy winner view everything left in the world
-				//world.setFogOfWar(false);
 
 				// This caused too much LAG for network games
 				if(this->gameSettings.isNetworkGame() == false) {
@@ -1853,7 +1852,6 @@ void Game::checkWinnerStandard() {
 			if( this->gameSettings.isNetworkGame() == false ||
 				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
 				// Let the poor user watch everything unfold
-				//world.setFogOfWar(false);
 
 				// This caused too much LAG for network games
 				if(this->gameSettings.isNetworkGame() == false) {
