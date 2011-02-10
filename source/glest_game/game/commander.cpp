@@ -170,6 +170,24 @@ void Commander::init(World *world){
 	this->world= world;
 }
 
+bool Commander::canSubmitCommandType(const Unit *unit, const CommandType *commandType) const {
+	bool canSubmitCommand=true;
+	const MorphCommandType *mct = dynamic_cast<const MorphCommandType*>(commandType);
+	if(mct && unit->getCommandSize() > 0) {
+		Command *cur_command= unit->getCurrCommand();
+		const MorphCommandType *cur_mct= dynamic_cast<const MorphCommandType*>(cur_command->getCommandType());
+		if(cur_mct && unit->getCurrSkill()->getClass() == scMorph) {
+			const UnitType *morphUnitType		= mct->getMorphUnit();
+			const UnitType *cur_morphUnitType	= cur_mct->getMorphUnit();
+
+			if(morphUnitType->getId() == cur_morphUnitType->getId()) {
+				canSubmitCommand = false;
+			}
+		}
+	}
+	return canSubmitCommand;
+}
+
 CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
@@ -194,41 +212,48 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 		//give orders to all selected units
 		for(int i = 0; i < selection->getCount(); ++i) {
 			const Unit *unit = selection->getUnit(i);
-			int unitId= unit->getId();
-			Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
 
-			Vec2i usePos = currPos;
-			const CommandType *useCommandtype = commandType;
-			if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
-				usePos = pos;
-				//if(unitSignalledToBuild == false) {
-				//if(builderUnit->getId() == unitId)
-				//	builderUnitId		 = unitId;
-					//unitSignalledToBuild = true;
-				//}
-				//else {
-				if(builderUnit->getId() != unitId) {
-					useCommandtype 		= unit->getType()->getFirstRepairCommand(unitType);
-					commandStateType 	= cst_linkedUnit;
-					commandStateValue 	= builderUnitId;
-					//tryQueue = true;
+
+			CommandResult result = crFailUndefined;
+			bool canSubmitCommand = canSubmitCommandType(unit, commandType);
+			if(canSubmitCommand == true) {
+				int unitId= unit->getId();
+				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
+
+				Vec2i usePos = currPos;
+				const CommandType *useCommandtype = commandType;
+				if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
+					usePos = pos;
+					//if(unitSignalledToBuild == false) {
+					//if(builderUnit->getId() == unitId)
+					//	builderUnitId		 = unitId;
+						//unitSignalledToBuild = true;
+					//}
+					//else {
+					if(builderUnit->getId() != unitId) {
+						useCommandtype 		= unit->getType()->getFirstRepairCommand(unitType);
+						commandStateType 	= cst_linkedUnit;
+						commandStateValue 	= builderUnitId;
+						//tryQueue = true;
+					}
+					else {
+						commandStateType 	= cst_None;
+						commandStateValue 	= -1;
+					}
 				}
-				else {
-					commandStateType 	= cst_None;
-					commandStateValue 	= -1;
+
+				if(useCommandtype != NULL) {
+					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
+							useCommandtype->getId(), usePos, unitType->getId(),
+							(targetUnit != NULL ? targetUnit->getId() : -1),
+							facing, tryQueue, commandStateType,commandStateValue);
+
+					//every unit is ordered to a the position
+					result= pushNetworkCommand(&networkCommand);
 				}
 			}
 
-			if(useCommandtype != NULL) {
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
-						useCommandtype->getId(), usePos, unitType->getId(),
-						(targetUnit != NULL ? targetUnit->getId() : -1),
-						facing, tryQueue, commandStateType,commandStateValue);
-
-				//every unit is ordered to a the position
-				CommandResult result= pushNetworkCommand(&networkCommand);
-				results.push_back(result);
-			}
+			results.push_back(result);
 		}
 
 		return computeResult(results);
@@ -255,16 +280,20 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
-								commandType->getId(), pos, unitType->getId(),
-								(targetUnit != NULL ? targetUnit->getId() : -1),
-								facing, tryQueue);
+	CommandResult result = crFailUndefined;
+	bool canSubmitCommand=canSubmitCommandType(unit, commandType);
+	if(canSubmitCommand == true) {
+		NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
+									commandType->getId(), pos, unitType->getId(),
+									(targetUnit != NULL ? targetUnit->getId() : -1),
+									facing, tryQueue);
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	CommandResult result = pushNetworkCommand(&networkCommand);
+		result = pushNetworkCommand(&networkCommand);
+	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -284,13 +313,18 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 			const Unit *unit= selection->getUnit(i);
 			const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
 			if(ct != NULL) {
-				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
-				int unitId= selection->getUnit(i)->getId();
-				Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue);
+				CommandResult result = crFailUndefined;
+				bool canSubmitCommand=canSubmitCommandType(unit, ct);
+				if(canSubmitCommand == true) {
 
-				//every unit is ordered to a different pos
-				CommandResult result= pushNetworkCommand(&networkCommand);
+					int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
+					int unitId= selection->getUnit(i)->getId();
+					Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
+					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue);
+
+					//every unit is ordered to a different pos
+					result= pushNetworkCommand(&networkCommand);
+				}
 				results.push_back(result);
 			}
 			else{
@@ -315,13 +349,20 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 
 		//give orders to all selected units
 		for(int i=0; i<selection->getCount(); ++i){
-			int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
-			int unitId= selection->getUnit(i)->getId();
-			Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-			NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
+			const Unit *unit = selection->getUnit(i);
+			assert(unit != NULL);
 
-			//every unit is ordered to a different position
-			CommandResult result= pushNetworkCommand(&networkCommand);
+			CommandResult result = crFailUndefined;
+			bool canSubmitCommand=canSubmitCommandType(unit, commandType);
+			if(canSubmitCommand == true) {
+				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
+				int unitId= unit->getId();
+				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
+
+				//every unit is ordered to a different position
+				result= pushNetworkCommand(&networkCommand);
+			}
 			results.push_back(result);
 		}
 
@@ -360,14 +401,18 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = [%s] commandType = %p\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(), commandType);
 
 			//give commands
-			if(commandType!=NULL) {
+			if(commandType != NULL) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandType->toString() [%s]\n",__FILE__,__FUNCTION__,__LINE__,commandType->toString().c_str());
 
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
 
-				CommandResult result= pushNetworkCommand(&networkCommand);
+				CommandResult result = crFailUndefined;
+				bool canSubmitCommand=canSubmitCommandType(unit, commandType);
+				if(canSubmitCommand == true) {
+					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
+					result= pushNetworkCommand(&networkCommand);
+				}
 				results.push_back(result);
 			}
 			else if(unit->isMeetingPointSettable() == true) {

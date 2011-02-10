@@ -108,6 +108,7 @@ private:
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
 
 	virtual void commanderNetworkUpdateTask(int id);
+	bool canSubmitCommandType(const Unit *unit, const CommandType *commandType) const;
 };
 
 }} //end namespace
