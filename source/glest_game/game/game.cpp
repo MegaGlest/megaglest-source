@@ -549,6 +549,10 @@ void Game::init(bool initForPreviewOnly)
 
 	gameCamera.init(map->getW(), map->getH());
 
+	if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+		gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+	}
+
 	if(world.getThisFaction() != NULL) {
 		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
 		gameCamera.setPos(Vec2f(v.x, v.y));

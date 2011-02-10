@@ -46,6 +46,7 @@ const float GameCamera::centerOffsetZ= 8.0f;
 GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 		destPos(0.f, defaultHeight, 0.f), destAng(startingVAng, startingHAng) {
 	Config &config = Config::getInstance();
+	calculatedDefault=defaultHeight;
     state= sGame;
 
     cacheVisibleQuad.clear();
@@ -86,6 +87,14 @@ void GameCamera::setMaxHeight(float value) {
 	else {
 		maxHeight = value;
 	}
+}
+
+void GameCamera::setCalculatedDefault(float calculatedDefault){
+	this->calculatedDefault= calculatedDefault;
+	if(maxHeight>0 && maxHeight<calculatedDefault){
+		setMaxHeight(calculatedDefault);
+	}
+	resetPosition();
 }
 
 void GameCamera::init(int limitX, int limitY){
@@ -239,7 +248,7 @@ void GameCamera::switchState(){
 		state= sGame;
 		destAng.x = startingVAng;
 		destAng.y = startingHAng;
-		destPos.y = defaultHeight;
+		destPos.y = calculatedDefault;
 	}
 }
 
@@ -247,7 +256,7 @@ void GameCamera::resetPosition(){
 	state= sGame;
 	destAng.x = startingVAng;
 	destAng.y = startingHAng;
-	destPos.y = defaultHeight;
+	destPos.y = calculatedDefault;
 }
 
 void GameCamera::centerXZ(float x, float z){

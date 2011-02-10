@@ -166,6 +166,7 @@ private:
 	SurfaceCell *surfaceCells;
 	Vec2i *startLocations;
 	Checksum checksumValue;
+	float maxMapHeight;
 
 private:
 	Map(Map&);
@@ -194,6 +195,7 @@ public:
 	float getHeightFactor() const								{return heightFactor;}
 	float getWaterLevel() const									{return waterLevel;}
 	float getCliffLevel() const									{return cliffLevel;}
+	float getMaxMapHeight() const								{return maxMapHeight;}
 	Vec2i getStartLocation(int locationIndex) const;
 	bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}

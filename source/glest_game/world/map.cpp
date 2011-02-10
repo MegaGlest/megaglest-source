@@ -273,6 +273,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 
 void Map::init(Tileset *tileset) {
 	Logger::getInstance().add("Heightmap computations", true);
+	maxMapHeight=0.0f;
 	smoothSurface(tileset);
 	computeNormals();
 	computeInterpolatedHeights();
@@ -1094,6 +1095,7 @@ void Map::computeInterpolatedHeights(){
 
 void Map::smoothSurface(Tileset *tileset) {
 	float *oldHeights = new float[getSurfaceCellArraySize()];
+	int arraySize=getSurfaceCellArraySize();
 
 	for (int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		oldHeights[i] = surfaceCells[i].getHeight();
@@ -1135,6 +1137,9 @@ void Map::smoothSurface(Tileset *tileset) {
 			}
 
 			height /= numUsedToSmooth;
+			if(maxMapHeight<height){
+				maxMapHeight=height;
+			}
 
 			getSurfaceCell(i, j)->setHeight(height);
 			Object *object = getSurfaceCell(i, j)->getObject();

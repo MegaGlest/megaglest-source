@@ -83,6 +83,8 @@ private:
 	float maxVAng;
 	float fov;
 
+	float calculatedDefault;
+
 	int MaxVisibleQuadItemCache;
 
 public:
@@ -130,6 +132,10 @@ public:
 
 	void setClampBounds(bool value) { clampBounds = value; }
 	void setMaxHeight(float value);
+	float getCalculatedDefault() const{ return calculatedDefault; }
+	void setCalculatedDefault(float calculatedDefault);
+
+    float getMaxHeight() const {return maxHeight;}
 	void setFov(float value) { fov = value; }
 	void setMinVAng(float value) { minVAng = value; }
 	void setMaxVAng(float value) { maxVAng = value; }
