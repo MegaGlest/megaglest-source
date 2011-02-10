@@ -1881,7 +1881,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     }
 
 	//any enemy
-    for(int i = 0; i< enemies.size(); ++i) {
+    for(int i = 0; result == false && i < enemies.size(); ++i) {
 		if(enemies[i]->isAlive() == true ) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
