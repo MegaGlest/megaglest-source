@@ -148,51 +148,59 @@ void UnitUpdater::updateUnit(Unit *unit) {
 			unit->setCurrSkill(scStop);
 			unit->cancelCommand();
 		}
-		if(unit->getCurrSkill()->getClass() != scAttack){
-unit->computeHp();
+		if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scAttack) {
+			unit->computeHp();
 		}
-		else{
-		Command *command= unit->getCurrCommand();
-    const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
-	if(act->getAttackSkillType()->getSpawnUnit() != ""){
-		for (int y=0; y < act->getAttackSkillType()->getSpawnUnitCount(); ++y) {
-		Unit *spawned;
-		UnitPathInterface *newpath = NULL;
-			switch(this->game->getGameSettings()->getPathFinderType()) {
-				case pfBasic:
-					newpath = new UnitPathBasic();
-					break;
-				case pfRoutePlanner:
-					newpath = new UnitPath();
-					break;
-				default:
-					throw runtime_error("detected unsupported pathfinder type!");
-		    }
-				const FactionType *ft= unit->getFaction()->getType();
- spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0),ft->getUnitType(act->getAttackSkillType()->getSpawnUnit()), unit->getFaction(), world->getMap(),CardinalDir::NORTH);
- SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
-  if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
+		else if(unit->getCommandSize() > 0) {
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
+				if( act != NULL && act->getAttackSkillType() != NULL &&
+					act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
 
-				delete spawned;
-			}
-			else{
-				spawned->create();
-				spawned->born();
-				world->getStats()->produce(unit->getFactionIndex());
-				const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
-				if(ct!=NULL){
-				    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
+					const FactionType *ft= unit->getFaction()->getType();
+					const UnitType *spawnUnitType = ft->getUnitType(act->getAttackSkillType()->getSpawnUnit());
+					int spawnCount = act->getAttackSkillType()->getSpawnUnitCount();
+					for (int y=0; y < spawnCount; ++y) {
+						UnitPathInterface *newpath = NULL;
+						switch(this->game->getGameSettings()->getPathFinderType()) {
+							case pfBasic:
+								newpath = new UnitPathBasic();
+								break;
+							case pfRoutePlanner:
+								newpath = new UnitPath();
+								break;
+							default:
+								throw runtime_error("detected unsupported pathfinder type!");
+						}
+
+						Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
+								                Vec2i(0), spawnUnitType, unit->getFaction(),
+								                world->getMap(), CardinalDir::NORTH);
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
+						if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
+							SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
+
+							// This will also cleanup newPath
+							delete spawned;
+							spawned = NULL;
+						}
+						else {
+							spawned->create();
+							spawned->born();
+							world->getStats()->produce(unit->getFactionIndex());
+							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
+							if(ct != NULL){
+								SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
+							}
+							scriptManager->onUnitCreated(spawned);
+
+							//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+						}
+					}
 				}
-				scriptManager->onUnitCreated(spawned);
-
-				//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
-		}
-
-
-	}
 		}
 		
 		//move unit in cells
@@ -1641,6 +1649,13 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 }
 
 void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance){
+	if(attacker == NULL) {
+		throw runtime_error("attacker == NULL");
+	}
+	if(ast == NULL) {
+		throw runtime_error("ast == NULL");
+	}
+
 	//get vars
 	float damage= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
 	int var= ast->getAttackVar();
