@@ -668,7 +668,9 @@ Vec3f Unit::getCurrVector() const{
 }
 
 Vec3f Unit::getCurrVectorFlat() const{
-    Vec3f v;
+	return getVectorFlat(lastPos, pos);
+/*
+	Vec3f v;
 
 	float y1= computeHeight(lastPos);
 	float y2= computeHeight(pos);
@@ -681,6 +683,29 @@ Vec3f Unit::getCurrVectorFlat() const{
     else{
         v.x= static_cast<float>(pos.x);
         v.z= static_cast<float>(pos.y);
+        v.y= y2;
+    }
+    v.x+= type->getSize()/2.f-0.5f;
+    v.z+= type->getSize()/2.f-0.5f;
+
+    return v;
+*/
+}
+
+Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
+    Vec3f v;
+
+	float y1= computeHeight(lastPosValue);
+	float y2= computeHeight(curPosValue);
+
+    if(currSkill->getClass() == scMove) {
+        v.x= lastPosValue.x + progress * (curPosValue.x-lastPosValue.x);
+        v.z= lastPosValue.y + progress * (curPosValue.y-lastPosValue.y);
+		v.y= y1+progress*(y2-y1);
+    }
+    else{
+        v.x= static_cast<float>(curPosValue.x);
+        v.z= static_cast<float>(curPosValue.y);
         v.y= y2;
     }
     v.x+= type->getSize()/2.f-0.5f;

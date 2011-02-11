@@ -399,6 +399,7 @@ public:
     Model *getCurrentModelPtr() const;
 	Vec3f getCurrVector() const;
 	Vec3f getCurrVectorFlat() const;
+	Vec3f getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
 
     //command related
 	bool anyCommand(bool validateCommandtype=false) const;
