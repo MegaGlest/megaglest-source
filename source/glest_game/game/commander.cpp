@@ -175,13 +175,15 @@ bool Commander::canSubmitCommandType(const Unit *unit, const CommandType *comman
 	const MorphCommandType *mct = dynamic_cast<const MorphCommandType*>(commandType);
 	if(mct && unit->getCommandSize() > 0) {
 		Command *cur_command= unit->getCurrCommand();
-		const MorphCommandType *cur_mct= dynamic_cast<const MorphCommandType*>(cur_command->getCommandType());
-		if(cur_mct && unit->getCurrSkill()->getClass() == scMorph) {
-			const UnitType *morphUnitType		= mct->getMorphUnit();
-			const UnitType *cur_morphUnitType	= cur_mct->getMorphUnit();
+		if(cur_command != NULL) {
+			const MorphCommandType *cur_mct= dynamic_cast<const MorphCommandType*>(cur_command->getCommandType());
+			if(cur_mct && unit->getCurrSkill() && unit->getCurrSkill()->getClass() == scMorph) {
+				const UnitType *morphUnitType		= mct->getMorphUnit();
+				const UnitType *cur_morphUnitType	= cur_mct->getMorphUnit();
 
-			if(morphUnitType->getId() == cur_morphUnitType->getId()) {
-				canSubmitCommand = false;
+				if(morphUnitType != NULL && cur_morphUnitType != NULL && morphUnitType->getId() == cur_morphUnitType->getId()) {
+					canSubmitCommand = false;
+				}
 			}
 		}
 	}

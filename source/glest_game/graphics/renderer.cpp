@@ -2559,6 +2559,31 @@ void Renderer::renderSelectionEffects() {
 		}
 		renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
 
+		if(	showDebugUI == true &&
+			(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
+
+			const UnitPathInterface *path= unit->getPath();
+			if(path != NULL) {
+				vector<Vec2i> pathList = path->getQueue();
+
+				Vec2i lastPosValue;
+				for(int i = 0; i < pathList.size(); ++i) {
+					Vec2i curPosValue = pathList[i];
+					if(i == 0) {
+						lastPosValue = curPosValue;
+					}
+					Vec3f currVec2 = unit->getVectorFlat(lastPosValue,curPosValue);
+					currVec2.y+= 0.3f;
+					renderSelectionCircle(currVec2, 1, selectionCircleRadius);
+					//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
+
+					//SurfaceCell *cell= map->getSurfaceCell(currVec2.x, currVec2.y);
+					//currVec2.z = cell->getHeight() + 2.0;
+					//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
+				}
+			}
+		}
+
 		//magic circle
 		if(world->getThisFactionIndex() == unit->getFactionIndex() && unit->getType()->getMaxEp() > 0) {
 			glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
