@@ -71,7 +71,7 @@ bool MapPreview::isCliff(int x, int y){
 			if(xToCheck < 0 || yToCheck < 0 || xToCheck >= w || yToCheck >= h){
 				//ignore
 			}
-			else if(cliffLevel <= abs(getHeight(x, y) - getHeight(xToCheck, yToCheck))){
+			else if(cliffLevel <= abs((int)(getHeight(x, y) - getHeight(xToCheck, yToCheck)))) {
 				return true;
 			}
 		}
