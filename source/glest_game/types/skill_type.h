@@ -171,7 +171,7 @@ public:
 	bool getAttackField(Field field) const		{return attackFields[field];}
 	float getAttackStartTime() const			{return attackStartTime;}
 	string getSpawnUnit() const					{return spawnUnit;}
-	int getSpawnUnitCount() const					{return spawnUnitcount;}
+	int getSpawnUnitCount() const				{return spawnUnitcount;}
 
 	//get proj
 	bool getProjectile() const									{return projectile;}

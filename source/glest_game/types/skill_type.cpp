@@ -49,7 +49,8 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 	mpCost= sn->getChild("ep-cost")->getAttribute("value")->getIntValue();
 	if (sn->hasChild("hp-cost")) {
 		hpCost = sn->getChild("hp-cost")->getAttribute("value")->getIntValue();
-	} else {
+	}
+	else {
 		hpCost = 0;
 	}
 
@@ -166,6 +167,8 @@ AttackSkillType::AttackSkillType() {
     projectile= false;
     splash= false;
     splashRadius= 0;
+    spawnUnit="";
+    spawnUnitcount=0;
 	projectileParticleSystemType= NULL;
 	splashParticleSystemType= NULL;
 

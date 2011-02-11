@@ -527,7 +527,7 @@ const UnitType *FactionType::getUnitType(const string &name) const{
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
-	throw runtime_error("Unit not found: "+name);
+	throw runtime_error("Unit not found: [" + name + "]");
 }
 
 const UpgradeType *FactionType::getUpgradeType(const string &name) const{

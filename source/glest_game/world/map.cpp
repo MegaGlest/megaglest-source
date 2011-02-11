@@ -434,6 +434,12 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 
 bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
 		const Unit *unit, const UnitType *munit) const {
+	if(unit == NULL) {
+		throw runtime_error("unit == NULL");
+	}
+	if(munit == NULL) {
+		throw runtime_error("munit == NULL");
+	}
 	for (int i = 1; i <= munit->getSize(); ++i) {
 		for (int j = 1; j <= munit->getSize(); ++j) {
 			if (munit->hasCellMap() == true) {
@@ -443,10 +449,6 @@ bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
 							Vec2i(pos.x + i - 1, pos.y + j - 1), field, unit) == false) {
 						return false;
 					}
-					else {
-					}
-				}
-				else {
 				}
 			}
 			else {
