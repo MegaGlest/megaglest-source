@@ -129,6 +129,7 @@ private:
 private:
 	int blockCount;
 	vector<Vec2i> pathQueue;
+	vector<Vec2i> lastPathCacheQueue;
 
 public:
 	UnitPathBasic();
@@ -140,9 +141,13 @@ public:
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount();
 	virtual void add(const Vec2i &path);
+	void addToLastPathCache(const Vec2i &path);
 	Vec2i pop();
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return pathQueue.size(); }
+
+	int getLastPathCacheQueueCount() const { return lastPathCacheQueue.size(); }
+	vector<Vec2i> getLastPathCacheQueue() const { return lastPathCacheQueue; }
 
 	virtual vector<Vec2i> getQueue() const { return pathQueue; }
 
