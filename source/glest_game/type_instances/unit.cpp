@@ -40,6 +40,7 @@ const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
 UnitPathBasic::UnitPathBasic() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
+	this->lastPathCacheQueue.clear();
 }
 
 bool UnitPathBasic::isEmpty() const {
@@ -56,16 +57,22 @@ bool UnitPathBasic::isStuck() const {
 
 void UnitPathBasic::clear() {
 	pathQueue.clear();
+	lastPathCacheQueue.clear();
 	blockCount= 0;
 }
 
 void UnitPathBasic::incBlockCount() {
 	pathQueue.clear();
+	lastPathCacheQueue.clear();
 	blockCount++;
 }
 
 void UnitPathBasic::add(const Vec2i &path){
 	pathQueue.push_back(path);
+}
+
+void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
+	lastPathCacheQueue.push_back(path);
 }
 
 Vec2i UnitPathBasic::pop() {
@@ -1993,11 +2000,13 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 }
 
 void Unit::addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell) {
+/*
 	if(currentTargetPathTaken.first != target) {
 		currentTargetPathTaken.second.clear();
 	}
 	currentTargetPathTaken.first = target;
 	currentTargetPathTaken.second.push_back(cell);
+*/
 }
 
 std::string Unit::toString() const {
