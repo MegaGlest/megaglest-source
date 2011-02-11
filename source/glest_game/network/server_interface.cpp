@@ -1187,6 +1187,17 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 			delete ftpServer;
 			ftpServer = NULL;
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
+			ConnectionSlot *connectionSlot= slots[i];
+			if(connectionSlot != NULL &&
+			   connectionSlot->isConnected()) {
+				connectionSlot->getSocket()->setBlock(true);
+			}
+		}
+
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	return bOkToStart;
