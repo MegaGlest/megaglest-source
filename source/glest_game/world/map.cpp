@@ -1109,11 +1109,12 @@ void Map::smoothSurface(Tileset *tileset) {
 			float numUsedToSmooth = 0.f;
 			for (int k = -1; k <= 1; ++k) {
 				for (int l = -1; l <= 1; ++l) {
-					if (cliffLevel<=0.1f || cliffLevel > abs(oldHeights[(j) * surfaceW + (i)]
+					if (cliffLevel<=0.1f || cliffLevel > fabs(oldHeights[(j) * surfaceW + (i)]
 							- oldHeights[(j + k) * surfaceW + (i + l)])) {
 						height += oldHeights[(j + k) * surfaceW + (i + l)];
 						numUsedToSmooth++;
-					} else {
+					}
+					else {
 						// we have something which should not be smoothed!
 						// This is a cliff and must be textured -> set cliff texture
 						getSurfaceCell(i, j)->setSurfaceType(5);
