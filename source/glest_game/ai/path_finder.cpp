@@ -356,7 +356,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	UnitPathInterface *path= unit->getPath();
 	// Check the previous path find cache for the unit to see if its good to
 	// use
-	const bool tryLastPathCache = true;
+	const bool tryLastPathCache = false;
 	if(tryLastPathCache == true && path != NULL) {
 		UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 		if(basicPathFinder != NULL && basicPathFinder->getLastPathCacheQueueCount() > 0) {
