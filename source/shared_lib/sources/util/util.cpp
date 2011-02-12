@@ -191,6 +191,7 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugPerformance] 	= SystemFlags::SystemFlagsType(SystemFlags::debugPerformance);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugWorldSynch]  	= SystemFlags::SystemFlagsType(SystemFlags::debugWorldSynch);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugUnitCommands]  	= SystemFlags::SystemFlagsType(SystemFlags::debugUnitCommands);
+		(*SystemFlags::debugLogFileList)[SystemFlags::debugPathFinder]  	= SystemFlags::SystemFlagsType(SystemFlags::debugPathFinder);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugLUA]  			= SystemFlags::SystemFlagsType(SystemFlags::debugLUA);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugSound]  			= SystemFlags::SystemFlagsType(SystemFlags::debugSound);
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugError]  			= SystemFlags::SystemFlagsType(SystemFlags::debugError);
