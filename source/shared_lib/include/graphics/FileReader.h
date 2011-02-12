@@ -135,9 +135,6 @@ public:
 	virtual T* read(ifstream& file, const string& path, T* former) const = 0;
 
 	virtual ~FileReader() {
-		/*for (typename vector<FileReader<T> const * >::const_iterator i = fileReaders.begin(); i != fileReaders.end(); ++i) {
-			delete const_cast<FileReader<T>* >(*i); //Segfault
-		}*/
 	}; //Well ... these objects aren't supposed to be destroyed
 };
 

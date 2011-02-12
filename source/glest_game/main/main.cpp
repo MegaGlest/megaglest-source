@@ -34,6 +34,7 @@
 #include <algorithm>
 #include "sound_renderer.h"
 #include "font_gl.h"
+#include "FileReader.h"
 #include "cache_manager.h"
 
 // For gcc backtrace on crash!

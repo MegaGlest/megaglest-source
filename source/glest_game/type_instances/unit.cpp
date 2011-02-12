@@ -43,6 +43,12 @@ UnitPathBasic::UnitPathBasic() {
 	this->lastPathCacheQueue.clear();
 }
 
+UnitPathBasic::~UnitPathBasic() {
+	this->blockCount = 0;
+	this->pathQueue.clear();
+	this->lastPathCacheQueue.clear();
+}
+
 bool UnitPathBasic::isEmpty() const {
 	return pathQueue.empty();
 }

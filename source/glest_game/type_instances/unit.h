@@ -133,6 +133,7 @@ private:
 
 public:
 	UnitPathBasic();
+	virtual ~UnitPathBasic();
 	virtual bool isBlocked() const;
 	virtual bool isEmpty() const;
 	virtual bool isStuck() const;
