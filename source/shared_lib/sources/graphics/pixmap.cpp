@@ -691,10 +691,20 @@ Pixmap2D::Pixmap2D() {
 }
 
 Pixmap2D::Pixmap2D(int components) {
+    h= -1;
+    w= -1;
+	this->components= -1;
+    pixels= NULL;
+
 	init(components);
 }
 
 Pixmap2D::Pixmap2D(int w, int h, int components) {
+    this->h= 0;
+    this->w= -1;
+    this->components= -1;
+    pixels= NULL;
+
 	init(w, h, components);
 }
 
@@ -702,6 +712,7 @@ void Pixmap2D::init(int components) {
 	this->w= -1;
 	this->h= -1;
 	this->components= components;
+	deletePixels();
 	pixels= NULL;
 }
 
@@ -709,7 +720,16 @@ void Pixmap2D::init(int w, int h, int components) {
 	this->w= w;
 	this->h= h;
 	this->components= components;
+	deletePixels();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] w = %d, h = %d, components = %d, getPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,w,h,components,(long long unsigned)getPixelByteCount());
+
+	if(getPixelByteCount() <= 0 || (h <= 0 || w <= 0 || components <= 0)) {
+		char szBuf[1024];
+		sprintf(szBuf,"Invalid pixmap dimensions for [%s], h = %d, w = %d, components = %d\n",path.c_str(),h,w,components);
+		throw runtime_error(szBuf);
+	}
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 uint64 Pixmap2D::getPixelByteCount() const {
@@ -717,8 +737,12 @@ uint64 Pixmap2D::getPixelByteCount() const {
 }
 
 void Pixmap2D::deletePixels() {
-	delete [] pixels;
-	pixels = NULL;
+	if(pixels) {
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		delete [] pixels;
+		pixels = NULL;
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 }
 
 Pixmap2D::~Pixmap2D() {
@@ -726,7 +750,7 @@ Pixmap2D::~Pixmap2D() {
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
-	printf("Loading Pixmap2D [%s]\n",path.c_str());
+	//printf("Loading Pixmap2D [%s]\n",path.c_str());
 
 	Pixmap2D *pixmap = FileReader<Pixmap2D>::readPath(path);
 	if(pixmap != NULL) {

@@ -196,6 +196,32 @@ Renderer::Renderer() {
 	saveScreenShotThread->start();
 }
 
+void Renderer::cleanupScreenshotThread() {
+    if(saveScreenShotThread) {
+		saveScreenShotThread->signalQuit();
+		for(time_t elapsed = time(NULL);
+			getSaveScreenQueueSize() > 0 && difftime(time(NULL),elapsed) <= 7;) {
+			sleep(0);
+		}
+		if(saveScreenShotThread->canShutdown(true) == true &&
+				saveScreenShotThread->shutdownAndWait() == true) {
+			//printf("IN MenuStateCustomGame cleanup - C\n");
+			delete saveScreenShotThread;
+		}
+		saveScreenShotThread = NULL;
+
+		if(getSaveScreenQueueSize() > 0) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
+
+			for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
+				iter != saveScreenQueue.end(); ++iter) {
+				delete iter->second;
+			}
+			saveScreenQueue.clear();
+		}
+	}
+}
+
 Renderer::~Renderer() {
 	delete modelRenderer;
 	modelRenderer = NULL;
@@ -217,21 +243,7 @@ Renderer::~Renderer() {
 	}
 
 	// Wait for the queue to become empty or timeout the thread at 7 seconds
-	for(time_t elapsed = time(NULL);
-		getSaveScreenQueueSize() > 0 && difftime(time(NULL),elapsed) <= 7;) {
-		sleep(10);
-	}
-	delete saveScreenShotThread;
-	saveScreenShotThread = NULL;
-
-	if(getSaveScreenQueueSize() > 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
-
-		for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
-			iter != saveScreenQueue.end(); ++iter) {
-			delete iter->second;
-		}
-	}
+    cleanupScreenshotThread();
 
 	mapSurfaceData.clear();
 	this->menu = NULL;
@@ -242,7 +254,8 @@ void Renderer::simpleTask(BaseThread *callingThread) {
 	// This code reads pixmaps from a queue and saves them to disk
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
 	if(saveScreenQueue.size() > 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
 
@@ -426,6 +439,11 @@ void Renderer::end() {
 	std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
 	crcFactionPreviewTextureCache.clear();
 
+	// Wait for the queue to become empty or timeout the thread at 7 seconds
+	cleanupScreenshotThread();
+
+	mapSurfaceData.clear();
+
 	//delete resources
 	modelManager[rsGlobal]->end();
 	textureManager[rsGlobal]->end();
@@ -434,8 +452,6 @@ void Renderer::end() {
 
 	//delete 2d list
 	glDeleteLists(list2d, 1);
-
-	mapSurfaceData.clear();
 }
 
 void Renderer::endGame() {

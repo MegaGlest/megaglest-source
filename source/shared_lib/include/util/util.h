@@ -120,6 +120,7 @@ public:
 	static int DEFAULT_HTTP_TIMEOUT;
 	static bool VERBOSE_MODE_ENABLED;
 	static bool ENABLE_THREADED_LOGGING;
+	static bool SHUTDOWN_PROGRAM_MODE;
 
 	SystemFlags();
 	~SystemFlags();

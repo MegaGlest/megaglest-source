@@ -644,8 +644,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             PlayNow();
-
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+            return;
+            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
         else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
             RestoreLastGameSettings();
@@ -1137,22 +1137,14 @@ void MenuStateCustomGame::PlayNow() {
 			lastNetworkPing               = time(NULL);
 			safeMutex.ReleaseLock();
 
-/*
-			if(publishToMasterserverThread != NULL &&
-                publishToMasterserverThread->canShutdown() == true &&
-				publishToMasterserverThread->shutdownAndWait() == true) {
-                publishToMasterserverThread->setThreadOwnerValid(false);
-				delete publishToMasterserverThread;
-				publishToMasterserverThread = NULL;
-			}
-*/
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			assert(program != NULL);
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cleanup();
-			program->setState(new Game(program, &gameSettings));
+			Game *newGame = new Game(program, &gameSettings);
+			program->setState(newGame);
 			return;
 		}
 		else {
@@ -1788,6 +1780,7 @@ void MenuStateCustomGame::update() {
 			safeMutex.ReleaseLock();
 			RestoreLastGameSettings();
 			PlayNow();
+			return;
 		}
 	}
 	catch(const std::exception &ex) {

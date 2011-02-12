@@ -61,7 +61,8 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
 
 	if(event != NULL) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		eventList.push_back(*event);
 		safeMutex.ReleaseLock();
 	}
@@ -73,7 +74,8 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(eventId > 0) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		//event->eventCompleted = true;
 		for(int i = 0; i < eventList.size(); ++i) {
 		    ConnectionSlotEvent &slotEvent = eventList[i];
@@ -90,13 +92,15 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 }
 
 void ConnectionSlotThread::purgeAllEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
     eventList.clear();
     safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::setAllEventsCompleted() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
     for(int i = 0; i < eventList.size(); ++i) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == false) {
@@ -107,7 +111,8 @@ void ConnectionSlotThread::setAllEventsCompleted() {
 }
 
 void ConnectionSlotThread::purgeCompletedEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
     //event->eventCompleted = true;
     for(int i = eventList.size() - 1; i >= 0; i--) {
         ConnectionSlotEvent &slotEvent = eventList[i];
@@ -130,7 +135,8 @@ bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
-	MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 	//bool result = (event != NULL ? event->eventCompleted : true);
 	bool result = false;
     if(event != NULL) {
@@ -172,7 +178,8 @@ void ConnectionSlotThread::execute() {
 
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            MutexSafeWrapper safeMutex(&triggerIdMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+            MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
             int eventCount = eventList.size();
             if(eventCount > 0) {
                 ConnectionSlotEvent eventCopy;
@@ -333,7 +340,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
+						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
 						this->vctPendingNetworkCommandList.clear();
 						safeMutexSlot.ReleaseLock();
 
@@ -469,7 +477,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									lastReceiveCommandListTime = time(NULL);
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-                                    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
+									static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+									MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
@@ -725,7 +734,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							if(gotIntro == true) {
 								SwitchSetupRequest switchSetupRequest;
 								if(receiveMessage(&switchSetupRequest)) {
-									MutexSafeWrapper safeMutex(getServerSynchAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
+									static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+									MutexSafeWrapper safeMutex(getServerSynchAccessor(),mutexOwnerId);
 
 									int factionIdx = switchSetupRequest.getCurrentFactionIndex();
 									if(serverInterface->getSwitchSetupRequests()[factionIdx] == NULL) {
@@ -860,7 +870,8 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 }
 
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
-	MutexSafeWrapper safeMutex(&socketSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&socketSynchAccessor,mutexOwnerId);
 	NetworkInterface::sendMessage(networkMessage);
 }
 
@@ -869,7 +880,8 @@ string ConnectionSlot::getHumanPlayerName(int index) {
 }
 
 vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
-    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
     vector<NetworkCommand> ret = vctPendingNetworkCommandList;
     if(clearList == true) {
         vctPendingNetworkCommandList.clear();
@@ -880,7 +892,8 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 }
 
 void ConnectionSlot::clearPendingNetworkCommandList() {
-    MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
     vctPendingNetworkCommandList.clear();
 }
 

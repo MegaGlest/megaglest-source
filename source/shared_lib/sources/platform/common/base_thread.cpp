@@ -49,14 +49,16 @@ Mutex * BaseThread::getMutexThreadOwnerValid() {
 }
 
 void BaseThread::setThreadOwnerValid(bool value) {
-	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,mutexOwnerId);
 	threadOwnerValid = value;
 	safeMutex.ReleaseLock();
 }
 
 bool BaseThread::getThreadOwnerValid() {
 	bool ret = false;
-	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,mutexOwnerId);
 	ret = threadOwnerValid;
 	safeMutex.ReleaseLock();
 
@@ -64,17 +66,18 @@ bool BaseThread::getThreadOwnerValid() {
 }
 
 void BaseThread::signalQuit() {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 	setQuitStatus(true);
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 }
 
 void BaseThread::setQuitStatus(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-	MutexSafeWrapper safeMutex(&mutexQuit,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexQuit,mutexOwnerId);
 	quit = value;
 	safeMutex.ReleaseLock();
 
@@ -85,7 +88,8 @@ bool BaseThread::getQuitStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexQuit,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexQuit,mutexOwnerId);
 	retval = quit;
 	safeMutex.ReleaseLock();
 
@@ -96,7 +100,8 @@ bool BaseThread::getQuitStatus() {
 
 bool BaseThread::getHasBeginExecution() {
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexBeginExecution,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexBeginExecution,mutexOwnerId);
 	retval = hasBeginExecution;
 	safeMutex.ReleaseLock();
 
@@ -108,7 +113,8 @@ bool BaseThread::getHasBeginExecution() {
 void BaseThread::setHasBeginExecution(bool value) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
-	MutexSafeWrapper safeMutex(&mutexBeginExecution,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexBeginExecution,mutexOwnerId);
 	hasBeginExecution = value;
 	safeMutex.ReleaseLock();
 
@@ -119,7 +125,9 @@ bool BaseThread::getRunningStatus() {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexRunning,string(__FILE__) + "_" + intToStr(__LINE__));
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexRunning,mutexOwnerId);
 	retval = running;
 	safeMutex.ReleaseLock();
 
@@ -133,25 +141,30 @@ bool BaseThread::getRunningStatus() {
 }
 
 void BaseThread::setRunningStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] value = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),value);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] value = %d\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),value);
 
-	MutexSafeWrapper safeMutex(&mutexRunning,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexRunning,mutexOwnerId);
 	running = value;
-	setHasBeginExecution(true);
+	if(value == true) {
+		setHasBeginExecution(true);
+	}
 	safeMutex.ReleaseLock();
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 }
 
 void BaseThread::setExecutingTask(bool value) {
-	MutexSafeWrapper safeMutex(&mutexExecutingTask,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexExecutingTask,mutexOwnerId);
 	executingTask = value;
 	safeMutex.ReleaseLock();
 }
 
 bool BaseThread::getExecutingTask() {
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexExecutingTask,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexExecutingTask,mutexOwnerId);
 	retval = executingTask;
 	safeMutex.ReleaseLock();
 
@@ -160,7 +173,8 @@ bool BaseThread::getExecutingTask() {
 
 bool BaseThread::getDeleteSelfOnExecutionDone() {
     bool retval = false;
-    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,string(__FILE__) + "_" + intToStr(__LINE__));
+    static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,mutexOwnerId);
     retval = deleteSelfOnExecutionDone;
     safeMutex.ReleaseLock();
 
@@ -168,7 +182,8 @@ bool BaseThread::getDeleteSelfOnExecutionDone() {
 }
 
 void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
-    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,mutexOwnerId);
     deleteSelfOnExecutionDone = value;
 }
 
@@ -218,14 +233,11 @@ bool BaseThread::shutdownAndWait() {
 				}
 
 				sleep(0);
-				//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
-			//sleep(0);
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 			sleep(0);
 		}
 	}
-	//sleep(0);
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 	return ret;
 }

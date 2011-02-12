@@ -50,6 +50,7 @@ int SystemFlags::DEFAULT_HTTP_TIMEOUT					= 10;
 bool SystemFlags::VERBOSE_MODE_ENABLED  				= false;
 bool SystemFlags::ENABLE_THREADED_LOGGING 				= false;
 static LogFileThread *threadLogger 						= NULL;
+bool SystemFlags::SHUTDOWN_PROGRAM_MODE                 = false;
 //
 
 static void *myrealloc(void *ptr, size_t size)
@@ -197,10 +198,10 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugError]  			= SystemFlags::SystemFlagsType(SystemFlags::debugError);
 	}
 
-    if(threadLogger == NULL) {
+    if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == false) {
         threadLogger = new LogFileThread();
         threadLogger->start();
-        sleep(5);
+        sleep(1);
     }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -261,6 +262,7 @@ SystemFlags::~SystemFlags() {
 void SystemFlags::Close() {
     if(threadLogger != NULL) {
         SystemFlags::ENABLE_THREADED_LOGGING = false;
+        //SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
         threadLogger->signalQuit();
         threadLogger->shutdownAndWait();
         delete threadLogger;

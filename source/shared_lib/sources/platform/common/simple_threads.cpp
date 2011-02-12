@@ -87,13 +87,15 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->needTaskSignal			 = needTaskSignal;
 	setTaskSignalled(false);
 
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
 	bool result = false;
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
 	safeMutex.ReleaseLock();
 
@@ -111,6 +113,7 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 void SimpleTaskThread::execute() {
+	bool mustDeleteSelf = false;
 	{
     {
         RunningStatusSafeWrapper runningStatus(this);
@@ -141,7 +144,8 @@ void SimpleTaskThread::execute() {
                     	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
                         this->simpleTaskInterface->simpleTask(this);
 
-                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,string(__FILE__) + "_" + intToStr(__LINE__));
+                        static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
                     	lastExecuteTimestamp = time(NULL);
                     	safeMutex.ReleaseLock();
                     }
@@ -174,14 +178,19 @@ void SimpleTaskThread::execute() {
         }
     }
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+	mustDeleteSelf = getDeleteSelfOnExecutionDone();
 	}
-	deleteSelfIfRequired();
+
+	if(mustDeleteSelf == true) {
+		delete this;
+	}
 }
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	taskSignalled = value;
 	safeMutex.ReleaseLock();
 
@@ -192,7 +201,8 @@ bool SimpleTaskThread::getTaskSignalled() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool retval = false;
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	retval = taskSignalled;
 	safeMutex.ReleaseLock();
 
@@ -209,7 +219,8 @@ LogFileThread::LogFileThread() : BaseThread() {
 }
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
-    MutexSafeWrapper safeMutex(&mutexLogList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
 	LogFileEntry entry;
 	entry.type = type;
 	entry.entry = logEntry;
@@ -233,6 +244,7 @@ bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
 }
 
 void LogFileThread::execute() {
+    bool mustDeleteSelf = false;
     {
         RunningStatusSafeWrapper runningStatus(this);
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -270,19 +282,25 @@ void LogFileThread::execute() {
 
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+
+        mustDeleteSelf = getDeleteSelfOnExecutionDone();
     }
-    deleteSelfIfRequired();
+    if(mustDeleteSelf == true) {
+        delete this;
+    }
 }
 
 std::size_t LogFileThread::getLogEntryBufferCount() {
-    MutexSafeWrapper safeMutex(&mutexLogList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
     std::size_t logCount = logList.size();
     safeMutex.ReleaseLock();
     return logCount;
 }
 
 void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
-    MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(NULL,mutexOwnerId);
     if(logListAlreadyLocked == false) {
         safeMutex.setMutex(&mutexLogList);
     }
