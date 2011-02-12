@@ -168,6 +168,7 @@ void fatal(const char *s, ...)    // failure exit
     program = NULL;
     // END
 
+    SDL_Quit();
     exit(EXIT_FAILURE);
 }
 
@@ -413,6 +414,7 @@ public:
 		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
 
 		cleanupProcessObjects();
+		SDL_Quit();
         exit(-1);
 	}
 
@@ -437,6 +439,7 @@ public:
 		    // END
 
 		    cleanupProcessObjects();
+		    SDL_Quit();
 		    exit(-1);
         }
 
@@ -1814,8 +1817,8 @@ __try {
 #endif
 
 	int result = glestMain(argc, argv);
-
 	cleanupProcessObjects();
+	SDL_Quit();
 	return result;
 
 #ifdef WIN32_STACK_TRACE

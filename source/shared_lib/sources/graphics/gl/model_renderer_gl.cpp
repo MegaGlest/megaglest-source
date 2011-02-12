@@ -61,7 +61,7 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	//glEnable(GL_POLYGON_OFFSET_LINE);
 	//glEnable(GL_POLYGON_OFFSET_POINT);
-	glPolygonOffset(1.0f, 1.0f);
+	glPolygonOffset(0.005f, 0.0f);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 
