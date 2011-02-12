@@ -127,6 +127,14 @@ enum GAME_ARG_TYPE {
 
 string runtimeErrorMsg = "";
 
+static void cleanupProcessObjects() {
+    showCursor(true);
+    restoreVideoMode(true);
+    Renderer::getInstance().end();
+	SystemFlags::Close();
+	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
+}
+
 #if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
 void fatal(const char *s, ...)    // failure exit
 {
@@ -205,7 +213,6 @@ public:
 
         Program *program = Program::getInstance();
         if(program && gameInitialized == true) {
-			//SystemFlags::Close();
             program->showMessage(msg.c_str());
         }
 
@@ -360,7 +367,6 @@ public:
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 
         if(program && gameInitialized == true) {
-			//SystemFlags::Close();
 			//printf("\nprogram->getState() [%p]\n",program->getState());
 			if(program->getState() != NULL) {
                 program->showMessage(errMsg.c_str());
@@ -396,19 +402,18 @@ public:
         program = NULL;
         // END
 
+#ifdef WIN32
+
         showCursor(true);
         restoreVideoMode(true);
-
-#ifdef WIN32
 
 		runtimeErrorMsg = errMsg;
 		throw runtimeErrorMsg;
 #endif
-		//SystemFlags::Close();
-
 		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
 
-        exit(0);
+		cleanupProcessObjects();
+        exit(-1);
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
@@ -423,8 +428,6 @@ public:
         }
 
         if(exitApp == true) {
-        	showCursor(true);
-            restoreVideoMode(true);
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 
 		    // Now try to shutdown threads if possible
@@ -433,7 +436,8 @@ public:
 		    program = NULL;
 		    // END
 
-            exit(0);
+		    cleanupProcessObjects();
+		    exit(-1);
         }
 
 	    return 0;
@@ -1760,6 +1764,9 @@ int glestMain(int argc, char** argv) {
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	    showCursor(true);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
 		ExceptionHandler::handleRuntimeError(e.what());
@@ -1781,16 +1788,14 @@ int glestMain(int argc, char** argv) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    showCursor(true);
-    restoreVideoMode(true);
+    //showCursor(true);
+    //restoreVideoMode(true);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	GraphicComponent::clearRegisteredComponents();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//SystemFlags::Close();
 
 	return 0;
 }
@@ -1808,7 +1813,10 @@ __try {
     //signal(SIGPIPE, SIG_IGN);
 #endif
 
-	return glestMain(argc, argv);
+	int result = glestMain(argc, argv);
+
+	cleanupProcessObjects();
+	return result;
 
 #ifdef WIN32_STACK_TRACE
 } __except(stackdumper(0, GetExceptionInformation()), EXCEPTION_CONTINUE_SEARCH) { return 0; }

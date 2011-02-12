@@ -477,6 +477,8 @@ private:
 
 	//static
     static Texture2D::Filter strToTextureFilter(const string &s);
+    void cleanupScreenshotThread();
+
 };
 
 }} //end namespace

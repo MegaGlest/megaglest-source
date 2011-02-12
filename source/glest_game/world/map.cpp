@@ -101,6 +101,17 @@ Map::Map() {
 	cells= NULL;
 	surfaceCells= NULL;
 	startLocations= NULL;
+
+	title="";
+	waterLevel=0;
+	heightFactor=0;
+	cliffLevel=0;
+	w=0;
+	h=0;
+	surfaceW=0;
+	surfaceH=0;
+	maxPlayers=0;
+	maxMapHeight=0;
 }
 
 Map::~Map() {

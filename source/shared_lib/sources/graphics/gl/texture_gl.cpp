@@ -790,17 +790,27 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+/*
+ * 			Replaced this call due to: http://www.opengl.org/wiki/Common_Mistakes#gluBuild2DMipmaps
+ *
 			int error= gluBuild2DMipmaps(
 				GL_TEXTURE_2D, glCompressionFormat,
 				pixmap.getW(), pixmap.getH(),
 				glFormat, GL_UNSIGNED_BYTE, pixels);
+*/
+			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+			glTexImage2D(GL_TEXTURE_2D, 0, glCompressionFormat,
+							pixmap.getW(), pixmap.getH(), 0,
+							glFormat, GL_UNSIGNED_BYTE, pixels);
 
+			GLint error= glGetError();
 			if(error != 0) {
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
+
 		}
 		else {
 			//build single texture
@@ -965,17 +975,30 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 			GLenum target= GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
 
 			if(mipmap) {
+
+/*
+ * 				Replaced this call due to: http://www.opengl.org/wiki/Common_Mistakes#gluBuild2DMipmaps
+ *
 				int error= gluBuild2DMipmaps(
 					target, glCompressionFormat,
 					currentPixmap->getW(), currentPixmap->getH(),
 					glFormat, GL_UNSIGNED_BYTE, pixels);
 
+*/
+				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+				glTexImage2D(target, 0, glCompressionFormat,
+							 currentPixmap->getW(), currentPixmap->getH(), 0,
+							 glFormat, GL_UNSIGNED_BYTE, pixels);
+
+				int error = glGetError();
 				if(error != 0) {
 					//throw runtime_error("Error building texture cube mipmaps");
 					char szBuf[1024]="";
 					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 					throw runtime_error(szBuf);
 				}
+
 			}
 			else {
 				glTexImage2D(
