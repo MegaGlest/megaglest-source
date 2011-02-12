@@ -149,6 +149,7 @@ Renderer::Renderer() {
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
+	list2d = 0;
 	showDebugUI = false;
 	showDebugUILevel = debugui_fps;
 	modelRenderer = NULL;
@@ -445,13 +446,24 @@ void Renderer::end() {
 	mapSurfaceData.clear();
 
 	//delete resources
-	modelManager[rsGlobal]->end();
-	textureManager[rsGlobal]->end();
-	fontManager[rsGlobal]->end();
-	particleManager[rsGlobal]->end();
+	if(modelManager[rsGlobal]) {
+		modelManager[rsGlobal]->end();
+	}
+	if(textureManager[rsGlobal]) {
+		textureManager[rsGlobal]->end();
+	}
+	if(fontManager[rsGlobal]) {
+		fontManager[rsGlobal]->end();
+	}
+	if(particleManager[rsGlobal]) {
+		particleManager[rsGlobal]->end();
+	}
 
 	//delete 2d list
-	glDeleteLists(list2d, 1);
+	if(list2d > 0) {
+		glDeleteLists(list2d, 1);
+		list2d = 0;
+	}
 }
 
 void Renderer::endGame() {
