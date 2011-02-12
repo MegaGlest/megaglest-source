@@ -154,7 +154,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
-				const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
+				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
 				if( act != NULL && act->getAttackSkillType() != NULL &&
 					act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
 
