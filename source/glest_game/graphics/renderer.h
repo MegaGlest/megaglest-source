@@ -380,7 +380,7 @@ public:
 
 	//computing
     bool computePosition(const Vec2i &screenPos, Vec2i &worldPos);
-	void computeSelected(Selection::UnitContainer &units, const Vec2i &posDown, const Vec2i &posUp);
+	void computeSelected(Selection::UnitContainer &units, const Object *&obj, const bool withObjectSelection, const Vec2i &posDown, const Vec2i &posUp);
 
     //gl wrap
 	string getGlInfo();
@@ -451,7 +451,7 @@ private:
 	void checkExtension(const string &extension, const string &msg);
 
 	//selection render
-	void renderObjectsFast();
+	void renderObjectsFast(bool renderingShadows = false, bool resourceOnly = false);
 	void renderUnitsFast(bool renderingShadows = false);
 
 	//gl requirements

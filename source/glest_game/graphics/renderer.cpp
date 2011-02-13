@@ -143,6 +143,8 @@ const float Renderer::maxLightDist= 1000.f;
 const int MIN_FPS_NORMAL_RENDERING = 15;
 const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
+const int OBJECT_SELECT_OFFSET=100000000;
+
 // ==================== constructor and destructor ====================
 
 Renderer::Renderer() {
@@ -3420,7 +3422,7 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 	return screenPos;
 }
 
-void Renderer::computeSelected(	Selection::UnitContainer &units,
+void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj, const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
 
 	//declarations
@@ -3448,6 +3450,9 @@ void Renderer::computeSelected(	Selection::UnitContainer &units,
 
 	//render units to find which ones should be selected
 	renderUnitsFast();
+	if(withObjectSelection){
+		renderObjectsFast(false,true);
+	}
 
 	//pop matrices
 	glMatrixMode(GL_PROJECTION);
@@ -3458,10 +3463,23 @@ void Renderer::computeSelected(	Selection::UnitContainer &units,
 	if(selCount > 0) {
 		VisibleQuadContainerCache &qCache = getQuadCache();
 		for(int i=1; i <= selCount; ++i) {
-			int visibleUnitIndex= selectBuffer[i*4-1];
-			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			if(unit != NULL && unit->isAlive()) {
-				units.push_back(unit);
+			int index= selectBuffer[i*4-1];
+			if(index>=OBJECT_SELECT_OFFSET)
+			{
+				Object *object = qCache.visibleObjectList[index-OBJECT_SELECT_OFFSET];
+				if(object != NULL && object) {
+					obj=object;
+					if(withObjectSelection) {
+						break;
+					}
+				}
+			}
+			else
+			{
+				Unit *unit = qCache.visibleQuadUnitList[index];
+				if(unit != NULL && unit->isAlive()) {
+					units.push_back(unit);
+				}
 			}
 		}
 	}
@@ -3560,7 +3578,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 			//render 3d
 			renderUnitsFast(true);
-			renderObjectsFast();
+			renderObjectsFast(true,false);
 
 			//read color buffer
 			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
@@ -3956,7 +3974,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 }
 
 //render objects for selection purposes
-void Renderer::renderObjectsFast() {
+void Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly) {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
@@ -3970,39 +3988,49 @@ void Renderer::renderObjectsFast() {
 				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 			Object *o = qCache.visibleObjectList[visibleIndex];
 
-			Model *objModel= o->getModelPtr();
-			const Vec3f &v= o->getConstPos();
 
 			if(modelRenderStarted == false) {
 				modelRenderStarted = true;
-				glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+
 				glDisable(GL_LIGHTING);
 
-				glAlphaFunc(GL_GREATER, 0.5f);
+				if (renderingShadows == false){
+					glPushAttrib(GL_ENABLE_BIT);
+					glDisable(GL_TEXTURE_2D);
+				}
+				else {
+					glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+					glAlphaFunc(GL_GREATER, 0.5f);
 
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
-				//set color to the texture alpha
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+					//set color to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 
-				//set alpha to the texture alpha
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-
-				modelRenderer->begin(false, true, false);
+					//set alpha to the texture alpha
+					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+				}
+				modelRenderer->begin(false, renderingShadows, false);
+				glInitNames();
 			}
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glTranslatef(v.x, v.y, v.z);
-			glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+			if(!resourceOnly || o->getResource()!= NULL){
+				Model *objModel= o->getModelPtr();
+				const Vec3f &v= o->getConstPos();
+				glPushName(OBJECT_SELECT_OFFSET+visibleIndex);
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glTranslatef(v.x, v.y, v.z);
+				glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-			modelRenderer->render(objModel);
+				modelRenderer->render(objModel);
 
-			glPopMatrix();
-
+				glPopMatrix();
+				glPopName();
+			}
 		}
 
 		if(modelRenderStarted == true) {

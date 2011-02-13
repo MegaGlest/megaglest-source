@@ -907,11 +907,12 @@ void Gui::computeSelected(bool doubleClick, bool force){
 
 	if( force || ( lastQuadCalcFrame+selectionCalculationFrameSkip < game->getTotalRenderFps() ) ){
 		lastQuadCalcFrame=game->getTotalRenderFps();
+		const Object* obj=NULL;
 		if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())<minQuadSize){
-			Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(), selectionQuad.getPosDown());
+			Renderer::getInstance().computeSelected(units, obj, false, selectionQuad.getPosDown(), selectionQuad.getPosDown());
 		}
 		else{
-			Renderer::getInstance().computeSelected(units, selectionQuad.getPosDown(), selectionQuad.getPosUp());
+			Renderer::getInstance().computeSelected(units, obj, false, selectionQuad.getPosDown(), selectionQuad.getPosUp());
 		}
 		selectingBuilding= false;
 		activeCommandType= NULL;
@@ -952,12 +953,18 @@ void Gui::computeSelected(bool doubleClick, bool force){
 bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit) {
 	Selection::UnitContainer uc;
 	Renderer &renderer= Renderer::getInstance();
-	renderer.computeSelected(uc, screenPos, screenPos);
+	const Object* obj=NULL;
+	renderer.computeSelected(uc, obj, true, screenPos, screenPos);
 	validPosObjWorld= false;
 
 	if(uc.empty() == false) {
 		targetUnit= uc.front();
 		targetPos= targetUnit->getPos();
+		return true;
+	}
+	else if(obj!=NULL) {
+		targetUnit= NULL;
+		targetPos= obj->getMapPos();
 		return true;
 	}
 	else {
