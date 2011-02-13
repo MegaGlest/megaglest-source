@@ -1894,16 +1894,17 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
             break;
         }
     }
-
-	//any enemy
-    for(int i = 0; result == false && i < enemies.size(); ++i) {
-		if(enemies[i]->isAlive() == true ) {
-            *rangedPtr= enemies[i];
-			enemySeen=enemies[i];
-            result=true;
-            break;
-        }
-    }
+    if(!result){
+		//any enemy
+		for(int i= 0; i < enemies.size(); ++i){
+			if(enemies[i]->isAlive() == true){
+				*rangedPtr= enemies[i];
+				enemySeen= enemies[i];
+				result= true;
+				break;
+			}
+		}
+	}
 
 
 	if(result)
