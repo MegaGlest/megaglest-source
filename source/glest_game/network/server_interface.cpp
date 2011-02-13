@@ -324,7 +324,7 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 }
 
 void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients = true;
@@ -509,7 +509,7 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot= slots[i];
 		if(connectionSlot != NULL && connectionSlot->getSocket() != NULL &&
-		   slots[i]->getSocket()->isSocketValid() == true) {
+			connectionSlot->getSocket()->isSocketValid() == true) {
 			socketTriggeredList[connectionSlot->getSocket()->getSocketId()] = false;
 		}
 	}
@@ -1188,6 +1188,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 			ftpServer = NULL;
 		}
 
+/*
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
@@ -1197,6 +1198,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 				connectionSlot->getSocket()->setBlock(true);
 			}
 		}
+*/
 
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);

@@ -126,7 +126,7 @@ const float Renderer::magicCircleRadius= 1.f;
 
 //perspective values
 const float Renderer::perspFov= 60.f;
-const float Renderer::perspNearPlane= 2.f;
+const float Renderer::perspNearPlane= 1.f;
 //const float Renderer::perspFarPlane= 50.f;
 const float Renderer::perspFarPlane= 1000.f;
 
@@ -2591,8 +2591,8 @@ void Renderer::renderSelectionEffects() {
 			(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
 
 			const UnitPathInterface *path= unit->getPath();
-			if(path != NULL) {
-				vector<Vec2i> pathList = path->getQueue();
+			if(path != NULL && dynamic_cast<const UnitPathBasic *>(path)) {
+				vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getLastPathCacheQueue();
 
 				Vec2i lastPosValue;
 				for(int i = 0; i < pathList.size(); ++i) {

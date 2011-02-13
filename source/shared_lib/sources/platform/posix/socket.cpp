@@ -844,6 +844,7 @@ void Socket::disconnectSocket() {
         ::closesocket(sock);
         sock = -1;
 #endif
+        safeMutex.ReleaseLock();
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
@@ -893,7 +894,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             {
                 bResult = true;
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] select detected data imaxsocket = %d...\n",__FILE__,__FUNCTION__,imaxsocket);
+                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] select detected data imaxsocket = %d...\n",__FILE__,__FUNCTION__,imaxsocket);
 
                 for(std::map<PLATFORM_SOCKET,bool>::iterator itermap = socketTriggeredList.begin();
                     itermap != socketTriggeredList.end(); itermap++)
@@ -901,7 +902,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
                 	PLATFORM_SOCKET socket = itermap->first;
                     if (FD_ISSET(socket, &rfds))
                     {
-                        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] FD_ISSET true for socket %d...\n",__FUNCTION__,socket);
+                        //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] FD_ISSET true for socket %d...\n",__FUNCTION__,socket);
 
                         itermap->second = true;
                     }
@@ -911,7 +912,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
                     }
                 }
 
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList->size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
+                //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] socketTriggeredList->size() = %d\n",__FILE__,__FUNCTION__,socketTriggeredList.size());
             }
         }
     }
@@ -1040,6 +1041,7 @@ int Socket::send(const void *data, int dataSize) {
 #else
         bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
+        safeMutex.ReleaseLock();
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -1072,13 +1074,13 @@ int Socket::send(const void *data, int dataSize) {
 #else
                 bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
-                safeMutex.ReleaseLock();
-
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
-
                 if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
                     break;
                 }
+
+                safeMutex.ReleaseLock();
+
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
 	        else {
                 int iErr = getLastSocketError();
@@ -1114,16 +1116,17 @@ int Socket::send(const void *data, int dataSize) {
 #else
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
-			    safeMutex.ReleaseLock();
-
                 if(bytesSent > 0) {
                 	totalBytesSent += bytesSent;
                 }
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 
                 if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
                     break;
                 }
+
+			    safeMutex.ReleaseLock();
+
+			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
 	        else {
                 int iErr = getLastSocketError();
@@ -1168,6 +1171,7 @@ int Socket::receive(void *data, int dataSize) {
 	if(isSocketValid() == true)	{
 		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
+	    safeMutex.ReleaseLock();
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText().c_str());
@@ -1221,6 +1225,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
+	    safeMutex.ReleaseLock();
 
 	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
@@ -1321,6 +1326,7 @@ bool Socket::isReadable() {
 	{
 		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
+		safeMutex.ReleaseLock();
 	}
 	if(i < 0) {
         //if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1359,6 +1365,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     	{
     		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
         	i = select((int)sock + 1, NULL, &set, NULL, &tv);
+        	safeMutex.ReleaseLock();
     	}
         if(i < 0 ) {
             //if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1541,6 +1548,7 @@ void ClientSocket::connect(const Ip &ip, int port)
                {
             	   MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
+            	   safeMutex.ReleaseLock();
                }
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED) {
