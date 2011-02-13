@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
-const int PathFinder::pathFindNodesMax		= 1000;
+int PathFinder::pathFindNodesMax		= 1000;
 const int PathFinder::pathFindRefresh		= 20;
 const int PathFinder::pathFindBailoutRadius	= 20;
 
@@ -57,6 +57,7 @@ PathFinder::PathFinder(const Map *map) {
 }
 
 void PathFinder::init(const Map *map) {
+	PathFinder::pathFindNodesMax = Config::getInstance().getInt("MaxPathfinderNodeCount",intToStr(PathFinder::pathFindNodesMax).c_str());
 	nodePool.resize(pathFindNodesMax);
 	this->map= map;
 }
