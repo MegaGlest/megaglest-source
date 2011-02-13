@@ -20,6 +20,7 @@
 #include "selection.h"
 #include "randomgen.h"
 #include <map>
+#include "object.h"
 #include "leak_dumper.h"
 
 using Shared::Util::RandomGen;
@@ -135,6 +136,7 @@ private:
 	bool selectingMeetingPoint;
 
 	CardinalDir selectedBuildingFacing;
+	const Object *selectedResourceObject;
 
 public:
 	Gui();
@@ -148,6 +150,9 @@ public:
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
+	const Object *getSelectedResourceObject()	const			{return selectedResourceObject;}
+	void  removeObject(Object* o) ;
+
 	const SelectionQuad *getSelectionQuad() const	{return &selectionQuad;}
 	CardinalDir getSelectedFacing() const			{return selectedBuildingFacing;}
 	bool isSelected(const Unit *unit) const			{return selection.hasUnit(unit);}
