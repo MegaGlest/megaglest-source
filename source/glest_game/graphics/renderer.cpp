@@ -2550,6 +2550,7 @@ void Renderer::renderSelectionEffects() {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 	const Selection *selection= game->getGui()->getSelection();
+	const Object *selectedResourceObject= game->getGui()->getSelectedResourceObject();
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
@@ -2620,7 +2621,14 @@ void Renderer::renderSelectionEffects() {
 			renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
 		}
 	}
-
+	if(selectedResourceObject!=NULL)
+	{
+		Resource *r= selectedResourceObject->getResource();
+		int defaultValue= r->getType()->getDefResPerPatch();
+		float colorValue=static_cast<float>(r->getAmount())/static_cast<float>(defaultValue);
+		glColor4f(0.1f, 0.1f , colorValue, 0.4f);
+		renderSelectionCircle(selectedResourceObject->getPos(),2, selectionCircleRadius);
+	}
 	//target arrow
 	if(selection->getCount() == 1) {
 		const Unit *unit= selection->getUnit(0);

@@ -47,10 +47,10 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 }
 
 Object::~Object(){
-	delete resource;
-
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeObjectFromQuadCache(this);
+	//renderer.getGame()->getGui()->removeObject(this);
+	delete resource;
 }
 
 Model *Object::getModelPtr() const {

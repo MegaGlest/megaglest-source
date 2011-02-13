@@ -108,6 +108,7 @@ Gui::Gui(){
 	lastQuadCalcFrame=0;
 	selectionCalculationFrameSkip=10;
 	minQuadSize=20;
+	selectedResourceObject=NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -693,111 +694,120 @@ void Gui::computeInfoString(int posDisplay){
 	}
 }
 
-void Gui::computeDisplay() {
+void Gui::computeDisplay(){
 
 	//printf("Start ===> computeDisplay()\n");
-
+	Lang &lang= Lang::getInstance();
 	//init
 	display.clear();
 
-    // ================ PART 1 ================
+	// ================ PART 1 ================
 
-	//title, text and progress bar
-    if(selection.getCount()==1){
-		display.setTitle(selection.getFrontUnit()->getFullName());
-		display.setText(selection.getFrontUnit()->getDesc());
-		display.setProgressBar(selection.getFrontUnit()->getProductionPercent());
-    }
-
-    //portraits
-	for(int i=0; i<selection.getCount(); ++i){
-		display.setUpImage(i, selection.getUnit(i)->getType()->getImage());
+	if(selection.isEmpty() && selectedResourceObject!=NULL){
+		Resource *r = selectedResourceObject->getResource();
+		display.setTitle(r->getType()->getName());
+		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
+		//display.setProgressBar(r->);
+		display.setUpImage(0, r->getType()->getImage());
 	}
+	else{
+		//title, text and progress bar
+		if(selection.getCount() == 1){
+			display.setTitle(selection.getFrontUnit()->getFullName());
+			display.setText(selection.getFrontUnit()->getDesc());
+			display.setProgressBar(selection.getFrontUnit()->getProductionPercent());
+		}
 
-    // ================ PART 2 ================
+		//portraits
+		for(int i= 0; i < selection.getCount(); ++i){
+			display.setUpImage(i, selection.getUnit(i)->getType()->getImage());
+		}
 
-	if(selectingPos || selectingMeetingPoint) {
-		//printf("selectingPos || selectingMeetingPoint\n");
-		display.setDownSelectedPos(activePos);
-	}
+		// ================ PART 2 ================
 
-	if(selection.isCommandable()) {
-		//printf("selection.isComandable()\n");
+		if(selectingPos || selectingMeetingPoint){
+			//printf("selectingPos || selectingMeetingPoint\n");
+			display.setDownSelectedPos(activePos);
+		}
 
-		if(selectingBuilding == false) {
+		if(selection.isCommandable()){
+			//printf("selection.isComandable()\n");
 
-			//cancel button
-			const Unit *u= selection.getFrontUnit();
-			const UnitType *ut= u->getType();
-			if(selection.isCancelable()) {
-				//printf("selection.isCancelable() commandcount = %d\n",selection.getUnit(0)->getCommandSize());
-				if(selection.getUnit(0)->getCommandSize() > 0) {
-					//printf("Current Command [%s]\n",selection.getUnit(0)->getCurrCommand()->toString().c_str());
+			if(selectingBuilding == false){
+
+				//cancel button
+				const Unit *u= selection.getFrontUnit();
+				const UnitType *ut= u->getType();
+				if(selection.isCancelable()){
+					//printf("selection.isCancelable() commandcount = %d\n",selection.getUnit(0)->getCommandSize());
+					if(selection.getUnit(0)->getCommandSize() > 0){
+						//printf("Current Command [%s]\n",selection.getUnit(0)->getCurrCommand()->toString().c_str());
+					}
+
+					display.setDownImage(cancelPos, ut->getCancelImage());
+					display.setDownLighted(cancelPos, true);
 				}
 
-				display.setDownImage(cancelPos, ut->getCancelImage());
-				display.setDownLighted(cancelPos, true);
-			}
+				//meeting point
+				if(selection.isMeetable()){
+					//printf("selection.isMeetable()\n");
 
-			//meeting point
-			if(selection.isMeetable()) {
-				//printf("selection.isMeetable()\n");
+					display.setDownImage(meetingPointPos, ut->getMeetingPointImage());
+					display.setDownLighted(meetingPointPos, true);
+				}
 
-				display.setDownImage(meetingPointPos, ut->getMeetingPointImage());
-				display.setDownLighted(meetingPointPos, true);
-			}
+				if(selection.isUniform()){
+					//printf("selection.isUniform()\n");
 
-			if(selection.isUniform()) {
-				//printf("selection.isUniform()\n");
+					//uniform selection
+					if(u->isBuilt()){
+						//printf("u->isBuilt()\n");
 
-				//uniform selection
-				if(u->isBuilt()) {
-					//printf("u->isBuilt()\n");
-
-					int morphPos= 8;
-					for(int i=0; i<ut->getCommandTypeCount(); ++i) {
-						int displayPos= i;
-						const CommandType *ct= ut->getCommandType(i);
-						if(ct->getClass()==ccMorph) {
-							displayPos= morphPos++;
+						int morphPos= 8;
+						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
+							int displayPos= i;
+							const CommandType *ct= ut->getCommandType(i);
+							if(ct->getClass() == ccMorph){
+								displayPos= morphPos++;
+							}
+							display.setDownImage(displayPos, ct->getImage());
+							display.setCommandType(displayPos, ct);
+							display.setDownLighted(displayPos, u->getFaction()->reqsOk(ct));
 						}
-						display.setDownImage(displayPos, ct->getImage());
-						display.setCommandType(displayPos, ct);
-						display.setDownLighted(displayPos, u->getFaction()->reqsOk(ct));
+					}
+				}
+				else{
+					//printf("selection.isUniform() == FALSE\n");
+
+					//non uniform selection
+					int lastCommand= 0;
+					for(int i= 0; i < ccCount; ++i){
+						CommandClass cc= static_cast<CommandClass> (i);
+						if(isSharedCommandClass(cc) && cc != ccBuild){
+							display.setDownLighted(lastCommand, true);
+							display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
+							display.setCommandClass(lastCommand, cc);
+							lastCommand++;
+						}
 					}
 				}
 			}
-			else {
-				//printf("selection.isUniform() == FALSE\n");
+			else{
 
-				//non uniform selection
-				int lastCommand= 0;
-				for(int i=0; i<ccCount; ++i) {
-					CommandClass cc= static_cast<CommandClass>(i);
-					if(isSharedCommandClass(cc) && cc!=ccBuild) {
-						display.setDownLighted(lastCommand, true);
-						display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
-						display.setCommandClass(lastCommand, cc);
-						lastCommand++;
+				//selecting building
+				const Unit *unit= selection.getFrontUnit();
+				if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild){
+					const BuildCommandType* bct= static_cast<const BuildCommandType*> (activeCommandType);
+					for(int i= 0; i < bct->getBuildingCount(); ++i){
+						display.setDownImage(i, bct->getBuilding(i)->getImage());
+						display.setDownLighted(i, unit->getFaction()->reqsOk(bct->getBuilding(i)));
 					}
+					display.setDownImage(cancelPos, selection.getFrontUnit()->getType()->getCancelImage());
+					display.setDownLighted(cancelPos, true);
 				}
 			}
 		}
-		else {
-
-			//selecting building
-			const Unit *unit= selection.getFrontUnit();
-			if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
-				const BuildCommandType* bct= static_cast<const BuildCommandType*>(activeCommandType);
-				for(int i=0; i<bct->getBuildingCount(); ++i){
-					display.setDownImage(i, bct->getBuilding(i)->getImage());
-					display.setDownLighted(i, unit->getFaction()->reqsOk(bct->getBuilding(i)));
-				}
-				display.setDownImage(cancelPos, selection.getFrontUnit()->getType()->getCancelImage());
-				display.setDownLighted(cancelPos, true);
-			}
-		}
-    }
+	}
 }
 
 int Gui::computePosDisplay(int x, int y){
@@ -907,12 +917,12 @@ void Gui::computeSelected(bool doubleClick, bool force){
 
 	if( force || ( lastQuadCalcFrame+selectionCalculationFrameSkip < game->getTotalRenderFps() ) ){
 		lastQuadCalcFrame=game->getTotalRenderFps();
-		const Object* obj=NULL;
+		selectedResourceObject=NULL;
 		if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())<minQuadSize){
-			Renderer::getInstance().computeSelected(units, obj, false, selectionQuad.getPosDown(), selectionQuad.getPosDown());
+			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosDown());
 		}
 		else{
-			Renderer::getInstance().computeSelected(units, obj, false, selectionQuad.getPosDown(), selectionQuad.getPosUp());
+			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosUp());
 		}
 		selectingBuilding= false;
 		activeCommandType= NULL;
@@ -942,6 +952,9 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		if(!controlDown){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.select(units);
+			if(!selection.isEmpty()){
+				selectedResourceObject=NULL;
+			}
 		}
 		else{
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] selection.unSelect(units)\n",__FILE__,__FUNCTION__,__LINE__);
@@ -977,6 +990,12 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 		else {
 			return false;
 		}
+	}
+}
+
+void  Gui::removeObject(Object* o){
+	if(getSelectedResourceObject()==o){
+		selectedResourceObject=NULL;
 	}
 }
 
