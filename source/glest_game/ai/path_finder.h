@@ -54,7 +54,7 @@ public:
 
 public:
 	static const int maxFreeSearchRadius;
-	static const int pathFindNodesMax;
+	static int pathFindNodesMax;
 	static const int pathFindRefresh;
 	static const int pathFindBailoutRadius;
 
