@@ -4,7 +4,7 @@
 # 20110120, bugs & feedback to olaus@rupp.de
 # license: GPLv3 or newer
 
-our $version = "0.7 beta";
+our $version = "0.8 beta";
 
 # general comments for running:
 # - developed on ubuntu linux 10.04 and with modules from ubuntu (install with "apt-get install libgraphviz-perl libconfig-inifiles-perl libxml-xpath-perl perlmagick")
@@ -28,7 +28,14 @@ our $version = "0.7 beta";
 # TODO:
 # - requirement page per faction with all buildings and producing units and the units they produce (footnotes for requirements) (collect in $production{ $u } and $production_units{ $u }
 
-# DONE
+# DONE:
+# 0.8
+# - bugfix: missing requirements in building & units diagrams
+# - included all needed files in media-directory
+# - reworker directory-structure in generated html-directory (best to delete the old one before upgrading!)
+# - changed mg.ini and style.css to mg-webdesign (doesn't work with the wide tables because tiles are just made for narrow content in the middle)
+# 0.7
+# - big all and everything-table
 # 0.6:
 # - add png images rendered by g3d_viewer (by softcoder, thanks)
 # 0.5:
@@ -94,7 +101,7 @@ if ( ! -e $cfg_file ) {
 	die "\nusage: $0 [glest.ini]\n\n";
 }
 
-$cfg = new Config::IniFiles( -file => "./$cfg_file" );
+$cfg = new Config::IniFiles( -file => "./$cfg_file", -allowcontinue => 1 );
 
 
 use strict;
@@ -406,7 +413,7 @@ foreach my $faction_path ( @factions ) {
 			my $save_as = "$out_path/$images_path/${faction}/$unit/$full_png-full.png";
 
 			if ( ! -e $save_as ) {
-				my $g3d_generate_cmd = "$g3dviewer_path --load-unit=$faction_path/$units_path/$unit,attack_skill,stop_skill --load-model-animation-value=0.5 --load-particle-loop-value=8 --zoom-value=$zoom --rotate-x-value=".$cfg->val('style', 'unit_png_rotate_x_value')." --rotate-y-value=".$cfg->val('style', 'unit_png_rotate_y_value')." --auto-screenshot=disable_grid,saveas-$save_as";
+				my $g3d_generate_cmd = "$g3dviewer_path --load-unit=$faction_path/$units_path/$unit,stop_skill,attack_skill --load-model-animation-value=0.5 --load-particle-loop-value=8 --zoom-value=$zoom --rotate-x-value=".$cfg->val('style', 'unit_png_rotate_x_value')." --rotate-y-value=".$cfg->val('style', 'unit_png_rotate_y_value')." --auto-screenshot=disable_grid,saveas-$save_as";
 
 				print "generating G3D using: [$g3d_generate_cmd]\n" if ( $debug );
 				my $ret = `$g3d_generate_cmd`;
@@ -506,7 +513,10 @@ foreach my $faction_path ( @factions ) {
 			) {
 				$graph_all             -> add_edge("$unit_from" => "$unit_to", style => $style, color => $svg_fontcolor ) if (!$dont_link_in_all);
 				print "dedge: SHOWING edge $faction:$unit_from:$unit_to\n";
-				#$graph_buildings_units -> add_edge("$unit_from" => "$unit_to", style => $style, color => $svg_fontcolor );
+
+				if ( !$upgrade{"$faction:$unit_from"} ) {
+					$graph_buildings_units -> add_edge("$unit_from" => "$unit_to", style => $style, color => $svg_fontcolor );
+				}
 			}
 			elsif ( $relation eq "Build" ) {
 				$graph_all             -> add_edge("$unit_from" => "$unit_to", style => $style, color => $svg_fontcolor ) if (!$dont_link_in_all);
@@ -564,7 +574,10 @@ foreach my $faction_path ( @factions ) {
 
 # for all and everything table:
 my $all_html_table="";
-my ( @col_order ) =split(/,\s+/, $cfg->val('style', 'columns_all_table') );
+
+my $col_order_tmp = $cfg->val('style', 'columns_all_table');
+$col_order_tmp =~ s/\s//g;
+my ( @col_order ) =split(/,/, $col_order_tmp );
 
 foreach my $faction_path ( @factions ) {
 
@@ -841,6 +854,7 @@ foreach my $faction_path ( @factions ) {
 
 
 		# do all commands with <type value=attack>
+		my $num_attack=0;
 		foreach my $c ( @{$commands_of_unit{"$u:attack"}} ) {
 
 			my ( $faction, $unit, $command ) = split(/:/, $c );
@@ -848,12 +862,32 @@ foreach my $faction_path ( @factions ) {
 			$commands .= "$command_pretty, ";
 
 			$num_move_command++;
+			$num_attack++;
 
+			my ($strength, $var, $range, $type, $speed, $start_time, $ep_cost ) ="";
 
 			my $full_attack_tmp_tmp;
 
-			( $full_attack_tmp_tmp, $max_strength_vs_land, $max_strength_vs_land_var, $max_strength_vs_air, $max_strength_vs_air_var, $max_range, $max_move_speed ) = 
+			( 
+				$full_attack_tmp_tmp, 
+				$max_strength_vs_land, 
+				$max_strength_vs_land_var, 
+				$max_strength_vs_air, 
+				$max_strength_vs_air_var, 
+				$max_range, 
+				$max_move_speed,
+				$col{"attack_strength_$num_attack"},
+				$col{"attack_var_$num_attack"},
+				$col{"attack_range_$num_attack"},
+				$col{"attack_type_$num_attack"},
+				$col{"attack_speed_$num_attack"},
+				$col{"attack_start_time_$num_attack"},
+				$col{"attack_ep_cost_$num_attack"},
+				$col{"used_on_hold_position_$num_attack"},
+				$col{"target_$num_attack"},
+			) = 
 				&show_attack( $c, $max_strength_vs_land, $max_strength_vs_land_var, $max_strength_vs_air, $max_strength_vs_air_var, $max_range, $max_move_speed, $skill_on_hold_position );
+
 
 			$full_attack_tmp .= $full_attack_tmp_tmp;
 
@@ -1425,11 +1459,14 @@ foreach my $faction_path ( @factions ) {
 print HTML $footer;
 close HTML;
 
-
-system "cp $ENV{APP_ROOT}/compare.html $out_path/compare.html";
-system "cp $ENV{APP_ROOT}/compare_help.html $out_path/compare_help.html";
+# copy static files to outpath
+mkdir "$out_path/js";
 mkdir "$out_path/css";
-system "cp $ENV{APP_ROOT}/style.css $out_path/css/style.css";
+system "cp $ENV{APP_ROOT}/media/*.html $out_path";
+system "cp $ENV{APP_ROOT}/media/*.ico $out_path";
+system "cp $ENV{APP_ROOT}/media/*.css $out_path";
+system "cp $ENV{APP_ROOT}/media/*.js $out_path/js";
+system "cp -r $ENV{APP_ROOT}/media/datatables $out_path/images";
 
 exit 0;
 
@@ -2309,8 +2346,13 @@ sub link_attack_and_armor_types {
 sub show_attack {
 
 	my ( $c, $max_strength_vs_land, $max_strength_vs_land_var, $max_strength_vs_air, $max_strength_vs_air_var, $max_range, $max_move_speed, $skill_on_hold_position ) = @_;
+
 	my ( $faction, $unit, $command ) = split(/:/, $c );
 	my $command_pretty = &format_name( $command );
+
+	my $used_on_hold_position=0;
+	my $target;
+
 
 	my $full_attack_tmp = "<TR><TD>Attack Command: $command_pretty".&html_icon_command( $c, 32 )."</TD><TD>\n";
 
@@ -2343,17 +2385,20 @@ sub show_attack {
 		$attack_land{ $s } &&
 		$attack_air{ $s }
 	) {
-		$full_attack_tmp .= "Target: Ground and air units<BR>\n";
+		$target .= "Ground and air";
+		$full_attack_tmp .= "Target: $target units<BR>\n";
 	}
 	elsif ( 
 		$attack_air{ $s }
 	) {
-		$full_attack_tmp .= "Target: Only air units<BR>\n";
+		$target .= "Only air";
+		$full_attack_tmp .= "Target: $target units<BR>\n";
 	}
 	elsif ( 
 		$attack_land{ $s } 
 	) {
-		$full_attack_tmp .= "Target: Only ground units<BR>\n";
+		$target .= "Only ground";
+		$full_attack_tmp .= "Target: $target units<BR>\n";
 	}
 	
 
@@ -2383,6 +2428,7 @@ sub show_attack {
 	if ( $skill_on_hold_position ) {
 		my ( $s, $requirement ) = split(/;/, $skill_on_hold_position );
 		if ( $skill eq $s ) {
+			$used_on_hold_position="true";
 			$full_attack_tmp .= "This Attack Skill is used on \"Hold Position\"<BR>\n";
 			$full_attack_tmp .= "(\"Hold Position\" requires ".&link_unit($faction,  $requirement).")<BR>\n" if ( $requirement);
 		}
@@ -2398,7 +2444,24 @@ sub show_attack {
 
 	$full_attack_tmp .= "</TD></TR>\n";
 
-	return ( $full_attack_tmp, $max_strength_vs_land, $max_strength_vs_land_var, $max_strength_vs_air, $max_strength_vs_air_var, $max_range, $max_move_speed );
+	return ( 
+		$full_attack_tmp, 
+		$max_strength_vs_land, 
+		$max_strength_vs_land_var, 
+		$max_strength_vs_air, 
+		$max_strength_vs_air_var, 
+		$max_range, 
+		$max_move_speed,
+		$attack_strenght{ $s },
+		$attack_var{ $s },
+		$attack_range{ $s },
+		$attack_type{ $s },
+		$speed{ $s },
+		$attack_start_time{ $s },
+		$ep_cost{ $s },
+		$used_on_hold_position,
+		$target,
+	);
 }
 
 sub html_icon_resource {
