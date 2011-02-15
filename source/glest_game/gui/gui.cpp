@@ -922,7 +922,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosDown());
 		}
 		else{
-			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosUp());
+			Renderer::getInstance().computeSelected(units, selectedResourceObject, false, selectionQuad.getPosDown(), selectionQuad.getPosUp());
 		}
 		selectingBuilding= false;
 		activeCommandType= NULL;
