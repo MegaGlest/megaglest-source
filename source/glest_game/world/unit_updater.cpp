@@ -1939,7 +1939,12 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					delete toDelete; // old one
 				}
 				else {
-					currentDistance=floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+#ifdef USE_STREFLOP
+					currentDistance = streflop::floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+#else
+					currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+#endif
+
 					if( nearest==NULL ){
 						nearest=attackWarnings[i];
 						nearestDistance=currentDistance;

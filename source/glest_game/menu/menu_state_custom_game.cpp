@@ -28,9 +28,9 @@
 #include <time.h>
 #include <curl/curl.h>
 #include "cache_manager.h"
-#include "leak_dumper.h"
+#include <iterator>
 #include "map_preview.h"
-
+#include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
 

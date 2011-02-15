@@ -123,7 +123,11 @@ void GameCamera::update(){
 
 	//free state
 	if(state==sFree){
+#ifdef USE_STREFLOP
+		if(streflop::fabs(rotate) == 1){
+#else
 		if(fabs(rotate) == 1){
+#endif
 			rotateHV(speed*5*rotate, 0);
 		}
 		if(move.y>0){

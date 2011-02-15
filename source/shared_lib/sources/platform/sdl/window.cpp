@@ -386,7 +386,11 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	// setup LOD bias factor
 	//const float lodBias = std::max(std::min( configHandler->Get("TextureLODBias", 0.0f) , 4.0f), -4.0f);
 	const float lodBias = max(min(0.0f,4.0f),-4.0f);
-	if (fabs(lodBias)>0.01f) {
+#ifdef USE_STREFLOP
+	if (streflop::fabs(lodBias) > 0.01f) {
+#else
+	if (fabs(lodBias) > 0.01f) {
+#endif
 		glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS, lodBias );
 	}
 }

@@ -1120,8 +1120,13 @@ void Map::smoothSurface(Tileset *tileset) {
 			float numUsedToSmooth = 0.f;
 			for (int k = -1; k <= 1; ++k) {
 				for (int l = -1; l <= 1; ++l) {
+#ifdef USE_STREFLOP
+					if (cliffLevel<=0.1f || cliffLevel > streflop::fabs(oldHeights[(j) * surfaceW + (i)]
+							- oldHeights[(j + k) * surfaceW + (i + l)])) {
+#else
 					if (cliffLevel<=0.1f || cliffLevel > fabs(oldHeights[(j) * surfaceW + (i)]
 							- oldHeights[(j + k) * surfaceW + (i + l)])) {
+#endif
 						height += oldHeights[(j + k) * surfaceW + (i + l)];
 						numUsedToSmooth++;
 					}
