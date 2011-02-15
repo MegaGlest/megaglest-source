@@ -26,6 +26,7 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+ObjectStateInterface *Object::stateCallback=NULL;
 
 // =====================================================
 // 	class Object
@@ -49,7 +50,10 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 Object::~Object(){
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeObjectFromQuadCache(this);
-	//renderer.getGame()->getGui()->removeObject(this);
+	if(stateCallback) {
+		stateCallback->removingObjectEvent(this);
+		//renderer.getGame()->getGui()->removeObject(this);
+	}
 	delete resource;
 }
 

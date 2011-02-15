@@ -993,7 +993,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	}
 }
 
-void  Gui::removeObject(Object* o){
+void  Gui::removingObjectEvent(Object* o){
 	if(getSelectedResourceObject()==o){
 		selectedResourceObject=NULL;
 	}

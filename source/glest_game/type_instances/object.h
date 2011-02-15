@@ -31,6 +31,13 @@ using Shared::Graphics::Vec3f;
 ///	A map object: tree, stone...
 // =====================================================
 
+class Object;
+
+class ObjectStateInterface {
+public:
+	virtual void removingObjectEvent(Object *object) = 0;
+};
+
 class Object {
 private:
 	ObjectType *objectType;
@@ -41,9 +48,13 @@ private:
 	int lastRenderFrame;
 	Vec2i mapPos;
 
+	static ObjectStateInterface *stateCallback;
+
 public:
 	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
 	~Object();
+
+	static void setStateCallback(ObjectStateInterface *value) { stateCallback=value; }
 
 	void setHeight(float height)		{pos.y= height;}
 	
