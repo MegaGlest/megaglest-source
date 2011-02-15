@@ -14,6 +14,7 @@
 
 #ifdef USE_STREFLOP
 
+#include <cmath>
 #include "streflop_cond.h"
 
 #else

@@ -4622,15 +4622,22 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 			if(unit != NULL && unit->getCurrentUnitTitle() != "") {
 				//get the screen coordinates
 				Vec3f screenPos = unit->getScreenPos();
+#ifdef USE_STREFLOP
+				renderText(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+#else
 				renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+#endif
 
 				unitRenderedList[unit->getId()] = true;
 			}
 			else {
 				string str = unit->getFullName() + " - " + intToStr(unit->getId());
 				Vec3f screenPos = unit->getScreenPos();
+#ifdef USE_STREFLOP
+				renderText(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+#else
 				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+#endif
 			}
 		}
 		visibleFrameUnitList.clear();

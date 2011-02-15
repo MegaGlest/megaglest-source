@@ -36,6 +36,7 @@
 #include "font_gl.h"
 #include "FileReader.h"
 #include "cache_manager.h"
+#include <iterator>
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
