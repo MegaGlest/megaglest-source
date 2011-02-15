@@ -90,6 +90,8 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	speed= sNormal;
 	showFullConsole= false;
 
+	Object::setStateCallback(&gui);
+
     Logger &logger= Logger::getInstance();
 	logger.showProgress();
 
@@ -99,6 +101,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 Game::~Game() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	Object::setStateCallback(NULL);
 	thisGamePtr = NULL;
 	if(originalDisplayMsgCallback != NULL) {
 		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);

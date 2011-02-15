@@ -1028,11 +1028,6 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						//if resource exausted, then delete it and stop
 						if (r->decAmount(1)) {
 							const ResourceType *rt = r->getType();
-
-							//TODO:
-							// the following line should be done in Object::~Object(), but I don't know how (titi)!
-							this->game->getGui()->removeObject(sc->getObject());
-
 							sc->deleteResource();
 							unit->getFaction()->removeResourceTargetFromCache(unitTargetPos);
 
