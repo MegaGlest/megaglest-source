@@ -100,7 +100,8 @@ public:
 };
 #endif
 
-class Socket : public SimpleTaskCallbackInterface {
+//class Socket : public SimpleTaskCallbackInterface {
+class Socket {
 
 protected:
 #ifdef WIN32
@@ -112,19 +113,20 @@ protected:
 	std::string ipAddress;
 	std::string connectedIpAddress;
 
-	SimpleTaskThread *pingThread;
+	//SimpleTaskThread *pingThread;
 	std::map<string,double> pingCache;
 	time_t lastThreadedPing;
 	Mutex pingThreadAccessor;
 
-	Mutex dataSynchAccessor;
+	Mutex dataSynchAccessorRead;
+	Mutex dataSynchAccessorWrite;
 
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
 	virtual ~Socket();
 
-	virtual void simpleTask(BaseThread *callingThread);
+	//virtual void simpleTask(BaseThread *callingThread);
 
 	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }
@@ -147,7 +149,7 @@ public:
 	static void setBlock(bool block, PLATFORM_SOCKET socket);
 
 	bool isReadable();
-	bool isWritable(bool waitOnDelayedResponse);
+	bool isWritable();
 	bool isConnected();
 
 	static string getHostName();

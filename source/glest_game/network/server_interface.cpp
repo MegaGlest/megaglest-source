@@ -303,24 +303,24 @@ int64 ServerInterface::getNextEventId() {
 }
 
 void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(event != NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event->eventType = %d\n",__FILE__,__FUNCTION__,__LINE__,event->eventType);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event->eventType = %d\n",__FILE__,__FUNCTION__,__LINE__,event->eventType);
 
 		if(event->eventType == eSendSocketData) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage, event->networkMessage = %p\n",__FILE__,__FUNCTION__,event->networkMessage);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] before sendMessage, event->networkMessage = %p\n",__FILE__,__FUNCTION__,event->networkMessage);
 
 			event->connectionSlot->sendMessage(event->networkMessage);
 		}
 		else if(event->eventType == eReceiveSocketData) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			updateSlot(event);
 		}
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
