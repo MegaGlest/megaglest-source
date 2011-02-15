@@ -110,7 +110,7 @@ public:
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }
-	void waitForMessage();
+	NetworkMessageType waitForMessage();
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 };
 

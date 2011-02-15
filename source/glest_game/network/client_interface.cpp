@@ -125,16 +125,16 @@ void ClientInterface::update() {
 	}
 
 	double lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
-	if(lastSendElapsed > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f, networkMessageCommandList.getCommandCount() = %d, requestedCommands.empty() = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed,networkMessageCommandList.getCommandCount(),requestedCommands.empty());
+	//if(lastSendElapsed > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f, networkMessageCommandList.getCommandCount() = %d, requestedCommands.empty() = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed,networkMessageCommandList.getCommandCount(),requestedCommands.empty());
 
 	if(networkMessageCommandList.getCommandCount() > 0 ||
 	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		lastNetworkCommandListSendTime = time(NULL);
 		sendMessage(&networkMessageCommandList);
 
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	// Possible cause of out of synch since we have more commands that need
@@ -508,13 +508,14 @@ void ClientInterface::updateLobby() {
 void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 
+	int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 	bool done= false;
 	while(done == false) {
 		//wait for the next message
-		waitForMessage();
+		NetworkMessageType networkMessageType = waitForMessage();
 
 		// START: Test simulating lag for the client
-		if(Config::getInstance().getInt("SimulateClientLag","0") > 0) {
+		if(simulateLag > 0) {
 			if(clientSimulationLagStartTime == 0) {
 				clientSimulationLagStartTime = time(NULL);
 			}
@@ -525,7 +526,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		// END: Test simulating lag for the client
 
 		//check we have an expected message
-		NetworkMessageType networkMessageType= getNextMessageType(true);
+		//NetworkMessageType networkMessageType= getNextMessageType(true);
 
 		switch(networkMessageType)
 		{
@@ -811,7 +812,7 @@ string ClientInterface::getNetworkStatus() {
 	return szBuf;
 }
 
-void ClientInterface::waitForMessage()
+NetworkMessageType ClientInterface::waitForMessage()
 {
 	// Debug!
 /*
@@ -825,41 +826,47 @@ void ClientInterface::waitForMessage()
 	Chrono chrono;
 	chrono.start();
 
+	NetworkMessageType msg = nmtInvalid;
 	int waitLoopCount = 0;
-	while(getNextMessageType(true) == nmtInvalid) {
-		if(isConnected() == false) {
-			if(quit == false) {
-				//throw runtime_error("Disconnected");
-				//sendTextMessage("Server has Disconnected.",-1);
-				DisplayErrorMessage("Server has Disconnected.");
-				quit= true;
+	while(msg == nmtInvalid) {
+		msg = getNextMessageType(true);
+		if(msg == nmtInvalid) {
+			if(chrono.getMillis() % 150 == 0 && isConnected() == false) {
+				if(quit == false) {
+					//throw runtime_error("Disconnected");
+					//sendTextMessage("Server has Disconnected.",-1);
+					DisplayErrorMessage("Server has Disconnected.");
+					quit= true;
+				}
+				close();
+				return msg;
 			}
-            close();
-			return;
+
+			if(chrono.getMillis() > messageWaitTimeout) {
+			//if(1) {
+				//throw runtime_error("Timeout waiting for message");
+
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				sendTextMessage("Timeout waiting for message",-1, true);
+				DisplayErrorMessage("Timeout waiting for message");
+				quit= true;
+				close();
+				return msg;
+			}
+			// Sleep ever second we wait to let other threads work
+			//else if(chrono.getMillis() % 1000 == 0) {
+				//sleep(0);
+			//}
+
+			//sleep(waitSleepTime);
 		}
-
-		if(chrono.getMillis() > messageWaitTimeout) {
-		//if(1) {
-			//throw runtime_error("Timeout waiting for message");
-
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-            sendTextMessage("Timeout waiting for message",-1, true);
-            DisplayErrorMessage("Timeout waiting for message");
-            quit= true;
-            close();
-            return;
-		}
-		// Sleep ever second we wait to let other threads work
-		else if(chrono.getMillis() % 1000 == 0) {
-			//sleep(0);
-		}
-
-		//sleep(waitSleepTime);
 		waitLoopCount++;
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount);
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %d, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
+
+	return msg;
 }
 
 void ClientInterface::quitGame(bool userManuallyQuit)

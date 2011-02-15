@@ -742,18 +742,27 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 }
 
 void ServerInterface::update() {
+	//Chrono chrono;
+	//chrono.start();
+
 	std::vector <string> errorMsgList;
 	try {
 		// The first thing we will do is check all clients to ensure they have
 		// properly identified themselves within the alloted time period
 		validateConnectedClients();
 
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 		processTextMessageQueue();
 		processBroadCastMessageQueue();
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
 		updateSocketTriggeredList(socketTriggeredList);
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 		if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
 			std::map<int,ConnectionSlotEvent> eventList;
@@ -768,22 +777,34 @@ void ServerInterface::update() {
 				signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",__FILE__,__FUNCTION__,__LINE__);
 
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				// Step #2 check all connection slot worker threads for completed status
 				checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",__FILE__,__FUNCTION__,__LINE__);
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				// Step #3 check clients for any lagging scenarios and try to deal with them
 				checForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",__FILE__,__FUNCTION__,__LINE__);
 
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				// Step #4 dispatch network commands to the pending list so that they are done in proper order
 				executeNetworkCommandsFromClients();
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #5\n",__FILE__,__FUNCTION__,__LINE__);
 
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
 				// Step #5 dispatch pending chat messages
 				dispatchPendingChatMessages(errorMsgList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 			}
+
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		}
 	}
 	catch(const exception &ex) {
@@ -798,9 +819,9 @@ void ServerInterface::update() {
 				DisplayErrorMessage(sErr);
 			}
 		}
-
 	}
 
+	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 }
 
 void ServerInterface::updateKeyframe(int frameCount) {
@@ -1148,6 +1169,18 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 		}
 	}
 	if(bOkToStart == true) {
+
+/*
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
+			ConnectionSlot *connectionSlot= slots[i];
+			if(connectionSlot != NULL &&
+			   connectionSlot->isConnected()) {
+				connectionSlot->getSocket()->setBlock(true);
+			}
+		}
+*/
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
 		serverSocket.stopBroadCastThread();
@@ -1187,19 +1220,6 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 			delete ftpServer;
 			ftpServer = NULL;
 		}
-
-/*
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
-			ConnectionSlot *connectionSlot= slots[i];
-			if(connectionSlot != NULL &&
-			   connectionSlot->isConnected()) {
-				connectionSlot->getSocket()->setBlock(true);
-			}
-		}
-*/
-
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	return bOkToStart;

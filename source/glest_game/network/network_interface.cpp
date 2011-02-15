@@ -58,9 +58,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
         int dataSize = socket->getDataToRead();
         if(dataSize >= sizeof(messageType)){
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
-
             int iPeek = socket->peek(&messageType, sizeof(messageType));
-
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
         }
 		else {

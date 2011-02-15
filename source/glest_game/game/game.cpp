@@ -852,20 +852,27 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			Faction *faction = world.getFaction(i);
-			if(	faction->getControlType() == ctNetwork ||
+			if(	faction->getFactionDisconnectHandled() == false &&
+				(faction->getControlType() == ctNetwork ||
 				faction->getControlType() == ctNetworkCpuEasy ||
 				faction->getControlType() == ctNetworkCpu ||
 				faction->getControlType() == ctNetworkCpuUltra ||
-				faction->getControlType() == ctNetworkCpuMega) {
+				faction->getControlType() == ctNetworkCpuMega)) {
 				ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 				if(aiInterfaces[i] == NULL && (slot == NULL || slot->isConnected() == false)) {
-
-					faction->setControlType(ctCpu);
-					aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
-					logger.add("Creating AI for faction " + intToStr(i), true);
+					faction->setFactionDisconnectHandled(true);
 
 					char szBuf[255]="";
-					sprintf(szBuf,"Player #%d [%s] has disconnected, switching player to AI mode!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+					if(faction->getType()->getPersonalityType() != fpt_Observer) {
+						faction->setControlType(ctCpu);
+						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
+						logger.add("Creating AI for faction " + intToStr(i), true);
+
+						sprintf(szBuf,"Player #%d [%s] has disconnected, switching player to AI mode!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+					}
+					else {
+						sprintf(szBuf,"Player #%d [%s] has disconnected, but player was only an observer!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+					}
 					server->sendTextMessage(szBuf,-1,true);
 				}
 			}
