@@ -37,6 +37,7 @@ ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 	this->slotInterface = NULL;
 	//this->event = NULL;
 	eventList.clear();
+	eventList.reserve(100);
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
@@ -482,6 +483,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
+									safeMutexSlot.ReleaseLock();
 								}
 							}
 						}
@@ -880,11 +882,14 @@ string ConnectionSlot::getHumanPlayerName(int index) {
 }
 
 vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
+	vector<NetworkCommand> ret;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
-    vector<NetworkCommand> ret = vctPendingNetworkCommandList;
-    if(clearList == true) {
-        vctPendingNetworkCommandList.clear();
+    if(vctPendingNetworkCommandList.size() > 0) {
+    	ret = vctPendingNetworkCommandList;
+		if(clearList == true) {
+			vctPendingNetworkCommandList.clear();
+		}
     }
     safeMutexSlot.ReleaseLock();
 
@@ -894,7 +899,10 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 void ConnectionSlot::clearPendingNetworkCommandList() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
-    vctPendingNetworkCommandList.clear();
+	if(vctPendingNetworkCommandList.size() > 0) {
+		vctPendingNetworkCommandList.clear();
+	}
+    safeMutexSlot.ReleaseLock();
 }
 
 }}//end namespace
