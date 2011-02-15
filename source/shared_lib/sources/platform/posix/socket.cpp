@@ -844,7 +844,7 @@ void Socket::disconnectSocket() {
         ::closesocket(sock);
         sock = -1;
 #endif
-        safeMutex.ReleaseLock();
+        //safeMutex.ReleaseLock();
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
@@ -1041,7 +1041,7 @@ int Socket::send(const void *data, int dataSize) {
 #else
         bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
-        safeMutex.ReleaseLock();
+        //safeMutex.ReleaseLock();
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -1078,7 +1078,7 @@ int Socket::send(const void *data, int dataSize) {
                     break;
                 }
 
-                safeMutex.ReleaseLock();
+                //safeMutex.ReleaseLock();
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
@@ -1124,7 +1124,7 @@ int Socket::send(const void *data, int dataSize) {
                     break;
                 }
 
-			    safeMutex.ReleaseLock();
+			    //safeMutex.ReleaseLock();
 
 			    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
@@ -1171,7 +1171,7 @@ int Socket::receive(void *data, int dataSize) {
 	if(isSocketValid() == true)	{
 		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
-	    safeMutex.ReleaseLock();
+	    //safeMutex.ReleaseLock();
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText().c_str());
@@ -1193,7 +1193,7 @@ int Socket::receive(void *data, int dataSize) {
 	        else if(Socket::isReadable() == true) {
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
-                safeMutex.ReleaseLock();
+                //safeMutex.ReleaseLock();
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived);
 	        }
@@ -1211,8 +1211,8 @@ int Socket::receive(void *data, int dataSize) {
 }
 
 int Socket::peek(void *data, int dataSize,bool mustGetData) {
-	//Chrono chrono;
-	//chrono.start();
+	Chrono chrono;
+	chrono.start();
 
     const int MAX_PEEK_WAIT_SECONDS = 3;
 
@@ -1220,14 +1220,15 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	if(isSocketValid() == true) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
+		//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
+		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + string("_") + intToStr(__LINE__));
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
-	    safeMutex.ReleaseLock();
+	    //safeMutex.ReleaseLock();
 
-	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+	    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -1249,6 +1250,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN) &&
 	    		(difftime(time(NULL),tStartTimer) <= MAX_PEEK_WAIT_SECONDS)) {
+/*
 	        if(isConnected() == false) {
                 int iErr = getLastSocketError();
                 disconnectSocket();
@@ -1256,11 +1258,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
 	            break;
 	        }
-	        else if(Socket::isReadable() == true) {
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+*/
+	        if(Socket::isReadable() == true) {
+	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
+	        	MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + string("_") + intToStr(__LINE__));
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
-                safeMutex.ReleaseLock();
+                //safeMutex.ReleaseLock();
 
+                if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,err);
 	        }
 	    }
@@ -1326,7 +1331,7 @@ bool Socket::isReadable() {
 	{
 		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
-		safeMutex.ReleaseLock();
+		//safeMutex.ReleaseLock();
 	}
 	if(i < 0) {
         //if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1365,7 +1370,7 @@ bool Socket::isWritable(bool waitOnDelayedResponse) {
     	{
     		MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
         	i = select((int)sock + 1, NULL, &set, NULL, &tv);
-        	safeMutex.ReleaseLock();
+        	//safeMutex.ReleaseLock();
     	}
         if(i < 0 ) {
             //if(difftime(time(NULL),lastDebugEvent) >= 1) {
@@ -1548,7 +1553,7 @@ void ClientSocket::connect(const Ip &ip, int port)
                {
             	   MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
-            	   safeMutex.ReleaseLock();
+            	   //safeMutex.ReleaseLock();
                }
 
                if (err < 0 && getLastSocketError() != PLATFORM_SOCKET_INTERRUPTED) {

@@ -84,6 +84,8 @@ private:
 
 	bool thisFaction;
 
+	bool factionDisconnectHandled;
+
 	bool cachingDisabled;
 	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
@@ -104,6 +106,9 @@ public:
 		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 		int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources);
 	void end();
+
+	bool getFactionDisconnectHandled() const { return factionDisconnectHandled;}
+	void setFactionDisconnectHandled(bool value) { factionDisconnectHandled=value;}
 
     //get
 	const Resource *getResource(const ResourceType *rt) const;

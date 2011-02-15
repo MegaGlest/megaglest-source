@@ -36,6 +36,7 @@ Faction::Faction() {
 	texture = NULL;
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
+	factionDisconnectHandled=false;
 }
 
 Faction::~Faction() {
