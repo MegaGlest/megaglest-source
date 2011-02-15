@@ -130,11 +130,6 @@ ServerLine::ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY,
 	selectButton.setEnabled(compatible);
 	selectButton.setEditable(compatible);
 
-	gameFull.init(i, baseY-lineOffset);
-	gameFull.setText(lang.get("MGGameSlotsFull"));
-	gameFull.setEnabled(!compatible);
-	gameFull.setEditable(!compatible);
-
 }
 
 ServerLine::~ServerLine() {
@@ -168,20 +163,11 @@ void ServerLine::render() {
 	if(joinEnabled == true) {
 		selectButton.setEnabled(true);
 		selectButton.setVisible(true);
-
-		gameFull.setEnabled(false);
-		gameFull.setEditable(false);
-
 		renderer.renderButton(&selectButton);
 	}
 	else {
 		selectButton.setEnabled(false);
 		selectButton.setVisible(false);
-
-		gameFull.setEnabled(true);
-		gameFull.setEditable(true);
-
-		renderer.renderLabel(&gameFull);
 	}
 
 	//general info:
@@ -200,7 +186,7 @@ void ServerLine::render() {
 	if (compatible) {
 		renderer.renderLabel(&status);
 	}
-	if(gameFull.getEnabled() == false) {
+	if(selectButton.getEnabled() == true) {
 		if (compatible) {
 			//renderer.renderLabel(&ipAddressLabel);
 
@@ -221,7 +207,6 @@ void ServerLine::render() {
 
 void ServerLine::setY(int y) {
 	selectButton.setY(y);
-	gameFull.setY(y);
 
 	//general info:
 	glestVersionLabel.setY(y);

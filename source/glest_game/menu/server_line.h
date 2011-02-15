@@ -33,7 +33,6 @@ private:
 	int baseY;
 	bool compatible;
 	GraphicButton selectButton;
-	GraphicLabel gameFull;
 	GraphicLabel wrongVersionLabel;
 
 	//general info:
