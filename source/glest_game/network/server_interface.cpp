@@ -34,10 +34,10 @@ namespace Glest { namespace Game {
 
 double maxFrameCountLagAllowed 							= 25;
 double maxClientLagTimeAllowed 							= 30;
-double maxFrameCountLagAllowedEver 						= 60;
+double maxFrameCountLagAllowedEver 						= 65;
 double warnFrameCountLagPercent 						= 0.65;
 double LAG_CHECK_GRACE_PERIOD 							= 15;
-double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 1;
+double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 2;
 const int MAX_SLOT_THREAD_WAIT_TIME 					= 3;
 const int MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS 	= 30;
 
@@ -1170,17 +1170,18 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	}
 	if(bOkToStart == true) {
 
-/*
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-			MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
-			ConnectionSlot *connectionSlot= slots[i];
-			if(connectionSlot != NULL &&
-			   connectionSlot->isConnected()) {
-				connectionSlot->getSocket()->setBlock(true);
+		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","false");
+		if(useInGameBlockingClientSockets == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+				MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
+				ConnectionSlot *connectionSlot= slots[i];
+				if(connectionSlot != NULL && connectionSlot->isConnected()) {
+					connectionSlot->getSocket()->setBlock(true);
+				}
 			}
 		}
-*/
+
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
 		serverSocket.stopBroadCastThread();
