@@ -339,7 +339,7 @@ void UnitUpdater::updateMove(Unit *unit) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"[updateMove] pos [%s] cmd [%s]",pos.getString().c_str(),command->toString().c_str());
+		sprintf(szBuf,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
 

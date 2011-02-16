@@ -325,12 +325,7 @@ void PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 			sucNode->prev= node;
 			sucNode->next= NULL;
 			sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-			std::map<float, Nodes>::iterator iterFind = openNodesList.find(sucNode->heuristic);
-			if(iterFind == openNodesList.end()) {
-				openNodesList[sucNode->heuristic].reserve(PathFinder::pathFindNodesMax / 3);
-				iterFind = openNodesList.find(sucNode->heuristic);
-			}
-			iterFind->second.push_back(sucNode);
+			openNodesList[sucNode->heuristic].push_back(sucNode);
 			openPosList[sucNode->pos] = true;
 		}
 		else {
@@ -489,13 +484,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	firstNode->pos= unitPos;
 	firstNode->heuristic= heuristic(unitPos, finalPos);
 	firstNode->exploredCell= true;
-
-	std::map<float, Nodes>::iterator iterFind = openNodesList.find(firstNode->heuristic);
-	if(iterFind == openNodesList.end()) {
-		openNodesList[firstNode->heuristic].reserve(PathFinder::pathFindNodesMax / 3);
-		iterFind = openNodesList.find(firstNode->heuristic);
-	}
-	iterFind->second.push_back(firstNode);
+	openNodesList[firstNode->heuristic].push_back(firstNode);
 	openPosList[firstNode->pos] = true;
 
 	//b) loop
@@ -527,12 +516,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		//b4) move this node from closedNodes to openNodes
 		//add all succesors that are not in closedNodes or openNodes to openNodes
-		std::map<float, Nodes>::iterator iterFind = closedNodesList.find(node->heuristic);
-		if(iterFind == closedNodesList.end()) {
-			closedNodesList[node->heuristic].reserve(PathFinder::pathFindNodesMax / 3);
-			iterFind = closedNodesList.find(node->heuristic);
-		}
-		iterFind->second.push_back(node);
+		closedNodesList[node->heuristic].push_back(node);
 		openPosList[node->pos] = true;
 
 		int tryDirection = random.randRange(0,3);
