@@ -235,8 +235,8 @@ void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
     bool ret = false;
     if(difftime(time(NULL),lastSaveToDisk) >= 5 ||
-       //LogFileThread::getLogEntryBufferCount() >= 2000000) {
-    	LogFileThread::getLogEntryBufferCount() >= 10000) {
+       LogFileThread::getLogEntryBufferCount() >= 1000000) {
+    	//LogFileThread::getLogEntryBufferCount() >= 10000) {
         lastSaveToDisk = time(NULL);
         ret = true;
     }
@@ -258,7 +258,8 @@ void LogFileThread::execute() {
 
         try	{
             for(;this->getQuitStatus() == false;) {
-                if(checkSaveCurrentLogBufferToDisk() == true) {
+                while(this->getQuitStatus() == false &&
+                	  checkSaveCurrentLogBufferToDisk() == true) {
                     saveToDisk(false,false);
                 }
                 if(this->getQuitStatus() == false) {
