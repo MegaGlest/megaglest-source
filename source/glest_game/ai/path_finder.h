@@ -38,7 +38,12 @@ class PathFinder {
 public:
 	class Node {
 	public:
-		Node() : pos(0,0) {
+		Node() {
+			clear();
+		}
+		void clear() {
+			pos.x = 0;
+			pos.y = 0;
 			next=NULL;
 			prev=NULL;
 			heuristic=0.0;
