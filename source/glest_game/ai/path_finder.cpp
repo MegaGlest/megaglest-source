@@ -325,6 +325,9 @@ void PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 			sucNode->prev= node;
 			sucNode->next= NULL;
 			sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+			if(openNodesList.find(sucNode->heuristic) == openNodesList.end()) {
+				openNodesList[sucNode->heuristic].clear();
+			}
 			openNodesList[sucNode->heuristic].push_back(sucNode);
 			openPosList[sucNode->pos] = true;
 		}
@@ -484,6 +487,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	firstNode->pos= unitPos;
 	firstNode->heuristic= heuristic(unitPos, finalPos);
 	firstNode->exploredCell= true;
+	if(openNodesList.find(firstNode->heuristic) == openNodesList.end()) {
+		openNodesList[firstNode->heuristic].clear();
+	}
 	openNodesList[firstNode->heuristic].push_back(firstNode);
 	openPosList[firstNode->pos] = true;
 
@@ -516,6 +522,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		//b4) move this node from closedNodes to openNodes
 		//add all succesors that are not in closedNodes or openNodes to openNodes
+		if(closedNodesList.find(node->heuristic) == closedNodesList.end()) {
+			closedNodesList[node->heuristic].clear();
+		}
 		closedNodesList[node->heuristic].push_back(node);
 		openPosList[node->pos] = true;
 
@@ -631,6 +640,17 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
+
+			string pathToTake = "";
+			for(int i = 0; i < path->getQueueCount(); ++i) {
+				Vec2i &pos = path->getQueue()[i];
+				if(pathToTake != "") {
+					pathToTake += ", ";
+				}
+				pathToTake += pos.getString();
+			}
+			unit->logSynchData(__FILE__,__LINE__,szBuf);
+			sprintf(szBuf,"Path for unit to take = %s",pathToTake.c_str());
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
@@ -658,8 +678,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 }
 
 PathFinder::Node *PathFinder::newNode() {
-	if(nodePoolCount < pathFindNodesMax) {
+	if(nodePoolCount < nodePool.size()) {
 		Node *node= &nodePool[nodePoolCount];
+		node->clear();
 		nodePoolCount++;
 		return node;
 	}
