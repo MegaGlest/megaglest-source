@@ -89,8 +89,7 @@ void Intro::update(){
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		program->setState(new MainMenu(program));
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		return;
 	}
 
 	if(Config::getInstance().getBool("AutoTest")){
