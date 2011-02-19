@@ -453,20 +453,8 @@ bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
 	}
 	for (int i = 1; i <= munit->getSize(); ++i) {
 		for (int j = 1; j <= munit->getSize(); ++j) {
-			if (munit->hasCellMap() == true) {
-				// special calculation for units using cellmaps
-				if (munit->getCellMapCell(i - 1, j - 1, unit->getModelFacing()) == true) {
-					if (isFreeCellOrHasUnit(
-							Vec2i(pos.x + i - 1, pos.y + j - 1), field, unit) == false) {
-						return false;
-					}
-				}
-			}
-			else {
-				if (isFreeCellOrHasUnit(Vec2i(pos.x + i - 1, pos.y + j - 1),
-						field, unit) == false) {
-					return false;
-				}
+			if(isFreeCellOrHasUnit(Vec2i(i,j), field, unit) == false) {
+				return false;
 			}
 		}
 	}
