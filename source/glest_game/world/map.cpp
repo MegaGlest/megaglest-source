@@ -451,8 +451,8 @@ bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
 	if(munit == NULL) {
 		throw runtime_error("munit == NULL");
 	}
-	for (int i = 1; i <= munit->getSize(); ++i) {
-		for (int j = 1; j <= munit->getSize(); ++j) {
+	for(int i=pos.x; i<pos.x+size; ++i) {
+		for(int j=pos.y; j<pos.y+size; ++j) {
 			if(isFreeCellOrHasUnit(Vec2i(i,j), field, unit) == false) {
 				return false;
 			}
