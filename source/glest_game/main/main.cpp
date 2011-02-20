@@ -1479,6 +1479,7 @@ int glestMain(int argc, char** argv) {
 	if( haveSpecialOutputCommandLineOption == false ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) == true) {
 #ifdef USE_STREFLOP
+#	define STREFLOP_NO_DENORMALS
 	streflop_init<streflop::Simple>();
 	printf("%s, SVN: [%s], [STREFLOP]\n",getNetworkVersionString().c_str(),getSVNRevisionString().c_str());
 #else
