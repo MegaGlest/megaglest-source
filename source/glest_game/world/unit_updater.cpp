@@ -149,7 +149,8 @@ void UnitUpdater::updateUnit(Unit *unit) {
 			unit->cancelCommand();
 		}
 		if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scAttack) {
-			unit->computeHp();
+			// !!! Is this causing choppy network play somehow?
+			//unit->computeHp();
 		}
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
@@ -1689,7 +1690,8 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	    }
 		scriptManager->onUnitDied(attacked);
 	}
-	attacker->computeHp();
+	// !!! Is this causing choppy network play somehow?
+	//attacker->computeHp();
 }
 
 void UnitUpdater::startAttackParticleSystem(Unit *unit){

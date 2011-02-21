@@ -112,6 +112,9 @@ void ClientInterface::reset() {
 }
 
 void ClientInterface::update() {
+	Chrono chrono;
+	chrono.start();
+
 	NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
 	//send as many commands as we can
@@ -127,6 +130,8 @@ void ClientInterface::update() {
 	double lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
 	//if(lastSendElapsed > 0) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] lastSendElapsed = %f, networkMessageCommandList.getCommandCount() = %d, requestedCommands.empty() = %d\n",__FILE__,__FUNCTION__,__LINE__,lastSendElapsed,networkMessageCommandList.getCommandCount(),requestedCommands.empty());
 
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	if(networkMessageCommandList.getCommandCount() > 0 ||
 	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -134,6 +139,7 @@ void ClientInterface::update() {
 		lastNetworkCommandListSendTime = time(NULL);
 		sendMessage(&networkMessageCommandList);
 
+		if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -145,7 +151,11 @@ void ClientInterface::update() {
 
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
         sendTextMessage(sMsg,-1, true);
+
+        if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
+
+	if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 std::string ClientInterface::getServerIpAddress() {
@@ -508,6 +518,9 @@ void ClientInterface::updateLobby() {
 void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 
+	Chrono chrono;
+	chrono.start();
+
 	int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 	bool done= false;
 	while(done == false) {
@@ -532,8 +545,6 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		{
 			case nmtCommandList:
 			    {
-				Chrono chrono;
-				chrono.start();
 
 				int waitCount = 0;
 				//make sure we read the message
@@ -582,6 +593,8 @@ void ClientInterface::updateKeyframe(int frameCount) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					lastPingInfo = networkMessagePing;
 				}
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			break;
 
@@ -607,8 +620,12 @@ void ClientInterface::updateKeyframe(int frameCount) {
 					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
 				}
 
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
         		this->addChatInfo(msg);
+
+        		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			break;
             case nmtInvalid:
@@ -630,6 +647,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 			done = true;
 		}
 	}
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void ClientInterface::waitUntilReady(Checksum* checksum) {
