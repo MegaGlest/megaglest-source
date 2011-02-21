@@ -325,13 +325,14 @@ void ServerInterface::slotUpdateTask(ConnectionSlotEvent *event) {
 
 void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	Chrono chrono;
+	chrono.start();
+
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients = true;
 
 		// Safety check since we can experience a disconnect and the slot is NULL
-		//Chrono chrono;
-		//chrono.start();
 		ConnectionSlot *connectionSlot = NULL;
 		MutexSafeWrapper safeMutexSlot(NULL);
 		if(event->triggerId >= 0 && event->triggerId < GameConstants::maxPlayers) {
@@ -343,6 +344,8 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR CONDITION, event->triggerId = %d\n",__FILE__,__FUNCTION__,__LINE__,event->triggerId);
 		}
 
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 		if(connectionSlot != NULL &&
@@ -353,6 +356,8 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 
 				//safeMutexSlot.ReleaseLock(true);
 				connectionSlot->update(checkForNewClients,event->triggerId);
+
+				if(chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				//chrono.start();
 				//safeMutexSlot.Lock();
@@ -370,9 +375,13 @@ void ServerInterface::updateSlot(ConnectionSlotEvent *event) {
 		safeMutexSlot.ReleaseLock();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionSlot, bool skipNetworkBroadCast) {
+	Chrono chrono;
+	chrono.start();
+
 	std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false, false);
 	static bool alreadyInLagCheck = false;
 	if(alreadyInLagCheck == true) {
@@ -389,6 +398,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 				connectionSlot->setCurrentLagCount(clientLagCount);
 
 				double clientLagTime = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
+
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				if(this->getCurrentFrameCount() > 0) {
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, clientLag = %f, clientLagCount = %f, this->getCurrentFrameCount() = %d, connectionSlot->getCurrentFrameCount() = %d, clientLagTime = %f\n",
@@ -432,6 +443,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 #endif
 					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 					if(skipNetworkBroadCast == false) {
 						string sMsg = szBuf;
 						sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
@@ -441,6 +454,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 						(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
 						connectionSlot->close();
 					}
+
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 				// New lag check warning
 				else if((maxFrameCountLagAllowed > 0 && warnFrameCountLagPercent > 0 &&
@@ -462,6 +477,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 		#endif
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
+						if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 						if(skipNetworkBroadCast == false) {
 							string sMsg = szBuf;
 							sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
@@ -470,6 +487,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 				}
 				else if(connectionSlot->getLagCountWarning() == true) {
 					connectionSlot->setLagCountWarning(false);
+
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 			}
 		}
@@ -481,6 +500,9 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		throw runtime_error(ex.what());
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	alreadyInLagCheck = false;
 	return clientLagExceededOrWarned;
 }
@@ -742,8 +764,8 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 }
 
 void ServerInterface::update() {
-	//Chrono chrono;
-	//chrono.start();
+	Chrono chrono;
+	chrono.start();
 
 	std::vector <string> errorMsgList;
 	try {
@@ -751,24 +773,26 @@ void ServerInterface::update() {
 		// properly identified themselves within the alloted time period
 		validateConnectedClients();
 
-		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		processTextMessageQueue();
 		processBroadCastMessageQueue();
 
-		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
 		updateSocketTriggeredList(socketTriggeredList);
 
-		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
 			std::map<int,ConnectionSlotEvent> eventList;
 			bool hasData = Socket::hasDataToRead(socketTriggeredList);
 
 			if(hasData) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",__FILE__,__FUNCTION__);
+
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			if(gameHasBeenInitiated == false || hasData == true) {
 				std::map<int,bool> mapSlotSignalledList;
@@ -777,34 +801,34 @@ void ServerInterface::update() {
 				signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",__FILE__,__FUNCTION__,__LINE__);
 
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #2 check all connection slot worker threads for completed status
 				checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",__FILE__,__FUNCTION__,__LINE__);
 
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #3 check clients for any lagging scenarios and try to deal with them
 				checForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",__FILE__,__FUNCTION__,__LINE__);
 
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #4 dispatch network commands to the pending list so that they are done in proper order
 				executeNetworkCommandsFromClients();
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #5\n",__FILE__,__FUNCTION__,__LINE__);
 
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #5 dispatch pending chat messages
 				dispatchPendingChatMessages(errorMsgList);
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 
-			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 	}
 	catch(const exception &ex) {
@@ -821,7 +845,7 @@ void ServerInterface::update() {
 		}
 	}
 
-	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] method running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void ServerInterface::updateKeyframe(int frameCount) {

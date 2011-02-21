@@ -1043,8 +1043,7 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
         bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
-        //bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
-        bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+        bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
         safeMutex.ReleaseLock();
         //SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1077,8 +1076,7 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
-                //bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
-                bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL);
+                bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
                 if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
                     break;
@@ -1120,8 +1118,7 @@ int Socket::send(const void *data, int dataSize) {
 #ifdef __APPLE__
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
 #else
-			    //bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL | MSG_DONTWAIT);
-			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL);
+			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
                 if(bytesSent > 0) {
                 	totalBytesSent += bytesSent;
@@ -1278,7 +1275,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	        }
 	    }
 
-	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+	    if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
 
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -1337,7 +1334,7 @@ bool Socket::isReadable() {
 
 	int i = 0;
 	{
-		//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + "_" + intToStr(__LINE__));
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
 	if(i < 0) {
@@ -1351,8 +1348,8 @@ bool Socket::isWritable() {
 
 	struct timeval tv;
 	tv.tv_sec= 0;
-	//tv.tv_usec= 1;
-	tv.tv_usec= 0;
+	tv.tv_usec= 1;
+	//tv.tv_usec= 0;
 
 	fd_set set;
 	FD_ZERO(&set);
@@ -1360,7 +1357,7 @@ bool Socket::isWritable() {
 
 	int i = 0;
 	{
-		//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,string(__FILE__) + "_" + intToStr(__LINE__));
 		i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	}
 	bool result = false;
@@ -1526,7 +1523,7 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_SET(sock, &myset);
 
                {
-            	   //MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+            	   MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + "_" + intToStr(__LINE__));
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
             	   //safeMutex.ReleaseLock();
                }
