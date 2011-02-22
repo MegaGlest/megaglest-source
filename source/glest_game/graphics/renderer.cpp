@@ -803,8 +803,7 @@ void Renderer::renderMouse3d() {
 			glTranslatef(pos3f.x+offset, pos3f.y, pos3f.z+offset);
 
 			//choose color
-			//if(map->isFreeCells(pos, building->getSize(), fLand)){
-			if(map->isFreeCells(pos + Vec2i(building->getSize()/2, building->getSize()/2), building->getSize(), fLand)){
+			if(map->isFreeCells(pos, building->getSize(), fLand)){
 				color= Vec4f(1.f, 1.f, 1.f, 0.5f);
 			}
 			else {

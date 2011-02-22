@@ -147,9 +147,8 @@ int Map::getCellArraySize() const {
 Cell *Map::getCell(int x, int y) const {
 	int arrayIndex = y * w + x;
 	if(arrayIndex >= getCellArraySize()) {
-
-		abort();
-		//throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
+		//abort();
+		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 	}
 	else if(cells == NULL) {
 		throw runtime_error("cells == NULL");
@@ -437,10 +436,13 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
-			if(isInside(testPos) == false || isInsideSurface(toSurfCoords(testPos)) == false ||
-			   isFreeCell(testPos, field) == false) {
+			if( isInside(testPos) == false ||
+				isInsideSurface(toSurfCoords(testPos)) == false ||
+			    isFreeCell(testPos, field) == false) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
-                return false;
+
+				printf("Could not build at [%s] isInside(testPos) = %d isInsideSurface(toSurfCoords(testPos)) = %d isFreeCell(testPos, field) = %d\n",testPos.getString().c_str(),isInside(testPos),isInsideSurface(toSurfCoords(testPos)),isFreeCell(testPos, field));
+				return false;
 			}
 		}
 	}
@@ -1044,11 +1046,13 @@ void Map::flatternTerrain(const Unit *unit){
 	for(int i=-1; i<=unit->getType()->getSize(); ++i){
         for(int j=-1; j<=unit->getType()->getSize(); ++j){
             Vec2i pos= unit->getPos()+Vec2i(i, j);
-			Cell *c= getCell(pos);
-			SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
-            //we change height if pos is inside world, if its free or ocupied by the currenty building
-			if(isInside(pos) && sc->getObject()==NULL && (c->getUnit(fLand)==NULL || c->getUnit(fLand)==unit)){
-				sc->setHeight(refHeight);
+            if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+				Cell *c= getCell(pos);
+				SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
+				//we change height if pos is inside world, if its free or ocupied by the currenty building
+				if(sc->getObject() == NULL && (c->getUnit(fLand)==NULL || c->getUnit(fLand)==unit)) {
+					sc->setHeight(refHeight);
+				}
             }
         }
     }
