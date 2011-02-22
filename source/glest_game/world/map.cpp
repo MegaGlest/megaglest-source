@@ -147,7 +147,9 @@ int Map::getCellArraySize() const {
 Cell *Map::getCell(int x, int y) const {
 	int arrayIndex = y * w + x;
 	if(arrayIndex >= getCellArraySize()) {
-		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
+
+		abort();
+		//throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 	}
 	else if(cells == NULL) {
 		throw runtime_error("cells == NULL");
@@ -379,13 +381,14 @@ bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec
 bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 	return
 		isInside(pos) &&
+		isInsideSurface(toSurfCoords(pos)) &&
 		getCell(pos)->isFree(field) &&
 		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
 		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
 
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
-	if(isInside(pos)) {
+	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 		Cell *c= getCell(pos);
 		if(c->getUnit(unit->getCurrField()) == unit) {
 			if(unit->getCurrField() == fAir) {
@@ -414,7 +417,7 @@ bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) c
 }
 
 bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
-	if(isInside(pos)) {
+	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 		const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
 
 		if(sc->isVisible(teamIndex)) {
@@ -434,7 +437,8 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
-			if(isFreeCell(testPos, field) == false) {
+			if(isInside(testPos) == false || isInsideSurface(toSurfCoords(testPos)) == false ||
+			   isFreeCell(testPos, field) == false) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
                 return false;
 			}
@@ -473,13 +477,19 @@ bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamInde
 }
 
 bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
-	if (ut->hasCellMap()) {
+	if (ut->hasCellMap() && isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 		for (int y=0; y < ut->getSize(); ++y) {
 			for (int x=0; x < ut->getSize(); ++x) {
-				if (ut->getCellMapCell(x, y, facing)) {
-					if (isFreeCell(pos + Vec2i(x, y), field) == false) {
-						return false;
+				Vec2i cellPos = pos + Vec2i(x, y);
+				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+					if (ut->getCellMapCell(x, y, facing)) {
+						if (isFreeCell(cellPos, field) == false) {
+							return false;
+						}
 					}
+				}
+				else {
+					false;
 				}
 			}
 		}
@@ -818,14 +828,16 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 		throw runtime_error("ut == NULL");
 	}
 
-	Cell *testCell = getCell(testPos);
-	for(int i=0; i < ut->getSize(); ++i){
-		for(int j = 0; j < ut->getSize(); ++j) {
-			Vec2i currPos = pos + Vec2i(i, j);
-			if(isInside(currPos) == true) {
-				Cell *unitCell = getCell(currPos);
-				if(unitCell == testCell) {
-					return true;
+	if(isInside(testPos) && isInsideSurface(toSurfCoords(testPos))) {
+		Cell *testCell = getCell(testPos);
+		for(int i=0; i < ut->getSize(); ++i){
+			for(int j = 0; j < ut->getSize(); ++j) {
+				Vec2i currPos = pos + Vec2i(i, j);
+				if(isInside(currPos) && isInsideSurface(toSurfCoords(currPos))) {
+					Cell *unitCell = getCell(currPos);
+					if(unitCell == testCell) {
+						return true;
+					}
 				}
 			}
 		}

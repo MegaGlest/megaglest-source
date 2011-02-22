@@ -574,7 +574,9 @@ void UnitUpdater::updateBuild(Unit *unit) {
     		switch(this->game->getGameSettings()->getPathFinderType()) {
     			case pfBasic:
     				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived about to call map->isFreeCells() for command->getPos() = %s, ut->getSize() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getPos().getString().c_str(),ut->getSize());
-    				canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
+    				//canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
+    				//!!!return pos + Vec2i(type->getSize()/2, type->getSize()/2);
+    				canOccupyCell = map->isFreeCells(command->getPos() + Vec2i(ut->getSize()/2, ut->getSize()/2), ut->getSize(), fLand);
     				break;
     			case pfRoutePlanner:
     				canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
