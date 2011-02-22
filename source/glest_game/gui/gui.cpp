@@ -971,8 +971,15 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	validPosObjWorld= false;
 
 	if(uc.empty() == false) {
-		targetUnit= uc.front();
-		targetPos= targetUnit->getPos();
+
+		for(int i=0; i<uc.size(); ++i){
+			targetUnit= uc.at(i);
+			targetPos= targetUnit->getPos();
+			if(targetUnit->getType()->hasSkillClass(scMove))
+			{// moving units are more relevant than non moving ones
+				break;
+			}
+		}
 		return true;
 	}
 	else if(obj!=NULL) {
