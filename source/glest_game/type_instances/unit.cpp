@@ -41,12 +41,14 @@ UnitPathBasic::UnitPathBasic() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
 	this->lastPathCacheQueue.clear();
+	this->map = NULL;
 }
 
 UnitPathBasic::~UnitPathBasic() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
 	this->lastPathCacheQueue.clear();
+	this->map = NULL;
 }
 
 bool UnitPathBasic::isEmpty() const {
@@ -73,15 +75,36 @@ void UnitPathBasic::incBlockCount() {
 	blockCount++;
 }
 
-void UnitPathBasic::add(const Vec2i &path){
+void UnitPathBasic::add(const Vec2i &path) {
+	if(this->map != NULL) {
+		if(this->map->isInside(path) == false) {
+			throw runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
+		}
+		else if(this->map->isInsideSurface(this->map->toSurfCoords(path)) == false) {
+			throw runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
+		}
+	}
+
 	pathQueue.push_back(path);
 }
 
 void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
+	if(this->map != NULL) {
+		if(this->map->isInside(path) == false) {
+			throw runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
+		}
+		else if(this->map->isInsideSurface(this->map->toSurfCoords(path)) == false) {
+			throw runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
+		}
+	}
+
 	lastPathCacheQueue.push_back(path);
 }
 
 Vec2i UnitPathBasic::pop() {
+	if(pathQueue.size() <= 0) {
+		throw runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
+	}
 	Vec2i p= pathQueue.front();
 	pathQueue.erase(pathQueue.begin());
 	return p;
@@ -182,7 +205,12 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
     RandomGen random;
 
+	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
+		throw runtime_error("#2 Invalid path position = " + pos.getString());
+	}
+
     this->unitPath = unitpath;
+    this->unitPath->setMap(map);
 	this->pos=pos;
 	this->type=type;
     this->faction=faction;
@@ -606,7 +634,11 @@ void Unit::setTarget(const Unit *unit){
 	targetRef= unit;
 }
 
-void Unit::setPos(const Vec2i &pos){
+void Unit::setPos(const Vec2i &pos) {
+	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
+		throw runtime_error("#3 Invalid path position = " + pos.getString());
+	}
+
 	this->lastPos= this->pos;
 	this->pos= pos;
 	this->meetingPos= pos - Vec2i(1);
@@ -617,7 +649,11 @@ void Unit::setPos(const Vec2i &pos){
 	logSynchData(__FILE__,__LINE__);
 }
 
-void Unit::setTargetPos(const Vec2i &targetPos){
+void Unit::setTargetPos(const Vec2i &targetPos) {
+
+	if(map->isInside(targetPos) == false || map->isInsideSurface(map->toSurfCoords(targetPos)) == false) {
+		throw runtime_error("#4 Invalid path position = " + targetPos.getString());
+	}
 
 	Vec2i relPos= targetPos - pos;
 	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
@@ -1024,6 +1060,11 @@ void Unit::resetHighlight(){
 
 const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *targetUnit) const{
 	const CommandType *commandType= NULL;
+
+	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
+		throw runtime_error("#6 Invalid path position = " + pos.getString());
+	}
+
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 
 	if(type == NULL) {
@@ -1501,6 +1542,10 @@ bool Unit::morph(const MorphCommandType *mct){
 // ==================== PRIVATE ====================
 
 float Unit::computeHeight(const Vec2i &pos) const{
+	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
+		throw runtime_error("#7 Invalid path position = " + pos.getString());
+	}
+
 	float height= map->getCell(pos)->getHeight();
 
 	if(currField == fAir) {
@@ -1811,6 +1856,10 @@ void Unit::setTargetVec(const Vec3f &targetVec)	{
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
+	if(map->isInside(meetingPos) == false || map->isInsideSurface(map->toSurfCoords(meetingPos)) == false) {
+		throw runtime_error("#8 Invalid path position = " + meetingPos.getString());
+	}
+
 	this->meetingPos= meetingPos;
 	logSynchData(__FILE__,__LINE__);
 }

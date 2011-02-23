@@ -72,6 +72,7 @@ private:
 	int nodePoolCount;
 	const Map *map;
 	RandomGen random;
+	int useMaxNodeCount;
 
 public:
 	PathFinder();
@@ -89,7 +90,7 @@ private:
 
 	Node * minHeuristicFastLookup();
 
-	void processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached);
+	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached);
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 };
 

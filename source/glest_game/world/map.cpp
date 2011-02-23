@@ -129,9 +129,13 @@ int Map::getSurfaceCellArraySize() const {
 	return (surfaceW * surfaceH);
 }
 
+SurfaceCell *Map::getSurfaceCell(const Vec2i &sPos) const {
+	return getSurfaceCell(sPos.x, sPos.y);
+}
+
 SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
 	int arrayIndex = sy * surfaceW + sx;
-	if(arrayIndex >= getSurfaceCellArraySize()) {
+	if(arrayIndex < 0 || arrayIndex >= getSurfaceCellArraySize()) {
 		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH));
 	}
 	else if(surfaceCells == NULL) {
@@ -144,9 +148,13 @@ int Map::getCellArraySize() const {
 	return (w * h);
 }
 
+Cell *Map::getCell(const Vec2i &pos) const {
+	return getCell(pos.x, pos.y);
+}
+
 Cell *Map::getCell(int x, int y) const {
 	int arrayIndex = y * w + x;
-	if(arrayIndex >= getCellArraySize()) {
+	if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
 		//abort();
 		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 	}
@@ -565,6 +573,11 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 
 //checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
 bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache) const {
+	if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
+	   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
+		return false;
+	}
+
 	int size= unit->getType()->getSize();
 	int teamIndex= unit->getTeam();
 	Field field= unit->getCurrField();
@@ -632,9 +645,11 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 	else {
 		for(int i = pos2.x; i < pos2.x + size; ++i) {
 			for(int j = pos2.y; j < pos2.y + size; ++j) {
-				if(isInside(i, j)) {
-					if(getCell(i, j)->getUnit(unit->getCurrField()) != unit) {
-						if(isAproxFreeCell(Vec2i(i, j), field, teamIndex) == false) {
+
+				Vec2i cellPos = Vec2i(i,j);
+				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+					if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
+						if(isAproxFreeCell(cellPos, field, teamIndex) == false) {
 							if(lookupCache != NULL) {
 								(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 							}
@@ -665,9 +680,8 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 		if(lookupCache != NULL) {
 			(*lookupCache)[pos1][pos2][teamIndex][size][field]=true;
 		}
-
-		return true;
 	}
+	return true;
 }
 
 Vec2i Map::computeRefPos(const Selection *selection) const {
