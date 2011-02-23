@@ -183,10 +183,10 @@ public:
 	//get
 	Cell *getCell(int x, int y) const;
 	int getCellArraySize() const;
-	Cell *getCell(const Vec2i &pos) const						{return getCell(pos.x, pos.y);}
+	Cell *getCell(const Vec2i &pos) const;
 	int getSurfaceCellArraySize() const;
 	SurfaceCell *getSurfaceCell(int sx, int sy) const;
-	SurfaceCell *getSurfaceCell(const Vec2i &sPos) const		{return getSurfaceCell(sPos.x, sPos.y);}
+	SurfaceCell *getSurfaceCell(const Vec2i &sPos) const;
 	int getW() const											{return w;}
 	int getH() const											{return h;}
 	int getSurfaceW() const										{return surfaceW;}

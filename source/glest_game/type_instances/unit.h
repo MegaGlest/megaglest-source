@@ -120,11 +120,15 @@ public:
 	virtual vector<Vec2i> getQueue() const = 0;
 
 	virtual std::string toString() const = 0;
+
+	virtual void setMap(Map *value) = 0;
+	virtual Map * getMap() = 0;
 };
 
 class UnitPathBasic : public UnitPathInterface {
 private:
 	static const int maxBlockCount;
+	Map *map;
 
 private:
 	int blockCount;
@@ -152,6 +156,9 @@ public:
 
 	virtual vector<Vec2i> getQueue() const { return pathQueue; }
 
+	virtual void setMap(Map *value) { map = value; }
+	virtual Map * getMap() { return map; }
+
 	virtual std::string toString() const;
 };
 
@@ -167,9 +174,10 @@ private:
 
 private:
 	int blockCount;		/**< number of command updates this path has been blocked */
+	Map *map;
 
 public:
-	UnitPath() : blockCount(0) {} /**< Construct path object */
+	UnitPath() : blockCount(0), map(NULL) {} /**< Construct path object */
 	virtual bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
 	virtual bool isEmpty() const	{return list<Vec2i>::empty();}	/**< is path empty				  */
 	virtual bool isStuck() const	{return false; }
@@ -203,6 +211,9 @@ public:
 		}
 		return result;
 	}
+
+	virtual void setMap(Map *value) { map = value; }
+	virtual Map * getMap() { return map; }
 
 	virtual std::string toString() const;
 };
