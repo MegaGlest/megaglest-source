@@ -556,7 +556,15 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 
                 if(freeSpace) {
                     unit->setPos(pos);
-					unit->setMeetingPos(pos-Vec2i(1));
+                    Vec2i meetingPos = pos-Vec2i(1);
+                    if(meetingPos.x < 0) {
+                    	meetingPos.x = 0;
+                    }
+                    if(meetingPos.y < 0) {
+                    	meetingPos.y = 0;
+                    }
+
+					unit->setMeetingPos(meetingPos);
                     return true;
                 }
             }
