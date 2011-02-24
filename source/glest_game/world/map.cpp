@@ -444,9 +444,7 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
-			if( isInside(testPos) == false ||
-				isInsideSurface(toSurfCoords(testPos)) == false ||
-			    isFreeCell(testPos, field) == false) {
+			if(isFreeCell(testPos, field) == false) {
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
 
 				//printf("Could not build at [%s] isInside(testPos) = %d isInsideSurface(toSurfCoords(testPos)) = %d isFreeCell(testPos, field) = %d\n",testPos.getString().c_str(),isInside(testPos),isInsideSurface(toSurfCoords(testPos)),isFreeCell(testPos, field));
