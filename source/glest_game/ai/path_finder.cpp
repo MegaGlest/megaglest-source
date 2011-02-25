@@ -526,6 +526,63 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	// First check if unit currently blocked
+	if(inBailout == false && unitPos != finalPos) {
+		int failureCount = 0;
+		int cellCount = 0;
+
+		for(int i = -1; i <= 1; ++i) {
+			for(int j = -1; j <= 1; ++j) {
+				Vec2i pos = unitPos + Vec2i(i, j);
+				if(pos != unitPos) {
+					bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
+					if(canUnitMoveToCell == false) {
+						failureCount++;
+					}
+					cellCount++;
+				}
+			}
+		}
+		nodeLimitReached = (failureCount == cellCount);
+		pathFound = !nodeLimitReached;
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
+		if(showConsoleDebugInfo && nodeLimitReached) {
+		//if(showConsoleDebugInfo) {
+			printf("**Check if src blocked [%d - %d], unit [%d - %s] from [%s] to [%s] distance %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d [%d]\n",
+					nodeLimitReached, inBailout, unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
+		}
+
+		if(nodeLimitReached == false) {
+			// First check if final destination blocked
+			failureCount = 0;
+			cellCount = 0;
+
+			for(int i = -1; i <= 1; ++i) {
+				for(int j = -1; j <= 1; ++j) {
+					Vec2i pos = finalPos + Vec2i(i, j);
+					if(pos != finalPos) {
+						bool canUnitMoveToCell = map->aproxCanMove(unit, pos, finalPos);
+						if(canUnitMoveToCell == false) {
+							failureCount++;
+						}
+						cellCount++;
+					}
+				}
+			}
+			nodeLimitReached = (failureCount == cellCount);
+			pathFound = !nodeLimitReached;
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
+			if(showConsoleDebugInfo && nodeLimitReached) {
+			//if(showConsoleDebugInfo) {
+				printf("**Check if dest blocked [%d - %d], unit [%d - %s] from [%s] to [%s] distance %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d [%d]\n",
+						nodeLimitReached, inBailout, unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
+			}
+		}
+	}
+	//
+
 	int whileLoopCount = 0;
 	while(nodeLimitReached == false) {
 		whileLoopCount++;
@@ -614,7 +671,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,nodePoolCount);
 	if(showConsoleDebugInfo && chrono.getMillis() > 2) {
-		printf("Distance for unit [%d - %s] to destination is %.2f took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",unit->getId(),unit->getFullName().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,nodePoolCount);
+		printf("Distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,nodePoolCount);
 	}
 
 	Node *lastNode= node;

@@ -889,6 +889,8 @@ void MenuStateConnectedGame::update() {
                 string file = Map::getMapPath(gameSettings->getMap(),"",false);
                 checksum.addFile(file);
                 int32 mapCRC = checksum.getSum();
+                // Test data synch
+                //mapCRC++;
                 safeMutexFTPProgress.ReleaseLock();
 
                 bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) ||

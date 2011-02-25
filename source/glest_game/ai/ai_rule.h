@@ -310,6 +310,21 @@ public:
 	virtual void execute();
 };
 
+// =====================================================
+//	class AiRuleUnBlock
+// =====================================================
+
+class AiRuleUnBlock: public AiRule{
+public:
+	AiRuleUnBlock(Ai *ai);
+
+	virtual int getTestInterval() const	{return 3000;}
+	virtual string getName() const		{return "Blocked Units => Move surrounding units";}
+
+	virtual bool test();
+	virtual void execute();
+};
+
 }}//end namespace 
 
 #endif

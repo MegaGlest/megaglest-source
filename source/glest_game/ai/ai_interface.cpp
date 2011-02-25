@@ -132,7 +132,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 	}
 }
 
-CommandResult AiInterface::giveCommand(Unit *unit, const CommandType *commandType, const Vec2i &pos) {
+CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos) {
 	assert(this->gameSettings != NULL);
 
 	if(unit == NULL) {
@@ -172,7 +172,9 @@ CommandResult AiInterface::giveCommand(Unit *unit, const CommandType *commandTyp
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = unit->giveCommand(new Command(commandType, pos));
+		Faction *faction = world->getFaction(unit->getFactionIndex());
+		Unit *unitToCommand = faction->findUnit(unit->getId());
+		CommandResult result = unitToCommand->giveCommand(new Command(commandType, pos));
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
@@ -613,5 +615,9 @@ const Unit *AiInterface::getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int 
     return NULL;
 }
 
+Map * AiInterface::getMap() {
+	Map *map= world->getMap();
+	return map;
+}
 
 }}//end namespace
