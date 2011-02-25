@@ -68,7 +68,7 @@ public:
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, Unit *u= NULL);
-    CommandResult giveCommand(Unit *unit, const CommandType *commandType, const Vec2i &pos);
+    CommandResult giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos);
 
     //get data
     const ControlType getControlType();
@@ -94,6 +94,7 @@ public:
     bool checkCosts(const ProducibleType *pt);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
 	const Unit *getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius);
+	Map * getMap();
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}

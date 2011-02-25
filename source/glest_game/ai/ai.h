@@ -145,6 +145,8 @@ private:
 	Positions expansionPositions;
 	RandomGen random;
 
+	bool getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit);
+
 public: 
 	int minWarriors;
     ~Ai();
@@ -183,6 +185,8 @@ public:
     void massiveAttack(const Vec2i &pos, Field field, bool ultraAttack= false);
     void returnBase(int unitIndex);
     void harvest(int unitIndex);
+    bool haveBlockedUnits();
+    void unblockUnits();
 };
 
 }}//end namespace

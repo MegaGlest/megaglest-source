@@ -14,6 +14,7 @@
 #include "ai_rule.h"
 #include "unit_type.h"
 #include "unit.h"
+#include "map.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -122,6 +123,7 @@ void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 	aiRules.push_back(new AiRuleWorkerHarvest(this));
 	aiRules.push_back(new AiRuleRefreshHarvester(this));
 	aiRules.push_back(new AiRuleScoutPatrol(this));
+	aiRules.push_back(new AiRuleUnBlock(this));
 	aiRules.push_back(new AiRuleReturnBase(this));
 	aiRules.push_back(new AiRuleMassiveAttack(this));
 	aiRules.push_back(new AiRuleAddTasks(this));
@@ -521,6 +523,154 @@ void Ai::harvest(int unitIndex) {
 			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2));
 			aiInterface->giveCommand(unitIndex, hct, resPos);
 			//aiInterface->printLog(4, "Order harvest pos:" + intToStr(resPos.x)+", "+intToStr(resPos.y)+": "+rrToStr(r)+"\n");
+		}
+	}
+}
+
+bool Ai::haveBlockedUnits() {
+	int unitCount = aiInterface->getMyUnitCount();
+	Map *map = aiInterface->getMap();
+	//If there is no close store
+	for(int j=0; j < unitCount; ++j) {
+		const Unit *u= aiInterface->getMyUnit(j);
+		const UnitType *ut= u->getType();
+
+		// If this building is a store
+		if(u->isAlive() && ut->isMobile() && u->getPath() != NULL && (u->getPath()->isBlocked() || u->getPath()->getBlockCount())) {
+			Vec2i unitPos = u->getPos();
+
+			//printf("#1 AI found blocked unit [%d - %s]\n",u->getId(),u->getFullName().c_str());
+
+			int failureCount = 0;
+			int cellCount = 0;
+
+			for(int i = -1; i <= 1; ++i) {
+				for(int j = -1; j <= 1; ++j) {
+					Vec2i pos = unitPos + Vec2i(i, j);
+					if(map->isInside(pos) && map->isInsideSurface(map->toSurfCoords(pos))) {
+						if(pos != unitPos) {
+							bool canUnitMoveToCell = map->aproxCanMove(u, unitPos, pos);
+							if(canUnitMoveToCell == false) {
+								failureCount++;
+							}
+							cellCount++;
+						}
+					}
+				}
+			}
+			bool unitImmediatelyBlocked = (failureCount == cellCount);
+			//printf("#1 unitImmediatelyBlocked = %d, failureCount = %d, cellCount = %d\n",unitImmediatelyBlocked,failureCount,cellCount);
+
+			if(unitImmediatelyBlocked) {
+				//printf("#1 AI unit IS BLOCKED [%d - %s]\n",u->getId(),u->getFullName().c_str());
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool Ai::getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit) {
+	bool result = false;
+	Map *map = aiInterface->getMap();
+	Vec2i unitPos = unit->getPos();
+	for(int i = -1; i <= 1; ++i) {
+		for(int j = -1; j <= 1; ++j) {
+			Vec2i pos = unitPos + Vec2i(i, j);
+			if(map->isInside(pos) && map->isInsideSurface(map->toSurfCoords(pos))) {
+				if(pos != unitPos) {
+					Unit *adjacentUnit = map->getCell(pos)->getUnit(unit->getCurrField());
+					if(adjacentUnit != NULL && adjacentUnit->getFactionIndex() == unit->getFactionIndex()) {
+						if(adjacentUnit->getType()->isMobile() && adjacentUnit->getPath() != NULL) {
+							//signalAdjacentUnits.push_back(adjacentUnit);
+							float dist = unitPos.dist(adjacentUnit->getPos());
+
+							std::map<float, std::map<int, const Unit *> >::iterator iterFind1 = signalAdjacentUnits.find(dist);
+							if(iterFind1 == signalAdjacentUnits.end()) {
+								signalAdjacentUnits[dist][adjacentUnit->getId()] = adjacentUnit;
+
+								getAdjacentUnits(signalAdjacentUnits, adjacentUnit);
+								result = true;
+							}
+							else {
+								std::map<int, const Unit *>::iterator iterFind2 = iterFind1->second.find(adjacentUnit->getId());
+								if(iterFind2 == iterFind1->second.end()) {
+									signalAdjacentUnits[dist][adjacentUnit->getId()] = adjacentUnit;
+									getAdjacentUnits(signalAdjacentUnits, adjacentUnit);
+									result = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+void Ai::unblockUnits() {
+	int unitCount = aiInterface->getMyUnitCount();
+	Map *map = aiInterface->getMap();
+	// Find blocked units and move surrounding units out of the way
+	std::map<float, std::map<int, const Unit *> > signalAdjacentUnits;
+	for(int idx=0; idx < unitCount; ++idx) {
+		const Unit *u= aiInterface->getMyUnit(idx);
+		const UnitType *ut= u->getType();
+
+		// If this building is a store
+		if(u->isAlive() && ut->isMobile() && u->getPath() != NULL && (u->getPath()->isBlocked() || u->getPath()->getBlockCount())) {
+			Vec2i unitPos = u->getPos();
+
+			//printf("#2 AI found blocked unit [%d - %s]\n",u->getId(),u->getFullName().c_str());
+
+			int failureCount = 0;
+			int cellCount = 0;
+
+			for(int i = -1; i <= 1; ++i) {
+				for(int j = -1; j <= 1; ++j) {
+					Vec2i pos = unitPos + Vec2i(i, j);
+					if(map->isInside(pos) && map->isInsideSurface(map->toSurfCoords(pos))) {
+						if(pos != unitPos) {
+							bool canUnitMoveToCell = map->aproxCanMove(u, unitPos, pos);
+							if(canUnitMoveToCell == false) {
+								failureCount++;
+								getAdjacentUnits(signalAdjacentUnits, u);
+							}
+							cellCount++;
+						}
+					}
+				}
+			}
+			//bool unitImmediatelyBlocked = (failureCount == cellCount);
+			//printf("#2 unitImmediatelyBlocked = %d, failureCount = %d, cellCount = %d, signalAdjacentUnits.size() = %d\n",unitImmediatelyBlocked,failureCount,cellCount,signalAdjacentUnits.size());
+		}
+	}
+
+	if(signalAdjacentUnits.size() > 0) {
+		//printf("#2 AI units ARE BLOCKED about to unblock\n");
+
+		for(std::map<float, std::map<int, const Unit *> >::reverse_iterator iterMap = signalAdjacentUnits.rbegin();
+			iterMap != signalAdjacentUnits.rend(); iterMap++) {
+
+			for(std::map<int, const Unit *>::iterator iterMap2 = iterMap->second.begin();
+				iterMap2 != iterMap->second.end(); iterMap2++) {
+				int idx = iterMap2->first;
+				const Unit *adjacentUnit = iterMap2->second;
+
+				for(int moveAttempt = 1; moveAttempt <= villageRadius; ++moveAttempt) {
+					Vec2i pos= Vec2i(
+						random.randRange(-villageRadius*2, villageRadius*2), random.randRange(-villageRadius*2, villageRadius*2)) +
+										 adjacentUnit->getPos();
+
+					bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPos(), pos);
+					if(canUnitMoveToCell == true) {
+						const CommandType *ct = adjacentUnit->getType()->getFirstCtOfClass(ccMove);
+						CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos);
+					}
+				}
+			}
 		}
 	}
 }

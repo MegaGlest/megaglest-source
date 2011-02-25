@@ -1156,4 +1156,23 @@ void AiRuleExpand::execute(){
 	ai->addPriorityTask(new BuildTask(storeType, expandPos));
 }
 
+
+// ========================================
+// 	class AiRuleUnBlock
+// ========================================
+
+AiRuleUnBlock::AiRuleUnBlock(Ai *ai):
+	AiRule(ai)
+{
+
+}
+
+bool AiRuleUnBlock::test() {
+	return ai->haveBlockedUnits();
+}
+
+void AiRuleUnBlock::execute(){
+	ai->unblockUnits();
+}
+
 }}//end namespace
