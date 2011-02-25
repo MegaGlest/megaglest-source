@@ -177,7 +177,6 @@ void GameCamera::update(){
 }
 
 Quad2i GameCamera::computeVisibleQuad() const {
-
 	if(MaxVisibleQuadItemCache != 0) {
 		std::map<float, std::map<float, std::map<Vec3f, Quad2i> > >::const_iterator iterFind = cacheVisibleQuad.find(fov);
 		if(iterFind != cacheVisibleQuad.end()) {
@@ -190,7 +189,6 @@ Quad2i GameCamera::computeVisibleQuad() const {
 			}
 		}
 	}
-
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
@@ -215,33 +213,42 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	Vec2i p3(static_cast<int>(p.x + v2.x * nearDist), static_cast<int>(p.y + v2.y * nearDist));
 	Vec2i p4(static_cast<int>(p.x + v2.x * farDist), static_cast<int>(p.y + v2.y * farDist));
 
+	Quad2i result;
 	if (hAng >= 135 && hAng <= 225) {
+		result = Quad2i(p1, p2, p3, p4);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
-			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p1, p2, p3, p4);
+			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
-		return Quad2i(p1, p2, p3, p4);
 	}
-	if (hAng >= 45 && hAng <= 135) {
+	else if (hAng >= 45 && hAng <= 135) {
+		result = Quad2i(p3, p1, p4, p2);
+
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
-			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p3, p1, p4, p2);
+			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
-		return Quad2i(p3, p1, p4, p2);
 	}
-	if (hAng >= 225 && hAng <= 315) {
+	else if (hAng >= 225 && hAng <= 315) {
+		result = Quad2i(p2, p4, p1, p3);
+
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
-			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p2, p4, p1, p3);
+			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
-		return Quad2i(p2, p4, p1, p3);
+	}
+	else {
+		result = Quad2i(p4, p3, p2, p1);
+		if(MaxVisibleQuadItemCache != 0 &&
+		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p4, p3, p2, p1);
+		}
 	}
 
-	if(MaxVisibleQuadItemCache != 0 &&
-	   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
-		cacheVisibleQuad[fov][hAng][pos] = Quad2i(p4, p3, p2, p1);
+	if(result.p[0].x < -1000) {
+		int ii = 0;
 	}
-	return Quad2i(p4, p3, p2, p1);
+	return result;
 }
 
 void GameCamera::switchState(){

@@ -211,10 +211,10 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			}
 			else if(header.version==2){
 				//desc = header.version2.short_desc;
-				if(header.version2.cliffLevel>0){
+				if(header.version2.cliffLevel > 0  && header.version2.cliffLevel < 5000){
 					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor));
 				}
-				if(header.version2.cameraHeight>0)
+				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000)
 				{
 					cameraHeight = header.version2.cameraHeight;
 				}
@@ -327,7 +327,8 @@ bool Map::isInsideSurface(const Vec2i &sPos) const {
 bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit, bool fallbackToPeersHarvestingSameResource) const {
 	for(int i = -1; i <= size; ++i) {
 		for(int j = -1; j <= size; ++j) {
-			if(isInside(pos.x + i, pos.y + j)) {
+			Vec2i resPos = Vec2i(pos.x + i, pos.y + j);
+			if(isInside(resPos) && isInsideSurface(toSurfCoords(resPos))) {
 				Resource *r= getSurfaceCell(toSurfCoords(Vec2i(pos.x + i, pos.y + j)))->getResource();
 				if(r != NULL) {
 					if(r->getType() == rt) {
@@ -375,7 +376,7 @@ bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec
 	Util::PerimeterIterator iter(p1, p2);
 	while (iter.more()) {
 		Vec2i cur = iter.next();
-		if (isInside(cur)) {
+		if (isInside(cur) && isInsideSurface(toSurfCoords(cur))) {
 			Resource *r = getSurfaceCell(toSurfCoords(cur))->getResource();
 			if (r && r->getType() == rt) {
 				resourcePos = cur;
@@ -537,7 +538,7 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 
 	for(int i=pos2.x; i<pos2.x+size; ++i) {
 		for(int j=pos2.y; j<pos2.y+size; ++j) {
-			if(isInside(i, j)) {
+			if(isInside(i, j) && isInsideSurface(toSurfCoords(Vec2i(i,j)))) {
 				if(getCell(i, j)->getUnit(field) != unit) {
 					if(isFreeCell(Vec2i(i, j), field) == false) {
 						if(lookupCache != NULL) {
@@ -823,7 +824,7 @@ bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 		for(int i=-1; i <= ut->getSize(); ++i){
 			for(int j = -1; j <= ut->getSize(); ++j) {
 				Vec2i currPos = pos + Vec2i(i, j);
-				if(isInside(currPos) == true) {
+				if(isInside(currPos) == true && isInsideSurface(toSurfCoords(currPos)) == true) {
 					//Cell *unitCell = getCell(currPos);
 					//if(unitCell == testCell) {
 					if(isNextTo(testPos,currPos) == true) {
@@ -992,7 +993,7 @@ bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const {
 
 	for(int i=-1; i<=1; ++i) {
 		for(int j=-1; j<=1; ++j) {
-			if(isInside(pos.x+i, pos.y+j)) {
+			if(isInside(pos.x+i, pos.y+j) && isInsideSurface(toSurfCoords(Vec2i(pos.x+i, pos.y+j)))) {
 				if(getCell(pos.x+i, pos.y+j)->getUnit(fLand) == unit) {
 					return true;
 				}
@@ -1010,7 +1011,7 @@ bool Map::isNextTo(const Vec2i &pos, const Vec2i &nextToPos) const {
 
 	for(int i=-1; i<=1; ++i) {
 		for(int j=-1; j<=1; ++j) {
-			if(isInside(pos.x+i, pos.y+j)) {
+			if(isInside(pos.x+i, pos.y+j) && isInsideSurface(toSurfCoords(Vec2i(pos.x+i, pos.y+j)))) {
 				if(getCell(pos.x+i, pos.y+j) == getCell(nextToPos.x,nextToPos.y)) {
 					return true;
 				}
@@ -1197,7 +1198,7 @@ void Map::computeNearSubmerged(){
 			for(int k=-1; k<=2; ++k){
 				for(int l=-1; l<=2; ++l){
 					Vec2i pos= Vec2i(i+k, j+l);
-					if(isInsideSurface(pos)){
+					if(isInsideSurface(pos) && isInsideSurface(toSurfCoords(pos))) {
 						if(getSubmerged(getSurfaceCell(pos)))
 							anySubmerged= true;
 					}
@@ -1274,9 +1275,9 @@ bool PosCircularIterator::next(){
 			return false;
 	}
 #ifdef USE_STREFLOP
-	while(streflop::floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos));
+	while(streflop::floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)) );
 #else
-	while(floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos));
+	while(floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)) );
 #endif
 	//while(!(pos.dist(center) <= radius && map->isInside(pos)));
 
@@ -1292,7 +1293,9 @@ const Vec2i &PosCircularIterator::getPos(){
 // 	class PosQuadIterator
 // =====================================================
 
-PosQuadIterator::PosQuadIterator(const Quad2i &quad, int step){
+PosQuadIterator::PosQuadIterator(const Map *map,const Quad2i &quad, int step) {
+	this->map = map;
+
 	this->quad= quad;
 	this->boundingRect= quad.computeBoundingRect();
 	this->step= step;
@@ -1300,25 +1303,29 @@ PosQuadIterator::PosQuadIterator(const Quad2i &quad, int step){
 	--pos.x;
 	pos.x= (pos.x/step)*step;
 	pos.y= (pos.y/step)*step;
+	//map->clampPos(pos);
 }
 
-bool PosQuadIterator::next(){
+bool PosQuadIterator::next() {
 
-	do{
-		pos.x+= step;
-		if(pos.x > boundingRect.p[1].x){
-			pos.x= (boundingRect.p[0].x/step)*step;
-			pos.y+= step;
+	do {
+		pos.x += step;
+		if(pos.x > boundingRect.p[1].x) {
+			pos.x = (boundingRect.p[0].x / step) * step;
+			pos.y += step;
 		}
-		if(pos.y>boundingRect.p[1].y)
+		if(pos.y > boundingRect.p[1].y) {
 			return false;
+		}
+
+		//printf("pos [%s] boundingRect.p[0] [%s] boundingRect.p[1] [%s]\n",pos.getString().c_str(),boundingRect.p[0].getString().c_str(),boundingRect.p[1].getString().c_str());
 	}
 	while(!quad.isInside(pos));
 
 	return true;
 }
 
-void PosQuadIterator::skipX(){
+void PosQuadIterator::skipX() {
 	pos.x+= step;
 }
 
