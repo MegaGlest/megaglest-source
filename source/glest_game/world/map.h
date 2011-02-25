@@ -157,6 +157,7 @@ private:
 	float waterLevel;
 	float heightFactor;
 	float cliffLevel;
+	int cameraHeight;
 	int w;
 	int h;
 	int surfaceW;
@@ -195,6 +196,7 @@ public:
 	float getHeightFactor() const								{return heightFactor;}
 	float getWaterLevel() const									{return waterLevel;}
 	float getCliffLevel() const									{return cliffLevel;}
+	int getCameraHeight() const									{return cameraHeight;}
 	float getMaxMapHeight() const								{return maxMapHeight;}
 	Vec2i getStartLocation(int locationIndex) const;
 	bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}

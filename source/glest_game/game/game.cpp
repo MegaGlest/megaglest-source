@@ -552,7 +552,11 @@ void Game::init(bool initForPreviewOnly)
 
 	gameCamera.init(map->getW(), map->getH());
 
-	if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+	// camera default height calculation
+	if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+		gameCamera.setCalculatedDefault(map->getCameraHeight());
+	}
+	else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
 		gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
 	}
 

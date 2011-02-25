@@ -106,6 +106,7 @@ Map::Map() {
 	waterLevel=0;
 	heightFactor=0;
 	cliffLevel=0;
+	cameraHeight=0;
 	w=0;
 	h=0;
 	surfaceW=0;
@@ -204,6 +205,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			w= surfaceW*cellScale;
 			h= surfaceH*cellScale;
 			cliffLevel = 0;
+			cameraHeight = 0;
 			if(header.version==1){
 				//desc = header.description;
 			}
@@ -212,8 +214,9 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				if(header.version2.cliffLevel>0){
 					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor));
 				}
-				else {
-					cliffLevel=0;
+				if(header.version2.cameraHeight>0)
+				{
+					cameraHeight = header.version2.cameraHeight;
 				}
 			}
 

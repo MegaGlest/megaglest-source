@@ -148,7 +148,7 @@ public:
 	bool setMapTitle(const string &title);
 	bool setMapDesc(const string &desc);
 	bool setMapAuthor(const string &author);
-	void setMapAdvanced(int altFactor, int waterLevel, int minimumCliffHeight);
+	void setMapAdvanced(int altFactor, int waterLevel, int minimumCliffHeight, int cameraHeight);
 
 	//misc
 	void renderMap(int w, int h);
