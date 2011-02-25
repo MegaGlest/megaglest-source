@@ -75,7 +75,8 @@ struct MapFileHeader {
 			int8 short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
 			int32 magic; // 0x01020304 for meta
 			int32 cliffLevel;
-			int8 meta[120];
+			int32 cameraHeight;
+			int8 meta[116];
 		} version2;
 	};
 };
@@ -113,6 +114,7 @@ private:
 	int heightFactor;
 	int waterLevel;
 	int cliffLevel;
+	int cameraHeight;
 	//Cell **cells;
 	std::vector<std::vector<Cell> > cells;
 
@@ -136,10 +138,12 @@ public:
 	int getHeightFactor() const{return heightFactor;}
 	int getWaterLevel() const{return waterLevel;}
 	int getCliffLevel() const{return cliffLevel;}
+	int getCameraHeight() const{return cameraHeight;}
+
 	bool inside(int x, int y);
 
 	void setRefAlt(int x, int y);
-	void setAdvanced(int heightFactor, int waterLevel, int cliffLevel);
+	void setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight);
 	void setTitle(const string &title);
 	void setDesc(const string &desc);
 	void setAuthor(const string &author);

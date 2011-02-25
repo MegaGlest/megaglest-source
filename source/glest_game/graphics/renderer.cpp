@@ -3195,7 +3195,7 @@ void Renderer::renderDisplay(){
 			renderQuad(
 				metrics.getDisplayX()+display->computeUpX(i),
 				metrics.getDisplayY()+display->computeUpY(i),
-				Display::imageSize, Display::imageSize, display->getUpImage(i));
+				display->getUpImageSize(), display->getUpImageSize(), display->getUpImage(i));
 		}
 	}
 

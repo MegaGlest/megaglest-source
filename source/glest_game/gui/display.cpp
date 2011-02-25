@@ -39,10 +39,19 @@ Display::Display(){
 	colors[8]= Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	currentColor= 0;
-	
 	clear();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Display::calculateUpDimensions(int index) {
+	if(index>maxUpIndex){
+		maxUpIndex=index;
+		if(maxUpIndex+1>upCellSideCount*upCellSideCount){
+			upCellSideCount=upCellSideCount+1;
+			upImageSize=imageSize*cellSideCount/upCellSideCount+0.9f;
+		}
+	}
 }
 
 Vec4f Display::getColor() const {
@@ -52,6 +61,13 @@ Vec4f Display::getColor() const {
 	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currentColor = %d\n",__FILE__,__FUNCTION__,__LINE__,currentColor);
 	return colors[currentColor];
+}
+
+void Display::setUpImage(int i, const Texture2D *image)
+{
+	if(i>=upCellCount) throw runtime_error("i>=upCellCount in Display::setUpImage");
+	upImages[i]= image;
+	calculateUpDimensions(i);
 }
 
 //misc
@@ -71,6 +87,10 @@ void Display::clear(){
 	title.clear();
 	text.clear();
 	progressBar= -1;
+
+	upCellSideCount=cellSideCount;
+	upImageSize=imageSize;
+	maxUpIndex= 0;
 }
 void Display::switchColor(){
 	currentColor= (currentColor+1) % colorCount;
@@ -103,11 +123,11 @@ int Display::computeDownY(int index) const{
 }
 
 int Display::computeUpX(int index) const{
-	return (index % cellSideCount) * imageSize;
+	return (index % upCellSideCount) * upImageSize;
 }
 
 int Display::computeUpY(int index) const{
-	return Metrics::getInstance().getDisplayH() - (index/cellSideCount)*imageSize - imageSize;
+	return Metrics::getInstance().getDisplayH() - (index/upCellSideCount)*upImageSize - upImageSize;
 }
 
 }}//end namespace

@@ -32,6 +32,7 @@ MapPreview::MapPreview() {
 	heightFactor 	= DEFAULT_MAP_CELL_HEIGHT_FACTOR;
 	waterLevel 	= DEFAULT_MAP_WATER_DEPTH;
 	cliffLevel = DEFAULT_CLIFF_HEIGHT;
+	cameraHeight = 0;
 	//cells = NULL;
 	cells.clear();
 	//startLocations = NULL;
@@ -630,10 +631,11 @@ void MapPreview::setAuthor(const string &author) {
 	this->author = author;
 }
 
-void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel) {
+void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight) {
 	this->heightFactor = heightFactor;
 	this->waterLevel = waterLevel;
 	this->cliffLevel = cliffLevel;
+	this->cameraHeight = cameraHeight;
 }
 
 void MapPreview::randomizeHeights() {
@@ -697,6 +699,7 @@ void MapPreview::loadFromFile(const string &path) {
 		else if(header.version==2){
 			desc = header.version2.short_desc;
 			cliffLevel=header.version2.cliffLevel;
+			cameraHeight=header.version2.cameraHeight;
 		}
 
 		//read start locations
@@ -764,6 +767,7 @@ void MapPreview::saveToFile(const string &path) {
 		strncpy(header.version2.short_desc, desc.c_str(), MAX_DESCRIPTION_LENGTH_VERSION2);
 		header.version2.magic= 0x01020304;
 		header.version2.cliffLevel= cliffLevel;
+		header.version2.cameraHeight= cameraHeight;
 
 
 		fwrite(&header, sizeof(MapFileHeader), 1, f1);

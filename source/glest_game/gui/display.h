@@ -37,7 +37,7 @@ namespace Glest{ namespace Game{
 class Display{
 public:
 	static const int cellSideCount= 4;
-	static const int upCellCount= cellSideCount*cellSideCount;
+	static const int upCellCount= 36;
 	static const int downCellCount= cellSideCount*cellSideCount;
 	static const int colorCount= 9;
 	static const int imageSize= 32;
@@ -58,6 +58,10 @@ private:
 	int downSelectedPos;
 	Vec4f colors[colorCount];
 	int currentColor;
+
+	int upCellSideCount;
+	int upImageSize;
+	int maxUpIndex;
 	
 
 public:
@@ -75,12 +79,14 @@ public:
 	Vec4f getColor() const;
 	int getProgressBar() const						{return progressBar;}
 	int getDownSelectedPos() const					{return downSelectedPos;}
+	int getUpCellSideCount() const					{return upCellSideCount;}
+	int getUpImageSize() const						{return upImageSize;}
 	
 	//set
 	void setTitle(const string title)					{this->title= formatString(title);}
 	void setText(const string &text)					{this->text= formatString(text);}
 	void setInfoText(const string infoText)				{this->infoText= formatString(infoText);}
-	void setUpImage(int i, const Texture2D *image) 		{upImages[i]= image;}
+	void setUpImage(int i, const Texture2D *image);
 	void setDownImage(int i, const Texture2D *image)	{downImages[i]= image;}
 	void setCommandType(int i, const CommandType *ct)	{commandTypes[i]= ct;}
 	void setCommandClass(int i, const CommandClass cc)	{commandClasses[i]= cc;}
@@ -96,6 +102,9 @@ public:
 	int computeDownY(int index) const;
 	int computeUpX(int index) const;
 	int computeUpY(int index) const;
+
+private:
+	void calculateUpDimensions(int index);
 };
 
 }}//end namespace 
