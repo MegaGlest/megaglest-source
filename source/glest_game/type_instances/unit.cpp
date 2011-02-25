@@ -641,7 +641,9 @@ void Unit::setPos(const Vec2i &pos) {
 
 	this->lastPos= this->pos;
 	this->pos= pos;
+	map->clampPos(this->pos);
 	this->meetingPos= pos - Vec2i(1);
+	map->clampPos(this->meetingPos);
 
 	// Attempt to improve performance
 	this->exploreCells();
@@ -656,6 +658,8 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	}
 
 	Vec2i relPos= targetPos - pos;
+	//map->clampPos(relPos);
+
 	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
 	targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
@@ -669,6 +673,7 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	//this->targetPos   = Vec2i(0);
 
 	this->targetPos= targetPos;
+	map->clampPos(this->targetPos);
 
 	logSynchData(__FILE__,__LINE__);
 }
@@ -1856,11 +1861,13 @@ void Unit::setTargetVec(const Vec3f &targetVec)	{
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
-	if(map->isInside(meetingPos) == false || map->isInsideSurface(map->toSurfCoords(meetingPos)) == false) {
-		throw runtime_error("#8 Invalid path position = " + meetingPos.getString());
+	this->meetingPos= meetingPos;
+	map->clampPos(this->meetingPos);
+
+	if(map->isInside(this->meetingPos) == false || map->isInsideSurface(map->toSurfCoords(this->meetingPos)) == false) {
+		throw runtime_error("#8 Invalid path position = " + this->meetingPos.getString());
 	}
 
-	this->meetingPos= meetingPos;
 	logSynchData(__FILE__,__LINE__);
 }
 

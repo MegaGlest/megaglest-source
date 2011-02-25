@@ -2660,12 +2660,7 @@ void Renderer::renderSelectionEffects() {
 				}
 				else {
 					Vec2i pos= c->getPos();
-					if(pos.x < 0) {
-						pos.x = 0;
-					}
-					if(pos.y < 0) {
-						pos.y = 0;
-					}
+					map->clampPos(pos);
 
 					arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 				}
@@ -2677,12 +2672,7 @@ void Renderer::renderSelectionEffects() {
 		//meeting point arrow
 		if(unit->getType()->getMeetingPoint()) {
 			Vec2i pos= unit->getMeetingPos();
-			if(pos.x < 0) {
-				pos.x = 0;
-			}
-			if(pos.y < 0) {
-				pos.y = 0;
-			}
+			map->clampPos(pos);
 
 			Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 			renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
