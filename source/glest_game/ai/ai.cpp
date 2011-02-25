@@ -572,6 +572,8 @@ bool Ai::haveBlockedUnits() {
 }
 
 bool Ai::getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit) {
+	//printf("In getAdjacentUnits...\n");
+
 	bool result = false;
 	Map *map = aiInterface->getMap();
 	Vec2i unitPos = unit->getPos();

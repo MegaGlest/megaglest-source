@@ -69,6 +69,8 @@ PathFinder::~PathFinder(){
 }
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck) {
+	//printf("PathFinder::findPath...\n");
+
 	if(map == NULL) {
 		throw runtime_error("map == NULL");
 	}
@@ -343,6 +345,8 @@ bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 
 //route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout) {
+	//printf("PathFinder::aStar...\n");
+
 	Chrono chrono;
 	chrono.start();
 

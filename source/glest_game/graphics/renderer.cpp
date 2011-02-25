@@ -4756,7 +4756,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 				quadCache.clearNonVolatileCacheData();
 
-				PosQuadIterator pqi(visibleQuad, Map::cellScale);
+				PosQuadIterator pqi(map,visibleQuad, Map::cellScale);
 				while(pqi.next()) {
 					const Vec2i &pos= pqi.getPos();
 					if(map->isInside(pos)) {
@@ -4784,7 +4784,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 				const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 				Quad2i scaledQuad = visibleQuad / Map::cellScale;
-				PosQuadIterator pqis(scaledQuad);
+				PosQuadIterator pqis(map,scaledQuad);
 				while(pqis.next()) {
 					const Vec2i &pos= pqis.getPos();
 					if(mapBounds.isInside(pos)) {

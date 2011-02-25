@@ -1008,7 +1008,7 @@ void Game::mouseDownLeft(int x, int y) {
 				int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
 				int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
 
-				if(map->isInside(xCell, yCell)){
+				if(map->isInside(xCell, yCell) && map->isInsideSurface(map->toSurfCoords(Vec2i(xCell,yCell)))) {
 					if(gui.isSelectingPos()){
 						gui.mouseDownLeftGraphics(xCell, yCell, true);
 					}
@@ -1091,7 +1091,7 @@ void Game::mouseDownRight(int x, int y) {
 			int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
 			int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
 
-			if(map->isInside(xCell, yCell)){
+			if(map->isInside(xCell, yCell) && map->isInsideSurface(map->toSurfCoords(Vec2i(xCell,yCell)))) {
 				gui.mouseDownRightGraphics(xCell, yCell,true);
 			}
 		}
@@ -1150,7 +1150,7 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 		const Metrics &metrics= Metrics::getInstance();
 
 		//display panel
-		if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
+		if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
 			int xd= x - metrics.getDisplayX();
 			int yd= y - metrics.getDisplayY();
 			if(gui.mouseValid(xd, yd)){

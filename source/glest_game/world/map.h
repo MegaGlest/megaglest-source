@@ -289,8 +289,10 @@ private:
 	Rect2i boundingRect;
 	Vec2i pos;
 	int step;
+	const Map *map;
+
 public:
-	PosQuadIterator(const Quad2i &quad, int step=1);
+	PosQuadIterator(const Map *map,const Quad2i &quad, int step=1);
 	bool next();
 	void skipX();
 	const Vec2i &getPos();
