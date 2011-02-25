@@ -755,6 +755,7 @@ void MapPreview::saveToFile(const string &path) {
 
 		//write header
 		MapFileHeader header;
+		memset(&header,0,sizeof(header));
 
 		header.version = MAP_FORMAT_VERSION;
 		header.maxFactions = maxFactions;
