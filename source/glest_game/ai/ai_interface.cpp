@@ -146,6 +146,11 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
 		throw runtime_error(szBuf);
 	}
+	if(commandType == NULL) {
+	    char szBuf[1024]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d] commandType == NULL, unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
+		throw runtime_error(szBuf);
+	}
     const CommandType* ct= unit->getType()->findCommandTypeById(commandType->getId());
 	if(ct == NULL) {
 	    char szBuf[4096]="";

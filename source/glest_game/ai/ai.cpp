@@ -660,16 +660,21 @@ void Ai::unblockUnits() {
 				iterMap2 != iterMap->second.end(); iterMap2++) {
 				int idx = iterMap2->first;
 				const Unit *adjacentUnit = iterMap2->second;
+				if(adjacentUnit != NULL && adjacentUnit->getType()->getFirstCtOfClass(ccMove) != NULL) {
+					const CommandType *ct = adjacentUnit->getType()->getFirstCtOfClass(ccMove);
 
-				for(int moveAttempt = 1; moveAttempt <= villageRadius; ++moveAttempt) {
-					Vec2i pos= Vec2i(
-						random.randRange(-villageRadius*2, villageRadius*2), random.randRange(-villageRadius*2, villageRadius*2)) +
-										 adjacentUnit->getPos();
+					for(int moveAttempt = 1; moveAttempt <= villageRadius; ++moveAttempt) {
+						Vec2i pos= Vec2i(
+							random.randRange(-villageRadius*2, villageRadius*2), random.randRange(-villageRadius*2, villageRadius*2)) +
+											 adjacentUnit->getPos();
 
-					bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPos(), pos);
-					if(canUnitMoveToCell == true) {
-						const CommandType *ct = adjacentUnit->getType()->getFirstCtOfClass(ccMove);
-						CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos);
+						bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPos(), pos);
+						if(canUnitMoveToCell == true) {
+
+							if(ct != NULL) {
+								CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos);
+							}
+						}
 					}
 				}
 			}
