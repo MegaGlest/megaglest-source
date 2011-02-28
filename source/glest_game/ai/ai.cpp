@@ -528,6 +528,11 @@ void Ai::harvest(int unitIndex) {
 }
 
 bool Ai::haveBlockedUnits() {
+	Chrono chrono;
+	chrono.start();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	int unitCount = aiInterface->getMyUnitCount();
 	Map *map = aiInterface->getMap();
 	//If there is no close store
@@ -563,11 +568,13 @@ bool Ai::haveBlockedUnits() {
 
 			if(unitImmediatelyBlocked) {
 				//printf("#1 AI unit IS BLOCKED [%d - %s]\n",u->getId(),u->getFullName().c_str());
+				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				return true;
 			}
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	return false;
 }
 
@@ -613,6 +620,11 @@ bool Ai::getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalA
 }
 
 void Ai::unblockUnits() {
+	Chrono chrono;
+	chrono.start();
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	int unitCount = aiInterface->getMyUnitCount();
 	Map *map = aiInterface->getMap();
 	// Find blocked units and move surrounding units out of the way
@@ -650,6 +662,8 @@ void Ai::unblockUnits() {
 		}
 	}
 
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
 	if(signalAdjacentUnits.size() > 0) {
 		//printf("#2 AI units ARE BLOCKED about to unblock\n");
 
@@ -680,6 +694,8 @@ void Ai::unblockUnits() {
 			}
 		}
 	}
+
+	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 }}//end namespace
