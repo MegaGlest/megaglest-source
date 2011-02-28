@@ -421,7 +421,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 										char szBuf[4096]="";
-										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -469,7 +469,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 										char szBuf[4096]="";
-										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -716,7 +716,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 			char szBuf[4096]="";
-			sprintf(szBuf,"[path for unit BLOCKED] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			sprintf(szBuf,"[path for unit BLOCKED] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 		}
@@ -763,7 +763,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 			char szBuf[4096]="";
-			sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%ld] openPosList.size() [%ld] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					openNodesList.size(),openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 
