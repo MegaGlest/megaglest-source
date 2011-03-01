@@ -135,6 +135,7 @@ private:
 	Chrono chronoPerfTimer;
 	bool perfTimerEnabled;
 
+	bool unitParticlesEnabled;
 	bool staggeredFactionUpdates;
 	std::map<string,StaticSound *> staticSoundList;
 	std::map<string,StrSound *> streamSoundList;

@@ -12,6 +12,7 @@
 #include "object.h"
 
 #include "faction_type.h"
+#include "config.h"
 #include "tech_tree.h"
 #include "resource.h"
 #include "upgrade.h"
@@ -54,7 +55,39 @@ Object::~Object(){
 		stateCallback->removingObjectEvent(this);
 		//renderer.getGame()->getGui()->removeObject(this);
 	}
+	// fade(and by this remove) all unit particle systems
+	while(unitParticleSystems.empty() == false) {
+		unitParticleSystems.back()->fade();
+		unitParticleSystems.pop_back();
+	}
 	delete resource;
+}
+
+void Object::initParticles(){
+	if(this->objectType==NULL) return;
+	if(this->objectType->hasParticles()){
+		ObjectParticleSystemTypes *particleTypes= this->objectType->getObjectParticleSystemTypes(variation);
+		if(Config::getInstance().getBool("UnitParticles") && (particleTypes->empty() == false)
+		        && (unitParticleSystems.empty() == true)){
+			for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
+				UnitParticleSystem *ups= new UnitParticleSystem(200);
+				(*it)->setValues(ups);
+				ups->setPos(this->pos);
+				ups->setRotation(this->rotation);
+				ups->setFactionColor(Vec3f(0, 0, 0));
+				this->unitParticleSystems.push_back(ups);
+				Renderer::getInstance().manageParticleSystem(ups, rsGame);
+			}
+		}
+	}
+}
+
+void Object::setHeight(float height){
+	pos.y=height;
+
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
+		(*it)->setPos(this->pos);
+	}
 }
 
 Model *Object::getModelPtr() const {

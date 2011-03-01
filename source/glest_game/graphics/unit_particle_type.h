@@ -21,6 +21,7 @@
 #include "xml_parser.h"
 #include "graphics_interface.h"
 #include "leak_dumper.h"
+#include "particle_type.h"
 
 using std::string;
 using namespace Shared::Graphics;
@@ -41,37 +42,24 @@ using Shared::Xml::XmlNode;
 ///	A type of particle system
 // ===========================================================
 
-class UnitParticleSystemType{
+class UnitParticleSystemType: public ParticleSystemType{
 protected:
-	string type;
-	Texture2D *texture;
-	string primitive;
-	Vec3f offset;
-	Vec3f direction;
-	Vec4f color;
-	Vec4f colorNoEnergy;
+
 	float radius;
-	float size;
-	float sizeNoEnergy;
-	float speed;
-	float gravity;
-	float emissionRate;
-	int energyMax;
-	int energyVar;
+	Vec3f direction;
     bool relative;
     bool relativeDirection;
     bool fixed;
-    bool teamcolorNoEnergy;
-    bool teamcolorEnergy;
     int staticParticleCount;
-    string mode;
 
 public:
-	UnitParticleSystemType();
 	void load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *newTexture);
 	void load(const string &dir, const string &path, RendererInterface *newTexture);
 	void setValues(UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
+};
+
+class ObjectParticleSystemType: public UnitParticleSystemType{
 };
 
 }}//end namespace

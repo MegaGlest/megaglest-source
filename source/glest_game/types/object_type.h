@@ -16,6 +16,7 @@
 #include "model.h"
 #include "vec.h"
 #include "leak_dumper.h"
+#include "unit_particle_type.h"
 
 using std::vector;
 
@@ -30,9 +31,13 @@ using Shared::Graphics::Vec3f;
 ///	Each of the possible objects of the map: trees, stones ...
 // =====================================================
 
+typedef vector<ObjectParticleSystemType*> ObjectParticleSystemTypes;
+typedef vector<ObjectParticleSystemTypes> ObjectParticleVector;
+
 class ObjectType{
 private:
 	typedef vector<Model*> Models;
+
 
 private:
 	static const int tree1= 0;
@@ -41,17 +46,22 @@ private:
 
 private:
 	Models models;
+	ObjectParticleVector particles;
 	Vec3f color;
 	int objectClass;
 	bool walkable;
 	int height;
 
 public:
+	~ObjectType();
 	void init(int modelCount, int objectClass, bool walkable, int height);
 
 	void loadModel(const string &path);
+	void addParticleSystem(ObjectParticleSystemType *particleSystem);
 
 	Model *getModel(int i)			{return models[i];}
+	bool hasParticles()	const		{return !particles.empty();}
+	ObjectParticleSystemTypes *getObjectParticleSystemTypes(int i)			{return &particles[i];}
 	int getModelCount() const		{return models.size();}
 	const Vec3f &getColor() const	{return color;} 
 	int getClass() const			{return objectClass;}

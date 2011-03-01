@@ -58,13 +58,15 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	}
 	
 	//model
-	const XmlNode *modelNode= particleSystemNode->getChild("model");
-	bool modelEnabled= modelNode->getAttribute("value")->getBoolValue();
-	if(modelEnabled) {
-		string path= modelNode->getAttribute("path")->getRestrictedValue();
-		model= renderer->newModel(rsGame);
+	if(particleSystemNode->hasChild("model")){
+		const XmlNode *modelNode= particleSystemNode->getChild("model");
+		bool modelEnabled= modelNode->getAttribute("value")->getBoolValue();
+		if(modelEnabled){
+			string path= modelNode->getAttribute("path")->getRestrictedValue();
+			model= renderer->newModel(rsGame);
 
-		model->load(dir + "/" + path);
+			model->load(dir + "/" + path);
+		}
 	}
 	else{
 		model= NULL;

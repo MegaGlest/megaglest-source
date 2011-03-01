@@ -179,6 +179,20 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
 				objectTypes[i].loadModel(dir +"/"+ pathAttribute->getRestrictedValue());
+
+				if(modelNode->hasChild("particles")){
+					const XmlNode *particleNode= modelNode->getChild("particles");
+					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+					if(particleEnabled){
+						for(int k=0; k<particleNode->getChildCount(); ++k){
+							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
+							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
+							objectParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+							objectTypes[i].addParticleSystem((objectParticleSystemType));
+						}
+					}
+				}
 			}
 		}
 
