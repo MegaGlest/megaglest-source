@@ -166,11 +166,14 @@ bool Window::handleEvent() {
 				case SDL_KEYDOWN:
 					//printf("In [%s::%s] Line :%d\n",__FILE__,__FUNCTION__,__LINE__);
 
+					{
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
 					keystate = event.key.keysym;
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
+					string keyName = SDL_GetKeyName(event.key.keysym.sym);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
 
 					/* handle ALT+Return */
 					if(event.key.keysym.sym == SDLK_RETURN
@@ -183,6 +186,7 @@ bool Window::handleEvent() {
 						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					}
 					}
 					break;
 
