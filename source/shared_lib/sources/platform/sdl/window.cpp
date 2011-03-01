@@ -176,7 +176,7 @@ bool Window::handleEvent() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
 
 					/* handle ALT+Return */
-					if(event.key.keysym.sym == SDLK_RETURN
+					if(event.key.keysym.unicode == SDLK_RETURN
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",__FILE__,__FUNCTION__,__LINE__);
 						toggleFullscreen();
@@ -591,7 +591,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
 
 	if(skipSpecialKeys == false) {
-		switch(keysym.sym) {
+		switch(keysym.unicode) {
 			case SDLK_LALT:
 			case SDLK_RALT:
 				return vkAlt;
@@ -612,7 +612,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkShift;
 		}
 	}
-	switch(keysym.sym) {
+	switch(keysym.unicode) {
 		case SDLK_PLUS:
 		case SDLK_KP_PLUS:
 			return vkAdd;
@@ -764,7 +764,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(skipSpecialKeys == true) {
-					switch(keysym.sym) {
+					switch(keysym.unicode) {
 						case SDLK_LALT:
 						case SDLK_RALT:
 							return vkAlt;
@@ -787,7 +787,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 					}
 				}
 
-				c = keysym.sym;
+				c = keysym.unicode;
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
