@@ -14,6 +14,7 @@
 #include "model.h"
 #include "vec.h"
 #include "leak_dumper.h"
+#include "particle.h"
 
 namespace Glest{ namespace Game{
 
@@ -24,6 +25,7 @@ class Resource;
 using Shared::Graphics::Model;
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Vec3f;
+using Shared::Graphics::UnitParticleSystem;
 
 // =====================================================
 // 	class Object
@@ -40,7 +42,11 @@ public:
 
 class Object {
 private:
+	typedef vector<UnitParticleSystem*> UnitParticleSystems;
+
+private:
 	ObjectType *objectType;
+	vector<UnitParticleSystem*> unitParticleSystems;
 	Resource *resource;
 	Vec3f pos;
 	float rotation;
@@ -54,10 +60,9 @@ public:
 	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
 	~Object();
 
+	void initParticles();
 	static void setStateCallback(ObjectStateInterface *value) { stateCallback=value; }
 
-	void setHeight(float height)		{pos.y= height;}
-	
 	const ObjectType *getType() const	{return objectType;}
 	Resource *getResource() const		{return resource;}
 	Vec3f getPos() const				{return pos;}
@@ -68,6 +73,7 @@ public:
 	bool getWalkable() const;
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);
+	void setHeight(float height);
 
 	int getLastRenderFrame() const { return lastRenderFrame; }
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }

@@ -29,101 +29,22 @@ namespace Glest{ namespace Game{
 // 	class UnitParticleSystemType
 // =====================================================
 
-UnitParticleSystemType::UnitParticleSystemType(){
-	texture = NULL;
-}
-
 void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *renderer) {
-	//texture
-	const XmlNode *textureNode= particleSystemNode->getChild("texture");
-	bool textureEnabled= textureNode->getAttribute("value")->getBoolValue();
-	if(textureEnabled == true) {
-		//Renderer &renderer= Renderer::getInstance();
-		texture= renderer->newTexture2D(rsGame);
-		//texture = newTexture;
+	ParticleSystemType::load(particleSystemNode, dir, renderer);
+	//radius
+	const XmlNode *radiusNode= particleSystemNode->getChild("radius");
+	radius= radiusNode->getAttribute("value")->getFloatValue();
 
-		if(textureNode->getAttribute("luminance")->getBoolValue()){
-			texture->setFormat(Texture::fAlpha);
-			texture->getPixmap()->init(1);
-		}
-		else{
-			texture->getPixmap()->init(4);
-		}
-		texture->load(dir + "/" + textureNode->getAttribute("path")->getRestrictedValue());
-	}
-	else{
-		texture= NULL;
-
-		//delete newTexture;
-		//newTexture = NULL;
-	}
-	
-	//primitive
-	const XmlNode *primitiveNode= particleSystemNode->getChild("primitive");
-	primitive= primitiveNode->getAttribute("value")->getRestrictedValue();
-
-	//offset
-	const XmlNode *offsetNode= particleSystemNode->getChild("offset");
-	offset.x= offsetNode->getAttribute("x")->getFloatValue();
-	offset.y= offsetNode->getAttribute("y")->getFloatValue();
-	offset.z= offsetNode->getAttribute("z")->getFloatValue();
-
+	//relative
+    const XmlNode *relativeNode= particleSystemNode->getChild("relative");
+    relative= relativeNode->getAttribute("value")->getBoolValue();
+    
 	//direction
 	const XmlNode *directionNode= particleSystemNode->getChild("direction");
 	direction.x= directionNode->getAttribute("x")->getFloatValue();
 	direction.y= directionNode->getAttribute("y")->getFloatValue();
 	direction.z= directionNode->getAttribute("z")->getFloatValue();
 
-	//color
-	const XmlNode *colorNode= particleSystemNode->getChild("color");
-	color.x= colorNode->getAttribute("red")->getFloatValue(0.f, 1.0f);
-	color.y= colorNode->getAttribute("green")->getFloatValue(0.f, 1.0f);
-	color.z= colorNode->getAttribute("blue")->getFloatValue(0.f, 1.0f);
-	color.w= colorNode->getAttribute("alpha")->getFloatValue(0.f, 1.0f);
-
-	//color
-	const XmlNode *colorNoEnergyNode= particleSystemNode->getChild("color-no-energy");
-	colorNoEnergy.x= colorNoEnergyNode->getAttribute("red")->getFloatValue(0.f, 1.0f);
-	colorNoEnergy.y= colorNoEnergyNode->getAttribute("green")->getFloatValue(0.f, 1.0f);
-	colorNoEnergy.z= colorNoEnergyNode->getAttribute("blue")->getFloatValue(0.f, 1.0f);
-	colorNoEnergy.w= colorNoEnergyNode->getAttribute("alpha")->getFloatValue(0.f, 1.0f);
-
-	//radius
-	const XmlNode *radiusNode= particleSystemNode->getChild("radius");
-	radius= radiusNode->getAttribute("value")->getFloatValue();
-
-	//size
-	const XmlNode *sizeNode= particleSystemNode->getChild("size");
-	size= sizeNode->getAttribute("value")->getFloatValue();
-
-	//sizeNoEnergy
-	const XmlNode *sizeNoEnergyNode= particleSystemNode->getChild("size-no-energy");
-	sizeNoEnergy= sizeNoEnergyNode->getAttribute("value")->getFloatValue();
-
-	//speed
-	const XmlNode *speedNode= particleSystemNode->getChild("speed");
-	speed= speedNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
-
-	//gravity
-	const XmlNode *gravityNode= particleSystemNode->getChild("gravity");
-	gravity= gravityNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
-
-	//emission rate
-	const XmlNode *emissionRateNode= particleSystemNode->getChild("emission-rate");
-	emissionRate= emissionRateNode->getAttribute("value")->getFloatValue();
-
-	//energy max
-	const XmlNode *energyMaxNode= particleSystemNode->getChild("energy-max");
-	energyMax= energyMaxNode->getAttribute("value")->getIntValue();
-
-	//speed
-	const XmlNode *energyVarNode= particleSystemNode->getChild("energy-var");
-	energyVar= energyVarNode->getAttribute("value")->getIntValue();
-	
-	//relative
-    const XmlNode *relativeNode= particleSystemNode->getChild("relative");
-    relative= relativeNode->getAttribute("value")->getBoolValue();
-    
     //relativeDirection
     if(particleSystemNode->hasChild("relativeDirection")){
     	const XmlNode *relativeDirectionNode= particleSystemNode->getChild("relativeDirection");
@@ -145,35 +66,6 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     //fixed
     const XmlNode *fixedNode= particleSystemNode->getChild("fixed");
     fixed= fixedNode->getAttribute("value")->getBoolValue();
-    
-    //teamcolorNoEnergy
-    if(particleSystemNode->hasChild("teamcolorNoEnergy")){
-    	const XmlNode *teamcolorNoEnergyNode= particleSystemNode->getChild("teamcolorNoEnergy");
-    	teamcolorNoEnergy= teamcolorNoEnergyNode->getAttribute("value")->getBoolValue();
-    }
-    else{
-    	teamcolorNoEnergy=false;
-    }
-    
-    	
-    //teamcolorEnergy
-    if(particleSystemNode->hasChild("teamcolorEnergy")){
-    	const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
-    	teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
-    }
-    else{
-    	teamcolorEnergy=false;
-    }
-    
-    //mode
-	if(particleSystemNode->hasChild("mode")){
-		const XmlNode *modeNode= particleSystemNode->getChild("mode");
-    	mode= modeNode->getAttribute("value")->getRestrictedValue();
-	}
-	else
-	{
-		mode="normal";
-	}
 }
 
 void UnitParticleSystemType::setValues(UnitParticleSystem *ups){

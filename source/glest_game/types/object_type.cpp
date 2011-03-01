@@ -22,9 +22,21 @@ namespace Glest{ namespace Game{
 
 void ObjectType::init(int modelCount, int objectClass, bool walkable, int height) {
 	models.reserve(modelCount);
+	particles.reserve(modelCount); // one list per model
 	this->objectClass= objectClass;
 	this->walkable= walkable;
 	this->height = height;
+}
+
+ObjectType::~ObjectType(){
+
+	for(int i=0;i<particles.size();i++ ){
+		while(!(particles[i].empty())){
+					delete particles[i].back();
+					particles[i].pop_back();
+			}
+	}
+	//Logger::getInstance().add("ObjectType", true);
 }
 
 void ObjectType::loadModel(const string &path){
@@ -36,6 +48,11 @@ void ObjectType::loadModel(const string &path){
 		color= p->getPixel3f(p->getW()/2, p->getH()/2);
 	}
 	models.push_back(model);
+	particles.resize(particles.size()+1);
+}
+
+void ObjectType::addParticleSystem(ObjectParticleSystemType *particleSystem){
+	particles.back().push_back(particleSystem);
 }
 
 void ObjectType::deletePixels() {

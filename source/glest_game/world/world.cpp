@@ -50,6 +50,7 @@ World::World(){
 	Config &config= Config::getInstance();
 
 	staggeredFactionUpdates = config.getBool("StaggeredFactionUpdates","false");
+	unitParticlesEnabled=config.getBool("UnitParticles");
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
@@ -1056,7 +1057,9 @@ void World::initCells(bool fogOfWar) {
 			if(sc == NULL) {
 				throw runtime_error("sc == NULL");
 			}
-
+			if(sc->getObject()!=NULL){
+        		sc->getObject()->initParticles();
+			}
 			sc->setFowTexCoord(Vec2f(
 				i/(next2Power(map.getSurfaceW())-1.f),
 				j/(next2Power(map.getSurfaceH())-1.f)));
