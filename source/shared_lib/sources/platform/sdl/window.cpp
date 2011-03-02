@@ -622,16 +622,16 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	if(keyName == "escape") {
 		return vkEscape;
 	}
-	if(keyName == "up arrow") {
+	if(keyName == "up arrow" || keyName == "up") {
 		return vkUp;
 	}
-	if(keyName == "left arrow") {
+	if(keyName == "left arrow" || keyName == "left") {
 		return vkLeft;
 	}
-	if(keyName == "right arrow") {
+	if(keyName == "right arrow" || keyName == "right") {
 		return vkRight;
 	}
-	if(keyName == "down arrow") {
+	if(keyName == "down arrow" || keyName == "down") {
 		return vkDown;
 	}
 	if(keyName == "return" || keyName == "keypad enter") {
