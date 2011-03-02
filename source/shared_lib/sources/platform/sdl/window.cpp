@@ -176,14 +176,14 @@ bool Window::handleEvent() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
 
 					/* handle ALT+Return */
-					if(event.key.keysym.unicode == SDLK_RETURN
+					if(keyName == "return"
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",__FILE__,__FUNCTION__,__LINE__);
 						toggleFullscreen();
 					}
 					if(global_window) {
 						global_window->eventKeyDown(getKey(event.key.keysym,true));
-						global_window->eventKeyPress(static_cast<char>(event.key.keysym.unicode));
+						global_window->eventKeyPress(static_cast<char>(event.key.keysym.sym));
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
@@ -590,18 +590,19 @@ MouseButton Window::getMouseButton(int sdlButton) {
 char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
 
+	string keyName = SDL_GetKeyName(keysym.sym);
+
 	if(skipSpecialKeys == false) {
-		switch(keysym.unicode) {
-			case SDLK_LALT:
-			case SDLK_RALT:
-				return vkAlt;
-			case SDLK_LCTRL:
-			case SDLK_RCTRL:
-				return vkControl;
-			case SDLK_LSHIFT:
-			case SDLK_RSHIFT:
-				return vkShift;
+		if(keyName == "left alt" || keyName == "right alt") {
+			return vkAlt;
 		}
+		else if(keyName == "left ctrl" || keyName == "right ctrl") {
+			return vkControl;
+		}
+		else if(keyName == "left shift" || keyName == "right shift") {
+			return vkShift;
+		}
+
 		if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
 			return vkAlt;
 		}
@@ -612,147 +613,193 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkShift;
 		}
 	}
-	switch(keysym.unicode) {
-		case SDLK_PLUS:
-		case SDLK_KP_PLUS:
-			return vkAdd;
-		case SDLK_MINUS:
-		case SDLK_KP_MINUS:
-			return vkSubtract;
-		case SDLK_ESCAPE:
-			return vkEscape;
-		case SDLK_UP:
-			return vkUp;
-		case SDLK_LEFT:
-			return vkLeft;
-		case SDLK_RIGHT:
-			return vkRight;
-		case SDLK_DOWN:
-			return vkDown;
-		case SDLK_RETURN:
-		case SDLK_KP_ENTER:
-			return vkReturn;
-		case SDLK_TAB:
-			return vkTab;
-		case SDLK_BACKSPACE:
-			return vkBack;
-		case SDLK_DELETE:
-			return vkDelete;
-		case SDLK_PRINT:
-			return vkPrint;
-        case SDLK_PAUSE:
-            return vkPause;
-		case SDLK_F1:
-			return vkF1;
-			break;
-		case SDLK_F2:
-			return vkF2;
-			break;
-		case SDLK_F3:
-			return vkF3;
-			break;
-		case SDLK_F4:
-			return vkF4;
-			break;
-		case SDLK_F5:
-			return vkF5;
-			break;
-		case SDLK_F6:
-			return vkF6;
-			break;
-		case SDLK_F7:
-			return vkF7;
-			break;
-		case SDLK_F8:
-			return vkF8;
-			break;
-		case SDLK_F9:
-			return vkF9;
-			break;
-		case SDLK_F10:
-			return vkF10;
-			break;
-		case SDLK_F11:
-			return vkF11;
-			break;
-		case SDLK_F12:
-			return vkF12;
-			break;
-		case SDLK_0:
-			return '0';
-		case SDLK_1:
-			return '1';
-		case SDLK_2:
-			return '2';
-		case SDLK_3:
-			return '3';
-		case SDLK_4:
-			return '4';
-		case SDLK_5:
-			return '5';
-		case SDLK_6:
-			return '6';
-		case SDLK_7:
-			return '7';
-		case SDLK_8:
-			return '8';
-		case SDLK_9:
-			return '9';
-		case SDLK_QUESTION:
-			return '?';
-		case SDLK_a:
-			return 'A';
-		case SDLK_b:
-			return 'B';
-		case SDLK_c:
-			return 'C';
-		case SDLK_d:
-			return 'D';
-		case SDLK_e:
-			return 'E';
-		case SDLK_f:
-			return 'F';
-		case SDLK_g:
-			return 'G';
-		case SDLK_h:
-			return 'H';
-		case SDLK_i:
-			return 'I';
-		case SDLK_j:
-			return 'J';
-		case SDLK_k:
-			return 'K';
-		case SDLK_l:
-			return 'L';
-		case SDLK_m:
-			return 'M';
-		case SDLK_n:
-			return 'N';
-		case SDLK_o:
-			return 'O';
-		case SDLK_p:
-			return 'P';
-		case SDLK_q:
-			return 'Q';
-		case SDLK_r:
-			return 'R';
-		case SDLK_s:
-			return 'S';
-		case SDLK_t:
-			return 'T';
-		case SDLK_u:
-			return 'U';
-		case SDLK_v:
-			return 'V';
-		case SDLK_w:
-			return 'W';
-		case SDLK_x:
-			return 'X';
-		case SDLK_y:
-			return 'Y';
-		case SDLK_z:
-			return 'Z';
-		default:
+	if(keyName == "plus sign" || keyName == "keypad plus") {
+		return vkAdd;
+	}
+	if(keyName == "minus sign" || keyName == "keypad minus") {
+		return vkSubtract;
+	}
+	if(keyName == "escape") {
+		return vkEscape;
+	}
+	if(keyName == "up arrow") {
+		return vkUp;
+	}
+	if(keyName == "left arrow") {
+		return vkLeft;
+	}
+	if(keyName == "right arrow") {
+		return vkRight;
+	}
+	if(keyName == "down arrow") {
+		return vkDown;
+	}
+	if(keyName == "return" || keyName == "keypad enter") {
+		return vkReturn;
+	}
+	if(keyName == "tab") {
+		return vkTab;
+	}
+	if(keyName == "backspace") {
+		return vkBack;
+	}
+	if(keyName == "delete") {
+		return vkDelete;
+	}
+	if(keyName == "print-screen") {
+		return vkPrint;
+	}
+	if(keyName == "pause") {
+		return vkPause;
+	}
+	if(keyName == "F1") {
+		return vkF1;
+	}
+	if(keyName == "F2") {
+		return vkF2;
+	}
+	if(keyName == "F3") {
+		return vkF3;
+	}
+	if(keyName == "F4") {
+		return vkF4;
+	}
+	if(keyName == "F5") {
+		return vkF5;
+	}
+	if(keyName == "F6") {
+		return vkF6;
+	}
+	if(keyName == "F7") {
+		return vkF7;
+	}
+	if(keyName == "F8") {
+		return vkF8;
+	}
+	if(keyName == "F9") {
+		return vkF9;
+	}
+	if(keyName == "F10") {
+		return vkF10;
+	}
+	if(keyName == "F11") {
+		return vkF11;
+	}
+	if(keyName == "F12") {
+		return vkF12;
+	}
+	if(keyName == "0") {
+		return '0';
+	}
+	if(keyName == "1") {
+		return '1';
+	}
+	if(keyName == "2") {
+		return '2';
+	}
+	if(keyName == "3") {
+		return '3';
+	}
+	if(keyName == "4") {
+		return '4';
+	}
+	if(keyName == "5") {
+		return '5';
+	}
+	if(keyName == "6") {
+		return '6';
+	}
+	if(keyName == "7") {
+		return '7';
+	}
+	if(keyName == "8") {
+		return '8';
+	}
+	if(keyName == "9") {
+		return '9';
+	}
+	if(keyName == "question mark") {
+		return '?';
+	}
+	if(keyName == "a") {
+		return 'A';
+	}
+	if(keyName == "b") {
+		return 'B';
+	}
+	if(keyName == "c") {
+		return 'C';
+	}
+	if(keyName == "d") {
+		return 'D';
+	}
+	if(keyName == "e") {
+		return 'E';
+	}
+	if(keyName == "f") {
+		return 'F';
+	}
+	if(keyName == "g") {
+		return 'G';
+	}
+	if(keyName == "h") {
+		return 'H';
+	}
+	if(keyName == "i") {
+		return 'I';
+	}
+	if(keyName == "j") {
+		return 'J';
+	}
+	if(keyName == "k") {
+		return 'K';
+	}
+	if(keyName == "l") {
+		return 'L';
+	}
+	if(keyName == "m") {
+		return 'M';
+	}
+	if(keyName == "n") {
+		return 'N';
+	}
+	if(keyName == "o") {
+		return 'O';
+	}
+	if(keyName == "p") {
+		return 'P';
+	}
+	if(keyName == "q") {
+		return 'Q';
+	}
+	if(keyName == "r") {
+		return 'R';
+	}
+	if(keyName == "s") {
+		return 'S';
+	}
+	if(keyName == "t") {
+		return 'T';
+	}
+	if(keyName == "u") {
+		return 'U';
+	}
+	if(keyName == "v") {
+		return 'V';
+	}
+	if(keyName == "w") {
+		return 'W';
+	}
+	if(keyName == "x") {
+		return 'X';
+	}
+	if(keyName == "y") {
+		return 'Y';
+	}
+	if(keyName == "z") {
+		return 'Z';
+	}
+	else {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			Uint16 c = keysym.unicode;
 			if((c & 0xFF80) == 0) {
@@ -764,7 +811,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(skipSpecialKeys == true) {
-					switch(keysym.unicode) {
+					switch(keysym.sym) {
 						case SDLK_LALT:
 						case SDLK_RALT:
 							return vkAlt;
@@ -787,12 +834,11 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 					}
 				}
 
-				c = keysym.unicode;
+				c = keysym.sym;
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 			return (c & 0xFF);
-			break;
 	}
 
 	return 0;
