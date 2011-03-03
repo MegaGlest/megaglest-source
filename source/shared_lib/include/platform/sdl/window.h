@@ -195,6 +195,8 @@ public:
 	static void setAllowAltEnterFullscreenToggle(bool value) { allowAltEnterFullscreenToggle = value; }
 	static bool getAllowAltEnterFullscreenToggle() { return allowAltEnterFullscreenToggle; }
 
+	static char getRawKey(SDL_keysym keysym);
+
 protected:
 	virtual void eventCreate(){}
 	virtual void eventMouseDown(int x, int y, MouseButton mouseButton){}
@@ -220,6 +222,7 @@ private:
 
 	static MouseButton getMouseButton(int sdlButton);
 	static char getKey(SDL_keysym keysym, bool skipSpecialKeys=false);
+	static char getNormalKey(SDL_keysym keysym,bool skipSpecialKeys=false);
 	static void toggleFullscreen();
 };
 
