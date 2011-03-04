@@ -49,6 +49,9 @@ private:
 	vector<pair<string,string> > masterProperties;
 	vector<pair<string,string> > userProperties;
 
+	int hotkeyIndex;
+	char hotkeyChar;
+
 public:
 	MenuStateKeysetup(Program *program, MainMenu *mainMenu);
 	~MenuStateKeysetup();

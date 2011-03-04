@@ -259,6 +259,129 @@ const string Config::getString(const string &key,const char *defaultValueIfNotFo
 	return properties.first.getString(key,defaultValueIfNotFound);
 }
 
+SDLKey Config::translateSpecialStringToSDLKey(char c) const {
+	SDLKey result;
+	if(c < 0) {
+		switch(c) {
+			case vkAdd:
+				result = SDLK_PLUS;
+				break;
+			case vkSubtract:
+				result = SDLK_MINUS;
+				break;
+
+			case vkAlt:
+				result = SDLK_RALT;
+				break;
+
+			case vkControl:
+				result = SDLK_RCTRL;
+				break;
+
+			case vkShift:
+				result = SDLK_RSHIFT;
+				break;
+
+			case vkEscape:
+				result = SDLK_ESCAPE;
+				break;
+
+			case vkUp:
+				result = SDLK_UP;
+				break;
+
+			case vkLeft:
+				result = SDLK_LEFT;
+				break;
+
+			case vkRight:
+				result = SDLK_RIGHT;
+				break;
+
+			case vkDown:
+				result = SDLK_DOWN;
+				break;
+
+			case vkReturn:
+				result = SDLK_RETURN;
+				break;
+
+			case vkBack:
+				result = SDLK_BACKSPACE;
+				break;
+
+			case vkTab:
+				result = SDLK_TAB;
+				break;
+
+			case vkF1:
+				result = SDLK_F1;
+				break;
+
+			case vkF2:
+				result = SDLK_F2;
+				break;
+
+			case vkF3:
+				result = SDLK_F3;
+				break;
+
+			case vkF4:
+				result = SDLK_F4;
+				break;
+
+			case vkF5:
+				result = SDLK_F5;
+				break;
+
+			case vkF6:
+				result = SDLK_F6;
+				break;
+
+			case vkF7:
+				result = SDLK_F7;
+				break;
+
+			case vkF8:
+				result = SDLK_F8;
+				break;
+
+			case vkF9:
+				result = SDLK_F9;
+				break;
+
+			case vkF10:
+				result = SDLK_F10;
+				break;
+
+			case vkF11:
+				result = SDLK_F11;
+				break;
+
+			case vkF12:
+				result = SDLK_F12;
+				break;
+
+			case vkDelete:
+				result = SDLK_DELETE;
+				break;
+
+			case vkPrint:
+				result = SDLK_PRINT;
+				break;
+
+			case vkPause:
+				result = SDLK_PAUSE;
+				break;
+		}
+	}
+	else {
+		result = static_cast<SDLKey>(c);
+	}
+
+	return result;
+}
+
 char Config::translateStringToCharKey(const string &value) const {
 	char result = 0;
 

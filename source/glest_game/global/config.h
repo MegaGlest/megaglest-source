@@ -15,6 +15,7 @@
 #include "properties.h"
 #include <vector>
 #include "game_constants.h"
+#include <SDL.h>
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -50,8 +51,6 @@ protected:
 	Config();
 	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
 
-	char translateStringToCharKey(const string &value) const;
-
 	static void CopyAll(Config *src,Config *dest);
 	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
 
@@ -83,6 +82,9 @@ public:
     vector<pair<string,string> > getMergedProperties() const;
     vector<pair<string,string> > getMasterProperties() const;
     vector<pair<string,string> > getUserProperties() const;
+
+    char translateStringToCharKey(const string &value) const;
+    SDLKey translateSpecialStringToSDLKey(char c) const;
 
 	string toString();
 };
