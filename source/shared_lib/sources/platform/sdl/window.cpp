@@ -636,6 +636,9 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
 
 	SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
+	if(unicodeKey == 0) {
+		unicodeKey = keysym.sym;
+	}
 
 	//string keyName = SDL_GetKeyName(keysym.sym);
 	string keyName = SDL_GetKeyName(unicodeKey);
@@ -662,15 +665,6 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			return vkShift;
 		}
 	}
-	if(keyName == "plus sign" || keyName == "plus") {
-		return vkAdd;
-	}
-	if(keyName == "minus sign" || keyName == "minus") {
-		return vkSubtract;
-	}
-	if(keyName == "escape") {
-		return vkEscape;
-	}
 	if(keyName == "up arrow" || keyName == "up") {
 		return vkUp;
 	}
@@ -685,6 +679,15 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	}
 	if(keyName == "return" || keyName == "enter") {
 		return vkReturn;
+	}
+	if(keyName == "plus sign" || keyName == "plus") {
+		return vkAdd;
+	}
+	if(keyName == "minus sign" || keyName == "minus") {
+		return vkSubtract;
+	}
+	if(keyName == "escape") {
+		return vkEscape;
 	}
 	if(keyName == "tab") {
 		return vkTab;
@@ -701,40 +704,47 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	if(keyName == "pause") {
 		return vkPause;
 	}
-	if(keyName == "F1") {
+	if(keyName == "question mark" || keyName == "?") {
+		return '?';
+	}
+	if(keyName == "space") {
+		return ' ';
+	}
+
+	if(keyName == "f1") {
 		return vkF1;
 	}
-	if(keyName == "F2") {
+	if(keyName == "f2") {
 		return vkF2;
 	}
-	if(keyName == "F3") {
+	if(keyName == "f3") {
 		return vkF3;
 	}
-	if(keyName == "F4") {
+	if(keyName == "f4") {
 		return vkF4;
 	}
-	if(keyName == "F5") {
+	if(keyName == "f5") {
 		return vkF5;
 	}
-	if(keyName == "F6") {
+	if(keyName == "f6") {
 		return vkF6;
 	}
-	if(keyName == "F7") {
+	if(keyName == "f7") {
 		return vkF7;
 	}
-	if(keyName == "F8") {
+	if(keyName == "f8") {
 		return vkF8;
 	}
-	if(keyName == "F9") {
+	if(keyName == "f9") {
 		return vkF9;
 	}
-	if(keyName == "F10") {
+	if(keyName == "f10") {
 		return vkF10;
 	}
-	if(keyName == "F11") {
+	if(keyName == "f11") {
 		return vkF11;
 	}
-	if(keyName == "F12") {
+	if(keyName == "f12") {
 		return vkF12;
 	}
 	if(keyName == "0") {
@@ -766,9 +776,6 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	}
 	if(keyName == "9") {
 		return '9';
-	}
-	if(keyName == "question mark" || keyName == "?") {
-		return '?';
 	}
 	if(keyName == "a") {
 		return 'A';
@@ -849,6 +856,9 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		return 'Z';
 	}
 
+	if(unicodeKey > 0 && unicodeKey <= 255) {
+		return unicodeKey;
+	}
 	return 0;
 }
 
@@ -920,7 +930,9 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 					}
 				}
 
-				c = keysym.sym;
+				if(keysym.sym <= 255) {
+					c = keysym.sym;
+				}
 			}
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);

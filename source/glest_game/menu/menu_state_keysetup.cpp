@@ -34,6 +34,9 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	containerName = "KeySetup";
 
+    hotkeyIndex = -1;
+    hotkeyChar = 0;
+
 	Lang &lang= Lang::getInstance();
 	int buttonRowPos=80;
 	// header
@@ -78,13 +81,27 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 	userProperties=configKeys.getUserProperties();
 
 	for(int i = 0; i < mergedProperties.size(); ++i) {
+
+		string keyName = mergedProperties[i].second;
+		if(keyName.length() > 0) {
+			SDLKey keysym = static_cast<SDLKey>(configKeys.translateStringToCharKey(keyName));
+			// SDL skips capital letters
+			if(keysym >= 65 && keysym <= 90) {
+			    keysym = (SDLKey)((int)keysym + 32);
+			}
+			keyName = SDL_GetKeyName(keysym);
+			if(keyName == "unknown key") {
+				keyName = mergedProperties[i].second;
+			}
+		}
+
 		GraphicButton *button=new GraphicButton();
 		button->init(keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
 		button->setText(mergedProperties[i].first);
 		keyButtons.push_back(button);
 		GraphicLabel *label=new GraphicLabel();
 		label->init(keyButtonsXBase+keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-		label->setText(mergedProperties[i].second);
+		label->setText(keyName);
 		labels.push_back(label);
 	}
 
@@ -161,6 +178,8 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 			for (int i = keyScrollBar.getVisibleStart(); i
 					<= keyScrollBar.getVisibleEnd(); ++i) {
 				if (keyButtons[i]->mouseClick(x, y)) {
+				    hotkeyIndex = i;
+				    hotkeyChar = 0;
 					break;
 				}
 			}
@@ -239,14 +258,39 @@ void MenuStateKeysetup::showMessageBox(const string &text, const string &header,
 
 
 void MenuStateKeysetup::keyDown(char key) {
-	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	hotkeyChar = key;
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
 }
 
 void MenuStateKeysetup::keyPress(char c) {
-
 }
-void MenuStateKeysetup::keyUp(char key) {
 
+void MenuStateKeysetup::keyUp(char key) {
+	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+    if(hotkeyIndex >= 0 && hotkeyChar != 0) {
+        string keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
+
+        if(keyName == "unknown key") {
+        	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+			SDLKey keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
+			// SDL skips capital letters
+			if(keysym >= 65 && keysym <= 90) {
+				keysym = (SDLKey)((int)keysym + 32);
+			}
+			keyName = SDL_GetKeyName(keysym);
+        }
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar);
+
+        if(keyName != "unknown key") {
+            GraphicLabel *label= labels[hotkeyIndex];
+            label->setText(keyName);
+        }
+        hotkeyIndex = -1;
+        hotkeyChar = 0;
+    }
 }
 
 }}//end namespace
