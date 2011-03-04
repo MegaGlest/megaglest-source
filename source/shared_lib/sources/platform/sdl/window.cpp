@@ -599,14 +599,23 @@ MouseButton Window::getMouseButton(int sdlButton) {
 
 char Window::getRawKey(SDL_keysym keysym) {
 	char result = 0;
-	if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) == 0) {
-		Uint16 c = keysym.unicode;
-		if(c != 0 && (c & 0xFF80) == 0) {
+	// Because Control messes up unicode character
+
+	printf("keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) = %d\n",(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)));
+
+	if((keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) == 0) {
+		//printf("keysym.unicode = %d [%d]\n",keysym.unicode,0x80);
+
+		//Uint16 c = keysym.unicode;
+		//if(c != 0 && (c & 0xFF80) == 0) {
+		if(keysym.unicode > 0 && keysym.unicode < 0x80) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			//c = keysym.unicode & 0x7F;
+			result = keysym.unicode;
 			//c = toupper(c);
-			result = (c & 0xFF);
+			//result = (c & 0xFF);
 			//result = c;
+
+			//printf("result = %d\n",result);
 
 			//if(c != 0) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
