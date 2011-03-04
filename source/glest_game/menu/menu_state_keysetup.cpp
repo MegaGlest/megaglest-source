@@ -63,9 +63,13 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 	buttonOk.init(200, buttonRowPos, 100);
 	buttonOk.setText(lang.get("Ok"));
 
+	buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
+	buttonDefaults.init(310, buttonRowPos, 100);
+	buttonDefaults.setText(lang.get("Defaults"));
+
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(310, buttonRowPos, 100);
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.init(420, buttonRowPos, 100);
+	buttonReturn.setText(lang.get("Abort"));
 
 	keyButtonsLineHeight=25;
 	keyButtonsHeight=20;
@@ -78,7 +82,8 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	mergedProperties=configKeys.getMergedProperties();
 	masterProperties=configKeys.getMasterProperties();
-	userProperties=configKeys.getUserProperties();
+	//userProperties=configKeys.getUserProperties();
+	userProperties.clear();
 
 	for(int i = 0; i < mergedProperties.size(); ++i) {
 
@@ -166,10 +171,34 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+    else if(buttonDefaults.mouseClick(x, y)){
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+        string userKeysFile = configKeys.getFileName(true);
+        int result = unlink(userKeysFile.c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
+        configKeys.reload();
+
+		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    }
+
+
     else if(buttonOk.mouseClick(x, y)){
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		soundRenderer.playFx(coreData.getClickSoundB());
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        if(userProperties.size() > 0) {
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+			configKeys.setUserProperties(userProperties);
+			configKeys.save();
+			configKeys.reload();
+        }
+
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
@@ -213,12 +242,18 @@ void MenuStateKeysetup::render(){
 	else
 	{
 		renderer.renderButton(&buttonReturn);
+		renderer.renderButton(&buttonDefaults);
 		renderer.renderButton(&buttonOk);
 		renderer.renderLabel(&labelTitle);
 
 		if(keyScrollBar.getElementCount()!=0 ) {
 			for(int i = keyScrollBar.getVisibleStart(); i <= keyScrollBar.getVisibleEnd(); ++i) {
-				renderer.renderButton(keyButtons[i]);
+				if(hotkeyIndex == i) {
+					renderer.renderButton(keyButtons[i],&YELLOW);
+				}
+				else {
+					renderer.renderButton(keyButtons[i]);
+				}
 				renderer.renderLabel(labels[i]);
 			}
 		}
@@ -269,25 +304,46 @@ void MenuStateKeysetup::keyPress(char c) {
 void MenuStateKeysetup::keyUp(char key) {
 	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-    if(hotkeyIndex >= 0 && hotkeyChar != 0) {
-        string keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
+    if(hotkeyIndex >= 0) {
+    	if(hotkeyChar != 0) {
+			string keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
 
-        if(keyName == "unknown key") {
-        	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-			SDLKey keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
-			// SDL skips capital letters
-			if(keysym >= 65 && keysym <= 90) {
-				keysym = (SDLKey)((int)keysym + 32);
+			key = hotkeyChar;
+			if(keyName == "unknown key") {
+				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+				SDLKey keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
+				// SDL skips capital letters
+				if(keysym >= 65 && keysym <= 90) {
+					keysym = (SDLKey)((int)keysym + 32);
+				}
+				key = keysym;
+				keyName = SDL_GetKeyName(keysym);
 			}
-			keyName = SDL_GetKeyName(keysym);
-        }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar);
 
-        if(keyName != "unknown key") {
-            GraphicLabel *label= labels[hotkeyIndex];
-            label->setText(keyName);
-        }
+			if(keyName != "unknown key") {
+				GraphicLabel *label= labels[hotkeyIndex];
+				label->setText(keyName);
+
+				pair<string,string> &nameValuePair = mergedProperties[hotkeyIndex];
+				bool isNewUserKeyEntry = true;
+				for(int i = 0; i < userProperties.size(); ++i) {
+					string hotKeyName = userProperties[i].first;
+					if(nameValuePair.first == hotKeyName) {
+						userProperties[i].second = "";
+						userProperties[i].second.push_back(key);
+						isNewUserKeyEntry = false;
+						break;
+					}
+				}
+				if(isNewUserKeyEntry == true) {
+					pair<string,string> newNameValuePair = nameValuePair;
+					newNameValuePair.second = key;
+					userProperties.push_back(newNameValuePair);
+				}
+			}
+    	}
         hotkeyIndex = -1;
         hotkeyChar = 0;
     }

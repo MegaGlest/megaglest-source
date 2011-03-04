@@ -78,6 +78,8 @@ Config::Config() {
 	cfgType.second = cfgUserGame;
 	fileName.first = "";
 	fileName.second = "";
+	fileNameParameter.first = "";
+	fileNameParameter.second = "";
 	fileLoaded.first = false;
 	fileLoaded.second = false;
 }
@@ -88,6 +90,8 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 	cfgType = type;
 
 	fileName = file;
+	fileNameParameter = file;
+
     if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
     	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
@@ -156,14 +160,15 @@ void Config::CopyAll(Config *src, Config *dest) {
 	dest->properties	= src->properties;
 	dest->cfgType		= src->cfgType;
 	dest->fileName		= src->fileName;
+	dest->fileNameParameter = src->fileNameParameter;
 	dest->fileLoaded	= src->fileLoaded;
 }
 
 void Config::reload() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame);
-	Config newconfig(type, std::make_pair(glest_ini_filename,glestuser_ini_filename), std::make_pair(true,false));
+	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgType.first,cfgType.second);
+	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false));
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -563,6 +568,24 @@ vector<pair<string,string> > Config::getMasterProperties() const {
 
 vector<pair<string,string> > Config::getUserProperties() const {
     return getPropertiesFromContainer(properties.second);
+}
+
+void Config::setUserProperties(const vector<pair<string,string> > &valueList) {
+	Properties &propertiesObj = properties.second;
+
+	for(int idx = 0; idx < valueList.size(); ++ idx) {
+		const pair<string,string> &nameValuePair = valueList[idx];
+		propertiesObj.setString(nameValuePair.first,nameValuePair.second);
+	}
+}
+
+string Config::getFileName(bool userFilename) const {
+    string result = fileName.second;
+	if(userFilename == false) {
+		result = fileName.first;
+    }
+
+	return result;
 }
 
 string Config::toString(){

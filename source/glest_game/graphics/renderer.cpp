@@ -1289,7 +1289,7 @@ void Renderer::renderLabel(const GraphicLabel *label,const Vec4f *color) {
 	glPopAttrib();
 }
 
-void Renderer::renderButton(const GraphicButton *button) {
+void Renderer::renderButton(const GraphicButton *button, const Vec4f *fontColorOverride) {
 	if(button->getVisible() == false) {
 		return;
 	}
@@ -1314,14 +1314,14 @@ void Renderer::renderButton(const GraphicButton *button) {
 
 	//button
 	Vec4f fontColor;
-	//if(game!=NULL){
-	//	fontColor=game->getGui()->getDisplay()->getColor();
-	//	fontColor.w = GraphicComponent::getFade();
-	//}
-	//else {
+
+	if(fontColorOverride != NULL) {
+		fontColor= *fontColorOverride;
+	}
+	else {
 		// white shadowed is default ( in the menu for example )
 		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
-	//}
+	}
 
 	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
 	Vec4f color= fontColor;

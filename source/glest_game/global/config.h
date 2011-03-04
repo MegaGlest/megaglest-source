@@ -39,6 +39,7 @@ class Config {
 private:
 	std::pair<Properties,Properties> properties;
 	std::pair<ConfigType,ConfigType> cfgType;
+	std::pair<string,string> fileNameParameter;
 	std::pair<string,string> fileName;
 	std::pair<bool,bool> fileLoaded;
 
@@ -82,6 +83,9 @@ public:
     vector<pair<string,string> > getMergedProperties() const;
     vector<pair<string,string> > getMasterProperties() const;
     vector<pair<string,string> > getUserProperties() const;
+    void setUserProperties(const vector<pair<string,string> > &valueList);
+
+    string getFileName(bool userFilename) const;
 
     char translateStringToCharKey(const string &value) const;
     SDLKey translateSpecialStringToSDLKey(char c) const;

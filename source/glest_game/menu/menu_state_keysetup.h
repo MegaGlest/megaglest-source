@@ -29,6 +29,7 @@ class MenuStateKeysetup: public MenuState {
 private:
 
 	GraphicButton buttonOk;
+	GraphicButton buttonDefaults;
 	GraphicButton buttonReturn;
 
 	GraphicLabel labelTitle;
