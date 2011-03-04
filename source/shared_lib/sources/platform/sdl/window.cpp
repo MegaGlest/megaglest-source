@@ -600,16 +600,20 @@ MouseButton Window::getMouseButton(int sdlButton) {
 char Window::getRawKey(SDL_keysym keysym) {
 	char result = 0;
 	Uint16 c = keysym.unicode;
-	if((c & 0xFF80) == 0) {
+	if(c != 0 && (c & 0xFF80) == 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		c = keysym.unicode & 0x7F;
-		c = toupper(c);
+		//c = toupper(c);
 		result = (c & 0xFF);
 
+		//if(c != 0) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 		return result;
+		//}
 	}
-	result = keysym.sym;
+	if(keysym.sym <= 255) {
+		result = keysym.sym;
+	}
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 	return result;
@@ -854,7 +858,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 			if((c & 0xFF80) == 0) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				c = keysym.unicode & 0x7F;
-				c = toupper(c);
+				//c = toupper(c);
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
 
