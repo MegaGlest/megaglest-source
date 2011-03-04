@@ -357,7 +357,7 @@ public:
 	void renderLabel(const GraphicLabel *label);
 	void renderLabel(const GraphicLabel *label,const Vec3f *color);
 	void renderLabel(const GraphicLabel *label,const Vec4f *color);
-    void renderButton(const GraphicButton *button);
+    void renderButton(const GraphicButton *button,const Vec4f *fontColorOverride=NULL);
     void renderCheckBox(const GraphicCheckBox *box);
     void renderLine(const GraphicLine *line);
     void renderScrollBar(const GraphicScrollBar *sb);
