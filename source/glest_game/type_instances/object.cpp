@@ -46,6 +46,8 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 	if(objectType!=NULL){
 		variation = random.randRange(0, objectType->getModelCount()-1);
 	}
+	visible=false;
+
 }
 
 Object::~Object(){
@@ -75,6 +77,7 @@ void Object::initParticles(){
 				ups->setPos(this->pos);
 				ups->setRotation(this->rotation);
 				ups->setFactionColor(Vec3f(0, 0, 0));
+				ups->setVisible(false);
 				this->unitParticleSystems.push_back(ups);
 				Renderer::getInstance().manageParticleSystem(ups, rsGame);
 			}
@@ -105,6 +108,14 @@ bool Object::getWalkable() const{
 void Object::setResource(const ResourceType *resourceType, const Vec2i &pos){
 	resource= new Resource();
 	resource->init(resourceType, pos);
+}
+
+void Object::setVisible( bool visible)
+{
+	this->visible=visible;
+	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
+			(*it)->setVisible(visible);
+		}
 }
 
 }}//end namespace

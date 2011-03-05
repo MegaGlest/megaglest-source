@@ -3585,7 +3585,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 			if(shadows == sShadowMapping) {
 				glEnable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(1.0f, 0.001f);
+				glPolygonOffset(1.0f, 16.0f);
 			}
 
 			//render 3d
@@ -4753,7 +4753,11 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 			if(forceNew == true || visibleQuad != quadCache.lastVisibleQuad) {
 				// Object calculations
 				const Map *map= world->getMap();
-
+				// clear visibility of old objects
+				for(int visibleIndex = 0;
+					visibleIndex < quadCache.visibleObjectList.size(); ++visibleIndex){
+					quadCache.visibleObjectList[visibleIndex]->setVisible(false);
+				}
 				quadCache.clearNonVolatileCacheData();
 
 				PosQuadIterator pqi(map,visibleQuad, Map::cellScale);
@@ -4778,6 +4782,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 						if(isExplored == true && isVisible == true) {
 							quadCache.visibleObjectList.push_back(o);
+							o->setVisible(true);
 						}
 					}
 				}

@@ -29,12 +29,11 @@ void ObjectType::init(int modelCount, int objectClass, bool walkable, int height
 }
 
 ObjectType::~ObjectType(){
-
-	for(int i=0;i<particles.size();i++ ){
+	for(int i= 0; i < particles.size(); i++){
 		while(!(particles[i].empty())){
-					delete particles[i].back();
-					particles[i].pop_back();
-			}
+			delete particles[i].back();
+			particles[i].pop_back();
+		}
 	}
 	//Logger::getInstance().add("ObjectType", true);
 }
