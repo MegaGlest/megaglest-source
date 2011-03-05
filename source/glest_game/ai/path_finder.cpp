@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
-int PathFinder::pathFindNodesMax		= 600;
+int PathFinder::pathFindNodesMax		= 500;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 
@@ -366,12 +366,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	float dist= unitPos.dist(finalPos);
 
 	useMaxNodeCount = PathFinder::pathFindNodesMax;
-	if(dist <= 10) {
-		useMaxNodeCount = (int)dist * 20;
-		if(useMaxNodeCount <= 0) {
-			useMaxNodeCount = 200;
-		}
-	}
+//	if(dist <= 10) {
+//		useMaxNodeCount = (int)dist * 20;
+//		if(useMaxNodeCount <= 0) {
+//			useMaxNodeCount = 200;
+//		}
+//	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -379,7 +379,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	// Check the previous path find cache for the unit to see if its good to
 	// use
 	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
-	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","true");
+	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
 	if((showConsoleDebugInfo || tryLastPathCache) && dist > 60) {
 		if(showConsoleDebugInfo) printf("Distance from [%d - %s] to destination is %.2f tryLastPathCache = %d\n",unit->getId(),unit->getFullName().c_str(), dist,tryLastPathCache);
 
