@@ -104,6 +104,8 @@ private:
 
 	bool isControlKeyPressed;
 
+	string appPath;
+
 	void loadUnit(string path, string skillName);
 	void loadModel(string path);
 	void loadParticle(string path);
@@ -117,7 +119,8 @@ public:
 				const string modelPath,const string particlePath,
 				const string projectileParticlePath,const string splashParticlePath,
 				float defaultAnimation,int defaultParticleLoopStart,
-				float defaultZoom,float defaultXRot, float defaultYRot);
+				float defaultZoom,float defaultXRot, float defaultYRot,
+				string appPath);
 	~MainWindow();
 	void init();
 

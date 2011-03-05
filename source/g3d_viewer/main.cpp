@@ -186,11 +186,13 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						const string splashParticlePath,
 						float defaultAnimation,
 						int defaultParticleLoopStart,
-						float defaultZoom,float defaultXRot, float defaultYRot)
+						float defaultZoom,float defaultXRot, float defaultYRot,
+						string appPath)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
 		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true), timer(NULL)
 {
+	this->appPath = appPath;
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
@@ -714,14 +716,22 @@ void MainWindow::saveScreenshot() {
 			}
 	    }
 	    else {
-			string path = "screens/";
+			string screenShotsPath = extractDirectoryPathFromFile(appPath) + string("screens/");
+
+			printf("screenShotsPath [%s]\n",screenShotsPath.c_str());
+
+	        if(isdir(screenShotsPath.c_str()) == false) {
+	        	createDirectoryPaths(screenShotsPath);
+	        }
+
+			string path = screenShotsPath;
 			if(isdir(path.c_str()) == true) {
 				//Config &config= Config::getInstance();
 				//string fileFormat = config.getString("ScreenShotFileType","png");
 				string fileFormat = "png";
 
 				for(int i=0; i < 1000; ++i) {
-					path = "screens/";
+					path = screenShotsPath;
 					path += string("screen") + intToStr(i) + string(".") + fileFormat;
 					FILE *f= fopen(path.c_str(), "rb");
 					if(f == NULL) {
@@ -1987,6 +1997,14 @@ bool App::OnInit(){
 
 	}
 
+	string appPath = "";
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[0]));
+		appPath = tmp_buf;
+#else
+		appPath = wxFNCONV(argv[0]);
+#endif
+
 	mainWindow= new MainWindow(	unitToLoad,
 								modelPath,
 								particlePath,
@@ -1996,7 +2014,8 @@ bool App::OnInit(){
 								newParticleLoopValue,
 								newZoomValue,
 								newXRotValue,
-								newYRotValue);
+								newYRotValue,
+								appPath);
 	mainWindow->Show();
 	mainWindow->init();
 	mainWindow->Update();
