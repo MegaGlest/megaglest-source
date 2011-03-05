@@ -460,7 +460,7 @@ void IRCThread::execute() {
             ircSession=NULL;
 
             if(argv.size() != 3) {
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Usage: <server> <nick> <channel> : got params [%ld]\n",argv.size());
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Usage: <server> <nick> <channel> : got params [%ld]\n",(long int)argv.size());
                 return;
             }
 

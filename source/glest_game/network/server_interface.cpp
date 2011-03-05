@@ -1194,7 +1194,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	}
 	if(bOkToStart == true) {
 
-		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","false");
+		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","true");
 		if(useInGameBlockingClientSockets == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
