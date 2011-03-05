@@ -601,8 +601,6 @@ char Window::getRawKey(SDL_keysym keysym) {
 	char result = 0;
 	// Because Control messes up unicode character
 
-	printf("keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) = %d\n",(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)));
-
 	if((keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) == 0) {
 		//printf("keysym.unicode = %d [%d]\n",keysym.unicode,0x80);
 
