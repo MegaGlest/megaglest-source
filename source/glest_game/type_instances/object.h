@@ -53,6 +53,7 @@ private:
 	int variation;
 	int lastRenderFrame;
 	Vec2i mapPos;
+	bool visible;
 
 	static ObjectStateInterface *stateCallback;
 
@@ -66,6 +67,7 @@ public:
 	const ObjectType *getType() const	{return objectType;}
 	Resource *getResource() const		{return resource;}
 	Vec3f getPos() const				{return pos;}
+	bool isVisible() const				{return visible;}
 	const Vec3f & getConstPos() const	{return pos;}
 	float getRotation()					{return rotation;}	
 	const Model *getModel() const;
@@ -74,6 +76,7 @@ public:
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);
 	void setHeight(float height);
+	void setVisible(bool visible);
 
 	int getLastRenderFrame() const { return lastRenderFrame; }
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }
