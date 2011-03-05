@@ -1380,6 +1380,7 @@ bool Socket::isConnected() {
 
 	//if the socket is not writable then it is not conencted
 	if(isWritable() == false) {
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR isWritable failed.\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 	//if the socket is readable it is connected if we can read a byte from it
@@ -1387,6 +1388,7 @@ bool Socket::isConnected() {
 		char tmp;
 		int err = peek(&tmp, 1, false);
 		if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
+			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 			return false;
 		}
 	}
