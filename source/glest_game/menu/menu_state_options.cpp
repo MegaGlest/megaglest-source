@@ -476,25 +476,30 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 		saveConfig();
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		return;
     }
 	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		return;
     }
 	else if(buttonAutoConfig.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		Renderer::getInstance().autoConfig();
 		saveConfig();
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		return;
 	}
 	else if(buttonVideoInfo.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateGraphicInfo(program, mainMenu));
+		return;
 	}
 	else if(buttonKeyboardSetup.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
 		//showMessageBox("Not implemented yet", "Keyboard setup", false);
+		return;
 	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
