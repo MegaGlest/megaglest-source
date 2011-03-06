@@ -52,17 +52,29 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 
 Object::~Object(){
 	Renderer &renderer= Renderer::getInstance();
-	renderer.removeObjectFromQuadCache(this);
-	if(stateCallback) {
-		stateCallback->removingObjectEvent(this);
-		//renderer.getGame()->getGui()->removeObject(this);
-	}
 	// fade(and by this remove) all unit particle systems
 	while(unitParticleSystems.empty() == false) {
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
+	renderer.removeObjectFromQuadCache(this);
+	if(stateCallback) {
+		stateCallback->removingObjectEvent(this);
+		//renderer.getGame()->getGui()->removeObject(this);
+	}
 	delete resource;
+}
+
+void Object::end(){
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    //Logger::getInstance().add("Object", true);
+	// set Objects to fading and remove them from list.
+	// its needed because otherwise they will be accessed from the destructor
+	while(unitParticleSystems.empty() == false) {
+		unitParticleSystems.back()->fade();
+		unitParticleSystems.pop_back();
+	}
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Object::initParticles(){

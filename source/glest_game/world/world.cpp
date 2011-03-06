@@ -136,6 +136,8 @@ void World::end(){
 	factions.clear();
 	fogOfWarOverride = false;
 
+	map.end();
+
 	//stats will be deleted by BattleEnd
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

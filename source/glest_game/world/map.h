@@ -105,6 +105,7 @@ public:
 	SurfaceCell();
 	~SurfaceCell();
 
+	void end(); //to kill particles
 	//get
 	const Vec3f &getVertex() const				{return vertex;}
 	float getHeight() const						{return vertex.y;}
@@ -176,6 +177,7 @@ private:
 public:
 	Map();
 	~Map();
+	void end(); //to kill particles
 	Checksum * getChecksumValue() { return &checksumValue; }
 
 	void init(Tileset *tileset);

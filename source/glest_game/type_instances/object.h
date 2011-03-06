@@ -61,6 +61,7 @@ public:
 	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
 	~Object();
 
+	void end(); //to kill particles
 	void initParticles();
 	static void setStateCallback(ObjectStateInterface *value) { stateCallback=value; }
 

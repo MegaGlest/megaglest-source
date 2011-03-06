@@ -71,6 +71,13 @@ SurfaceCell::~SurfaceCell() {
 	delete object;
 }
 
+void SurfaceCell::end(){
+	if(object!=NULL){
+		object->end();
+	}
+}
+
+
 bool SurfaceCell::isFree() const {
 	return object==NULL || object->getWalkable();
 }
@@ -124,6 +131,18 @@ Map::~Map() {
 	surfaceCells = NULL;
 	delete [] startLocations;
 	startLocations = NULL;
+}
+
+void Map::end(){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    Logger::getInstance().add("Map", true);
+	//read heightmap
+	for(int j = 0; j < surfaceH; ++j) {
+		for(int i = 0; i < surfaceW; ++i) {
+			getSurfaceCell(i, j)->end();
+		}
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 int Map::getSurfaceCellArraySize() const {
