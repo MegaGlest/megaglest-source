@@ -633,7 +633,12 @@ char Window::getRawKey(SDL_keysym keysym) {
 char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
 
-	SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
+	//SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
+	char c = getRawKey(keysym);
+	SDLKey unicodeKey;
+	if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
+		unicodeKey = static_cast<SDLKey>(c);
+	}
 	if(unicodeKey == 0) {
 		unicodeKey = keysym.sym;
 	}
@@ -709,40 +714,40 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		return ' ';
 	}
 
-	if(keyName == "f1") {
+	if(keyName == "f1" || keyName == "F1") {
 		return vkF1;
 	}
-	if(keyName == "f2") {
+	if(keyName == "f2" || keyName == "F2") {
 		return vkF2;
 	}
-	if(keyName == "f3") {
+	if(keyName == "f3" || keyName == "F3") {
 		return vkF3;
 	}
-	if(keyName == "f4") {
+	if(keyName == "f4" || keyName == "F4") {
 		return vkF4;
 	}
-	if(keyName == "f5") {
+	if(keyName == "f5" || keyName == "F5") {
 		return vkF5;
 	}
-	if(keyName == "f6") {
+	if(keyName == "f6" || keyName == "F6") {
 		return vkF6;
 	}
-	if(keyName == "f7") {
+	if(keyName == "f7" || keyName == "F7") {
 		return vkF7;
 	}
-	if(keyName == "f8") {
+	if(keyName == "f8" || keyName == "F8") {
 		return vkF8;
 	}
-	if(keyName == "f9") {
+	if(keyName == "f9" || keyName == "F9") {
 		return vkF9;
 	}
-	if(keyName == "f10") {
+	if(keyName == "f10" || keyName == "F10") {
 		return vkF10;
 	}
-	if(keyName == "f11") {
+	if(keyName == "f11" || keyName == "F11") {
 		return vkF11;
 	}
-	if(keyName == "f12") {
+	if(keyName == "f12" || keyName == "F12") {
 		return vkF12;
 	}
 	if(keyName == "0") {

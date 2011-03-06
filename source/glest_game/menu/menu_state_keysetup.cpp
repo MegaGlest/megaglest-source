@@ -331,20 +331,28 @@ void MenuStateKeysetup::keyUp(char key) {
     if(hotkeyIndex >= 0) {
     	if(hotkeyChar != 0) {
 			string keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
-
 			key = hotkeyChar;
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key);
+
+			SDLKey keysym = SDLK_UNKNOWN;
 			if(keyName == "unknown key") {
 				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-				SDLKey keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
+				keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keysym [%d]\n",__FILE__,__FUNCTION__,__LINE__,keysym);
+
 				// SDL skips capital letters
 				if(keysym >= 65 && keysym <= 90) {
 					keysym = (SDLKey)((int)keysym + 32);
 				}
-				key = keysym;
+				if(keysym < 255) {
+					key = keysym;
+				}
 				keyName = SDL_GetKeyName(keysym);
 			}
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key);
 
 			if(keyName != "unknown key") {
 				GraphicLabel *label= labels[hotkeyIndex];
@@ -355,15 +363,25 @@ void MenuStateKeysetup::keyUp(char key) {
 				for(int i = 0; i < userProperties.size(); ++i) {
 					string hotKeyName = userProperties[i].first;
 					if(nameValuePair.first == hotKeyName) {
-						userProperties[i].second = "";
-						userProperties[i].second.push_back(key);
+						if(keysym > 255) {
+							userProperties[i].second = keyName;
+						}
+						else {
+							userProperties[i].second = "";
+							userProperties[i].second.push_back(key);
+						}
 						isNewUserKeyEntry = false;
 						break;
 					}
 				}
 				if(isNewUserKeyEntry == true) {
 					pair<string,string> newNameValuePair = nameValuePair;
-					newNameValuePair.second = key;
+					if(keysym > 255) {
+						newNameValuePair.second = keyName;
+					}
+					else {
+						newNameValuePair.second = key;
+					}
 					userProperties.push_back(newNameValuePair);
 				}
 			}

@@ -457,7 +457,6 @@ char Config::translateStringToCharKey(const string &value) const {
 		else if(value == "vkPause") {
 			result = vkPause;
 		}
-
 		else {
 			string sError = "Unsupported key translation [" + value + "]";
 			throw runtime_error(sError.c_str());
@@ -468,7 +467,92 @@ char Config::translateStringToCharKey(const string &value) const {
 			result = value[1];
 		}
 		else {
-			result = value[0];
+			bool foundKey = false;
+			if(value.length() > 1) {
+				for(int i = SDLK_UNKNOWN; i < SDLK_LAST; ++i) {
+					SDLKey key = static_cast<SDLKey>(i);
+					string keyName = SDL_GetKeyName(key);
+					if(value == keyName) {
+						if(key > 255) {
+							if(value == "left") {
+								result = vkLeft;
+							}
+							else if(value == "right") {
+								result = vkRight;
+							}
+							else if(value == "up") {
+								result = vkUp;
+							}
+							else if(value == "down") {
+								result = vkDown;
+							}
+							else if(value == "add") {
+								result = vkAdd;
+							}
+							else if(value == "subtract") {
+								result = vkSubtract;
+							}
+							else if(value == "escape") {
+								result = vkEscape;
+							}
+							else if(value == "f1") {
+								result = vkF1;
+							}
+							else if(value == "f2") {
+								result = vkF2;
+							}
+							else if(value == "f3") {
+								result = vkF3;
+							}
+							else if(value == "f4") {
+								result = vkF4;
+							}
+							else if(value == "f5") {
+								result = vkF5;
+							}
+							else if(value == "f6") {
+								result = vkF6;
+							}
+							else if(value == "f7") {
+								result = vkF7;
+							}
+							else if(value == "f8") {
+								result = vkF8;
+							}
+							else if(value == "f9") {
+								result = vkF9;
+							}
+							else if(value == "f10") {
+								result = vkF10;
+							}
+							else if(value == "f11") {
+								result = vkF11;
+							}
+							else if(value == "f12") {
+								result = vkF12;
+							}
+							else if(value == "print-screen") {
+								result = vkPrint;
+							}
+							else if(value == "pause") {
+								result = vkPause;
+							}
+							else {
+								result = -key;
+							}
+						}
+						else {
+							result = key;
+						}
+						foundKey = true;
+						break;
+					}
+				}
+			}
+
+			if(foundKey == false) {
+				result = value[0];
+			}
 		}
 	}
 	else {
