@@ -55,7 +55,7 @@ private:
 
 public:
 	MenuStateKeysetup(Program *program, MainMenu *mainMenu);
-	~MenuStateKeysetup();
+	virtual ~MenuStateKeysetup();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
