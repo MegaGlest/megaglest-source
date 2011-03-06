@@ -208,7 +208,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
 	checkBoxUnitParticles.init(currentColumnStart,currentLine);
-	checkBoxUnitParticles.setValue(config.getBool("UnitParticles"));
+	checkBoxUnitParticles.setValue(config.getBool("UnitParticles","true"));
+	currentLine-=30;
+
+	//tileset particles
+	labelTilesetParticles.registerGraphicComponent(containerName,"labelTilesetParticles");
+	labelTilesetParticles.init(currentLabelStart,currentLine);
+	labelTilesetParticles.setText(lang.get("ShowTilesetParticles"));
+
+	checkBoxTilesetParticles.registerGraphicComponent(containerName,"checkBoxTilesetParticles");
+	checkBoxTilesetParticles.init(currentColumnStart,currentLine);
+	checkBoxTilesetParticles.setValue(config.getBool("TilesetParticles","true"));
 	currentLine-=30;
 
 	//unit particles
@@ -511,6 +521,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxFilter.mouseClick(x, y);
 		checkBoxTextures3D.mouseClick(x, y);
 		checkBoxUnitParticles.mouseClick(x, y);
+		checkBoxTilesetParticles.mouseClick(x, y);
 		checkBoxMapPreview.mouseClick(x, y);
 		listBoxLights.mouseClick(x, y);
 		listBoxSoundFactory.mouseClick(x, y);
@@ -558,6 +569,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxShadows.mouseMove(x, y);
 	checkBoxTextures3D.mouseMove(x, y);
 	checkBoxUnitParticles.mouseMove(x, y);
+	checkBoxTilesetParticles.mouseMove(x, y);
 	checkBoxMapPreview.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
 	listBoxScreenModes.mouseMove(x, y);
@@ -631,6 +643,7 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listBoxShadows);
 		renderer.renderCheckBox(&checkBoxTextures3D);
 		renderer.renderCheckBox(&checkBoxUnitParticles);
+		renderer.renderCheckBox(&checkBoxTilesetParticles);
 		renderer.renderCheckBox(&checkBoxMapPreview);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
@@ -644,6 +657,7 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelShadows);
 		renderer.renderLabel(&labelTextures3D);
 		renderer.renderLabel(&labelUnitParticles);
+		renderer.renderLabel(&labelTilesetParticles);
 		renderer.renderLabel(&labelMapPreview);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
@@ -705,6 +719,7 @@ void MenuStateOptions::saveConfig(){
 	config.setString("Filter", listBoxFilter.getSelectedItem());
 	config.setBool("Textures3D", checkBoxTextures3D.getValue());
 	config.setBool("UnitParticles", (checkBoxUnitParticles.getValue()));
+	config.setBool("TilesetParticles", (checkBoxTilesetParticles.getValue()));
 	config.setBool("MapPreview", checkBoxMapPreview.getValue());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
 	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());

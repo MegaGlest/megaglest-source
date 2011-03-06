@@ -36,6 +36,7 @@ private:
 	GraphicLabel labelTextures3D;
 	GraphicLabel labelLights;
 	GraphicLabel labelUnitParticles;
+	GraphicLabel labelTilesetParticles;
 	GraphicLabel labelSoundFactory;
 	GraphicLabel labelVolumeFx;
 	GraphicLabel labelVolumeAmbient;
@@ -46,6 +47,7 @@ private:
 	GraphicCheckBox checkBoxTextures3D;
 	GraphicListBox listBoxLights;
 	GraphicCheckBox checkBoxUnitParticles;
+	GraphicCheckBox checkBoxTilesetParticles;
 	GraphicListBox listBoxSoundFactory;
 	GraphicListBox listBoxVolumeFx;
 	GraphicListBox listBoxVolumeAmbient;
