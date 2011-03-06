@@ -31,91 +31,103 @@ namespace Glest{ namespace Game{
 MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "config")
 {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	containerName = "KeySetup";
+	try {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		containerName = "KeySetup";
 
-    hotkeyIndex = -1;
-    hotkeyChar = 0;
+		hotkeyIndex = -1;
+		hotkeyChar = 0;
 
-	Lang &lang= Lang::getInstance();
-	int buttonRowPos=80;
-	// header
-	labelTitle.registerGraphicComponent(containerName,"labelTitle");
-	labelTitle.init(330,700);
-	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTitle.setText(lang.get("Keyboardsetup"));
+		Lang &lang= Lang::getInstance();
+		int buttonRowPos=80;
+		// header
+		labelTitle.registerGraphicComponent(containerName,"labelTitle");
+		labelTitle.init(330,700);
+		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTitle.setText(lang.get("Keyboardsetup"));
 
-	// mainMassegeBox
-	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Ok"));
-	mainMessageBox.setEnabled(false);
-	mainMessageBoxState=0;
+		// mainMassegeBox
+		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
+		mainMessageBox.init(lang.get("Ok"));
+		mainMessageBox.setEnabled(false);
+		mainMessageBoxState=0;
 
-	keyScrollBar.init(800,200,false,200,20);
-	keyScrollBar.setLength(400);
-	keyScrollBar.setElementCount(0);
-	keyScrollBar.setVisibleSize(keyButtonsToRender);
-	keyScrollBar.setVisibleStart(0);
+		keyScrollBar.init(800,200,false,200,20);
+		keyScrollBar.setLength(400);
+		keyScrollBar.setElementCount(0);
+		keyScrollBar.setVisibleSize(keyButtonsToRender);
+		keyScrollBar.setVisibleStart(0);
 
 
-	// buttons
-	buttonOk.registerGraphicComponent(containerName,"buttonOk");
-	buttonOk.init(200, buttonRowPos, 100);
-	buttonOk.setText(lang.get("Ok"));
+		// buttons
+		buttonOk.registerGraphicComponent(containerName,"buttonOk");
+		buttonOk.init(200, buttonRowPos, 100);
+		buttonOk.setText(lang.get("Ok"));
 
-	buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
-	buttonDefaults.init(310, buttonRowPos, 100);
-	buttonDefaults.setText(lang.get("Defaults"));
+		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
+		buttonDefaults.init(310, buttonRowPos, 100);
+		buttonDefaults.setText(lang.get("Defaults"));
 
-	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(420, buttonRowPos, 100);
-	buttonReturn.setText(lang.get("Abort"));
+		buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
+		buttonReturn.init(420, buttonRowPos, 100);
+		buttonReturn.setText(lang.get("Abort"));
 
-	keyButtonsLineHeight=25;
-	keyButtonsHeight=20;
-	keyButtonsWidth=200;
-	keyButtonsXBase=300;
-	keyButtonsYBase=200+400-keyButtonsLineHeight;
-	keyButtonsToRender=400/keyButtonsLineHeight;
-	int labelWidth=100;
+		keyButtonsLineHeight=25;
+		keyButtonsHeight=20;
+		keyButtonsWidth=200;
+		keyButtonsXBase=300;
+		keyButtonsYBase=200+400-keyButtonsLineHeight;
+		keyButtonsToRender=400/keyButtonsLineHeight;
+		int labelWidth=100;
 
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	mergedProperties=configKeys.getMergedProperties();
-	masterProperties=configKeys.getMasterProperties();
-	//userProperties=configKeys.getUserProperties();
-	userProperties.clear();
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		mergedProperties=configKeys.getMergedProperties();
+		masterProperties=configKeys.getMasterProperties();
+		//userProperties=configKeys.getUserProperties();
+		userProperties.clear();
 
-	for(int i = 0; i < mergedProperties.size(); ++i) {
+		//throw runtime_error("Test!");
 
-		string keyName = mergedProperties[i].second;
-		if(keyName.length() > 0) {
-			SDLKey keysym = static_cast<SDLKey>(configKeys.translateStringToCharKey(keyName));
-			// SDL skips capital letters
-			if(keysym >= 65 && keysym <= 90) {
-			    keysym = (SDLKey)((int)keysym + 32);
+		for(int i = 0; i < mergedProperties.size(); ++i) {
+
+			string keyName = mergedProperties[i].second;
+			if(keyName.length() > 0) {
+				SDLKey keysym = static_cast<SDLKey>(configKeys.translateStringToCharKey(keyName));
+				// SDL skips capital letters
+				if(keysym >= 65 && keysym <= 90) {
+					keysym = (SDLKey)((int)keysym + 32);
+				}
+				keyName = SDL_GetKeyName(keysym);
+				if(keyName == "unknown key") {
+					keyName = mergedProperties[i].second;
+				}
 			}
-			keyName = SDL_GetKeyName(keysym);
-			if(keyName == "unknown key") {
-				keyName = mergedProperties[i].second;
-			}
+
+			GraphicButton *button=new GraphicButton();
+			button->init(keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->setText(mergedProperties[i].first);
+			keyButtons.push_back(button);
+			GraphicLabel *label=new GraphicLabel();
+			label->init(keyButtonsXBase+keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+			label->setText(keyName);
+			labels.push_back(label);
 		}
 
-		GraphicButton *button=new GraphicButton();
-		button->init(keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-		button->setText(mergedProperties[i].first);
-		keyButtons.push_back(button);
-		GraphicLabel *label=new GraphicLabel();
-		label->init(keyButtonsXBase+keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-		label->setText(keyName);
-		labels.push_back(label);
+		keyScrollBar.init(keyButtonsXBase+keyButtonsWidth+labelWidth+20,200,false,200,20);
+		keyScrollBar.setLength(400);
+		keyScrollBar.setElementCount(keyButtons.size());
+		keyScrollBar.setVisibleSize(keyButtonsToRender);
+		keyScrollBar.setVisibleStart(0);
 	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-	keyScrollBar.init(keyButtonsXBase+keyButtonsWidth+labelWidth+20,200,false,200,20);
-	keyScrollBar.setLength(400);
-	keyScrollBar.setElementCount(keyButtons.size());
-	keyScrollBar.setVisibleSize(keyButtonsToRender);
-	keyScrollBar.setVisibleStart(0);
-
+        mainMessageBoxState=1;
+        showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
 }
 
 
