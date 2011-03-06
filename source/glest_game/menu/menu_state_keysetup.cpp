@@ -80,11 +80,15 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 		keyButtonsToRender=400/keyButtonsLineHeight;
 		int labelWidth=100;
 
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		mergedProperties=configKeys.getMergedProperties();
 		masterProperties=configKeys.getMasterProperties();
 		//userProperties=configKeys.getUserProperties();
 		userProperties.clear();
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//throw runtime_error("Test!");
 
@@ -92,13 +96,19 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 
 			string keyName = mergedProperties[i].second;
 			if(keyName.length() > 0) {
-				SDLKey keysym = static_cast<SDLKey>(configKeys.translateStringToCharKey(keyName));
-				// SDL skips capital letters
-				if(keysym >= 65 && keysym <= 90) {
-					keysym = (SDLKey)((int)keysym + 32);
+				char c = configKeys.translateStringToCharKey(keyName);
+				if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
+					SDLKey keysym = static_cast<SDLKey>(c);
+					// SDL skips capital letters
+					if(keysym >= 65 && keysym <= 90) {
+						keysym = (SDLKey)((int)keysym + 32);
+					}
+					keyName = SDL_GetKeyName(keysym);
 				}
-				keyName = SDL_GetKeyName(keysym);
-				if(keyName == "unknown key") {
+				else {
+					keyName = "";
+				}
+				if(keyName == "unknown key" || keyName == "") {
 					keyName = mergedProperties[i].second;
 				}
 			}
@@ -112,6 +122,8 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 			label->setText(keyName);
 			labels.push_back(label);
 		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		keyScrollBar.init(keyButtonsXBase+keyButtonsWidth+labelWidth+20,200,false,200,20);
 		keyScrollBar.setLength(400);
