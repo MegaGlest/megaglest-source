@@ -50,7 +50,7 @@ World::World(){
 	Config &config= Config::getInstance();
 
 	staggeredFactionUpdates = config.getBool("StaggeredFactionUpdates","false");
-	unitParticlesEnabled=config.getBool("UnitParticles");
+	unitParticlesEnabled=config.getBool("UnitParticles","true");
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();

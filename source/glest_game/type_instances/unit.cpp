@@ -234,7 +234,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
     setModelFacing(placeFacing);
 
     Config &config= Config::getInstance();
-	showUnitParticles= config.getBool("UnitParticles");
+	showUnitParticles= config.getBool("UnitParticles","true");
 
 	lastPos= pos;
     progress= 0;

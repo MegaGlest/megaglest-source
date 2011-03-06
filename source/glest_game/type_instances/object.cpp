@@ -69,7 +69,7 @@ void Object::initParticles(){
 	if(this->objectType==NULL) return;
 	if(this->objectType->hasParticles()){
 		ObjectParticleSystemTypes *particleTypes= this->objectType->getObjectParticleSystemTypes(variation);
-		if(Config::getInstance().getBool("UnitParticles") && (particleTypes->empty() == false)
+		if(Config::getInstance().getBool("TilesetParticles","true") && (particleTypes->empty() == false)
 		        && (unitParticleSystems.empty() == true)){
 			for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
 				UnitParticleSystem *ups= new UnitParticleSystem(200);
