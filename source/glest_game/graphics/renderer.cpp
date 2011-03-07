@@ -4669,10 +4669,6 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 	*/
 }
 
-void Renderer::setQuadCacheDirty(bool value) {
-	quadCache.cacheIsDirty = value;
-}
-
 void Renderer::removeObjectFromQuadCache(const Object *o) {
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	for(int visibleIndex = 0;
@@ -4711,9 +4707,6 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 	if(game != NULL && game->getWorld() != NULL) {
 		const World *world= game->getWorld();
 
-		if(quadCache.cacheIsDirty == true) {
-			forceNew = true;
-		}
 		if(forceNew == true ||
 			(updateOnDirtyFrame == true &&
 			(world->getFrameCount() != quadCache.cacheFrame ||
@@ -4798,7 +4791,6 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				}
 			}
 			quadCache.cacheFrame = world->getFrameCount();
-			quadCache.cacheIsDirty = false;
 			quadCache.lastVisibleQuad = visibleQuad;
 		}
 	}
