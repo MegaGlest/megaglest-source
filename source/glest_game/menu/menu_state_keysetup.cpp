@@ -363,8 +363,13 @@ void MenuStateKeysetup::keyUp(char key) {
 				for(int i = 0; i < userProperties.size(); ++i) {
 					string hotKeyName = userProperties[i].first;
 					if(nameValuePair.first == hotKeyName) {
-						if(keysym > 255) {
-							userProperties[i].second = keyName;
+						if(keysym <= SDLK_ESCAPE || keysym > 255) {
+							if(keysym <= SDLK_ESCAPE) {
+								userProperties[i].second = intToStr(key);
+							}
+							else {
+								userProperties[i].second = keyName;
+							}
 						}
 						else {
 							userProperties[i].second = "";
@@ -376,8 +381,13 @@ void MenuStateKeysetup::keyUp(char key) {
 				}
 				if(isNewUserKeyEntry == true) {
 					pair<string,string> newNameValuePair = nameValuePair;
-					if(keysym > 255) {
-						newNameValuePair.second = keyName;
+					if(keysym <= SDLK_ESCAPE || keysym > 255) {
+						if(keysym <= SDLK_ESCAPE) {
+							newNameValuePair.second = intToStr(key);
+						}
+						else {
+							newNameValuePair.second = keyName;
+						}
 					}
 					else {
 						newNameValuePair.second = key;

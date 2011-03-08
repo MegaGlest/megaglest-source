@@ -689,8 +689,11 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	if(keyName == "minus sign" || keyName == "minus") {
 		return vkSubtract;
 	}
+	//if(keyName == "escape") {
+	//	return vkEscape;
+	//}
 	if(keyName == "escape") {
-		return vkEscape;
+		return unicodeKey;
 	}
 	if(keyName == "tab") {
 		return vkTab;

@@ -265,7 +265,7 @@ const string Config::getString(const string &key,const char *defaultValueIfNotFo
 }
 
 SDLKey Config::translateSpecialStringToSDLKey(char c) const {
-	SDLKey result;
+	SDLKey result = SDLK_UNKNOWN;
 	if(c < 0) {
 		switch(c) {
 			case vkAdd:
