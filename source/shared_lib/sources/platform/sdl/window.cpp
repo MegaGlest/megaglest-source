@@ -635,11 +635,11 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 
 	//SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
 	char c = getRawKey(keysym);
-	SDLKey unicodeKey;
+	SDLKey unicodeKey = SDLK_UNKNOWN;
 	if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
 		unicodeKey = static_cast<SDLKey>(c);
 	}
-	if(unicodeKey == 0) {
+	if(unicodeKey == SDLK_UNKNOWN) {
 		unicodeKey = keysym.sym;
 	}
 
