@@ -211,6 +211,7 @@ private:
 	bool isSharedCommandClass(CommandClass commandClass);
 	void computeSelected(bool doubleCkick,bool force);
 	bool computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit);
+	Unit* getRelevantObjectFromSelection(Selection::UnitContainer *uc);
 };
 
 }} //end namespace

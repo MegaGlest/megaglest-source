@@ -928,8 +928,8 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		activeCommandType= NULL;
 
 		//select all units of the same type if double click
-		if(doubleClick && units.size()==1){
-			const Unit *refUnit= units.front();
+		if(doubleClick && units.size()>0){
+			const Unit *refUnit= getRelevantObjectFromSelection(&units);
 			int factionIndex= refUnit->getFactionIndex();
 			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
 				Unit *unit= world->getFaction(factionIndex)->getUnit(i);
@@ -971,15 +971,8 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	validPosObjWorld= false;
 
 	if(uc.empty() == false) {
-
-		for(int i=0; i<uc.size(); ++i){
-			targetUnit= uc.at(i);
-			targetPos= targetUnit->getPos();
-			if(targetUnit->getType()->hasSkillClass(scMove))
-			{// moving units are more relevant than non moving ones
-				break;
-			}
-		}
+		targetUnit=getRelevantObjectFromSelection(&uc);
+		targetPos= targetUnit->getPos();
 		return true;
 	}
 	else if(obj!=NULL) {
@@ -998,6 +991,17 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 			return false;
 		}
 	}
+}
+
+Unit* Gui::getRelevantObjectFromSelection(Selection::UnitContainer *uc){
+	Unit *resultUnit=NULL;
+	for(int i= 0; i < uc->size(); ++i){
+		resultUnit= uc->at(i);
+		if(resultUnit->getType()->hasSkillClass(scMove)){// moving units are more relevant than non moving ones
+			break;
+		}
+	}
+	return resultUnit;
 }
 
 void  Gui::removingObjectEvent(Object* o){
