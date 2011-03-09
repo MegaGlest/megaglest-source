@@ -715,14 +715,17 @@ void MainWindow::eventKeyDown(char key){
 }
 
 void MainWindow::eventKeyUp(char key){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
     }
 
 	program->keyUp(key);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
 }
 
 void MainWindow::eventKeyPress(char c){
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
     }
@@ -750,6 +753,7 @@ void MainWindow::eventKeyPress(char c){
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 		}
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 }
 
 void MainWindow::eventActivate(bool active){
