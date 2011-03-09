@@ -128,7 +128,7 @@ const float Renderer::magicCircleRadius= 1.f;
 const float Renderer::perspFov= 60.f;
 const float Renderer::perspNearPlane= 1.f;
 //const float Renderer::perspFarPlane= 50.f;
-const float Renderer::perspFarPlane= 1000.f;
+const float Renderer::perspFarPlane= 1000000.f;
 
 const float Renderer::ambFactor= 0.7f;
 const Vec4f Renderer::fowColor= Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -4279,7 +4279,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		glEnable(GL_CULL_FACE);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000);
+		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000000);
 
 		//texture state
 		glEnable(GL_TEXTURE_2D);
