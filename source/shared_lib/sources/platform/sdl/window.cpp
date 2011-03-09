@@ -608,7 +608,7 @@ char Window::getRawKey(SDL_keysym keysym) {
 		//if(c != 0 && (c & 0xFF80) == 0) {
 		if(keysym.unicode > 0 && keysym.unicode < 0x80) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			result = keysym.unicode;
+			result = static_cast<char>(keysym.unicode);
 			//c = toupper(c);
 			//result = (c & 0xFF);
 			//result = c;
@@ -646,9 +646,12 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 		unicodeKey = keysym.sym;
 	}
 
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unicodeKey [%d]\n",__FILE__,__FUNCTION__,__LINE__,unicodeKey);
+
 	//string keyName = SDL_GetKeyName(keysym.sym);
 	string keyName = SDL_GetKeyName(unicodeKey);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,keysym.mod,keysym.unicode,keysym.scancode,keyName.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,keysym.mod,keysym.unicode,keysym.scancode,keyName.c_str());
 
 	if(skipSpecialKeys == false) {
 		if(keyName == "left alt" || keyName == "right alt") {
@@ -880,76 +883,77 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	char result = getNormalKey(keysym,skipSpecialKeys);
 	if(result != 0) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 		return result;
 	}
 	else {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		Uint16 c = 0;
+		if(keysym.unicode > 0 && keysym.unicode < 0x80) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			Uint16 c = 0;
-			if(keysym.unicode > 0 && keysym.unicode < 0x80) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				c = keysym.unicode;
-				//c = toupper(c);
+			c = keysym.unicode;
+			//c = toupper(c);
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
 
-				if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
-					SDL_keysym newKeysym = keysym;
-					newKeysym.sym = static_cast<SDLKey>(c);
+			if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
+				SDL_keysym newKeysym = keysym;
+				newKeysym.sym = static_cast<SDLKey>(c);
 
-					result = getNormalKey(newKeysym,skipSpecialKeys);
+				result = getNormalKey(newKeysym,skipSpecialKeys);
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-					return result;
-				}
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+				return result;
 			}
-			if(c == 0) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		if(c == 0) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				if(skipSpecialKeys == true) {
-					switch(keysym.sym) {
-						case SDLK_LALT:
-						case SDLK_RALT:
-							if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkAlt\n",__FILE__,__FUNCTION__,__LINE__,vkAlt);
-							return vkAlt;
-						case SDLK_LCTRL:
-						case SDLK_RCTRL:
-							if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkControl\n",__FILE__,__FUNCTION__,__LINE__,vkControl);
-							return vkControl;
-						case SDLK_LSHIFT:
-						case SDLK_RSHIFT:
-							if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkShift\n",__FILE__,__FUNCTION__,__LINE__,vkShift);
-							return vkShift;
-					}
-
-					if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+			if(skipSpecialKeys == true) {
+				switch(keysym.sym) {
+					case SDLK_LALT:
+					case SDLK_RALT:
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkAlt\n",__FILE__,__FUNCTION__,__LINE__,vkAlt);
-
 						return vkAlt;
-					}
-					else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+					case SDLK_LCTRL:
+					case SDLK_RCTRL:
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkControl\n",__FILE__,__FUNCTION__,__LINE__,vkControl);
-
 						return vkControl;
-					}
-					else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+					case SDLK_LSHIFT:
+					case SDLK_RSHIFT:
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkShift\n",__FILE__,__FUNCTION__,__LINE__,vkShift);
-
 						return vkShift;
-					}
 				}
 
-				if(keysym.sym <= 255) {
-					c = keysym.sym;
+				if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkAlt\n",__FILE__,__FUNCTION__,__LINE__,vkAlt);
+
+					return vkAlt;
+				}
+				else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkControl\n",__FILE__,__FUNCTION__,__LINE__,vkControl);
+
+					return vkControl;
+				}
+				else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkShift\n",__FILE__,__FUNCTION__,__LINE__,vkShift);
+
+					return vkShift;
 				}
 			}
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+			if(keysym.sym <= 255) {
+				c = keysym.sym;
+			}
+		}
 
-			result = (c & 0xFF);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 
-			return result;
+		result = (c & 0xFF);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+		return result;
 	}
 
 	result = 0;
