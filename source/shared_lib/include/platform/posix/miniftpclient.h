@@ -36,7 +36,8 @@ enum FTP_Client_ResultType {
 enum FTP_Client_CallbackType {
     ftp_cct_Map                 = 0,
     ftp_cct_Tileset             = 1,
-    ftp_cct_DownloadProgress    = 2
+    ftp_cct_Techtree            = 2,
+    ftp_cct_DownloadProgress    = 3
 };
 
 class FTPClientCallbackInterface {
@@ -61,6 +62,7 @@ protected:
     FTPClientCallbackInterface *pCBObject;
     std::pair<string,string> mapsPath;
     std::pair<string,string> tilesetsPath;
+    std::pair<string,string> techtreesPath;
 
     Mutex mutexMapFileList;
     vector<string> mapFileList;
@@ -68,11 +70,17 @@ protected:
     Mutex mutexTilesetList;
     vector<string> tilesetList;
 
+    Mutex mutexTechtreeList;
+    vector<string> techtreeList;
+
     void getMapFromServer(string mapFilename);
     FTP_Client_ResultType getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword);
 
     void getTilesetFromServer(string tileSetName);
     FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword, bool findArchive);
+
+    void getTechtreeFromServer(string techtreeName);
+    FTP_Client_ResultType getTechtreeFromServer(string techtreeName, string ftpUser, string ftpUserPassword);
 
     Mutex mutexProgressMutex;
 
@@ -85,6 +93,7 @@ public:
     FTPClientThread(int portNumber,string serverUrl,
     				std::pair<string,string> mapsPath,
     				std::pair<string,string> tilesetsPath,
+    				std::pair<string,string> techtreesPath,
     				FTPClientCallbackInterface *pCBObject,
     				string fileArchiveExtension,
     				string fileArchiveExtractCommand,
@@ -95,6 +104,7 @@ public:
 
     void addMapToRequests(string mapFilename);
     void addTilesetToRequests(string tileSetName);
+    void addTechtreeToRequests(string techtreeName);
 
     FTPClientCallbackInterface * getCallBackObject();
     void setCallBackObject(FTPClientCallbackInterface *value);

@@ -384,7 +384,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	GraphicComponent::applyAllCustomProperties(containerName);
 
 	//tileset listBox
-    findDirs(config.getPathListForType(ptTilesets), tileSets);
+    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
+
+    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
 
 
     if(config.getBool("EnableFTPXfer","true") == true) {
@@ -412,12 +414,22 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
             }
         }
 
+        std::pair<string,string> techtreesPath;
+        vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+        if(techtreesList.size() > 0) {
+        	techtreesPath.first = techtreesList[0];
+            if(techtreesList.size() > 1) {
+            	techtreesPath.second = techtreesList[1];
+            }
+        }
+
         string fileArchiveExtension = config.getString("FileArchiveExtension","");
         string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
         string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
 
-        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath,
-        		tilesetsPath,this,fileArchiveExtension,fileArchiveExtractCommand,
+        ftpClientThread = new FTPClientThread(portNumber,serverUrl,
+        		mapsPath,tilesetsPath,techtreesPath,
+        		this,fileArchiveExtension,fileArchiveExtractCommand,
         		fileArchiveExtractCommandParameters);
         ftpClientThread->start();
     }
@@ -493,6 +505,24 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
                         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
+                    }
+			    }
+			    else if(ftpMissingDataType == ftpmsg_MissingTechtree) {
+                    getMissingTechtreeFromFTPServerInProgress = true;
+
+                    char szMsg[1024]="";
+                    if(lang.hasString("DataMissingTechtreeNowDownloading") == true) {
+                    	sprintf(szMsg,lang.get("DataMissingTechtreeNowDownloading").c_str(),getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+                    }
+                    else {
+                    	sprintf(szMsg,"Player: %s is attempting to download the techtree: %s",getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+                    }
+                    clientInterface->sendTextMessage(szMsg,-1, true);
+
+                    if(ftpClientThread != NULL) {
+                        ftpClientThread->addTechtreeToRequests(getMissingTechtreeFromFTPServer);
+                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+                        fileFTPProgressList[getMissingTechtreeFromFTPServer] = pair<int,string>(0,"");
                     }
 			    }
 			}
@@ -890,7 +920,8 @@ void MenuStateConnectedGame::update() {
                 // Test data synch
                 //tilesetCRC++;
 
-                //int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+                int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+
                 Checksum checksum;
                 string file = Map::getMapPath(gameSettings->getMap(),"",false);
                 checksum.addFile(file);
@@ -900,9 +931,10 @@ void MenuStateConnectedGame::update() {
                 safeMutexFTPProgress.ReleaseLock();
 
                 bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) ||
-                						  (tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()));
+                						  (tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()) ||
+                						  (techCRC != 0 && techCRC != gameSettings->getTechCRC()));
 
-                //printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d] tilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC());
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d]\ntilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\ntechCRC [%d] gameSettings->getTechCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
 
                 if(dataSynchMismatch == true) {
                     string labelSynch = lang.get("DataNotSynchedTitle");
@@ -923,6 +955,15 @@ void MenuStateConnectedGame::update() {
                             lastTileDataSynchError != lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem()) {
                             lastTileDataSynchError = lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem();
                             clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+                        }
+                    }
+
+                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC()) {
+                        labelSynch = labelSynch + " " + lang.get("TechTree");
+                        if(updateDataSynchDetailText == true &&
+                        	lastTechtreeDataSynchError != lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem()) {
+                        	lastTechtreeDataSynchError = lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem();
+                            clientInterface->sendTextMessage(lastTechtreeDataSynchError,-1,true);
                         }
                     }
 
@@ -1111,13 +1152,13 @@ void MenuStateConnectedGame::update() {
 
 				if(getMissingTilesetFromFTPServerInProgress == false) {
                     // tileset
-                    if(std::find(this->tileSets.begin(),this->tileSets.end(),gameSettings->getTileset()) != this->tileSets.end()) {
+                    if(std::find(tilesetFiles.begin(),tilesetFiles.end(),gameSettings->getTileset()) != tilesetFiles.end()) {
                         lastMissingTileSet = "";
 
                         tilesets.push_back(formatString(gameSettings->getTileset()));
                     }
                     else {
-                        // try to get the map via ftp
+                        // try to get the tileset via ftp
                         if(ftpClientThread != NULL && getMissingTilesetFromFTPServer != gameSettings->getTileset()) {
                             if(ftpMessageBox.getEnabled() == false) {
                                 getMissingTilesetFromFTPServer = gameSettings->getTileset();
@@ -1155,9 +1196,55 @@ void MenuStateConnectedGame::update() {
                     listBoxTileset.setItems(tilesets);
 				}
 
-				// techtree
-				techtree.push_back(formatString(gameSettings->getTech()));
-				listBoxTechTree.setItems(techtree);
+				if(getMissingTechtreeFromFTPServerInProgress == false) {
+                    // techtree
+                    if(std::find(techTreeFiles.begin(),techTreeFiles.end(),gameSettings->getTech()) != techTreeFiles.end()) {
+                        lastMissingTechtree = "";
+
+                        techtree.push_back(formatString(gameSettings->getTech()));
+                    }
+                    else {
+                        // try to get the tileset via ftp
+                        if(ftpClientThread != NULL && getMissingTechtreeFromFTPServer != gameSettings->getTech()) {
+                            if(ftpMessageBox.getEnabled() == false) {
+                                getMissingTechtreeFromFTPServer = gameSettings->getTech();
+                                Lang &lang= Lang::getInstance();
+
+                                char szBuf[1024]="";
+                                sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTechtreeQuestion").c_str(),gameSettings->getTech().c_str());
+
+                                ftpMissingDataType = ftpmsg_MissingTechtree;
+                                showFTPMessageBox(szBuf, lang.get("Question"), false);
+                            }
+                        }
+
+                        techtree.push_back("***missing***");
+
+                        NetworkManager &networkManager= NetworkManager::getInstance();
+                        ClientInterface* clientInterface= networkManager.getClientInterface();
+                        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+                        if(lastMissingTechtree != gameSettings->getTech()) {
+                            lastMissingTechtree = gameSettings->getTech();
+
+                            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                            char szMsg[1024]="";
+                            if(lang.hasString("DataMissingTechtree") == true) {
+                            	sprintf(szMsg,lang.get("DataMissingTechtree").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+                            }
+                            else {
+                            	sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+                            }
+                            clientInterface->sendTextMessage(szMsg,-1, true);
+                        }
+                    }
+                    listBoxTechTree.setItems(techtree);
+
+					// techtree
+					//techtree.push_back(formatString(gameSettings->getTech()));
+					//listBoxTechTree.setItems(techtree);
+				}
 
 				// factions
 				bool hasFactions = true;
@@ -1913,7 +2000,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             // END
 
             // Reload tilesets for the UI
-            findDirs(Config::getInstance().getPathListForType(ptTilesets), tileSets);
+            findDirs(Config::getInstance().getPathListForType(ptTilesets), tilesetFiles);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
@@ -1924,6 +2011,85 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             }
             else {
             	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
+            }
+            clientInterface->sendTextMessage(szMsg,-1, true);
+        }
+    }
+    else if(type == ftp_cct_Techtree) {
+        getMissingTechtreeFromFTPServerInProgress = false;
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+
+        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock(true);
+
+        NetworkManager &networkManager= NetworkManager::getInstance();
+        ClientInterface* clientInterface= networkManager.getClientInterface();
+        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+        if(result == ftp_crt_SUCCESS) {
+            char szMsg[1024]="";
+            if(lang.hasString("DataMissingTechtreeSuccessDownload") == true) {
+            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+            }
+            else {
+            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+            }
+            clientInterface->sendTextMessage(szMsg,-1, true);
+
+            // START
+            // Clear the CRC Cache if it is populated
+            //
+            // Clear the CRC file Cache
+            safeMutexFTPProgress.Lock();
+            Checksum::clearFileCache();
+
+            vector<string> paths        = Config::getInstance().getPathListForType(ptTechs);
+            string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
+            std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+            string pathSearchString     = string("/") + itemName + string("/*");
+            const string filterFileExt  = ".xml";
+
+            string cacheKey = "";
+            size_t count = paths.size();
+            for(size_t idx = 0; idx < count; ++idx) {
+                string path = paths[idx] + pathSearchString;
+
+                cacheKey += path + "_" + filterFileExt + "_";
+            }
+            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+                crcTreeCache.erase(cacheKey);
+            }
+
+            cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
+            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+
+            count = paths.size();
+            for(size_t idx = 0; idx < count; ++idx) {
+                string path = paths[idx] + pathSearchString;
+
+                string cacheKey = path + "_" + filterFileExt;
+                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
+                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+                    crcTreeCache2.erase(cacheKey);
+                }
+            }
+            safeMutexFTPProgress.ReleaseLock();
+            // END
+
+            // Reload tilesets for the UI
+            findDirs(Config::getInstance().getPathListForType(ptTechs), techTreeFiles);
+        }
+        else {
+            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+
+            char szMsg[1024]="";
+            if(lang.hasString("DataMissingTechtreeFailDownload") == true) {
+            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
+            }
+            else {
+            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
         }

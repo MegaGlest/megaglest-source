@@ -30,7 +30,8 @@ enum JoinMenu {
 enum FTPMessageType {
     ftpmsg_MissingNone,
 	ftpmsg_MissingMap,
-	ftpmsg_MissingTileset
+	ftpmsg_MissingTileset,
+	ftpmsg_MissingTechtree
 };
 
 // ===============================
@@ -73,16 +74,10 @@ private:
 	GraphicLabel labelAdvanced;
 	GraphicListBox listBoxAdvanced;
 
-
-
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
-	vector<string> mapFiles;
-	vector<string> techTreeFiles;
-	vector<string> tilesetFiles;
-	vector<string> factionFiles;
 	GraphicLabel labelPlayers[GameConstants::maxPlayers];
 	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	GraphicListBox listBoxControls[GameConstants::maxPlayers];
@@ -142,7 +137,10 @@ private:
 	std::string lastMissingTechtree;
 	std::string lastMissingTileSet;
 
-	std::vector<std::string> tileSets;
+	vector<string> mapFiles;
+	vector<string> techTreeFiles;
+	vector<string> tilesetFiles;
+	vector<string> factionFiles;
 
     GraphicMessageBox ftpMessageBox;
     FTPClientThread *ftpClientThread;
@@ -153,6 +151,9 @@ private:
 
     string getMissingTilesetFromFTPServer;
     bool getMissingTilesetFromFTPServerInProgress;
+
+    string getMissingTechtreeFromFTPServer;
+    bool getMissingTechtreeFromFTPServerInProgress;
 
     std::map<string,pair<int,string> > fileFTPProgressList;
 
