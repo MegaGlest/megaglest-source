@@ -330,13 +330,18 @@ void MenuStateKeysetup::keyUp(char key) {
 
     if(hotkeyIndex >= 0) {
     	if(hotkeyChar != 0) {
-			string keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar,key);
+
+    		string keyName = "";
+			if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
+				keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
+			}
 			key = hotkeyChar;
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key);
 
 			SDLKey keysym = SDLK_UNKNOWN;
-			if(keyName == "unknown key") {
+			if(keyName == "unknown key" || keyName == "") {
 				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 				keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
 
