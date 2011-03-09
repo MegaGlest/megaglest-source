@@ -193,12 +193,19 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
   return 0;
 }
 
-FTPClientThread::FTPClientThread(int portNumber, string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject) : BaseThread() {
+FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
+		std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath,
+		FTPClientCallbackInterface *pCBObject,string fileArchiveExtension,
+		string fileArchiveExtractCommand,string fileArchiveExtractCommandParameters) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;
     this->tilesetsPath  = tilesetsPath;
     this->pCBObject     = pCBObject;
+
+    this->fileArchiveExtension = fileArchiveExtension;
+    this->fileArchiveExtractCommand = fileArchiveExtractCommand;
+    this->fileArchiveExtractCommandParameters = fileArchiveExtractCommandParameters;
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
 }
@@ -331,9 +338,11 @@ void FTPClientThread::addTilesetToRequests(string tileSetName) {
 }
 
 void FTPClientThread::getTilesetFromServer(string tileSetName) {
-    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+
+    FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, findArchive);
     if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
-        result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD);
+        result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, findArchive);
     }
 
     MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -342,20 +351,26 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
     }
 }
 
-FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword) {
+FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
+		string tileSetNameSubfolder, string ftpUser, string ftpUserPassword,
+		bool findArchive) {
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFile = this->tilesetsPath.second;
 
     // Root folder for the tileset
+    string destRootArchiveFolder = "";
     string destRootFolder = "";
     if(tileSetNameSubfolder == "") {
         destRootFolder = this->tilesetsPath.second;
-        if(EndsWith(destRootFolder,"/") == false && EndsWith(destRootFolder,"\\") == false) {
+        if( EndsWith(destRootFolder,"/") == false &&
+        	EndsWith(destRootFolder,"\\") == false) {
              destRootFolder += "/";
         }
+        destRootArchiveFolder = destRootFolder;
         destRootFolder += tileSetName;
-        if(EndsWith(destRootFolder,"/") == false && EndsWith(destRootFolder,"\\") == false) {
+        if( EndsWith(destRootFolder,"/") == false &&
+        	EndsWith(destRootFolder,"\\") == false) {
              destRootFolder += "/";
         }
 
@@ -378,8 +393,8 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         }
     }
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s] findArchive = %d\n",destFile.c_str(),findArchive);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s] findArchive = %d\n",destFile.c_str(),findArchive);
 
     struct FtpFile ftpfile = {
         tileSetName.c_str(),
@@ -391,6 +406,10 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         false
     };
 
+    if(findArchive == true) {
+    	ftpfile.filepath = destRootArchiveFolder.c_str();
+    }
+
     //curl_global_init(CURL_GLOBAL_DEFAULT);
 
     CURL *curl = SystemFlags::initHTTP();
@@ -399,7 +418,12 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
 
         char szBuf[1024]="";
         if(tileSetNameSubfolder == "") {
-            sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+            if(findArchive == true) {
+            	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str(),this->fileArchiveExtension.c_str());
+            }
+            else {
+            	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+            }
         }
         else {
             sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str(),tileSetNameSubfolder.c_str());
@@ -454,25 +478,28 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
             result = ftp_crt_SUCCESS;
 
             bool requireMoreFolders = false;
-            if(tileSetNameSubfolder == "") {
-                tileSetNameSubfolder = "models";
-                requireMoreFolders = true;
-            }
-            else if(tileSetNameSubfolder == "models") {
-                tileSetNameSubfolder = "sounds";
-                requireMoreFolders = true;
-            }
-            else if(tileSetNameSubfolder == "sounds") {
-                tileSetNameSubfolder = "textures";
-                requireMoreFolders = true;
-            }
-            else if(tileSetNameSubfolder == "textures") {
-                tileSetNameSubfolder = "";
-                requireMoreFolders = false;
+
+            if(findArchive == false) {
+				if(tileSetNameSubfolder == "") {
+					tileSetNameSubfolder = "models";
+					requireMoreFolders = true;
+				}
+				else if(tileSetNameSubfolder == "models") {
+					tileSetNameSubfolder = "sounds";
+					requireMoreFolders = true;
+				}
+				else if(tileSetNameSubfolder == "sounds") {
+					tileSetNameSubfolder = "textures";
+					requireMoreFolders = true;
+				}
+				else if(tileSetNameSubfolder == "textures") {
+					tileSetNameSubfolder = "";
+					requireMoreFolders = false;
+				}
             }
 
             if(requireMoreFolders == true) {
-                result = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword);
+                result = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword, false);
                 if(result != ftp_crt_SUCCESS) {
                   if(destRootFolder != "") {
                       //unlink(destRootFolder.c_str());
@@ -489,6 +516,18 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName, 
         fclose(ftpfile.stream);
         ftpfile.stream = NULL;
     }
+
+    // Extract the archive
+    if(findArchive == true && result == ftp_crt_SUCCESS) {
+        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        		destRootArchiveFolder + tileSetName + this->fileArchiveExtension);
+
+        if(executeShellCommand(extractCmd) == false) {
+        	result = ftp_crt_FAIL;
+        }
+    }
+
     return result;
 }
 

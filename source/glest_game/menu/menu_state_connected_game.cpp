@@ -412,7 +412,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
             }
         }
 
-        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath,tilesetsPath,this);
+        string fileArchiveExtension = config.getString("FileArchiveExtension","");
+        string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+        string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+
+        ftpClientThread = new FTPClientThread(portNumber,serverUrl,mapsPath,
+        		tilesetsPath,this,fileArchiveExtension,fileArchiveExtractCommand,
+        		fileArchiveExtractCommandParameters);
         ftpClientThread->start();
     }
 
