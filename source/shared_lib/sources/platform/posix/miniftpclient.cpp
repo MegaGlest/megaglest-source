@@ -69,7 +69,11 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
 
+#ifdef WIN32
+        _unlink(fullFilePath.c_str());
+#else
         unlink(fullFilePath.c_str());
+#endif
         return -1;
     }
 
@@ -299,7 +303,11 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
         ftpfile.stream = NULL;
     }
     if(result != ftp_crt_SUCCESS) {
+#ifdef WIN32
+        _unlink(destFile.c_str());
+#else
         unlink(destFile.c_str());
+#endif
     }
 
     return result;
@@ -470,7 +478,6 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
           }
 
           if(destRootFolder != "") {
-              //unlink(destRootFolder.c_str());
               removeFolder(destRootFolder);
           }
         }
@@ -502,7 +509,6 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
                 result = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword, false);
                 if(result != ftp_crt_SUCCESS) {
                   if(destRootFolder != "") {
-                      //unlink(destRootFolder.c_str());
                       removeFolder(destRootFolder);
                   }
                 }

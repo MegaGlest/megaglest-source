@@ -351,7 +351,12 @@ void removeFolder(const string path) {
         string item = results[i];
         if(isdir(item.c_str()) == false) {
             //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+
+#ifdef WIN32
+            int result = _unlink(item.c_str());
+#else
             int result = unlink(item.c_str());
+#endif
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
@@ -363,12 +368,21 @@ void removeFolder(const string path) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
         if(isdir(item.c_str()) == true) {
             //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
+#ifdef WIN32
+            int result = _rmdir(item.c_str());
+#else
             int result = rmdir(item.c_str());
+#endif
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
 
+#ifdef WIN32
+    int result = _rmdir(path.c_str());
+#else
     int result = rmdir(path.c_str());
+#endif
+
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),result);
 }
 
