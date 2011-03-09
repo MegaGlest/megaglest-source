@@ -1086,6 +1086,40 @@ string replaceAll(string& context, const string& from, const string& to) {
     return context;
 }
 
+string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
+		string fileArchiveExtractCommandParameters, string outputpath, string archivename) {
+	string result = fileArchiveExtractCommand;
+	result += " ";
+	string args = replaceAll(fileArchiveExtractCommandParameters, "{outputpath}", outputpath);
+	args = replaceAll(args, "{archivename}", archivename);
+	result += args;
+
+	return result;
+}
+
+bool executeShellCommand(string cmd) {
+	bool result = false;
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nAbout to run [%s]", cmd.c_str());
+
+	FILE *file = popen(cmd.c_str(),"r");
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nfile = [%p]", file);
+
+	if(file != NULL) {
+		char szBuf[4096]="";
+		while(feof(file) == false) {
+			if(fgets( szBuf, 4095, file) != NULL) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+			}
+		}
+
+		int cmdRet = pclose(file);
+		/* Close pipe and print return value. */
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nProcess returned %d",  cmdRet);
+		result = true;
+	}
+	return result;
+}
+
 // =====================================
 //         ModeInfo
 // =====================================

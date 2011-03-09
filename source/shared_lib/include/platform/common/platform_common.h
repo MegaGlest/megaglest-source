@@ -166,6 +166,9 @@ inline string trim (const string & s, const string & t = SPACES) {
   return trim_left (trim_right (d, t), t) ;
 }  // end of trim
 
+string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
+		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
+bool executeShellCommand(string cmd);
 
 class ValueCheckerVault {
 

@@ -72,13 +72,23 @@ protected:
     FTP_Client_ResultType getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword);
 
     void getTilesetFromServer(string tileSetName);
-    FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword);
+    FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword, bool findArchive);
 
     Mutex mutexProgressMutex;
 
+    string fileArchiveExtension;
+    string fileArchiveExtractCommand;
+    string fileArchiveExtractCommandParameters;
+
 public:
 
-    FTPClientThread(int portNumber,string serverUrl, std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, FTPClientCallbackInterface *pCBObject);
+    FTPClientThread(int portNumber,string serverUrl,
+    				std::pair<string,string> mapsPath,
+    				std::pair<string,string> tilesetsPath,
+    				FTPClientCallbackInterface *pCBObject,
+    				string fileArchiveExtension,
+    				string fileArchiveExtractCommand,
+    				string fileArchiveExtractCommandParameters);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
