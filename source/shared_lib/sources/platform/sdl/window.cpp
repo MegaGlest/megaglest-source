@@ -624,10 +624,10 @@ char Window::getRawKey(SDL_keysym keysym) {
 	if(keysym.sym <= 255) {
 		result = keysym.sym;
 	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 	return result;
-
 }
 
 char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
@@ -635,6 +635,9 @@ char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
 
 	//SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
 	char c = getRawKey(keysym);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] c [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+
 	SDLKey unicodeKey = SDLK_UNKNOWN;
 	if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
 		unicodeKey = static_cast<SDLKey>(c);
