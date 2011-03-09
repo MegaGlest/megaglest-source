@@ -16,6 +16,8 @@
 #include "model.h"
 #include "checksum.h"
 #include "leak_dumper.h"
+#include "unit_particle_type.h"
+#include "object_type.h"
 
 namespace Glest{ namespace Game{
 
@@ -35,6 +37,7 @@ enum ResourceClass{
 ///	A type of resource that can be harvested or not
 // =====================================================
 
+
 class ResourceType: public DisplayableType{
 private:
     ResourceClass resourceClass;
@@ -45,9 +48,11 @@ private:
 	bool recoup_cost;
 
     Model *model;
+    ObjectParticleSystemTypes particleTypes;
 
 public:
     ResourceType();
+    ~ResourceType();
     void load(const string &dir, Checksum* checksum,Checksum *techtreeChecksum);
 
     //get
@@ -58,6 +63,10 @@ public:
 	int getDefResPerPatch() const	{return defResPerPatch;}
 	Model *getModel() const			{return model;}
 	bool getRecoup_cost() const     { return recoup_cost;}
+
+	bool hasParticles()	const		{return !particleTypes.empty();}
+	const ObjectParticleSystemTypes *getObjectParticleSystemTypes()	const {return &particleTypes;}
+
 
 	static ResourceClass strToRc(const string &s);
 	void deletePixels();

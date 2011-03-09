@@ -55,7 +55,7 @@ protected:
 public:
 	void load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *newTexture);
 	void load(const string &dir, const string &path, RendererInterface *newTexture);
-	void setValues(UnitParticleSystem *uts);
+	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
 };
 

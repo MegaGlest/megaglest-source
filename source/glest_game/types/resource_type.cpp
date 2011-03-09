@@ -38,6 +38,13 @@ ResourceType::ResourceType() {
     model = NULL;
 }
 
+ResourceType::~ResourceType(){
+	while(!(particleTypes.empty())){
+		delete particleTypes.back();
+		particleTypes.pop_back();
+	}
+}
+
 void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum) {
 
 	string path, str;
@@ -78,6 +85,21 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
                 model= renderer.newModel(rsGame);
                 model->load(path);
+
+                if(modelNode->hasChild("particles")){
+					const XmlNode *particleNode= modelNode->getChild("particles");
+					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+					if(particleEnabled){
+						for(int k= 0; k < particleNode->getChildCount(); ++k){
+							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
+							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+
+							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
+							objectParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+							particleTypes.push_back(objectParticleSystemType);
+						}
+					}
+				}
 
                 //default resources
                 const XmlNode *defaultAmountNode= typeNode->getChild("default-amount");
@@ -133,7 +155,6 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		throw runtime_error("Error loading resource type: " + path + "\n" + e.what());
 	}
 }
-
 
 // ==================== misc ====================
 

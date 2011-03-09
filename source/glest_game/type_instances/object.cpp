@@ -81,21 +81,26 @@ void Object::initParticles(){
 	if(this->objectType==NULL) return;
 	if(this->objectType->hasParticles()){
 		ObjectParticleSystemTypes *particleTypes= this->objectType->getObjectParticleSystemTypes(variation);
-		if(Config::getInstance().getBool("TilesetParticles","true") && (particleTypes->empty() == false)
-		        && (unitParticleSystems.empty() == true)){
-			for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
-				UnitParticleSystem *ups= new UnitParticleSystem(200);
-				(*it)->setValues(ups);
-				ups->setPos(this->pos);
-				ups->setRotation(this->rotation);
-				ups->setFactionColor(Vec3f(0, 0, 0));
-				ups->setVisible(false);
-				this->unitParticleSystems.push_back(ups);
-				Renderer::getInstance().manageParticleSystem(ups, rsGame);
-			}
-		}
+		initParticlesFromTypes(particleTypes);
 	}
 }
+
+void Object::initParticlesFromTypes(const ObjectParticleSystemTypes *particleTypes){
+	if(Config::getInstance().getBool("TilesetParticles","true") && (particleTypes->empty() == false)
+			        && (unitParticleSystems.empty() == true)){
+				for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
+					UnitParticleSystem *ups= new UnitParticleSystem(200);
+					(*it)->setValues(ups);
+					ups->setPos(this->pos);
+					ups->setRotation(this->rotation);
+					ups->setFactionColor(Vec3f(0, 0, 0));
+					ups->setVisible(false);
+					this->unitParticleSystems.push_back(ups);
+					Renderer::getInstance().manageParticleSystem(ups, rsGame);
+				}
+			}
+}
+
 
 void Object::setHeight(float height){
 	pos.y=height;
@@ -120,6 +125,7 @@ bool Object::getWalkable() const{
 void Object::setResource(const ResourceType *resourceType, const Vec2i &pos){
 	resource= new Resource();
 	resource->init(resourceType, pos);
+	initParticlesFromTypes(resourceType->getObjectParticleSystemTypes());
 }
 
 void Object::setVisible( bool visible)

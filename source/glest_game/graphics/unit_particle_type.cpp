@@ -68,7 +68,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     fixed= fixedNode->getAttribute("value")->getBoolValue();
 }
 
-void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
+const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setTexture(texture);
 	ups->setPrimitive(UnitParticleSystem::strToPrimitive(primitive));
 	ups->setOffset(offset);
