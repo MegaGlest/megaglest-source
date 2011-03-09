@@ -33,13 +33,17 @@ class FTPServerThread : public BaseThread
 protected:
     std::pair<string,string> mapsPath;
     std::pair<string,string> tilesetsPath;
+    std::pair<string,string> techtreesPath;
+
     int portNumber;
     int maxPlayers;
     static FTPClientValidationInterface *ftpValidationIntf;
 
 public:
 
-    FTPServerThread(std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath, int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf);
+    FTPServerThread(std::pair<string,string> mapsPath,
+    		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
+    		int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf);
     ~FTPServerThread();
     virtual void execute();
     virtual void signalQuit();

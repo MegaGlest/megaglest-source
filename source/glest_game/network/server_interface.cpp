@@ -93,10 +93,20 @@ ServerInterface::ServerInterface() :GameNetworkInterface() {
 			}
 		}
 
+		std::pair<string,string> techtreesPath;
+		vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+		if(techtreesList.size() > 0) {
+			techtreesPath.first = techtreesList[0];
+			if(techtreesList.size() > 1) {
+				techtreesPath.second = techtreesList[1];
+			}
+		}
+
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
 		ServerSocket::setFTPServerPort(portNumber);
-		ftpServer = new FTPServerThread(mapsPath,tilesetsPath,portNumber,GameConstants::maxPlayers,this);
+		ftpServer = new FTPServerThread(mapsPath,tilesetsPath,techtreesPath,
+									portNumber,GameConstants::maxPlayers,this);
 		ftpServer->start();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

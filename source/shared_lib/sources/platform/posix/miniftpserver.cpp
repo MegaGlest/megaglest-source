@@ -46,9 +46,13 @@ int isValidClientType(ip_t clientIp) {
     return result;
 }
 
-FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,std::pair<string,string> tilesetsPath, int portNumber, int maxPlayers,FTPClientValidationInterface *ftpValidationIntf) : BaseThread() {
+FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
+		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
+		int portNumber, int maxPlayers,
+		FTPClientValidationInterface *ftpValidationIntf) : BaseThread() {
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
+    this->techtreesPath			= techtreesPath;
     this->portNumber            = portNumber;
     this->maxPlayers            = maxPlayers;
     this->ftpValidationIntf     = ftpValidationIntf;
@@ -123,6 +127,16 @@ void FTPServerThread::execute() {
             if(tilesetsPath.second != "") {
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
                 ftpCreateAccount("tilesets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+            }
+
+            // Setup FTP Users and permissions for tilesets
+            if(techtreesPath.first != "") {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
+                ftpCreateAccount("techtrees", "mg_ftp_server", techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+            }
+            if(techtreesPath.second != "") {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
+                ftpCreateAccount("techtrees_custom", "mg_ftp_server", techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
 
 /*

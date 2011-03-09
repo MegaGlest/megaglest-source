@@ -29,6 +29,9 @@ const char *FTP_MAPS_CUSTOM_USERNAME        = "maps_custom";
 const char *FTP_MAPS_USERNAME               = "maps";
 const char *FTP_TILESETS_CUSTOM_USERNAME    = "tilesets_custom";
 const char *FTP_TILESETS_USERNAME           = "tilesets";
+const char *FTP_TECHTREES_CUSTOM_USERNAME   = "techtrees_custom";
+const char *FTP_TECHTREES_USERNAME          = "techtrees";
+
 const char *FTP_COMMON_PASSWORD             = "mg_ftp_server";
 
 /*
@@ -198,13 +201,18 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
 }
 
 FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
-		std::pair<string,string> mapsPath, std::pair<string,string> tilesetsPath,
-		FTPClientCallbackInterface *pCBObject,string fileArchiveExtension,
-		string fileArchiveExtractCommand,string fileArchiveExtractCommandParameters) : BaseThread() {
+		std::pair<string,string> mapsPath,
+		std::pair<string,string> tilesetsPath,
+		std::pair<string,string> techtreesPath,
+		FTPClientCallbackInterface *pCBObject,
+		string fileArchiveExtension,
+		string fileArchiveExtractCommand,
+		string fileArchiveExtractCommandParameters) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;
     this->tilesetsPath  = tilesetsPath;
+    this->techtreesPath = techtreesPath;
     this->pCBObject     = pCBObject;
 
     this->fileArchiveExtension = fileArchiveExtension;
@@ -342,6 +350,13 @@ void FTPClientThread::addTilesetToRequests(string tileSetName) {
     MutexSafeWrapper safeMutex(&mutexTilesetList,string(__FILE__) + "_" + intToStr(__LINE__));
     if(std::find(tilesetList.begin(),tilesetList.end(),tileSetName) == tilesetList.end()) {
         tilesetList.push_back(tileSetName);
+    }
+}
+
+void FTPClientThread::addTechtreeToRequests(string techtreeName) {
+    MutexSafeWrapper safeMutex(&mutexTechtreeList,string(__FILE__) + "_" + intToStr(__LINE__));
+    if(std::find(techtreeList.begin(),techtreeList.end(),techtreeName) == techtreeList.end()) {
+    	techtreeList.push_back(techtreeName);
     }
 }
 
@@ -546,6 +561,146 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
     return result;
 }
 
+void FTPClientThread::getTechtreeFromServer(string techtreeName) {
+	FTP_Client_ResultType result = ftp_crt_FAIL;
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	if(findArchive == true) {
+		result = getTechtreeFromServer(techtreeName, FTP_TECHTREES_CUSTOM_USERNAME, FTP_COMMON_PASSWORD);
+		if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
+			result = getTechtreeFromServer(techtreeName, FTP_TECHTREES_USERNAME, FTP_COMMON_PASSWORD);
+		}
+	}
+
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+    if(this->pCBObject != NULL) {
+        this->pCBObject->FTPClient_CallbackEvent(techtreeName,ftp_cct_Techtree,result,NULL);
+    }
+}
+
+FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName,
+		string ftpUser, string ftpUserPassword) {
+    FTP_Client_ResultType result = ftp_crt_FAIL;
+
+    string destFile = this->techtreesPath.second;
+
+    // Root folder for the techtree
+    string destRootArchiveFolder = "";
+    string destRootFolder = "";
+	destRootFolder = this->techtreesPath.second;
+	if( EndsWith(destRootFolder,"/") == false &&
+		EndsWith(destRootFolder,"\\") == false) {
+		 destRootFolder += "/";
+	}
+	destRootArchiveFolder = destRootFolder;
+	destRootFolder += techtreeName;
+	if( EndsWith(destRootFolder,"/") == false &&
+		EndsWith(destRootFolder,"\\") == false) {
+		 destRootFolder += "/";
+	}
+
+	createDirectoryPaths(destRootFolder);
+
+    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+        destFile += "/";
+    }
+    destFile += techtreeName;
+    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
+        destFile += "/";
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+
+    struct FtpFile ftpfile = {
+    	techtreeName.c_str(),
+        destFile.c_str(), // name to store the file as if succesful
+        destFile.c_str(),
+        NULL,
+        this,
+        "",
+        false
+    };
+
+   	ftpfile.filepath = destRootArchiveFolder.c_str();
+
+    CURL *curl = SystemFlags::initHTTP();
+    if(curl) {
+        ftpfile.stream = NULL;
+
+        char szBuf[1024]="";
+        sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,techtreeName.c_str(),this->fileArchiveExtension.c_str());
+
+        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
+        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
+
+        // turn on wildcard matching
+        curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
+
+        // callback is called before download of concrete file started
+        curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
+        // callback is called after data from the file have been transferred
+        curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
+
+        curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        // Define our callback to get called when there's data to be written
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
+        // Set a pointer to our struct to pass to the callback
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
+
+        // Max 10 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+
+        // Switch on full protocol/debug output
+        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        if(res != CURLE_OK) {
+          // we failed
+          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
+          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
+
+          if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
+        	  result = ftp_crt_PARTIALFAIL;
+          }
+
+          if(destRootFolder != "") {
+              removeFolder(destRootFolder);
+          }
+        }
+        else {
+            result = ftp_crt_SUCCESS;
+        }
+
+        SystemFlags::cleanupHTTP(&curl);
+    }
+
+    if(ftpfile.stream) {
+        fclose(ftpfile.stream);
+        ftpfile.stream = NULL;
+    }
+
+    // Extract the archive
+    if(result == ftp_crt_SUCCESS) {
+        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        		destRootArchiveFolder + techtreeName + this->fileArchiveExtension);
+
+        if(executeShellCommand(extractCmd) == false) {
+        	result = ftp_crt_FAIL;
+        }
+    }
+
+    return result;
+}
+
+
 FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
     return pCBObject;
@@ -596,6 +751,18 @@ void FTPClientThread::execute() {
                 }
                 else {
                     safeMutex2.ReleaseLock();
+                }
+
+                MutexSafeWrapper safeMutex3(&mutexTechtreeList,string(__FILE__) + "_" + intToStr(__LINE__));
+                if(techtreeList.size() > 0) {
+                    string techtree = techtreeList[0];
+                    techtreeList.erase(techtreeList.begin() + 0);
+                    safeMutex3.ReleaseLock();
+
+                    getTechtreeFromServer(techtree);
+                }
+                else {
+                    safeMutex3.ReleaseLock();
                 }
 
                 if(this->getQuitStatus() == false) {
