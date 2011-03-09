@@ -350,7 +350,16 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
 
     FTP_Client_ResultType result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, findArchive);
     if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
-        result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, findArchive);
+    	if(findArchive == true) {
+    		result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, false);
+    	}
+    	if(result == ftp_crt_FAIL && this->getQuitStatus() == false) {
+    		result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, findArchive);
+
+        	if(findArchive == true) {
+        		result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, false);
+        	}
+    	}
     }
 
     MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
