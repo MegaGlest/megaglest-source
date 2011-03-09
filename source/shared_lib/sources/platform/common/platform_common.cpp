@@ -1101,7 +1101,12 @@ bool executeShellCommand(string cmd) {
 	bool result = false;
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nAbout to run [%s]", cmd.c_str());
 
+#ifdef WIN32
+	FILE *file = _popen(cmd.c_str(),"r");
+#else
 	FILE *file = popen(cmd.c_str(),"r");
+#endif
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nfile = [%p]", file);
 
 	if(file != NULL) {
@@ -1111,8 +1116,12 @@ bool executeShellCommand(string cmd) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
 			}
 		}
-
+#ifdef WIN32
+		int cmdRet = _pclose(file);
+#else
 		int cmdRet = pclose(file);
+#endif
+
 		/* Close pipe and print return value. */
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nProcess returned %d",  cmdRet);
 		result = true;
