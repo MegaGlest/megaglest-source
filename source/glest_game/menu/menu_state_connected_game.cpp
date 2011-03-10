@@ -62,6 +62,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	getMissingMapFromFTPServerInProgress        = false;
 	getMissingTilesetFromFTPServer              = "";
 	getMissingTilesetFromFTPServerInProgress    = false;
+    getMissingTechtreeFromFTPServer				= "";
+    getMissingTechtreeFromFTPServerInProgress	= false;
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
