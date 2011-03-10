@@ -185,7 +185,11 @@ bool Window::handleEvent() {
 						toggleFullscreen();
 					}
 					if(global_window) {
-						global_window->eventKeyDown(getKey(event.key.keysym,true));
+						char key = getKey(event.key.keysym,true);
+						key = tolower(key);
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
+
+						global_window->eventKeyDown(key);
 						global_window->eventKeyPress(getRawKey(event.key.keysym));
 
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -208,7 +212,9 @@ bool Window::handleEvent() {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
 
 					if(global_window) {
-						global_window->eventKeyUp(getKey(event.key.keysym,true));
+						char key = getKey(event.key.keysym,true);
+						key = tolower(key);
+						global_window->eventKeyUp(key);
 					}
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYUP ================================\n",__FILE__,__FUNCTION__,__LINE__);
