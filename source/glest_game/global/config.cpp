@@ -648,10 +648,10 @@ vector<pair<string,string> > Config::getPropertiesFromContainer(const Properties
 vector<pair<string,string> > Config::getMergedProperties() const {
     vector<pair<string,string> > result = getMasterProperties();
     vector<pair<string,string> > resultUser = getUserProperties();
-    for(int i = 0; i < resultUser.size(); ++i) {
+    for(unsigned int i = 0; i < resultUser.size(); ++i) {
         const pair<string,string> &propertyUser = resultUser[i];
         bool overrideProperty = false;
-        for(int j = 0; j < result.size(); ++j) {
+        for(unsigned int j = 0; j < result.size(); ++j) {
             pair<string,string> &property = result[j];
             // Take the user property and override the original value
             if(property.first == propertyUser.first) {
@@ -679,7 +679,7 @@ vector<pair<string,string> > Config::getUserProperties() const {
 void Config::setUserProperties(const vector<pair<string,string> > &valueList) {
 	Properties &propertiesObj = properties.second;
 
-	for(int idx = 0; idx < valueList.size(); ++ idx) {
+	for(unsigned int idx = 0; idx < valueList.size(); ++ idx) {
 		const pair<string,string> &nameValuePair = valueList[idx];
 		propertiesObj.setString(nameValuePair.first,nameValuePair.second);
 	}
