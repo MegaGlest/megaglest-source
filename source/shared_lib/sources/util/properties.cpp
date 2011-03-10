@@ -25,6 +25,8 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Util{
 
+string Properties::applicationPath = "";
+
 // =====================================================
 //	class Properties
 // =====================================================
@@ -100,6 +102,9 @@ bool Properties::applyTagsToValue(string &value) {
 	username = getenv("USERNAME");
 	replaceAll(value, "$USERNAME", 		(username != NULL ? username : ""));
 	replaceAll(value, "%%USERNAME%%", 	(username != NULL ? username : ""));
+
+	replaceAll(value, "$APPLICATIONPATH", 		Properties::applicationPath);
+	replaceAll(value, "%%APPLICATIONPATH%%",	Properties::applicationPath);
 
 	return (originalValue != value);
 }

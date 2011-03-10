@@ -1508,6 +1508,8 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
+	Properties::setApplicationPath(extractDirectoryPathFromFile(argv[0]));
+
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {

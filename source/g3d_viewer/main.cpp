@@ -210,6 +210,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true), timer(NULL)
 {
 	this->appPath = appPath;
+	Properties::setApplicationPath(extractDirectoryPathFromFile(appPath));
 
 	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
