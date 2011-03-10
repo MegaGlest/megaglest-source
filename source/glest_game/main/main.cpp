@@ -1608,6 +1608,11 @@ int glestMain(int argc, char** argv) {
 	        	createDirectoryPaths(userData);
 	        }
 	    }
+	    string crcCachePath = userData + "cache/";
+        if(isdir(crcCachePath.c_str()) == false) {
+        	createDirectoryPaths(crcCachePath);
+        }
+	    setCRCCacheFilePath(crcCachePath);
 
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
@@ -1826,13 +1831,13 @@ int glestMain(int argc, char** argv) {
         //printf("%d\n", *foo);       // causes segfault
         // END
 
-		if(config.getBool("AllowGameDataSynchCheck","false") == true) {
+		//if(config.getBool("AllowGameDataSynchCheck","false") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
 			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
 			preCacheThread->start();
-		}
+		//}
 
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
