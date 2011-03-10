@@ -73,6 +73,7 @@ SET(GLEST_LIB_INCLUDE_DIRS
     ${GLEST_LIB_INCLUDE_ROOT}sound
     ${GLEST_LIB_INCLUDE_ROOT}streflop
     ${GLEST_LIB_INCLUDE_ROOT}xml
+    ${GLEST_MAIN_INCLUDE_ROOT}facilities
     ${GLEST_MAIN_INCLUDE_ROOT}graphics
     ${GLEST_MAIN_INCLUDE_ROOT}game
     ${GLEST_MAIN_INCLUDE_ROOT}global
@@ -80,7 +81,7 @@ SET(GLEST_LIB_INCLUDE_DIRS
        )
 INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
 
-SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp")
+SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")
 	
 FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 	INCLUDE_DIRECTORIES( ${DIR} )

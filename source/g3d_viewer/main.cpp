@@ -10,6 +10,7 @@
 #include "xml_parser.h"
 #include <iostream>
 #include <wx/event.h>
+#include "config.h"
 #include "game_constants.h"
 
 #ifndef WIN32
@@ -34,10 +35,26 @@ const char *folderDelimiter = "\\";
 const char *folderDelimiter = "/";
 #endif
 
-int GameConstants::updateFps= 40;
-int GameConstants::cameraFps= 100;
+//int GameConstants::updateFps= 40;
+//int GameConstants::cameraFps= 100;
 
 const string g3dviewerVersionString= "v1.3.6";
+
+namespace Glest { namespace Game {
+string getGameReadWritePath(string lookupKey) {
+	string path = "";
+    if(path == "" && getenv("GLESTHOME") != NULL) {
+        path = getenv("GLESTHOME");
+        if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+            path += "/";
+        }
+
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+    }
+
+    return path;
+}
+}}
 
 namespace Shared{ namespace G3dViewer{
 
@@ -193,6 +210,8 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true), timer(NULL)
 {
 	this->appPath = appPath;
+
+	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
@@ -716,8 +735,14 @@ void MainWindow::saveScreenshot() {
 			}
 	    }
 	    else {
-			string screenShotsPath = extractDirectoryPathFromFile(appPath) + string("screens/");
-
+			//string screenShotsPath = extractDirectoryPathFromFile(appPath) + string("screens/");
+	        string userData = Config::getInstance().getString("UserData_Root","");
+	        if(userData != "") {
+	            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+	            	userData += "/";
+	            }
+	        }
+	        string screenShotsPath = userData + string("screens/");
 			printf("screenShotsPath [%s]\n",screenShotsPath.c_str());
 
 	        if(isdir(screenShotsPath.c_str()) == false) {
