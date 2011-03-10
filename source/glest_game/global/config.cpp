@@ -714,7 +714,7 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         //	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("extractLastDirectoryFromPath(userData) [%s] from userData [%s]\n",extractLastDirectoryFromPath(userData).c_str(),userData.c_str());
         //	userData = data_path + extractLastDirectoryFromPath(userData);
         //}
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] userData path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userData.c_str());
+        //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] userData path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userData.c_str());
 
         if(isdir(userData.c_str()) == false) {
         	createDirectoryPaths(userData);
