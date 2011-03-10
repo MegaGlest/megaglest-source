@@ -54,11 +54,21 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	networkManager.init(nrClient);
 
 	serversSavedFile = serverFileName;
-    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
-        serversSavedFile = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + serversSavedFile;
+    //if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    //    serversSavedFile = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + serversSavedFile;
+    //}
+    //Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+        	userData += "/";
+        }
     }
+    serversSavedFile = userData + serversSavedFile;
 
-	servers.load(serversSavedFile);
+    if(fileExists(serversSavedFile) == true) {
+    	servers.load(serversSavedFile);
+    }
 
 	//buttons
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");

@@ -207,14 +207,13 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 #else
         int result = unlink(userKeysFile.c_str());
 #endif
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         configKeys.reload();
 
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-
-
     else if(buttonOk.mouseClick(x, y)){
     	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -222,6 +221,10 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 
         if(userProperties.size() > 0) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+			string userKeysFile = configKeys.getFileName(true);
+	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+	        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+
 			configKeys.setUserProperties(userProperties);
 			configKeys.save();
 			configKeys.reload();
@@ -323,7 +326,7 @@ void MenuStateKeysetup::showMessageBox(const string &text, const string &header,
 void MenuStateKeysetup::keyDown(char key) {
 	hotkeyChar = key;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
 }
 
 void MenuStateKeysetup::keyPress(char c) {
