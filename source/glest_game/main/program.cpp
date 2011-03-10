@@ -492,6 +492,16 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
     if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         logFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + logFile;
     }
+    else {
+        string userData = config.getString("UserData_Root","");
+        if(userData != "") {
+            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+            	userData += "/";
+            }
+        }
+
+        logFile = userData + logFile;
+    }
 	logger.setFile(logFile);
 	logger.clear();
 
