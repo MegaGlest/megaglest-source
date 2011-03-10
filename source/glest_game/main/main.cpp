@@ -1596,6 +1596,17 @@ int glestMain(int argc, char** argv) {
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
 
+	    string userData = config.getString("UserData_Root","");
+	    if(userData != "") {
+	        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+	        	userData += "/";
+	        }
+
+	        if(isdir(userData.c_str()) == false) {
+	        	createDirectoryPaths(userData);
+	        }
+	    }
+
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
@@ -1772,7 +1783,7 @@ int glestMain(int argc, char** argv) {
 		gameInitialized = true;
 
         // Setup the screenshots folder
-        string userData = config.getString("UserData_Root","");
+        //string userData = config.getString("UserData_Root","");
         if(userData != "") {
             if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
             	userData += "/";
