@@ -32,7 +32,7 @@ namespace Shared{ namespace Util{
 
 class Properties{
 private:
-	static const int maxLine= 1024;
+	static const int maxLine= 4096;
 
 public:
 	typedef pair<string, string> PropertyPair;
@@ -44,6 +44,7 @@ private:
 	PropertyMap propertyMap;
 	string path;
 
+	bool applyTagsToValue(string &value);
 public:
 	void clear();
 	void load(const string &path);

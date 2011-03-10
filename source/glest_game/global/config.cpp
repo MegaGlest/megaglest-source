@@ -678,9 +678,6 @@ string Config::toString(){
 
 vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
     vector<string> pathList;
-
-//#include "game_constants.h"
-//#include "game_util.h"
     string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 
     string userData = getString("UserData_Root","");
@@ -688,30 +685,44 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
             userData += '/';
         }
-        userData=data_path+userData;
+        if(data_path == "") {
+        	userData = data_path + userData;
+        }
+        else {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("extractLastDirectoryFromPath(userData) [%s] from userData [%s]\n",extractLastDirectoryFromPath(userData).c_str(),userData.c_str());
+        	userData = data_path + extractLastDirectoryFromPath(userData);
+        }
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] userData path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userData.c_str());
+
         if(isdir(userData.c_str()) == false) {
         	createDirectoryPaths(userData);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userData.c_str());
         }
 
         string userDataMaps = userData + GameConstants::folder_path_maps;
         if(isdir(userDataMaps.c_str()) == false) {
         	createDirectoryPaths(userDataMaps);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userDataMaps.c_str());
         }
         string userDataScenarios = userData + GameConstants::folder_path_scenarios;
         if(isdir(userDataScenarios.c_str()) == false) {
         	createDirectoryPaths(userDataScenarios);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userDataScenarios.c_str());
         }
         string userDataTechs = userData + GameConstants::folder_path_techs;
         if(isdir(userDataTechs.c_str()) == false) {
         	createDirectoryPaths(userDataTechs);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userDataTechs.c_str());
         }
         string userDataTilesets = userData + GameConstants::folder_path_tilesets;
         if(isdir(userDataTilesets.c_str()) == false) {
         	createDirectoryPaths(userDataTilesets);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userDataTilesets.c_str());
         }
         string userDataTutorials = userData + GameConstants::folder_path_tutorials;
         if(isdir(userDataTutorials.c_str()) == false) {
         	createDirectoryPaths(userDataTutorials);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] creating path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userDataTutorials.c_str());
         }
     }
     if(scenarioDir != "") {

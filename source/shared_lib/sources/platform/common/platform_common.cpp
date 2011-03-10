@@ -813,6 +813,28 @@ string extractDirectoryPathFromFile(string filename) {
 	return path;
 }
 
+string extractLastDirectoryFromPath(string Path) {
+	string result = Path;
+	size_t lastDirectory     = Path.find_last_of("/\\");
+	if (lastDirectory == string::npos) {
+		result = Path;
+	}
+	else {
+		if(Path.length() > lastDirectory + 1) {
+			result = Path.erase( 0, lastDirectory + 1);
+		}
+		else {
+			for(int i = lastDirectory-1; i >= 0; --i) {
+				if(Path[i] == '/' || Path[i] == '\\' && i > 0) {
+					result = Path.erase( 0, i);
+					break;
+				}
+			}
+		}
+	}
+	return result;
+}
+
 string extractExtension(const string& filepath) {
 	size_t lastPoint 		= filepath.find_last_of('.');
 	size_t lastDirectory    = filepath.find_last_of("/\\");
@@ -823,18 +845,13 @@ string extractExtension(const string& filepath) {
 	return filepath.substr(lastPoint+1);
 }
 
-void createDirectoryPaths(string Path)
-{
+void createDirectoryPaths(string Path) {
  char DirName[256]="";
  const char *path = Path.c_str();
  char *dirName = DirName;
- while(*path)
- {
+ while(*path) {
    //if (('\\' == *path) || ('/' == *path))
-   if ('/' == *path)
-   {
-     //if (':' != *(path-1))
-     {
+   if ('/' == *path) {
 #ifdef WIN32
     	int result = _mkdir(DirName);
 #elif defined(__GNUC__)
@@ -843,7 +860,6 @@ void createDirectoryPaths(string Path)
 	#error "Your compiler needs to support mkdir!"
 #endif
 		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
-     }
    }
    *dirName++ = *path++;
    *dirName = '\0';
@@ -1092,10 +1108,16 @@ bool isKeyDown(int virtualKey) {
 
 string replaceAll(string& context, const string& from, const string& to) {
     size_t lookHere = 0;
-    size_t foundHere;
-    while((foundHere = context.find(from, lookHere)) != string::npos) {
-          context.replace(foundHere, from.size(), to);
-          lookHere = foundHere + to.size();
+    size_t foundHere = 0;
+    if((foundHere = context.find(from, lookHere)) != string::npos) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Replacing context [%s] from [%s] to [%s]\n",context.c_str(),from.c_str(),to.c_str());
+
+		while((foundHere = context.find(from, lookHere)) != string::npos) {
+			  context.replace(foundHere, from.size(), to);
+			  lookHere = foundHere + to.size();
+		}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("New context [%s]\n",context.c_str());
     }
     return context;
 }

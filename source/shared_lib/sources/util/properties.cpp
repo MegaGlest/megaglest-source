@@ -17,9 +17,11 @@
 
 #include "conversion.h"
 #include "util.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Util{
 
@@ -66,6 +68,10 @@ void Properties::load(const string &path){
 			if(pos != string::npos){
 				key= line.substr(0, pos);
 				value= line.substr(pos+1);
+
+				if(applyTagsToValue(value) == true) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s]\n",key.c_str(),value.c_str());
+				}
 				propertyMap.insert(PropertyPair(key, value));
 				propertyVector.push_back(PropertyPair(key, value));
 			}
@@ -73,6 +79,29 @@ void Properties::load(const string &path){
 	}
 
 	fileStream.close();
+}
+
+bool Properties::applyTagsToValue(string &value) {
+	string originalValue = value;
+
+	char *homeDir = NULL;
+#ifdef WIN32
+	homeDir = getenv("USERPROFILE");
+#else
+	homeDir = getenv("HOME");
+#endif
+	replaceAll(value, "~/", 			(homeDir != NULL ? homeDir : ""));
+	replaceAll(value, "$HOME", 			(homeDir != NULL ? homeDir : ""));
+	replaceAll(value, "%%HOME%%", 		(homeDir != NULL ? homeDir : ""));
+	replaceAll(value, "%%USERPROFILE%%",(homeDir != NULL ? homeDir : ""));
+	replaceAll(value, "%%HOMEPATH%%",	(homeDir != NULL ? homeDir : ""));
+
+	char *username = NULL;
+	username = getenv("USERNAME");
+	replaceAll(value, "$USERNAME", 		(username != NULL ? username : ""));
+	replaceAll(value, "%%USERNAME%%", 	(username != NULL ? username : ""));
+
+	return (originalValue != value);
 }
 
 void Properties::save(const string &path){

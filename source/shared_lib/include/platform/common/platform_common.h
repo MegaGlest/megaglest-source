@@ -122,6 +122,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 void createDirectoryPaths(string  Path);
 string extractFileFromDirectoryPath(string filename);
 string extractDirectoryPathFromFile(string filename);
+string extractLastDirectoryFromPath(string Path);
 string extractExtension(const string& filename);
 
 void getFullscreenVideoModes(list<ModeInfo> *modeinfos);
