@@ -1594,6 +1594,15 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 		debugWorldLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldLogFile;
 	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+            	userData += "/";
+            }
+        }
+        debugWorldLogFile = userData + debugWorldLogFile;
+	}
 
 	if(consoleBasicInfoOnly == true) {
 		std::cout << "World debug information:"  << std::endl;

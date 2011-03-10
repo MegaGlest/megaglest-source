@@ -688,15 +688,22 @@ void MainWindow::eventKeyDown(char key){
 			config.reload();
 		}
 		else if(key == configKeys.getCharKey("Screenshot")) {
-			string path = GameConstants::folder_path_screenshots;
+	        string userData = Config::getInstance().getString("UserData_Root","");
+	        if(userData != "") {
+	            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+	            	userData += "/";
+	            }
+	        }
+
+			string path = userData + GameConstants::folder_path_screenshots;
 			if(isdir(path.c_str()) == true) {
 				Config &config= Config::getInstance();
 				string fileFormat = config.getString("ScreenShotFileType","png");
 
 				unsigned int queueSize = Renderer::getInstance().getSaveScreenQueueSize();
 
-				for(int i=0; i < 250; ++i) {
-					path = GameConstants::folder_path_screenshots;
+				for(int i=0; i < 5000; ++i) {
+					path = userData + GameConstants::folder_path_screenshots;
 					path += string("screen") + intToStr(i + queueSize) + string(".") + fileFormat;
 					FILE *f= fopen(path.c_str(), "rb");
 					if(f == NULL) {
@@ -1760,7 +1767,14 @@ int glestMain(int argc, char** argv) {
 		gameInitialized = true;
 
         // Setup the screenshots folder
-		string screenShotsPath = GameConstants::folder_path_screenshots;
+        string userData = config.getString("UserData_Root","");
+        if(userData != "") {
+            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+            	userData += "/";
+            }
+        }
+
+		string screenShotsPath = userData + GameConstants::folder_path_screenshots;
         if(isdir(screenShotsPath.c_str()) == false) {
         	createDirectoryPaths(screenShotsPath);
         }

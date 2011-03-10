@@ -730,7 +730,7 @@ void MainWindow::saveScreenshot() {
 				//string fileFormat = config.getString("ScreenShotFileType","png");
 				string fileFormat = "png";
 
-				for(int i=0; i < 1000; ++i) {
+				for(int i=0; i < 5000; ++i) {
 					path = screenShotsPath;
 					path += string("screen") + intToStr(i) + string(".") + fileFormat;
 					FILE *f= fopen(path.c_str(), "rb");

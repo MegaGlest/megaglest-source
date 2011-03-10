@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -75,6 +75,15 @@ Profiler::~Profiler(){
     string profileLog = "profiler.log";
     if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         profileLog = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + profileLog;
+    }
+    else {
+        string userData = config.getString("UserData_Root","");
+        if(userData != "") {
+            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+            	userData += "/";
+            }
+        }
+        profileLog = userData + profileLog;
     }
 	FILE *f= fopen(profileLog.c_str(), "w");
 	if(f==NULL)

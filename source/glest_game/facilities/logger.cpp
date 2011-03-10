@@ -37,8 +37,18 @@ const int Logger::logLineCount= 15;
 
 Logger::Logger() {
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
-
-	fileName= logs_path + "log.txt";
+	if(logs_path != "") {
+		fileName= logs_path + "log.txt";
+	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+            	userData += "/";
+            }
+        }
+        fileName= userData + "log.txt";
+	}
 	loadingTexture=NULL;
 	showProgressBar = false;
 }
