@@ -99,6 +99,8 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.first = [%s]\n",fileName.first.c_str());
+
     if(fileMustExist.first == true ||
     	(fileMustExist.first == false && fileExists(fileName.first) == true)) {
     	properties.first.load(fileName.first);
@@ -108,9 +110,27 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 
-    if(properties.first.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
-    	fileName.second = properties.first.getString("UserOverrideFile");
+    string userData = "";
+    if(cfgType.first == cfgMainGame) {
+        if( properties.first.getString("UserData_Root", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+        	fileName.second = properties.first.getString("UserData_Root") + fileNameParameter.second;
+        }
+        else if(properties.first.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+        	fileName.second = properties.first.getString("UserOverrideFile") + fileNameParameter.second;
+        }
+
     }
+    else if(cfgType.first == cfgMainKeys) {
+        Config &mainCfg = Config::getInstance();
+    	if( mainCfg.getString("UserData_Root", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+        	fileName.second = mainCfg.getString("UserData_Root") + fileNameParameter.second;
+        }
+        else if(mainCfg.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+        	fileName.second = mainCfg.getString("UserOverrideFile") + fileNameParameter.second;
+        }
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.second = [%s]\n",fileName.second.c_str());
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 
@@ -183,6 +203,7 @@ void Config::save(const string &path){
 		if(path != "") {
 			fileName.second = path;
 		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 		properties.second.save(fileName.second);
 		return;
 	}
@@ -190,6 +211,7 @@ void Config::save(const string &path){
 	if(path != "") {
 		fileName.first = path;
 	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 	properties.first.save(fileName.first);
 }
 
@@ -685,13 +707,13 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
             userData += '/';
         }
-        if(data_path == "") {
-        	userData = data_path + userData;
-        }
-        else {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("extractLastDirectoryFromPath(userData) [%s] from userData [%s]\n",extractLastDirectoryFromPath(userData).c_str(),userData.c_str());
-        	userData = data_path + extractLastDirectoryFromPath(userData);
-        }
+        //if(data_path == "") {
+        //	userData = userData;
+        //}
+        //else {
+        //	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("extractLastDirectoryFromPath(userData) [%s] from userData [%s]\n",extractLastDirectoryFromPath(userData).c_str(),userData.c_str());
+        //	userData = data_path + extractLastDirectoryFromPath(userData);
+        //}
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] userData path [%s]\n",__FILE__,__FUNCTION__,__LINE__,userData.c_str());
 
         if(isdir(userData.c_str()) == false) {

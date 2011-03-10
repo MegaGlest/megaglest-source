@@ -2170,9 +2170,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
-    	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
+    //if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    //	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
+    //}
+    Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+        	userData += "/";
+        }
     }
+    fileName = userData + fileName;
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
@@ -2230,9 +2238,17 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     GameSettings gameSettings;
 
-    if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
-    	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
+    //if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
+    //	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
+    //}
+    Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+        	userData += "/";
+        }
     }
+    fileName = userData + fileName;
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
