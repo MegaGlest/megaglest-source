@@ -59,7 +59,7 @@ void FileCRCPreCacheThread::execute() {
                         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                         break;
                     }
-                    sleep( 50 );
+                    //sleep( 50 );
                 }
             }
         }

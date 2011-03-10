@@ -114,9 +114,23 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders=false, vector<string> *recursiveMap=NULL);
 
+string getCRCCacheFilePath();
+void setCRCCacheFilePath(string path);
+
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
+void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string filterFileExt);
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum);
+
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string filterFileExt);
+void clearFolderTreeContentsCheckSum(const string &path, const string filterFileExt);
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
+
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
+void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string filterFileExt);
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(const string &path, const string filterFileExt);
+void clearFolderTreeContentsCheckSumList(const string &path, const string filterFileExt);
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
 
 void createDirectoryPaths(string  Path);

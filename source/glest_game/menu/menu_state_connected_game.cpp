@@ -1966,36 +1966,37 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             Checksum::clearFileCache();
 
             vector<string> paths        = Config::getInstance().getPathListForType(ptTilesets);
-            string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
-            std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+            //string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
+            //std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
             string pathSearchString     = string("/") + itemName + string("/*");
             const string filterFileExt  = ".xml";
+            clearFolderTreeContentsCheckSum(paths, pathSearchString, filterFileExt);
+            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 
-            string cacheKey = "";
-            size_t count = paths.size();
-            for(size_t idx = 0; idx < count; ++idx) {
-                string path = paths[idx] + pathSearchString;
+//            string cacheKey = "";
+//            size_t count = paths.size();
+//            for(size_t idx = 0; idx < count; ++idx) {
+//                string path = paths[idx] + pathSearchString;
+//
+//                cacheKey += path + "_" + filterFileExt + "_";
+//            }
+//            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+//                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+//                crcTreeCache.erase(cacheKey);
+//            }
 
-                cacheKey += path + "_" + filterFileExt + "_";
-            }
-            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
-                crcTreeCache.erase(cacheKey);
-            }
-
-            cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
-            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
-
-            count = paths.size();
-            for(size_t idx = 0; idx < count; ++idx) {
-                string path = paths[idx] + pathSearchString;
-
-                string cacheKey = path + "_" + filterFileExt;
-                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
-                    crcTreeCache2.erase(cacheKey);
-                }
-            }
+//            string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
+//            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+//
+//            for(size_t idx = 0; idx < paths.size(); ++idx) {
+//                string path = paths[idx] + pathSearchString;
+//
+//                string cacheKey = path + "_" + filterFileExt;
+//                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
+//                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+//                    crcTreeCache2.erase(cacheKey);
+//                }
+//            }
             safeMutexFTPProgress.ReleaseLock();
             // END
 
@@ -2045,36 +2046,37 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             Checksum::clearFileCache();
 
             vector<string> paths        = Config::getInstance().getPathListForType(ptTechs);
-            string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
-            std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+            //string cacheLookupId        =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
+            //std::map<string,int32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
             string pathSearchString     = string("/") + itemName + string("/*");
             const string filterFileExt  = ".xml";
+            clearFolderTreeContentsCheckSum(paths, pathSearchString, filterFileExt);
+            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 
-            string cacheKey = "";
-            size_t count = paths.size();
-            for(size_t idx = 0; idx < count; ++idx) {
-                string path = paths[idx] + pathSearchString;
+//            string cacheKey = "";
+//            size_t count = paths.size();
+//            for(size_t idx = 0; idx < count; ++idx) {
+//                string path = paths[idx] + pathSearchString;
+//
+//                cacheKey += path + "_" + filterFileExt + "_";
+//            }
+//            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
+//                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+//                crcTreeCache.erase(cacheKey);
+//            }
 
-                cacheKey += path + "_" + filterFileExt + "_";
-            }
-            if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
-                crcTreeCache.erase(cacheKey);
-            }
-
-            cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
-            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
-
-            count = paths.size();
-            for(size_t idx = 0; idx < count; ++idx) {
-                string path = paths[idx] + pathSearchString;
-
-                string cacheKey = path + "_" + filterFileExt;
-                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
-                    crcTreeCache2.erase(cacheKey);
-                }
-            }
+//            string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
+//            std::map<string,int32> &crcTreeCache2 = CacheManager::getCachedItem< std::map<string,int32> >(cacheLookupId);
+//
+//            for(size_t idx = 0; idx < paths.size(); ++idx) {
+//                string path = paths[idx] + pathSearchString;
+//
+//                string cacheKey = path + "_" + filterFileExt;
+//                if(crcTreeCache2.find(cacheKey) != crcTreeCache2.end()) {
+//                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] CLEARING CACHED checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str());
+//                    crcTreeCache2.erase(cacheKey);
+//                }
+//            }
             safeMutexFTPProgress.ReleaseLock();
             // END
 
