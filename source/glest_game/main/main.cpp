@@ -647,6 +647,11 @@ void MainWindow::eventKeyDown(char key){
     	throw runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
     }
 
+    //{
+    //Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+    //printf("----------------------- key [%d] CameraModeLeft [%d]\n",key,configKeys.getCharKey("CameraModeLeft"));
+    //}
+
 	program->keyDown(key);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
