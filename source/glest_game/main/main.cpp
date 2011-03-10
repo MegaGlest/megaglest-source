@@ -942,64 +942,98 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled  		= config.getBool("DebugSound","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
 
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
+        	userData += "/";
+        }
+    }
+
     string debugLogFile 			= config.getString("DebugLogFile","");
     if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLogFile;
     }
+    else {
+    	debugLogFile = userData + debugLogFile;
+    }
+
+    //printf("debugLogFile [%s]\n",debugLogFile.c_str());
+
     string debugWorldSynchLogFile 	= config.getString("DebugLogFileWorldSynch","");
     if(debugWorldSynchLogFile == "") {
         debugWorldSynchLogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugWorldSynchLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugWorldSynchLogFile;
+    }
+    else {
+    	debugWorldSynchLogFile = userData + debugWorldSynchLogFile;
     }
 
     string debugPerformanceLogFile = config.getString("DebugLogFilePerformance","");
     if(debugPerformanceLogFile == "") {
         debugPerformanceLogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugPerformanceLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugPerformanceLogFile;
+    }
+    else {
+    	debugPerformanceLogFile = userData + debugPerformanceLogFile;
     }
 
     string debugNetworkLogFile = config.getString("DebugLogFileNetwork","");
     if(debugNetworkLogFile == "") {
         debugNetworkLogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugNetworkLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugNetworkLogFile;
+    }
+    else {
+    	debugNetworkLogFile = userData + debugNetworkLogFile;
     }
 
     string debugUnitCommandsLogFile = config.getString("DebugLogFileUnitCommands","");
     if(debugUnitCommandsLogFile == "") {
         debugUnitCommandsLogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+    }
+    else {
+    	debugUnitCommandsLogFile = userData + debugUnitCommandsLogFile;
     }
 
     string debugPathFinderLogFile = config.getString("DebugLogFilePathFinder","");
-    if(debugUnitCommandsLogFile == "") {
-        debugUnitCommandsLogFile = debugLogFile;
+    if(debugPathFinderLogFile == "") {
+    	debugPathFinderLogFile = debugLogFile;
+    }
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+    	debugPathFinderLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugPathFinderLogFile;
     }
     else {
-        debugUnitCommandsLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugUnitCommandsLogFile;
+    	debugPathFinderLogFile = userData + debugPathFinderLogFile;
     }
 
     string debugLUALogFile = config.getString("DebugLogFileLUA","");
     if(debugLUALogFile == "") {
         debugLUALogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugLUALogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugLUALogFile;
+    }
+    else {
+    	debugLUALogFile = userData + debugLUALogFile;
     }
 
     string debugSoundLogFile = config.getString("DebugLogFileSound","");
     if(debugSoundLogFile == "") {
         debugSoundLogFile = debugLogFile;
     }
-    else {
+    else if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
         debugSoundLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + debugSoundLogFile;
+    }
+    else {
+    	debugSoundLogFile = userData + debugSoundLogFile;
     }
 
     string debugErrorLogFile = config.getString("DebugLogFileError","");
@@ -1015,16 +1049,25 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     SystemFlags::getSystemSettingType(SystemFlags::debugError).debugLogFileName  	   = debugErrorLogFile;
 
     if(haveSpecialOutputCommandLineOption == false) {
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Startup settings are: debugSystem [%d], debugNetwork [%d], debugPerformance [%d], debugWorldSynch [%d], debugUnitCommands[%d], debugPathFinder[%d], debugLUA [%d], debugSound [%d], debugError [%d]\n",
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--- Startup log settings are ---\ndebugSystem [%d][%s]\ndebugNetwork [%d][%s]\ndebugPerformance [%d][%s]\ndebugWorldSynch [%d][%s]\ndebugUnitCommands[%d][%s]\ndebugPathFinder[%d][%s]\ndebugLUA [%d][%s]\ndebugSound [%d][%s]\ndebugError [%d][%s]\n",
                 SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled,
+                debugLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled,
+                debugNetworkLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled,
+                debugPerformanceLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled,
+                debugWorldSynchLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled,
+                debugUnitCommandsLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled,
+                debugPathFinderLogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled,
+                debugLUALogFile.c_str(),
                 SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled,
-                SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled);
+                debugSoundLogFile.c_str(),
+                SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled,
+                debugErrorLogFile.c_str());
     }
 }
 
