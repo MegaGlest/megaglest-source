@@ -43,9 +43,13 @@ private:
 	PropertyVector propertyVector;
 	PropertyMap propertyMap;
 	string path;
+	static string applicationPath;
 
 	bool applyTagsToValue(string &value);
 public:
+	static void setApplicationPath(string value) { applicationPath=value; }
+	static string getApplicationPath() { return applicationPath; }
+
 	void clear();
 	void load(const string &path);
 	void save(const string &path);
