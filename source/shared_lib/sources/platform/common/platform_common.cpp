@@ -442,7 +442,7 @@ bool hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 			int res = fscanf(fp,"%ld,%d",&refreshDate,&crcValue);
 			fclose(fp);
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found CRC Cache file [%s] now = %ld, refreshDate = %ld, crcValue = %d\n",crcCacheFile.c_str(),time(NULL), refreshDate,crcValue);
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found CRC Cache file [%s] now = %ld, refreshDate = %ld, crcValue = %d\n",crcCacheFile.c_str(),time(NULL), refreshDate,crcValue);
 
 			if(	refreshDate > 0 &&
 				time(NULL) < refreshDate) {
@@ -509,7 +509,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	}
 
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
 	int32 crcValue = 0;
 	if(hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
@@ -584,7 +584,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	}
 
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
 	int32 crcValue = 0;
 	if(hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
