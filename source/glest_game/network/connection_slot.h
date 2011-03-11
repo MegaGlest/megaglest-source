@@ -122,6 +122,7 @@ private:
 	string versionString;
 	int sessionKey;
 	uint32 connectedRemoteIPAddress;
+	int playerStatus;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -174,6 +175,8 @@ public:
 	void validateConnection();
 	virtual string getHumanPlayerName(int index=-1);
 	virtual int getHumanPlayerIndex() const {return playerIndex;}
+
+	int getNetworkPlayerStatus() const { return playerStatus;}
 
 protected:
 

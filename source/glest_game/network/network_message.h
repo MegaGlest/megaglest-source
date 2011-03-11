@@ -197,6 +197,7 @@ private:
 		NetworkString<maxSmallStringSize> tech;
 		NetworkString<maxSmallStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
 		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
+		int32 networkPlayerStatuses[GameConstants::maxPlayers]; //networkPlayerStatuses
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
@@ -573,7 +574,15 @@ enum SwitchSetupRequestFlagType {
 	ssrft_CurrentFactionIndex	= 0x02,
 	ssrft_ToFactionIndex		= 0x04,
 	ssrft_ToTeam				= 0x08,
-	ssrft_NetworkPlayerName		= 0x10
+	ssrft_NetworkPlayerName		= 0x10,
+	ssrft_PlayerStatus			= 0x20
+};
+
+enum NetworkPlayerStatusType {
+	npst_None					= 0x00,
+	npst_PickSettings			= 0x01,
+	npst_BeRightBack			= 0x02,
+	npst_Ready					= 0x04
 };
 
 #pragma pack(push, 1)
@@ -583,13 +592,14 @@ private:
 	static const int maxPlayernameStringSize= 80;
 
 private:
-	struct Data{
+	struct Data {
 		int8 messageType;
 		NetworkString<maxStringSize> selectedFactionName; //wanted faction name
 		int8 currentFactionIndex;
 		int8 toFactionIndex;
 		int8 toTeam;
 		NetworkString<maxPlayernameStringSize> networkPlayerName;
+		int8 networkPlayerStatus;
 		int8 switchFlags;
 	};
 
@@ -599,7 +609,8 @@ private:
 public:
 	SwitchSetupRequest();
 	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex,
-						int8 toFactionIndex,int8 toTeam,string networkPlayerName, int8 flags);
+						int8 toFactionIndex,int8 toTeam,string networkPlayerName,
+						int8 networkPlayerStatus, int8 flags);
 
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
 	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
@@ -609,6 +620,8 @@ public:
 	int getSwitchFlags() const				{return data.switchFlags;}
 	void addSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags |= flag;}
 	void clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
+
+	int getNetworkPlayerStatus()			{ return data.networkPlayerStatus; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

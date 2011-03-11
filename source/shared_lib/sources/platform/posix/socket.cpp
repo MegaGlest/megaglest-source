@@ -753,6 +753,10 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 
 Socket::Socket(PLATFORM_SOCKET sock) {
 	//this->pingThread = NULL;
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	this->inSocketDestructor = false;
+	safeMutexSocketDestructorFlag.ReleaseLock();
+
 	this->sock= sock;
 	this->connectedIpAddress = "";
 }
@@ -761,6 +765,10 @@ Socket::Socket() {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//this->pingThread = NULL;
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	this->inSocketDestructor = false;
+	safeMutexSocketDestructorFlag.ReleaseLock();
+
 	this->connectedIpAddress = "";
 
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -822,6 +830,10 @@ void Socket::simpleTask(BaseThread *callingThread)  {
 Socket::~Socket()
 {
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	this->inSocketDestructor = true;
+	safeMutexSocketDestructorFlag.ReleaseLock();
 
     disconnectSocket();
 
@@ -1037,6 +1049,12 @@ int Socket::send(const void *data, int dataSize) {
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		errno = 0;
 
+    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	if(this->inSocketDestructor == true) {
+    		return -1;
+    	}
+    	safeMutexSocketDestructorFlag.ReleaseLock();
+
 		MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,string(__FILE__) + "_" + intToStr(__LINE__));
 
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1071,6 +1089,12 @@ int Socket::send(const void *data, int dataSize) {
 
             if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+
+	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	if(this->inSocketDestructor == true) {
+	        		return -1;
+	        	}
+	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,string(__FILE__) + "_" + intToStr(__LINE__));
 #ifdef __APPLE__
@@ -1112,6 +1136,12 @@ int Socket::send(const void *data, int dataSize) {
 
             if(isConnected() == true) {
 	        	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+
+	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	if(this->inSocketDestructor == true) {
+	        		return -1;
+	        	}
+	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
                 MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,string(__FILE__) + "_" + intToStr(__LINE__));
 	        	const char *sendBuf = (const char *)data;
@@ -1173,6 +1203,12 @@ int Socket::receive(void *data, int dataSize) {
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
+    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	if(this->inSocketDestructor == true) {
+    		return -1;
+    	}
+    	safeMutexSocketDestructorFlag.ReleaseLock();
+
 		MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + "_" + intToStr(__LINE__));
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	    safeMutex.ReleaseLock();
@@ -1195,6 +1231,12 @@ int Socket::receive(void *data, int dataSize) {
 	            break;
 	        }
 	        else if(Socket::isReadable() == true) {
+	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	if(this->inSocketDestructor == true) {
+	        		return -1;
+	        	}
+	        	safeMutexSocketDestructorFlag.ReleaseLock();
+
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + "_" + intToStr(__LINE__));
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
                 safeMutex.ReleaseLock();
@@ -1223,6 +1265,12 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	ssize_t err = 0;
 	if(isSocketValid() == true) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	if(this->inSocketDestructor == true) {
+    		return -1;
+    	}
+    	safeMutexSocketDestructorFlag.ReleaseLock();
 
 		//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
@@ -1265,6 +1313,13 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	        }
 */
 	        if(Socket::isReadable() == true) {
+
+	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	if(this->inSocketDestructor == true) {
+	        		return -1;
+	        	}
+	        	safeMutexSocketDestructorFlag.ReleaseLock();
+
 	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(sock) + "_" + intToStr(dataSize));
 	        	MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + string("_") + intToStr(__LINE__));
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
@@ -1334,6 +1389,12 @@ bool Socket::isReadable() {
 
 	int i = 0;
 	{
+    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	if(this->inSocketDestructor == true) {
+    		return false;
+    	}
+    	safeMutexSocketDestructorFlag.ReleaseLock();
+
 		MutexSafeWrapper safeMutex(&dataSynchAccessorRead,string(__FILE__) + "_" + intToStr(__LINE__));
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
@@ -1357,6 +1418,12 @@ bool Socket::isWritable() {
 
 	int i = 0;
 	{
+    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	if(this->inSocketDestructor == true) {
+    		return false;
+    	}
+    	safeMutexSocketDestructorFlag.ReleaseLock();
+
 		MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,string(__FILE__) + "_" + intToStr(__LINE__));
 		i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	}

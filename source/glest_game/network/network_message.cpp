@@ -232,6 +232,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	for(int i= 0; i<data.factionCount; ++i) {
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
+		data.networkPlayerStatuses[i] = gameSettings->getNetworkPlayerStatuses(i);
 		data.factionControls[i]= gameSettings->getFactionControl(i);
 		data.resourceMultiplierIndex[i]= gameSettings->getResourceMultiplierIndex(i);
 		data.teams[i]= gameSettings->getTeam(i);
@@ -266,6 +267,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	for(int i= 0; i<data.factionCount; ++i) {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
+		gameSettings->setNetworkPlayerStatuses(i, data.networkPlayerStatuses[i]);
 		gameSettings->setFactionControl(i, static_cast<ControlType>(data.factionControls[i]));
 		gameSettings->setResourceMultiplierIndex(i,data.resourceMultiplierIndex[i]);
 		gameSettings->setTeam(i, data.teams[i]);
@@ -933,18 +935,20 @@ SwitchSetupRequest::SwitchSetupRequest() {
 	data.toFactionIndex=-1;
     data.toTeam = -1;
     data.networkPlayerName="";
+    data.networkPlayerStatus = npst_None;
     data.switchFlags = ssrft_None;
 }
 
 SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 										int8 toFactionIndex,int8 toTeam,string networkPlayerName,
-										int8 flags) {
+										int8 networkPlayerStatus, int8 flags) {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
 	data.currentFactionIndex=currentFactionIndex;
 	data.toFactionIndex=toFactionIndex;
     data.toTeam = toTeam;
     data.networkPlayerName=networkPlayerName;
+    data.networkPlayerStatus=networkPlayerStatus;
     data.switchFlags = flags;
 }
 

@@ -93,6 +93,9 @@ private:
 
 	GraphicLabel *activeInputLabel;
 
+	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
+	GraphicListBox listBoxPlayerStatus;
+
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
@@ -193,6 +196,8 @@ private:
 
 	void SetActivePlayerNameEditor();
 	void cleanup();
+
+	int32 getNetworkPlayerStatus();
 };
 
 }}//end namespace

@@ -121,6 +121,9 @@ protected:
 	Mutex dataSynchAccessorRead;
 	Mutex dataSynchAccessorWrite;
 
+	Mutex inSocketDestructorSynchAccessor;
+	bool inSocketDestructor;
+
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
