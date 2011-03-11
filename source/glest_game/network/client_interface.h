@@ -94,7 +94,7 @@ public:
 	
 	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 								int8 toFactionIndex, int8 toTeam,string networkPlayerName,
-								int8 flags);
+								int8 networkPlayerStatus, int8 flags);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::string getServerIpAddress();
 

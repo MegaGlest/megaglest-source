@@ -245,6 +245,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->sessionKey 		= 0;
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
+	this->playerStatus		= 0;
 	this->currentFrameCount = 0;
 	this->currentLagCount	= 0;
 	this->gotLagCountWarning = false;
@@ -334,6 +335,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						this->connectedTime = time(NULL);
 						this->clearChatInfo();
 						this->name = "";
+						this->playerStatus = npst_PickSettings;
 						this->ready = false;
 						this->vctFileList.clear();
 						this->receivedNetworkGameStatus = false;
@@ -745,7 +747,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									}
 									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
 
-									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getSwitchFlags());
+									this->playerStatus = switchSetupRequest.getNetworkPlayerStatus();
+
+									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
 								}
 							}
 							break;

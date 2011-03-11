@@ -102,7 +102,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     enableFactionTexturePreview = config.getBool("FactionPreview","true");
     enableMapPreview = config.getBool("MapPreview","true");
 
-	vector<string> teamItems, controlItems, results, rMultiplier;
+	vector<string> teamItems, controlItems, results, rMultiplier, playerStatuses;
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-30;
@@ -272,11 +272,21 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelTechTree.setText(lang.get("TechTree"));
 
 
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(10, 600, 150);
+	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.get("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//list boxes
 	xoffset=100;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
+		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
+		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
+
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
 		labelPlayers[i].init(xoffset+0, setupPos-30-i*rowHeight);
 		labelPlayers[i].setEditable(false);
@@ -359,6 +369,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	}
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
+		labelPlayerStatus[i].setText("");
+
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
 		labelPlayerNames[i].setText("");
 
@@ -576,7 +588,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 						if(clientInterface->isConnected()) {
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),i,-1,listBoxTeams[i].getSelectedItemIndex(),getHumanPlayerName(),switchSetupRequestFlagType);
+							clientInterface->sendSwitchSetupRequest(
+									listBoxFactions[i].getSelectedItem(),i,-1,
+									listBoxTeams[i].getSelectedItemIndex(),
+									getHumanPlayerName(),
+									getNetworkPlayerStatus(),
+									switchSetupRequestFlagType);
 							switchSetupRequestFlagType=ssrft_None;
 						}
 						break;
@@ -587,7 +604,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						if(clientInterface->isConnected()) {
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(),i,-1,listBoxTeams[i].getSelectedItemIndex(),getHumanPlayerName(),switchSetupRequestFlagType);
+							clientInterface->sendSwitchSetupRequest(
+									listBoxFactions[i].getSelectedItem(),i,-1,
+									listBoxTeams[i].getSelectedItemIndex(),
+									getHumanPlayerName(),
+									getNetworkPlayerStatus(),
+									switchSetupRequestFlagType);
 							switchSetupRequestFlagType=ssrft_None;
 						}
 						break;
@@ -600,7 +622,13 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						clientInterface->setGameSettingsReceived(false);
 						settingsReceivedFromServer=false;
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
-						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),myCurrentIndex,i,listBoxTeams[myCurrentIndex].getSelectedItemIndex(),labelPlayerNames[myCurrentIndex].getText(),switchSetupRequestFlagType);
+						clientInterface->sendSwitchSetupRequest(
+								listBoxFactions[myCurrentIndex].getSelectedItem(),
+								myCurrentIndex,i,
+								listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
+								labelPlayerNames[myCurrentIndex].getText(),
+								getNetworkPlayerStatus(),
+								switchSetupRequestFlagType);
 						labelPlayerNames[myCurrentIndex].setText("");
 						labelPlayerNames[i].setText("");
 						switchSetupRequestFlagType=ssrft_None;
@@ -613,6 +641,25 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						setActiveInputLabel(&labelPlayerNames[i]);
 					}
 				}
+			}
+		}
+
+		if(listBoxPlayerStatus.mouseClick(x,y)) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			soundRenderer.playFx(coreData.getClickSoundC());
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
+			if(clientInterface->isConnected()) {
+				clientInterface->setGameSettingsReceived(false);
+				clientInterface->sendSwitchSetupRequest(
+						listBoxFactions[clientInterface->getPlayerIndex()].getSelectedItem(),
+						clientInterface->getPlayerIndex(),-1,
+						listBoxTeams[clientInterface->getPlayerIndex()].getSelectedItemIndex(),
+						getHumanPlayerName(),
+						getNetworkPlayerStatus(),
+						switchSetupRequestFlagType);
+				switchSetupRequestFlagType=ssrft_None;
 			}
 		}
 	}
@@ -707,9 +754,6 @@ void MenuStateConnectedGame::render() {
 		// START - this code ensure player title and player names don't overlap
 		int offsetPosition=0;
 	    for(int i=0; i < GameConstants::maxPlayers; ++i) {
-	    	//labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-			//labelPlayers[i].init(xoffset+50, setupPos-30-i*rowHeight);
-
 			const Metrics &metrics= Metrics::getInstance();
 			const FontMetrics *fontMetrics= CoreData::getInstance().getMenuFontNormal()->getMetrics();
 			if(fontMetrics == NULL) {
@@ -726,7 +770,11 @@ void MenuStateConnectedGame::render() {
 	    }
 	    // END
 
+	    renderer.renderListBox(&listBoxPlayerStatus);
+
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			renderer.renderLabel(&labelPlayerStatus[i]);
+
 			if(crcPlayerTextureCache[i] != NULL) {
 				// Render the player # label the player's color
 				Vec3f playerColor = crcPlayerTextureCache[i]->getPixmap()->getPixel3f(0, 0);
@@ -936,7 +984,7 @@ void MenuStateConnectedGame::update() {
                 						  (tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()) ||
                 						  (techCRC != 0 && techCRC != gameSettings->getTechCRC()));
 
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d]\ntilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\ntechCRC [%d] gameSettings->getTechCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
+                //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d]\ntilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\ntechCRC [%d] gameSettings->getTechCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
 
                 if(dataSynchMismatch == true) {
                     string labelSynch = lang.get("DataNotSynchedTitle");
@@ -1349,6 +1397,8 @@ void MenuStateConnectedGame::update() {
 					listBoxControls[i].setSelectedItemIndex(ctClosed);
 					listBoxFactions[i].setEditable(false);
 					listBoxTeams[i].setEditable(false);
+
+					labelPlayerStatus[i].setText("");
 				}
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1357,18 +1407,39 @@ void MenuStateConnectedGame::update() {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);
 
 					for(int i=0; i<gameSettings->getFactionCount(); ++i){
-						int slot=gameSettings->getStartLocationIndex(i);
+						int slot = gameSettings->getStartLocationIndex(i);
+
+						if(gameSettings != NULL) {
+							if(	gameSettings->getFactionControl(i) == ctNetwork ||
+								gameSettings->getFactionControl(i) == ctHuman) {
+								switch(gameSettings->getNetworkPlayerStatuses(i)) {
+									case npst_BeRightBack:
+										labelPlayerStatus[slot].setText(lang.get("PlayerStatusBeRightBack"));
+										break;
+									case npst_Ready:
+										labelPlayerStatus[slot].setText(lang.get("PlayerStatusReady"));
+										break;
+									case npst_PickSettings:
+										labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
+										break;
+									default:
+										labelPlayerStatus[slot].setText("");
+										break;
+								}
+							}
+						}
+
+
 						listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
 						listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplierIndex(i)));
 						listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 						//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
 						listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
-
 						if(gameSettings->getFactionControl(i) == ctNetwork ){
 							labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
-							if(gameSettings->getThisFactionIndex() != i &&
-									gameSettings->getNetworkPlayerName(i) != "" &&
-									gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+							if( gameSettings->getThisFactionIndex() != i &&
+								gameSettings->getNetworkPlayerName(i) != "" &&
+								gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
 								labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 							}
 						}
@@ -1450,7 +1521,11 @@ void MenuStateConnectedGame::update() {
 					clientInterface->getIntroDone() == true &&
 					(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getHumanPlayerName() = [%s], clientInterface->getGameSettings()->getThisFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,getHumanPlayerName().c_str(),clientInterface->getGameSettings()->getThisFactionIndex());
-					clientInterface->sendSwitchSetupRequest("",clientInterface->getPlayerIndex(),-1,-1,getHumanPlayerName(),switchSetupRequestFlagType);
+					clientInterface->sendSwitchSetupRequest("",
+							clientInterface->getPlayerIndex(),-1,-1,
+							getHumanPlayerName(),
+							getNetworkPlayerStatus(),
+							switchSetupRequestFlagType);
 
 					switchSetupRequestFlagType=ssrft_None;
 				}
@@ -1882,6 +1957,23 @@ void MenuStateConnectedGame::showFTPMessageBox(const string &text, const string 
 	else {
 		ftpMessageBox.setEnabled(false);
 	}
+}
+
+int32 MenuStateConnectedGame::getNetworkPlayerStatus() {
+	int32 result = npst_None;
+	switch(listBoxPlayerStatus.getSelectedItemIndex()) {
+		case 2:
+			result = npst_Ready;
+			break;
+		case 1:
+			result = npst_BeRightBack;
+			break;
+		case 0:
+			result = npst_PickSettings;
+			break;
+	}
+
+	return result;
 }
 
 void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result, void *userdata) {

@@ -44,6 +44,7 @@ private:
 	string scenarioDir;
 	string factionTypeNames[GameConstants::maxPlayers]; //faction names
 	string networkPlayerNames[GameConstants::maxPlayers];
+	int    networkPlayerStatuses[GameConstants::maxPlayers];
 
 	ControlType factionControls[GameConstants::maxPlayers];
 	int resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -88,6 +89,7 @@ public:
     	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
+    		networkPlayerStatuses[i] = 0;
     		factionControls[i] = ctClosed;
     		resourceMultiplierIndex[i] = 1.0f;
     		teams[i] = 0;
@@ -112,6 +114,8 @@ public:
 	const string &getScenarioDir() const						{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
 	const string &getNetworkPlayerName(int factionIndex) const  {return networkPlayerNames[factionIndex];}
+	const int    getNetworkPlayerStatuses(int factionIndex) const { return networkPlayerStatuses[factionIndex];}
+
 	const string getNetworkPlayerNameByPlayerIndex(int playerIndex) const  {
 		string result = "";
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -168,8 +172,9 @@ public:
 
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
+	void setNetworkPlayerStatuses(int factionIndex,int status)    			{this->networkPlayerStatuses[factionIndex]= status;}
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
-	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)		{this->resourceMultiplierIndex[factionIndex]= multiplierIndex;}
+	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)	{this->resourceMultiplierIndex[factionIndex]= multiplierIndex;}
 
 	void setThisFactionIndex(int thisFactionIndex) 							{this->thisFactionIndex= thisFactionIndex;}
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}

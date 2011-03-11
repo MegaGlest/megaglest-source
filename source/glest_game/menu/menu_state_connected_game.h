@@ -87,6 +87,9 @@ private:
 	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	GraphicButton grabSlotButton[GameConstants::maxPlayers];
 
+	GraphicListBox listBoxPlayerStatus;
+	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
+
 	GraphicLabel labelAllowObservers;
 	GraphicListBox listBoxAllowObservers;
 
@@ -187,6 +190,8 @@ private:
 
     void showFTPMessageBox(const string &text, const string &header, bool toggle);
     virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result,void *userdata);
+
+    int32 getNetworkPlayerStatus();
 };
 
 }}//end namespace
