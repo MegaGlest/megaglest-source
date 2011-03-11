@@ -585,6 +585,8 @@ char Config::translateStringToCharKey(const string &value) const {
 		throw runtime_error(sError.c_str());
 	}
 
+	// Because SDL is based on lower Ascii
+	result = tolower(result);
 	return result;
 }
 
