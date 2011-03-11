@@ -97,6 +97,10 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
 
+    if(fileMustExist.first == true && fileExists(fileName.first) == false) {
+    	string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
+    	fileName.first = currentpath + fileName.first;
+    }
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.first = [%s]\n",fileName.first.c_str());
@@ -118,7 +122,6 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
         else if(properties.first.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
         	fileName.second = properties.first.getString("UserOverrideFile") + fileNameParameter.second;
         }
-
     }
     else if(cfgType.first == cfgMainKeys) {
         Config &mainCfg = Config::getInstance();
