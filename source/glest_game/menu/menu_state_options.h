@@ -96,6 +96,12 @@ private:
 	GraphicLabel labelFTPServerDataPortsLabel;
 	GraphicLabel labelFTPServerDataPorts;
 
+	GraphicLabel labelEnableFTPServerInternetTilesetXfer;
+	GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
+
+	GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
+	GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
+
 	GraphicLabel labelEnablePrivacy;
 	GraphicCheckBox checkBoxEnablePrivacy;
 

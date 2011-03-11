@@ -41,7 +41,7 @@ double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 2;
 const int MAX_SLOT_THREAD_WAIT_TIME 					= 3;
 const int MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS 	= 30;
 
-ServerInterface::ServerInterface() :GameNetworkInterface() {
+ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	nextEventId 					= 1;
@@ -105,11 +105,23 @@ ServerInterface::ServerInterface() :GameNetworkInterface() {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
 		ServerSocket::setFTPServerPort(portNumber);
+
+		bool allowInternetTilesetFileTransfers = Config::getInstance().getBool("EnableFTPServerInternetTilesetXfer","true");
+		bool allowInternetTechtreeFileTransfers = Config::getInstance().getBool("EnableFTPServerInternetTechtreeXfer","true");
+
 		ftpServer = new FTPServerThread(mapsPath,tilesetsPath,techtreesPath,
-									portNumber,GameConstants::maxPlayers,this);
+				publishEnabled,
+				allowInternetTilesetFileTransfers, allowInternetTechtreeFileTransfers,
+				portNumber,GameConstants::maxPlayers,this);
 		ftpServer->start();
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ServerInterface::setPublishEnabled(bool value) {
+	if(ftpServer != NULL) {
+		ftpServer->setInternetEnabled(value);
+	}
 }
 
 ServerInterface::~ServerInterface() {

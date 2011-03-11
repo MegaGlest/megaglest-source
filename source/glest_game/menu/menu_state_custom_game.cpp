@@ -87,7 +87,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	serverInitError = false;
 	try {
-		networkManager.init(nrServer);
+		networkManager.init(nrServer,openNetworkSlots);
 	}
 	catch(const std::exception &ex) {
 		serverInitError = true;
@@ -95,7 +95,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-		//throw runtime_error(szBuf);!!!
+		//throw runtime_error(szBuf);
 		showGeneralError=true;
 		generalErrorToShow = ex.what();
 
@@ -314,10 +314,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxPublishServer.init(50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
-	if(openNetworkSlots)
+	if(openNetworkSlots) {
 		listBoxPublishServer.setSelectedItemIndex(0);
-	else
+	}
+	else {
 		listBoxPublishServer.setSelectedItemIndex(1);
+	}
 
 	// Network Frame Period
 	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
@@ -792,6 +794,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
             needToRepublishToMasterserver = true;
             soundRenderer.playFx(coreData.getClickSoundC());
+
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
         }
         else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1445,6 +1450,9 @@ void MenuStateCustomGame::update() {
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
 
 			listBoxPublishServer.setSelectedItemIndex(1);
+
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
 		}
 		else if(showGeneralError) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1734,6 +1742,9 @@ void MenuStateCustomGame::update() {
 		{
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
+
+            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
 			//listBoxEnableServerControlledAI.setEditable(false);
 		}
 
