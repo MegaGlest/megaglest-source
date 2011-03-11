@@ -149,6 +149,9 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 			std::ofstream userFile;
 			userFile.open(fileName.second.c_str(), ios_base::out | ios_base::trunc);
 			userFile.close();
+
+			fileLoaded.second = true;
+			properties.second.load(fileName.second);
 		}
     }
     catch(const exception &ex) {
