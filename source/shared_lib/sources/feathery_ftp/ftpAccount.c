@@ -48,6 +48,21 @@ typedef struct
  */
 LOCAL ftpUserAccount_S ftpUsers[MAX_USERS];
 
+
+int ftpDeleteAccount(const char* name)
+{
+	int n;
+
+	n = ftpFindAccount(name);				// check if account already exists
+	if(n > 0)
+	{
+		ftpUsers[n - 1].name[0] = '\0';		// delete account
+		return 0;
+	}
+
+	return -1;
+}
+
 /**
  *  @brief Creates a new user account
  *

@@ -35,7 +35,7 @@ NetworkManager::NetworkManager() {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
-void NetworkManager::init(NetworkRole networkRole) {
+void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
 
 	assert(gameNetworkInterface==NULL);
@@ -44,7 +44,7 @@ void NetworkManager::init(NetworkRole networkRole) {
 
 	if(networkRole == nrServer) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
-		gameNetworkInterface = new ServerInterface();
+		gameNetworkInterface = new ServerInterface(publishEnabled);
 	}
 	else {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);

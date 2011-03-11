@@ -39,16 +39,23 @@ protected:
     int maxPlayers;
     static FTPClientValidationInterface *ftpValidationIntf;
 
+    bool internetEnabled;
+    bool allowInternetTilesetFileTransfers;
+    bool allowInternetTechtreeFileTransfers;
+
 public:
 
     FTPServerThread(std::pair<string,string> mapsPath,
     		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
+    		bool internetEnabledFlag,
+    		bool allowInternetTilesetFileTransfers, bool allowInternetTechtreeFileTransfers,
     		int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf);
     ~FTPServerThread();
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
 
+    void setInternetEnabled(bool value, bool forceChange=false);
     static void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
     static FTPClientValidationInterface * getFtpValidationIntf() { return ftpValidationIntf; }
 

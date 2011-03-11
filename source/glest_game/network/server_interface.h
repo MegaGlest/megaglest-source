@@ -74,7 +74,7 @@ private:
     bool inBroadcastMessage;
 
 public:
-	ServerInterface();
+	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
 
 	virtual Socket* getSocket()				{return &serverSocket;}
@@ -157,6 +157,8 @@ public:
         needToRepublishToMasterserver = value;
     }
 
+    void setPublishEnabled(bool value);
+
 public:
     Mutex *getServerSynchAccessor() {
         return &serverSynchAccessor;
@@ -165,6 +167,7 @@ public:
     virtual void simpleTask(BaseThread *callingThread);
     void addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp);
     virtual int isValidClientType(uint32 clientIp);
+
 private:
     void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
     void broadcastMessageToConnectedClients(const NetworkMessage *networkMessage, int excludeSlot = -1);

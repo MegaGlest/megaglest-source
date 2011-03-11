@@ -376,6 +376,28 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelFTPServerDataPorts.init(currentColumnStart,currentLine );
 	labelFTPServerDataPorts.setText(szBuf);
 	currentLine-=30;
+
+	labelEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTilesetXfer");
+	labelEnableFTPServerInternetTilesetXfer.init(currentLabelStart ,currentLine );
+	labelEnableFTPServerInternetTilesetXfer.setText(lang.get("EnableFTPServerInternetTilesetXfer"));
+
+	checkBoxEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTilesetXfer");
+	checkBoxEnableFTPServerInternetTilesetXfer.init(currentColumnStart ,currentLine );
+	checkBoxEnableFTPServerInternetTilesetXfer.setValue(config.getBool("EnableFTPServerInternetTilesetXfer","true"));
+
+	currentLine-=30;
+
+	labelEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTechtreeXfer");
+	labelEnableFTPServerInternetTechtreeXfer.init(currentLabelStart ,currentLine );
+	labelEnableFTPServerInternetTechtreeXfer.setText(lang.get("EnableFTPServerInternetTechtreeXfer"));
+
+	checkBoxEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTechtreeXfer");
+	checkBoxEnableFTPServerInternetTechtreeXfer.init(currentColumnStart ,currentLine );
+	checkBoxEnableFTPServerInternetTechtreeXfer.setValue(config.getBool("EnableFTPServerInternetTechtreeXfer","true"));
+
+	currentLine-=30;
+
+
     // FTP config end
 
 	// Privacy flag
@@ -546,6 +568,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxEnableFTP.mouseClick(x, y);
         checkBoxEnableFTPServer.mouseClick(x, y);
 
+        checkBoxEnableFTPServerInternetTilesetXfer.mouseClick(x, y);
+        checkBoxEnableFTPServerInternetTechtreeXfer.mouseClick(x, y);
+
         checkBoxEnablePrivacy.mouseClick(x, y);
 	}
 }
@@ -579,6 +604,9 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 
 	checkBoxEnableFTP.mouseMove(x, y);
 	checkBoxEnableFTPServer.mouseMove(x, y);
+
+    checkBoxEnableFTPServerInternetTilesetXfer.mouseMove(x, y);
+    checkBoxEnableFTPServerInternetTechtreeXfer.mouseMove(x, y);
 
 	checkBoxEnablePrivacy.mouseMove(x, y);
 }
@@ -692,6 +720,11 @@ void MenuStateOptions::render(){
         renderer.renderLabel(&labelFTPServerDataPortsLabel);
         renderer.renderLabel(&labelFTPServerDataPorts);
 
+        renderer.renderLabel(&labelEnableFTPServerInternetTilesetXfer);
+        renderer.renderCheckBox(&checkBoxEnableFTPServerInternetTilesetXfer);
+        renderer.renderLabel(&labelEnableFTPServerInternetTechtreeXfer);
+        renderer.renderCheckBox(&checkBoxEnableFTPServerInternetTechtreeXfer);
+
         renderer.renderLabel(&labelEnablePrivacy);
         renderer.renderCheckBox(&checkBoxEnablePrivacy);
 	}
@@ -732,6 +765,10 @@ void MenuStateOptions::saveConfig(){
 	config.setInt("FTPServerPort",config.getInt("MasterServerExternalPort")+1);
     config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
     config.setBool("EnableFTPServer", checkBoxEnableFTPServer.getValue());
+
+    config.setBool("EnableFTPServerInternetTilesetXfer", checkBoxEnableFTPServerInternetTilesetXfer.getValue());
+    config.setBool("EnableFTPServerInternetTechtreeXfer", checkBoxEnableFTPServerInternetTechtreeXfer.getValue());
+
     config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
