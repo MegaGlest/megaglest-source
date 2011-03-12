@@ -46,6 +46,7 @@ private:
 	bool texturesOwned[meshTextureCount];
 	string texturePaths[meshTextureCount];
 
+	string name;
 	//vertex data counts
 	uint32 frameCount;
 	uint32 vertexCount;
@@ -68,6 +69,8 @@ private:
 	//properties
 	bool twoSided;
 	bool customColor;
+
+	uint32 textureFlags;
 
 	InterpolationData *interpolationData;
 	TextureManager *textureManager;
@@ -128,11 +131,15 @@ public:
 	void updateInterpolationData(float t, bool cycle);
 	void updateInterpolationVertices(float t, bool cycle);
 
+	Texture2D *loadMeshTexture(TextureManager *textureManager, string textureFile,
+								int textureChannelCount, bool &textureOwned,
+								bool deletePixMapAfterLoad);
+
 	//load
 	void loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void loadV3(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void load(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void save(const string &dir, FILE *f);
+	void save(const string &dir, FILE *f, TextureManager *textureManager, string convertTextureToFormat);
 
 	void deletePixels();
 
@@ -185,9 +192,9 @@ public:
 
 	//io
 	void load(const string &path,bool deletePixMapAfterLoad=false);
-	void save(const string &path);
+	void save(const string &path, string convertTextureToFormat="");
 	void loadG3d(const string &path,bool deletePixMapAfterLoad=false);
-	void saveS3d(const string &path);
+	void saveG3d(const string &path, string convertTextureToFormat="");
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
 	void deletePixels();
