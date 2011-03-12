@@ -69,7 +69,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -147,7 +147,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
 				TargetMachine="1"
