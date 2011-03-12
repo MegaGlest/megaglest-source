@@ -12,6 +12,8 @@
 #include <wx/event.h>
 #include "config.h"
 #include "game_constants.h"
+#include <wx/stdpaths.h>
+//#include <wx/filename.h>
 
 #ifndef WIN32
   #define stricmp strcasecmp
@@ -108,7 +110,7 @@ bool hasCommandArgument(int argc, wxChar** argv,const string argName,
 	if(foundIndex != NULL) {
 		*foundIndex = -1;
 	}
-	int compareLen = strlen(argName.c_str());
+	size_t compareLen = strlen(argName.c_str());
 
 	for(int idx = startLookupIndex; idx < argc; idx++) {
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx]);
@@ -389,6 +391,35 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 	timer = new wxTimer(this);
 	timer->Start(100);
+
+	// For windows register g3d file extension to launch this app
+#ifdef WIN32
+	// example from: http://stackoverflow.com/questions/1387769/create-registry-entry-to-associate-file-extension-with-application-in-c
+	//[HKEY_CURRENT_USER\Software\Classes\blergcorp.blergapp.v1\shell\open\command]
+	//@="c:\path\to\app.exe \"%1\""
+	//[HKEY_CURRENT_USER\Software\Classes\.blerg]
+	//@="blergcorp.blergapp.v1"
+
+	//Open the registry key.
+	string subKey = "Software\\Classes\\megaglest.g3d\\shell\\open\\command";
+	HKEY keyHandle;
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+	//Set the value.
+	string launchApp = appPath + " \"%1\"";
+	DWORD len = launchApp.length() + 1;
+	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
+	RegCloseKey(keyHandle);
+
+	subKey = "Software\\Classes\\.g3d";
+	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+	//Set the value.
+	launchApp = "megaglest.g3d";
+	len = launchApp.length() + 1;
+	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
+	RegCloseKey(keyHandle);
+
+#endif
 }
 
 MainWindow::~MainWindow(){
@@ -2024,12 +2055,28 @@ bool App::OnInit(){
 	}
 
 	string appPath = "";
+
+//#if defined(__MINGW32__)
+//		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[0]));
+//		appPath = tmp_buf;
+//#else
+//		appPath = wxFNCONV(argv[0]);
+//#endif
+//	printf("appPath [%s]\n",argv[0]);
+	
+	wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
+    //wxString path_separator = wxFileName::GetPathSeparator();
+    //exe_path = exe_path.BeforeLast(path_separator[0]);
+    //exe_path += path_separator;
+
 #if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[0]));
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 		appPath = tmp_buf;
 #else
-		appPath = wxFNCONV(argv[0]);
+		appPath = wxFNCONV(exe_path);
 #endif
+
+//	printf("#2 appPath [%s]\n",appPath.c_str());
 
 	mainWindow= new MainWindow(	unitToLoad,
 								modelPath,
@@ -2068,4 +2115,4 @@ int App::OnExit(){
 
 }}//end namespace
 
-IMPLEMENT_APP(Shared::G3dViewer::App)
+IMPLEMENT_APP_CONSOLE(Shared::G3dViewer::App)
