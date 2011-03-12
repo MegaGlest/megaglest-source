@@ -99,6 +99,7 @@ const char  *GAME_ARGS[] = {
 	"--ini-path",
 	"--log-path",
 	"--show-ini-settings",
+	"--convert-model",
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--verbose"
@@ -122,6 +123,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
+	GAME_ARG_CONVERT_MODEL,
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_VERBOSE_MODE
@@ -859,6 +861,12 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tdisplays merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
 	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+
+	printf("\n%s=x=format\t\t\tconvert a model to current g3d format.",GAME_ARGS[GAME_ARG_CONVERT_MODEL]);
+	printf("\n                     \t\tWhere x is the filename for the g3d model.");
+	printf("\n                     \t\tWhere format is the optional texture format to convert to (default is png).");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODEL]);
+
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
@@ -1785,6 +1793,41 @@ int glestMain(int argc, char** argv) {
 
 		    delete mainWindow;
 		    return -1;
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_MODEL]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODEL]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODEL]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string modelFile = paramPartTokens[1];
+				string textureFormat = "png";
+				if(paramPartTokens.size() >= 3) {
+					textureFormat = paramPartTokens[2];
+				}
+
+				printf("About to convert model [%s] using texture format [%s]\n",modelFile.c_str(),textureFormat.c_str());
+
+				Model *model = renderer.newModel(rsGlobal);
+				model->load(modelFile);
+				model->save(modelFile,textureFormat);
+
+				//!!!
+				delete mainWindow;
+				return -1;
+
+			}
+			else {
+				printf("\nInvalid model name specified on commandline [%s] model [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return -1;
+			}
 		}
 
 		gameInitialized = true;
