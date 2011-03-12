@@ -187,7 +187,7 @@ void Program::keyDown(char key){
 
 	if(msgBox.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(key == vkEscape || key == vkReturn) {
+		if(key == vkEscape  || key == SDLK_ESCAPE || key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			msgBox.setEnabled(false);
 
