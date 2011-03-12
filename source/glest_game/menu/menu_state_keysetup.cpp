@@ -202,11 +202,8 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 
         Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
         string userKeysFile = configKeys.getFileName(true);
-#ifdef WIN32
-        int result = _unlink(userKeysFile.c_str());
-#else
-        int result = unlink(userKeysFile.c_str());
-#endif
+
+        bool result = removeFile(userKeysFile.c_str());
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         configKeys.reload();

@@ -139,7 +139,8 @@ public:
 	void loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void loadV3(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void load(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void save(const string &dir, FILE *f, TextureManager *textureManager, string convertTextureToFormat);
+	void save(const string &dir, FILE *f, TextureManager *textureManager,
+			string convertTextureToFormat, std::map<string,int> &textureDeleteList);
 
 	void deletePixels();
 
