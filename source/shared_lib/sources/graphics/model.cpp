@@ -411,7 +411,8 @@ void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,
 	}
 }
 
-void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager, string convertTextureToFormat) {
+void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager,
+		string convertTextureToFormat, std::map<string,int> &textureDeleteList) {
 	MeshHeader meshHeader;
 	memset(&meshHeader, 0, sizeof(struct MeshHeader));
 
@@ -465,15 +466,21 @@ void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager, stri
 
 					if(convertTextureToFormat == "tga") {
 						texture->getPixmap()->saveTga(file);
+
+						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
 					}
 					else if(convertTextureToFormat == "bmp") {
 						texture->getPixmap()->saveBmp(file);
+
+						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
 					}
 					//else if(convertTextureToFormat == "jpg") {
 					//	texture->getPixmap()->saveJpg(file);
 					//}
 					else  if(convertTextureToFormat == "png") {
 						texture->getPixmap()->savePng(file);
+
+						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
 					}
 					else {
 						throw runtime_error("Unsuppoted texture format: [" + convertTextureToFormat + "]");
@@ -645,44 +652,6 @@ void Model::save(const string &path, string convertTextureToFormat) {
 	}
 }
 
-/*void Model::loadG3dOld(const string &path){
-   try{
-		FILE *f=fopen(path.c_str(),"rb");
-		if (f==NULL){
-			throw runtime_error("Error opening 3d model file");
-		}
-
-		string dir= cutLastFile(path);
-
-		//read header
-		ModelHeaderOld modelHeader;
-		fread(&modelHeader, sizeof(ModelHeader), 1, f);
-		meshCount= modelHeader.meshCount;
-
-		if(modelHeader.id[0]!='G' || modelHeader.id[1]!='3' || modelHeader.id[2]!='D'){
-			throw runtime_error("Model: "+path+": is not a valid G3D model");
-		}
-
-		switch(modelHeader.version){
-		case 3:{
-			meshes= new Mesh[meshCount];
-			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].load(dir, f, textureManager);
-				meshes[i].buildInterpolationData();
-			}
-			break;
-		}
-		default:
-			throw runtime_error("Unknown model version");
-		}
-
-		fclose(f);
-    }
-	catch(exception &e){
-		throw runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
-	}
-}*/
-
 //load a model from a g3d file
 void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
@@ -769,23 +738,6 @@ void Model::saveG3d(const string &path, string convertTextureToFormat) {
 		throw runtime_error("Cant open file for writting: "+path);
 	}
 
-/*
-	ModelHeader modelHeader;
-	modelHeader.id[0]= 'G';
-	modelHeader.id[1]= '3';
-	modelHeader.id[2]= 'D';
-	modelHeader.version= 3;
-	modelHeader.meshCount= meshCount;
-
-	string dir= cutLastFile(path);
-
-	fwrite(&modelHeader, sizeof(ModelHeader), 1, f);
-	for(int i=0; i<meshCount; ++i){
-		meshes[i].save(dir, f);
-	}
-
-	fclose(f);*/
-
 	convertTextureToFormat = toLower(convertTextureToFormat);
 
 	//file header
@@ -797,7 +749,7 @@ void Model::saveG3d(const string &path, string convertTextureToFormat) {
 
 	fwrite(&fileHeader, sizeof(FileHeader), 1, f);
 
-	//version 4
+	// file versions
 	if(fileHeader.version == 4 || fileHeader.version == 3 || fileHeader.version == 2) {
 		//model header
 		ModelHeader modelHeader;
@@ -806,27 +758,17 @@ void Model::saveG3d(const string &path, string convertTextureToFormat) {
 
 		fwrite(&modelHeader, sizeof(ModelHeader), 1, f);
 
+		std::map<string,int> textureDeleteList;
 		for(uint32 i = 0; i < meshCount; ++i) {
-			meshes[i].save(path, f, textureManager,convertTextureToFormat);
+			meshes[i].save(path, f, textureManager,convertTextureToFormat,textureDeleteList);
 		}
-	}
-/*
-	//version 3
-	else if(fileHeader.version == 3) {
 
-		fwrite(&meshCount, sizeof(meshCount), 1, f);
-		for(uint32 i=0; i<meshCount; ++i){
-			meshes[i].saveV3(dir, f, textureManager,convertTextureToFormat);
+		// Now delete old textures since they were converted to a new format
+		for(std::map<string,int>::iterator iterMap = textureDeleteList.begin();
+			iterMap != textureDeleteList.end(); ++iterMap) {
+
 		}
 	}
-	//version 2
-	else if(fileHeader.version == 2) {
-		fwrite(&meshCount, sizeof(meshCount), 1, f);
-		for(uint32 i=0; i<meshCount; ++i){
-			meshes[i].saveV2(dir, f, textureManager,convertTextureToFormat);
-		}
-	}
-*/
 	else {
 		throw runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
 	}
