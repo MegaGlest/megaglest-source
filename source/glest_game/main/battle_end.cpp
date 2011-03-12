@@ -208,7 +208,7 @@ void BattleEnd::render(){
 
 void BattleEnd::keyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(key == vkEscape) {
+	if(key == vkEscape || key == SDLK_ESCAPE) {
 		//program->setState(new MainMenu(program));
 
 		if(mainMessageBox.getEnabled()) {

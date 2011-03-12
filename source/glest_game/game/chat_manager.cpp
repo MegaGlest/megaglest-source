@@ -58,8 +58,7 @@ void ChatManager::keyUp(char key) {
 		if(editEnabled) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
-			if(key == vkEscape)
-			{
+			if(key == vkEscape || key == SDLK_ESCAPE) {
 				text.clear();
 				editEnabled= false;
 			}
