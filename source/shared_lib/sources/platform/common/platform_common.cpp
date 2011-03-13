@@ -1375,12 +1375,7 @@ bool removeFile(string file) {
 }
 
 bool renameFile(string oldFile, string newFile) {
-#ifdef WIN32
-	int result = _rename(oldFile.c_str(),newFile.c_str());
-#else
 	int result = rename(oldFile.c_str(),newFile.c_str());
-#endif
-
     return (result == 0);
 }
 
