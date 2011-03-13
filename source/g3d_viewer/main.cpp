@@ -781,9 +781,9 @@ void MainWindow::saveScreenshot() {
 
 			string path = screenShotsPath;
 			if(isdir(path.c_str()) == true) {
-				//Config &config= Config::getInstance();
-				//string fileFormat = config.getString("ScreenShotFileType","png");
-				string fileFormat = "png";
+				Config &config= Config::getInstance();
+				string fileFormat = config.getString("ScreenShotFileType","png");
+				//string fileFormat = "png";
 
 				for(int i=0; i < 5000; ++i) {
 					path = screenShotsPath;

@@ -116,6 +116,23 @@ public:
 	virtual void write(uint8 *pixels);
 };
 
+class PixmapIoJpg: public PixmapIo {
+private:
+	FILE *file;
+	string path;
+
+public:
+	PixmapIoJpg();
+	virtual ~PixmapIoJpg();
+
+	virtual void openRead(const string &path);
+	virtual void read(uint8 *pixels);
+	virtual void read(uint8 *pixels, int components);
+
+	virtual void openWrite(const string &path, int w, int h, int components);
+	virtual void write(uint8 *pixels);
+};
+
 // =====================================================
 //	class Pixmap1D
 // =====================================================
@@ -179,6 +196,7 @@ public:
 	void saveBmp(const string &path);
 	void saveTga(const string &path);
 	void savePng(const string &path);
+	void saveJpg(const string &path);
 
 	//get 
 	int getW() const			{return w;}

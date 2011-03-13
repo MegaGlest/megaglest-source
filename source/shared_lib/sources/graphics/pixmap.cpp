@@ -22,6 +22,7 @@
 #include "FileReader.h"
 #include "ImageReaders.h"
 #include <png.h>
+#include <jpeglib.h>
 #include <setjmp.h>
 #include <memory>
 
@@ -559,6 +560,128 @@ void PixmapIoPng::write(uint8 *pixels) {
 */
 }
 
+
+
+
+
+
+
+// =====================================================
+//	class PixmapIoJpg
+// =====================================================
+
+PixmapIoJpg::PixmapIoJpg() {
+	file= NULL;
+}
+
+PixmapIoJpg::~PixmapIoJpg() {
+	if(file!=NULL){
+		fclose(file);
+		file=NULL;
+	}
+}
+
+void PixmapIoJpg::openRead(const string &path) {
+
+	throw runtime_error("PixmapIoJpg::openRead not implemented!");
+}
+
+void PixmapIoJpg::read(uint8 *pixels) {
+	throw runtime_error("PixmapIoJpg::read not implemented!");
+}
+
+void PixmapIoJpg::read(uint8 *pixels, int components) {
+
+	throw runtime_error("PixmapIoJpg::read #2 not implemented!");
+}
+
+void PixmapIoJpg::openWrite(const string &path, int w, int h, int components) {
+    this->path = path;
+	this->w= w;
+	this->h= h;
+	this->components= components;
+
+	file= fopen(path.c_str(),"wb");
+	if (file == NULL) {
+		throw runtime_error("Can't open JPG file for writing: "+ path);
+	}
+}
+
+void PixmapIoJpg::write(uint8 *pixels) {
+	/*
+	* alpha channel is not supported for jpeg. strip it.
+	*/
+	unsigned char * tmpbytes = NULL;
+	if(components == 4) {
+		int n = w * h;
+		unsigned char *dst = tmpbytes = (unsigned char *) malloc(n*3);
+		const unsigned char *src = pixels;
+		for (int i = 0; i < n; i++) {
+			*dst++ = *src++;
+			*dst++ = *src++;
+			*dst++ = *src++;
+			src++;
+		}
+		components = 3;
+	}
+
+	struct jpeg_compress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+
+	/* this is a pointer to one row of image data */
+	JSAMPROW row_pointer[1];
+
+	cinfo.err = jpeg_std_error( &jerr );
+	jpeg_create_compress(&cinfo);
+	jpeg_stdio_dest(&cinfo, file);
+
+	/* Setting the parameters of the output file here */
+	cinfo.image_width = w;
+	cinfo.image_height = h;
+	cinfo.input_components = 3; // no alpha channel for jpeg
+	cinfo.in_color_space = JCS_RGB;
+	/* default compression parameters, we shouldn't be worried about these */
+	jpeg_set_defaults( &cinfo );
+	/* Now do the compression .. */
+	jpeg_start_compress( &cinfo, TRUE );
+
+	/* use stripped alpha channel bytes */
+	if(tmpbytes) {
+		pixels = tmpbytes;
+	}
+
+	// OpenGL writes from bottom to top.
+    // libjpeg goes from top to bottom.
+    // flip lines.
+	uint8 *flip = (uint8 *)malloc(sizeof(uint8) * w * h * 3);
+
+	for (int y = 0;y < h; ++y) {
+		for (int x = 0;x < w; ++x) {
+			flip[(y * w + x) * 3] = pixels[((h - 1 - y) * w + x) * 3];
+			flip[(y * w + x) * 3 + 1] = pixels[((h - 1 - y) * w + x) * 3 + 1];
+			flip[(y * w + x) * 3 + 2] = pixels[((h - 1 - y) * w + x) * 3 + 2];
+		}
+	 }
+
+	/* like reading a file, this time write one row at a time */
+	while( cinfo.next_scanline < cinfo.image_height ) {
+		row_pointer[0] = &flip[ cinfo.next_scanline * cinfo.image_width *  cinfo.input_components];
+		jpeg_write_scanlines( &cinfo, row_pointer, 1 );
+	}
+	if (tmpbytes) {
+		free(tmpbytes);
+		tmpbytes=NULL;
+	}
+	free(flip);
+	flip=NULL;
+
+	/* similar to read file, clean up after we're done compressing */
+	jpeg_finish_compress( &cinfo );
+	jpeg_destroy_compress( &cinfo );
+	//fclose( outfile );
+	/* success code is 1! */
+}
+
 // =====================================================
 //	class Pixmap1D
 // =====================================================
@@ -774,6 +897,9 @@ void Pixmap2D::save(const string &path) {
 	else if(toLower(extension) == "tga") {
 		saveTga(path);
 	}
+	else if(toLower(extension) == "jpg") {
+		saveJpg(path);
+	}
 	else if(toLower(extension) == "png") {
 		savePng(path);
 	}
@@ -793,12 +919,19 @@ void Pixmap2D::saveTga(const string &path) {
 	pst.openWrite(path, w, h, components);
 	pst.write(pixels);
 }
+
+void Pixmap2D::saveJpg(const string &path) {
+	PixmapIoJpg pst;
+	pst.openWrite(path, w, h, components);
+	pst.write(pixels);
+}
+
 void Pixmap2D::savePng(const string &path) {
 	PixmapIoPng pst;
 	pst.openWrite(path, w, h, components);
 	pst.write(pixels);
-
 }
+
 void Pixmap2D::getPixel(int x, int y, uint8 *value) const {
 	for(int i=0; i<components; ++i){
 		value[i]= pixels[(w*y+x)*components+i];
