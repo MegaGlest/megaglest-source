@@ -26,29 +26,30 @@ using namespace std;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
 // =====================================================
 //	class ParticleSystem
 // =====================================================
 
-ParticleSystem::ParticleSystem(int particleCount) {
+ParticleSystem::ParticleSystem(int particleCount){
 	//init particle vector
-	blendMode = bmOne;
+	blendMode= bmOne;
 	//particles= new Particle[particleCount];
 	particles.clear();
 	//particles.reserve(particleCount);
 	particles.resize(particleCount);
 
 	state= sPlay;
-	aliveParticleCount=0;
+	aliveParticleCount= 0;
 	active= true;
 	visible= true;
 
 	//vars
 	texture= NULL;
 	particleObserver= NULL;
-	
+
 	//params
 	this->particleCount= particleCount;
 	//this->particleCount= particles.size();
@@ -60,8 +61,9 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	emissionRate= 15.0f;
 	emissionState= 1.0f; // initialized with 1 because we must have at least one particle in the beginning!
 	speed= 1.0f;
-	teamcolorNoEnergy=false;
-	teamcolorEnergy=false;
+	teamcolorNoEnergy= false;
+	teamcolorEnergy= false;
+	alternations= 0;
 }
 
 ParticleSystem::~ParticleSystem(){
@@ -69,39 +71,38 @@ ParticleSystem::~ParticleSystem(){
 	particles.clear();
 }
 
-
 // =============== VIRTUAL ======================
 
 //updates all living particles and creates new ones
-void ParticleSystem::update() {
-	if(aliveParticleCount > (int)particles.size()) {
+void ParticleSystem::update(){
+	if(aliveParticleCount > (int) particles.size()){
 		throw runtime_error("aliveParticleCount >= particles.size()");
 	}
 
 	if(state != sPause){
-		for(int i = 0; i< aliveParticleCount; ++i) {
+		for(int i= 0; i < aliveParticleCount; ++i){
 			updateParticle(&particles[i]);
 
-			if(deathTest(&particles[i])) {
-				
+			if(deathTest(&particles[i])){
+
 				//kill the particle
 				killParticle(&particles[i]);
 
 				//maintain alive particles at front of the array
-				if(aliveParticleCount > 0) {
-					particles[i] = particles[aliveParticleCount];
+				if(aliveParticleCount > 0){
+					particles[i]= particles[aliveParticleCount];
 				}
 			}
 		}
 
 		if(state != ParticleSystem::sFade){
-			emissionState=emissionState+emissionRate;
-			int emissionIntValue=(int)emissionState;
-			for(int i = 0; i < emissionIntValue; i++){
-				Particle *p = createParticle();
+			emissionState= emissionState + emissionRate;
+			int emissionIntValue= (int) emissionState;
+			for(int i= 0; i < emissionIntValue; i++){
+				Particle *p= createParticle();
 				initParticle(p, i);
 			}
-			emissionState=emissionState-(float)emissionIntValue;			
+			emissionState= emissionState - (float) emissionIntValue;
 		}
 	}
 }
@@ -113,17 +114,16 @@ void ParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 }
 
 ParticleSystem::BlendMode ParticleSystem::strToBlendMode(const string &str){
-	if(str=="normal"){
+	if(str == "normal"){
 		return bmOne;
 	}
-	else if(str=="black"){
+	else if(str == "black"){
 		return bmOneMinusAlpha;
 	}
 	else{
 		throw "Unknown particle mode: " + str;
 	}
 }
-
 
 // =============== SET ==========================
 
@@ -152,7 +152,7 @@ void ParticleSystem::setEmissionRate(float emissionRate){
 }
 
 void ParticleSystem::setMaxParticleEnergy(int maxParticleEnergy){
-	this->maxParticleEnergy= maxParticleEnergy; 
+	this->maxParticleEnergy= maxParticleEnergy;
 }
 
 void ParticleSystem::setVarParticleEnergy(int varParticleEnergy){
@@ -180,19 +180,19 @@ void ParticleSystem::setVisible(bool visible){
 }
 
 // =============== MISC =========================
-void ParticleSystem::fade() {
-	if(particleObserver != NULL) {
+void ParticleSystem::fade(){
+	if(particleObserver != NULL){
 		assert(state == sPlay);
 	}
 	state= sFade;
-	if(particleObserver!=NULL){
+	if(particleObserver != NULL){
 		particleObserver->update(this);
 	}
 }
 
 int ParticleSystem::isEmpty() const{
 	assert(aliveParticleCount>=0);
-	return aliveParticleCount==0 && state!=sPause;
+	return aliveParticleCount == 0 && state != sPause;
 }
 
 // =============== PROTECTED =========================
@@ -202,43 +202,43 @@ int ParticleSystem::isEmpty() const{
 Particle * ParticleSystem::createParticle(){
 
 	//if any dead particles
-	if(aliveParticleCount < particleCount) {
+	if(aliveParticleCount < particleCount){
 		++aliveParticleCount;
-		return &particles[aliveParticleCount-1];
+		return &particles[aliveParticleCount - 1];
 	}
 
 	//if not
-	int minEnergy = particles[0].energy;
-	int minEnergyParticle = 0;
+	int minEnergy= particles[0].energy;
+	int minEnergyParticle= 0;
 
-	for(int i = 0; i < particleCount; ++i){
+	for(int i= 0; i < particleCount; ++i){
 		if(particles[i].energy < minEnergy){
-			minEnergy = particles[i].energy;
-			minEnergyParticle = i;
+			minEnergy= particles[i].energy;
+			minEnergyParticle= i;
 		}
 	}
 	return &particles[minEnergyParticle];
 
-/*
-	//if any dead particles
-	if(aliveParticleCount < particleCount) {
-		++aliveParticleCount;
-		return &particles[aliveParticleCount-1];
-	}
+	/*
+	 //if any dead particles
+	 if(aliveParticleCount < particleCount) {
+	 ++aliveParticleCount;
+	 return &particles[aliveParticleCount-1];
+	 }
 
-	//if not
-	int minEnergy = particles[0].energy;
-	int minEnergyParticle = 0;
+	 //if not
+	 int minEnergy = particles[0].energy;
+	 int minEnergyParticle = 0;
 
-	for(int i = 0; i < particleCount; ++i){
-		if(particles[i].energy < minEnergy){
-			minEnergy = particles[i].energy;
-			minEnergyParticle = i;
-		}
-	}
+	 for(int i = 0; i < particleCount; ++i){
+	 if(particles[i].energy < minEnergy){
+	 minEnergy = particles[i].energy;
+	 minEnergyParticle = i;
+	 }
+	 }
 
-	return &particles[minEnergyParticle];
-*/
+	 return &particles[minEnergyParticle];
+	 */
 }
 
 void ParticleSystem::initParticle(Particle *p, int particleIndex){
@@ -267,76 +267,75 @@ void ParticleSystem::killParticle(Particle *p){
 }
 
 void ParticleSystem::setFactionColor(Vec3f factionColor){
-	this->factionColor=factionColor;
+	this->factionColor= factionColor;
 	Vec3f tmpCol;
-		
-	if(teamcolorEnergy)
-	{
-		this->color=Vec4f(factionColor.x,factionColor.y,factionColor.z,this->color.w);
+
+	if(teamcolorEnergy){
+		this->color= Vec4f(factionColor.x, factionColor.y, factionColor.z, this->color.w);
 	}
-	if(teamcolorNoEnergy)
-	{
-		this->colorNoEnergy=Vec4f(factionColor.x,factionColor.y,factionColor.z,this->colorNoEnergy.w);
+	if(teamcolorNoEnergy){
+		this->colorNoEnergy= Vec4f(factionColor.x, factionColor.y, factionColor.z, this->colorNoEnergy.w);
 	}
 }
-
 
 // ===========================================================================
 //  FireParticleSystem
 // ===========================================================================
 
 
-FireParticleSystem::FireParticleSystem(int particleCount): ParticleSystem(particleCount){
-	
+FireParticleSystem::FireParticleSystem(int particleCount) :
+	ParticleSystem(particleCount){
+
 	radius= 0.5f;
 	speed= 0.01f;
 	windSpeed= Vec3f(0.0f);
-	
+
 	setParticleSize(0.6f);
 	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
 }
 
 void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
-	
-	float ang= random.randRange(-2.0f*pi, 2.0f*pi);
+
+	float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP
 	float mod= streflop::fabsf(random.randRange(-radius, radius));
-	
+
 	float x= streflop::sinf(ang)*mod;
 	float y= streflop::cosf(ang)*mod;
-	
+
 	float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
 #else
 	float mod= fabsf(random.randRange(-radius, radius));
 
-	float x= sinf(ang)*mod;
-	float y= cosf(ang)*mod;
+	float x= sinf(ang) * mod;
+	float y= cosf(ang) * mod;
 
-	float radRatio= sqrtf(sqrtf(mod/radius));
+	float radRatio= sqrtf(sqrtf(mod / radius));
 #endif
 
-	p->color= colorNoEnergy*0.5f + colorNoEnergy*0.5f*radRatio;
-	p->energy= static_cast<int>(maxParticleEnergy*radRatio) + random.randRange(-varParticleEnergy, varParticleEnergy);
-	p->pos= Vec3f(pos.x+x, pos.y+random.randRange(-radius/2, radius/2), pos.z+y); 
+	p->color= colorNoEnergy * 0.5f + colorNoEnergy * 0.5f * radRatio;
+	p->energy= static_cast<int> (maxParticleEnergy * radRatio)
+	        + random.randRange(-varParticleEnergy, varParticleEnergy);
+	p->pos= Vec3f(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
 	p->lastPos= pos;
 	p->size= particleSize;
-	p->speed= Vec3f(0, speed+speed*random.randRange(-0.5f, 0.5f), 0) +  windSpeed;
+	p->speed= Vec3f(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
 }
 
 void FireParticleSystem::updateParticle(Particle *p){
 	p->lastPos= p->pos;
-	p->pos= p->pos+p->speed;
+	p->pos= p->pos + p->speed;
 	p->energy--;
 
-	if(p->color.x>0.0f)
+	if(p->color.x > 0.0f)
 		p->color.x*= 0.98f;
-	if(p->color.y>0.0f)
+	if(p->color.y > 0.0f)
 		p->color.y*= 0.98f;
-	if(p->color.w>0.0f)
+	if(p->color.w > 0.0f)
 		p->color.w*= 0.98f;
 
-	p->speed.x*=1.001f;
+	p->speed.x*= 1.001f;
 
 }
 
@@ -352,50 +351,62 @@ void FireParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 #else
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 }
-
 
 // ===========================================================================
 //  UnitParticleSystem
 // ===========================================================================
+bool UnitParticleSystem::isNight= false;
 
-UnitParticleSystem::UnitParticleSystem(int particleCount): ParticleSystem(particleCount){
-	
+UnitParticleSystem::UnitParticleSystem(int particleCount) :
+	ParticleSystem(particleCount){
 	radius= 0.5f;
 	speed= 0.01f;
 	windSpeed= Vec3f(0.0f);
-	
+
 	setParticleSize(0.6f);
 	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
-	
+
 	primitive= pQuad;
 	offset= Vec3f(0.0f);
-	direction= Vec3f(0.0f,1.0f,0.0f);
+	direction= Vec3f(0.0f, 1.0f, 0.0f);
 	gravity= 0.0f;
-	
-	fixed=false;
-	rotation=0.0f;
-	relativeDirection=true;
-	relative=false;
-	staticParticleCount=0;
-	
-	cRotation= Vec3f(1.0f,1.0f,1.0f);
-	fixedAddition = Vec3f(0.0f,0.0f,0.0f);
+
+	fixed= false;
+	rotation= 0.0f;
+	relativeDirection= true;
+	relative= false;
+	staticParticleCount= 0;
+
+	isVisibleAtNight= true;
+	isVisibleAtDay= true;
+
+	cRotation= Vec3f(1.0f, 1.0f, 1.0f);
+	fixedAddition= Vec3f(0.0f, 0.0f, 0.0f);
 	//prepare system for given staticParticleCount
-	if(staticParticleCount>0)
-	{
-		emissionState= (float)staticParticleCount;
+	if(staticParticleCount > 0){
+		emissionState= (float) staticParticleCount;
 	}
-	energyUp=false;
+	energyUp= false;
 }
 
-void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
+bool UnitParticleSystem::getVisible() const{
+	if((isNight==true) && (isVisibleAtNight==true)){
+		return visible;
+	}
+	else if((isNight==false) && (isVisibleAtDay==true)){
+		return visible;
+	}
+	else return false;
+}
+
+void UnitParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	//if(active){
-		switch(primitive){
+	switch(primitive){
 		case pQuad:
 			pr->renderSystem(this);
 			break;
@@ -404,15 +415,15 @@ void UnitParticleSystem::render(ParticleRenderer *pr,ModelRenderer *mr){
 			break;
 		default:
 			assert(false);
-		}
+	}
 	//}
 }
 
 UnitParticleSystem::Primitive UnitParticleSystem::strToPrimitive(const string &str){
-	if(str=="quad"){
+	if(str == "quad"){
 		return pQuad;
 	}
-	else if(str=="line"){
+	else if(str == "line"){
 		return pLine;
 	}
 	else{
@@ -420,56 +431,62 @@ UnitParticleSystem::Primitive UnitParticleSystem::strToPrimitive(const string &s
 	}
 }
 
-
 void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
-	
-	float ang= random.randRange(-2.0f*pi, 2.0f*pi);
+
+	float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP
 	float mod= streflop::fabsf(random.randRange(-radius, radius));
-	
+
 	float x= streflop::sinf(ang)*mod;
 	float y= streflop::cosf(ang)*mod;
-	
+
 	float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
 #else
 	float mod= fabsf(random.randRange(-radius, radius));
 
-	float x= sinf(ang)*mod;
-	float y= cosf(ang)*mod;
+	float x= sinf(ang) * mod;
+	float y= cosf(ang) * mod;
 
-	float radRatio= sqrtf(sqrtf(mod/radius));
+	float radRatio= sqrtf(sqrtf(mod / radius));
 #endif
-	
+
 	//p->color= color*0.5f + color*0.5f*radRatio;
-	p->color=color;
-	p->energy= static_cast<int>(maxParticleEnergy*radRatio) + random.randRange(-varParticleEnergy, varParticleEnergy);
-	
+	p->color= color;
+	if(radiusBasedStartenergy == true){
+		p->energy= static_cast<int> (maxParticleEnergy * radRatio) + random.randRange(-varParticleEnergy,
+		        varParticleEnergy);
+	}
+	else{
+		p->energy= static_cast<int> (maxParticleEnergy) + random.randRange(-varParticleEnergy, varParticleEnergy);
+	}
+
 	p->lastPos= pos;
-	oldPosition=pos;
+	oldPosition= pos;
 	p->size= particleSize;
-	
-	p->speed= Vec3f(direction.x+direction.x*random.randRange(-0.5f, 0.5f),
-					 direction.y+direction.y*random.randRange(-0.5f, 0.5f),
-					 direction.z+direction.z*random.randRange(-0.5f, 0.5f));
+
+	p->speed= Vec3f(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
+	        * random.randRange(-0.5f, 0.5f), direction.z + direction.z * random.randRange(-0.5f, 0.5f));
 	p->speed= p->speed * speed;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
-	
-	if(relative == false) {
-		p->pos= Vec3f(pos.x+x+offset.x, pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+offset.z); 
+
+	if(relative == false){
+		p->pos= Vec3f(pos.x + x + offset.x, pos.y + random.randRange(-radius / 2, radius / 2) + offset.y, pos.z + y
+		        + offset.z);
 	}
-	else
-	{// rotate it according to rotation
-		float rad=degToRad(rotation);
+	else{// rotate it according to rotation
+		float rad= degToRad(rotation);
 #ifdef USE_STREFLOP
 		p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(rad)+offset.x*streflop::cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(rad)-offset.x*streflop::sinf(rad)));
 		if(relativeDirection){
 			p->speed=Vec3f(p->speed.z*streflop::sinf(rad)+p->speed.x*streflop::cosf(rad),p->speed.y,(p->speed.z*streflop::cosf(rad)-p->speed.x*streflop::sinf(rad)));
 		}
 #else
-		p->pos= Vec3f(pos.x+x+offset.z*sinf(rad)+offset.x*cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*cosf(rad)-offset.x*sinf(rad)));
+		p->pos= Vec3f(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
+		        radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
 		if(relativeDirection){
-			p->speed=Vec3f(p->speed.z*sinf(rad)+p->speed.x*cosf(rad),p->speed.y,(p->speed.z*cosf(rad)-p->speed.x*sinf(rad)));
+			p->speed= Vec3f(p->speed.z * sinf(rad) + p->speed.x * cosf(rad), p->speed.y, (p->speed.z * cosf(rad)
+			        - p->speed.x * sinf(rad)));
 		}
 
 #endif
@@ -477,48 +494,57 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 }
 
 void UnitParticleSystem::update(){
-	if(fixed)
-	{
-		fixedAddition= Vec3f(pos.x-oldPosition.x,pos.y-oldPosition.y,pos.z-oldPosition.z);
-    	oldPosition=pos;
+	if(fixed){
+		fixedAddition= Vec3f(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
+		oldPosition= pos;
 	}
 	ParticleSystem::update();
 }
 
 void UnitParticleSystem::updateParticle(Particle *p){
-	
-	float energyRatio= clamp(static_cast<float>(p->energy)/maxParticleEnergy, 0.f, 1.f);
-		
+	float energyRatio;
+	if(alternations > 0){
+		int interval= (maxParticleEnergy / alternations);
+		float moduloValue= static_cast<int> (static_cast<float> (p->energy)) % interval;
+
+		if(moduloValue < interval / 2){
+			energyRatio= (interval - moduloValue) / interval;
+		}
+		else{
+			energyRatio= moduloValue / interval;
+		}
+		energyRatio= clamp(energyRatio, 0.f, 1.f);
+	}
+	else{
+		energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	}
+
 	p->lastPos+= p->speed;
 	p->pos+= p->speed;
-	if(fixed)
-	{
+	if(fixed){
 		p->lastPos+= fixedAddition;
 		p->pos+= fixedAddition;
 	}
 	p->speed+= p->accel;
-	p->color = color * energyRatio + colorNoEnergy * (1.0f-energyRatio);
-	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f-energyRatio);
-	if(state == ParticleSystem::sFade || staticParticleCount<1)
-	{
+	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
+	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
+	if(state == ParticleSystem::sFade || staticParticleCount < 1){
 		p->energy--;
 	}
-	else
-	{
-		if(maxParticleEnergy>2)
-		{
+	else{
+		if(maxParticleEnergy > 2){
 			if(energyUp){
 				p->energy++;
 			}
-			else {
+			else{
 				p->energy--;
 			}
-			
-			if(p->energy==1){
-				energyUp=true;
+
+			if(p->energy == 1){
+				energyUp= true;
 			}
-			if(p->energy==maxParticleEnergy){
-				energyUp=false;
+			if(p->energy == maxParticleEnergy){
+				energyUp= false;
 			}
 		}
 	}
@@ -536,21 +562,19 @@ void UnitParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 #else
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 }
-
-
-
 
 // ===========================================================================
 //  RainParticleSystem
 // ===========================================================================
 
 
-RainParticleSystem::RainParticleSystem(int particleCount):ParticleSystem(particleCount){
+RainParticleSystem::RainParticleSystem(int particleCount) :
+	ParticleSystem(particleCount){
 	setWind(0.0f, 0.0f);
 	setRadius(20.0f);
 
@@ -569,22 +593,23 @@ void RainParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	float x= random.randRange(-radius, radius);
 	float y= random.randRange(-radius, radius);
-	
+
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3f(pos.x+x, pos.y, pos.z+y); 
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
 	p->lastPos= p->pos;
-	p->speed= Vec3f(random.randRange(-speed/10, speed/10), -speed, random.randRange(-speed/10, speed/10)) + windSpeed;
+	p->speed= Vec3f(random.randRange(-speed / 10, speed / 10), -speed, random.randRange(-speed / 10, speed / 10))
+	        + windSpeed;
 }
 
 bool RainParticleSystem::deathTest(Particle *p){
-	return p->pos.y<0;
+	return p->pos.y < 0;
 }
 
 void RainParticleSystem::setRadius(float radius){
 	this->radius= radius;
 
-}	
+}
 
 void RainParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
@@ -592,9 +617,9 @@ void RainParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 #else
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 }
 
@@ -602,7 +627,8 @@ void RainParticleSystem::setWind(float windAngle, float windSpeed){
 //  SnowParticleSystem
 // ===========================================================================
 
-SnowParticleSystem::SnowParticleSystem(int particleCount):ParticleSystem(particleCount){
+SnowParticleSystem::SnowParticleSystem(int particleCount) :
+	ParticleSystem(particleCount){
 	setWind(0.0f, 0.0f);
 	setRadius(30.0f);
 
@@ -613,28 +639,28 @@ SnowParticleSystem::SnowParticleSystem(int particleCount):ParticleSystem(particl
 }
 
 void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
-	
+
 	ParticleSystem::initParticle(p, particleIndex);
 
 	float x= random.randRange(-radius, radius);
 	float y= random.randRange(-radius, radius);
-	
+
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3f(pos.x+x, pos.y, pos.z+y); 
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
 	p->lastPos= p->pos;
-	p->speed= Vec3f(0.0f, -speed, 0.0f) +  windSpeed;
+	p->speed= Vec3f(0.0f, -speed, 0.0f) + windSpeed;
 	p->speed.x+= random.randRange(-0.005f, 0.005f);
 	p->speed.y+= random.randRange(-0.005f, 0.005f);
 }
 
-bool SnowParticleSystem::deathTest(Particle *p){	
-	return p->pos.y<0;
+bool SnowParticleSystem::deathTest(Particle *p){
+	return p->pos.y < 0;
 }
 
 void SnowParticleSystem::setRadius(float radius){
 	this->radius= radius;
-}	
+}
 
 void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
@@ -642,9 +668,9 @@ void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
 #else
-	this->windSpeed.x= sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 }
 
@@ -652,7 +678,8 @@ void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 //  AttackParticleSystem
 // ===========================================================================
 
-AttackParticleSystem::AttackParticleSystem(int particleCount): ParticleSystem(particleCount){
+AttackParticleSystem::AttackParticleSystem(int particleCount) :
+	ParticleSystem(particleCount){
 	model= NULL;
 	primitive= pQuad;
 	offset= Vec3f(0.0f);
@@ -662,27 +689,27 @@ AttackParticleSystem::AttackParticleSystem(int particleCount): ParticleSystem(pa
 
 void AttackParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	if(active){
-		if(model!=NULL){
+		if(model != NULL){
 			pr->renderSingleModel(this, mr);
 		}
 		switch(primitive){
-		case pQuad:
-			pr->renderSystem(this);
-			break;
-		case pLine:
-			pr->renderSystemLine(this);
-			break;
-		default:
-			assert(false);
+			case pQuad:
+				pr->renderSystem(this);
+				break;
+			case pLine:
+				pr->renderSystemLine(this);
+				break;
+			default:
+				assert(false);
 		}
 	}
 }
 
 AttackParticleSystem::Primitive AttackParticleSystem::strToPrimitive(const string &str){
-	if(str=="quad"){
+	if(str == "quad"){
 		return pQuad;
 	}
-	else if(str=="line"){
+	else if(str == "line"){
 		return pLine;
 	}
 	else{
@@ -694,7 +721,8 @@ AttackParticleSystem::Primitive AttackParticleSystem::strToPrimitive(const strin
 //  ProjectileParticleSystem
 // ===========================================================================
 
-ProjectileParticleSystem::ProjectileParticleSystem(int particleCount): AttackParticleSystem(particleCount){
+ProjectileParticleSystem::ProjectileParticleSystem(int particleCount) :
+	AttackParticleSystem(particleCount){
 	setEmissionRate(20.0f);
 	setColor(Vec4f(1.0f, 0.3f, 0.0f, 0.5f));
 	setMaxParticleEnergy(100);
@@ -705,13 +733,13 @@ ProjectileParticleSystem::ProjectileParticleSystem(int particleCount): AttackPar
 	trajectory= tLinear;
 	trajectorySpeed= 1.0f;
 	trajectoryScale= 1.0f;
-	trajectoryFrequency = 1.0f;
+	trajectoryFrequency= 1.0f;
 
 	nextParticleSystem= NULL;
 }
 
 ProjectileParticleSystem::~ProjectileParticleSystem(){
-	if(nextParticleSystem!=NULL){
+	if(nextParticleSystem != NULL){
 		nextParticleSystem->prevParticleSystem= NULL;
 	}
 }
@@ -724,7 +752,7 @@ void ProjectileParticleSystem::link(SplashParticleSystem *particleSystem){
 
 void ProjectileParticleSystem::update(){
 
-	if(state==sPlay){
+	if(state == sPlay){
 
 		lastPos= pos;
 		flatPos+= zVector * trajectorySpeed;
@@ -733,55 +761,52 @@ void ProjectileParticleSystem::update(){
 
 		// ratio
 		float t= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
-				
+
 		// trajectory
 		switch(trajectory){
-		case tLinear:
-			{	
+			case tLinear: {
 				pos= flatPos;
 			}
-			break;
+				break;
 
-		case tParabolic:
-			{
-				float scaledT= 2.0f * (t-0.5f);
-				float paraboleY= (1.0f-scaledT*scaledT) * trajectoryScale;
+			case tParabolic: {
+				float scaledT= 2.0f * (t - 0.5f);
+				float paraboleY= (1.0f - scaledT * scaledT) * trajectoryScale;
 
-				pos = flatPos;
+				pos= flatPos;
 				pos.y+= paraboleY;
 			}
-			break;
+				break;
 
-		case tSpiral:
-			{
+			case tSpiral: {
 				pos= flatPos;
 #ifdef USE_STREFLOP
 				pos+= xVector * streflop::cos(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
 				pos+= yVector * streflop::sin(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
 #else
-				pos+= xVector * cos(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
-				pos+= yVector * sin(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
+				pos+= xVector * cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
 			}
-			break;
+				break;
 
-		default:
-			assert(false);
+			default:
+				assert(false);
 		}
-		
+
 		direction= pos - lastPos;
 		direction.normalize();
 
 		//arrive destination
-		if( flatPos.dist(endPos)<0.5f ){
+		if(flatPos.dist(endPos) < 0.5f){
 			state= sFade;
 			model= NULL;
 
-			if(particleObserver!=NULL){
+			if(particleObserver != NULL){
 				particleObserver->update(this);
 			}
 
-			if(nextParticleSystem!=NULL){
+			if(nextParticleSystem != NULL){
 				nextParticleSystem->setState(sPlay);
 				nextParticleSystem->setPos(endPos);
 			}
@@ -794,36 +819,37 @@ void ProjectileParticleSystem::update(){
 void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	ParticleSystem::initParticle(p, particleIndex);
-		
-	float t= static_cast<float>(particleIndex)/emissionRate;
-		
-	p->pos=	pos + (lastPos - pos) * t;
+
+	float t= static_cast<float> (particleIndex) / emissionRate;
+
+	p->pos= pos + (lastPos - pos) * t;
 	p->lastPos= lastPos;
-	p->speed= Vec3f(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f)) * speed;
+	p->speed= Vec3f(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f))
+	        * speed;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
-	
+
 	updateParticle(p);
 }
 
 void ProjectileParticleSystem::updateParticle(Particle *p){
-	float energyRatio= clamp(static_cast<float>(p->energy)/maxParticleEnergy, 0.f, 1.f);
-		
+	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+
 	p->lastPos+= p->speed;
 	p->pos+= p->speed;
 	p->speed+= p->accel;
-	p->color = color * energyRatio + colorNoEnergy * (1.0f-energyRatio);
-	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f-energyRatio);
+	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
+	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
 	p->energy--;
 }
 
 void ProjectileParticleSystem::setPath(Vec3f startPos, Vec3f endPos){
-	
+
 	//compute axis
 	zVector= endPos - startPos;
 	zVector.normalize();
 	yVector= Vec3f(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
-	
+
 	//apply offset
 	startPos+= xVector * offset.x;
 	startPos+= yVector * offset.y;
@@ -845,13 +871,13 @@ void ProjectileParticleSystem::setPath(Vec3f startPos, Vec3f endPos){
 }
 
 ProjectileParticleSystem::Trajectory ProjectileParticleSystem::strToTrajectory(const string &str){
-	if(str=="linear"){
+	if(str == "linear"){
 		return tLinear;
 	}
-	else if(str=="parabolic"){
+	else if(str == "parabolic"){
 		return tParabolic;
 	}
-	else if(str=="spiral"){
+	else if(str == "spiral"){
 		return tSpiral;
 	}
 	else{
@@ -863,7 +889,8 @@ ProjectileParticleSystem::Trajectory ProjectileParticleSystem::strToTrajectory(c
 //  SplashParticleSystem
 // ===========================================================================
 
-SplashParticleSystem::SplashParticleSystem(int particleCount): AttackParticleSystem(particleCount){
+SplashParticleSystem::SplashParticleSystem(int particleCount) :
+	AttackParticleSystem(particleCount){
 	setColor(Vec4f(1.0f, 0.3f, 0.0f, 0.8f));
 	setMaxParticleEnergy(100);
 	setVarParticleEnergy(50);
@@ -880,17 +907,16 @@ SplashParticleSystem::SplashParticleSystem(int particleCount): AttackParticleSys
 }
 
 SplashParticleSystem::~SplashParticleSystem(){
-	if(prevParticleSystem!=NULL){
-		prevParticleSystem->nextParticleSystem= NULL;	
+	if(prevParticleSystem != NULL){
+		prevParticleSystem->nextParticleSystem= NULL;
 	}
 }
 
 void SplashParticleSystem::update(){
 	ParticleSystem::update();
-	if(state!=sPause){
+	if(state != sPause){
 		emissionRate-= emissionRateFade;
-		if(emissionRate<0.0f)
-		{//otherwise this system lives forever!
+		if(emissionRate < 0.0f){//otherwise this system lives forever!
 			fade();
 		}
 	}
@@ -902,11 +928,10 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->energy= maxParticleEnergy;
 	p->size= particleSize;
 	p->color= color;
-	
-	p->speed= Vec3f(
-		horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, 
-		verticalSpreadA * random.randRange(-1.0f, 1.0f) + verticalSpreadB, 
-		horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB);
+
+	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
+	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
+	        + horizontalSpreadB);
 	p->speed.normalize();
 	p->speed= p->speed * speed;
 
@@ -914,14 +939,14 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
-	float energyRatio= clamp(static_cast<float>(p->energy)/maxParticleEnergy, 0.f, 1.f);
-		
+	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+
 	p->lastPos= p->pos;
 	p->pos= p->pos + p->speed;
 	p->speed= p->speed + p->accel;
 	p->energy--;
-	p->color = color * energyRatio + colorNoEnergy * (1.0f-energyRatio);
-	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f-energyRatio);
+	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
+	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
 }
 
 // ===========================================================================
@@ -933,37 +958,36 @@ ParticleManager::~ParticleManager(){
 }
 
 void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
-		if(ps != NULL && ps->getVisible()) {
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
+		if(ps != NULL && ps->getVisible()){
 			ps->render(pr, mr);
 		}
 	}
 }
 
-bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const {
-	bool result = false;
+bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const{
+	bool result= false;
 
-	size_t particleSystemCount = particleSystems.size();
-	int currentParticleCount = 0;
+	size_t particleSystemCount= particleSystems.size();
+	int currentParticleCount= 0;
 
 	vector<ParticleSystem *> cleanupParticleSystemsList;
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
-		if(ps != NULL) {
-			currentParticleCount += ps->getAliveParticleCount();
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
+		if(ps != NULL){
+			currentParticleCount+= ps->getAliveParticleCount();
 
-			bool showParticle = true;
-			if( dynamic_cast<UnitParticleSystem *>(ps) != NULL ||
-				dynamic_cast<FireParticleSystem *>(ps) != NULL	) {
-				showParticle = ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
+			bool showParticle= true;
+			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL || dynamic_cast<FireParticleSystem *> (ps) != NULL){
+				showParticle= ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
 			}
-			if(showParticle == true) {
+			if(showParticle == true){
 				//printf("Looking for [%d] current id [%d] i = %d\n",type,ps->getParticleSystemType(),i);
 
-				if(type == ParticleSystem::pst_All || type == ps->getParticleSystemType()) {
+				if(type == ParticleSystem::pst_All || type == ps->getParticleSystemType()){
 					//printf("FOUND particle system type match for [%d] current id [%d] i = %d\n",type,ps->getParticleSystemType(),i);
-					result = true;
+					result= true;
 					break;
 				}
 			}
@@ -973,27 +997,26 @@ bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType
 	return result;
 }
 
-void ParticleManager::update(int renderFps) {
+void ParticleManager::update(int renderFps){
 	Chrono chrono;
 	chrono.start();
 
-	size_t particleSystemCount = particleSystems.size();
-	int currentParticleCount = 0;
+	size_t particleSystemCount= particleSystems.size();
+	int currentParticleCount= 0;
 
 	vector<ParticleSystem *> cleanupParticleSystemsList;
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
-		if(ps != NULL) {
-			currentParticleCount += ps->getAliveParticleCount();
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
+		if(ps != NULL){
+			currentParticleCount+= ps->getAliveParticleCount();
 
-			bool showParticle = true;
-			if( dynamic_cast<UnitParticleSystem *>(ps) != NULL ||
-				dynamic_cast<FireParticleSystem *>(ps) != NULL	) {
-				showParticle = ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
+			bool showParticle= true;
+			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL || dynamic_cast<FireParticleSystem *> (ps) != NULL){
+				showParticle= ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
 			}
-			if(showParticle == true) {
+			if(showParticle == true){
 				ps->update();
-				if(ps->isEmpty()) {
+				if(ps->isEmpty()){
 					//delete ps;
 					//*it= NULL;
 					cleanupParticleSystemsList.push_back(ps);
@@ -1004,39 +1027,40 @@ void ParticleManager::update(int renderFps) {
 	//particleSystems.remove(NULL);
 	cleanupParticleSystems(cleanupParticleSystemsList);
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, currentParticleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,currentParticleCount);
+	if(chrono.getMillis() > 0)
+		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, currentParticleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,currentParticleCount);
 }
 
-bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particleSystem) const {
-	int index = findParticleSystems(particleSystem, this->particleSystems);
+bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particleSystem) const{
+	int index= findParticleSystems(particleSystem, this->particleSystems);
 	return (index >= 0);
 }
 
-int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const {
-	int result = -1;
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
-		if(ps != NULL && psFind != NULL && psFind == ps) {
-			result = i;
+int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const{
+	int result= -1;
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
+		if(ps != NULL && psFind != NULL && psFind == ps){
+			result= i;
 			break;
 		}
 	}
 	return result;
 }
 
-void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
+void ParticleManager::cleanupParticleSystems(ParticleSystem *ps){
 
-	int index = findParticleSystems(ps, this->particleSystems);
-	if(ps != NULL && index >= 0) {
+	int index= findParticleSystems(ps, this->particleSystems);
+	if(ps != NULL && index >= 0){
 		delete ps;
 		this->particleSystems.erase(this->particleSystems.begin() + index);
 	}
 }
 
-void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems) {
+void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems){
 
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
 		cleanupParticleSystems(ps);
 	}
 
@@ -1044,25 +1068,26 @@ void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleS
 	//this->particleSystems.remove(NULL);
 }
 
-void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems) {
+void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems){
 
-	for (unsigned int i = 0; i < particleSystems.size(); i++) {
-		ParticleSystem *ps = particleSystems[i];
+	for(unsigned int i= 0; i < particleSystems.size(); i++){
+		ParticleSystem *ps= particleSystems[i];
 		cleanupParticleSystems(ps);
 	}
 	particleSystems.clear();
 	//this->particleSystems.remove(NULL);
 }
 
-void ParticleManager::manage(ParticleSystem *ps) {
+void ParticleManager::manage(ParticleSystem *ps){
 	particleSystems.push_back(ps);
 }
 
-void ParticleManager::end() {
-	while(particleSystems.empty() == false) {
+void ParticleManager::end(){
+	while(particleSystems.empty() == false){
 		delete particleSystems.back();
 		particleSystems.pop_back();
 	}
 }
 
-}}//end namespace
+}
+}//end namespace

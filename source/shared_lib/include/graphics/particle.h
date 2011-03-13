@@ -131,6 +131,7 @@ protected:
 	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
+	int alternations;
 
 	ParticleObserver *particleObserver;
 
@@ -154,7 +155,7 @@ public:
 	const Particle *getParticle(int i) const	{return &particles[i];}
 	int getAliveParticleCount() const			{return aliveParticleCount;}
 	bool getActive() const						{return active;}
-	bool getVisible() const						{return visible;}
+	virtual bool getVisible() const				{return visible;}
 
 	//set
 	void setState(State state);
@@ -173,6 +174,7 @@ public:
 	void setBlendMode(BlendMode blendMode)				{this->blendMode= blendMode;}
 	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
 	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
+	void setAlternations(int alternations)				{this->alternations= alternations;}
 	virtual void setFactionColor(Vec3f factionColor);
 
 	static BlendMode strToBlendMode(const string &str);
@@ -219,6 +221,8 @@ public:
 // =====================================================
 
 class UnitParticleSystem: public ParticleSystem{
+public:
+	static bool isNight;
 private:
 	float radius;
 	Vec3f windSpeed;
@@ -242,6 +246,10 @@ public:
 	float sizeNoEnergy;
 	float gravity;
 	float rotation;
+	bool isVisibleAtNight;
+	bool isVisibleAtDay;
+	bool radiusBasedStartenergy;
+
 	int staticParticleCount;
 
 public:
@@ -254,6 +262,7 @@ public:
 	virtual void updateParticle(Particle *p);
 	virtual void update();
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
+	virtual bool getVisible() const;
 
 	//set params
 	void setRadius(float radius);
@@ -269,6 +278,9 @@ public:
 	void setFixed(bool fixed)							{this->fixed= fixed;}
 	void setPrimitive(Primitive primitive)				{this->primitive= primitive;}
 	void setStaticParticleCount(int staticParticleCount){this->staticParticleCount= staticParticleCount;}
+	void setIsVisibleAtNight(bool value)				{this->isVisibleAtNight= value;}
+	void setIsVisibleAtDay(bool value)					{this->isVisibleAtDay= value;}
+	void setRadiusBasedStartenergy(bool value)			{this->radiusBasedStartenergy= value;}
 
 	static Primitive strToPrimitive(const string &str);
 	

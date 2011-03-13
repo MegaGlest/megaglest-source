@@ -63,6 +63,33 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     	staticParticleCount=0;
     }
     
+    //isVisibleAtNight
+	if(particleSystemNode->hasChild("isVisibleAtNight")){
+		const XmlNode *isVisibleAtNightNode= particleSystemNode->getChild("isVisibleAtNight");
+		isVisibleAtNight= isVisibleAtNightNode->getAttribute("value")->getBoolValue();
+	}
+	else {
+		isVisibleAtNight=true;
+	}
+
+    //isVisibleAtDay
+	if(particleSystemNode->hasChild("isVisibleAtDay")){
+		const XmlNode *isVisibleAtDayNode= particleSystemNode->getChild("isVisibleAtDay");
+		isVisibleAtDay= isVisibleAtDayNode->getAttribute("value")->getBoolValue();
+	}
+	else {
+		isVisibleAtDay=true;
+	}
+
+	//radiusBasedStartenergy
+	if(particleSystemNode->hasChild("radiusBasedStartenergy")){
+		const XmlNode *isVisibleAtDayNode= particleSystemNode->getChild("radiusBasedStartenergy");
+		radiusBasedStartenergy= isVisibleAtDayNode->getAttribute("value")->getBoolValue();
+	}
+	else{
+		radiusBasedStartenergy= true;
+	}
+
     //fixed
     const XmlNode *fixedNode= particleSystemNode->getChild("fixed");
     fixed= fixedNode->getAttribute("value")->getBoolValue();
@@ -87,9 +114,14 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setRelativeDirection(relativeDirection);
     ups->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ups->setTeamcolorEnergy(teamcolorEnergy);
+    ups->setAlternations(alternations);
+
+    ups->setIsVisibleAtNight(isVisibleAtNight);
+	ups->setIsVisibleAtDay(isVisibleAtDay);
     ups->setStaticParticleCount(staticParticleCount);
     ups->setRadius(radius);
     ups->setBlendMode(ParticleSystem::strToBlendMode(mode));
+    ups->setRadiusBasedStartenergy(radiusBasedStartenergy);
     //prepare system for given staticParticleCount
 	if(staticParticleCount>0)
 	{

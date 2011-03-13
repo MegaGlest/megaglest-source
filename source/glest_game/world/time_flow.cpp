@@ -56,6 +56,7 @@ void TimeFlow::update() {
 	//day
 	if(lastTime<dawn && time>=dawn){
 		soundRenderer.stopAmbient(ambientSounds->getNight());
+		UnitParticleSystem::isNight=false;
 	}
 
 	if((lastTime<dawn && time>=dawn) || firstTime){
@@ -75,6 +76,7 @@ void TimeFlow::update() {
 	//night
 	if(lastTime<dusk && time>=dusk){
 		soundRenderer.stopAmbient(ambientSounds->getDay());
+		UnitParticleSystem::isNight=true;
 	}
 
 	if(lastTime<dusk && time>=dusk){		

@@ -1332,6 +1332,19 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			//repairPos = command->getPos()-Vec2i(1);
 		}
 
+		if(startRepairing == false && repaired == NULL) {
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			// we have a repair command to the ground! We must find first units in visible range of target point.
+
+			startRepairing = damagedRepairableUnitOnRange(rct, repairPos, unit->getType()->getSight(), &repaired);
+			//if(startRepairing) command->setPos(repaired->getCenteredPos());
+			if(repaired != NULL){
+				startRepairing = true;
+				nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
+				repairPos=repaired->getCenteredPos();
+				command->setPos(repairPos);
+			}
+		}
         //if not repairing
         if(startRepairing == true) {
         	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1834,6 +1847,40 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 			}
 		}
 	}
+}
+
+bool UnitUpdater::damagedRepairableUnitOnRange(const RepairCommandType* rct, Vec2i repairPos, int range, Unit **unitToRepair){
+	Vec2f floatRepairPos	= Vec2f(repairPos.x, repairPos.y);
+
+	Unit* damagedUnit=NULL;
+	int bestDistanced=-1;
+
+	for(int i=repairPos.x-range; i<repairPos.x+range+1; ++i){
+		for(int j=repairPos.y-range; j<repairPos.y+range+1; ++j){
+			//cells inside map and in range
+#ifdef USE_STREFLOP
+			if(map->isInside(i, j) && streflop::floor(floatRepairPos.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#else
+			if(map->isInside(i, j) && floor(floatRepairPos.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#endif
+				Cell *cell = map->getCell(i,j);
+				for(int k = 0; k < fieldCount; k++) {
+					Field f= static_cast<Field>(k);
+					Unit *possibleUnit = cell->getUnit(f);
+					if( possibleUnit != NULL &&
+							possibleUnit->getTeam()==world->getThisTeamIndex() &&
+							rct->isRepairableUnitType(possibleUnit->getType()) &&
+							possibleUnit->isDamaged()) {
+						// possible unit!
+						*unitToRepair=possibleUnit;
+						return true;
+						// TODO choose nearest to repair unit
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 //if the unit has any enemy on range

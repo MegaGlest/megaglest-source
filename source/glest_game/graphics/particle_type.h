@@ -63,6 +63,7 @@ protected:
 	string mode;
 	bool teamcolorNoEnergy;
     bool teamcolorEnergy;
+    int alternations;
 
 public:
 	ParticleSystemType();
