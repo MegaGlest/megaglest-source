@@ -490,7 +490,8 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 }
 
 void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-		string convertTextureToFormat, std::map<string,int> &textureDeleteList) {
+		string convertTextureToFormat, std::map<string,int> &textureDeleteList,
+		bool keepsmallest) {
 	MeshHeader meshHeader;
 	memset(&meshHeader, 0, sizeof(struct MeshHeader));
 
@@ -521,7 +522,7 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 	//maps
 	uint32 flag= 1;
-	for(int i=0; i< meshTextureCount; ++i) {
+	for(int i = 0; i < meshTextureCount; ++i) {
 		if((meshHeader.textures & flag)) {
 			uint8 cMapPath[mapPathSize];
 			memset(&cMapPath[0],0,mapPathSize);
@@ -537,6 +538,9 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 				if(toLower(convertTextureToFormat) != "" &&
 					EndsWith(file, "." + convertTextureToFormat) == false) {
+					long originalSize 	= getFileSize(file);
+					long newSize 		= originalSize;
+
 					string fileExt = extractExtension(file);
 					replaceAll(file, "." + fileExt, "." + convertTextureToFormat);
 
@@ -544,34 +548,53 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 					if(convertTextureToFormat == "tga") {
 						texture->getPixmap()->saveTga(file);
-
-						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						newSize = getFileSize(file);
+						if(keepsmallest == false || newSize <= originalSize) {
+							textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						}
+						else {
+							printf("Texture will not be converted, keeping smallest texture [%s]\n",texture->getPath().c_str());
+							textureDeleteList[file] = textureDeleteList[file] + 1;
+						}
 					}
 					else if(convertTextureToFormat == "bmp") {
 						texture->getPixmap()->saveBmp(file);
-
-						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						newSize = getFileSize(file);
+						if(keepsmallest == false || newSize <= originalSize) {
+							textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						}
+						else {
+							printf("Texture will not be converted, keeping smallest texture [%s]\n",texture->getPath().c_str());
+							textureDeleteList[file] = textureDeleteList[file] + 1;
+						}
 					}
 					//else if(convertTextureToFormat == "jpg") {
 					//	texture->getPixmap()->saveJpg(file);
 					//}
 					else  if(convertTextureToFormat == "png") {
 						texture->getPixmap()->savePng(file);
-
-						textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						newSize = getFileSize(file);
+						if(keepsmallest == false || newSize <= originalSize) {
+							textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						}
+						else {
+							printf("Texture will not be converted, keeping smallest texture [%s]\n",texture->getPath().c_str());
+							textureDeleteList[file] = textureDeleteList[file] + 1;
+						}
 					}
 					else {
-						throw runtime_error("Unsuppoted texture format: [" + convertTextureToFormat + "]");
+						throw runtime_error("Unsupported texture format: [" + convertTextureToFormat + "]");
 					}
 
 					//textureManager->endTexture(texture);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, load new texture [%s] originalSize [%ld] newSize [%ld]\n",file.c_str(),originalSize,newSize);
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, load new texture [%s]\n",file.c_str());
-					texture = loadMeshTexture(meshIndex, i, textureManager,file,
-												meshTextureChannelCount[i],
-												texturesOwned[i],
-												false);
-
+					if(keepsmallest == false || newSize <= originalSize) {
+						texture = loadMeshTexture(meshIndex, i, textureManager,file,
+													meshTextureChannelCount[i],
+													texturesOwned[i],
+													false);
+					}
 				}
 
 				file = extractFileFromDirectoryPath(texture->getPath());
@@ -730,12 +753,13 @@ void Model::load(const string &path, bool deletePixMapAfterLoad) {
 	this->fileName = path;
 }
 
-void Model::save(const string &path, string convertTextureToFormat) {
+void Model::save(const string &path, string convertTextureToFormat,
+		bool keepsmallest) {
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="g3d" ||extension=="G3D") {
-		saveG3d(path,convertTextureToFormat);
+		saveG3d(path,convertTextureToFormat,keepsmallest);
 	}
-	else{
+	else {
 		throw runtime_error("Unknown model format: " + extension);
 	}
 }
@@ -820,10 +844,9 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 }
 
 //save a model to a g3d file
-void Model::saveG3d(const string &path, string convertTextureToFormat) {
-
+void Model::saveG3d(const string &path, string convertTextureToFormat,
+		bool keepsmallest) {
 	string tempModelFilename = path + "cvt";
-
 	FILE *f= fopen(tempModelFilename.c_str(), "wb");
 	if(f == NULL) {
 		throw runtime_error("Cant open file for writting: [" + tempModelFilename + "]");
@@ -852,7 +875,8 @@ void Model::saveG3d(const string &path, string convertTextureToFormat) {
 		std::map<string,int> textureDeleteList;
 		for(uint32 i = 0; i < meshCount; ++i) {
 			meshes[i].save(i,tempModelFilename, f, textureManager,
-					convertTextureToFormat,textureDeleteList);
+					convertTextureToFormat,textureDeleteList,
+					keepsmallest);
 		}
 
 		removeFile(path);
