@@ -1597,9 +1597,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 	else {
         string userData = Config::getInstance().getString("UserData_Root","");
         if(userData != "") {
-            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-            	userData += "/";
-            }
+        	endPathWithSlash(userData);
         }
         debugWorldLogFile = userData + debugWorldLogFile;
 	}

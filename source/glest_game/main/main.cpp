@@ -37,6 +37,7 @@
 #include "FileReader.h"
 #include "cache_manager.h"
 #include <iterator>
+#include "core_data.h"
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -99,7 +100,8 @@ const char  *GAME_ARGS[] = {
 	"--ini-path",
 	"--log-path",
 	"--show-ini-settings",
-	"--convert-model",
+	"--convert-models",
+	"--convert-textures",
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--verbose"
@@ -123,7 +125,8 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
-	GAME_ARG_CONVERT_MODEL,
+	GAME_ARG_CONVERT_MODELS,
+	GAME_ARG_CONVERT_TEXTURES,
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_VERBOSE_MODE
@@ -697,9 +700,7 @@ void MainWindow::eventKeyDown(char key){
 		else if(key == configKeys.getCharKey("Screenshot")) {
 	        string userData = Config::getInstance().getString("UserData_Root","");
 	        if(userData != "") {
-	            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-	            	userData += "/";
-	            }
+        		endPathWithSlash(userData);
 	        }
 
 			string path = userData + GameConstants::folder_path_screenshots;
@@ -862,10 +863,15 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
 	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 
-	printf("\n%s=x=format\t\t\tconvert a model to current g3d format.",GAME_ARGS[GAME_ARG_CONVERT_MODEL]);
-	printf("\n                     \t\tWhere x is the filename for the g3d model.");
-	printf("\n                     \t\tWhere format is the optional texture format to convert to (default is png).");
-	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODEL]);
+	printf("\n%s=x=textureformat\t\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n                     \t\tWhere x is a filename or folder containing the g3d model(s).");
+	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,png).");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+
+	printf("\n%s=x=textureformat\t\t\tconvert a texture file or folder to the format textureformat.",GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
+	printf("\n                     \t\tWhere x is a filename or folder containing the texture(s).");
+	printf("\n                     \t\tWhere textureformat is a supported texture format to convert to (tga,bmp,png).");
+	printf("\n                     \t\texample: %s %s=data/core/misc_textures/fire_particle.tga=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
@@ -964,9 +970,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
-        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-        	userData += "/";
-        }
+    	endPathWithSlash(userData);
     }
 
     string debugLogFile 			= config.getString("DebugLogFile","");
@@ -1154,6 +1158,8 @@ void runTechValidationReport(int argc, char** argv) {
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
+		endPathWithSlash(techPath);
+
         //printf("techPath [%s]\n",techPath.c_str());
 
         for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
@@ -1163,7 +1169,7 @@ void runTechValidationReport(int argc, char** argv) {
                 std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
                 vector<string> factionsList;
-                findAll(techPath + "/" + techName + "/factions/*.", factionsList, false, false);
+                findAll(techPath + techName + "/factions/*.", factionsList, false, false);
 
                 if(factionsList.size() > 0) {
                     Checksum checksum;
@@ -1419,8 +1425,11 @@ void CheckForDuplicateData() {
 	if(duplicateMapsToRename.size() > 0) {
 		string errorMsg = "Warning duplicate maps were detected and renamed:\n";
 		for(int i = 0; i < duplicateMapsToRename.size(); ++i) {
-			string oldFile = mapPaths[1] + "/" + duplicateMapsToRename[i];
-			string newFile = mapPaths[1] + "/" + duplicateMapsToRename[i];
+			string currentPath = mapPaths[1];
+			endPathWithSlash(currentPath);
+
+			string oldFile = currentPath + duplicateMapsToRename[i];
+			string newFile = currentPath + duplicateMapsToRename[i];
 			string ext = extractExtension(newFile);
 			newFile = newFile.substr( 0, newFile.length()-ext.length()-1);
 			newFile = newFile + "_custom." + ext;
@@ -1608,9 +1617,7 @@ int glestMain(int argc, char** argv) {
 
 	    string userData = config.getString("UserData_Root","");
 	    if(userData != "") {
-	        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-	        	userData += "/";
-	        }
+	    	endPathWithSlash(userData);
 
 	        if(isdir(userData.c_str()) == false) {
 	        	createDirectoryPaths(userData);
@@ -1786,6 +1793,108 @@ int glestMain(int argc, char** argv) {
 			delete mainWindow;
 			return -1;
 		}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_MODELS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODELS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODELS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string modelFile = paramPartTokens[1];
+				printf("About to convert model(s) [%s]\n",modelFile.c_str());
+
+				string textureFormat = "";
+				if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0) {
+					textureFormat = paramPartTokens[2];
+					printf("About to convert using texture format [%s]\n",textureFormat.c_str());
+				}
+
+				showCursor(true);
+				mainWindow->setUseDefaultCursorOnly(true);
+
+				const Metrics &metrics= Metrics::getInstance();
+				renderer.clearBuffers();
+				renderer.clearZBuffer();
+				renderer.reset2d();
+				renderer.renderText(
+						"Please wait, converting models...",
+						CoreData::getInstance().getMenuFontBig(),
+						Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+						(metrics.getScreenH() / 2), true);
+			    renderer.swapBuffers();
+
+				std::vector<string> models;
+				if(isdir(modelFile.c_str()) == true) {
+					models = getFolderTreeContentsListRecursively(modelFile, ".g3d");
+				}
+				else {
+					models.push_back(modelFile);
+				}
+
+			    sleep(0);
+			    Window::handleEvent();
+				SDL_PumpEvents();
+
+				char szTextBuf[1024]="";
+				for(unsigned int i =0; i < models.size(); ++i) {
+					string &file = models[i];
+					bool modelLoadedOk = false;
+
+					renderer.clearBuffers();
+					renderer.clearZBuffer();
+					renderer.reset2d();
+				    sprintf(szTextBuf,"Please wait, converting models [%d of %lu] ...",i,(long int)models.size());
+					renderer.renderText(
+							szTextBuf,
+							CoreData::getInstance().getMenuFontBig(),
+							Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+							(metrics.getScreenH() / 2), true);
+				    renderer.swapBuffers();
+
+				    sleep(0);
+				    Window::handleEvent();
+					SDL_PumpEvents();
+
+					Model *model = renderer.newModel(rsGlobal);
+					try {
+						printf("About to load model [%s]\n",file.c_str());
+						model->load(file);
+						modelLoadedOk = true;
+					}
+					catch(const exception &ex) {
+						printf("ERROR loading model [%s] message [%s]\n",file.c_str(),ex.what());
+					}
+
+					if(modelLoadedOk == true) {
+						printf("About to save converted model [%s]\n",file.c_str());
+						model->save(file,textureFormat);
+					}
+
+					Renderer::getInstance().endModel(rsGlobal, model);
+				}
+
+				delete mainWindow;
+				return -1;
+			}
+			else {
+				printf("\nInvalid model specified on commandline [%s] texture [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return -1;
+			}
+    	}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]) == true) {
+			//!!!
+			printf("\nComing soon (not yet implemented)\n\n");
+			delete mainWindow;
+			return -1;
+		}
+
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {
 
@@ -1795,49 +1904,11 @@ int glestMain(int argc, char** argv) {
 		    return -1;
 		}
 
-		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_MODEL]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODEL]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONVERT_MODEL]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string modelFile = paramPartTokens[1];
-				string textureFormat = "png";
-				if(paramPartTokens.size() >= 3) {
-					textureFormat = paramPartTokens[2];
-				}
-
-				printf("About to convert model [%s] using texture format [%s]\n",modelFile.c_str(),textureFormat.c_str());
-
-				Model *model = renderer.newModel(rsGlobal);
-				model->load(modelFile);
-				model->save(modelFile,textureFormat);
-
-				//!!!
-				delete mainWindow;
-				return -1;
-
-			}
-			else {
-				printf("\nInvalid model name specified on commandline [%s] model [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-				printParameterHelp(argv[0],foundInvalidArgs);
-				delete mainWindow;
-				return -1;
-			}
-		}
-
 		gameInitialized = true;
 
         // Setup the screenshots folder
-        //string userData = config.getString("UserData_Root","");
         if(userData != "") {
-            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-            	userData += "/";
-            }
+        	endPathWithSlash(userData);
         }
 
 		string screenShotsPath = userData + GameConstants::folder_path_screenshots;

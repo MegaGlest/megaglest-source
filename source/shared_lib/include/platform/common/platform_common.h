@@ -147,8 +147,11 @@ void restoreVideoMode(bool exitingApp=false);
 bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
 
+void endPathWithSlash(string &path);
+
 string replaceAll(string& context, const string& from, const string& to);
 bool removeFile(string file);
+bool renameFile(string oldFile, string newFile);
 void removeFolder(const string path);
 
 int getScreenW();

@@ -51,7 +51,10 @@ void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTr
 	//image
 	const XmlNode *imageNode= n->getChild("image");
 	image= Renderer::getInstance().newTexture2D(rsGame);
-	image->load(dir+"/"+imageNode->getAttribute("path")->getRestrictedValue());
+
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+	image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
@@ -378,7 +381,10 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const T
 			const XmlNode *soundFileNode= startSoundNode->getChild("sound-file", i);
 			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
 			StaticSound *sound= new StaticSound();
-			sound->load(dir + "/" + path);
+
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+			sound->load(currentPath + path);
 			startSounds[i]= sound;
 		}
 	}
@@ -391,7 +397,10 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const T
 			const XmlNode *soundFileNode= builtSoundNode->getChild("sound-file", i);
 			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
 			StaticSound *sound= new StaticSound();
-			sound->load(dir + "/" + path);
+
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+			sound->load(currentPath + path);
 			builtSounds[i]= sound;
 		}
 	}

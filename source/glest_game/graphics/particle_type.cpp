@@ -18,11 +18,13 @@
 #include "config.h"
 #include "game_constants.h"
 #include "util.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
 
@@ -51,7 +53,9 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		else{
 			texture->getPixmap()->init(4);
 		}
-		texture->load(dir + "/" + textureNode->getAttribute("path")->getRestrictedValue());
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		texture->load(currentPath + textureNode->getAttribute("path")->getRestrictedValue());
 	}
 	else {
 		texture= NULL;
@@ -65,7 +69,10 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 			string path= modelNode->getAttribute("path")->getRestrictedValue();
 			model= renderer->newModel(rsGame);
 
-			model->load(dir + "/" + path);
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+
+			model->load(currentPath + path);
 		}
 	}
 	else{

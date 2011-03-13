@@ -495,9 +495,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
     else {
         string userData = config.getString("UserData_Root","");
         if(userData != "") {
-            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-            	userData += "/";
-            }
+        	endPathWithSlash(userData);
         }
 
         logFile = userData + logFile;

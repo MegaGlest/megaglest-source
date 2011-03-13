@@ -17,11 +17,13 @@
 #include "xml_parser.h"
 #include "util.h"
 #include "game_util.h"
-#include "leak_dumper.h"
 #include <stdio.h>
+#include "platform_common.h"
+#include "leak_dumper.h"
 
 using namespace Shared::Xml;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 using namespace std;
 
 namespace Glest{ namespace Game{
@@ -67,7 +69,9 @@ Checksum Scenario::load(const string &path) {
 int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &scenarioName) {
     int iIndex = 0;
     for(int idx = 0; idx < dirList.size(); idx++) {
-        string scenarioFile = dirList[idx] + "/" + scenarioName + "/" + scenarioName + ".xml";
+    	string currentPath = dirList[idx];
+    	endPathWithSlash(currentPath);
+        string scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
         if(fileExists(scenarioFile) == true) {
             iIndex = idx;
             break;
@@ -80,7 +84,9 @@ int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &s
 string Scenario::getScenarioPath(const vector<string> dirList, const string &scenarioName, bool getMatchingRootScenarioPathOnly){
     string scenarioFile = "";
     for(int idx = 0; idx < dirList.size(); idx++) {
-        scenarioFile = dirList[idx] + "/" + scenarioName + "/" + scenarioName + ".xml";
+    	string currentPath = dirList[idx];
+    	endPathWithSlash(currentPath);
+    	scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
         if(fileExists(scenarioFile) == true) {
 			if(getMatchingRootScenarioPathOnly == true) {
 				scenarioFile = dirList[idx];
@@ -96,9 +102,9 @@ string Scenario::getScenarioPath(const vector<string> dirList, const string &sce
 }
 
 string Scenario::getScenarioPath(const string &dir, const string &scenarioName){
-    string scenarioFile = dir + "/" + scenarioName + "/" + scenarioName + ".xml";
-    //printf("dir [%s] scenarioName [%s] scenarioFile [%s]\n",dir.c_str(),scenarioName.c_str(),scenarioFile.c_str());
-
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+	string scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
     return scenarioFile;
 }
 

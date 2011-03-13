@@ -69,10 +69,11 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 
 	Config &config= Config::getInstance();
 	if(config.getString("CountryTexturePath", "") != ""){
-		countryLogoPath= config.getString("CountryTexturePath", "");
+		countryLogoPath = config.getString("CountryTexturePath", "");
 	}
+	endPathWithSlash(countryLogoPath);
 
-	string logoFile= countryLogoPath + "/" + toLower(masterServerInfo.getCountry()) + ".png";
+	string logoFile= countryLogoPath + toLower(masterServerInfo.getCountry()) + ".png";
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFile.c_str());
 
 	if(fileExists(logoFile) == true){

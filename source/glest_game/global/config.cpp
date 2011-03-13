@@ -114,22 +114,37 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 
-    string userData = "";
     if(cfgType.first == cfgMainGame) {
         if( properties.first.getString("UserData_Root", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
-        	fileName.second = properties.first.getString("UserData_Root") + fileNameParameter.second;
+        	string userData = properties.first.getString("UserData_Root");
+        	if(userData != "") {
+        		endPathWithSlash(userData);
+        	}
+        	fileName.second = userData + fileNameParameter.second;
         }
         else if(properties.first.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
-        	fileName.second = properties.first.getString("UserOverrideFile") + fileNameParameter.second;
+        	string userData = properties.first.getString("UserOverrideFile");
+        	if(userData != "") {
+        		endPathWithSlash(userData);
+        	}
+        	fileName.second = userData + fileNameParameter.second;
         }
     }
     else if(cfgType.first == cfgMainKeys) {
         Config &mainCfg = Config::getInstance();
     	if( mainCfg.getString("UserData_Root", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
-        	fileName.second = mainCfg.getString("UserData_Root") + fileNameParameter.second;
+        	string userData = mainCfg.getString("UserData_Root");
+        	if(userData != "") {
+        		endPathWithSlash(userData);
+        	}
+        	fileName.second = userData + fileNameParameter.second;
         }
         else if(mainCfg.getString("UserOverrideFile", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
-        	fileName.second = mainCfg.getString("UserOverrideFile") + fileNameParameter.second;
+        	string userData = mainCfg.getString("UserOverrideFile");
+        	if(userData != "") {
+        		endPathWithSlash(userData);
+        	}
+        	fileName.second = userData + fileNameParameter.second;
         }
     }
 

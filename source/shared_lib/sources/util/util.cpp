@@ -322,9 +322,10 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
     va_end(argList);
 
-    if(SystemFlags::ENABLE_THREADED_LOGGING &&
-       threadLogger != NULL &&
-       threadLogger->getRunningStatus() == true) {
+    if( currentDebugLog.debugLogFileName != "" &&
+    	SystemFlags::ENABLE_THREADED_LOGGING &&
+    	threadLogger != NULL &&
+        threadLogger->getRunningStatus() == true) {
         threadLogger->addLogEntry(type, szBuf);
     }
     else {

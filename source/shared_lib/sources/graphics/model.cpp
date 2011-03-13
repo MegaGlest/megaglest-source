@@ -189,19 +189,41 @@ void Mesh::ReleaseVBOs() {
 
 // ==================== load ====================
 
-void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+string Mesh::findAlternateTexture(vector<string> conversionList, string textureFile) {
+	string result = textureFile;
+	string fileExt = extractExtension(textureFile);
+
+	for(int i = 0; i < conversionList.size(); ++i) {
+		string convertTo = conversionList[i];
+		if(fileExt != convertTo) {
+			string alternateTexture = textureFile;
+			replaceAll(alternateTexture, "." + fileExt, "." + convertTo);
+			if(fileExists(alternateTexture) == true) {
+				result = alternateTexture;
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
 	this->textureManager = textureManager;
 	//read header
 	MeshHeaderV2 meshHeader;
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV2), 1, f);
 
 
-	if(meshHeader.normalFrameCount!=meshHeader.vertexFrameCount){
-		throw runtime_error("Old model: vertex frame count different from normal frame count");
+	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
+		throw runtime_error(szBuf);
 	}
 
-	if(meshHeader.texCoordFrameCount!=1){
-		throw runtime_error("Old model: texture coord frame count is not 1");
+	if(meshHeader.texCoordFrameCount != 1) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d",meshHeader.texCoordFrameCount,meshIndex);
+		throw runtime_error(szBuf);
 	}
 
 	//init
@@ -216,7 +238,7 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,boo
 	twoSided= false;
 	customColor= false;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
 
 	textureFlags= 0;
 	if(meshHeader.hasTexture == true) {
@@ -228,19 +250,31 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,boo
 		texturePaths[mtDiffuse]= toLower(reinterpret_cast<char*>(meshHeader.texName));
 		string texPath= dir;
         if(texPath != "") {
-            texPath += "/";
+        	endPathWithSlash(texPath);
         }
 		texPath += texturePaths[mtDiffuse];
 
-		textures[mtDiffuse]= static_cast<Texture2D*>(textureManager->getTexture(texPath));
-		if(textures[mtDiffuse]==NULL){
-			textures[mtDiffuse]= textureManager->newTexture2D();
-			textures[mtDiffuse]->load(texPath);
-			texturesOwned[mtDiffuse]=true;
-			// M.V. Test
-			textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
-			if(deletePixMapAfterLoad == true) {
-				textures[mtDiffuse]->deletePixels();
+		textures[mtDiffuse]= dynamic_cast<Texture2D*>(textureManager->getTexture(texPath));
+		if(textures[mtDiffuse] == NULL) {
+			if(fileExists(texPath) == false) {
+				vector<string> conversionList;
+				conversionList.push_back("png");
+				conversionList.push_back("jpg");
+				conversionList.push_back("tga");
+				conversionList.push_back("bmp");
+				texPath = findAlternateTexture(conversionList, texPath);
+			}
+			if(fileExists(texPath) == true) {
+				textures[mtDiffuse]= textureManager->newTexture2D();
+				textures[mtDiffuse]->load(texPath);
+				texturesOwned[mtDiffuse]=true;
+				textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+				if(deletePixMapAfterLoad == true) {
+					textures[mtDiffuse]->deletePixels();
+				}
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v2 model is missing texture [%s] meshIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,texPath.c_str(),meshIndex);
 			}
 		}
 	}
@@ -257,7 +291,7 @@ void Mesh::loadV2(const string &dir, FILE *f, TextureManager *textureManager,boo
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+void Mesh::loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
 	this->textureManager = textureManager;
 
 	//read header
@@ -265,8 +299,10 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV3), 1, f);
 
 
-	if(meshHeader.normalFrameCount!=meshHeader.vertexFrameCount){
-		throw runtime_error("Old model: vertex frame count different from normal frame count");
+	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
+		throw runtime_error(szBuf);
 	}
 
 	//init
@@ -286,7 +322,7 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 		textureFlags= 1;
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v3, this = %p Found meshHeader.properties = %d, textureFlags = %d, texName [%s] mtDiffuse = %d\n",this,meshHeader.properties,textureFlags,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v3, this = %p Found meshHeader.properties = %d, textureFlags = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.properties,textureFlags,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
 
 	//texture
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture && textureManager!=NULL){
@@ -294,19 +330,32 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 
 		string texPath= dir;
         if(texPath != "") {
-            texPath += "/";
+        	endPathWithSlash(texPath);
         }
 		texPath += texturePaths[mtDiffuse];
 
-		textures[mtDiffuse]= static_cast<Texture2D*>(textureManager->getTexture(texPath));
-		if(textures[mtDiffuse]==NULL){
-			textures[mtDiffuse]= textureManager->newTexture2D();
-			textures[mtDiffuse]->load(texPath);
-			texturesOwned[mtDiffuse]=true;
-			// M.V. Test
-			textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
-			if(deletePixMapAfterLoad == true) {
-				textures[mtDiffuse]->deletePixels();
+		textures[mtDiffuse]= dynamic_cast<Texture2D*>(textureManager->getTexture(texPath));
+		if(textures[mtDiffuse] == NULL) {
+			if(fileExists(texPath) == false) {
+				vector<string> conversionList;
+				conversionList.push_back("png");
+				conversionList.push_back("jpg");
+				conversionList.push_back("tga");
+				conversionList.push_back("bmp");
+				texPath = findAlternateTexture(conversionList, texPath);
+			}
+
+			if(fileExists(texPath) == true) {
+				textures[mtDiffuse]= textureManager->newTexture2D();
+				textures[mtDiffuse]->load(texPath);
+				texturesOwned[mtDiffuse]=true;
+				textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+				if(deletePixMapAfterLoad == true) {
+					textures[mtDiffuse]->deletePixels();
+				}
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v3 model is missing texture [%s] meshHeader.properties = %d meshIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,texPath.c_str(),meshHeader.properties,meshIndex);
 			}
 		}
 	}
@@ -325,26 +374,53 @@ void Mesh::loadV3(const string &dir, FILE *f, TextureManager *textureManager,boo
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-Texture2D* Mesh::loadMeshTexture(TextureManager *textureManager, string textureFile,
+Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex, TextureManager *textureManager, string textureFile,
 		int textureChannelCount, bool &textureOwned, bool deletePixMapAfterLoad) {
-	Texture2D* texture = static_cast<Texture2D*>(textureManager->getTexture(textureFile));
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #1 load texture [%s]\n",__FUNCTION__,textureFile.c_str());
+
+	Texture2D* texture = dynamic_cast<Texture2D*>(textureManager->getTexture(textureFile));
 	if(texture == NULL) {
-		texture = textureManager->newTexture2D();
-		if(textureChannelCount != -1) {
-			texture->getPixmap()->init(textureChannelCount);
+		if(fileExists(textureFile) == false) {
+			vector<string> conversionList;
+			conversionList.push_back("png");
+			conversionList.push_back("jpg");
+			conversionList.push_back("tga");
+			conversionList.push_back("bmp");
+			textureFile = findAlternateTexture(conversionList, textureFile);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #2 load texture [%s]\n",__FUNCTION__,textureFile.c_str());
 		}
-		texture->load(textureFile);
-		textureOwned = true;
-		texture->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
-		if(deletePixMapAfterLoad == true) {
-			texture->deletePixels();
+
+		if(fileExists(textureFile) == true) {
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture exists loading [%s]\n",__FUNCTION__,textureFile.c_str());
+
+			texture = textureManager->newTexture2D();
+			if(textureChannelCount != -1) {
+				texture->getPixmap()->init(textureChannelCount);
+			}
+			texture->load(textureFile);
+
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture loaded [%s]\n",__FUNCTION__,textureFile.c_str());
+
+			textureOwned = true;
+			texture->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
+			if(deletePixMapAfterLoad == true) {
+				texture->deletePixels();
+			}
+
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture inited [%s]\n",__FUNCTION__,textureFile.c_str());
+		}
+		else {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #3 cannot load texture [%s]\n",__FUNCTION__,textureFile.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v4 model is missing texture [%s] textureFlags = %d meshIndex = %d textureIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,textureFile.c_str(),textureFlags,meshIndex,textureIndex);
 		}
 	}
 
 	return texture;
 }
 
-void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,
+void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 				bool deletePixMapAfterLoad) {
 	this->textureManager = textureManager;
 
@@ -375,26 +451,28 @@ void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,
 
 	textureFlags= meshHeader.textures;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v4, this = %p Found meshHeader.textures = %d\n",this,meshHeader.textures);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v4, this = %p Found meshHeader.textures = %d meshIndex = %d\n",this,meshHeader.textures,meshIndex);
 
 	//maps
 	uint32 flag= 1;
-	for(int i=0; i<meshTextureCount; ++i){
-		if((meshHeader.textures & flag) && textureManager!=NULL){
+	for(int i = 0; i < meshTextureCount; ++i) {
+		if((meshHeader.textures & flag) && textureManager != NULL) {
 			uint8 cMapPath[mapPathSize];
 			readBytes = fread(cMapPath, mapPathSize, 1, f);
 			string mapPath= toLower(reinterpret_cast<char*>(cMapPath));
 
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapPath [%s] meshHeader.textures = %d flag = %d (meshHeader.textures & flag) = %d meshIndex = %d i = %d\n",mapPath.c_str(),meshHeader.textures,flag,(meshHeader.textures & flag),meshIndex,i);
+
 			string mapFullPath= dir;
 			if(mapFullPath != "") {
-                mapFullPath += "/";
+                endPathWithSlash(mapFullPath);
 			}
 			mapFullPath += mapPath;
 
-			textures[i] = loadMeshTexture(textureManager, mapFullPath,
+			textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
 					meshTextureChannelCount[i],texturesOwned[i],deletePixMapAfterLoad);
 		}
-		flag*= 2;
+		flag *= 2;
 	}
 
 	//read data
@@ -411,7 +489,7 @@ void Mesh::load(const string &dir, FILE *f, TextureManager *textureManager,
 	}
 }
 
-void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager,
+void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 		string convertTextureToFormat, std::map<string,int> &textureDeleteList) {
 	MeshHeader meshHeader;
 	memset(&meshHeader, 0, sizeof(struct MeshHeader));
@@ -439,7 +517,7 @@ void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager,
 	meshHeader.textures = textureFlags;
 	fwrite(&meshHeader, sizeof(MeshHeader), 1, f);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, this = %p, Found meshTextureCount = %d, meshHeader.textures = %d\n",this,meshTextureCount,meshHeader.textures);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, this = %p, Found meshTextureCount = %d, meshHeader.textures = %d meshIndex = %d\n",this,meshTextureCount,meshHeader.textures,meshIndex);
 
 	//maps
 	uint32 flag= 1;
@@ -487,7 +565,9 @@ void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager,
 					}
 
 					//textureManager->endTexture(texture);
-					texture = loadMeshTexture(textureManager,file,
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, load new texture [%s]\n",file.c_str());
+					texture = loadMeshTexture(meshIndex, i, textureManager,file,
 												meshTextureChannelCount[i],
 												texturesOwned[i],
 												false);
@@ -496,8 +576,16 @@ void Mesh::save(const string &dir, FILE *f, TextureManager *textureManager,
 
 				file = extractFileFromDirectoryPath(texture->getPath());
 
+				if(file.length() > mapPathSize) {
+					throw runtime_error("file.length() > mapPathSize, file.length() = " + intToStr(file.length()));
+				}
+				else if(file.length() == 0) {
+					throw runtime_error("file.length() == 0");
+				}
+
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, new texture file [%s]\n",file.c_str());
 
+				memset(&cMapPath[0],0,mapPathSize);
 				memcpy(&cMapPath[0],file.c_str(),file.length());
 			}
 
@@ -690,32 +778,32 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
 			//load meshes
 			meshes= new Mesh[meshCount];
-			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].load(dir, f, textureManager,deletePixMapAfterLoad);
+			for(uint32 i = 0; i < meshCount; ++i) {
+				meshes[i].load(i, dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
 		//version 3
-		else if(fileHeader.version==3){
+		else if(fileHeader.version == 3) {
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
 			meshes= new Mesh[meshCount];
-			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].loadV3(dir, f, textureManager,deletePixMapAfterLoad);
+			for(uint32 i = 0; i < meshCount; ++i) {
+				meshes[i].loadV3(i, dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
 		//version 2
-		else if(fileHeader.version==2) {
+		else if(fileHeader.version == 2) {
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
 			meshes= new Mesh[meshCount];
-			for(uint32 i=0; i<meshCount; ++i){
-				meshes[i].loadV2(dir, f, textureManager,deletePixMapAfterLoad);
+			for(uint32 i = 0; i < meshCount; ++i){
+				meshes[i].loadV2(i,dir, f, textureManager,deletePixMapAfterLoad);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -733,9 +821,12 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
 //save a model to a g3d file
 void Model::saveG3d(const string &path, string convertTextureToFormat) {
-	FILE *f= fopen(path.c_str(), "wb");
+
+	string tempModelFilename = path + "cvt";
+
+	FILE *f= fopen(tempModelFilename.c_str(), "wb");
 	if(f == NULL) {
-		throw runtime_error("Cant open file for writting: "+path);
+		throw runtime_error("Cant open file for writting: [" + tempModelFilename + "]");
 	}
 
 	convertTextureToFormat = toLower(convertTextureToFormat);
@@ -760,13 +851,17 @@ void Model::saveG3d(const string &path, string convertTextureToFormat) {
 
 		std::map<string,int> textureDeleteList;
 		for(uint32 i = 0; i < meshCount; ++i) {
-			meshes[i].save(path, f, textureManager,convertTextureToFormat,textureDeleteList);
+			meshes[i].save(i,tempModelFilename, f, textureManager,
+					convertTextureToFormat,textureDeleteList);
 		}
 
-		// Now delete old textures since they were converted to a new format
-		for(std::map<string,int>::iterator iterMap = textureDeleteList.begin();
-			iterMap != textureDeleteList.end(); ++iterMap) {
-
+		removeFile(path);
+		if(renameFile(tempModelFilename,path) == true) {
+			// Now delete old textures since they were converted to a new format
+			for(std::map<string,int>::iterator iterMap = textureDeleteList.begin();
+				iterMap != textureDeleteList.end(); ++iterMap) {
+				removeFile(iterMap->first);
+			}
 		}
 	}
 	else {

@@ -43,9 +43,7 @@ Logger::Logger() {
 	else {
         string userData = Config::getInstance().getString("UserData_Root","");
         if(userData != "") {
-            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-            	userData += "/";
-            }
+        	endPathWithSlash(userData);
         }
         fileName= userData + "log.txt";
 	}

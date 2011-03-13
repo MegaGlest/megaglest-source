@@ -79,9 +79,7 @@ Profiler::~Profiler(){
     else {
         string userData = config.getString("UserData_Root","");
         if(userData != "") {
-            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-            	userData += "/";
-            }
+        	endPathWithSlash(userData);
         }
         profileLog = userData + profileLog;
     }

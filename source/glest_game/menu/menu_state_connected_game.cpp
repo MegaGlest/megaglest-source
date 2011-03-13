@@ -1604,8 +1604,8 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
-
-        findAll(techPath + "/" + gameSettings->getTech() + "/factions/*.", results, false, false);
+        endPathWithSlash(techPath);
+        findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
         if(results.size() > 0) {
             break;
         }

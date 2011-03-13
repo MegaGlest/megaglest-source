@@ -240,9 +240,7 @@ FTP_Client_ResultType FTPClientThread::getMapFromServer(string mapFileName, stri
     string destFileExt = "";
     string destFile = this->mapsPath.second;
 
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
+	endPathWithSlash(destFile);
     destFile += mapFileName;
 
     if(EndsWith(destFile,".mgm") == false && EndsWith(destFile,".gbm") == false) {
@@ -388,34 +386,22 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
     string destRootFolder = "";
     if(tileSetNameSubfolder == "") {
         destRootFolder = this->tilesetsPath.second;
-        if( EndsWith(destRootFolder,"/") == false &&
-        	EndsWith(destRootFolder,"\\") == false) {
-             destRootFolder += "/";
-        }
+        endPathWithSlash(destRootFolder);
+
         destRootArchiveFolder = destRootFolder;
         destRootFolder += tileSetName;
-        if( EndsWith(destRootFolder,"/") == false &&
-        	EndsWith(destRootFolder,"\\") == false) {
-             destRootFolder += "/";
-        }
+        endPathWithSlash(destRootFolder);
 
         createDirectoryPaths(destRootFolder);
     }
 
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
+    endPathWithSlash(destFile);
     destFile += tileSetName;
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
+    endPathWithSlash(destFile);
 
     if(tileSetNameSubfolder != "") {
         destFile += tileSetNameSubfolder;
-
-        if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-            destFile += "/";
-        }
+        endPathWithSlash(destFile);
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s] findArchive = %d\n",destFile.c_str(),findArchive);
@@ -580,26 +566,16 @@ FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName
     string destRootArchiveFolder = "";
     string destRootFolder = "";
 	destRootFolder = this->techtreesPath.second;
-	if( EndsWith(destRootFolder,"/") == false &&
-		EndsWith(destRootFolder,"\\") == false) {
-		 destRootFolder += "/";
-	}
+	endPathWithSlash(destRootFolder);
 	destRootArchiveFolder = destRootFolder;
 	destRootFolder += techtreeName;
-	if( EndsWith(destRootFolder,"/") == false &&
-		EndsWith(destRootFolder,"\\") == false) {
-		 destRootFolder += "/";
-	}
+	endPathWithSlash(destRootFolder);
 
 	createDirectoryPaths(destRootFolder);
 
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
+	endPathWithSlash(destFile);
     destFile += techtreeName;
-    if(EndsWith(destFile,"/") == false && EndsWith(destFile,"\\") == false) {
-        destFile += "/";
-    }
+    endPathWithSlash(destFile);
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
