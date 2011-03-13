@@ -35,6 +35,7 @@ namespace Glest{ namespace Game{
 ParticleSystemType::ParticleSystemType() {
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
+	alternations=false;
 	texture=NULL;
 	model=NULL;
 }
@@ -141,7 +142,11 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
     	const XmlNode *teamcolorEnergyNode= particleSystemNode->getChild("teamcolorEnergy");
     	teamcolorEnergy= teamcolorEnergyNode->getAttribute("value")->getBoolValue();
     }
-
+    //alternations
+	if(particleSystemNode->hasChild("alternations")){
+		const XmlNode *alternatingNode= particleSystemNode->getChild("alternations");
+		alternations= alternatingNode->getAttribute("value")->getIntValue();
+	}
 	//mode
 	if(particleSystemNode->hasChild("mode")){
 		const XmlNode *modeNode= particleSystemNode->getChild("mode");
@@ -169,6 +174,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setModel(model);
 	ats->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ats->setTeamcolorEnergy(teamcolorEnergy);
+    ats->setAlternations(alternations);
 	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 

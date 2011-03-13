@@ -51,6 +51,9 @@ protected:
     bool relativeDirection;
     bool fixed;
     int staticParticleCount;
+	bool isVisibleAtNight;
+	bool isVisibleAtDay;
+	bool radiusBasedStartenergy;
 
 public:
 	void load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *newTexture);
