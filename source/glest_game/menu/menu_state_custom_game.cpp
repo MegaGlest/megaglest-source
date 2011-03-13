@@ -444,7 +444,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
-        findAll(techPath + "/" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        endPathWithSlash(techPath);
+        findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
 
         if(results.size() > 0) {
             break;
@@ -2238,15 +2239,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
-    //	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
-    //}
     Config &config = Config::getInstance();
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
-        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-        	userData += "/";
-        }
+    	endPathWithSlash(userData);
     }
     fileName = userData + fileName;
 
@@ -2306,15 +2302,10 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     GameSettings gameSettings;
 
-    //if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
-    //	fileName = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName;
-    //}
     Config &config = Config::getInstance();
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
-        if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-        	userData += "/";
-        }
+    	endPathWithSlash(userData);
     }
     fileName = userData + fileName;
 
@@ -2556,16 +2547,14 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 }
 
 void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
-
 	vector<string> results;
-
     Config &config = Config::getInstance();
 
     vector<string> techPaths = config.getPathListForType(ptTechs);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
-
-        findAll(techPath + "/" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        endPathWithSlash(techPath);
+        findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
         if(results.size() > 0) {
             break;
         }

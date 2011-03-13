@@ -106,7 +106,9 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		}
 
 		//open xml file
-		string path= dir+"/"+name+".xml";
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		string path= currentPath + name + ".xml";
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
@@ -143,7 +145,10 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		bool value= musicNode->getAttribute("value")->getBoolValue();
 		if(value){
 			music= new StrSound();
-			music->open(dir+"/"+musicNode->getAttribute("path")->getRestrictedValue());
+
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+			music->open(currentPath + musicNode->getAttribute("path")->getRestrictedValue());
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

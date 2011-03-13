@@ -1250,9 +1250,11 @@ string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNo
     vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 
     for(int idx = 0; idx < pathList.size(); idx++) {
-        const string &map_path = pathList[idx];
-        const string mega = map_path + "/" + mapName + ".mgm";
-        const string glest = map_path + "/" + mapName + ".gbm";
+        string map_path = pathList[idx];
+    	endPathWithSlash(map_path);
+
+        const string mega = map_path + mapName + ".mgm";
+        const string glest = map_path + mapName + ".gbm";
         if (fileExists(mega)) {
             return mega;
         }

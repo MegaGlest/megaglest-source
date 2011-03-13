@@ -54,7 +54,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
 
-	path = dir + "/" + name + ".xml";
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+	path = currentPath + name + ".xml";
 
 	try{
 		checksum->addFile(path);
@@ -67,12 +69,12 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		//image
 		const XmlNode *imageNode= upgradeNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(dir+"/"+imageNode->getAttribute("path")->getRestrictedValue());
+		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
 
 		//image cancel
 		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(dir+"/"+imageCancelNode->getAttribute("path")->getRestrictedValue());
+		cancelImage->load(currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue());
 
 		//upgrade time
 		const XmlNode *upgradeTimeNode= upgradeNode->getChild("time");

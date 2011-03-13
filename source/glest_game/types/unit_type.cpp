@@ -121,7 +121,9 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	string path = dir + "/" + name + ".xml";
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+	string path = currentPath + name + ".xml";
 
 	this->id= id;
 
@@ -284,7 +286,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
 					Texture2D *newTexture = NULL;
 
-					unitParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+					unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
 					if(unitParticleSystemType->hasTexture() == false) {
 						//Renderer::getInstance().endLastTexture(rsGame,true);
 					}
@@ -353,19 +355,19 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(dir+"/"+imageNode->getAttribute("path")->getRestrictedValue());
+		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(dir+"/"+imageCancelNode->getAttribute("path")->getRestrictedValue());
+		cancelImage->load(currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue());
 
 		//meeting point
 		const XmlNode *meetingPointNode= parametersNode->getChild("meeting-point");
 		meetingPoint= meetingPointNode->getAttribute("value")->getBoolValue();
 		if(meetingPoint){
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
-			meetingPointImage->load(dir+"/"+meetingPointNode->getAttribute("image-path")->getRestrictedValue());
+			meetingPointImage->load(currentPath + meetingPointNode->getAttribute("image-path")->getRestrictedValue());
 		}
 
 		//selection sounds
@@ -376,7 +378,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 				const XmlNode *soundNode= selectionSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue();
 				StaticSound *sound= new StaticSound();
-				sound->load(dir + "/" + path);
+				sound->load(currentPath + path);
 				selectionSounds[i]= sound;
 			}
 		}
@@ -389,7 +391,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 				const XmlNode *soundNode= commandSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue();
 				StaticSound *sound= new StaticSound();
-				sound->load(dir + "/" + path);
+				sound->load(currentPath + path);
 				commandSounds[i]= sound;
 			}
 		}

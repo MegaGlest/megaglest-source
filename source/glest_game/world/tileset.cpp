@@ -39,7 +39,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledDay= dayNode->getAttribute("enabled")->getBoolValue();
 	if(enabledDay){
 		path= dayNode->getAttribute("path")->getRestrictedValue();
-		day.open(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		day.open(currentPath + path);
 		alwaysPlayDay= dayNode->getAttribute("play-always")->getBoolValue();
 	}
 
@@ -48,7 +50,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledNight= nightNode->getAttribute("enabled")->getBoolValue();
 	if(enabledNight){
 		path= nightNode->getAttribute("path")->getRestrictedValue();
-		night.open(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		night.open(currentPath + path);
 		alwaysPlayNight= nightNode->getAttribute("play-always")->getBoolValue();
 	}
 
@@ -57,7 +61,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledRain= rainNode->getAttribute("enabled")->getBoolValue();
 	if(enabledRain){
 		path= rainNode->getAttribute("path")->getRestrictedValue();
-		rain.open(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		rain.open(currentPath + path);
 	}
 
 	//snow
@@ -65,7 +71,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledSnow= snowNode->getAttribute("enabled")->getBoolValue();
 	if(enabledSnow){
 		path= snowNode->getAttribute("path")->getRestrictedValue();
-		snow.open(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		snow.open(currentPath + path);
 	}
 
 	//dayStart
@@ -73,7 +81,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledDayStart= dayStartNode->getAttribute("enabled")->getBoolValue();
 	if(enabledDayStart){
 		path= dayStartNode->getAttribute("path")->getRestrictedValue();
-		dayStart.load(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		dayStart.load(currentPath + path);
 	}
 
 	//nightStart
@@ -81,9 +91,10 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 	enabledNightStart= nightStartNode->getAttribute("enabled")->getBoolValue();
 	if(enabledNightStart){
 		path= nightStartNode->getAttribute("path")->getRestrictedValue();
-		nightStart.load(dir + "/" + path);
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		nightStart.load(currentPath + path);
 	}
-
 }
 
 // =====================================================
@@ -93,7 +104,9 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
     Checksum tilesetChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
-        const string path = pathList[idx] + "/" + tilesetName;
+		string currentPath = pathList[idx];
+		endPathWithSlash(currentPath);
+        string path = currentPath + tilesetName;
         if(isdir(path.c_str()) == true) {
             load(path, checksum, &tilesetChecksum);
             break;
@@ -111,7 +124,9 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string name= lastDir(dir);
-	string path= dir + "/" + name + ".xml";
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+	string path= currentPath + name + ".xml";
 
 	checksum->addFile(path);
 	tilesetChecksum->addFile(path);
@@ -152,7 +167,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j){
 				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
 				surfPixmaps[i][j].init(3);
-				surfPixmaps[i][j].load(dir +"/"+textureNode->getAttribute("path")->getRestrictedValue());
+				surfPixmaps[i][j].load(currentPath + textureNode->getAttribute("path")->getRestrictedValue());
 				surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
 			}
 		}
@@ -178,7 +193,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j) {
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
-				objectTypes[i].loadModel(dir +"/"+ pathAttribute->getRestrictedValue());
+				objectTypes[i].loadModel(currentPath + pathAttribute->getRestrictedValue());
 
 				if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -188,7 +203,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+							objectParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
 							objectTypes[i].addParticleSystem((objectParticleSystemType));
 						}
 					}
@@ -222,7 +237,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		waterTex->getPixmap()->init(waterFrameCount, 4);
 		for(int i=0; i<waterFrameCount; ++i){
 			const XmlNode *waterFrameNode= waterNode->getChild("texture", i);
-			waterTex->getPixmap()->loadSlice(dir +"/"+ waterFrameNode->getAttribute("path")->getRestrictedValue(), i);
+			waterTex->getPixmap()->loadSlice(currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue(), i);
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

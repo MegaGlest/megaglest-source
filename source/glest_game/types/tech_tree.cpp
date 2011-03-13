@@ -35,7 +35,10 @@ namespace Glest{ namespace Game{
 Checksum TechTree::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum) {
     Checksum techtreeChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
-        string path = pathList[idx] + "/" + techName;
+    	string currentPath = pathList[idx];
+    	endPathWithSlash(currentPath);
+
+        string path = currentPath + techName;
         if(isdir(path.c_str()) == true) {
             load(path, factions, checksum, &techtreeChecksum);
             break;
@@ -85,7 +88,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	//load tech tree xml info
 	try{
 		XmlTree	xmlTree;
-		string path= dir+"/"+lastDir(dir)+".xml";
+    	string currentPath = dir;
+    	endPathWithSlash(currentPath);
+		string path = currentPath + lastDir(dir) + ".xml";
 
 		checksum->addFile(path);
 		checksumValue.addFile(path);

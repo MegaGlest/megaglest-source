@@ -131,20 +131,21 @@ public:
 	void updateInterpolationData(float t, bool cycle);
 	void updateInterpolationVertices(float t, bool cycle);
 
-	Texture2D *loadMeshTexture(TextureManager *textureManager, string textureFile,
+	Texture2D *loadMeshTexture(int meshIndex, int textureIndex, TextureManager *textureManager, string textureFile,
 								int textureChannelCount, bool &textureOwned,
 								bool deletePixMapAfterLoad);
 
 	//load
-	void loadV2(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void loadV3(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void load(const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void save(const string &dir, FILE *f, TextureManager *textureManager,
+	void loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
+	void loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
+	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
+	void save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 			string convertTextureToFormat, std::map<string,int> &textureDeleteList);
 
 	void deletePixels();
 
 private:
+	string findAlternateTexture(vector<string> conversionList, string textureFile);
 	void computeTangents();
 };
 

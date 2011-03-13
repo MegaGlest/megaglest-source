@@ -770,9 +770,7 @@ void MainWindow::saveScreenshot() {
 			//string screenShotsPath = extractDirectoryPathFromFile(appPath) + string("screens/");
 	        string userData = Config::getInstance().getString("UserData_Root","");
 	        if(userData != "") {
-	            if(userData != "" && EndsWith(userData, "/") == false && EndsWith(userData, "\\") == false) {
-	            	userData += "/";
-	            }
+	        	endPathWithSlash(userData);
 	        }
 	        string screenShotsPath = userData + string("screens/");
 			printf("screenShotsPath [%s]\n",screenShotsPath.c_str());

@@ -57,7 +57,9 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		name= lastDir(dir);
 
 		Logger::getInstance().add("Resource type: "+ formatString(name), true);
-		path= dir+"/"+name+".xml";
+		string currentPath = dir;
+		endPathWithSlash(currentPath);
+		path= currentPath + name + ".xml";
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
@@ -69,7 +71,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		//image
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
-		image->load(dir+"/"+imageNode->getAttribute("path")->getRestrictedValue());
+		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
 
 		//type
 		const XmlNode *typeNode= resourceNode->getChild("type");
@@ -81,7 +83,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
             {
                 //model
                 const XmlNode *modelNode= typeNode->getChild("model");
-                string path=dir+"/" + modelNode->getAttribute("path")->getRestrictedValue();
+                string path= currentPath + modelNode->getAttribute("path")->getRestrictedValue();
 
                 model= renderer.newModel(rsGame);
                 model->load(path);
@@ -95,7 +97,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  dir + "/" + path, &Renderer::getInstance());
+							objectParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
 							particleTypes.push_back(objectParticleSystemType);
 						}
 					}

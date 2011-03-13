@@ -61,7 +61,7 @@ using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace std;
 
-#define _DISABLE MEMORY_VAULT_CHECKS 1
+#define _DISABLE_MEMORY_VAULT_CHECKS 1
 
 namespace Shared { namespace PlatformCommon {
 
@@ -214,13 +214,15 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
     results.clear();
     size_t pathCount = paths.size();
     for(unsigned int idx = 0; idx < pathCount; idx++) {
-        string path = paths[idx] + "/*.";
+    	string currentPath = paths[idx];
+    	endPathWithSlash(currentPath);
+        string path = currentPath + "*.";
         vector<string> current_results;
         findAll(path, current_results, false, errorOnNotFound);
         if(current_results.size() > 0) {
             for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 const string current_folder = current_results[folder_index];
-                const string current_folder_path = paths[idx] + "/" + current_folder;
+                const string current_folder_path = currentPath + current_folder;
 
                 if(isdir(current_folder_path.c_str()) == true) {
                     if(keepDuplicates == true || std::find(results.begin(),results.end(),current_folder) == results.end()) {
@@ -238,7 +240,10 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
     results.clear();
     size_t pathCount = paths.size();
     for(unsigned int idx = 0; idx < pathCount; idx++) {
-        string path = paths[idx] + "/" + fileFilter;
+    	string currentPath = paths[idx];
+    	endPathWithSlash(currentPath);
+
+    	string path = currentPath + fileFilter;
         vector<string> current_results;
         findAll(path, current_results, cutExtension, errorOnNotFound);
         if(current_results.size() > 0) {
@@ -399,6 +404,12 @@ bool EndsWith(const string &str, const string& key)
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] result [%d] str = [%s] key = [%s]\n",__FILE__,__FUNCTION__,result,str.c_str(),key.c_str());
     return result;
+}
+
+void endPathWithSlash(string &path) {
+	if(EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+		path += "/";
+	}
 }
 
 string getCRCCacheFilePath() {
@@ -656,8 +667,12 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		if( S_ISDIR(statStruct.st_mode) == 0)
 			continue;
 #endif
-		const char* p = globbuf.gl_pathv[i];
-        getFolderTreeContentsCheckSumRecursively(string(p) + "/*", filterFileExt, &checksum);
+		const char *p = globbuf.gl_pathv[i];
+
+    	string currentPath = p;
+    	endPathWithSlash(currentPath);
+
+        getFolderTreeContentsCheckSumRecursively(currentPath + "*", filterFileExt, &checksum);
 	}
 
 	globfree(&globbuf);
@@ -829,7 +844,11 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 		if(includeFolders == true) {
 			resultFiles.push_back(p);
 		}
-		resultFiles = getFolderTreeContentsListRecursively(string(p) + "/*", filterFileExt, includeFolders,&resultFiles);
+
+    	string currentPath = p;
+    	endPathWithSlash(currentPath);
+
+		resultFiles = getFolderTreeContentsListRecursively(currentPath + "*", filterFileExt, includeFolders,&resultFiles);
 	}
 
 	globfree(&globbuf);
@@ -953,8 +972,12 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 		if( S_ISDIR(statStruct.st_mode) == 0)
 			continue;
 #endif
-		const char* p = globbuf.gl_pathv[i];
-        checksumFiles = getFolderTreeContentsCheckSumListRecursively(string(p) + "/*", filterFileExt, &checksumFiles);
+		const char *p = globbuf.gl_pathv[i];
+
+    	string currentPath = p;
+    	endPathWithSlash(currentPath);
+
+        checksumFiles = getFolderTreeContentsCheckSumListRecursively(currentPath + "*", filterFileExt, &checksumFiles);
 	}
 
 	globfree(&globbuf);
@@ -972,7 +995,6 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 string extractFileFromDirectoryPath(string filename) {
 	size_t lastDirectory     = filename.find_last_of("/\\");
-    //return filename.substr( 0, filename.rfind("/")+1 );
 	if (lastDirectory == string::npos) {
 		return filename;
 	}
@@ -982,14 +1004,10 @@ string extractFileFromDirectoryPath(string filename) {
 
 string extractDirectoryPathFromFile(string filename) {
 	size_t lastDirectory     = filename.find_last_of("/\\");
-	//printf("In [%s::%s Line: %d] filename = [%s] lastDirectory= %u\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),lastDirectory);
-
 	string path = "";
-    //return filename.substr( 0, filename.rfind("/")+1 );
 	if (lastDirectory != string::npos) {
 		path = filename.substr( 0, lastDirectory + 1);
 	}
-	//printf("In [%s::%s Line: %d] filename = [%s] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filename.c_str(),path.c_str());
 
 	return path;
 }
@@ -1356,6 +1374,16 @@ bool removeFile(string file) {
     return (result == 0);
 }
 
+bool renameFile(string oldFile, string newFile) {
+#ifdef WIN32
+	int result = _rename(oldFile.c_str(),newFile.c_str());
+#else
+	int result = rename(oldFile.c_str(),newFile.c_str());
+#endif
+
+    return (result == 0);
+}
+
 // =====================================
 //         ModeInfo
 // =====================================
@@ -1371,15 +1399,19 @@ string ModeInfo::getString() const{
 }
 
 void ValueCheckerVault::addItemToVault(const void *ptr,int value) {
-#ifndef _DISABLE MEMORY_VAULT_CHECKS
+#ifndef _DISABLE_MEMORY_VAULT_CHECKS
+
 	Checksum checksum;
 	vaultList[ptr] = checksum.addInt(value);
+
 #endif
+
 //	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add vault key [%p] value [%s] [%d]\n",__FILE__,__FUNCTION__,__LINE__,ptr,intToStr(checksum.getSum()).c_str(),value);
 }
 
 void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
-#ifndef _DISABLE MEMORY_VAULT_CHECKS
+#ifndef _DISABLE_MEMORY_VAULT_CHECKS
+
 	map<const void *,int32>::const_iterator iterFind = vaultList.find(ptr);
 	if(iterFind == vaultList.end()) {
 //		if(SystemFlags::VERBOSE_MODE_ENABLED) {
@@ -1402,7 +1434,9 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 //		}
 		throw std::runtime_error("memory value has been unexpectedly modified (changed)!");
 	}
+
 #endif
+
 }
 
 

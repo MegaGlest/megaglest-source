@@ -45,7 +45,9 @@ void Lang::loadStrings(const string &language){
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
 
-	string scenarioFolder = scenarioDir + "/" + scenarioName + "/";
+	string currentPath = scenarioDir;
+	endPathWithSlash(currentPath);
+	string scenarioFolder = currentPath + scenarioName + "/";
 	string path = scenarioFolder + scenarioName + "_" + language + ".lng";
 	if(EndsWith(scenarioDir, ".xml") == true) {
 		scenarioFolder = extractDirectoryPathFromFile(scenarioDir);
