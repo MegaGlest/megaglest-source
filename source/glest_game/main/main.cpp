@@ -865,13 +865,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s=x=textureformat=keepsmallest\t\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 	printf("\n                     \t\tWhere x is a filename or folder containing the g3d model(s).");
-	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,png).");
+	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,jpg,png).");
 	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating to keep original texture if its filesize is smaller than the converted format.");
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
 	printf("\n%s=x=textureformat\t\t\tconvert a texture file or folder to the format textureformat.",GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
 	printf("\n                     \t\tWhere x is a filename or folder containing the texture(s).");
-	printf("\n                     \t\tWhere textureformat is a supported texture format to convert to (tga,bmp,png).");
+	printf("\n                     \t\tWhere textureformat is a supported texture format to convert to (tga,bmp,jpg,png).");
 	printf("\n                     \t\texample: %s %s=data/core/misc_textures/fire_particle.tga=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);

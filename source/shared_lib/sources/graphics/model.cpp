@@ -568,9 +568,17 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 							textureDeleteList[file] = textureDeleteList[file] + 1;
 						}
 					}
-					//else if(convertTextureToFormat == "jpg") {
-					//	texture->getPixmap()->saveJpg(file);
-					//}
+					else if(convertTextureToFormat == "jpg") {
+						texture->getPixmap()->saveJpg(file);
+						newSize = getFileSize(file);
+						if(keepsmallest == false || newSize <= originalSize) {
+							textureDeleteList[texture->getPath()] = textureDeleteList[texture->getPath()] + 1;
+						}
+						else {
+							printf("Texture will not be converted, keeping smallest texture [%s]\n",texture->getPath().c_str());
+							textureDeleteList[file] = textureDeleteList[file] + 1;
+						}
+					}
 					else  if(convertTextureToFormat == "png") {
 						texture->getPixmap()->savePng(file);
 						newSize = getFileSize(file);
