@@ -1384,6 +1384,12 @@ bool renameFile(string oldFile, string newFile) {
     return (result == 0);
 }
 
+long getFileSize(string filename) {
+  struct stat stbuf;
+  stat(filename.c_str(), &stbuf);
+  return stbuf.st_size;
+}
+
 // =====================================
 //         ModeInfo
 // =====================================

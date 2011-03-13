@@ -140,7 +140,8 @@ public:
 	void loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
 	void save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-			string convertTextureToFormat, std::map<string,int> &textureDeleteList);
+			string convertTextureToFormat, std::map<string,int> &textureDeleteList,
+			bool keepsmallest);
 
 	void deletePixels();
 
@@ -194,9 +195,9 @@ public:
 
 	//io
 	void load(const string &path,bool deletePixMapAfterLoad=false);
-	void save(const string &path, string convertTextureToFormat="");
+	void save(const string &path, string convertTextureToFormat,bool keepsmallest);
 	void loadG3d(const string &path,bool deletePixMapAfterLoad=false);
-	void saveG3d(const string &path, string convertTextureToFormat="");
+	void saveG3d(const string &path, string convertTextureToFormat,bool keepsmallest);
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
 	void deletePixels();

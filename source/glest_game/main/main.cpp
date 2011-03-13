@@ -863,10 +863,11 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
 	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 
-	printf("\n%s=x=textureformat\t\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n%s=x=textureformat=keepsmallest\t\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 	printf("\n                     \t\tWhere x is a filename or folder containing the g3d model(s).");
 	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,png).");
-	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating to keep original texture if its filesize is smaller than the converted format.");
+	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
 	printf("\n%s=x=textureformat\t\t\tconvert a texture file or folder to the format textureformat.",GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
 	printf("\n                     \t\tWhere x is a filename or folder containing the texture(s).");
@@ -1813,6 +1814,12 @@ int glestMain(int argc, char** argv) {
 					printf("About to convert using texture format [%s]\n",textureFormat.c_str());
 				}
 
+				bool keepsmallest = false;
+				if(paramPartTokens.size() >= 4 && paramPartTokens[1].length() > 0) {
+					keepsmallest = (paramPartTokens[3] == "keepsmallest");
+					printf("About to convert using keepsmallest = %d\n",keepsmallest);
+				}
+
 				showCursor(true);
 				mainWindow->setUseDefaultCursorOnly(true);
 
@@ -1861,7 +1868,7 @@ int glestMain(int argc, char** argv) {
 
 					Model *model = renderer.newModel(rsGlobal);
 					try {
-						printf("About to load model [%s]\n",file.c_str());
+						printf("About to load model [%s] [%d of %lu]\n",file.c_str(),i,(long int)models.size());
 						model->load(file);
 						modelLoadedOk = true;
 					}
@@ -1871,7 +1878,7 @@ int glestMain(int argc, char** argv) {
 
 					if(modelLoadedOk == true) {
 						printf("About to save converted model [%s]\n",file.c_str());
-						model->save(file,textureFormat);
+						model->save(file,textureFormat,keepsmallest);
 					}
 
 					Renderer::getInstance().endModel(rsGlobal, model);
