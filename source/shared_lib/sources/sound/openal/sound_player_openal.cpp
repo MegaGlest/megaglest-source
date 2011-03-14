@@ -48,13 +48,21 @@ bool SoundSource::playing()
 }
 
 void SoundSource::unQueueBuffers() {
-    int queued;
-    alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
-    while(queued--) {
-        ALuint buffer;
-        alSourceUnqueueBuffers(source, 1, &buffer);
-    }
+    int processed;
+    alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
+    SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alGetSourcei AL_BUFFERS_PROCESSED) in audio source: ");
 
+	int queued;
+    alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
+    SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alGetSourcei AL_BUFFERS_QUEUED) in audio source: ");
+
+    //if(processed < queued) {
+		while(queued--) {
+			ALuint buffer;
+			alSourceUnqueueBuffers(source, 1, &buffer);
+			SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alSourceUnqueueBuffers) in audio source: ");
+		}
+    //}
 }
 
 void SoundSource::stop()
@@ -63,13 +71,11 @@ void SoundSource::stop()
 
 	alSourceStop(source);
 
-    SoundPlayerOpenAL::checkAlError("Problem stopping audio source: ");
+    SoundPlayerOpenAL::checkAlError("Problem stopping audio source (alSourceStop): ");
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     unQueueBuffers();
-
-    SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers in audio source: ");
 
 	alSourcei(source, AL_BUFFER, AL_NONE);
 

@@ -55,9 +55,9 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
     this->techtreesPath			= techtreesPath;
-    setInternetEnabled(internetEnabledFlag,true);
     this->allowInternetTilesetFileTransfers = allowInternetTilesetFileTransfers;
     this->allowInternetTechtreeFileTransfers = allowInternetTechtreeFileTransfers;
+    setInternetEnabled(internetEnabledFlag,true);
     this->portNumber            = portNumber;
     this->maxPlayers            = maxPlayers;
     this->ftpValidationIntf     = ftpValidationIntf;
