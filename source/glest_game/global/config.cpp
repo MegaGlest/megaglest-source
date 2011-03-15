@@ -727,9 +727,7 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
 
     string userData = getString("UserData_Root","");
     if(userData != "") {
-        if(userData[userData.size()-1] != '/' && userData[userData.size()-1] != '\\') {
-            userData += '/';
-        }
+    	endPathWithSlash(userData);
         //if(data_path == "") {
         //	userData = userData;
         //}
@@ -771,7 +769,10 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         }
     }
     if(scenarioDir != "") {
-        pathList.push_back(data_path+scenarioDir);
+    	//string scenarioLocation = data_path + scenarioDir;
+    	string scenarioLocation = scenarioDir;
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Scenario path [%s]\n",scenarioLocation.c_str());
+        pathList.push_back(scenarioLocation);
     }
 
     switch(type) {
