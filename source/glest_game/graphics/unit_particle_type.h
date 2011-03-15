@@ -42,7 +42,7 @@ using Shared::Xml::XmlNode;
 ///	A type of particle system
 // ===========================================================
 
-class UnitParticleSystemType: public ParticleSystemType{
+class UnitParticleSystemType: public ParticleSystemType {
 protected:
 
 	float radius;
@@ -56,8 +56,10 @@ protected:
 	bool radiusBasedStartenergy;
 
 public:
-	void load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *newTexture);
-	void load(const string &dir, const string &path, RendererInterface *newTexture);
+	void load(const XmlNode *particleSystemNode, const string &dir,
+			RendererInterface *newTexture, std::map<string,int> &loadedFileList);
+	void load(const string &dir, const string &path, RendererInterface *newTexture,
+			std::map<string,int> &loadedFileList);
 	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
 };

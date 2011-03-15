@@ -27,7 +27,7 @@ namespace Glest{ namespace Game{
 ///	Each of the possible factions the user can select
 // =====================================================
 
-class FactionType{
+class FactionType {
 private:
 	typedef pair<const UnitType*, int> PairPUnitTypeInt;
 	typedef vector<UnitType> UnitTypes;
@@ -47,7 +47,8 @@ private:
 public:
 	//init
 	FactionType();
-    void load(const string &dir, const TechTree *techTree, Checksum* checksum,Checksum *techtreeChecksum);
+    void load(const string &dir, const TechTree *techTree, Checksum* checksum,
+    		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList);
 	~FactionType();
 
     //get

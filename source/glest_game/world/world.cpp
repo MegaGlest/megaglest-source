@@ -198,11 +198,12 @@ void World::init(Game *game, bool createUnits){
 }
 
 //load tileset
-Checksum World::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+Checksum World::loadTileset(const vector<string> pathList, const string &tilesetName,
+		Checksum* checksum, std::map<string,int> &loadedFileList) {
     Checksum tilsetChecksum;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	tilsetChecksum = tileset.loadTileset(pathList, tilesetName, checksum);
+	tilsetChecksum = tileset.loadTileset(pathList, tilesetName, checksum, loadedFileList);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
@@ -211,11 +212,11 @@ Checksum World::loadTileset(const vector<string> pathList, const string &tileset
 	return tilsetChecksum;
 }
 
-Checksum World::loadTileset(const string &dir, Checksum *checksum) {
+Checksum World::loadTileset(const string &dir, Checksum *checksum, std::map<string,int> &loadedFileList) {
     Checksum tilesetChecksum;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	tileset.load(dir, checksum, &tilesetChecksum);
+	tileset.load(dir, checksum, &tilesetChecksum, loadedFileList);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	timeFlow.init(&tileset);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -224,13 +225,15 @@ Checksum World::loadTileset(const string &dir, Checksum *checksum) {
 }
 
 //load tech
-Checksum World::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum *checksum) {
+Checksum World::loadTech(const vector<string> pathList, const string &techName,
+		set<string> &factions, Checksum *checksum, std::map<string,int> &loadedFileList) {
 	Checksum techtreeChecksum;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	techTree = new TechTree();
-	techtreeChecksum = techTree->loadTech(pathList, techName, factions, checksum);
+	techtreeChecksum = techTree->loadTech(pathList, techName, factions,
+			checksum,loadedFileList);
 	return techtreeChecksum;
 }
 

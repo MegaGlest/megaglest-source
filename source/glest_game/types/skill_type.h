@@ -72,7 +72,7 @@ typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 ///	A basic action that an unit can perform
 // =====================================================
 
-class SkillType{
+class SkillType {
 
     
 protected:
@@ -91,7 +91,8 @@ public:
 public:
     //varios
     virtual ~SkillType();
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft);	
+    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    		const FactionType *ft, std::map<string,int> &loadedFileList);
 		
     //get
 	const string &getName() const		{return name;}
@@ -160,7 +161,8 @@ private:
 public:
     AttackSkillType();
     ~AttackSkillType();
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft);
+    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    		const FactionType *ft, std::map<string,int> &loadedFileList);
 	virtual string toString() const;
     
 	//get
@@ -279,7 +281,8 @@ public:
     DieSkillType();
     bool getFade() const	{return fade;}
 	
-	virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft);
+	virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+			const FactionType *ft, std::map<string,int> &loadedFileList);
 	virtual string toString() const;
 };
 

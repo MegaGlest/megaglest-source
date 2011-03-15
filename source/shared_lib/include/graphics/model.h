@@ -133,12 +133,14 @@ public:
 
 	Texture2D *loadMeshTexture(int meshIndex, int textureIndex, TextureManager *textureManager, string textureFile,
 								int textureChannelCount, bool &textureOwned,
-								bool deletePixMapAfterLoad);
+								bool deletePixMapAfterLoad, std::map<string,int> *loadedFileList=NULL);
 
 	//load
-	void loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
-	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad);
+	void loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
+			bool deletePixMapAfterLoad,std::map<string,int> *loadedFileList=NULL);
+	void loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
+			bool deletePixMapAfterLoad,std::map<string,int> *loadedFileList=NULL);
+	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad,std::map<string,int> *loadedFileList=NULL);
 	void save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 			string convertTextureToFormat, std::map<string,int> &textureDeleteList,
 			bool keepsmallest);
@@ -194,9 +196,9 @@ public:
 	uint32 getVertexCount() const;
 
 	//io
-	void load(const string &path,bool deletePixMapAfterLoad=false);
+	void load(const string &path,bool deletePixMapAfterLoad=false,std::map<string,int> *loadedFileList=NULL);
 	void save(const string &path, string convertTextureToFormat,bool keepsmallest);
-	void loadG3d(const string &path,bool deletePixMapAfterLoad=false);
+	void loadG3d(const string &path,bool deletePixMapAfterLoad=false,std::map<string,int> *loadedFileList=NULL);
 	void saveG3d(const string &path, string convertTextureToFormat,bool keepsmallest);
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}

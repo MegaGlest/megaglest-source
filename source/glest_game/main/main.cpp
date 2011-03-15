@@ -126,7 +126,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_CONVERT_MODELS,
-	GAME_ARG_CONVERT_TEXTURES,
+//	GAME_ARG_CONVERT_TEXTURES,
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_VERBOSE_MODE
@@ -843,13 +843,15 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
-	printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n%s=x=purgeunused\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tto your selected techtrees game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
+	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the techtree that are not used.");
 	printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv0,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n%s=x\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n%s=x=purgeunused\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n                     \t\tto your selected factions game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
+	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the faction that are not used.");
 	printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
 	printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
@@ -869,10 +871,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating to keep original texture if its filesize is smaller than the converted format.");
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
-	printf("\n%s=x=textureformat\t\t\tconvert a texture file or folder to the format textureformat.",GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
-	printf("\n                     \t\tWhere x is a filename or folder containing the texture(s).");
-	printf("\n                     \t\tWhere textureformat is a supported texture format to convert to (tga,bmp,jpg,png).");
-	printf("\n                     \t\texample: %s %s=data/core/misc_textures/fire_particle.tga=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
+//	printf("\n%s=x=textureformat\t\t\tconvert a texture file or folder to the format textureformat.",GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
+//	printf("\n                     \t\tWhere x is a filename or folder containing the texture(s).");
+//	printf("\n                     \t\tWhere textureformat is a supported texture format to convert to (tga,bmp,jpg,png).");
+//	printf("\n                     \t\texample: %s %s=data/core/misc_textures/fire_particle.tga=png",argv0,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
@@ -1098,8 +1100,10 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 
 void runTechValidationReport(int argc, char** argv) {
 	//disableBacktrace=true;
-
 	printf("====== Started Validation ======\n");
+
+	bool purgeUnusedFiles = false;
+	Config &config = Config::getInstance();
 
     // Did the user pass a specific list of factions to validate?
     std::vector<string> filteredFactionList;
@@ -1122,10 +1126,15 @@ void runTechValidationReport(int argc, char** argv) {
                     printf("%s\n",filteredFactionList[idx].c_str());
                 }
             }
+
+            if(paramPartTokens.size() >= 3) {
+            	if(paramPartTokens[2] == "purgeunused") {
+            		purgeUnusedFiles = true;
+            		printf("*NOTE All unused faction files will be deleted!\n");
+            	}
+            }
         }
     }
-
-    Config &config = Config::getInstance();
     vector<string> results;
     findDirs(config.getPathListForType(ptTechs), results);
     vector<string> techTreeFiles = results;
@@ -1147,6 +1156,13 @@ void runTechValidationReport(int argc, char** argv) {
                     filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
                     printf("%s\n",filteredTechTreeList[idx].c_str());
                 }
+            }
+
+            if(paramPartTokens.size() >= 3) {
+            	if(paramPartTokens[2] == "purgeunused") {
+            		purgeUnusedFiles = true;
+            		printf("*NOTE All unused techtree files will be deleted!\n");
+            	}
             }
         }
     }
@@ -1170,7 +1186,7 @@ void runTechValidationReport(int argc, char** argv) {
                 std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
                 vector<string> factionsList;
-                findAll(techPath + techName + "/factions/*.", factionsList, false, false);
+                findDirs(techPath + techName + "/factions/", factionsList, false, false);
 
                 if(factionsList.size() > 0) {
                     Checksum checksum;
@@ -1193,7 +1209,26 @@ void runTechValidationReport(int argc, char** argv) {
 
                     if(factions.size() > 0) {
                         bool techtree_errors = false;
-                        world.loadTech(config.getPathListForType(ptTechs,""), techName, factions, &checksum);
+
+                        std::map<string,int> loadedFileList;
+                        vector<string> pathList = config.getPathListForType(ptTechs,"");
+                        world.loadTech(pathList, techName, factions, &checksum, loadedFileList);
+
+                        // Fixup paths with ..
+                        {
+							std::map<string,int> newLoadedFileList;
+							for( std::map<string,int>::iterator iterMap = loadedFileList.begin();
+								iterMap != loadedFileList.end(); ++iterMap) {
+								string loadedFile = iterMap->first;
+
+								replaceAll(loadedFile,"//","/");
+								replaceAll(loadedFile,"\\\\","\\");
+								updatePathClimbingParts(loadedFile);
+								newLoadedFileList[loadedFile] = iterMap->second;
+							}
+							loadedFileList = newLoadedFileList;
+                        }
+
                         // Validate the faction setup to ensure we don't have any bad associations
                         std::vector<std::string> resultErrors = world.validateFactionTypes();
                         if(resultErrors.size() > 0) {
@@ -1233,6 +1268,78 @@ void runTechValidationReport(int argc, char** argv) {
                             //throw runtime_error(errorText);
                             printf("%s",errorText.c_str());
                         }
+
+                        // Now check for unused files in the techtree
+                        std::map<string,int> foundFileList;
+                        for(unsigned int i = 0; i < pathList.size(); ++i) {
+                        	string path = pathList[i];
+                        	endPathWithSlash(path);
+                        	path = path + techName + "/";
+
+                        	vector<string> foundFiles = getFolderTreeContentsListRecursively(path + "*.", "");
+                        	for(unsigned int j = 0; j < foundFiles.size(); ++j) {
+                        		string file = foundFiles[j];
+                        		if(	file.find("loading_screen") != string::npos ||
+                        			file.find("preview_screen") != string::npos) {
+                        			continue;
+                        		}
+                        		if(file.find("/factions/") != string::npos) {
+                        			bool includeFaction = false;
+                        			for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
+                        				string currentFaction = *it;
+										if(file.find("/factions/" + currentFaction) != string::npos) {
+											includeFaction = true;
+											break;
+										}
+									}
+									if(includeFaction == false) {
+										continue;
+									}
+                        		}
+
+								replaceAll(file,"//","/");
+								replaceAll(file,"\\\\","\\");
+
+                        		foundFileList[file]++;
+                        	}
+                        }
+
+                        printf("Found techtree filecount = %lu, used = %lu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+
+//                        for( std::map<string,int>::iterator iterMap = loadedFileList.begin();
+//                        	iterMap != loadedFileList.end(); ++iterMap) {
+//                        	string foundFile = iterMap->first;
+//
+//							if(foundFile.find("golem_ack1.wav") != string::npos) {
+//								printf("FOUND file [%s]\n",foundFile.c_str());
+//							}
+//                        }
+
+                        bool foundUnusedFile = false;
+                        for( std::map<string,int>::iterator iterMap = foundFileList.begin();
+                        	iterMap != foundFileList.end(); ++iterMap) {
+                        	string foundFile = iterMap->first;
+
+                        	if(loadedFileList.find(foundFile) == loadedFileList.end()) {
+                        		if(foundUnusedFile == false) {
+                        			printf("\nWarning, unused files were detected - START:\n=====================\n");
+                        		}
+                        		foundUnusedFile = true;
+
+                        		printf("[%s]\n",foundFile.c_str());
+
+                        		string fileName = extractFileFromDirectoryPath(foundFile);
+                        		if(loadedFileList.find(fileName) != loadedFileList.end()) {
+                        			printf("possible match on [%s] ?\n",loadedFileList.find(fileName)->first.c_str());
+                        		}
+                        		else if(purgeUnusedFiles == true) {
+                        			removeFile(foundFile);
+                        		}
+                        	}
+                        }
+                		if(foundUnusedFile == true) {
+                			printf("\nWarning, unused files were detected - END:\n");
+                		}
 
                         if(techtree_errors == false) {
                             printf("\nValidation found NO ERRORS for techPath [%s] techName [%s] factions checked (count = %d):\n",techPath.c_str(), techName.c_str(),(int)factions.size());
@@ -1895,12 +2002,12 @@ int glestMain(int argc, char** argv) {
 			}
     	}
 
-		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]) == true) {
-			//!!!
-			printf("\nComing soon (not yet implemented)\n\n");
-			delete mainWindow;
-			return -1;
-		}
+//		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]) == true) {
+//			//!!!
+//			printf("\nComing soon (not yet implemented)\n\n");
+//			delete mainWindow;
+//			return -1;
+//		}
 
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {

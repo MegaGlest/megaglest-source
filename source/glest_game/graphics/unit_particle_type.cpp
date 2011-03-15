@@ -29,8 +29,9 @@ namespace Glest{ namespace Game{
 // 	class UnitParticleSystemType
 // =====================================================
 
-void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir, RendererInterface *renderer) {
-	ParticleSystemType::load(particleSystemNode, dir, renderer);
+void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
+		RendererInterface *renderer, std::map<string,int> &loadedFileList) {
+	ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList);
 	//radius
 	const XmlNode *radiusNode= particleSystemNode->getChild("radius");
 	radius= radiusNode->getAttribute("value")->getFloatValue();
@@ -134,14 +135,17 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	}
 }
 
-void UnitParticleSystemType::load(const string &dir, const string &path, RendererInterface *renderer){
+void UnitParticleSystemType::load(const string &dir, const string &path,
+		RendererInterface *renderer, std::map<string,int> &loadedFileList) {
 
 	try{
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
-		UnitParticleSystemType::load(particleSystemNode, dir, renderer);
+		UnitParticleSystemType::load(particleSystemNode, dir, renderer,
+				loadedFileList);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());

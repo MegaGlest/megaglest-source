@@ -207,7 +207,8 @@ string Mesh::findAlternateTexture(vector<string> conversionList, string textureF
 	return result;
 }
 
-void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
+		bool deletePixMapAfterLoad, std::map<string,int> *loadedFileList) {
 	this->textureManager = textureManager;
 	//read header
 	MeshHeaderV2 meshHeader;
@@ -267,6 +268,9 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 			if(fileExists(texPath) == true) {
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
+				if(loadedFileList) {
+					(*loadedFileList)[texPath]++;
+				}
 				texturesOwned[mtDiffuse]=true;
 				textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
 				if(deletePixMapAfterLoad == true) {
@@ -291,7 +295,9 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-void Mesh::loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad) {
+void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
+		TextureManager *textureManager,bool deletePixMapAfterLoad,
+		std::map<string,int> *loadedFileList) {
 	this->textureManager = textureManager;
 
 	//read header
@@ -348,6 +354,10 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 			if(fileExists(texPath) == true) {
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
+				if(loadedFileList) {
+					(*loadedFileList)[texPath]++;
+				}
+
 				texturesOwned[mtDiffuse]=true;
 				textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
 				if(deletePixMapAfterLoad == true) {
@@ -374,8 +384,10 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 }
 
-Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex, TextureManager *textureManager, string textureFile,
-		int textureChannelCount, bool &textureOwned, bool deletePixMapAfterLoad) {
+Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
+		TextureManager *textureManager, string textureFile,
+		int textureChannelCount, bool &textureOwned, bool deletePixMapAfterLoad,
+		std::map<string,int> *loadedFileList) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #1 load texture [%s]\n",__FUNCTION__,textureFile.c_str());
 
@@ -400,6 +412,9 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex, TextureManager
 				texture->getPixmap()->init(textureChannelCount);
 			}
 			texture->load(textureFile);
+			if(loadedFileList) {
+				(*loadedFileList)[textureFile]++;
+			}
 
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture loaded [%s]\n",__FUNCTION__,textureFile.c_str());
 
@@ -421,7 +436,7 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex, TextureManager
 }
 
 void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-				bool deletePixMapAfterLoad) {
+				bool deletePixMapAfterLoad,std::map<string,int> *loadedFileList) {
 	this->textureManager = textureManager;
 
 	//read header
@@ -470,7 +485,8 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			mapFullPath += mapPath;
 
 			textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
-					meshTextureChannelCount[i],texturesOwned[i],deletePixMapAfterLoad);
+					meshTextureChannelCount[i],texturesOwned[i],
+					deletePixMapAfterLoad, loadedFileList);
 		}
 		flag *= 2;
 	}
@@ -749,10 +765,11 @@ uint32 Model::getVertexCount() const {
 
 // ==================== io ====================
 
-void Model::load(const string &path, bool deletePixMapAfterLoad) {
+void Model::load(const string &path, bool deletePixMapAfterLoad,
+		std::map<string,int> *loadedFileList) {
 	string extension= path.substr(path.find_last_of('.')+1);
 	if(extension=="g3d" || extension=="G3D"){
-		loadG3d(path,deletePixMapAfterLoad);
+		loadG3d(path,deletePixMapAfterLoad,loadedFileList);
 	}
 	else{
 		throw runtime_error("Unknown model format: " + extension);
@@ -773,13 +790,18 @@ void Model::save(const string &path, string convertTextureToFormat,
 }
 
 //load a model from a g3d file
-void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
+void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
+		std::map<string,int> *loadedFileList) {
 
     try{
 		FILE *f=fopen(path.c_str(),"rb");
 		if (f == NULL) {
 		    printf("In [%s::%s] cannot load file = [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 			throw runtime_error("Error opening g3d model file [" + path + "]");
+		}
+
+		if(loadedFileList) {
+			(*loadedFileList)[path]++;
 		}
 
 		string dir= extractDirectoryPathFromFile(path);
@@ -811,7 +833,8 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 			//load meshes
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i) {
-				meshes[i].load(i, dir, f, textureManager,deletePixMapAfterLoad);
+				meshes[i].load(i, dir, f, textureManager,deletePixMapAfterLoad,
+						loadedFileList);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -823,7 +846,8 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i) {
-				meshes[i].loadV3(i, dir, f, textureManager,deletePixMapAfterLoad);
+				meshes[i].loadV3(i, dir, f, textureManager,deletePixMapAfterLoad,
+						loadedFileList);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -835,7 +859,8 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad) {
 
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i){
-				meshes[i].loadV2(i,dir, f, textureManager,deletePixMapAfterLoad);
+				meshes[i].loadV2(i,dir, f, textureManager,deletePixMapAfterLoad,
+						loadedFileList);
 				meshes[i].buildInterpolationData();
 			}
 		}

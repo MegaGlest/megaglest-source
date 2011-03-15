@@ -81,7 +81,9 @@ public:
 		id 					= -1;
 	}
     virtual void update(UnitUpdater *unitUpdater, Unit *unit) const= 0;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
 	virtual string toString() const= 0;
 	virtual const ProducibleType *getProduced() const	{return NULL;}
@@ -114,7 +116,8 @@ private:
 public:
     StopCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+    		const FactionType *ft, const UnitType &ut, std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qNever;}
@@ -135,7 +138,9 @@ private:
 public:
     MoveCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -156,7 +161,9 @@ private:
 public:
     AttackCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -178,7 +185,9 @@ private:
 public:
     AttackStoppedCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -204,7 +213,9 @@ public:
     BuildCommandType();
     ~BuildCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -235,7 +246,9 @@ private:
 public:
     HarvestCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
@@ -267,7 +280,9 @@ public:
     RepairCommandType();
     ~RepairCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -294,7 +309,9 @@ private:
 public:
     ProduceCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
     virtual string getReqDesc() const;
 	virtual string toString() const;
@@ -319,7 +336,9 @@ private:
 public:
     UpgradeCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual string getReqDesc() const;
@@ -344,7 +363,9 @@ private:
 public:
     MorphCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut);
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual string getReqDesc() const;

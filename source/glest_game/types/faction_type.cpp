@@ -30,17 +30,21 @@ namespace Glest{ namespace Game{
 //          Class FactionType
 // ======================================================
 
-FactionType::FactionType(){
+FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
 }
 
 //load a faction, given a directory
-void FactionType::load(const string &dir, const TechTree *techTree, Checksum* checksum,Checksum *techtreeChecksum) {
+void FactionType::load(const string &dir, const TechTree *techTree, Checksum* checksum,
+		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    name= lastDir(dir);
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+
+    name= lastDir(currentPath);
 
     // Add special Observer Faction
     Lang &lang= Lang::getInstance();
@@ -52,75 +56,78 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 	if(personalityType == fpt_Normal) {
 		// a1) preload units
-		string unitsPath= dir + "/units/*.";
+		string unitsPath= currentPath + "units/*.";
 		vector<string> unitFilenames;
 		findAll(unitsPath, unitFilenames);
 		unitTypes.resize(unitFilenames.size());
-		for(int i=0; i<unitTypes.size(); ++i) {
-			string str= dir + "/units/" + unitFilenames[i];
+
+		for(int i = 0; i < unitTypes.size(); ++i) {
+			string str= currentPath + "units/" + unitFilenames[i];
 			unitTypes[i].preLoad(str);
 
 			SDL_PumpEvents();
 		}
 
 		// a2) preload upgrades
-		string upgradesPath= dir + "/upgrades/*.";
+		string upgradesPath= currentPath + "upgrades/*.";
 		vector<string> upgradeFilenames;
 		findAll(upgradesPath, upgradeFilenames, false, false);
 		upgradeTypes.resize(upgradeFilenames.size());
-		for(int i=0; i<upgradeTypes.size(); ++i) {
-			string str= dir + "/upgrades/" + upgradeFilenames[i];
+		for(int i = 0; i < upgradeTypes.size(); ++i) {
+			string str= currentPath + "upgrades/" + upgradeFilenames[i];
 			upgradeTypes[i].preLoad(str);
 
 			SDL_PumpEvents();
 		}
 
 		// b1) load units
-		try{
+		try {
 			Logger &logger= Logger::getInstance();
 			int progressBaseValue=logger.getProgress();
 			for(int i = 0; i < unitTypes.size(); ++i) {
-				string str= dir + "/units/" + unitTypes[i].getName();
-				unitTypes[i].load(i, str, techTree, this, checksum,techtreeChecksum);
+				string str= currentPath + "units/" + unitTypes[i].getName();
+				unitTypes[i].load(i, str, techTree, this, checksum,techtreeChecksum,
+						loadedFileList);
 				logger.setProgress(progressBaseValue+(int)((((double)i + 1.0) / (double)unitTypes.size()) * 100.0/techTree->getTypeCount()));
 				SDL_PumpEvents();
 			}
 		}
 		catch(const exception &e) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-			throw runtime_error("Error loading units: "+ dir + "\n" + e.what());
+			throw runtime_error("Error loading units: "+ currentPath + "\n" + e.what());
 		}
 
 		// b2) load upgrades
 		try{
 			for(int i = 0; i < upgradeTypes.size(); ++i) {
-				string str= dir + "/upgrades/" + upgradeTypes[i].getName();
-				upgradeTypes[i].load(str, techTree, this, checksum,techtreeChecksum);
+				string str= currentPath + "upgrades/" + upgradeTypes[i].getName();
+				upgradeTypes[i].load(str, techTree, this, checksum,techtreeChecksum,
+						loadedFileList);
 
 				SDL_PumpEvents();
 			}
 		}
 		catch(const exception &e){
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-			throw runtime_error("Error loading upgrades: "+ dir + "\n" + e.what());
+			throw runtime_error("Error loading upgrades: "+ currentPath + "\n" + e.what());
 		}
 
 		//open xml file
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
 		string path= currentPath + name + ".xml";
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
+
 		const XmlNode *factionNode= xmlTree.getRootNode();
 
 		//read starting resources
 		const XmlNode *startingResourcesNode= factionNode->getChild("starting-resources");
 
 		startingResources.resize(startingResourcesNode->getChildCount());
-		for(int i=0; i<startingResources.size(); ++i){
+		for(int i = 0; i < startingResources.size(); ++i) {
 			const XmlNode *resourceNode= startingResourcesNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -131,7 +138,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 		//read starting units
 		const XmlNode *startingUnitsNode= factionNode->getChild("starting-units");
-		for(int i=0; i<startingUnitsNode->getChildCount(); ++i){
+		for(int i = 0; i < startingUnitsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= startingUnitsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 			int amount= unitNode->getAttribute("amount")->getIntValue();
@@ -143,12 +150,10 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		//read music
 		const XmlNode *musicNode= factionNode->getChild("music");
 		bool value= musicNode->getAttribute("value")->getBoolValue();
-		if(value){
+		if(value) {
 			music= new StrSound();
-
-			string currentPath = dir;
-			endPathWithSlash(currentPath);
 			music->open(currentPath + musicNode->getAttribute("path")->getRestrictedValue());
+			loadedFileList[currentPath + musicNode->getAttribute("path")->getRestrictedValue()]++;
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

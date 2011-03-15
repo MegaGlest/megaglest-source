@@ -173,9 +173,12 @@ public:
 
 	//init & load
 	void init(Game *game, bool createUnits);
-	Checksum loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
-	Checksum loadTileset(const string &dir, Checksum* checksum);
-	Checksum loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum);
+	Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
+			Checksum* checksum, std::map<string,int> &loadedFileList);
+	Checksum loadTileset(const string &dir, Checksum* checksum,
+			std::map<string,int> &loadedFileList);
+	Checksum loadTech(const vector<string> pathList, const string &techName,
+			set<string> &factions, Checksum* checksum,std::map<string,int> &loadedFileList);
 	Checksum loadMap(const string &path, Checksum* checksum);
 	Checksum loadScenario(const string &path, Checksum* checksum);
 

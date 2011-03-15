@@ -494,7 +494,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 }
 
 
-string lastDir(const string &s){
+string lastDir(const string &s) {
 	size_t i= s.find_last_of('/');
 	size_t j= s.find_last_of('\\');
 	size_t pos;
@@ -513,7 +513,18 @@ string lastDir(const string &s){
 		throw runtime_error(string(__FILE__)+" lastDir - i==string::npos");
 	}
 
-	return (s.substr(pos+1, s.length()));
+	if(	pos + 1 == s.length() && s.length() > 0 &&
+		(s[pos] == '/' || s[pos] == '\\')) {
+		string retry = s.substr(0, pos);
+		return lastDir(retry);
+	}
+	string result = s.substr(pos+1, s.length());
+	replaceAll(result,"/","");
+	replaceAll(result,"\\","");
+
+	//printf("=-=-=-=- LASTDIR in [%s] out [%s]\n",s.c_str(),result.c_str());
+
+	return result;
 }
 
 string lastFile(const string &s){
