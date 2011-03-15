@@ -156,7 +156,7 @@ string replaceAll(string& context, const string& from, const string& to);
 bool removeFile(string file);
 bool renameFile(string oldFile, string newFile);
 void removeFolder(const string path);
-long getFileSize(string filename);
+off_t getFileSize(string filename);
 
 int getScreenW();
 int getScreenH();

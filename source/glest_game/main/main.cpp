@@ -865,7 +865,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is an optional property name to filter (default shows all).");
 	printf("\n                     \t\texample: %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 
-	printf("\n%s=x=textureformat=keepsmallest\t\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n%s=x=textureformat=keepsmallest\t\tconvert a model file or folder to the current g3d version format.",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 	printf("\n                     \t\tWhere x is a filename or folder containing the g3d model(s).");
 	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,jpg,png).");
 	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating to keep original texture if its filesize is smaller than the converted format.");
@@ -1103,6 +1103,7 @@ void runTechValidationReport(int argc, char** argv) {
 	printf("====== Started Validation ======\n");
 
 	bool purgeUnusedFiles = false;
+	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
 
     // Did the user pass a specific list of factions to validate?
@@ -1315,6 +1316,7 @@ void runTechValidationReport(int argc, char** argv) {
 //							}
 //                        }
 
+                        int purgeCount = 0;
                         bool foundUnusedFile = false;
                         for( std::map<string,int>::iterator iterMap = foundFileList.begin();
                         	iterMap != foundFileList.end(); ++iterMap) {
@@ -1333,11 +1335,19 @@ void runTechValidationReport(int argc, char** argv) {
                         			printf("possible match on [%s] ?\n",loadedFileList.find(fileName)->first.c_str());
                         		}
                         		else if(purgeUnusedFiles == true) {
+                        			off_t fileSize = getFileSize(foundFile);
+                        			// convert to MB
+                        			purgedMegaBytes += ((double)fileSize / 1048576.0);
+                        			purgeCount++;
+
                         			removeFile(foundFile);
                         		}
                         	}
                         }
                 		if(foundUnusedFile == true) {
+                			if(purgedMegaBytes > 0) {
+                				printf("Purged %.2f MB (%d) in files\n",purgedMegaBytes,purgeCount);
+                			}
                 			printf("\nWarning, unused files were detected - END:\n");
                 		}
 
@@ -1618,6 +1628,19 @@ int glestMain(int argc, char** argv) {
     disableBacktrace = false;
 
 	bool foundInvalidArgs = false;
+
+	Properties::setApplicationPath(extractDirectoryPathFromFile(argv[0]));
+
+    ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
+    SystemFlags::VERBOSE_MODE_ENABLED  = false;
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
+        SystemFlags::VERBOSE_MODE_ENABLED  = true;
+    }
+
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
+        disableBacktrace = true;
+    }
+
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {
 		if( hasCommandArgument(knownArgCount, (char **)&GAME_ARGS[0], argv[idx], NULL, 0, true) == false) {
@@ -1633,17 +1656,11 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
-	Properties::setApplicationPath(extractDirectoryPathFromFile(argv[0]));
 
-    ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
-    SystemFlags::VERBOSE_MODE_ENABLED  = false;
-    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
-        SystemFlags::VERBOSE_MODE_ENABLED  = true;
-    }
-
-    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
-        disableBacktrace = true;
-    }
+	//off_t fileSize = getFileSize(argv[0]);
+	//double fSize = ((double)fileSize / 1048576.0);
+	//printf("[%ld] [%.2f]\n",fileSize,fSize);
+	//return -1;
 
 #ifdef WIN32
 	SocketManager winSockManager;
@@ -2059,13 +2076,13 @@ int glestMain(int argc, char** argv) {
         //printf("%d\n", *foo);       // causes segfault
         // END
 
-		//if(config.getBool("AllowGameDataSynchCheck","false") == true) {
+		if(config.getBool("PreCacheCRCThread","true") == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
 			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
 			preCacheThread->start();
-		//}
+		}
 
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
@@ -2081,6 +2098,13 @@ int glestMain(int argc, char** argv) {
 			program->loop();
 		}
 
+		if(preCacheThread.get() != NULL) {
+			time_t elapsed = time(NULL);
+			for(;preCacheThread->shutdownAndWait() == false &&
+				difftime(time(NULL),elapsed) <= 5;) {
+				sleep(50);
+			}
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
