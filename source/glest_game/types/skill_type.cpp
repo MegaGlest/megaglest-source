@@ -32,16 +32,17 @@ namespace Glest{ namespace Game{
 // 	class SkillType
 // =====================================================
 
-SkillType::~SkillType(){
+SkillType::~SkillType() {
 	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
 	//remove unitParticleSystemTypes
-	while(!unitParticleSystemTypes.empty()){
+	while(!unitParticleSystemTypes.empty()) {
 		delete unitParticleSystemTypes.back();
 		unitParticleSystemTypes.pop_back();
 	}
 }
 
-void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft){
+void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,int> &loadedFileList) {
 	//name
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
 
@@ -65,43 +66,45 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, c
 	animation= Renderer::getInstance().newModel(rsGame);
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
-	animation->load(currentPath + path);
+	animation->load(currentPath + path, false, &loadedFileList);
+	loadedFileList[currentPath + path]++;
 
 	//particles
-	if(sn->hasChild("particles")){
+	if(sn->hasChild("particles")) {
 		const XmlNode *particleNode= sn->getChild("particles");
 		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-		if(particleEnabled){
-			for(int i=0; i<particleNode->getChildCount(); ++i){
+		if(particleEnabled) {
+			for(int i = 0; i < particleNode->getChildCount(); ++i) {
 				const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
+				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance(),
+						loadedFileList);
+				loadedFileList[currentPath + path]++;
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
 		}
 	}
 
-
-
 	//sound
 	const XmlNode *soundNode= sn->getChild("sound");
-	if(soundNode->getAttribute("enabled")->getBoolValue()){
-
+	if(soundNode->getAttribute("enabled")->getBoolValue()) {
 		soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-
 		sounds.resize(soundNode->getChildCount());
-		for(int i=0; i<soundNode->getChildCount(); ++i){
+		for(int i = 0; i < soundNode->getChildCount(); ++i) {
 			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
+			trimPathWithStartingSlash(path);
+
 			StaticSound *sound= new StaticSound();
 			sound->load(currentPath + path);
+			loadedFileList[currentPath + path]++;
 			sounds[i]= sound;
 		}
 	}
 }
 
-string SkillType::skillClassToStr(SkillClass skillClass){
+string SkillType::skillClassToStr(SkillClass skillClass) {
 	switch(skillClass){
 	case scStop: return "Stop";
 	case scMove: return "Move";
@@ -188,8 +191,9 @@ AttackSkillType::~AttackSkillType() {
 	deleteValues(projSounds.getSounds().begin(), projSounds.getSounds().end());
 }
 
-void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft) {
-    SkillType::load(sn, dir, tt, ft);
+void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,int> &loadedFileList) {
+    SkillType::load(sn, dir, tt, ft, loadedFileList);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -244,7 +248,8 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
+			projectileParticleSystemType->load(dir,  currentPath + path,
+					&Renderer::getInstance(), loadedFileList);
 		}
 
 		//proj sounds
@@ -255,8 +260,11 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			for(int i=0; i<soundNode->getChildCount(); ++i){
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue();
+				trimPathWithStartingSlash(path);
+
 				StaticSound *sound= new StaticSound();
 				sound->load(currentPath + path);
+				loadedFileList[currentPath + path]++;
 				projSounds[i]= sound;
 			}
 		}
@@ -275,7 +283,8 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			splashParticleSystemType= new ParticleSystemTypeSplash();
-			splashParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
+			splashParticleSystemType->load(dir,  currentPath + path,
+					&Renderer::getInstance(),loadedFileList);
 		}
 	}
 }
@@ -397,8 +406,9 @@ DieSkillType::DieSkillType(){
     skillClass= scDie;
 }
 
-void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt, const FactionType *ft){
-	SkillType::load(sn, dir, tt, ft);
+void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,int> &loadedFileList) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
 }

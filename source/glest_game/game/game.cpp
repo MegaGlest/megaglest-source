@@ -370,6 +370,7 @@ void Game::load() {
 }
 
 void Game::load(LoadGameItem loadTypes) {
+	std::map<string,int> loadedFileList;
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
@@ -411,7 +412,7 @@ void Game::load(LoadGameItem loadTypes) {
 	if((loadTypes & lgt_TileSet) == lgt_TileSet) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		world.loadTileset(	config.getPathListForType(ptTilesets,scenarioDir),
-    						tilesetName, &checksum);
+    						tilesetName, &checksum, loadedFileList);
 	}
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -433,7 +434,7 @@ void Game::load(LoadGameItem loadTypes) {
 
 		//tech, load before map because of resources
 		world.loadTech(	config.getPathListForType(ptTechs,scenarioDir), techName,
-						factions, &checksum);
+						factions, &checksum,loadedFileList);
 
 		// Validate the faction setup to ensure we don't have any bad associations
 		/*

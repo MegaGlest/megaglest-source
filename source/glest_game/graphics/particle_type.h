@@ -44,7 +44,7 @@ using Shared::Xml::XmlNode;
 ///	A type of particle system
 // ===========================================================
 
-class ParticleSystemType{
+class ParticleSystemType {
 protected:
 	string type;
 	Texture2D *texture;
@@ -67,7 +67,8 @@ protected:
 
 public:
 	ParticleSystemType();
-	void load(const XmlNode *particleSystemNode, const string &dir,RendererInterface *renderer);
+	void load(const XmlNode *particleSystemNode, const string &dir,
+			RendererInterface *renderer, std::map<string,int> &loadedFileList);
 	void setValues(AttackParticleSystem *ats);
 	bool hasTexture() const { return(texture != NULL); }
 	bool hasModel() const { return(model != NULL); }
@@ -88,7 +89,8 @@ private:
 	float trajectoryFrequency;
 
 public:
-	void load(const string &dir, const string &path,RendererInterface *renderer);
+	void load(const string &dir, const string &path,
+			RendererInterface *renderer, std::map<string,int> &loadedFileList);
 	ProjectileParticleSystem *create();
 
 };
@@ -97,9 +99,10 @@ public:
 //	class ParticleSystemTypeSplash
 // ===========================================================
 
-class ParticleSystemTypeSplash: public ParticleSystemType{
+class ParticleSystemTypeSplash: public ParticleSystemType {
 public:
-	void load(const string &dir, const string &path,RendererInterface *renderer);
+	void load(const string &dir, const string &path,
+			RendererInterface *renderer, std::map<string,int> &loadedFileList);
 	SplashParticleSystem *create();
 
 private:

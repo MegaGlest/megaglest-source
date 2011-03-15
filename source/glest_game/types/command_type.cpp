@@ -42,7 +42,9 @@ CommandClass CommandType::getClass() const{
     return commandTypeClass;
 }
 
-void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
+void CommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->id= id;
@@ -55,10 +57,11 @@ void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTr
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
+	loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
-	for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
+	for(int i = 0; i < unitRequirementsNode->getChildCount(); ++i) {
 		const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 		string name= unitNode->getAttribute("name")->getRestrictedValue();
 		unitReqs.push_back(ft->getUnitType(name));
@@ -66,7 +69,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir, const TechTr
 
 	//upgrade requirements
 	const XmlNode *upgradeRequirementsNode= n->getChild("upgrade-requirements");
-	for(int i=0; i<upgradeRequirementsNode->getChildCount(); ++i){
+	for(int i = 0; i < upgradeRequirementsNode->getChildCount(); ++i) {
 		const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 		string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 		upgradeReqs.push_back(ft->getUpgradeType(name));
@@ -107,8 +110,10 @@ string StopCommandType::toString() const{
 	return lang.get("Stop");
 }
 
-void StopCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-	CommandType::load(id, n, dir, tt, ft, ut);
+void StopCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//stop
    	string skillName= n->getChild("stop-skill")->getAttribute("value")->getRestrictedValue();
@@ -130,8 +135,10 @@ void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateMove(unit);
 }
 
-void MoveCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-    CommandType::load(id, n, dir, tt, ft, ut);
+void MoveCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -177,8 +184,10 @@ void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateAttack(unit);
 }
 
-void AttackCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-    CommandType::load(id, n, dir, tt, ft, ut);
+void AttackCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
     //move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -267,8 +276,10 @@ void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit) cons
 	unitUpdater->updateAttackStopped(unit);
 }
 
-void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-    CommandType::load(id, n, dir, tt, ft, ut);
+void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//stop
    	string skillName= n->getChild("stop-skill")->getAttribute("value")->getRestrictedValue();
@@ -352,10 +363,11 @@ void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateBuild(unit);
 }
 
-void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    CommandType::load(id, n, dir, tt, ft, ut);
+void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -380,11 +392,14 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const T
 		for(int i=0; i<startSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= startSoundNode->getChild("sound-file", i);
 			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
+			trimPathWithStartingSlash(path);
+
 			StaticSound *sound= new StaticSound();
 
 			string currentPath = dir;
 			endPathWithSlash(currentPath);
 			sound->load(currentPath + path);
+			loadedFileList[currentPath + path]++;
 			startSounds[i]= sound;
 		}
 	}
@@ -396,11 +411,14 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir, const T
 		for(int i=0; i<builtSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= builtSoundNode->getChild("sound-file", i);
 			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
+			trimPathWithStartingSlash(path);
+
 			StaticSound *sound= new StaticSound();
 
 			string currentPath = dir;
 			endPathWithSlash(currentPath);
 			sound->load(currentPath + path);
+			loadedFileList[currentPath + path]++;
 			builtSounds[i]= sound;
 		}
 	}
@@ -443,9 +461,10 @@ void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateHarvest(unit);
 }
 
-void HarvestCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-
-	CommandType::load(id, n, dir, tt, ft, ut);
+void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -523,11 +542,10 @@ void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateRepair(unit);
 }
 
-void RepairCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	CommandType::load(id, n, dir, tt, ft, ut);
+void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -601,10 +619,10 @@ void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateProduce(unit);
 }
 
-void ProduceCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	CommandType::load(id, n, dir, tt, ft, ut);
+void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//produce
    	string skillName= n->getChild("produce-skill")->getAttribute("value")->getRestrictedValue();
@@ -666,9 +684,11 @@ void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateUpgrade(unit);
 }
 
-void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
+void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
 
-	CommandType::load(id, n, dir, tt, ft, ut);
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//upgrade
    	string skillName= n->getChild("upgrade-skill")->getAttribute("value")->getRestrictedValue();
@@ -721,10 +741,10 @@ void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
 	unitUpdater->updateMorph(unit);
 }
 
-void MorphCommandType::load(int id, const XmlNode *n, const string &dir, const TechTree *tt, const FactionType *ft, const UnitType &ut){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	CommandType::load(id, n, dir, tt, ft, ut);
+void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,int> &loadedFileList) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//morph skill
    	string skillName= n->getChild("morph-skill")->getAttribute("value")->getRestrictedValue();

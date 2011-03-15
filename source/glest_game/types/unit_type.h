@@ -136,7 +136,9 @@ public:
     UnitType();
     virtual ~UnitType();
 	void preLoad(const string &dir);
-    void load(int id, const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum, Checksum* techtreeChecksum);
+    void load(int id, const string &dir, const TechTree *techTree,
+    		const FactionType *factionType, Checksum* checksum,
+    		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList);
 
 	//get
 	int getId() const									{return id;}

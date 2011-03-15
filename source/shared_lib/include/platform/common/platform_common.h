@@ -109,6 +109,7 @@ public:
 // =====================================================
 void Tokenize(const string& str,vector<string>& tokens,const string& delimiters = " ");
 bool isdir(const char *path);
+void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates);
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false,bool keepDuplicates=false);
 void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true,bool keepDuplicates=false);
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
@@ -148,6 +149,8 @@ bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
 
 void endPathWithSlash(string &path);
+void trimPathWithStartingSlash(string &path);
+void updatePathClimbingParts(string &path);
 
 string replaceAll(string& context, const string& from, const string& to);
 bool removeFile(string file);

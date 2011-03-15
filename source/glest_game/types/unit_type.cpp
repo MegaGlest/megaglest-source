@@ -113,11 +113,13 @@ UnitType::~UnitType(){
 	}
 }
 
-void UnitType::preLoad(const string &dir){
+void UnitType::preLoad(const string &dir) {
 	name= lastDir(dir);
 }
 
-void UnitType::load(int id,const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum,Checksum* techtreeChecksum) {
+void UnitType::load(int id,const string &dir, const TechTree *techTree,
+		const FactionType *factionType, Checksum* checksum,
+		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -137,6 +139,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
+
 		const XmlNode *unitNode= xmlTree.getRootNode();
 
 		const XmlNode *parametersNode= unitNode->getChild("parameters");
@@ -250,35 +254,38 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 
 		if (fields[fLand]) {
 			field = fLand;
-		} else if (fields[fAir]) {
+		}
+		else if (fields[fAir]) {
 			field = fAir;
-		} else {
+		}
+		else {
 			throw runtime_error("Unit has no field: " + path);
 		}
 
 		//properties
 		const XmlNode *propertiesNode= parametersNode->getChild("properties");
-		for(int i=0; i<propertiesNode->getChildCount(); ++i){
+		for(int i = 0; i < propertiesNode->getChildCount(); ++i) {
 			const XmlNode *propertyNode= propertiesNode->getChild("property", i);
 			string propertyName= propertyNode->getAttribute("value")->getRestrictedValue();
 			bool found= false;
-			for(int i=0; i<pCount; ++i){
-				if(propertyName==propertyNames[i]){
+			for(int i = 0; i < pCount; ++i) {
+				if(propertyName == propertyNames[i]) {
 					properties[i]= true;
 					found= true;
 					break;
 				}
 			}
-			if(!found){
+			if(!found) {
 				throw runtime_error("Unknown property: " + propertyName);
 			}
 		}
 		//damage-particles
-		if(parametersNode->hasChild("damage-particles")){
+		if(parametersNode->hasChild("damage-particles")) {
 			const XmlNode *particleNode= parametersNode->getChild("damage-particles");
 			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-			if(particleEnabled){
-				for(int i=0; i<particleNode->getChildCount(); ++i){
+
+			if(particleEnabled) {
+				for(int i = 0; i < particleNode->getChildCount(); ++i) {
 					const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
@@ -286,10 +293,13 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
 					Texture2D *newTexture = NULL;
 
-					unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
-					if(unitParticleSystemType->hasTexture() == false) {
+					unitParticleSystemType->load(dir,  currentPath + path,
+							&Renderer::getInstance(),loadedFileList);
+					loadedFileList[currentPath + path]++;
+
+					//if(unitParticleSystemType->hasTexture() == false) {
 						//Renderer::getInstance().endLastTexture(rsGame,true);
-					}
+					//}
 
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
 				}
@@ -306,7 +316,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		}
 
 		//rotationAllowed
-		if(parametersNode->hasChild("rotationAllowed")){
+		if(parametersNode->hasChild("rotationAllowed")) {
 			const XmlNode *rotationAllowedNode= parametersNode->getChild("rotationAllowed");
 			rotationAllowed= rotationAllowedNode->getAttribute("value")->getBoolValue();
 		}
@@ -356,11 +366,13 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
 		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
+		loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
 		cancelImage->load(currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue());
+		loadedFileList[currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue()]++;
 
 		//meeting point
 		const XmlNode *meetingPointNode= parametersNode->getChild("meeting-point");
@@ -368,6 +380,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		if(meetingPoint){
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
 			meetingPointImage->load(currentPath + meetingPointNode->getAttribute("image-path")->getRestrictedValue());
+			loadedFileList[currentPath + meetingPointNode->getAttribute("image-path")->getRestrictedValue()]++;
 		}
 
 		//selection sounds
@@ -379,6 +392,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 				string path= soundNode->getAttribute("path")->getRestrictedValue();
 				StaticSound *sound= new StaticSound();
 				sound->load(currentPath + path);
+				loadedFileList[currentPath + path]++;
 				selectionSounds[i]= sound;
 			}
 		}
@@ -392,6 +406,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 				string path= soundNode->getAttribute("path")->getRestrictedValue();
 				StaticSound *sound= new StaticSound();
 				sound->load(currentPath + path);
+				loadedFileList[currentPath + path]++;
 				commandSounds[i]= sound;
 			}
 		}
@@ -399,24 +414,25 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree, const Fa
 		//skills
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
-		for(int i=0; i<skillTypes.size(); ++i){
+		for(int i = 0; i < skillTypes.size(); ++i) {
 			const XmlNode *sn= skillsNode->getChild("skill", i);
 			const XmlNode *typeNode= sn->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			SkillType *skillType= SkillTypeFactory::getInstance().newInstance(classId);
-			skillType->load(sn, dir, techTree, factionType);
+			skillType->load(sn, dir, techTree, factionType, loadedFileList);
 			skillTypes[i]= skillType;
 		}
 
 		//commands
 		const XmlNode *commandsNode= unitNode->getChild("commands");
 		commandTypes.resize(commandsNode->getChildCount());
-		for(int i=0; i<commandTypes.size(); ++i){
+		for(int i = 0; i < commandTypes.size(); ++i) {
 			const XmlNode *commandNode= commandsNode->getChild("command", i);
 			const XmlNode *typeNode= commandNode->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			CommandType *commandType= CommandTypeFactory::getInstance().newInstance(classId);
-			commandType->load(i, commandNode, dir, techTree, factionType, *this);
+			commandType->load(i, commandNode, dir, techTree, factionType, *this,
+					loadedFileList);
 			commandTypes[i]= commandType;
 		}
 

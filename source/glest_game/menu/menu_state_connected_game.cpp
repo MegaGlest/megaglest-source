@@ -501,6 +501,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                         ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
                         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                        safeMutexFTPProgress.ReleaseLock();
                     }
 			    }
 			    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
@@ -519,6 +520,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
                         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
+                        safeMutexFTPProgress.ReleaseLock();
                     }
 			    }
 			    else if(ftpMissingDataType == ftpmsg_MissingTechtree) {
@@ -537,6 +539,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                         ftpClientThread->addTechtreeToRequests(getMissingTechtreeFromFTPServer);
                         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
                         fileFTPProgressList[getMissingTechtreeFromFTPServer] = pair<int,string>(0,"");
+                        safeMutexFTPProgress.ReleaseLock();
                     }
 			    }
 			}
@@ -1989,14 +1992,16 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             }
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
+            MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
+            safeMutexFTPProgress.ReleaseLock();
         }
     }
     else if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
@@ -2034,7 +2039,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         getMissingTilesetFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 
@@ -2092,7 +2097,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         getMissingTechtreeFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
 
-        MutexSafeWrapper safeMutexFTPProgress(ftpClientThread->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 

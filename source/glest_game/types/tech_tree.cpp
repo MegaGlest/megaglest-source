@@ -32,7 +32,8 @@ namespace Glest{ namespace Game{
 // 	class TechTree
 // =====================================================
 
-Checksum TechTree::loadTech(const vector<string> pathList, const string &techName, set<string> &factions, Checksum* checksum) {
+Checksum TechTree::loadTech(const vector<string> pathList, const string &techName,
+		set<string> &factions, Checksum* checksum, std::map<string,int> &loadedFileList) {
     Checksum techtreeChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
     	string currentPath = pathList[idx];
@@ -40,44 +41,47 @@ Checksum TechTree::loadTech(const vector<string> pathList, const string &techNam
 
         string path = currentPath + techName;
         if(isdir(path.c_str()) == true) {
-            load(path, factions, checksum, &techtreeChecksum);
+            load(path, factions, checksum, &techtreeChecksum, loadedFileList);
             break;
         }
     }
     return techtreeChecksum;
 }
 
-void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum, Checksum *techtreeChecksum) {
+void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum,
+		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	string str;
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+
     vector<string> filenames;
-	string name= lastDir(dir);
+	string name= lastDir(currentPath);
 
 	Logger::getInstance().add("TechTree: "+ formatString(name), true);
 
 	//load resources
-	str= dir+"/resources/*.";
+	string str= currentPath + "resources/*.";
 
-    try{
+    try {
         findAll(str, filenames);
 		resourceTypes.resize(filenames.size());
 
         for(int i=0; i<filenames.size(); ++i){
-            str=dir+"/resources/"+filenames[i];
-            resourceTypes[i].load(str, checksum, &checksumValue);
+            str= currentPath + "resources/" + filenames[i];
+            resourceTypes[i].load(str, checksum, &checksumValue, loadedFileList);
             Window::handleEvent();
 			SDL_PumpEvents();
         }
 
         // Cleanup pixmap memory
-        for(int i=0; i<filenames.size(); ++i) {
+        for(int i = 0; i < filenames.size(); ++i) {
         	resourceTypes[i].deletePixels();
         }
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Resource Types: "+ dir + "\n" + e.what());
+		throw runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what());
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -86,7 +90,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	SDL_PumpEvents();
 
 	//load tech tree xml info
-	try{
+	try {
 		XmlTree	xmlTree;
     	string currentPath = dir;
     	endPathWithSlash(currentPath);
@@ -96,15 +100,18 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		checksumValue.addFile(path);
 
 		xmlTree.load(path);
+		loadedFileList[path]++;
+
 		const XmlNode *techTreeNode= xmlTree.getRootNode();
 
 		//attack types
 		const XmlNode *attackTypesNode= techTreeNode->getChild("attack-types");
 		attackTypes.resize(attackTypesNode->getChildCount());
-		for(int i=0; i<attackTypes.size(); ++i){
+		for(int i = 0; i < attackTypes.size(); ++i) {
 			const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
 			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
 			attackTypes[i].setId(i);
+
 			Window::handleEvent();
 			SDL_PumpEvents();
 		}
@@ -116,10 +123,11 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		//armor types
 		const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
 		armorTypes.resize(armorTypesNode->getChildCount());
-		for(int i=0; i<armorTypes.size(); ++i){
+		for(int i = 0; i < armorTypes.size(); ++i) {
 			const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
 			armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
 			armorTypes[i].setId(i);
+
 			Window::handleEvent();
 			SDL_PumpEvents();
 		}
@@ -127,19 +135,20 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		//damage multipliers
 		damageMultiplierTable.init(attackTypes.size(), armorTypes.size());
 		const XmlNode *damageMultipliersNode= techTreeNode->getChild("damage-multipliers");
-		for(int i=0; i<damageMultipliersNode->getChildCount(); ++i){
+		for(int i = 0; i < damageMultipliersNode->getChildCount(); ++i) {
 			const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
 			const AttackType *attackType= getAttackType(damageMultiplierNode->getAttribute("attack")->getRestrictedValue());
 			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
 			float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
 			damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
+
 			Window::handleEvent();
 			SDL_PumpEvents();
 		}
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Tech Tree: "+ dir + "\n" + e.what());
+		throw runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what());
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -147,7 +156,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	//SDL_PumpEvents();
 
 	//load factions
-	str = dir + "/factions/*.";
+	str = currentPath + "factions/*.";
     try{
 		factionTypes.resize(factions.size());
 
@@ -156,13 +165,17 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			string factionName = *it;
 
 		    char szBuf[1024]="";
-		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),Lang::getInstance().get("Faction").c_str(),i+1,(int)factions.size(),factionName.c_str());
+		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),
+		    		Lang::getInstance().get("Faction").c_str(),
+		    		i+1,
+		    		(int)factions.size(),
+		    		factionName.c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 		    logger.setProgress((int)((((double)i) / (double)factions.size()) * 100.0));
 
-			str=dir+"/factions/" + factionName;
-			factionTypes[i++].load(str, this, checksum,&checksumValue);
+			str = currentPath + "factions/" + factionName;
+			factionTypes[i++].load(str, this, checksum,&checksumValue,loadedFileList);
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
@@ -172,7 +185,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Faction Types: "+ dir + "\n" + e.what());
+		throw runtime_error("Error loading Faction Types: "+ currentPath + "\n" + e.what());
     }
 
     if(techtreeChecksum != NULL) {

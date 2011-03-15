@@ -47,16 +47,16 @@ void UpgradeType::preLoad(const string &dir){
 	name=lastDir(dir);
 }
 
-void UpgradeType::load(const string &dir, const TechTree *techTree, const FactionType *factionType, Checksum* checksum, Checksum* techtreeChecksum) {
+void UpgradeType::load(const string &dir, const TechTree *techTree,
+		const FactionType *factionType, Checksum* checksum,
+		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	string path;
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
-	path = currentPath + name + ".xml";
+	string path = currentPath + name + ".xml";
 
 	try{
 		checksum->addFile(path);
@@ -64,17 +64,20 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
 		const XmlNode *upgradeNode= xmlTree.getRootNode();
 
 		//image
 		const XmlNode *imageNode= upgradeNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
 		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
+		loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
 
 		//image cancel
 		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
 		cancelImage->load(currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue());
+		loadedFileList[currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue()]++;
 
 		//upgrade time
 		const XmlNode *upgradeTimeNode= upgradeNode->getChild("time");
@@ -82,7 +85,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 
 		//unit requirements
 		const XmlNode *unitRequirementsNode= upgradeNode->getChild("unit-requirements");
-		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
+		for(int i = 0; i < unitRequirementsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 			unitReqs.push_back(factionType->getUnitType(name));
@@ -90,7 +93,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 
 		//upgrade requirements
 		const XmlNode *upgradeRequirementsNode= upgradeNode->getChild("upgrade-requirements");
-		for(int i=0; i<upgradeRequirementsNode->getChildCount(); ++i){
+		for(int i = 0; i < upgradeRequirementsNode->getChildCount(); ++i) {
 			const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 			string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 			upgradeReqs.push_back(factionType->getUpgradeType(name));
@@ -99,7 +102,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		//resource requirements
 		const XmlNode *resourceRequirementsNode= upgradeNode->getChild("resource-requirements");
 		costs.resize(resourceRequirementsNode->getChildCount());
-		for(int i=0; i<costs.size(); ++i){
+		for(int i = 0; i < costs.size(); ++i) {
 			const XmlNode *resourceNode= 	resourceRequirementsNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -108,7 +111,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 
 		//effects
 		const XmlNode *effectsNode= upgradeNode->getChild("effects");
-		for(int i=0; i<effectsNode->getChildCount(); ++i){
+		for(int i = 0; i < effectsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= effectsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 			effects.push_back(factionType->getUnitType(name));
@@ -123,7 +126,6 @@ void UpgradeType::load(const string &dir, const TechTree *techTree, const Factio
 		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
 		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
 		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
-
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());

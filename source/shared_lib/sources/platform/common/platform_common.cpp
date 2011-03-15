@@ -65,7 +65,6 @@ using namespace std;
 
 namespace Shared { namespace PlatformCommon {
 
-// Refresh every 3 days
 const time_t REFRESH_CRC_DAY_SECONDS = 1 * 60 * 24;
 static string crcCachePath = "";
 
@@ -208,6 +207,30 @@ void Tokenize(const string& str,vector<string>& tokens,const string& delimiters)
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
     }
+}
+
+void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
+    results.clear();
+	string currentPath = path;
+	endPathWithSlash(currentPath);
+
+	string searchpath = currentPath + "*.";
+	vector<string> current_results;
+	findAll(searchpath, current_results, false, errorOnNotFound);
+	if(current_results.size() > 0) {
+		for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
+			const string current_folder = current_results[folder_index];
+			const string current_folder_path = currentPath + current_folder;
+
+			if(isdir(current_folder_path.c_str()) == true) {
+				if(keepDuplicates == true || std::find(results.begin(),results.end(),current_folder) == results.end()) {
+					results.push_back(current_folder);
+				}
+			}
+		}
+	}
+
+    std::sort(results.begin(),results.end());
 }
 
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
@@ -412,6 +435,37 @@ void endPathWithSlash(string &path) {
 	}
 }
 
+void trimPathWithStartingSlash(string &path) {
+	if(StartsWith(path, "/") == true || StartsWith(path, "\\") == true) {
+		path.erase(path.begin(),path.begin()+1);
+		//printf("************* trimPathWithStartingSlash changed path [%s]\n",path.c_str());
+	}
+}
+
+void updatePathClimbingParts(string &path) {
+	// Update paths with ..
+	string::size_type pos = path.rfind("..");
+	if(pos != string::npos && pos != 0) {
+		string orig = path;
+		path.erase(pos,2);
+		pos--;
+		if(path[pos] == '/' || path[pos] == '\\') {
+			path.erase(pos,1);
+		}
+
+		for(int x = pos; x >= 0; --x) {
+			//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
+
+			if((path[x] == '/' || path[x] == '\\') && x != pos) {
+				path.erase(x,pos-x);
+				break;
+			}
+		}
+
+		//printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+	}
+}
+
 string getCRCCacheFilePath() {
 	return crcCachePath;
 }
@@ -467,7 +521,7 @@ void writeCachedFileCRCValue(string crcCacheFile, int32 &crcValue) {
 	FILE *fp = fopen(crcCacheFile.c_str(),"w");
 	if(fp != NULL) {
 		RandomGen random;
-		int offset = random.randRange(1, 5);
+		int offset = random.randRange(5, 15);
 		time_t refreshDate = time(NULL) + (REFRESH_CRC_DAY_SECONDS * offset);
 		fprintf(fp,"%ld,%d",refreshDate,crcValue);
 		fclose(fp);

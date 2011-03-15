@@ -1072,8 +1072,10 @@ void MainWindow::loadParticle(string path) {
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
+				std::map<string,int> loadedFileList;
                 UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-                unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath, renderer);
+                unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,
+                		renderer,loadedFileList);
                 unitParticleSystemTypes.push_back(unitParticleSystemType);
 
                 for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
@@ -1167,8 +1169,10 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
+			std::map<string,int> loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer);
+			projectileParticleSystemType->load(dir,
+					dir + folderDelimiter + particlePath,renderer, loadedFileList);
 
 			// std::cout << "Values loaded, about to read..." << std::endl;
 
@@ -1267,8 +1271,10 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
+			std::map<string,int> loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
-			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer); // <---- only that must be splash...
+			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer,
+					loadedFileList); // <---- only that must be splash...
 
 			// std::cout << "Values loaded, about to read..." << std::endl;
 

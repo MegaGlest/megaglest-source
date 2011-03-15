@@ -45,7 +45,8 @@ ResourceType::~ResourceType(){
 	}
 }
 
-void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum) {
+void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum,
+		std::map<string,int> &loadedFileList) {
 
 	string path, str;
 	Renderer &renderer= Renderer::getInstance();
@@ -66,16 +67,19 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		//tree
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
+
 		const XmlNode *resourceNode= xmlTree.getRootNode();
 
 		//image
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
 		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
+		loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
 
 		//type
 		const XmlNode *typeNode= resourceNode->getChild("type");
-		resourceClass= strToRc(typeNode->getAttribute("value")->getRestrictedValue());
+		resourceClass = strToRc(typeNode->getAttribute("value")->getRestrictedValue());
 
 		switch(resourceClass)
 		{
@@ -83,21 +87,25 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
             {
                 //model
                 const XmlNode *modelNode= typeNode->getChild("model");
-                string path= currentPath + modelNode->getAttribute("path")->getRestrictedValue();
+                string modelPath= currentPath + modelNode->getAttribute("path")->getRestrictedValue();
 
                 model= renderer.newModel(rsGame);
-                model->load(path);
+                model->load(modelPath, false, &loadedFileList);
+                loadedFileList[modelPath]++;
 
                 if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
 					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-					if(particleEnabled){
-						for(int k= 0; k < particleNode->getChildCount(); ++k){
+					if(particleEnabled == true) {
+						for(int k= 0; k < particleNode->getChildCount(); ++k) {
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
-							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+							string particlePath= particleFileNode->getAttribute("path")->getRestrictedValue();
 
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
+							objectParticleSystemType->load(dir,  currentPath + particlePath,
+									&Renderer::getInstance(), loadedFileList);
+							loadedFileList[currentPath + particlePath]++;
+
 							particleTypes.push_back(objectParticleSystemType);
 						}
 					}
@@ -110,7 +118,6 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 //resource number
                 const XmlNode *resourceNumberNode= typeNode->getChild("resource-number");
                 resourceNumber= resourceNumberNode->getAttribute("value")->getIntValue();
-
 			}
 			break;
 
@@ -137,11 +144,9 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
             case rcStatic:
             {
                 //recoup_cost
-                if(typeNode->hasChild("recoup_cost") == true)
-                {
+                if(typeNode->hasChild("recoup_cost") == true) {
                     const XmlNode *recoup_costNode= typeNode->getChild("recoup_cost");
-                    if(recoup_costNode != NULL)
-                    {
+                    if(recoup_costNode != NULL) {
                         recoup_cost= recoup_costNode->getAttribute("value")->getBoolValue();
                     }
                 }

@@ -31,13 +31,14 @@ namespace Glest{ namespace Game{
 // 	class AmbientSounds
 // =====================================================
 
-void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
+void AmbientSounds::load(const string &dir, const XmlNode *xmlNode,
+		std::map<string,int> &loadedFileList) {
 	string path;
 
 	//day
 	const XmlNode *dayNode= xmlNode->getChild("day-sound");
 	enabledDay= dayNode->getAttribute("enabled")->getBoolValue();
-	if(enabledDay){
+	if(enabledDay) {
 		path= dayNode->getAttribute("path")->getRestrictedValue();
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
@@ -84,6 +85,7 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
 		dayStart.load(currentPath + path);
+		loadedFileList[currentPath + path]++;
 	}
 
 	//nightStart
@@ -94,6 +96,7 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
 		nightStart.load(currentPath + path);
+		loadedFileList[currentPath + path]++;
 	}
 }
 
@@ -101,14 +104,15 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode){
 // 	class Tileset
 // =====================================================
 
-Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum) {
+Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName,
+		Checksum* checksum, std::map<string,int> &loadedFileList) {
     Checksum tilesetChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
 		string currentPath = pathList[idx];
 		endPathWithSlash(currentPath);
         string path = currentPath + tilesetName;
         if(isdir(path.c_str()) == true) {
-            load(path, checksum, &tilesetChecksum);
+            load(path, checksum, &tilesetChecksum, loadedFileList);
             break;
         }
     }
@@ -116,7 +120,8 @@ Checksum Tileset::loadTileset(const vector<string> pathList, const string &tiles
 }
 
 
-void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum) {
+void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
+		std::map<string,int> &loadedFileList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	random.init(time(NULL));
@@ -141,6 +146,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		//parse xml
 		XmlTree xmlTree;
 		xmlTree.load(path);
+		loadedFileList[path]++;
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -168,6 +174,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
 				surfPixmaps[i][j].init(3);
 				surfPixmaps[i][j].load(currentPath + textureNode->getAttribute("path")->getRestrictedValue());
+				loadedFileList[currentPath + textureNode->getAttribute("path")->getRestrictedValue()]++;
+
 				surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
 			}
 		}
@@ -193,7 +201,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j) {
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
-				objectTypes[i].loadModel(currentPath + pathAttribute->getRestrictedValue());
+				objectTypes[i].loadModel(currentPath + pathAttribute->getRestrictedValue(),&loadedFileList);
+				loadedFileList[currentPath + pathAttribute->getRestrictedValue()]++;
 
 				if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -203,7 +212,10 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance());
+							objectParticleSystemType->load(dir,  currentPath + path,
+									&Renderer::getInstance(), loadedFileList);
+							loadedFileList[currentPath + path]++;
+
 							objectTypes[i].addParticleSystem((objectParticleSystemType));
 						}
 					}
@@ -219,7 +231,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//ambient sounds
-		ambientSounds.load(dir, tilesetNode->getChild("ambient-sounds"));
+		ambientSounds.load(dir, tilesetNode->getChild("ambient-sounds"), loadedFileList);
 
 		//parameters
 		const XmlNode *parametersNode= tilesetNode->getChild("parameters");
@@ -238,6 +250,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		for(int i=0; i<waterFrameCount; ++i){
 			const XmlNode *waterFrameNode= waterNode->getChild("texture", i);
 			waterTex->getPixmap()->loadSlice(currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue(), i);
+			loadedFileList[currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue()]++;
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

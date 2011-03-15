@@ -88,7 +88,8 @@ public:
 	StaticSound *getDayStart()		{return &dayStart;}
 	StaticSound *getNightStart()	{return &nightStart;}
 
-	void load(const string &dir, const XmlNode *xmlNode);
+	void load(const string &dir, const XmlNode *xmlNode,
+			std::map<string,int> &loadedFileList);
 };
 
 // =====================================================
@@ -97,7 +98,7 @@ public:
 ///	Containt textures, models and parameters for a tileset
 // =====================================================
 
-class Tileset{
+class Tileset {
 public:
 	static const int waterTexCount= 1;
 	static const int surfCount= 6;
@@ -131,8 +132,10 @@ private:
 
 public:
     ~Tileset();
-    Checksum loadTileset(const vector<string> pathList, const string &tilesetName, Checksum* checksum);
-	void load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum);
+    Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
+    		Checksum* checksum, std::map<string,int> &loadedFileList);
+	void load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
+			std::map<string,int> &loadedFileList);
 	Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
