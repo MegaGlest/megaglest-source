@@ -2224,8 +2224,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
     gameSettings->setTilesetCRC(tilesetCRC);
 
-    int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
-    gameSettings->setTechCRC(techCRC);
+    if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
+    	int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+    	gameSettings->setTechCRC(techCRC);
+    }
 
     Checksum checksum;
     string file = Map::getMapPath(gameSettings->getMap(),"",false);
