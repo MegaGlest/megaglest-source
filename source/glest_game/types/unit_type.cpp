@@ -325,32 +325,51 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			rotationAllowed=true;
 		}
 
+		std::map<string,int> sortedItems;
 
 		//unit requirements
 		const XmlNode *unitRequirementsNode= parametersNode->getChild("unit-requirements");
 		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
 			const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
-			unitReqs.push_back(factionType->getUnitType(name));
+			sortedItems[name] = 0;
 		}
+		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
+				iterMap != sortedItems.end(); ++iterMap) {
+			unitReqs.push_back(factionType->getUnitType(iterMap->first));
+		}
+		sortedItems.clear();
+
 
 		//upgrade requirements
 		const XmlNode *upgradeRequirementsNode= parametersNode->getChild("upgrade-requirements");
 		for(int i=0; i<upgradeRequirementsNode->getChildCount(); ++i){
 			const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 			string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
-			upgradeReqs.push_back(factionType->getUpgradeType(name));
+			sortedItems[name] = 0;
 		}
+		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
+				iterMap != sortedItems.end(); ++iterMap) {
+			upgradeReqs.push_back(factionType->getUpgradeType(iterMap->first));
+		}
+		sortedItems.clear();
 
 		//resource requirements
 		const XmlNode *resourceRequirementsNode= parametersNode->getChild("resource-requirements");
 		costs.resize(resourceRequirementsNode->getChildCount());
-		for(int i=0; i<costs.size(); ++i){
+		for(int i = 0; i < costs.size(); ++i) {
 			const XmlNode *resourceNode= resourceRequirementsNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
-			costs[i].init(techTree->getResourceType(name), amount);
+			sortedItems[name] = amount;
 		}
+		int index = 0;
+		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
+				iterMap != sortedItems.end(); ++iterMap) {
+			costs[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
+			index++;
+		}
+		sortedItems.clear();
 
 		//resources stored
 		const XmlNode *resourcesStoredNode= parametersNode->getChild("resources-stored");
@@ -359,8 +378,15 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			const XmlNode *resourceNode= resourcesStoredNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
-			storedResources[i].init(techTree->getResourceType(name), amount);
+			sortedItems[name] = amount;
 		}
+		index = 0;
+		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
+				iterMap != sortedItems.end(); ++iterMap) {
+			storedResources[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
+			index++;
+		}
+		sortedItems.clear();
 
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
