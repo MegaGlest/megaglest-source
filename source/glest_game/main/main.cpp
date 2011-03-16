@@ -101,7 +101,7 @@ const char  *GAME_ARGS[] = {
 	"--log-path",
 	"--show-ini-settings",
 	"--convert-models",
-	"--convert-textures",
+	//"--convert-textures",
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--verbose"
@@ -2075,8 +2075,10 @@ int glestMain(int argc, char** argv) {
         //int *foo = (int*)-1; // make a bad pointer
         //printf("%d\n", *foo);       // causes segfault
         // END
-
-		if(config.getBool("PreCacheCRCThread","true") == true) {
+        bool startCRCPrecacheThread = config.getBool("PreCacheCRCThread","true");
+        //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
+		if(startCRCPrecacheThread == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			preCacheThread.reset(new FileCRCPreCacheThread());
 			preCacheThread->setUniqueID(__FILE__);

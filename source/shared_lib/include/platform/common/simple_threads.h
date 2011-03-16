@@ -29,14 +29,15 @@ namespace Shared { namespace PlatformCommon {
 class FileCRCPreCacheThread : public BaseThread
 {
 protected:
-
 	vector<string> techDataPaths;
+	vector<string> workerThreadTechPaths;
 
 public:
 	FileCRCPreCacheThread();
-	FileCRCPreCacheThread(vector<string> techDataPaths);
+	FileCRCPreCacheThread(vector<string> techDataPaths,vector<string> workerThreadTechPaths);
     virtual void execute();
-    void setTechDataPaths(vector<string> techDataPaths) { this->techDataPaths = techDataPaths; }
+    void setTechDataPaths(vector<string> value) { this->techDataPaths = value; }
+    void setWorkerThreadTechPaths(vector<string> value) { this->workerThreadTechPaths = value; }
 };
 
 // =====================================================
