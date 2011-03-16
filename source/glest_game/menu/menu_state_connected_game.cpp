@@ -925,6 +925,12 @@ void MenuStateConnectedGame::update() {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
 
+	// Test progress bar
+    //MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    //fileFTPProgressList["test"] = pair<int,string>(difftime(time(NULL),lastNetworkSendPing) * 20,"test file 123");
+    //safeMutexFTPProgress.ReleaseLock();
+    //
+
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
@@ -973,7 +979,9 @@ void MenuStateConnectedGame::update() {
                 // Test data synch
                 //tilesetCRC++;
 
-                int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+                int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+                // Test data synch
+                //techCRC++;
 
                 Checksum checksum;
                 string file = Map::getMapPath(gameSettings->getMap(),"",false);
@@ -1993,8 +2001,18 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
             MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+            pair<int,string> lastProgress = fileFTPProgressList[itemName];
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
             safeMutexFTPProgress.ReleaseLock();
+
+            if((lastProgress.first / 25) < (fileProgress / 25)) {
+				char szMsg[1024]="";
+				sprintf(szMsg,"Player: %s download progress for %s is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+
+		        NetworkManager &networkManager= NetworkManager::getInstance();
+		        ClientInterface* clientInterface= networkManager.getClientInterface();
+				clientInterface->sendTextMessage(szMsg,-1, true);
+            }
         }
     }
     else if(type == ftp_cct_Map) {
