@@ -193,7 +193,7 @@ string Mesh::findAlternateTexture(vector<string> conversionList, string textureF
 	string result = textureFile;
 	string fileExt = extractExtension(textureFile);
 
-	for(int i = 0; i < conversionList.size(); ++i) {
+	for(unsigned int i = 0; i < conversionList.size(); ++i) {
 		string convertTo = conversionList[i];
 		if(fileExt != convertTo) {
 			string alternateTexture = textureFile;
@@ -242,7 +242,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
 
 	textureFlags= 0;
-	if(meshHeader.hasTexture == true) {
+	if(meshHeader.hasTexture) {
 		textureFlags= 1;
 	}
 
