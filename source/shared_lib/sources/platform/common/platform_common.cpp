@@ -65,7 +65,7 @@ using namespace std;
 
 namespace Shared { namespace PlatformCommon {
 
-const time_t REFRESH_CRC_DAY_SECONDS = 1 * 60 * 24;
+const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 static string crcCachePath = "";
 
 namespace Private {
@@ -503,13 +503,23 @@ bool hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 			int res = fscanf(fp,"%ld,%d",&refreshDate,&crcValue);
 			fclose(fp);
 
-			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found CRC Cache file [%s] now = %ld, refreshDate = %ld, crcValue = %d\n",crcCacheFile.c_str(),time(NULL), refreshDate,crcValue);
-
 			if(	refreshDate > 0 &&
 				time(NULL) < refreshDate) {
 
 				result = true;
 				value = crcValue;
+			}
+			else {
+				time_t now = time(NULL);
+		        struct tm *loctime = localtime (&now);
+		        char szBuf1[100]="";
+		        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+		        loctime = localtime (&refreshDate);
+		        char szBuf2[100]="";
+		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
 			}
 		}
 	}
@@ -520,13 +530,23 @@ bool hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 void writeCachedFileCRCValue(string crcCacheFile, int32 &crcValue) {
 	FILE *fp = fopen(crcCacheFile.c_str(),"w");
 	if(fp != NULL) {
-		RandomGen random;
-		int offset = random.randRange(5, 15);
+		//RandomGen random;
+		//int offset = random.randRange(5, 15);
+	    srand(time(NULL) + crcCacheFile.length());
+	    int offset = rand() % 15;
+	    if(offset == 0) {
+	    	offset = 3;
+	    }
 		time_t refreshDate = time(NULL) + (REFRESH_CRC_DAY_SECONDS * offset);
+
+        struct tm *loctime = localtime (&refreshDate);
+        char szBuf1[100]="";
+        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+
 		fprintf(fp,"%ld,%d",refreshDate,crcValue);
 		fclose(fp);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Writing CRC Cache file [%s] refreshDate = %ld, crcValue = %d\n",crcCacheFile.c_str(),refreshDate,crcValue);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %d, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
 	}
 }
 
