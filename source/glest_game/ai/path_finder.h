@@ -57,38 +57,59 @@ public:
 	};
 	typedef vector<Node*> Nodes;
 
+	class FactionState {
+	public:
+		FactionState() {
+			openPosList.clear();
+			openNodesList.clear();
+			closedNodesList.clear();
+			nodePool.clear();
+			nodePoolCount = 0;
+			useMaxNodeCount = 0;
+			precachedTravelState.clear();
+			precachedPath.clear();
+		}
+		std::map<Vec2i, bool> openPosList;
+		std::map<float, Nodes> openNodesList;
+		std::map<float, Nodes> closedNodesList;
+		std::vector<Node> nodePool;
+		int nodePoolCount;
+		RandomGen random;
+		int useMaxNodeCount;
+
+		std::map<int,TravelState> precachedTravelState;
+		std::map<int,std::vector<Vec2i> > precachedPath;
+	};
+	typedef vector<FactionState> FactionStateList;
+
 public:
 	static const int maxFreeSearchRadius;
-	static int pathFindNodesMax;
 	static const int pathFindRefresh;
 	static const int pathFindBailoutRadius;
 
 private:
-	std::map<Vec2i, bool> openPosList;
-	std::map<float, Nodes> openNodesList;
-	std::map<float, Nodes> closedNodesList;
 
-	std::vector<Node> nodePool;
-	int nodePoolCount;
+	static int pathFindNodesMax;
+
+	FactionStateList factions;
 	const Map *map;
-	RandomGen random;
-	int useMaxNodeCount;
 
 public:
 	PathFinder();
 	PathFinder(const Map *map);
 	~PathFinder();
 	void init(const Map *map);
-	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL);
+	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,int frameIndex=-1);
+	void clearUnitPrecache(Unit *unit);
 
 private:
-	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout);
-	Node *newNode();
+	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex);
+	Node *newNode(FactionState &faction);
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	float heuristic(const Vec2i &pos, const Vec2i &finalPos);
-	bool openPos(const Vec2i &sucPos);
+	bool openPos(const Vec2i &sucPos,FactionState &faction);
 
-	Node * minHeuristicFastLookup();
+	Node * minHeuristicFastLookup(FactionState &faction);
 
 	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached);
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);

@@ -100,17 +100,17 @@ public:
     void updateUnit(Unit *unit);
 
     //update commands
-    void updateUnitCommand(Unit *unit);
-    void updateStop(Unit *unit);
-    void updateMove(Unit *unit);
-    void updateAttack(Unit *unit);
-    void updateAttackStopped(Unit *unit);
-    void updateBuild(Unit *unit);
-    void updateHarvest(Unit *unit);
-    void updateRepair(Unit *unit);
-    void updateProduce(Unit *unit);
-    void updateUpgrade(Unit *unit);
-	void updateMorph(Unit *unit);
+    void updateUnitCommand(Unit *unit, int frameIndex);
+    void updateStop(Unit *unit, int frameIndex);
+    void updateMove(Unit *unit, int frameIndex);
+    void updateAttack(Unit *unit, int frameIndex);
+    void updateAttackStopped(Unit *unit, int frameIndex);
+    void updateBuild(Unit *unit, int frameIndex);
+    void updateHarvest(Unit *unit, int frameIndex);
+    void updateRepair(Unit *unit, int frameIndex);
+    void updateProduce(Unit *unit, int frameIndex);
+    void updateUpgrade(Unit *unit, int frameIndex);
+	void updateMorph(Unit *unit, int frameIndex);
 
 private:
     //attack
@@ -133,6 +133,7 @@ private:
 								const CommandType *commandType,
 								int originalValue,int newValue);
 
+	void clearUnitPrecache(Unit *unit);
 };
 
 // =====================================================

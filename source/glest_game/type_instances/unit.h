@@ -147,7 +147,7 @@ public:
 	virtual void incBlockCount();
 	virtual void add(const Vec2i &path);
 	void addToLastPathCache(const Vec2i &path);
-	Vec2i pop();
+	Vec2i pop(bool removeFrontPos=true);
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return pathQueue.size(); }
 
@@ -494,6 +494,7 @@ public:
 
 	void logSynchData(string file,int line,string source="");
 	std::string toString() const;
+	bool needToUpdate();
 
 private:
 	float computeHeight(const Vec2i &pos) const;

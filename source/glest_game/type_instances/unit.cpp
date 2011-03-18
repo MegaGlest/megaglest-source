@@ -101,12 +101,14 @@ void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 	lastPathCacheQueue.push_back(path);
 }
 
-Vec2i UnitPathBasic::pop() {
+Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	if(pathQueue.size() <= 0) {
 		throw runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
 	}
 	Vec2i p= pathQueue.front();
-	pathQueue.erase(pathQueue.begin());
+	if(removeFrontPos == true) {
+		pathQueue.erase(pathQueue.begin());
+	}
 	return p;
 }
 std::string UnitPathBasic::toString() const {
@@ -1103,6 +1105,60 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	}
 
 	return commandType;
+}
+
+
+bool Unit::needToUpdate() {
+	assert(progress <= 1.f);
+
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	//speed
+	int speed = currSkill->getTotalSpeed(&totalUpgrade);
+
+	//speed modifier
+	float diagonalFactor= 1.f;
+	float heightFactor= 1.f;
+	if(currSkill->getClass() == scMove) {
+		//if moving in diagonal move slower
+		Vec2i dest= pos-lastPos;
+		if(abs(dest.x) + abs(dest.y) == 2) {
+			diagonalFactor= 0.71f;
+		}
+
+		//if movig to an higher cell move slower else move faster
+		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
+		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
+	}
+
+	//update progresses
+	float newProgress = progress;
+	const Game *game = Renderer::getInstance().getGame();
+	newProgress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+
+	//checks
+    bool return_value = false;
+	//checks
+	if(newProgress >= 1.f) {
+		if(currSkill->getClass() != scDie) {
+			newProgress= 0.f;
+			return_value = true;
+		}
+		else {
+			newProgress= 1.f;
+			int newDeadCount = deadCount;
+			newDeadCount++;
+			if(newDeadCount >= maxDeadCount) {
+				return_value = false;
+			}
+		}
+	}
+
+	return return_value;
 }
 
 bool Unit::update() {

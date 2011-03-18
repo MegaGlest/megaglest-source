@@ -21,7 +21,7 @@
 #include "sound_container.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 using Shared::Util::MultiFactory;
 
@@ -31,7 +31,7 @@ class UnitType;
 class TechTree;
 class FactionType;
 
-enum CommandClass{
+enum CommandClass {
 	ccStop,
 	ccMove,
 	ccAttack,
@@ -47,7 +47,7 @@ enum CommandClass{
 	ccNull
 };
 
-enum Clicks{
+enum Clicks {
 	cOne,
 	cTwo
 };
@@ -80,7 +80,7 @@ public:
 	    clicks 				= cOne;
 		id 					= -1;
 	}
-    virtual void update(UnitUpdater *unitUpdater, Unit *unit) const= 0;
+    virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const= 0;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -109,13 +109,13 @@ public:
 // 	class StopCommandType
 // ===============================
 
-class StopCommandType: public CommandType{
+class StopCommandType: public CommandType {
 private:
     const StopSkillType* stopSkillType;
 
 public:
     StopCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
     		const FactionType *ft, const UnitType &ut, std::map<string,int> &loadedFileList);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
@@ -131,13 +131,13 @@ public:
 // 	class MoveCommandType
 // ===============================
 
-class MoveCommandType: public CommandType{
+class MoveCommandType: public CommandType {
 private:
     const MoveSkillType *moveSkillType;
 
 public:
     MoveCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -153,14 +153,14 @@ public:
 // 	class AttackCommandType
 // ===============================
 
-class AttackCommandType: public CommandType{
+class AttackCommandType: public CommandType {
 private:
     const MoveSkillType* moveSkillType;
     const AttackSkillType* attackSkillType;
 
 public:
     AttackCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -177,14 +177,14 @@ public:
 // 	class AttackStoppedCommandType
 // =======================================
 
-class AttackStoppedCommandType: public CommandType{
+class AttackStoppedCommandType: public CommandType {
 private:
     const StopSkillType* stopSkillType;
     const AttackSkillType* attackSkillType;
 
 public:
     AttackStoppedCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -201,7 +201,7 @@ public:
 // 	class BuildCommandType
 // ===============================
 
-class BuildCommandType: public CommandType{
+class BuildCommandType: public CommandType {
 private:
     const MoveSkillType* moveSkillType;
     const BuildSkillType* buildSkillType;
@@ -212,7 +212,7 @@ private:
 public:
     BuildCommandType();
     ~BuildCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -233,7 +233,7 @@ public:
 // 	class HarvestCommandType
 // ===============================
 
-class HarvestCommandType: public CommandType{
+class HarvestCommandType: public CommandType {
 private:
     const MoveSkillType *moveSkillType;
     const MoveSkillType *moveLoadedSkillType;
@@ -245,7 +245,7 @@ private:
 
 public:
     HarvestCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -270,7 +270,7 @@ public:
 // 	class RepairCommandType
 // ===============================
 
-class RepairCommandType: public CommandType{
+class RepairCommandType: public CommandType {
 private:
     const MoveSkillType* moveSkillType;
     const RepairSkillType* repairSkillType;
@@ -279,7 +279,7 @@ private:
 public:
     RepairCommandType();
     ~RepairCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -301,14 +301,14 @@ public:
 // 	class ProduceCommandType
 // ===============================
 
-class ProduceCommandType: public CommandType{
+class ProduceCommandType: public CommandType {
 private:
     const ProduceSkillType* produceSkillType;
 	const UnitType *producedUnit;
 
 public:
     ProduceCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -328,14 +328,14 @@ public:
 // 	class UpgradeCommandType
 // ===============================
 
-class UpgradeCommandType: public CommandType{
+class UpgradeCommandType: public CommandType {
 private:
     const UpgradeSkillType* upgradeSkillType;
     const UpgradeType* producedUpgrade;
 
 public:
     UpgradeCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
@@ -354,7 +354,7 @@ public:
 // 	class MorphCommandType
 // ===============================
 
-class MorphCommandType: public CommandType{
+class MorphCommandType: public CommandType {
 private:
     const MorphSkillType* morphSkillType;
     const UnitType* morphUnit;
@@ -362,7 +362,7 @@ private:
 
 public:
     MorphCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit) const;
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,int> &loadedFileList);
