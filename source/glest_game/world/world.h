@@ -231,6 +231,8 @@ public:
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
 	bool showWorldForPlayer(int factionIndex) const;
 
+	UnitUpdater * getUnitUpdater() { return &unitUpdater; }
+
 private:
 
 	void initCells(bool fogOfWar);

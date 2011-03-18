@@ -83,6 +83,12 @@ void UnitUpdater::init(Game *game){
     }
 }
 
+void UnitUpdater::clearUnitPrecache(Unit *unit) {
+	if(pathFinder != NULL) {
+		pathFinder->clearUnitPrecache(unit);
+	}
+}
+
 UnitUpdater::~UnitUpdater() {
 	//UnitRangeCellsLookupItemCache.clear();
 
@@ -139,7 +145,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 	if(update == true) {
         //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		updateUnitCommand(unit);
+		updateUnitCommand(unit,-1);
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after updateUnitCommand()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -236,7 +242,12 @@ void UnitUpdater::updateUnit(Unit *unit) {
 // ==================== progress commands ====================
 
 //VERY IMPORTANT: compute next state depending on the first order of the list
-void UnitUpdater::updateUnitCommand(Unit *unit) {
+void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
+	// Clear previous cached unit data
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -245,28 +256,35 @@ void UnitUpdater::updateUnitCommand(Unit *unit) {
         SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit [%s] has command [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str(), unit->getCurrCommand()->toString().c_str());
 
     	CommandClass cc = unit->getCurrCommand()->getCommandType()->commandTypeClass;
-		unit->getCurrCommand()->getCommandType()->update(this, unit);
+		unit->getCurrCommand()->getCommandType()->update(this, unit, frameIndex);
 	}
 
     if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	//if no commands stop and add stop command
-	if(unit->anyCommand() == false && unit->isOperative()) {
-	    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		unit->setCurrSkill(scStop);
+    if(frameIndex < 0) {
+		//if no commands stop and add stop command
+		if(unit->anyCommand() == false && unit->isOperative()) {
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			unit->setCurrSkill(scStop);
 
-		if(unit->getType()->hasCommandClass(ccStop)) {
-		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
+			if(unit->getType()->hasCommandClass(ccStop)) {
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
+			}
 		}
-	}
-
+    }
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== updateStop ====================
 
-void UnitUpdater::updateStop(Unit *unit) {
+void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -329,7 +347,7 @@ void UnitUpdater::updateStop(Unit *unit) {
 
 
 // ==================== updateMove ====================
-void UnitUpdater::updateMove(Unit *unit) {
+void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 	Chrono chrono;
 	chrono.start();
 
@@ -349,7 +367,7 @@ void UnitUpdater::updateMove(Unit *unit) {
 	TravelState tsValue = tsImpossible;
 	switch(this->game->getGameSettings()->getPathFinderType()) {
 		case pfBasic:
-			tsValue = pathFinder->findPath(unit, pos);
+			tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
 			break;
 		case pfRoutePlanner:
 			tsValue = routePlanner->findPath(unit, pos);
@@ -360,29 +378,30 @@ void UnitUpdater::updateMove(Unit *unit) {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	switch (tsValue) {
-	case tsMoving:
-		unit->setCurrSkill(mct->getMoveSkillType());
-        break;
+	if(frameIndex < 0) {
+		switch (tsValue) {
+		case tsMoving:
+			unit->setCurrSkill(mct->getMoveSkillType());
+			break;
 
-	case tsBlocked:
-		unit->setCurrSkill(scStop);
-		if(unit->getPath()->isBlocked()){
+		case tsBlocked:
+			unit->setCurrSkill(scStop);
+			if(unit->getPath()->isBlocked()){
+				unit->finishCommand();
+			}
+			break;
+
+		default:
 			unit->finishCommand();
 		}
-		break;
-
-    default:
-        unit->finishCommand();
-    }
-
+	}
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
 // ==================== updateAttack ====================
 
-void UnitUpdater::updateAttack(Unit *unit) {
+void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 	Chrono chrono;
 	chrono.start();
 
@@ -392,28 +411,31 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	if( (command->getUnit()==NULL || !(command->getUnit()->isAlive()) ) && unit->getCommandSize()>1)
-	{
-		unit->finishCommand(); // all queued "ground attacks" are skipped if somthing else is queued after them.
+	if( (command->getUnit() == NULL || !(command->getUnit()->isAlive()) ) && unit->getCommandSize() > 1) {
+
+		if(frameIndex < 0) {
+			unit->finishCommand(); // all queued "ground attacks" are skipped if somthing else is queued after them.
+		}
 		return;
 	}
 
 	//if found
     if(attackableOnRange(unit, &target, act->getAttackSkillType())) {
-		if(unit->getEp()>=act->getAttackSkillType()->getEpCost()) {
-			unit->setCurrSkill(act->getAttackSkillType());
-			unit->setTarget(target);
-		}
-		else {
-			unit->setCurrSkill(scStop);
-		}
-
+    	if(frameIndex < 0) {
+			if(unit->getEp() >= act->getAttackSkillType()->getEpCost()) {
+				unit->setCurrSkill(act->getAttackSkillType());
+				unit->setTarget(target);
+			}
+			else {
+				unit->setCurrSkill(scStop);
+			}
+    	}
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
     else {
 		//compute target pos
 		Vec2i pos;
-		if(command->getUnit()!=NULL) {
+		if(command->getUnit() != NULL) {
 			pos= command->getUnit()->getCenteredPos();
 		}
 		else if(attackableOnSight(unit, &target, act->getAttackSkillType())) {
@@ -435,7 +457,7 @@ void UnitUpdater::updateAttack(Unit *unit) {
 		TravelState tsValue = tsImpossible;
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
-				tsValue = pathFinder->findPath(unit, pos);
+				tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
 				break;
 			case pfRoutePlanner:
 				tsValue = routePlanner->findPath(unit, pos);
@@ -446,27 +468,28 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-
-		if(command->getUnit()!=NULL && !command->getUnit()->isAlive() && unit->getCommandSize()>1)
-		{// don't run over to dead body if there is still something to do in the queue
-			unit->finishCommand();
-		}
-		else {
-			//if unit arrives destPos order has ended
-	        switch (tsValue){
-	        case tsMoving:
-	            unit->setCurrSkill(act->getMoveSkillType());
-	            break;
-			case tsBlocked:
-				if(unit->getPath()->isBlocked()){
-					unit->finishCommand();
-				}
-				break;
-			default:
+		if(frameIndex < 0) {
+			if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
+				// don't run over to dead body if there is still something to do in the queue
 				unit->finishCommand();
 			}
+			else {
+				//if unit arrives destPos order has ended
+				switch (tsValue){
+				case tsMoving:
+					unit->setCurrSkill(act->getMoveSkillType());
+					break;
+				case tsBlocked:
+					if(unit->getPath()->isBlocked()){
+						unit->finishCommand();
+					}
+					break;
+				default:
+					unit->finishCommand();
+				}
+			}
 		}
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
 
     if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -475,7 +498,13 @@ void UnitUpdater::updateAttack(Unit *unit) {
 
 // ==================== updateAttackStopped ====================
 
-void UnitUpdater::updateAttackStopped(Unit *unit) {
+void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -483,7 +512,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit) {
     const AttackStoppedCommandType *asct= static_cast<const AttackStoppedCommandType*>(command->getCommandType());
     Unit *enemy;
 
-    if(unit->getCommandSize()>1)
+    if(unit->getCommandSize() > 1)
     {
     	unit->finishCommand(); // attackStopped is skipped if somthing else is queued after this.
     	return;
@@ -503,7 +532,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit) {
 
 // ==================== updateBuild ====================
 
-void UnitUpdater::updateBuild(Unit *unit) {
+void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 	Chrono chrono;
 	chrono.start();
 
@@ -540,7 +569,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
 
-				tsValue = pathFinder->findPath(unit, buildPos);
+				tsValue = pathFinder->findPath(unit, buildPos, NULL, frameIndex);
 				}
 				break;
 			case pfRoutePlanner:
@@ -553,166 +582,168 @@ void UnitUpdater::updateBuild(Unit *unit) {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsValue = %d\n",__FILE__,__FUNCTION__,__LINE__,tsValue);
 
-		switch (tsValue) {
-        case tsMoving:
-        	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
+		if(frameIndex < 0) {
+			switch (tsValue) {
+			case tsMoving:
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
 
-            unit->setCurrSkill(bct->getMoveSkillType());
-            break;
+				unit->setCurrSkill(bct->getMoveSkillType());
+				break;
 
-        case tsArrived:
-        	{
-        	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
+			case tsArrived:
+				{
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived:\n",__FILE__,__FUNCTION__,__LINE__);
 
-        	//if arrived destination
-            assert(ut);
-			if(ut == NULL) {
-				throw runtime_error("ut == NULL");
-			}
-
-            bool canOccupyCell = false;
-    		switch(this->game->getGameSettings()->getPathFinderType()) {
-    			case pfBasic:
-    				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived about to call map->isFreeCells() for command->getPos() = %s, ut->getSize() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getPos().getString().c_str(),ut->getSize());
-    				canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
-    				break;
-    			case pfRoutePlanner:
-    				canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
-    				break;
-    			default:
-    				throw runtime_error("detected unsupported pathfinder type!");
-    	    }
-
-            SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] canOccupyCell = %d\n",__FILE__,__FUNCTION__,__LINE__,canOccupyCell);
-
-			if (canOccupyCell == true) {
-				const UnitType *builtUnitType= command->getUnitType();
-				CardinalDir facing = command->getFacing();
-
-				UnitPathInterface *newpath = NULL;
-				switch(this->game->getGameSettings()->getPathFinderType()) {
-					case pfBasic:
-						newpath = new UnitPathBasic();
-						break;
-					case pfRoutePlanner:
-						newpath = new UnitPath();
-						break;
-					default:
-						throw runtime_error("detected unsupported pathfinder type!");
-			    }
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				Vec2i buildPos = command->getPos();
-				Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, buildPos, builtUnitType, unit->getFaction(), world->getMap(), facing);
-
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-				builtUnit->create();
-
-				if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
-					throw runtime_error("Unit " + builtUnitType->getName() + "has no be_built skill");
+				//if arrived destination
+				assert(ut);
+				if(ut == NULL) {
+					throw runtime_error("ut == NULL");
 				}
 
-				builtUnit->setCurrSkill(scBeBuilt);
-
-				unit->setCurrSkill(bct->getBuildSkillType());
-				unit->setTarget(builtUnit);
-				map->prepareTerrain(builtUnit);
-
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+				bool canOccupyCell = false;
 				switch(this->game->getGameSettings()->getPathFinderType()) {
 					case pfBasic:
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived about to call map->isFreeCells() for command->getPos() = %s, ut->getSize() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getPos().getString().c_str(),ut->getSize());
+						canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
 						break;
 					case pfRoutePlanner:
-						world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
+						canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
 						break;
 					default:
 						throw runtime_error("detected unsupported pathfinder type!");
 				}
 
-				command->setUnit(builtUnit);
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] canOccupyCell = %d\n",__FILE__,__FUNCTION__,__LINE__,canOccupyCell);
 
-				//play start sound
-				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
-					SoundRenderer::getInstance().playFx(
-						bct->getStartSound(),
-						unit->getCurrVector(),
-						gameCamera->getPos());
+				if (canOccupyCell == true) {
+					const UnitType *builtUnitType= command->getUnitType();
+					CardinalDir facing = command->getFacing();
+
+					UnitPathInterface *newpath = NULL;
+					switch(this->game->getGameSettings()->getPathFinderType()) {
+						case pfBasic:
+							newpath = new UnitPathBasic();
+							break;
+						case pfRoutePlanner:
+							newpath = new UnitPath();
+							break;
+						default:
+							throw runtime_error("detected unsupported pathfinder type!");
+					}
+
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					Vec2i buildPos = command->getPos();
+					Unit *builtUnit= new Unit(world->getNextUnitId(unit->getFaction()), newpath, buildPos, builtUnitType, unit->getFaction(), world->getMap(), facing);
+
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					builtUnit->create();
+
+					if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
+						throw runtime_error("Unit " + builtUnitType->getName() + "has no be_built skill");
+					}
+
+					builtUnit->setCurrSkill(scBeBuilt);
+
+					unit->setCurrSkill(bct->getBuildSkillType());
+					unit->setTarget(builtUnit);
+					map->prepareTerrain(builtUnit);
+
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					switch(this->game->getGameSettings()->getPathFinderType()) {
+						case pfBasic:
+							break;
+						case pfRoutePlanner:
+							world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
+							break;
+						default:
+							throw runtime_error("detected unsupported pathfinder type!");
+					}
+
+					command->setUnit(builtUnit);
+
+					//play start sound
+					if(unit->getFactionIndex() == world->getThisFactionIndex()) {
+						SoundRenderer::getInstance().playFx(
+							bct->getStartSound(),
+							unit->getCurrVector(),
+							gameCamera->getPos());
+					}
+
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
 				}
+				else {
+					//if there are no free cells
+					unit->cancelCommand();
+					unit->setCurrSkill(scStop);
 
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
-			}
-            else {
-                //if there are no free cells
-				unit->cancelCommand();
-                unit->setCurrSkill(scStop);
+					if(unit->getFactionIndex() == world->getThisFactionIndex()) {
+						 console->addStdMessage("BuildingNoPlace");
+					}
 
-				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
-                     console->addStdMessage("BuildingNoPlace");
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
 				}
+				}
+				break;
 
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got BuildingNoPlace\n",__FILE__,__FUNCTION__,__LINE__);
-            }
-        	}
-            break;
+			case tsBlocked:
+				if(unit->getPath()->isBlocked()) {
+					unit->cancelCommand();
 
-        case tsBlocked:
-			if(unit->getPath()->isBlocked()) {
-				unit->cancelCommand();
-
-				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] got tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+				break;
 			}
-            break;
-        }
-
+		}
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
     else {
     	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived unit = %s\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
-        //if building
-        Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
-        if(builtUnit == NULL) {
-        	builtUnit = map->getCell(unit->getTargetPos())->getUnitWithEmptyCellMap(fLand);
-        }
-
-        if(builtUnit != NULL) {
-        	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit = %s\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
-        }
-
-        SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit = [%p]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit);
-
-        //if unit is killed while building then u==NULL;
-		if(builtUnit != NULL && builtUnit != command->getUnit()) {
-			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is not the command's unit!\n",__FILE__,__FUNCTION__,__LINE__);
-			unit->setCurrSkill(scStop);
-		}
-		else if(builtUnit == NULL || builtUnit->isBuilt()) {
-			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is NULL or ALREADY built\n",__FILE__,__FUNCTION__,__LINE__);
-
-            unit->finishCommand();
-            unit->setCurrSkill(scStop);
-
-        }
-        else if(builtUnit == NULL || builtUnit->repair()) {
-            SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-            //building finished
-            unit->finishCommand();
-            unit->setCurrSkill(scStop);
-
-			builtUnit->born();
-			scriptManager->onUnitCreated(builtUnit);
-			if(unit->getFactionIndex() == world->getThisFactionIndex()) {
-				SoundRenderer::getInstance().playFx(
-					bct->getBuiltSound(),
-					unit->getCurrVector(),
-					gameCamera->getPos());
+    	if(frameIndex < 0) {
+			//if building
+			Unit *builtUnit = map->getCell(unit->getTargetPos())->getUnit(fLand);
+			if(builtUnit == NULL) {
+				builtUnit = map->getCell(unit->getTargetPos())->getUnitWithEmptyCellMap(fLand);
 			}
-        }
 
+			if(builtUnit != NULL) {
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit = %s\n",__FILE__,__FUNCTION__,__LINE__,builtUnit->toString().c_str());
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit = [%p]\n",__FILE__,__FUNCTION__,__LINE__,builtUnit);
+
+			//if unit is killed while building then u==NULL;
+			if(builtUnit != NULL && builtUnit != command->getUnit()) {
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is not the command's unit!\n",__FILE__,__FUNCTION__,__LINE__);
+				unit->setCurrSkill(scStop);
+			}
+			else if(builtUnit == NULL || builtUnit->isBuilt()) {
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is NULL or ALREADY built\n",__FILE__,__FUNCTION__,__LINE__);
+
+				unit->finishCommand();
+				unit->setCurrSkill(scStop);
+
+			}
+			else if(builtUnit == NULL || builtUnit->repair()) {
+				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				//building finished
+				unit->finishCommand();
+				unit->setCurrSkill(scStop);
+
+				builtUnit->born();
+				scriptManager->onUnitCreated(builtUnit);
+				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
+					SoundRenderer::getInstance().playFx(
+						bct->getBuiltSound(),
+						unit->getCurrVector(),
+						gameCamera->getPos());
+				}
+			}
+    	}
 		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
 
@@ -722,7 +753,7 @@ void UnitUpdater::updateBuild(Unit *unit) {
 
 // ==================== updateHarvest ====================
 
-void UnitUpdater::updateHarvest(Unit *unit) {
+void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	Chrono chrono;
 	chrono.start();
 
@@ -766,34 +797,40 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-				if (canHarvestDestPos == true) {
-					unit->setLastHarvestResourceTarget(NULL);
+				if (canHarvestDestPos == true ) {
+					if(frameIndex < 0) {
+						unit->setLastHarvestResourceTarget(NULL);
+					}
 
 					canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
+
 					if(canHarvestDestPos == true) {
-						//if it finds resources it starts harvesting
-						unit->setCurrSkill(hct->getHarvestSkillType());
-						unit->setTargetPos(targetPos);
-						command->setPos(targetPos);
-						unit->setLoadCount(0);
-						unit->getFaction()->addResourceTargetToCache(targetPos);
+						if(frameIndex < 0) {
+							//if it finds resources it starts harvesting
+							unit->setCurrSkill(hct->getHarvestSkillType());
+							unit->setTargetPos(targetPos);
+							command->setPos(targetPos);
+							unit->setLoadCount(0);
+							unit->getFaction()->addResourceTargetToCache(targetPos);
 
-						switch(this->game->getGameSettings()->getPathFinderType()) {
-							case pfBasic:
-								unit->setLoadType(r->getType());
-								break;
-							case pfRoutePlanner:
-								unit->setLoadType(r->getType());
-								break;
-							default:
-								throw runtime_error("detected unsupported pathfinder type!");
+							switch(this->game->getGameSettings()->getPathFinderType()) {
+								case pfBasic:
+									unit->setLoadType(r->getType());
+									break;
+								case pfRoutePlanner:
+									unit->setLoadType(r->getType());
+									break;
+								default:
+									throw runtime_error("detected unsupported pathfinder type!");
+							}
 						}
-
 						if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 					}
 				}
 				if(canHarvestDestPos == false) {
-					unit->setLastHarvestResourceTarget(&targetPos);
+					if(frameIndex < 0) {
+						unit->setLastHarvestResourceTarget(&targetPos);
+					}
 
 					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -809,14 +846,14 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 					TravelState tsValue = tsImpossible;
 		    		switch(this->game->getGameSettings()->getPathFinderType()) {
 		    			case pfBasic:
-							tsValue = pathFinder->findPath(unit, command->getPos(), &wasStuck);
-							if (tsValue == tsMoving) {
+							tsValue = pathFinder->findPath(unit, command->getPos(), &wasStuck, frameIndex);
+							if (tsValue == tsMoving && frameIndex < 0) {
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
 		    				break;
 		    			case pfRoutePlanner:
 							tsValue = routePlanner->findPathToResource(unit, command->getPos(), r->getType());
-							if (tsValue == tsMoving) {
+							if (tsValue == tsMoving && frameIndex < 0) {
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
 		    				break;
@@ -848,26 +885,30 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						}
 
 						if (canHarvestDestPos == true) {
-							unit->setLastHarvestResourceTarget(NULL);
+							if(frameIndex < 0) {
+								unit->setLastHarvestResourceTarget(NULL);
+							}
 
 							canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
 							if(canHarvestDestPos == true) {
-								//if it finds resources it starts harvesting
-								unit->setCurrSkill(hct->getHarvestSkillType());
-								unit->setTargetPos(targetPos);
-								command->setPos(targetPos);
-								unit->setLoadCount(0);
-								unit->getFaction()->addResourceTargetToCache(targetPos);
+								if(frameIndex < 0) {
+									//if it finds resources it starts harvesting
+									unit->setCurrSkill(hct->getHarvestSkillType());
+									unit->setTargetPos(targetPos);
+									command->setPos(targetPos);
+									unit->setLoadCount(0);
+									unit->getFaction()->addResourceTargetToCache(targetPos);
 
-								switch(this->game->getGameSettings()->getPathFinderType()) {
-									case pfBasic:
-										unit->setLoadType(r->getType());
-										break;
-									case pfRoutePlanner:
-										unit->setLoadType(r->getType());
-										break;
-									default:
-										throw runtime_error("detected unsupported pathfinder type!");
+									switch(this->game->getGameSettings()->getPathFinderType()) {
+										case pfBasic:
+											unit->setLoadType(r->getType());
+											break;
+										case pfRoutePlanner:
+											unit->setLoadType(r->getType());
+											break;
+										default:
+											throw runtime_error("detected unsupported pathfinder type!");
+									}
 								}
 							}
 
@@ -875,7 +916,9 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 						}
 
 						if(canHarvestDestPos == false) {
-							unit->setLastHarvestResourceTarget(&targetPos);
+							if(frameIndex < 0) {
+								unit->setLastHarvestResourceTarget(&targetPos);
+							}
 
 							if(targetPos.x >= 0) {
 								//if not continue walking
@@ -891,15 +934,15 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 								TravelState tsValue = tsImpossible;
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
-										tsValue = pathFinder->findPath(unit, targetPos, &wasStuck);
-										if (tsValue == tsMoving) {
+										tsValue = pathFinder->findPath(unit, targetPos, &wasStuck, frameIndex);
+										if (tsValue == tsMoving && frameIndex < 0) {
 											unit->setCurrSkill(hct->getMoveSkillType());
 											command->setPos(targetPos);
 										}
 										break;
 									case pfRoutePlanner:
 										tsValue = routePlanner->findPathToResource(unit, targetPos, r->getType());
-										if (tsValue == tsMoving) {
+										if (tsValue == tsMoving && frameIndex < 0) {
 											unit->setCurrSkill(hct->getMoveSkillType());
 											command->setPos(targetPos);
 										}
@@ -911,7 +954,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 							if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-				    		if(wasStuck == true) {
+				    		if(wasStuck == true && frameIndex < 0) {
 								//if can't harvest, search for another resource
 								unit->setCurrSkill(scStop);
 								if(searchForResource(unit, hct) == false) {
@@ -923,25 +966,24 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				}
 			}
 			else {
-				//if can't harvest, search for another resource
-				unit->setCurrSkill(scStop);
-				if(searchForResource(unit, hct) == false) {
-					unit->finishCommand();
+				if(frameIndex < 0) {
+					//if can't harvest, search for another resource
+					unit->setCurrSkill(scStop);
+					if(searchForResource(unit, hct) == false) {
+						unit->finishCommand();
+					}
 				}
-
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else {
-
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
-			if(store!=NULL) {
-
+			if(store != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
 					sprintf(szBuf,"[updateHarvest #3] unit->getPos() [%s] store->getCenteredPos() [%s]",
@@ -952,7 +994,7 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 				TravelState tsValue = tsImpossible;
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-	    				tsValue = pathFinder->findPath(unit, store->getCenteredPos());
+	    				tsValue = pathFinder->findPath(unit, store->getCenteredPos(), NULL, frameIndex);
 	    				break;
 	    			case pfRoutePlanner:
 	    				tsValue = routePlanner->findPathToStore(unit, store);
@@ -963,101 +1005,106 @@ void UnitUpdater::updateHarvest(Unit *unit) {
 
 	    		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-				switch(tsValue) {
-				case tsMoving:
-					unit->setCurrSkill(hct->getMoveLoadedSkillType());
-					break;
-				default:
-					break;
-				}
-
-				//world->changePosCells(unit,unit->getPos()+unit->getDest());
-				if(map->isNextTo(unit->getPos(), store)) {
-
-					//update resources
-					int resourceAmount= unit->getLoadCount();
-					if(unit->getFaction()->getCpuControl())
-					{
-						int resourceMultiplierIndex=game->getGameSettings()->getResourceMultiplierIndex(unit->getFaction()->getIndex());
-						resourceAmount=(resourceAmount* (resourceMultiplierIndex +5))/10;
+	    		if(frameIndex < 0) {
+					switch(tsValue) {
+					case tsMoving:
+						unit->setCurrSkill(hct->getMoveLoadedSkillType());
+						break;
+					default:
+						break;
 					}
-					unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
-					world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);
-					scriptManager->onResourceHarvested();
 
-					//if next to a store unload resources
-					unit->getPath()->clear();
-					unit->setCurrSkill(scStop);
-					unit->setLoadCount(0);
-				}
+					//world->changePosCells(unit,unit->getPos()+unit->getDest());
+					if(map->isNextTo(unit->getPos(), store)) {
 
+						//update resources
+						int resourceAmount= unit->getLoadCount();
+						if(unit->getFaction()->getCpuControl())
+						{
+							int resourceMultiplierIndex=game->getGameSettings()->getResourceMultiplierIndex(unit->getFaction()->getIndex());
+							resourceAmount=(resourceAmount* (resourceMultiplierIndex +5))/10;
+						}
+						unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
+						world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);
+						scriptManager->onResourceHarvested();
+
+						//if next to a store unload resources
+						unit->getPath()->clear();
+						unit->setCurrSkill(scStop);
+						unit->setLoadCount(0);
+					}
+	    		}
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else {
-				unit->finishCommand();
+				if(frameIndex < 0) {
+					unit->finishCommand();
+				}
 			}
 		}
 	}
 	else {
-		//if working
-		//unit->setLastHarvestResourceTarget(NULL);
+		if(frameIndex < 0) {
+			//if working
+			//unit->setLastHarvestResourceTarget(NULL);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		const Vec2i unitTargetPos = unit->getTargetPos();
-		SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
-		Resource *r= sc->getResource();
+			const Vec2i unitTargetPos = unit->getTargetPos();
+			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
+			Resource *r= sc->getResource();
 
-		if (r != NULL) {
-			if (!hct->canHarvest(r->getType()) || r->getType() != unit->getLoadType()) {
-				// hct has changed to a different harvest command.
-				unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
-				unit->getPath()->clear();
+			if (r != NULL) {
+				if (!hct->canHarvest(r->getType()) || r->getType() != unit->getLoadType()) {
+					// hct has changed to a different harvest command.
+					unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
+					unit->getPath()->clear();
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			}
-			else {
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				}
+				else {
 
-				// if there is a resource, continue working, until loaded
-				unit->update2();
+					// if there is a resource, continue working, until loaded
+					unit->update2();
 
-				if (unit->getProgress2() >= hct->getHitsPerUnit()) {
-					if (unit->getLoadCount() < hct->getMaxLoad()) {
-						unit->setProgress2(0);
-						unit->setLoadCount(unit->getLoadCount() + 1);
+					if (unit->getProgress2() >= hct->getHitsPerUnit()) {
+						if (unit->getLoadCount() < hct->getMaxLoad()) {
+							unit->setProgress2(0);
+							unit->setLoadCount(unit->getLoadCount() + 1);
 
-						//if resource exausted, then delete it and stop
-						if (r->decAmount(1)) {
-							const ResourceType *rt = r->getType();
-							sc->deleteResource();
-							unit->getFaction()->removeResourceTargetFromCache(unitTargetPos);
+							//if resource exausted, then delete it and stop
+							if (r->decAmount(1)) {
+								const ResourceType *rt = r->getType();
+								sc->deleteResource();
+								unit->getFaction()->removeResourceTargetFromCache(unitTargetPos);
 
-							switch(this->game->getGameSettings()->getPathFinderType()) {
-								case pfBasic:
-									break;
-								case pfRoutePlanner:
-									world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
-									break;
-								default:
-									throw runtime_error("detected unsupported pathfinder type!");
+								switch(this->game->getGameSettings()->getPathFinderType()) {
+									case pfBasic:
+										break;
+									case pfRoutePlanner:
+										world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
+										break;
+									default:
+										throw runtime_error("detected unsupported pathfinder type!");
+								}
+
+								unit->setCurrSkill(hct->getStopLoadedSkillType());
 							}
+						}
 
+						if (unit->getLoadCount() >= hct->getMaxLoad()) {
 							unit->setCurrSkill(hct->getStopLoadedSkillType());
+							unit->getPath()->clear();
 						}
 					}
 
-					if (unit->getLoadCount() >= hct->getMaxLoad()) {
-						unit->setCurrSkill(hct->getStopLoadedSkillType());
-						unit->getPath()->clear();
-					}
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				}
-
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
-		}
-		else {
-			//if there is no resource, just stop
-			unit->setCurrSkill(hct->getStopLoadedSkillType());
+			else {
+				//if there is no resource, just stop
+				unit->setCurrSkill(hct->getStopLoadedSkillType());
+			}
 		}
 	}
 
@@ -1181,7 +1228,13 @@ Unit * UnitUpdater::findPeerUnitBuilder(Unit *unit) {
 
 // ==================== updateRepair ====================
 
-void UnitUpdater::updateRepair(Unit *unit) {
+void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -1281,8 +1334,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 							SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 							delete command;
 
-				            unit->setCurrSkill(scStop);
-				            unit->finishCommand();
+							unit->setCurrSkill(scStop);
+							unit->finishCommand();
 						}
 					}
 					else {
@@ -1296,8 +1349,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 						// were or are about to be blocked
 						peerUnitBuilder->getPath()->clear();
 						peerUnitBuilder->setRetryCurrCommandCount(1);
-						updateUnitCommand(unit);
-						//updateUnitCommand(peerUnitBuilder);
+						updateUnitCommand(unit,-1);
 					}
 					return;
 				}
@@ -1340,7 +1392,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				unit->setTarget(repaired);
-                unit->setCurrSkill(rct->getRepairSkillType());
+				unit->setCurrSkill(rct->getRepairSkillType());
 			}
 			else {
 				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1358,7 +1410,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 	    			case pfBasic:
 	    				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	    				ts = pathFinder->findPath(unit, repairPos);
+	    				ts = pathFinder->findPath(unit, repairPos, NULL, frameIndex);
 	    				break;
 	    			case pfRoutePlanner:
 	    				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1394,7 +1446,7 @@ void UnitUpdater::updateRepair(Unit *unit) {
 
 							unit->setRetryCurrCommandCount(0);
 							unit->getPath()->clear();
-							updateUnitCommand(unit);
+							updateUnitCommand(unit,-1);
 						}
 						else {
 							unit->finishCommand();
@@ -1409,16 +1461,15 @@ void UnitUpdater::updateRepair(Unit *unit) {
         else {
         	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            unit->setCurrSkill(scStop);
-            unit->finishCommand();
-
+       		unit->setCurrSkill(scStop);
+       		unit->finishCommand();
             if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
         }
     }
     else {
     	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        //if repairing
+		//if repairing
 		if(repaired != NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1434,8 +1485,8 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			peerUnitBuilder == NULL) {
 			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            unit->setCurrSkill(scStop);
-            unit->finishCommand();
+			unit->setCurrSkill(scStop);
+			unit->finishCommand();
 
 			if(repaired != NULL && repaired->isBuilt() == false) {
 				SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1445,15 +1496,19 @@ void UnitUpdater::updateRepair(Unit *unit) {
 			}
 
 			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-        }
+		}
     }
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-
 // ==================== updateProduce ====================
 
-void UnitUpdater::updateProduce(Unit *unit) {
+void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
 	Chrono chrono;
 	chrono.start();
 
@@ -1461,7 +1516,7 @@ void UnitUpdater::updateProduce(Unit *unit) {
     const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(command->getCommandType());
     Unit *produced;
 
-    if(unit->getCurrSkill()->getClass()!=scProduce){
+    if(unit->getCurrSkill()->getClass() != scProduce) {
         //if not producing
         unit->setCurrSkill(pct->getProduceSkillType());
     }
@@ -1520,7 +1575,13 @@ void UnitUpdater::updateProduce(Unit *unit) {
 
 // ==================== updateUpgrade ====================
 
-void UnitUpdater::updateUpgrade(Unit *unit) {
+void UnitUpdater::updateUpgrade(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -1547,7 +1608,13 @@ void UnitUpdater::updateUpgrade(Unit *unit) {
 
 // ==================== updateMorph ====================
 
-void UnitUpdater::updateMorph(Unit *unit){
+void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
+	// Nothing to do
+	if(frameIndex >= 0) {
+		clearUnitPrecache(unit);
+		return;
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -2003,11 +2070,10 @@ ParticleDamager::ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const
 	this->unitUpdater= unitUpdater;
 }
 
-void ParticleDamager::update(ParticleSystem *particleSystem){
+void ParticleDamager::update(ParticleSystem *particleSystem) {
 	Unit *attacker= attackerRef.getUnit();
 
-	if(attacker!=NULL){
-
+	if(attacker != NULL) {
 		unitUpdater->hit(attacker, ast, targetPos, targetField);
 
 		//play sound

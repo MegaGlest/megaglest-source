@@ -20,12 +20,14 @@
 #include "resource.h"
 #include "game_constants.h"
 #include "command_type.h"
+#include "base_thread.h"
 #include "leak_dumper.h"
 
 using std::map;
 using std::vector;
 
 using Shared::Graphics::Texture2D;
+using namespace Shared::PlatformCommon;
 
 namespace Glest{ namespace Game{
 
@@ -39,6 +41,7 @@ class UnitType;
 class Game;
 class ScriptManager;
 class World;
+class Faction;
 
 // =====================================================
 // 	class Faction
@@ -52,6 +55,25 @@ public:
 	int unitSize;
 	// a List of paths with their # success counts
 	vector<std::pair<vector<Vec2i>, int> > pathQueue;
+};
+
+class FactionThread : public BaseThread {
+protected:
+
+	Faction *faction;
+	Semaphore semTaskSignalled;
+	Mutex triggerIdMutex;
+	std::pair<int,bool> frameIndex;
+
+	virtual void setQuitStatus(bool value);
+	virtual void setTaskCompleted(int frameIndex);
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+
+public:
+	FactionThread(Faction *faction);
+    virtual void execute();
+    void signalPathfinder(int frameIndex);
+    bool isSignalPathfinderCompleted(int frameIndex);
 };
 
 class Faction {
@@ -97,6 +119,8 @@ private:
 	// This cache stores the units free cell movement calcs during a world
 	// update of the faction
 	//std::map<int,std::map<Field, std::map<Vec2i,std::map<Vec2i, > > > localCacheForUnitCellMovement;
+
+	FactionThread *workerThread;
 
 public:
 	Faction();
@@ -186,7 +210,11 @@ public:
 
 	void deletePixels();
 
+	World * getWorld() { return world; }
 	int getFrameCount();
+	void signalWorkerThread(int frameIndex);
+	bool isWorkerThreadSignalCompleted(int frameIndex);
+
 	std::string toString() const;
 
 private:

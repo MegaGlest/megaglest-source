@@ -88,8 +88,8 @@ StopCommandType::StopCommandType(){
     clicks= cOne;
 }
 
-void StopCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateStop(unit);
+void StopCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateStop(unit, frameIndex);
 }
 
 string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -131,8 +131,8 @@ MoveCommandType::MoveCommandType(){
     clicks= cTwo;
 }
 
-void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateMove(unit);
+void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateMove(unit, frameIndex);
 }
 
 void MoveCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -180,8 +180,8 @@ AttackCommandType::AttackCommandType(){
     clicks= cTwo;
 }
 
-void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateAttack(unit);
+void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateAttack(unit, frameIndex);
 }
 
 void AttackCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -272,8 +272,8 @@ AttackStoppedCommandType::AttackStoppedCommandType(){
     clicks= cOne;
 }
 
-void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateAttackStopped(unit);
+void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateAttackStopped(unit, frameIndex);
 }
 
 void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -359,8 +359,8 @@ BuildCommandType::~BuildCommandType() {
 	deleteValues(startSounds.getSounds().begin(), startSounds.getSounds().end());
 }
 
-void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateBuild(unit);
+void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateBuild(unit, frameIndex);
 }
 
 void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -457,8 +457,8 @@ HarvestCommandType::HarvestCommandType(){
     clicks= cTwo;
 }
 
-void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateHarvest(unit);
+void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateHarvest(unit, frameIndex);
 }
 
 void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -538,8 +538,8 @@ RepairCommandType::RepairCommandType(){
 RepairCommandType::~RepairCommandType(){
 }
 
-void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateRepair(unit);
+void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateRepair(unit, frameIndex);
 }
 
 void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -615,8 +615,8 @@ ProduceCommandType::ProduceCommandType(){
     clicks= cOne;
 }
 
-void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateProduce(unit);
+void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateProduce(unit, frameIndex);
 }
 
 void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -680,8 +680,8 @@ UpgradeCommandType::UpgradeCommandType(){
     clicks= cOne;
 }
 
-void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateUpgrade(unit);
+void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateUpgrade(unit, frameIndex);
 }
 
 void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -737,8 +737,8 @@ MorphCommandType::MorphCommandType(){
     clicks= cOne;
 }
 
-void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit) const{
-	unitUpdater->updateMorph(unit);
+void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateMorph(unit, frameIndex);
 }
 
 void MorphCommandType::load(int id, const XmlNode *n, const string &dir,

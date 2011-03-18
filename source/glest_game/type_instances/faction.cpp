@@ -26,7 +26,164 @@
 
 using namespace Shared::Util;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
+
+// =====================================================
+//	class FactionThread
+// =====================================================
+
+FactionThread::FactionThread(Faction *faction) : BaseThread() {
+	this->faction = faction;
+}
+
+void FactionThread::setQuitStatus(bool value) {
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	BaseThread::setQuitStatus(value);
+	if(value == true) {
+		signalPathfinder(-1);
+	}
+
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void FactionThread::signalPathfinder(int frameIndex) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
+
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p\n",__FILE__,__FUNCTION__,__LINE__,frameIndex, this);
+
+	if(frameIndex >= 0) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		this->frameIndex.first = frameIndex;
+		this->frameIndex.second = false;
+		safeMutex.ReleaseLock();
+	}
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	semTaskSignalled.signal();
+}
+
+void FactionThread::setTaskCompleted(int frameIndex) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p\n",__FILE__,__FUNCTION__,__LINE__,frameIndex, this);
+
+	if(frameIndex >= 0) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		if(this->frameIndex.first == frameIndex) {
+			this->frameIndex.second = true;
+		}
+		safeMutex.ReleaseLock();
+	}
+
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool FactionThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
+bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
+	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
+	if(getRunningStatus() == false) {
+		return true;
+	}
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+	//bool result = (event != NULL ? event->eventCompleted : true);
+	bool result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
+
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] worker thread this = %p, this->frameIndex.first = %d, this->frameIndex.second = %d\n",__FILE__,__FUNCTION__,__LINE__,this,this->frameIndex.first,this->frameIndex.second);
+
+	safeMutex.ReleaseLock();
+	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
+	return result;
+}
+
+void FactionThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
+	try {
+		//setRunningStatus(true);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+
+		unsigned int idx = 0;
+		for(;this->faction != NULL;) {
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			semTaskSignalled.waitTillSignalled();
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+            MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+            bool executeTask = (frameIndex.first >= 0);
+
+            //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
+
+            safeMutex.ReleaseLock();
+
+            if(executeTask == true) {
+				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+				//this->slotInterface->slotUpdateTask(&eventCopy);
+
+				World *world = faction->getWorld();
+				int unitCount = faction->getUnitCount();
+				for(int j = 0; j < unitCount; ++j) {
+					Unit *unit = faction->getUnit(j);
+					if(unit == NULL) {
+						throw runtime_error("unit == NULL");
+					}
+
+					bool update = unit->needToUpdate();
+					if(update == true) {
+						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+					}
+				}
+
+				setTaskCompleted(frameIndex.first);
+            }
+
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw runtime_error(ex.what());
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//setRunningStatus(false);
+}
+
 
 // =====================================================
 // 	class Faction
@@ -37,6 +194,7 @@ Faction::Faction() {
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
 	factionDisconnectHandled=false;
+	workerThread = NULL;
 }
 
 Faction::~Faction() {
@@ -50,10 +208,32 @@ Faction::~Faction() {
 	//texture->end();
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(workerThread != NULL) {
+		workerThread->signalQuit();
+		if(workerThread->shutdownAndWait() == true) {
+			delete workerThread;
+		}
+		workerThread = NULL;
+	}
+
 	//delete texture;
 	texture = NULL;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
+
+void Faction::signalWorkerThread(int frameIndex) {
+	if(workerThread != NULL) {
+		workerThread->signalPathfinder(frameIndex);
+	}
+}
+
+bool Faction::isWorkerThreadSignalCompleted(int frameIndex) {
+	if(workerThread != NULL) {
+		return workerThread->isSignalPathfinderCompleted(frameIndex);
+	}
+	return true;
+}
+
 
 void Faction::init(
 	FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
@@ -84,11 +264,33 @@ void Faction::init(
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	texture->load(data_path + "data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
 
+	if(Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
+		if(workerThread != NULL) {
+			workerThread->signalQuit();
+			if(workerThread->shutdownAndWait() == true) {
+				delete workerThread;
+			}
+			workerThread = NULL;
+		}
+		this->workerThread = new FactionThread(this);
+		this->workerThread->setUniqueID(__FILE__);
+		this->workerThread->start();
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Faction::end(){
+void Faction::end() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(workerThread != NULL) {
+		workerThread->signalQuit();
+		if(workerThread->shutdownAndWait() == true) {
+			delete workerThread;
+		}
+		workerThread = NULL;
+	}
+
 	deleteValues(units.begin(), units.end());
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

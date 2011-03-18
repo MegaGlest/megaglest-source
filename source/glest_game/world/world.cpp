@@ -271,8 +271,44 @@ Checksum World::loadScenario(const string &path, Checksum *checksum) {
 
 void World::updateAllFactionUnits() {
 	scriptManager->onTimerTriggerEvent();
-	//units
+
+	// Signal the faction threads to do any pre-processing
 	int factionCount = getFactionCount();
+	for(int i = 0; i < factionCount; ++i) {
+		Faction *faction = getFaction(i);
+		if(faction == NULL) {
+			throw runtime_error("faction == NULL");
+		}
+		faction->signalWorkerThread(frameCount);
+	}
+
+	bool workThreadsFinished = false;
+	Chrono chrono;
+	chrono.start();
+
+	for(;chrono.getMillis() < 10000;) {
+		workThreadsFinished = true;
+		for(int i = 0; i < factionCount; ++i) {
+			Faction *faction = getFaction(i);
+			if(faction == NULL) {
+				throw runtime_error("faction == NULL");
+			}
+			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
+				workThreadsFinished = false;
+				break;
+			}
+		}
+		if(workThreadsFinished == false) {
+			sleep(0);
+		}
+		else {
+			break;
+		}
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
+
+	//units
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		if(faction == NULL) {
@@ -290,6 +326,8 @@ void World::updateAllFactionUnits() {
 			unitUpdater.updateUnit(unit);
 		}
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 20) printf("In [%s::%s Line: %d] *** Faction MAIN thread processing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
 }
 
 void World::underTakeDeadFactionUnits() {
