@@ -39,7 +39,7 @@ namespace Glest{ namespace Game{
 
 const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
-int PathFinder::pathFindNodesMax		= 500;
+int PathFinder::pathFindNodesMax		= 350;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 
@@ -393,6 +393,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		throw runtime_error("map == NULL");
 	}
 
+	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
+	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
+
 	UnitPathInterface *path= unit->getPath();
 
 	factions[unit->getFactionIndex()].nodePoolCount= 0;
@@ -439,8 +442,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						if(i < pathFindRefresh) {
 							path->add(nodePos);
 						}
-						else {
+						else if(tryLastPathCache == false) {
 							break;
+						}
+
+						if(tryLastPathCache == true && basicPathFinder) {
+							basicPathFinder->addToLastPathCache(nodePos);
 						}
 					}
 					return factions[unit->getFactionIndex()].precachedTravelState[unit->getId()];
@@ -474,10 +481,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+
 	// Check the previous path find cache for the unit to see if its good to
 	// use
-	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
-	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
 	if((showConsoleDebugInfo || tryLastPathCache) && dist > 60) {
 		if(showConsoleDebugInfo) printf("Distance from [%d - %s] to destination is %.2f tryLastPathCache = %d\n",unit->getId(),unit->getFullName().c_str(), dist,tryLastPathCache);
 
@@ -501,17 +507,25 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 									//store path
-									basicPathFinder->clear();
+									if(frameIndex < 0) {
+										basicPathFinder->clear();
+									}
 
 									int pathCount=0;
 									for(int k=i+1; k <= j; k++) {
 										if(k >= cachedPath.size()) {
 											throw runtime_error("k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
 										}
-										if(pathCount < pathFindRefresh) {
-											basicPathFinder->add(cachedPath[k]);
+
+										if(frameIndex >= 0) {
+											factions[unit->getFactionIndex()].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
-										basicPathFinder->addToLastPathCache(cachedPath[k]);
+										else {
+											if(pathCount < pathFindRefresh) {
+												basicPathFinder->add(cachedPath[k]);
+											}
+											basicPathFinder->addToLastPathCache(cachedPath[k]);
+										}
 										pathCount++;
 									}
 
@@ -548,7 +562,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 									//store path
-									basicPathFinder->clear();
+									if(frameIndex < 0) {
+										basicPathFinder->clear();
+									}
 
 									int pathCount=0;
 									for(int k=i+1; k < cachedPath.size(); k++) {
@@ -556,10 +572,15 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											throw runtime_error("#2 k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
 										}
 
-										if(pathCount < pathFindRefresh) {
-											basicPathFinder->add(cachedPath[k]);
+										if(frameIndex >= 0) {
+											factions[unit->getFactionIndex()].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
-										basicPathFinder->addToLastPathCache(cachedPath[k]);
+										else {
+											if(pathCount < pathFindRefresh) {
+												basicPathFinder->add(cachedPath[k]);
+											}
+											basicPathFinder->addToLastPathCache(cachedPath[k]);
+										}
 										pathCount++;
 									}
 
@@ -599,7 +620,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			}
 		}
 	}
-
 
 	//path find algorithm
 

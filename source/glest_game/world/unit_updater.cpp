@@ -115,10 +115,11 @@ void UnitUpdater::updateUnit(Unit *unit) {
 
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
-	if(currSkill->getSound()!=NULL) {
+	if(currSkill->getSound() != NULL) {
 		float soundStartTime= currSkill->getSoundStartTime();
-		if(soundStartTime>=unit->getLastAnimProgress() && soundStartTime<unit->getAnimProgress()) {
-			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex())) {
+		if(soundStartTime >= unit->getLastAnimProgress() && soundStartTime < unit->getAnimProgress()) {
+			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
+				(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
 				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
 			}
 		}
@@ -665,7 +666,8 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					command->setUnit(builtUnit);
 
 					//play start sound
-					if(unit->getFactionIndex() == world->getThisFactionIndex()) {
+					if(unit->getFactionIndex() == world->getThisFactionIndex() ||
+						(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
 							unit->getCurrVector(),
@@ -736,7 +738,8 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 
 				builtUnit->born();
 				scriptManager->onUnitCreated(builtUnit);
-				if(unit->getFactionIndex() == world->getThisFactionIndex()) {
+				if(unit->getFactionIndex() == world->getThisFactionIndex() ||
+					(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
 						unit->getCurrVector(),
@@ -2078,7 +2081,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 
 		//play sound
 		StaticSound *projSound= ast->getProjSound();
-		if(particleSystem->getVisible() && projSound!=NULL){
+		if(particleSystem->getVisible() && projSound != NULL) {
 			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
 		}
 	}

@@ -656,7 +656,8 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 							scriptManager->onUnitDied(unit);
 						}
 						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
-						if(sound != NULL && thisFaction) {
+						if(sound != NULL &&
+							(thisFaction == true || (world->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
 							SoundRenderer::getInstance().playFx(sound);
 						}
 					}
