@@ -112,6 +112,8 @@ public:
     void updateUpgrade(Unit *unit, int frameIndex);
 	void updateMorph(Unit *unit, int frameIndex);
 
+	void clearUnitPrecache(Unit *unit);
+
 private:
     //attack
     void hit(Unit *attacker);
@@ -132,8 +134,6 @@ private:
 	void SwapActiveCommandState(Unit *unit, CommandStateType commandStateType,
 								const CommandType *commandType,
 								int originalValue,int newValue);
-
-	void clearUnitPrecache(Unit *unit);
 };
 
 // =====================================================

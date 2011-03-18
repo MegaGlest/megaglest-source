@@ -1032,11 +1032,17 @@ void Unit::kill() {
 
 	//clear commands
 	clearCommands();
+
+	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
+	unitUpdater->clearUnitPrecache(this);
 }
 
 void Unit::undertake() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",
 			__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
+
+	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
+	unitUpdater->clearUnitPrecache(this);
 
 	livingUnits.erase(id);
 	livingUnitsp.erase(this);
@@ -1287,7 +1293,9 @@ void Unit::tick() {
                 game->getScriptManager()->onUnitDied(this);
             }
             StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
-            if(sound != NULL && this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex()) {
+            if(sound != NULL &&
+            	(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+            	 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
                 SoundRenderer::getInstance().playFx(sound);
             }
 		}
