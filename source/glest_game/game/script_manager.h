@@ -173,6 +173,7 @@ private:
 	void showMessage(const string &text, const string &header);
 	void clearDisplayText();
 	void setDisplayText(const string &text);
+	void addConsoleText(const string &text);
 	void DisplayFormattedText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
@@ -238,6 +239,7 @@ private:
 	//callbacks, commands
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
+	static int addConsoleText(LuaHandle* luaHandle);
 	static int DisplayFormattedText(LuaHandle* luaHandle);
 	static int clearDisplayText(LuaHandle* luaHandle);
 	static int setCameraPosition(LuaHandle* luaHandle);

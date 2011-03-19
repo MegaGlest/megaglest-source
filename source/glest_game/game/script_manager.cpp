@@ -78,6 +78,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	//register functions
 	luaScript.registerFunction(showMessage, "showMessage");
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
+	luaScript.registerFunction(addConsoleText, "addConsoleText");
 	luaScript.registerFunction(DisplayFormattedText, "DisplayFormattedText");
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
@@ -388,6 +389,11 @@ void ScriptManager::clearDisplayText(){
 void ScriptManager::setDisplayText(const string &text){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
+}
+
+void ScriptManager::addConsoleText(const string &text){
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->addConsoleText(text);
 }
 
 void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
@@ -834,6 +840,12 @@ int ScriptManager::showMessage(LuaHandle* luaHandle){
 int ScriptManager::setDisplayText(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->setDisplayText(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::addConsoleText(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->addConsoleText(luaArguments.getString(-1));
 	return luaArguments.getReturnCount();
 }
 
