@@ -65,6 +65,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	needToPublishDelayed=false;
 	mapPublishingDelayTimer=time(NULL);
 
+    lastCheckedCRCTilesetName					= "";
+    lastCheckedCRCTechtreeName					= "";
+    lastCheckedCRCMapName						= "";
+    lastCheckedCRCTilesetValue					= -1;
+    lastCheckedCRCTechtreeValue					= -1;
+    lastCheckedCRCMapValue						= -1;
+
 	publishToMasterserverThread = NULL;
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -2221,19 +2228,37 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 	gameSettings->setNetworkPauseGameForLaggedClients(((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex() != 0)));
 
-    int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-    gameSettings->setTilesetCRC(tilesetCRC);
+	if( gameSettings->getTileset() != "") {
+		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
+			console.addLine("Checking tileset CRC " + gameSettings->getTileset() + "]");
+			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+			lastCheckedCRCTilesetName = gameSettings->getTileset();
+		}
+		gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
+	}
 
     if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
-    	int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
-    	gameSettings->setTechCRC(techCRC);
+    	if(gameSettings->getTech() != "") {
+    		if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+    			console.addLine("Checking techtree CRC " + gameSettings->getTech() + "]");
+    			lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+    			lastCheckedCRCTechtreeName = gameSettings->getTech();
+    		}
+			gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
+    	}
     }
 
-    Checksum checksum;
-    string file = Map::getMapPath(gameSettings->getMap(),"",false);
-    checksum.addFile(file);
-    int32 mapCRC = checksum.getSum();
-    gameSettings->setMapCRC(mapCRC);
+    if(gameSettings->getMap() != "") {
+    	if(lastCheckedCRCMapName != gameSettings->getMap()) {
+    		Checksum checksum;
+    		string file = Map::getMapPath(gameSettings->getMap(),"",false);
+    		console.addLine("Checking map CRC " + file + "]");
+    		checksum.addFile(file);
+    		lastCheckedCRCMapValue = checksum.getSum();
+    		lastCheckedCRCMapName = gameSettings->getMap();
+    	}
+		gameSettings->setMapCRC(lastCheckedCRCMapValue);
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }

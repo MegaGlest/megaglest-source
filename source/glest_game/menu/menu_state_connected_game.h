@@ -158,6 +158,13 @@ private:
     string getMissingTechtreeFromFTPServer;
     bool getMissingTechtreeFromFTPServerInProgress;
 
+    string lastCheckedCRCTilesetName;
+    string lastCheckedCRCTechtreeName;
+    string lastCheckedCRCMapName;
+    int32 lastCheckedCRCTilesetValue;
+    int32 lastCheckedCRCTechtreeValue;
+    int32 lastCheckedCRCMapValue;
+
     std::map<string,pair<int,string> > fileFTPProgressList;
 
 public:

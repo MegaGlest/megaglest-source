@@ -64,6 +64,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	getMissingTilesetFromFTPServerInProgress    = false;
     getMissingTechtreeFromFTPServer				= "";
     getMissingTechtreeFromFTPServerInProgress	= false;
+    lastCheckedCRCTilesetName					= "";
+    lastCheckedCRCTechtreeName					= "";
+    lastCheckedCRCMapName						= "";
+    lastCheckedCRCTilesetValue					= -1;
+    lastCheckedCRCTechtreeValue					= -1;
+    lastCheckedCRCMapValue						= -1;
 
 	currentFactionLogo = "";
 	factionTexture=NULL;
@@ -971,24 +977,48 @@ void MenuStateConnectedGame::update() {
 
             label = label + ", " + clientInterface->getVersionString();
 
-            if(clientInterface->getAllowGameDataSynchCheck() == false) {
+            const GameSettings *gameSettings = clientInterface->getGameSettings();
+            if(clientInterface->getAllowGameDataSynchCheck() == false &&
+            	gameSettings->getTileset() != "" &&
+            	gameSettings->getTech() != "" &&
+            	gameSettings->getMap() != "") {
                 Config &config = Config::getInstance();
+
                 MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-                const GameSettings *gameSettings = clientInterface->getGameSettings();
-                int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-                // Test data synch
-                //tilesetCRC++;
 
-                int32 techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
-                // Test data synch
-                //techCRC++;
+                int32 tilesetCRC = lastCheckedCRCTilesetValue;
+                if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
+					console.addLine("Checking tileset CRC " + gameSettings->getTileset() + "]");
+					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+					// Test data synch
+					//tilesetCRC++;
+					lastCheckedCRCTilesetValue = tilesetCRC;
+					lastCheckedCRCTilesetName = gameSettings->getTileset();
+                }
 
-                Checksum checksum;
-                string file = Map::getMapPath(gameSettings->getMap(),"",false);
-                checksum.addFile(file);
-                int32 mapCRC = checksum.getSum();
-                // Test data synch
-                //mapCRC++;
+                int32 techCRC = lastCheckedCRCTechtreeValue;
+                if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+					console.addLine("Checking techtree CRC " + gameSettings->getTech() + "]");
+					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+					// Test data synch
+					//techCRC++;
+					lastCheckedCRCTechtreeValue = techCRC;
+					lastCheckedCRCTechtreeName = gameSettings->getTech();
+                }
+
+                int32 mapCRC = lastCheckedCRCMapValue;
+                if(lastCheckedCRCMapName != gameSettings->getMap()) {
+					Checksum checksum;
+					string file = Map::getMapPath(gameSettings->getMap(),"",false);
+					console.addLine("Checking map CRC " + file + "]");
+					checksum.addFile(file);
+					mapCRC = checksum.getSum();
+					// Test data synch
+					//mapCRC++;
+
+					lastCheckedCRCMapValue = mapCRC;
+					lastCheckedCRCMapName = gameSettings->getMap();
+                }
                 safeMutexFTPProgress.ReleaseLock();
 
                 bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) ||
@@ -2025,6 +2055,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
 
         // Clear the CRC file Cache
         Checksum::clearFileCache();
+        lastCheckedCRCMapValue = -1;
 
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -2090,7 +2121,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2148,7 +2179,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 
             safeMutexFTPProgress.ReleaseLock();
             // END

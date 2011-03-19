@@ -575,6 +575,7 @@ void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchStri
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;

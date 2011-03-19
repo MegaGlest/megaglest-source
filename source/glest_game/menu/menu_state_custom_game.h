@@ -148,6 +148,13 @@ private:
 	float rMultiplierOffset;
 	bool hasCheckedForUPNP;
 
+    string lastCheckedCRCTilesetName;
+    string lastCheckedCRCTechtreeName;
+    string lastCheckedCRCMapName;
+    int32 lastCheckedCRCTilesetValue;
+    int32 lastCheckedCRCTechtreeValue;
+    int32 lastCheckedCRCMapValue;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
 	virtual ~MenuStateCustomGame();
