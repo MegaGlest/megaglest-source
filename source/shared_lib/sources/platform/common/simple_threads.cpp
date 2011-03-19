@@ -70,20 +70,20 @@ void FileCRCPreCacheThread::execute() {
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] techsPerWorker = %d, MAX_FileCRCPreCacheThread_WORKER_THREADS = %d, techPaths.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,techsPerWorker,MAX_FileCRCPreCacheThread_WORKER_THREADS,(int)techPaths.size());
 
-					int consumedWorkers = 0;
-					for(int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
+					unsigned int consumedWorkers = 0;
+					for(unsigned int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
 						if(getQuitStatus() == true) {
 							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 							break;
 						}
 
-						int currentWorkerMax = (techPaths.size() - consumedWorkers);
+						unsigned int currentWorkerMax = (techPaths.size() - consumedWorkers);
 						if(currentWorkerMax > techsPerWorker) {
 							currentWorkerMax = techsPerWorker;
 						}
 
 						vector<string> workerTechList;
-						int endConsumerIndex = consumedWorkers + currentWorkerMax;
+						unsigned int endConsumerIndex = consumedWorkers + currentWorkerMax;
 						for(unsigned int idx = consumedWorkers; idx < endConsumerIndex; idx++) {
 							string techName = techPaths[idx];
 							workerTechList.push_back(techName);
