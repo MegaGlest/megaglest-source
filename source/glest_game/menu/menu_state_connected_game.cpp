@@ -1049,7 +1049,9 @@ void MenuStateConnectedGame::update() {
                 if(dataSynchMismatch == true) {
                     string labelSynch = lang.get("DataNotSynchedTitle");
 
-                    if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() && listBoxMap.getSelectedItem() != ITEM_MISSING) {
+                    if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() &&
+                    		listBoxMap.getSelectedItemIndex() >= 0 &&
+                    		listBoxMap.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("Map");
 
                         if(updateDataSynchDetailText == true &&
@@ -1059,7 +1061,9 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC() && listBoxTileset.getSelectedItem() != ITEM_MISSING) {
+                    if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC() &&
+                    		listBoxTileset.getSelectedItemIndex() >= 0 &&
+                    		listBoxTileset.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("Tileset");
                         if(updateDataSynchDetailText == true &&
                             lastTileDataSynchError != lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem()) {
@@ -1068,7 +1072,9 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() && listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
+                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
+                    		listBoxTechTree.getSelectedItemIndex() >= 0 &&
+                    		listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("TechTree");
                         if(updateDataSynchDetailText == true &&
                         	lastTechtreeDataSynchError != lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem()) {
