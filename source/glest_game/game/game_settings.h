@@ -73,6 +73,7 @@ private:
     int32 mapCRC;
     int32 tilesetCRC;
     int32 techCRC;
+    vector<pair<string,int32> > factionCRCList;
 
 public:
 
@@ -101,6 +102,7 @@ public:
 		mapCRC      = 0;
 		tilesetCRC  = 0;
 		techCRC     = 0;
+		factionCRCList.clear();
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -161,6 +163,7 @@ public:
 	int32 getMapCRC() const { return mapCRC; }
 	int32 getTilesetCRC() const { return tilesetCRC; }
 	int32 getTechCRC() const { return techCRC; }
+	vector<pair<string,int32> > getFactionCRCList() const { return factionCRCList; }
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -200,6 +203,8 @@ public:
 	void setTilesetCRC(int32 value) { tilesetCRC = value; }
 	void setTechCRC(int32 value)    { techCRC = value; }
 
+	void setFactionCRCList(vector<pair<string,int32> > value) { factionCRCList = value; }
+
 	string toString() const {
 		string result = "";
 
@@ -238,6 +243,10 @@ public:
 		result += "mapCRC = " + intToStr(mapCRC) + "\n";
 		result += "tilesetCRC = " + intToStr(tilesetCRC) + "\n";
 		result += "techCRC = " + intToStr(techCRC) + "\n";
+
+		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
+			result += "factionCRCList name [" + factionCRCList[i].first + "] CRC = " + intToStr(factionCRCList[i].second) + "\n";
+		}
 
 		return result;
 	}

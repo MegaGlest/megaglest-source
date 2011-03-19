@@ -94,6 +94,7 @@ Mutex::~Mutex() {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str());
 		throw runtime_error(szBuf);
+		//printf("%s\n",szBuf);
 	}
 	else if(refCount >= 1) {
 		char szBuf[1024]="";
@@ -101,8 +102,10 @@ Mutex::~Mutex() {
 		throw runtime_error(szBuf);
 	}
 
-	SDL_DestroyMutex(mutex);
-	mutex=NULL;
+	if(mutex != NULL) {
+		SDL_DestroyMutex(mutex);
+		mutex=NULL;
+	}
 }
 
 void Mutex::p() {

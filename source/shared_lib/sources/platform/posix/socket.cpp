@@ -753,6 +753,11 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 
 Socket::Socket(PLATFORM_SOCKET sock) {
 	//this->pingThread = NULL;
+	pingThreadAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
+	dataSynchAccessorRead.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
+	dataSynchAccessorWrite.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
+	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
+
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = false;
 	safeMutexSocketDestructorFlag.ReleaseLock();
@@ -836,6 +841,14 @@ Socket::~Socket()
 	safeMutexSocketDestructorFlag.ReleaseLock();
 
     disconnectSocket();
+
+    // Allow other callers with a lock on the mutexes to let them go
+	for(time_t elapsed = time(NULL);
+		(dataSynchAccessorRead.getRefCount() > 0 ||
+		 dataSynchAccessorWrite.getRefCount() > 0) &&
+		 difftime(time(NULL),elapsed) <= 5;) {
+		sleep(0);
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 

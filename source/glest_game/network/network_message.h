@@ -187,6 +187,7 @@ class NetworkMessageLaunch: public NetworkMessage {
 private:
 	static const int maxStringSize= 256;
 	static const int maxSmallStringSize= 60;
+	static const int maxFactionCRCCount= 20;
 
 private:
 	struct Data{
@@ -201,6 +202,8 @@ private:
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
+		NetworkString<maxSmallStringSize> factionNameList[maxFactionCRCCount];
+		int32 factionCRCList[maxFactionCRCCount];
 
 		int8 factionControls[GameConstants::maxPlayers];
 		int8 resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -235,6 +238,7 @@ public:
 	int getMapCRC() const { return data.mapCRC; }
 	int getTilesetCRC() const { return data.tilesetCRC; }
 	int getTechCRC() const { return data.techCRC; }
+	vector<pair<string,int32> > getFactionCRCList() const;
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

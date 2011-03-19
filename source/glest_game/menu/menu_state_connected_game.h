@@ -164,6 +164,7 @@ private:
     int32 lastCheckedCRCTilesetValue;
     int32 lastCheckedCRCTechtreeValue;
     int32 lastCheckedCRCMapValue;
+    vector<pair<string,int32> > factionCRCList;
 
     std::map<string,pair<int,string> > fileFTPProgressList;
 

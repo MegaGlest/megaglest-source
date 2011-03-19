@@ -881,9 +881,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     updateResourceMultiplier(i);
                 }
                 else if(listBoxFactions[i].mouseClick(x, y)) {
-
-                    //printf("factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] i = %d selIndex = %d\n",factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),i,listBoxFactions[i].getSelectedItemIndex());
-
                     // Disallow CPU players to be observers
         			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
         				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
@@ -905,7 +902,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                 else if(listBoxTeams[i].mouseClick(x, y))
                 {
                     if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-                        //printf("i = %d factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s] listBoxTeams[i].getSelectedItemIndex() = %d, lastSelectedTeamIndex[i] = %d\n",i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str(),listBoxTeams[i].getSelectedItemIndex(),lastSelectedTeamIndex[i]);
                         if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
                             lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
                         }
@@ -2230,7 +2226,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	if( gameSettings->getTileset() != "") {
 		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
-			console.addLine("Checking tileset CRC " + gameSettings->getTileset() + "]");
+			console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
 			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 			lastCheckedCRCTilesetName = gameSettings->getTileset();
 		}
@@ -2240,10 +2236,21 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
     	if(gameSettings->getTech() != "") {
     		if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
-    			console.addLine("Checking techtree CRC " + gameSettings->getTech() + "]");
+    			console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
     			lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+
+    			reloadFactions(true);
+    			factionCRCList.clear();
+    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
+    				string factionName = factionFiles[factionIdx];
+    				int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+    				factionCRCList.push_back(make_pair(factionName,factionCRC));
+    			}
+    			console.addLine("Found factions: " + intToStr(factionCRCList.size()));
     			lastCheckedCRCTechtreeName = gameSettings->getTech();
     		}
+
+    		gameSettings->setFactionCRCList(factionCRCList);
 			gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
     	}
     }
@@ -2252,7 +2259,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     	if(lastCheckedCRCMapName != gameSettings->getMap()) {
     		Checksum checksum;
     		string file = Map::getMapPath(gameSettings->getMap(),"",false);
-    		console.addLine("Checking map CRC " + file + "]");
+    		console.addLine("Checking map CRC [" + file + "]");
     		checksum.addFile(file);
     		lastCheckedCRCMapValue = checksum.getSum();
     		lastCheckedCRCMapName = gameSettings->getMap();
