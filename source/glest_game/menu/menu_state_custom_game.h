@@ -107,9 +107,6 @@ private:
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
-	//Mutex masterServerThreadAccessor;
-	//Mutex publishToMasterserverThreadPtrChangeAccessor;
-	//bool publishToMasterserverThreadInDeletion;
 
 	bool parentMenuIsMs;
 	int soundConnectionCount;
@@ -154,6 +151,7 @@ private:
     int32 lastCheckedCRCTilesetValue;
     int32 lastCheckedCRCTechtreeValue;
     int32 lastCheckedCRCMapValue;
+    vector<pair<string,int32> > factionCRCList;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);

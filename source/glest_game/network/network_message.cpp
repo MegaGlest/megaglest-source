@@ -202,6 +202,10 @@ void NetworkMessageReady::send(Socket* socket) const {
 
 NetworkMessageLaunch::NetworkMessageLaunch() {
 	data.messageType=-1;
+	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+		data.factionNameList[i] = "";
+		data.factionCRCList[i] = 0;
+	}
 }
 
 NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
@@ -210,6 +214,17 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
     data.mapCRC     = gameSettings->getMapCRC();
     data.tilesetCRC = gameSettings->getTilesetCRC();
     data.techCRC    = gameSettings->getTechCRC();
+
+	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+		data.factionNameList[i] = "";
+		data.factionCRCList[i] = 0;
+	}
+
+	vector<pair<string,int32> > factionCRCList = gameSettings->getFactionCRCList();
+	for(unsigned int i = 0; i < factionCRCList.size() && i < maxFactionCRCCount; ++i) {
+		data.factionNameList[i] = factionCRCList[i].first;
+		data.factionCRCList[i] = factionCRCList[i].second;
+	}
 
 	data.description= gameSettings->getDescription();
 	data.map= gameSettings->getMap();
@@ -264,7 +279,15 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
     gameSettings->setTilesetCRC(data.tilesetCRC);
     gameSettings->setTechCRC(data.techCRC);
 
-	for(int i= 0; i<data.factionCount; ++i) {
+	vector<pair<string,int32> > factionCRCList;
+	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+		if(data.factionNameList[i].getString() != "") {
+			factionCRCList.push_back(make_pair(data.factionNameList[i].getString(),data.factionCRCList[i]));
+		}
+	}
+	gameSettings->setFactionCRCList(factionCRCList);
+
+	for(int i= 0; i < data.factionCount; ++i) {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
 		gameSettings->setNetworkPlayerStatuses(i, data.networkPlayerStatuses[i]);
@@ -275,15 +298,29 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	}
 }
 
+vector<pair<string,int32> > NetworkMessageLaunch::getFactionCRCList() const {
+
+	vector<pair<string,int32> > factionCRCList;
+	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+		if(data.factionNameList[i].getString() != "") {
+			factionCRCList.push_back(make_pair(data.factionNameList[i].getString(),data.factionCRCList[i]));
+		}
+	}
+	return factionCRCList;
+}
+
 bool NetworkMessageLaunch::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 	data.description.nullTerminate();
 	data.map.nullTerminate();
 	data.tileset.nullTerminate();
 	data.tech.nullTerminate();
-	for(int i= 0; i<GameConstants::maxPlayers; ++i){
+	for(int i= 0; i < GameConstants::maxPlayers; ++i){
 		data.factionTypeNames[i].nullTerminate();
 		data.networkPlayerNames[i].nullTerminate();
+	}
+	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+		data.factionNameList[i].nullTerminate();
 	}
 
 	return result;

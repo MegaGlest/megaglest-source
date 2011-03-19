@@ -120,11 +120,11 @@ void setCRCCacheFilePath(string path);
 
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
 void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string filterFileExt);
-int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum);
+int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
 
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string filterFileExt);
 void clearFolderTreeContentsCheckSum(const string &path, const string filterFileExt);
-int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum);
+int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
 
 std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
 void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string filterFileExt);

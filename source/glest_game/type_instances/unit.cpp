@@ -1116,64 +1116,51 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 bool Unit::needToUpdate() {
 	assert(progress <= 1.f);
-
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
 
-	//speed
-	int speed = currSkill->getTotalSpeed(&totalUpgrade);
+	bool return_value = false;
+	if(currSkill->getClass() != scDie) {
+		//speed
+		int speed = currSkill->getTotalSpeed(&totalUpgrade);
 
-	//speed modifier
-	float diagonalFactor= 1.f;
-	float heightFactor= 1.f;
-	if(currSkill->getClass() == scMove) {
-		//if moving in diagonal move slower
-		Vec2i dest= pos-lastPos;
-		if(abs(dest.x) + abs(dest.y) == 2) {
-			diagonalFactor= 0.71f;
+		//speed modifier
+		float diagonalFactor= 1.f;
+		float heightFactor= 1.f;
+		if(currSkill->getClass() == scMove) {
+			//if moving in diagonal move slower
+			Vec2i dest= pos - lastPos;
+			if(abs(dest.x) + abs(dest.y) == 2) {
+				diagonalFactor = 0.71f;
+			}
+
+			//if moving to an higher cell move slower else move faster
+			float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
+			heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
 		}
 
-		//if movig to an higher cell move slower else move faster
-		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
-		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
-	}
+		//update progresses
+		float newProgress = progress;
+		const Game *game = Renderer::getInstance().getGame();
+		newProgress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 
-	//update progresses
-	float newProgress = progress;
-	const Game *game = Renderer::getInstance().getGame();
-	newProgress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-
-	//checks
-    bool return_value = false;
-	//checks
-	if(newProgress >= 1.f) {
-		if(currSkill->getClass() != scDie) {
-			newProgress= 0.f;
+		if(newProgress >= 1.f) {
 			return_value = true;
 		}
-		else {
-			newProgress= 1.f;
-			int newDeadCount = deadCount;
-			newDeadCount++;
-			if(newDeadCount >= maxDeadCount) {
-				return_value = false;
-			}
-		}
 	}
-
 	return return_value;
 }
 
 bool Unit::update() {
-	assert(progress<=1.f);
+	assert(progress <= 1.f);
 
 	//highlight
-	if(highlight>0.f) {
+	if(highlight > 0.f) {
 		const Game *game = Renderer::getInstance().getGame();
-		highlight-= 1.f / (highlightTime * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		highlight -= 1.f / (highlightTime * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	}
 
 	if(currSkill == NULL) {
@@ -1186,21 +1173,19 @@ bool Unit::update() {
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
 
 	//speed modifier
-	float diagonalFactor= 1.f;
-	float heightFactor= 1.f;
+	float diagonalFactor = 1.f;
+	float heightFactor   = 1.f;
 	if(currSkill->getClass() == scMove) {
-
 		//if moving in diagonal move slower
-		Vec2i dest= pos-lastPos;
-		if(abs(dest.x)+abs(dest.y) == 2) {
-			diagonalFactor= 0.71f;
+		Vec2i dest = pos - lastPos;
+		if(abs(dest.x) + abs(dest.y) == 2) {
+			diagonalFactor = 0.71f;
 		}
 
-		//if movig to an higher cell move slower else move faster
-		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
-		heightFactor= clamp(1.f+heightDiff/5.f, 0.2f, 5.f);
+		//if moving to an higher cell move slower else move faster
+		float heightDiff = map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
+		heightFactor     = clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
 	}
-
 
 	//update progresses
 	lastAnimProgress= animProgress;
@@ -1214,13 +1199,13 @@ bool Unit::update() {
 	//rotation
 	if(currSkill->getClass() != scStop) {
 		const int rotFactor= 2;
-		if(progress<1.f/rotFactor){
+		if(progress < 1.f / rotFactor) {
 			if(type->getFirstStOfClass(scMove)){
 				if(abs((int)(lastRotation-targetRotation)) < 180)
-					rotation= lastRotation+(targetRotation-lastRotation)*progress*rotFactor;
-				else{
-					float rotationTerm= targetRotation>lastRotation? -360.f: +360.f;
-					rotation= lastRotation+(targetRotation-lastRotation+rotationTerm)*progress*rotFactor;
+					rotation= lastRotation + (targetRotation - lastRotation) * progress * rotFactor;
+				else {
+					float rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
+					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) * progress * rotFactor;
 				}
 			}
 		}
@@ -1242,22 +1227,22 @@ bool Unit::update() {
 		(*it)->setRotation(getRotation());
 	}
 	//checks
-	if(animProgress>1.f) {
-		animProgress= currSkill->getClass()==scDie? 1.f: 0.f;
+	if(animProgress > 1.f) {
+		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
 	}
 
     bool return_value = false;
 	//checks
-	if(progress>=1.f) {
+	if(progress >= 1.f) {
 		lastRotation= targetRotation;
 		if(currSkill->getClass() != scDie) {
-			progress= 0.f;
+			progress     = 0.f;
 			return_value = true;
 		}
 		else {
 			progress= 1.f;
 			deadCount++;
-			if(deadCount>=maxDeadCount) {
+			if(deadCount >= maxDeadCount) {
 				toBeUndertaken= true;
 				return_value = false;
 			}

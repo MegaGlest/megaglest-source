@@ -34,6 +34,8 @@
 
 namespace Glest{ namespace Game{
 
+static const string ITEM_MISSING = "***missing***";
+
 using namespace Shared::Util;
 
 struct FormatString {
@@ -987,8 +989,9 @@ void MenuStateConnectedGame::update() {
                 MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL,string(__FILE__) + "_" + intToStr(__LINE__));
 
                 int32 tilesetCRC = lastCheckedCRCTilesetValue;
-                if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
-					console.addLine("Checking tileset CRC " + gameSettings->getTileset() + "]");
+                if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
+                	gameSettings->getTileset() != "") {
+					console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
 					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 					// Test data synch
 					//tilesetCRC++;
@@ -997,20 +1000,31 @@ void MenuStateConnectedGame::update() {
                 }
 
                 int32 techCRC = lastCheckedCRCTechtreeValue;
-                if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
-					console.addLine("Checking techtree CRC " + gameSettings->getTech() + "]");
+                if(lastCheckedCRCTechtreeName != gameSettings->getTech() &&
+                	gameSettings->getTech() != "") {
+					console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 					// Test data synch
 					//techCRC++;
 					lastCheckedCRCTechtreeValue = techCRC;
 					lastCheckedCRCTechtreeName = gameSettings->getTech();
+
+					loadFactions(gameSettings,false);
+	    			factionCRCList.clear();
+	    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
+	    				string factionName = factionFiles[factionIdx];
+	    				int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
+	    			}
+	    			console.addLine("Found factions: " + intToStr(factionCRCList.size()));
                 }
 
                 int32 mapCRC = lastCheckedCRCMapValue;
-                if(lastCheckedCRCMapName != gameSettings->getMap()) {
+                if(lastCheckedCRCMapName != gameSettings->getMap() &&
+                	gameSettings->getMap() != "") {
 					Checksum checksum;
 					string file = Map::getMapPath(gameSettings->getMap(),"",false);
-					console.addLine("Checking map CRC " + file + "]");
+					console.addLine("Checking map CRC [" + file + "]");
 					checksum.addFile(file);
 					mapCRC = checksum.getSum();
 					// Test data synch
@@ -1030,7 +1044,7 @@ void MenuStateConnectedGame::update() {
                 if(dataSynchMismatch == true) {
                     string labelSynch = lang.get("DataNotSynchedTitle");
 
-                    if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) {
+                    if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() && listBoxMap.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("Map");
 
                         if(updateDataSynchDetailText == true &&
@@ -1040,7 +1054,7 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()) {
+                    if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC() && listBoxTileset.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("Tileset");
                         if(updateDataSynchDetailText == true &&
                             lastTileDataSynchError != lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem()) {
@@ -1049,37 +1063,69 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC()) {
+                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() && listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
                         labelSynch = labelSynch + " " + lang.get("TechTree");
                         if(updateDataSynchDetailText == true &&
                         	lastTechtreeDataSynchError != lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem()) {
                         	lastTechtreeDataSynchError = lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem();
                             clientInterface->sendTextMessage(lastTechtreeDataSynchError,-1,true);
-                        }
-                    }
 
-                    /*
-                    if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
-                        labelSynch = labelSynch + " techtree";
+                            string mismatchedFactionText = "";
+                            vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
 
-                        if(updateDataSynchDetailText == true) {
+                            for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
+                            	pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
 
-                            string report = clientInterface->getNetworkGameDataSynchCheckTechMismatchReport();
-                            if(lastTechtreeDataSynchError != "techtree CRC mismatch" + report) {
-                                lastTechtreeDataSynchError = "techtree CRC mismatch" + report;
+                            	bool foundFaction = false;
+                                for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
+                                	pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
 
-                                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
+                                	if(serverFaction.first == clientFaction.first) {
+                                		foundFaction = true;
+                                		if(serverFaction.second != clientFaction.second) {
+                                			if(mismatchedFactionText == "") {
+                                				mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+                                			}
+                                			mismatchedFactionText += serverFaction.first + ", ";
+                                		}
+                                		break;
+                                	}
+                                }
 
-                                clientInterface->sendTextMessage("techtree CRC mismatch",-1,true);
-                                vector<string> reportLineTokens;
-                                Tokenize(report,reportLineTokens,"\n");
-                                for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
-                                    clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+                                if(foundFaction == false) {
+                        			if(mismatchedFactionText == "") {
+                        				mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+                        			}
+                        			mismatchedFactionText += serverFaction.first + " (missing), ";
                                 }
                             }
+
+							for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
+								pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
+
+								bool foundFaction = false;
+	                            for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
+									pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
+
+									if(serverFaction.first == clientFaction.first) {
+										foundFaction = true;
+										break;
+									}
+								}
+
+								if(foundFaction == false) {
+									if(mismatchedFactionText == "") {
+										mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+									}
+									mismatchedFactionText += clientFaction.first + " (extra), ";
+								}
+							}
+
+							if(mismatchedFactionText != "") {
+								clientInterface->sendTextMessage(mismatchedFactionText,-1,true);
+							}
                         }
                     }
-                    */
 
                     //if(clientInterface->getReceivedDataSynchCheck() == true) {
                     updateDataSynchDetailText = false;
@@ -1241,11 +1287,12 @@ void MenuStateConnectedGame::update() {
 					throw runtime_error("gameSettings == NULL");
 				}
 
-				if(getMissingTilesetFromFTPServerInProgress == false) {
+				if(getMissingTilesetFromFTPServerInProgress == false &&
+					gameSettings->getTileset() != "") {
                     // tileset
                     if(std::find(tilesetFiles.begin(),tilesetFiles.end(),gameSettings->getTileset()) != tilesetFiles.end()) {
                         lastMissingTileSet = "";
-
+                        getMissingTilesetFromFTPServer = "";
                         tilesets.push_back(formatString(gameSettings->getTileset()));
                     }
                     else {
@@ -1263,7 +1310,7 @@ void MenuStateConnectedGame::update() {
                             }
                         }
 
-                        tilesets.push_back("***missing***");
+                        tilesets.push_back(ITEM_MISSING);
 
                         NetworkManager &networkManager= NetworkManager::getInstance();
                         ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -1287,11 +1334,12 @@ void MenuStateConnectedGame::update() {
                     listBoxTileset.setItems(tilesets);
 				}
 
-				if(getMissingTechtreeFromFTPServerInProgress == false) {
+				if(getMissingTechtreeFromFTPServerInProgress == false &&
+					gameSettings->getTech() != "") {
                     // techtree
                     if(std::find(techTreeFiles.begin(),techTreeFiles.end(),gameSettings->getTech()) != techTreeFiles.end()) {
                         lastMissingTechtree = "";
-
+                        getMissingTechtreeFromFTPServer = "";
                         techtree.push_back(formatString(gameSettings->getTech()));
                     }
                     else {
@@ -1309,7 +1357,7 @@ void MenuStateConnectedGame::update() {
                             }
                         }
 
-                        techtree.push_back("***missing***");
+                        techtree.push_back(ITEM_MISSING);
 
                         NetworkManager &networkManager= NetworkManager::getInstance();
                         ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -1339,20 +1387,21 @@ void MenuStateConnectedGame::update() {
 
 				// factions
 				bool hasFactions = true;
-				if(currentFactionName != gameSettings->getTech())
-				{
+				if(currentFactionName != gameSettings->getTech()
+					&& gameSettings->getTech() != "") {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 					currentFactionName = gameSettings->getTech();
 					hasFactions = loadFactions(gameSettings,false);
 				}
 				else {
-					// do this to process special faction types liek observers
+					// do this to process special faction types like observers
 					loadFactions(gameSettings,false);
 				}
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] hasFactions = %d, currentFactionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,hasFactions,currentFactionName.c_str());
 
-				if(getMissingMapFromFTPServerInProgress == false) {
+				if(getMissingMapFromFTPServerInProgress == false &&
+					gameSettings->getMap() != "") {
                     // map
                     if(currentMap != gameSettings->getMap()) {// load the setup again
                         currentMap = gameSettings->getMap();
@@ -1376,7 +1425,7 @@ void MenuStateConnectedGame::update() {
                                 showFTPMessageBox(szBuf, lang.get("Question"), false);
                             }
                         }
-                        maps.push_back("***missing***");
+                        maps.push_back(ITEM_MISSING);
                     }
                     listBoxMap.setItems(maps);
                     labelMapInfo.setText(mapInfo.desc);
@@ -1442,11 +1491,7 @@ void MenuStateConnectedGame::update() {
 					labelPlayerStatus[i].setText("");
 				}
 
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 				if(hasFactions == true) {
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] errorOnMissingData = %d\n",__FILE__,__FUNCTION__,__LINE__,errorOnMissingData);
-
 					for(int i=0; i<gameSettings->getFactionCount(); ++i){
 						int slot = gameSettings->getStartLocationIndex(i);
 
@@ -1639,75 +1684,79 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 
 	bool foundFactions = false;
 	vector<string> results;
-    Config &config = Config::getInstance();
-    Lang &lang= Lang::getInstance();
 
-    vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
-        string &techPath = techPaths[idx];
-        endPathWithSlash(techPath);
-        findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
-        if(results.size() > 0) {
-            break;
-        }
-    }
+	if(gameSettings->getTech() != "") {
+		Config &config = Config::getInstance();
+		Lang &lang= Lang::getInstance();
 
-    if(results.size() == 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		NetworkManager &networkManager= NetworkManager::getInstance();
-		ClientInterface* clientInterface= networkManager.getClientInterface();
-		if(clientInterface->getAllowGameDataSynchCheck() == false) {
-			if(errorOnNoFactions == true) {
-				throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+		vector<string> techPaths = config.getPathListForType(ptTechs);
+		for(int idx = 0; idx < techPaths.size(); idx++) {
+			string &techPath = techPaths[idx];
+			endPathWithSlash(techPath);
+			findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
+			if(results.size() > 0) {
+				break;
 			}
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (2)There are no factions for the tech tree [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings->getTech().c_str());
-		}
-		results.push_back("***missing***");
-		factionFiles = results;
-		for(int i=0; i<GameConstants::maxPlayers; ++i){
-			listBoxFactions[i].setItems(results);
 		}
 
-		if(lastMissingTechtree != gameSettings->getTech()) {
-			lastMissingTechtree = gameSettings->getTech();
+		if(results.size() == 0) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			char szMsg[1024]="";
-            if(lang.hasString("DataMissingTechtree") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTechtree").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-            }
-            else {
-            	sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-            }
-			clientInterface->sendTextMessage(szMsg,-1, true);
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			ClientInterface* clientInterface= networkManager.getClientInterface();
+			if(clientInterface->getAllowGameDataSynchCheck() == false) {
+				if(errorOnNoFactions == true) {
+					throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+				}
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (2)There are no factions for the tech tree [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings->getTech().c_str());
+			}
+			results.push_back(ITEM_MISSING);
+			factionFiles = results;
+			for(int i=0; i<GameConstants::maxPlayers; ++i){
+				listBoxFactions[i].setItems(results);
+			}
+
+			if(lastMissingTechtree != gameSettings->getTech() &&
+				gameSettings->getTech() != "") {
+				lastMissingTechtree = gameSettings->getTech();
+
+				char szMsg[1024]="";
+				if(lang.hasString("DataMissingTechtree") == true) {
+					sprintf(szMsg,lang.get("DataMissingTechtree").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+				}
+				else {
+					sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+				}
+				clientInterface->sendTextMessage(szMsg,-1, true);
+			}
+
+			foundFactions = false;
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
+		else {
+			lastMissingTechtree = "";
+			getMissingTechtreeFromFTPServer = "";
+			// Add special Observer Faction
+			//Lang &lang= Lang::getInstance();
+			if(gameSettings->getAllowObservers() == true) {
+				results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+			}
+			results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
-		foundFactions = false;
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    }
-	else {
-		lastMissingTechtree = "";
-	    // Add special Observer Faction
-	    //Lang &lang= Lang::getInstance();
-		if(gameSettings->getAllowObservers() == true) {
-			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+			factionFiles= results;
+			for(int i= 0; i<results.size(); ++i){
+				results[i]= formatString(results[i]);
+
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",gameSettings->getTech().c_str(),results[i].c_str());
+			}
+			for(int i=0; i<GameConstants::maxPlayers; ++i){
+				listBoxFactions[i].setItems(results);
+			}
+
+			foundFactions = (results.size() > 0);
 		}
-		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
-
-		factionFiles= results;
-		for(int i= 0; i<results.size(); ++i){
-			results[i]= formatString(results[i]);
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",gameSettings->getTech().c_str(),results[i].c_str());
-		}
-		for(int i=0; i<GameConstants::maxPlayers; ++i){
-			listBoxFactions[i].setItems(results);
-		}
-
-		foundFactions = (results.size() > 0);
 	}
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	return foundFactions;
 }
 
@@ -1936,7 +1985,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 			mapLoaded = true;
 		}
 		else {
-			mapInfo->desc = "***missing***";
+			mapInfo->desc = ITEM_MISSING;
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
 			ClientInterface* clientInterface= networkManager.getClientInterface();
