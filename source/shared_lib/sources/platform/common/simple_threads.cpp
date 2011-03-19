@@ -63,7 +63,7 @@ void FileCRCPreCacheThread::execute() {
 				findDirs(techDataPaths, techPaths);
 				if(techPaths.empty() == false) {
 
-					int techsPerWorker = (techPaths.size() / MAX_FileCRCPreCacheThread_WORKER_THREADS);
+					unsigned int techsPerWorker = (techPaths.size() / MAX_FileCRCPreCacheThread_WORKER_THREADS);
 					if(techPaths.size() % MAX_FileCRCPreCacheThread_WORKER_THREADS != 0) {
 						techsPerWorker++;
 					}
