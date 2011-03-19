@@ -2243,7 +2243,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     			factionCRCList.clear();
     			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
     				string factionName = factionFiles[factionIdx];
-    				int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+    				int32 factionCRC   = 0;
+    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
+    					factionName != GameConstants::OBSERVER_SLOTNAME) {
+    					factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+    				}
     				factionCRCList.push_back(make_pair(factionName,factionCRC));
     			}
     			console.addLine("Found factions: " + intToStr(factionCRCList.size()));
