@@ -299,7 +299,7 @@ void World::updateAllFactionUnits() {
 			}
 		}
 		if(workThreadsFinished == false) {
-			sleep(0);
+			//sleep(0);
 		}
 		else {
 			break;
