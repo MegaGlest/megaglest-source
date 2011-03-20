@@ -218,7 +218,11 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     //getGlPlatformExtensions();
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
+
+#if wxCHECK_VERSION(2, 9, 1)
+#else
 	glCanvas->SetCurrent();
+#endif
 
 	renderer= Renderer::getInstance();
 
@@ -435,7 +439,10 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::init() {
+#if wxCHECK_VERSION(2, 9, 1)
+#else
 	glCanvas->SetCurrent();
+#endif
 	renderer->init();
 
 	wxCommandEvent event;
