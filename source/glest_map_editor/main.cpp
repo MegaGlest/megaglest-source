@@ -73,7 +73,10 @@ void MainWindow::onToolPlayer(wxCommandEvent& event){
 }
 
 void MainWindow::init(string fname) {
+#if wxCHECK_VERSION(2, 9, 1)
+#else
 	glCanvas->SetCurrent();
+#endif
 
 	//menus
 	menuBar = new wxMenuBar();
@@ -520,7 +523,12 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
+
+#if wxCHECK_VERSION(2, 9, 1)
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxFD_SAVE);
+#else
 	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
+#endif
 
 	fd.SetPath(fileDialog->GetPath());
 	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
