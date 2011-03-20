@@ -183,6 +183,8 @@ private:
 
 	wxBoxSizer *boxsizer;
 
+	bool startupSettingsInited;
+
 public:
 	MainWindow();
 	~MainWindow();
@@ -247,9 +249,11 @@ public:
 	void uncheckRadius();
 
 private:
+
 	bool isDirty() const	{ return fileModified; }
 	void setDirty(bool val=true);
 	void setExtension();
+	void setupStartupSettings();
 };
 
 // =====================================================
@@ -262,14 +266,18 @@ private:
 
 public:
 	GlCanvas(MainWindow *mainWindow, wxWindow *parent, int *args);
+	~GlCanvas();
 
 	void onMouseDown(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);
 	void onMouseWheel(wxMouseEvent &event);
 	void onKeyDown(wxKeyEvent &event);
     void onPaint(wxPaintEvent &event);
+
+    void setCurrentGLContext();
 private:
 	MainWindow *mainWindow;
+	wxGLContext *context;
 };
 
 // =====================================================

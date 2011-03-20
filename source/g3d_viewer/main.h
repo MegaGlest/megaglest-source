@@ -106,6 +106,8 @@ private:
 
 	string appPath;
 
+	bool startupSettingsInited;
+
 	void loadUnit(string path, string skillName);
 	void loadModel(string path);
 	void loadParticle(string path);
@@ -159,6 +161,9 @@ public:
 	void onKeyDown(wxKeyEvent &e);
 
 	string getModelInfo();
+
+	void setupTimer();
+	void setupStartupSettings();
 };
 
 // =====================================================
@@ -171,14 +176,17 @@ private:
 
 public:
 	GlCanvas(MainWindow *mainWindow, int *args);
+	~GlCanvas();
 
 	void onMouseWheel(wxMouseEvent &event);
 	void onMouseMove(wxMouseEvent &event);
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &event);
+	void setCurrentGLContext();
 
 private:
 	MainWindow *mainWindow;
+	wxGLContext *context;
 };
 
 
