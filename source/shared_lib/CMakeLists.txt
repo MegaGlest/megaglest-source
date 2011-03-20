@@ -64,9 +64,11 @@ include_regular_expression("^.*$")
 # Setup package meta-data
 set(CURL_VERSION ${CURL_MAJOR_VERSION}.${CURL_MINOR_VERSION}.${CURL_PATCH_VERSION})
 message(STATUS "curl version=[${CURL_VERSION}]")
-IF( ${CURL_VERSION} VERSION_LESS 7.21.0)
+#IF( ${CURL_VERSION} VERSION_LESS 7.21.0)
+IF( ${CURL_VERSION} VERSION_LESS 7.16.4)
 	message(STATUS "(please visit http://curl.haxx.se/libcurl/ to find a newer version)")	
-	message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.21.0]")
+	#message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.21.0]")
+        message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.16.4]")
 ENDIF()
 
 

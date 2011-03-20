@@ -88,6 +88,10 @@ protected:
     string fileArchiveExtractCommand;
     string fileArchiveExtractCommandParameters;
 
+    FTP_Client_ResultType getFileFromServer(string fileNameTitle,
+    		string remotePath, string destFileSaveAs, string ftpUser,
+    		string ftpUserPassword, vector <string> *wantDirListOnly=NULL);
+
 public:
 
     FTPClientThread(int portNumber,string serverUrl,

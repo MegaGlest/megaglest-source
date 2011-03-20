@@ -2226,7 +2226,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 
 	if( gameSettings->getTileset() != "") {
 		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
-			console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
+			//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
 			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 			lastCheckedCRCTilesetName = gameSettings->getTileset();
 		}
@@ -2236,7 +2236,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
     	if(gameSettings->getTech() != "") {
     		if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
-    			console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+    			//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
     			lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
 
     			reloadFactions(true);
@@ -2250,7 +2250,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     				}
     				factionCRCList.push_back(make_pair(factionName,factionCRC));
     			}
-    			console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
     			lastCheckedCRCTechtreeName = gameSettings->getTech();
     		}
 
@@ -2263,7 +2263,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
     	if(lastCheckedCRCMapName != gameSettings->getMap()) {
     		Checksum checksum;
     		string file = Map::getMapPath(gameSettings->getMap(),"",false);
-    		console.addLine("Checking map CRC [" + file + "]");
+    		//console.addLine("Checking map CRC [" + file + "]");
     		checksum.addFile(file);
     		lastCheckedCRCMapValue = checksum.getSum();
     		lastCheckedCRCMapName = gameSettings->getMap();

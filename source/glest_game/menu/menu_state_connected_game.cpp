@@ -991,7 +991,7 @@ void MenuStateConnectedGame::update() {
                 int32 tilesetCRC = lastCheckedCRCTilesetValue;
                 if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
                 	gameSettings->getTileset() != "") {
-					console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
+					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
 					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 					// Test data synch
 					//tilesetCRC++;
@@ -1002,7 +1002,7 @@ void MenuStateConnectedGame::update() {
                 int32 techCRC = lastCheckedCRCTechtreeValue;
                 if(lastCheckedCRCTechtreeName != gameSettings->getTech() &&
                 	gameSettings->getTech() != "") {
-					console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 					// Test data synch
 					//techCRC++;
@@ -1021,7 +1021,7 @@ void MenuStateConnectedGame::update() {
 	    				}
 	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    			}
-	    			console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+	    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
                 }
 
                 int32 mapCRC = lastCheckedCRCMapValue;
@@ -1029,7 +1029,7 @@ void MenuStateConnectedGame::update() {
                 	gameSettings->getMap() != "") {
 					Checksum checksum;
 					string file = Map::getMapPath(gameSettings->getMap(),"",false);
-					console.addLine("Checking map CRC [" + file + "]");
+					//console.addLine("Checking map CRC [" + file + "]");
 					checksum.addFile(file);
 					mapCRC = checksum.getSum();
 					// Test data synch
@@ -2095,9 +2095,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
             safeMutexFTPProgress.ReleaseLock();
 
-            if((lastProgress.first / 25) < (fileProgress / 25)) {
+            if(itemName != "" && (lastProgress.first / 25) < (fileProgress / 25)) {
 				char szMsg[1024]="";
-				sprintf(szMsg,"Player: %s download progress for %s is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+				sprintf(szMsg,"Player: %s download progress for [%s] is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s] lastProgress.first = %d, fileProgress = %d\n",__FILE__,__FUNCTION__,__LINE__,szMsg,lastProgress.first,fileProgress);
 
 		        NetworkManager &networkManager= NetworkManager::getInstance();
 		        ClientInterface* clientInterface= networkManager.getClientInterface();

@@ -62,6 +62,8 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
         fullFilePath += out->filename;
     }
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread writing file [%s]\n",fullFilePath.c_str());
+
     // Abort file xfer and delete partial file
     if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
         if(out->stream) {
@@ -377,8 +379,9 @@ void FTPClientThread::getTilesetFromServer(string tileSetName) {
 FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
 		string tileSetNameSubfolder, string ftpUser, string ftpUserPassword,
 		bool findArchive) {
-    FTP_Client_ResultType result = ftp_crt_FAIL;
 
+/*
+    FTP_Client_ResultType result = ftp_crt_FAIL;
     string destFile = this->tilesetsPath.second;
 
     // Root folder for the tileset
@@ -409,7 +412,7 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
 
     struct FtpFile ftpfile = {
         tileSetName.c_str(),
-        destFile.c_str(), // name to store the file as if succesful
+        destFile.c_str(), // name to store the file as if successful
         destFile.c_str(),
         NULL,
         this,
@@ -420,8 +423,6 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
     if(findArchive == true) {
     	ftpfile.filepath = destRootArchiveFolder.c_str();
     }
-
-    //curl_global_init(CURL_GLOBAL_DEFAULT);
 
     CURL *curl = SystemFlags::initHTTP();
     if(curl) {
@@ -538,6 +539,121 @@ FTP_Client_ResultType FTPClientThread::getTilesetFromServer(string tileSetName,
     }
 
     return result;
+*/
+
+	string destFileSaveAsNewFile = "";
+	string destFileSaveAs = "";
+	string remotePath = "";
+	bool getFolderContents = false;
+	vector<string> wantDirListOnly;
+    if(tileSetNameSubfolder == "") {
+        if(findArchive == true) {
+        	destFileSaveAs = this->tilesetsPath.second;
+            endPathWithSlash(destFileSaveAs);
+            destFileSaveAs += tileSetName + this->fileArchiveExtension;
+
+        	remotePath = tileSetName + this->fileArchiveExtension;
+        	//sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,
+        	//		tileSetName.c_str(),this->fileArchiveExtension.c_str());
+        }
+        else {
+        	getFolderContents = true;
+        	remotePath = tileSetName + "/";
+        	destFileSaveAs = this->tilesetsPath.second;
+            endPathWithSlash(destFileSaveAs);
+            destFileSaveAs += tileSetName;
+            destFileSaveAsNewFile = destFileSaveAs;
+            endPathWithSlash(destFileSaveAsNewFile);
+            destFileSaveAs += ".tmp";
+
+        	//sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
+        }
+    }
+    else {
+    	getFolderContents = true;
+    	remotePath = tileSetName + "/" + tileSetNameSubfolder + "/";
+    	destFileSaveAs = this->tilesetsPath.second;
+        endPathWithSlash(destFileSaveAs);
+        destFileSaveAs += tileSetName;
+        endPathWithSlash(destFileSaveAs);
+
+        destFileSaveAs += tileSetNameSubfolder;
+        destFileSaveAsNewFile = destFileSaveAs;
+        endPathWithSlash(destFileSaveAsNewFile);
+        destFileSaveAs += ".tmp";
+
+        //sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,
+        //		tileSetName.c_str(),tileSetNameSubfolder.c_str());
+    }
+
+    vector <string> *pWantDirListOnly = NULL;
+    if(getFolderContents == true) {
+    	pWantDirListOnly = &wantDirListOnly;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d\n",tileSetName.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents);
+
+	FTP_Client_ResultType result = getFileFromServer(tileSetName,
+			remotePath, destFileSaveAs,ftpUser, ftpUserPassword, pWantDirListOnly);
+
+    // Extract the archive
+    if(result == ftp_crt_SUCCESS) {
+    	if(findArchive == true) {
+    	    string destRootArchiveFolder = this->tilesetsPath.second;
+   	        endPathWithSlash(destRootArchiveFolder);
+
+			string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+					destRootArchiveFolder + tileSetName + this->fileArchiveExtension);
+
+			if(executeShellCommand(extractCmd) == false) {
+				result = ftp_crt_FAIL;
+			}
+
+			return result;
+    	}
+    	else {
+    		if(getFolderContents == true) {
+    			removeFile(destFileSaveAs);
+
+    			for(unsigned int i = 0; i < wantDirListOnly.size(); ++i) {
+    				string fileFromList = wantDirListOnly[i];
+
+    				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("fileFromList [%s] i [%d]\n",fileFromList.c_str(),i);
+
+    				if( fileFromList != "models" && fileFromList != "textures" &&
+    					fileFromList != "sounds") {
+						result = getFileFromServer(tileSetName,
+								remotePath + fileFromList,
+								destFileSaveAsNewFile + fileFromList,
+								ftpUser, ftpUserPassword);
+						if(result != ftp_crt_SUCCESS) {
+							break;
+						}
+    				}
+    				else {
+    					result = getTilesetFromServer(tileSetName,
+    							fileFromList, ftpUser, ftpUserPassword,
+    							findArchive);
+						if(result != ftp_crt_SUCCESS) {
+							break;
+						}
+    				}
+    			}
+    		}
+    	}
+    }
+
+    if(result != ftp_crt_SUCCESS && findArchive == false) {
+        string destRootFolder = this->tilesetsPath.second;
+        endPathWithSlash(destRootFolder);
+        destRootFolder += tileSetName;
+        endPathWithSlash(destRootFolder);
+
+        removeFolder(destRootFolder);
+    }
+
+    return result;
 }
 
 void FTPClientThread::getTechtreeFromServer(string techtreeName) {
@@ -558,6 +674,8 @@ void FTPClientThread::getTechtreeFromServer(string techtreeName) {
 
 FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName,
 		string ftpUser, string ftpUserPassword) {
+
+/*
     FTP_Client_ResultType result = ftp_crt_FAIL;
 
     string destFile = this->techtreesPath.second;
@@ -575,22 +693,35 @@ FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName
 
 	endPathWithSlash(destFile);
     destFile += techtreeName;
+    string destFileSaveAs = destFile + this->fileArchiveExtension;
     endPathWithSlash(destFile);
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFileSaveAs.c_str());
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFileSaveAs.c_str());
+
+
+//    struct FtpFile ftpfile = {
+//    	techtreeName.c_str(),
+//        destFile.c_str(), // name to store the file as if succesful
+//        destFile.c_str(),
+//        NULL,
+//        this,
+//        "",
+//        false
+//    };
+//
+//   	ftpfile.filepath = destRootArchiveFolder.c_str();
+
 
     struct FtpFile ftpfile = {
     	techtreeName.c_str(),
-        destFile.c_str(), // name to store the file as if succesful
-        destFile.c_str(),
+    	destFileSaveAs.c_str(), // name to store the file as if succesful
+    	NULL,
         NULL,
         this,
         "",
         false
     };
-
-   	ftpfile.filepath = destRootArchiveFolder.c_str();
 
     CURL *curl = SystemFlags::initHTTP();
     if(curl) {
@@ -603,14 +734,14 @@ FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName
         curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
 
         // turn on wildcard matching
-        curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
+        //curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
 
         // callback is called before download of concrete file started
-        curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
         // callback is called after data from the file have been transferred
-        curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
 
-        curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
 
         // Define our callback to get called when there's data to be written
@@ -667,7 +798,167 @@ FTP_Client_ResultType FTPClientThread::getTechtreeFromServer(string techtreeName
     }
 
     return result;
+*/
+
+
+    // Root folder for the techtree
+    string destRootFolder = this->techtreesPath.second;
+	endPathWithSlash(destRootFolder);
+	string destRootArchiveFolder = destRootFolder;
+	destRootFolder += techtreeName;
+	endPathWithSlash(destRootFolder);
+
+	string destFile = this->techtreesPath.second;
+	endPathWithSlash(destFile);
+    destFile += techtreeName;
+    string destFileSaveAs = destFile + this->fileArchiveExtension;
+    endPathWithSlash(destFile);
+
+    string remotePath = techtreeName + this->fileArchiveExtension;
+	FTP_Client_ResultType result = getFileFromServer(techtreeName,
+	    		remotePath, destFileSaveAs, ftpUser, ftpUserPassword);
+
+    // Extract the archive
+    if(result == ftp_crt_SUCCESS) {
+        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        		destRootArchiveFolder + techtreeName + this->fileArchiveExtension);
+
+        if(executeShellCommand(extractCmd) == false) {
+        	result = ftp_crt_FAIL;
+        }
+    }
+
+    return result;
+
 }
+
+
+FTP_Client_ResultType FTPClientThread::getFileFromServer(string fileNameTitle,
+		string remotePath, string destFileSaveAs,
+		string ftpUser, string ftpUserPassword, vector <string> *wantDirListOnly) {
+    FTP_Client_ResultType result = ftp_crt_FAIL;
+    if(wantDirListOnly) {
+    	(*wantDirListOnly).clear();
+    }
+    string destRootFolder = extractDirectoryPathFromFile(destFileSaveAs);
+    bool pathCreated = false;
+    if(isdir(destRootFolder.c_str()) == false) {
+    	createDirectoryPaths(destRootFolder);
+    	pathCreated = true;
+    }
+
+    bool wantDirList = (wantDirListOnly != NULL);
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s] wantDirList = %d\n",destFileSaveAs.c_str(),wantDirList);
+    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s] wantDirList = %d\n",destFileSaveAs.c_str(),wantDirList);
+
+    struct FtpFile ftpfile = {
+    	fileNameTitle.c_str(),
+    	destFileSaveAs.c_str(), // name to store the file as if successful
+    	NULL,
+        NULL,
+        this,
+        "",
+        false
+    };
+
+    CURL *curl = SystemFlags::initHTTP();
+    if(curl) {
+        ftpfile.stream = NULL;
+
+        char szBuf[1024]="";
+        sprintf(szBuf,"ftp://%s:%s@%s:%d/%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,remotePath.c_str());
+
+        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
+        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
+
+        // turn on wildcard matching
+        //curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
+
+        // callback is called before download of concrete file started
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
+        // callback is called after data from the file have been transferred
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
+
+        //curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        // Define our callback to get called when there's data to be written
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
+        // Set a pointer to our struct to pass to the callback
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+
+        if(wantDirListOnly) {
+        	curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
+        }
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
+
+        // Max 10 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+
+        // Switch on full protocol/debug output
+        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        if(res != CURLE_OK) {
+            // we failed
+            printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d, pathCreated = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer,pathCreated);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d, pathCreated = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer,pathCreated);
+
+            if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
+        	    result = ftp_crt_PARTIALFAIL;
+            }
+
+            if(destRootFolder != "") {
+            	if(pathCreated == true) {
+            		removeFolder(destRootFolder);
+            	}
+            	else {
+            		removeFile(destFileSaveAs);
+            	}
+            }
+        }
+        else {
+            result = ftp_crt_SUCCESS;
+
+            if(wantDirListOnly) {
+                if(ftpfile.stream) {
+                    fclose(ftpfile.stream);
+                    ftpfile.stream = NULL;
+                }
+
+                FILE *fp = fopen(destFileSaveAs.c_str(), "rt");
+                if(fp != NULL) {
+                	char szBuf[4096]="";
+                	while(feof(fp) == false) {
+            			if(fgets( szBuf, 4095, fp) != NULL) {
+            				string item = szBuf;
+            				replaceAll(item,"\n","");
+            				replaceAll(item,"\r","");
+            				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got [%s]\n",item.c_str());
+            				(*wantDirListOnly).push_back(item);
+            			}
+                	}
+                	fclose(fp);
+                }
+            }
+        }
+
+        SystemFlags::cleanupHTTP(&curl);
+    }
+
+    if(ftpfile.stream) {
+        fclose(ftpfile.stream);
+        ftpfile.stream = NULL;
+    }
+
+    return result;
+}
+
 
 
 FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
