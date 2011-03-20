@@ -2114,15 +2114,20 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
-        // Clear the CRC file Cache
-        Checksum::clearFileCache();
-        lastCheckedCRCMapValue = -1;
-
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
         if(result == ftp_crt_SUCCESS) {
+            // Clear the CRC file Cache
+            Checksum::clearFileCache();
+            //lastCheckedCRCMapValue = -1;
+    		Checksum checksum;
+    		string file = Map::getMapPath(gameSettings->getMap(),"",false);
+    		//console.addLine("Checking map CRC [" + file + "]");
+    		checksum.addFile(file);
+    		lastCheckedCRCMapValue = checksum.getSum();
+
             char szMsg[1024]="";
             if(lang.hasString("DataMissingMapSuccessDownload") == true) {
             	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
