@@ -4840,6 +4840,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 		texture->init(textureFilter,maxAnisotropy);
 		texture->setup_FBO_RBO();
 
+		assertGl();
+
 		if(texture->checkFrameBufferStatus() == false) {
 			//printf("******************** WARNING CANNOT Attach to FBO!\n");
 			texture->end();
@@ -4885,6 +4887,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
     glPushMatrix();
 	glLoadIdentity();
 
+	assertGl();
+
 	GLint viewport[4];	// Where The original Viewport Values Will Be Stored
 
 	if(supportFBOs == true && renderToTexture != NULL) {
@@ -4904,6 +4908,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	if(supportFBOs == false || renderToTexture == NULL) {
 		glTranslatef(static_cast<float>(screenPosX),static_cast<float>(screenPosY)-clientH,0.0f);
 	}
+
+	assertGl();
 
 	glPushAttrib(GL_CURRENT_BIT);
 	glLineWidth(1);
@@ -5054,6 +5060,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	//start locations
 	glLineWidth(3);
 
+	assertGl();
+
 	if(supportFBOs == true && renderToTexture != NULL) {
 		glLineWidth(14);
 		playerCrossSize = 24;
@@ -5067,6 +5075,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 			playerCrossSize = cellSize;
 		}
 	}
+
+	assertGl();
 
 	for (int i = 0; i < map->getMaxFactions(); i++) {
 		switch (i) {
@@ -5103,10 +5113,14 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 		glEnd();
 	}
 
+	assertGl();
+
 	glPopMatrix();
 	glPopAttrib();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+
+	assertGl();
 
 	if(supportFBOs == true && renderToTexture != NULL) {
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
@@ -5115,6 +5129,8 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 		}
 
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+		assertGl();
 	}
 
 	assertGl();
