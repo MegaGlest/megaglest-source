@@ -58,7 +58,7 @@ MainWindow::MainWindow()
 		, menuBar(NULL)
 		, panel(NULL)
         , glCanvas(NULL)
-        , program(NULL), boxsizer(NULL) {
+        , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -74,6 +74,7 @@ void MainWindow::onToolPlayer(wxCommandEvent& event){
 
 void MainWindow::init(string fname) {
 #if wxCHECK_VERSION(2, 9, 1)
+
 #else
 	glCanvas->SetCurrent();
 #endif
@@ -349,18 +350,18 @@ void MainWindow::init(string fname) {
 	this->panel->SetSizer(boxsizer);
 	this->Layout();
 
-	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
+	//program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
 	fileName = "New (unsaved) Map";
 	if (!fname.empty() && fileExists(fname)) {
-		program->loadMap(fname);
+		//program->loadMap(fname);
 		currentFile = fname;
 		fileName = cutLastExt(extractFileFromDirectoryPath(fname.c_str()));
 		fileDialog->SetPath(ToUnicode(fname));
 	}
 	SetTitle(ToUnicode(currentFile + " - " + winHeader));
-	setDirty(false);
-	setExtension();
+	//setDirty(false);
+	//setExtension();
 }
 
 void MainWindow::onClose(wxCloseEvent &event) {
@@ -370,6 +371,21 @@ void MainWindow::onClose(wxCloseEvent &event) {
 		MainWindow::onMenuFileSave(ev);
 	}
 	delete this;
+}
+
+void MainWindow::setupStartupSettings() {
+	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
+
+	fileName = "New (unsaved) Map";
+	if (!currentFile.empty() && fileExists(currentFile)) {
+		program->loadMap(currentFile);
+		//currentFile = fname;
+		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
+		fileDialog->SetPath(ToUnicode(currentFile));
+	}
+	SetTitle(ToUnicode(currentFile + " - " + winHeader));
+	setDirty(false);
+	setExtension();
 }
 
 MainWindow::~MainWindow() {
@@ -395,7 +411,7 @@ void MainWindow::setDirty(bool val) {
 }
 
 void MainWindow::setExtension() {
-	if (currentFile.empty()) {
+	if (currentFile.empty() || program == NULL) {
 		return;
 	}
 	string extnsn = ext(currentFile);
@@ -412,7 +428,7 @@ void MainWindow::setExtension() {
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
-	if (event.LeftIsDown()) {
+	if (event.LeftIsDown() && program != NULL) {
 		program->setUndoPoint(enabledGroup);
 		program->setRefAlt(x, y);
 		change(x, y);
@@ -427,18 +443,27 @@ void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
 
 // for the mousewheel
 void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
+	if(program == NULL) {
+		return;
+	}
 	wxPaintEvent ev;
 	program->incCellSize(1);
 	onPaint(ev);
 }
 
 void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
+	if(program == NULL) {
+		return;
+	}
 	wxPaintEvent ev;
 	program->incCellSize(-1);
 	onPaint(ev);
 }
 
 void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
+	if(program == NULL) {
+		return;
+	}
 	bool repaint = false;
 	int dif;
 	if (event.LeftIsDown()) {
@@ -477,6 +502,20 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
+	if(!IsShown()) {
+		event.Skip();
+		return;
+	}
+
+#if wxCHECK_VERSION(2, 9, 1)
+	glCanvas->setCurrentGLContext();
+#endif
+
+	if(startupSettingsInited == false) {
+		startupSettingsInited = true;
+		setupStartupSettings();
+	}
+
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
 		return;
@@ -499,6 +538,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 }
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	fileDialog->SetMessage(wxT("Select Glestmap to load"));
 	fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
 	if (fileDialog->ShowModal() == wxID_OK) {
@@ -512,6 +555,10 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuFileSave(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	if (currentFile.empty()) {
 		wxCommandEvent ev;
 		onMenuFileSaveAs(ev);
@@ -523,6 +570,9 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
 
 #if wxCHECK_VERSION(2, 9, 1)
 	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxFD_SAVE);
@@ -548,6 +598,10 @@ void MainWindow::onMenuFileExit(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditUndo(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	// std::cout << "Undo Pressed" << std::endl;
 	if (program->undo()) {
 		wxPaintEvent e;
@@ -557,7 +611,10 @@ void MainWindow::onMenuEditUndo(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditRedo(wxCommandEvent &event) {
-	// std::cout << "Redo Pressed" << std::endl;
+	if(program == NULL) {
+		return;
+	}
+
 	if (program->redo()) {
 		wxPaintEvent e;
 		onPaint(e);
@@ -566,6 +623,10 @@ void MainWindow::onMenuEditRedo(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditReset(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	program->setUndoPoint(ctAll);
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Width", "128","(must be 16,32,64,128,256,512...)"); // must be an exponent of two
@@ -591,6 +652,10 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Number of players", intToStr(program->getMap()->getMaxFactions()));
 	if (!simpleDialog.show("Reset players")) return;
@@ -606,6 +671,10 @@ void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditResize(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Width", intToStr(program->getMap()->getW()),"(must be 16,32,64,128,256,512...)");
 	simpleDialog.addValue("Height", intToStr(program->getMap()->getH()),"(must be 16,32,64,128,256,512...)");
@@ -627,73 +696,121 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditFlipX(wxCommandEvent &event) {
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->flipX();
 	setDirty();
 }
 
 void MainWindow::onMenuEditFlipY(wxCommandEvent &event) {
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->flipY();
 	setDirty();
 }
 
 void MainWindow::onMenuEditMirrorX(wxCommandEvent &event) { // copy left to right
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->mirrorX();
 	setDirty();
 }
 
 void MainWindow::onMenuEditMirrorY(wxCommandEvent &event) { // copy top to bottom
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->mirrorY();
 	setDirty();
 }
 
 void MainWindow::onMenuEditMirrorXY(wxCommandEvent &event) { // copy bottomleft tp topright
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->mirrorXY();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRotatecopyX(wxCommandEvent &event) { // copy left to right, rotated
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->rotatecopyX();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRotatecopyY(wxCommandEvent &event) { // copy top to bottom, rotated
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->rotatecopyY();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRotatecopyXY(wxCommandEvent &event) { // copy bottomleft to topright, rotated
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->rotatecopyXY();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRotatecopyCorner(wxCommandEvent &event) { // copy top left 1/4 to top right 1/4, rotated
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->rotatecopyCorner();
 	setDirty();
 }
 
 
 void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->randomizeMapHeights();
 	setDirty();
 }
 
 void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
-    program->setUndoPoint(ctAll);
+	if(program == NULL) {
+		return;
+	}
+
+	program->setUndoPoint(ctAll);
 	program->randomizeMap();
 	setDirty();
 }
 
 void MainWindow::onMenuEditSwitchSurfaces(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Surface1", "1","replace this surface with...");
 	simpleDialog.addValue("Surface2", "2","...this and vice versa");
@@ -712,6 +829,10 @@ void MainWindow::onMenuEditSwitchSurfaces(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditInfo(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Title", program->getMap()->getTitle());
 	simpleDialog.addValue("Description", program->getMap()->getDesc());
@@ -730,6 +851,10 @@ void MainWindow::onMenuEditInfo(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"(lower means map is more more zoomed in)");
 	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(water is visible below this, and walkable until 1.5 less)");
@@ -751,12 +876,20 @@ void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 }
 
 void MainWindow::onMenuViewResetZoomAndPos(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	program->resetOfset();
 	wxPaintEvent e;
 	onPaint(e);
 }
 
 void MainWindow::onMenuViewGrid(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
 	menuView->Check(miViewGrid, program->setGridOnOff());    // miViewGrid event.GetId()
 	wxPaintEvent e;
 	onPaint(e);
@@ -860,6 +993,10 @@ void MainWindow::onMenuRadius(wxCommandEvent &e) {
 }
 
 void MainWindow::change(int x, int y) {
+	if(program == NULL) {
+		return;
+	}
+
 	switch (enabledGroup) {
 	case ctHeight:
 		program->glestChangeMapHeight(x, y, height, radius);
@@ -910,6 +1047,10 @@ void MainWindow::uncheckRadius() {
 }
 
  void MainWindow::onKeyDown(wxKeyEvent &e) {
+	if(program == NULL) {
+		return;
+	}
+
  	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
  		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
  			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
@@ -1077,8 +1218,26 @@ END_EVENT_TABLE()
 // =====================================================
 
 GlCanvas::GlCanvas(MainWindow *mainWindow, wxWindow *parent, int *args)
+#if wxCHECK_VERSION(2, 9, 1)
+		: wxGLCanvas(parent, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
+	this->context = new wxGLContext(this);
+#else
 		: wxGLCanvas(parent, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
+	this->context = NULL;
+#endif
+
 	this->mainWindow = mainWindow;
+}
+
+GlCanvas::~GlCanvas() {
+	delete this->context;
+	this->context = NULL;
+}
+
+void GlCanvas::setCurrentGLContext() {
+	if(this->context) {
+		this->SetCurrent(*this->context);
+	}
 }
 
 void translateCoords(wxWindow *wnd, int &x, int &y) {

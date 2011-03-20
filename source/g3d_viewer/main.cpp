@@ -209,22 +209,25 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						string appPath)
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
-		        wxSize(Renderer::windowW, Renderer::windowH)), model(NULL), glCanvas(NULL), renderer(NULL), initTextureManager(true), timer(NULL)
+		        wxSize(Renderer::windowW, Renderer::windowH)),
+		        model(NULL), glCanvas(NULL), renderer(NULL),
+		        initTextureManager(true), timer(NULL),
+		        startupSettingsInited(false)
 {
 	this->appPath = appPath;
 	Properties::setApplicationPath(extractDirectoryPathFromFile(appPath));
 
 	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
+
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
 
 #if wxCHECK_VERSION(2, 9, 1)
+	//glCanvas->setCurrentGLContext();
 #else
 	glCanvas->SetCurrent();
 #endif
-
-	renderer= Renderer::getInstance();
 
 	model= NULL;
 	unitPath = unitToLoad;
@@ -302,56 +305,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	menuMode->Check(miModeGrid, true);
 	menuCustomColor->Check(miColorRed, true);
 
-    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
-    	if(autoScreenShotParams[i] == "transparent") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuFile->Check(miFileToggleScreenshotTransparent,true);
-            float alpha = 0.0f;
-            renderer->setAlphaColor(alpha);
-    	}
-    	if(autoScreenShotParams[i] == "enable_grid") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeGrid,true);
-    		if(renderer->getGrid() == false) {
-    			renderer->toggleGrid();
-    		}
-    	}
-    	if(autoScreenShotParams[i] == "enable_wireframe") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeWireframe,true);
-    		if(renderer->getWireframe() == false) {
-    			renderer->toggleWireframe();
-    		}
-    	}
-    	if(autoScreenShotParams[i] == "enable_normals") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeNormals,true);
-    		if(renderer->getNormals() == false) {
-    			renderer->toggleNormals();
-    		}
-    	}
-    	if(autoScreenShotParams[i] == "disable_grid") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeGrid,false);
-    		if(renderer->getGrid() == true) {
-    			renderer->toggleGrid();
-    		}
-    	}
-    	if(autoScreenShotParams[i] == "enable_wireframe") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeWireframe,false);
-    		if(renderer->getWireframe() == true) {
-    			renderer->toggleWireframe();
-    		}
-    	}
-    	if(autoScreenShotParams[i] == "enable_normals") {
-    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-    		menuMode->Check(miModeNormals,false);
-    		if(renderer->getNormals() == true) {
-    			renderer->toggleNormals();
-    		}
-    	}
-    }
+    //!!!
 
 	SetMenuBar(menu);
 
@@ -393,8 +347,8 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 	glCanvas->SetFocus();
 
-	timer = new wxTimer(this);
-	timer->Start(100);
+	//timer = new wxTimer(this);
+	//timer->Start(100);
 
 	// For windows register g3d file extension to launch this app
 #ifdef WIN32
@@ -426,6 +380,70 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 #endif
 }
 
+void MainWindow::setupTimer() {
+	timer = new wxTimer(this);
+	timer->Start(100);
+}
+
+void MainWindow::setupStartupSettings() {
+	renderer= Renderer::getInstance();
+
+	for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
+		if(autoScreenShotParams[i] == "transparent") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuFile->Check(miFileToggleScreenshotTransparent,true);
+			float alpha = 0.0f;
+			renderer->setAlphaColor(alpha);
+		}
+		if(autoScreenShotParams[i] == "enable_grid") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeGrid,true);
+			if(renderer->getGrid() == false) {
+				renderer->toggleGrid();
+			}
+		}
+		if(autoScreenShotParams[i] == "enable_wireframe") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeWireframe,true);
+			if(renderer->getWireframe() == false) {
+				renderer->toggleWireframe();
+			}
+		}
+		if(autoScreenShotParams[i] == "enable_normals") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeNormals,true);
+			if(renderer->getNormals() == false) {
+				renderer->toggleNormals();
+			}
+		}
+		if(autoScreenShotParams[i] == "disable_grid") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeGrid,false);
+			if(renderer->getGrid() == true) {
+				renderer->toggleGrid();
+			}
+		}
+		if(autoScreenShotParams[i] == "enable_wireframe") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeWireframe,false);
+			if(renderer->getWireframe() == true) {
+				renderer->toggleWireframe();
+			}
+		}
+		if(autoScreenShotParams[i] == "enable_normals") {
+			printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+			menuMode->Check(miModeNormals,false);
+			if(renderer->getNormals() == true) {
+				renderer->toggleNormals();
+			}
+		}
+	}
+	renderer->init();
+
+	wxCommandEvent event;
+	onMenuRestart(event);
+}
+
 MainWindow::~MainWindow(){
 	delete renderer;
 	renderer = NULL;
@@ -440,18 +458,27 @@ MainWindow::~MainWindow(){
 
 void MainWindow::init() {
 #if wxCHECK_VERSION(2, 9, 1)
+
 #else
 	glCanvas->SetCurrent();
 #endif
-	renderer->init();
+	//renderer->init();
 
-	wxCommandEvent event;
-	onMenuRestart(event);
+	//wxCommandEvent event;
+	//onMenuRestart(event);
 }
 
-void MainWindow::onPaint(wxPaintEvent &event){
-	//printf("Start onPaint\n");
-	//fflush(stdout);
+void MainWindow::onPaint(wxPaintEvent &event) {
+	if(!IsShown()) return;
+
+#if wxCHECK_VERSION(2, 9, 1)
+	glCanvas->setCurrentGLContext();
+#endif
+
+	if(startupSettingsInited == false) {
+		startupSettingsInited = true;
+		setupStartupSettings();
+	}
 
 	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
 
@@ -1006,7 +1033,7 @@ void MainWindow::loadModel(string path) {
         for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
             string modelPath = this->modelPathList[idx];
 
-            printf("Loading model [%s] %u of %lu\n",modelPath.c_str(),idx, this->modelPathList.size());
+            //printf("Loading model [%s] %u of %lu\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             if(timer) timer->Stop();
             delete model;
@@ -1712,9 +1739,25 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 
 // to prevent flicker
 GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
+#if wxCHECK_VERSION(2, 9, 1)
+		: wxGLCanvas(mainWindow, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
+	this->context = new wxGLContext(this);
+#else
 		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
+	this->context = NULL;
+#endif
 	this->mainWindow = mainWindow;
-	//
+}
+
+GlCanvas::~GlCanvas() {
+	delete this->context;
+	this->context = NULL;
+}
+
+void GlCanvas::setCurrentGLContext() {
+	if(this->context) {
+		this->SetCurrent(*this->context);
+	}
 }
 
 // for the mousewheel
@@ -2103,6 +2146,7 @@ bool App::OnInit(){
 	mainWindow->Show();
 	mainWindow->init();
 	mainWindow->Update();
+	mainWindow->setupTimer();
 
 	return true;
 }
