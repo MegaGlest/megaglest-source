@@ -1711,6 +1711,11 @@ void Game::render2d(){
 		if(SystemFlags::getThreadedLoggerRunning() == true) {
             str+= "Log buffer count: "  + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
 		}
+
+		str+= "Map: " + gameSettings.getMap() +"\n";
+		str+= "Tileset: " + gameSettings.getTileset() +"\n";
+		str+= "Techtree: " + gameSettings.getTech() +"\n";
+
 		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
 		str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
@@ -1734,8 +1739,23 @@ void Game::render2d(){
 
 		// resources
 		for(int i = 0; i < world.getFactionCount(); ++i) {
-			string factionInfo = this->gameSettings.getNetworkPlayerName(i) +
-					" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
+			string factionInfo = this->gameSettings.getNetworkPlayerName(i);
+			switch(this->gameSettings.getFactionControl(i)) {
+				case ctCpuEasy:
+					factionInfo += " CPU Easy";
+					break;
+				case ctCpu:
+					factionInfo += " CPU Normal";
+					break;
+				case ctCpuUltra:
+					factionInfo += " CPU Ultra";
+					break;
+				case ctCpuMega:
+					factionInfo += " CPU Mega";
+					break;
+			}
+
+			factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
 					" team: " + intToStr(this->gameSettings.getTeam(i)) + "] res: ";
 			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
 				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
@@ -1764,7 +1784,7 @@ void Game::render2d(){
 
 			renderer.renderText(factionInfo, coreData.getMenuFontBig(),
 					Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
-					10, metrics.getVirtualH() - mh - 90 - 210 - (i * 16), false);
+					10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
 		}
 
 		if((renderer.getShowDebugUILevel() & debugui_unit_titles) == debugui_unit_titles) {
