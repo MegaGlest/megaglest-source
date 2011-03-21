@@ -120,6 +120,7 @@ private:
 	// update of the faction
 	//std::map<int,std::map<Field, std::map<Vec2i,std::map<Vec2i, > > > localCacheForUnitCellMovement;
 
+	RandomGen random;
 	FactionThread *workerThread;
 
 public:
