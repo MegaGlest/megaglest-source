@@ -22,9 +22,11 @@
 #include "tech_tree.h"
 #include "game.h"
 #include "config.h"
+#include "randomgen.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
@@ -925,25 +927,56 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 
 			bool foundCloseResource = false;
 			// First look immediately around the unit's position
-			for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
-				for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
-					Vec2i newPos = pos + Vec2i(j,k);
-					if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
-						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
-						if( sc != NULL && sc->getResource() != NULL) {
-							const Resource *resource = sc->getResource();
-							if(resource->getType() != NULL && resource->getType() == type) {
-								if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
-									if(unit->isBadHarvestPos(newPos) == false) {
-										result = newPos;
-										foundCloseResource = true;
-										break;
+
+			// 0 means start looking leftbottom to top right
+			int tryRadius = random.randRange(0,1);
+			if(tryRadius == 0) {
+				for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
+					for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
+						Vec2i newPos = pos + Vec2i(j,k);
+						if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+							const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+							if( sc != NULL && sc->getResource() != NULL) {
+								const Resource *resource = sc->getResource();
+								if(resource->getType() != NULL && resource->getType() == type) {
+									if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
+										if(unit->isBadHarvestPos(newPos) == false) {
+											result = newPos;
+											foundCloseResource = true;
+											break;
+										}
 									}
 								}
 							}
+							else {
+								deleteList.push_back(newPos);
+							}
 						}
-						else {
-							deleteList.push_back(newPos);
+					}
+				}
+			}
+			// start looking topright to leftbottom
+			else {
+				for(int j = harvestDistance; j >= -harvestDistance && foundCloseResource == false; --j) {
+					for(int k = harvestDistance; k >= -harvestDistance && foundCloseResource == false; --k) {
+						Vec2i newPos = pos + Vec2i(j,k);
+						if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+							const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+							if( sc != NULL && sc->getResource() != NULL) {
+								const Resource *resource = sc->getResource();
+								if(resource->getType() != NULL && resource->getType() == type) {
+									if(result.x < 0 || unit->getPos().dist(newPos) < unit->getPos().dist(result)) {
+										if(unit->isBadHarvestPos(newPos) == false) {
+											result = newPos;
+											foundCloseResource = true;
+											break;
+										}
+									}
+								}
+							}
+							else {
+								deleteList.push_back(newPos);
+							}
 						}
 					}
 				}
@@ -1012,25 +1045,54 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 			const Map *map = world->getMap();
 
 			bool foundCloseResource = false;
-			// First look immediately around the given position
-			for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
-				for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
-					Vec2i newPos = pos + Vec2i(j,k);
-					if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
-						const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
-						if( sc != NULL && sc->getResource() != NULL) {
-							const Resource *resource = sc->getResource();
-							if(resource->getType() != NULL && resource->getType() == type) {
-								if(result.x < 0 || pos.dist(newPos) < pos.dist(result)) {
-									result = newPos;
-									foundCloseResource = true;
-									break;
+
+			// 0 means start looking leftbottom to top right
+			int tryRadius = random.randRange(0,1);
+			if(tryRadius == 0) {
+				// First look immediately around the given position
+				for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
+					for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
+						Vec2i newPos = pos + Vec2i(j,k);
+						if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+							const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+							if( sc != NULL && sc->getResource() != NULL) {
+								const Resource *resource = sc->getResource();
+								if(resource->getType() != NULL && resource->getType() == type) {
+									if(result.x < 0 || pos.dist(newPos) < pos.dist(result)) {
+										result = newPos;
+										foundCloseResource = true;
+										break;
+									}
 								}
 							}
+							//else {
+							//	deleteList.push_back(newPos);
+							//}
 						}
-						//else {
-						//	deleteList.push_back(newPos);
-						//}
+					}
+				}
+			}
+			else {
+				// First look immediately around the given position
+				for(int j = harvestDistance; j >= -harvestDistance && foundCloseResource == false; --j) {
+					for(int k = harvestDistance; k >= -harvestDistance && foundCloseResource == false; --k) {
+						Vec2i newPos = pos + Vec2i(j,k);
+						if(map->isInside(newPos) == true && isResourceTargetInCache(newPos) == false) {
+							const SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(newPos));
+							if( sc != NULL && sc->getResource() != NULL) {
+								const Resource *resource = sc->getResource();
+								if(resource->getType() != NULL && resource->getType() == type) {
+									if(result.x < 0 || pos.dist(newPos) < pos.dist(result)) {
+										result = newPos;
+										foundCloseResource = true;
+										break;
+									}
+								}
+							}
+							//else {
+							//	deleteList.push_back(newPos);
+							//}
+						}
 					}
 				}
 			}
