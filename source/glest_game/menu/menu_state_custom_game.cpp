@@ -2224,53 +2224,54 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 	gameSettings->setNetworkPauseGameForLaggedClients(((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex() != 0)));
 
-	if( gameSettings->getTileset() != "") {
-		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
-			//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-			lastCheckedCRCTilesetName = gameSettings->getTileset();
+	if(hasNetworkGameSettings() == true) {
+		if( gameSettings->getTileset() != "") {
+			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
+				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+				lastCheckedCRCTilesetName = gameSettings->getTileset();
+			}
+			gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
 		}
-		gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
+
+		if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
+			if(gameSettings->getTech() != "") {
+				if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+
+					reloadFactions(true);
+					factionCRCList.clear();
+					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
+						string factionName = factionFiles[factionIdx];
+						int32 factionCRC   = 0;
+						if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
+							factionName != GameConstants::OBSERVER_SLOTNAME) {
+							factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+						}
+						factionCRCList.push_back(make_pair(factionName,factionCRC));
+					}
+					//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+					lastCheckedCRCTechtreeName = gameSettings->getTech();
+				}
+
+				gameSettings->setFactionCRCList(factionCRCList);
+				gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
+			}
+		}
+
+		if(gameSettings->getMap() != "") {
+			if(lastCheckedCRCMapName != gameSettings->getMap()) {
+				Checksum checksum;
+				string file = Map::getMapPath(gameSettings->getMap(),"",false);
+				//console.addLine("Checking map CRC [" + file + "]");
+				checksum.addFile(file);
+				lastCheckedCRCMapValue = checksum.getSum();
+				lastCheckedCRCMapName = gameSettings->getMap();
+			}
+			gameSettings->setMapCRC(lastCheckedCRCMapValue);
+		}
 	}
-
-    if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
-    	if(gameSettings->getTech() != "") {
-    		if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
-    			//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
-    			lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
-
-    			reloadFactions(true);
-    			factionCRCList.clear();
-    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
-    				string factionName = factionFiles[factionIdx];
-    				int32 factionCRC   = 0;
-    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
-    					factionName != GameConstants::OBSERVER_SLOTNAME) {
-    					factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-    				}
-    				factionCRCList.push_back(make_pair(factionName,factionCRC));
-    			}
-    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
-    			lastCheckedCRCTechtreeName = gameSettings->getTech();
-    		}
-
-    		gameSettings->setFactionCRCList(factionCRCList);
-			gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
-    	}
-    }
-
-    if(gameSettings->getMap() != "") {
-    	if(lastCheckedCRCMapName != gameSettings->getMap()) {
-    		Checksum checksum;
-    		string file = Map::getMapPath(gameSettings->getMap(),"",false);
-    		//console.addLine("Checking map CRC [" + file + "]");
-    		checksum.addFile(file);
-    		lastCheckedCRCMapValue = checksum.getSum();
-    		lastCheckedCRCMapName = gameSettings->getMap();
-    	}
-		gameSettings->setMapCRC(lastCheckedCRCMapValue);
-    }
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

@@ -5165,7 +5165,7 @@ uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 	return result;
 }
 
-Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
+Texture2D * Renderer::preloadTexture(string logoFilename) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
 
 	Texture2D *result = NULL;
@@ -5184,9 +5184,21 @@ Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
 			result = renderer.newTexture2D(rsGlobal);
 			result->setMipmap(true);
 			result->load(logoFilename);
-			renderer.initTexture(rsGlobal,result);
+			//renderer.initTexture(rsGlobal,result);
 			crcFactionPreviewTextureCache[logoFilename] = result;
 		}
+	}
+
+	return result;
+}
+
+Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+
+	Texture2D *result = preloadTexture(logoFilename);
+	if(result != NULL && result->getInited() == false) {
+		Renderer &renderer= Renderer::getInstance();
+		renderer.initTexture(rsGlobal,result);
 	}
 
 	return result;

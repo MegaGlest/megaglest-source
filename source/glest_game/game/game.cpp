@@ -42,6 +42,11 @@ Game *thisGamePtr = NULL;
 
 const float PHOTO_MODE_MAXHEIGHT = 500.0;
 
+Game::Game() : ProgramState(NULL) {
+	originalDisplayMsgCallback = NULL;
+	aiInterfaces.clear();
+}
+
 Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
@@ -191,43 +196,15 @@ Texture2D * Game::findFactionLogoTexture(const GameSettings *settings, Logger *l
 	return result;
 }
 
-string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,string factionLogoFilter) {
-	string result = "";
-	if(settings == NULL) {
-		result = "";
-	}
-	//Logger &logger= Logger::getInstance();
-	string mapName= settings->getMap();
-	string tilesetName= settings->getTileset();
-	string techName= settings->getTech();
-	string scenarioName= settings->getScenario();
-	bool loadingImageUsed=false;
-
-	if(logger != NULL) {
-		logger->setState(Lang::getInstance().get("Loading"));
-
-		if(scenarioName.empty()){
-			logger->setSubtitle(formatString(mapName)+" - "+formatString(tilesetName)+" - "+formatString(techName));
-		}
-		else{
-			logger->setSubtitle(formatString(scenarioName));
-		}
-	}
-
-	Config &config = Config::getInstance();
-	//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
-
-	//bool skipCustomLoadScreen = true;
-	bool skipCustomLoadScreen = false;
-
-	string scenarioDir = "";
-	if(skipCustomLoadScreen == false && settings->getScenarioDir() != "") {
+string Game::extractScenarioLogoFile(const GameSettings *settings, string factionLogoFilter,
+		string &result, Logger *logger, bool & loadingImageUsed) {
+    string scenarioDir = "";
+    if(settings->getScenarioDir() != "") {
 		scenarioDir = settings->getScenarioDir();
 		if(EndsWith(scenarioDir, ".xml") == true) {
 			scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
 			scenarioDir = scenarioDir.erase(scenarioDir.size() - settings->getScenario().size(), settings->getScenario().size() + 1);
 		}
-		// use a scenario based loading screen
 		vector<string> loadScreenList;
 		findAll(scenarioDir + factionLogoFilter, loadScreenList, false, false);
 		if(loadScreenList.size() > 0) {
@@ -244,96 +221,58 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,settings->getScenarioDir().c_str(),settings->getScenario().c_str(),scenarioDir.c_str());
 	}
+    return scenarioDir;
+}
 
-	// give CPU time to update other things to avoid apperance of hanging
-	//sleep(0);
-	//SDL_PumpEvents();
+string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName, Logger *logger,
+		string scenarioDir, string techName, string factionLogoFilter) {
+	string result = "";
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for faction loading screen\n",__FILE__,__FUNCTION__,__LINE__);
+	//for ( int i=0; i < settings->getFactionCount(); ++i ) {
+	//	if( settings->getFactionControl(i) == ctHuman ||
+	//		(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
 
-	if(skipCustomLoadScreen == false && loadingImageUsed == false){
-		// try to use a faction related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for faction loading screen\n",__FILE__,__FUNCTION__,__LINE__);
-		for ( int i=0; i < settings->getFactionCount(); ++i ) {
-			if( settings->getFactionControl(i) == ctHuman ||
-				(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
+	//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,settings->getFactionTypeName(i).c_str());
+	//if(settings->getFactionTypeName(i) == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+	if(factionName == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		const string factionLogo = data_path + "data/core/misc_textures/observer.jpg";
+		//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
-				//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,settings->getFactionTypeName(i).c_str());
-				if(settings->getFactionTypeName(i) == formatString(GameConstants::OBSERVER_SLOTNAME)) {
-                    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-					const string factionLogo = data_path + "data/core/misc_textures/observer.jpg";
-					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+		if(fileExists(factionLogo) == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
-					if(fileExists(factionLogo) == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
-
-						result = factionLogo;
-						if(logger != NULL) {
-							logger->loadLoadingScreen(result);
-						}
-						loadingImageUsed = true;
-					}
-				}
-				else if(settings->getFactionTypeName(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-				    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-					const string factionLogo = data_path + "data/core/misc_textures/random.jpg";
-					//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
-
-					if(fileExists(factionLogo) == true) {
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
-
-						result = factionLogo;
-						if(logger != NULL) {
-							logger->loadLoadingScreen(result);
-						}
-						loadingImageUsed = true;
-					}
-				}
-				else {
-					vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
-					for(int idx = 0; idx < pathList.size(); idx++) {
-						string currentPath = pathList[idx];
-						endPathWithSlash(currentPath);
-						string path = currentPath + techName + "/" + "factions" + "/" + settings->getFactionTypeName(i);
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
-						if(isdir(path.c_str()) == true) {
-							endPathWithSlash(path);
-
-							vector<string> loadScreenList;
-							findAll(path + factionLogoFilter, loadScreenList, false, false);
-							if(loadScreenList.size() > 0) {
-								string factionLogo = path + loadScreenList[0];
-								SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
-
-								if(fileExists(factionLogo) == true) {
-									SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
-
-									result = factionLogo;
-									if(logger != NULL) {
-										logger->loadLoadingScreen(result);
-									}
-									loadingImageUsed = true;
-									break;
-								}
-							}
-						}
-
-						if(loadingImageUsed == true) {
-							break;
-						}
-					}
-				}
-				break;
+			result = factionLogo;
+			if(logger != NULL) {
+				logger->loadLoadingScreen(result);
 			}
+			loadingImageUsed = true;
 		}
 	}
-	if(skipCustomLoadScreen == false && loadingImageUsed == false){
-		// try to use a tech related loading screen
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",__FILE__,__FUNCTION__,__LINE__);
+	//else if(settings->getFactionTypeName(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+	else if(factionName == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		const string factionLogo = data_path + "data/core/misc_textures/random.jpg";
+		//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
+		if(fileExists(factionLogo) == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+			result = factionLogo;
+			if(logger != NULL) {
+				logger->loadLoadingScreen(result);
+			}
+			loadingImageUsed = true;
+		}
+	}
+	else {
+		Config &config = Config::getInstance();
 		vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
 		for(int idx = 0; idx < pathList.size(); idx++) {
 			string currentPath = pathList[idx];
 			endPathWithSlash(currentPath);
-			string path = currentPath + techName;
+			//string path = currentPath + techName + "/" + "factions" + "/" + settings->getFactionTypeName(i);
+			string path = currentPath + techName + "/" + "factions" + "/" + factionName;
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 			if(isdir(path.c_str()) == true) {
 				endPathWithSlash(path);
@@ -356,13 +295,155 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,st
 					}
 				}
 			}
+
 			if(loadingImageUsed == true) {
 				break;
 			}
 		}
 	}
+		//break;
+		//}
+	//}
+	return result;
+}
+
+string Game::extractTechLogoFile(string scenarioDir, string techName,
+		string factionLogoFilter, Logger *logger, bool &loadingImageUsed) {
+	string result = "";
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",__FILE__,__FUNCTION__,__LINE__);
+    Config &config = Config::getInstance();
+    vector<string> pathList = config.getPathListForType(ptTechs, scenarioDir);
+    for(int idx = 0; idx < pathList.size(); idx++) {
+		string currentPath = pathList[idx];
+		endPathWithSlash(currentPath);
+		string path = currentPath + techName;
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(isdir(path.c_str()) == true) {
+			endPathWithSlash(path);
+
+			vector<string> loadScreenList;
+			findAll(path + factionLogoFilter, loadScreenList, false, false);
+			if(loadScreenList.size() > 0) {
+				string factionLogo = path + loadScreenList[0];
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+				if(fileExists(factionLogo) == true) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+
+					result = factionLogo;
+					if(logger != NULL) {
+						logger->loadLoadingScreen(result);
+					}
+					loadingImageUsed = true;
+					break;
+				}
+			}
+		}
+		if(loadingImageUsed == true) {
+			break;
+		}
+	}
+
+    return result;
+}
+
+string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,string factionLogoFilter) {
+	string result = "";
+	if(settings == NULL) {
+		result = "";
+	}
+	string mapName= settings->getMap();
+	string tilesetName= settings->getTileset();
+	string techName= settings->getTech();
+	string scenarioName= settings->getScenario();
+	bool loadingImageUsed=false;
+
+	if(logger != NULL) {
+		logger->setState(Lang::getInstance().get("Loading"));
+
+		if(scenarioName.empty()) {
+			logger->setSubtitle(formatString(mapName) + " - " +
+					formatString(tilesetName) + " - " + formatString(techName));
+		}
+		else {
+			logger->setSubtitle(formatString(scenarioName));
+		}
+	}
+
+	string scenarioDir = "";
+	bool skipCustomLoadScreen = false;
+	if(skipCustomLoadScreen == false) {
+		scenarioDir = extractScenarioLogoFile(settings,
+				factionLogoFilter, result, logger, loadingImageUsed);
+	}
+	// try to use a faction related loading screen
+	if(skipCustomLoadScreen == false && loadingImageUsed == false) {
+		for(int i=0; i < settings->getFactionCount(); ++i ) {
+			if( settings->getFactionControl(i) == ctHuman ||
+				(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
+				result = extractFactionLogoFile(loadingImageUsed, settings->getFactionTypeName(i),
+					logger,scenarioDir, techName, factionLogoFilter);
+				break;
+			}
+		}
+	}
+
+	// try to use a tech related loading screen
+	if(skipCustomLoadScreen == false && loadingImageUsed == false){
+		result = extractTechLogoFile(scenarioDir, techName,
+				factionLogoFilter, logger, loadingImageUsed);
+	}
 
 	return result;
+}
+
+vector<Texture2D *> Game::processTech(string techName) {
+	vector<Texture2D *> logoFiles;
+	bool enableFactionTexturePreview = Config::getInstance().getBool("FactionPreview","true");
+	if(enableFactionTexturePreview) {
+		string currentTechName_factionPreview = techName;
+
+		vector<string> factions;
+		vector<string> techPaths = Config::getInstance().getPathListForType(ptTechs);
+		for(int idx = 0; idx < techPaths.size(); idx++) {
+			string &techPath = techPaths[idx];
+			endPathWithSlash(techPath);
+			findAll(techPath + techName + "/factions/*.", factions, false, false);
+
+			if(factions.size() > 0) {
+				for(unsigned int factionIdx = 0; factionIdx < factions.size(); ++factionIdx) {
+					bool loadingImageUsed = false;
+					string factionLogo = "";
+					string currentFactionName_factionPreview = factions[factionIdx];
+
+					factionLogo = Game::extractFactionLogoFile(
+							loadingImageUsed,
+							currentFactionName_factionPreview,
+							NULL,
+							"",
+							techName,
+							"preview_screen.*");
+
+					if(factionLogo == "") {
+						factionLogo = Game::extractFactionLogoFile(
+								loadingImageUsed,
+								currentFactionName_factionPreview,
+								NULL,
+								"",
+								techName,
+								"loading_screen.*");
+					}
+					if(factionLogo != "") {
+						Texture2D *texture = Renderer::preloadTexture(factionLogo);
+						logoFiles.push_back(texture);
+					//	Renderer::findFactionLogoTexture(factionLogo);
+					}
+				}
+			}
+		}
+	}
+
+	return logoFiles;
 }
 
 void Game::load() {
