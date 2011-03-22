@@ -119,11 +119,14 @@ void SurfaceAtlas::checkDimensions(const Pixmap2D *p) {
 	if(p == NULL) {
 		throw runtime_error("Bad surface texture pixmap (NULL)");
 	}
-	else if(surfaceSize == -1){
+	else if(surfaceSize == -1) {
 		surfaceSize= p->getW();
+		//printf("Setting surfaceSize = %d for pixmap [%s]\n",surfaceSize,p->getPath().c_str());
 	}
 	else if(p->getW() != surfaceSize || p->getH() != surfaceSize) {
-		throw runtime_error("Bad surface texture dimensions");
+		char szBuf[1024]="";
+		sprintf(szBuf,"Bad surface texture dimensions, expected surfaceSize = %d, texture w = %d, h = %d",surfaceSize,p->getW(),p->getH());
+		throw runtime_error(szBuf);
 	}
 }
 
