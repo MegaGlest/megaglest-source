@@ -1,0 +1,356 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_NO_STREFLOP|Win32">
+      <Configuration>Release_NO_STREFLOP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>libglest</ProjectName>
+    <ProjectGuid>{8DAA0C24-95CD-4F66-B4C5-19ABDD771746}</ProjectGuid>
+    <RootNamespace>shared_lib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)/$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)/$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;../../source/win32_deps/xerces-c-3.0.1/src;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude;../../source/win32_deps/lpng141;../../source/win32_deps/jpeg-8a;../../source/win32_deps/SDL-1.2.x/include;../../source/shared_lib/include/platform/sdl;../../source/win32_deps/openal-soft-1.12.854/include;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;../../source/win32_deps/curl-7.21.3/include;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level2</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>libstreflop.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\;..\..\source\win32_deps\lib;../../source/win32_deps/libircclient/build/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;../../source/win32_deps/xerces-c-3.0.1/src;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude;../../source/win32_deps/lpng141;../../source/win32_deps/jpeg-8a;../../source/win32_deps/SDL-1.2.x/include;../../source/shared_lib/include/platform/sdl;../../source/win32_deps/openal-soft-1.12.854/include;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;../../source/win32_deps/curl-7.21.3/include;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>libstreflop.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\;..\..\source\win32_deps\lib;../../source/win32_deps/libircclient/build/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>../../../deps/include/lua;../../../deps/include;../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;../../source/win32_deps/xerces-c-3.0.1/src;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude;../../source/win32_deps/lpng141;../../source/win32_deps/jpeg-8a;../../source/win32_deps/SDL-1.2.x/include;../../source/shared_lib/include/platform/sdl;../../source/win32_deps/openal-soft-1.12.854/include;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;../../source/win32_deps/curl-7.21.3/include;../../source/shared_lib/include/map;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>libstreflop.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\;..\..\source\win32_deps\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpAccount.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpCmds.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpLib.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpMessages.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpRuntime.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpServer.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpSession.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpTargetPosix.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\feathery_ftp\ftpTargetWin32.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp" />
+    <ClCompile Include="..\..\source\win32_deps\src\glprocs.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\libircclient\src\libircclient.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\map\map_preview.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\streflop\Random.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\streflop\SMath.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\streflop\streflopC.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\BMPReader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\buffer.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\camera.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\context.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\FileReader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\font.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\font_manager.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\graphics_interface.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\ImageReaders.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\interpolation.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\JPGReader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\model.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\model_manager.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\particle.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\pixmap.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\PNGReader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\quaternion.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\shader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\shader_manager.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\texture.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\texture_manager.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\TGAReader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\base_renderer.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\context_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\font_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\model_renderer_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\opengl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\particle_renderer_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\shader_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\text_renderer_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\texture_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\lua\lua_script.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\xml\xml_parser.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\checksum.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\conversion.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\leak_dumper.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\profiler.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\properties.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\randomgen.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\util\util.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\sound.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\sound_file_loader.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\sound_interface.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\sound_player.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\openal\sound_player_openal.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\sound\ds8\sound_player_ds8.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\common\base_thread.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\common\cache_manager.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\igd_desc_parse.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\posix\miniftpclient.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\posix\miniftpserver.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\minisoap.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\minissdpc.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\miniupnpc.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\miniwget.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\minixml.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\common\platform_common.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\common\simple_threads.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\posix\socket.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\thread.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\upnpcommands.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\upnperrors.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\upnpreplyparse.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\window.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\window_gl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\factory_repository.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\gl_wrap_billy.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\glob.c" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\platform_util.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\posix\ircclient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\FPUSettings.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftp.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpConfig.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpIfc.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpMessages.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpTypes.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\IntegerTypes.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\map\map_preview.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\Random.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\SMath.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflop.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflop_cond.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflopC.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\System.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\streflop\X87DenormalSquasher.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\base_renderer.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\BMPReader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\buffer.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\camera.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\context.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\FileReader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\font.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\font_manager.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\graphics_factory.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\graphics_interface.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\ImageReaders.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\interpolation.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\JPGReader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\math_util.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\matrix.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\model.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\model_header.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\model_manager.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\model_renderer.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\particle.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\particle_renderer.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\pixmap.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\PNGReader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\quaternion.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\shader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\shader_manager.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\text_renderer.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\texture.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\texture_manager.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\TGAReader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\vec.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\context_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\font_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\graphics_factory_basic_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\graphics_factory_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\graphics_factory_gl2.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\model_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\model_renderer_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\opengl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\particle_renderer_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\shader_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\text_renderer_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\texture_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\lua\lua_script.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\sound.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\sound_factory.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\sound_file_loader.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\sound_interface.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\sound_player.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\ds8\sound_factory_ds8.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\sound\ds8\sound_player_ds8.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\xml\xml_parser.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\common\base_thread.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\common\cache_manager.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\gl_wrap.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\posix\ircclient.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\common\math_wrapper.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\posix\miniftpclient.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\posix\miniftpserver.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\miniupnpc\miniupnpcstrings.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\noimpl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\common\platform_common.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\platform_main.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\sdl_private.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\common\simple_threads.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\posix\socket.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\thread.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\window.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\sdl\window_gl.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\win32\glob.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\win32\platform_definitions.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\win32\platform_util.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\platform\win32\types.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\checksum.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\conversion.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\factory.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\heap.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\leak_dumper.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\line.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\profiler.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\properties.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\randomgen.h" />
+    <ClInclude Include="..\..\source\shared_lib\include\util\util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libstreflop.vcxproj">
+      <Project>{cdf4ddb9-945e-4d0d-9f0e-2bbeb5d22141}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
