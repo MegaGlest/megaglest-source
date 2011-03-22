@@ -1548,25 +1548,34 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
+		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
 			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(hasNetworkGameSettings() == true) {
-				if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
-					switch(gameSettings.getNetworkPlayerStatuses(i)) {
-						case npst_BeRightBack:
-							labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
-							break;
-						case npst_Ready:
-							labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
-							break;
-						case npst_PickSettings:
-							labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
-							break;
-						default:
-							labelPlayerStatus[i].setText("");
-							break;
+				if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
+					int slotIndex = factionCount;
+					if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
+						switch(gameSettings.getNetworkPlayerStatuses(slotIndex)) {
+							case npst_BeRightBack:
+								labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
+								break;
+							case npst_Ready:
+								labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
+								break;
+							case npst_PickSettings:
+								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
+								break;
+							default:
+								labelPlayerStatus[i].setText("");
+								break;
+						}
 					}
+					else {
+						labelPlayerStatus[i].setText("");
+					}
+
+					factionCount++;
 				}
 				else {
 					labelPlayerStatus[i].setText("");
