@@ -1822,7 +1822,7 @@ int glestMain(int argc, char** argv) {
 
         // Setup the file crc thread
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
-		Game preCacheThreadGame;
+		//Game preCacheThreadGame;
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
@@ -2085,7 +2085,7 @@ int glestMain(int argc, char** argv) {
 			preCacheThread.reset(new FileCRCPreCacheThread());
 			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
-			preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);
+			//preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);
 			preCacheThread->start();
 		}
 
