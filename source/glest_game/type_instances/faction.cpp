@@ -483,19 +483,18 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 }
 
 //apply static production (for starting units)
-void Faction::applyStaticCosts(const ProducibleType *p)
-{
+void Faction::applyStaticCosts(const ProducibleType *p) {
 	assert(p != NULL);
 	//decrease static resources
-    for(int i=0; i<p->getCostCount(); ++i)
-    {
+    for(int i=0; i<p->getCostCount(); ++i) {
 		const ResourceType *rt= p->getCost(i)->getType();
 		assert(rt != NULL);
-        if(rt->getClass() == rcStatic)
-        {
+		if(rt == NULL) {
+			throw runtime_error("rt == NULL");
+		}
+        if(rt->getClass() == rcStatic) {
             int cost= p->getCost(i)->getAmount();
-			if(cost > 0)
-			{
+			if(cost > 0) {
 				incResourceAmount(rt, -cost);
 			}
         }
