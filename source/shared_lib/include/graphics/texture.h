@@ -72,6 +72,7 @@ public:
 	WrapMode getWrapMode() const	{return wrapMode;}
 	bool getPixmapInit() const		{return pixmapInit;}
 	Format getFormat() const		{return format;}
+	bool getInited() const 			{return inited;}
 
 	void setMipmap(bool mipmap)			{this->mipmap= mipmap;}
 	void setWrapMode(WrapMode wrapMode)	{this->wrapMode= wrapMode;}

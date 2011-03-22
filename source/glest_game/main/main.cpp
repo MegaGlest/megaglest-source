@@ -685,7 +685,8 @@ void MainWindow::eventKeyDown(char key){
 		if(key == configKeys.getCharKey("HotKeyShowDebug")) {
 
 			Renderer &renderer= Renderer::getInstance();
-			if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+			//if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+			if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
 				renderer.cycleShowDebugUILevel();
 			}
 			else {
@@ -1821,6 +1822,7 @@ int glestMain(int argc, char** argv) {
 
         // Setup the file crc thread
 		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
+		Game preCacheThreadGame;
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
@@ -2083,6 +2085,7 @@ int glestMain(int argc, char** argv) {
 			preCacheThread.reset(new FileCRCPreCacheThread());
 			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
+			preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);
 			preCacheThread->start();
 		}
 
@@ -2095,9 +2098,23 @@ int glestMain(int argc, char** argv) {
 		//string test = lang.get("ExitGameServer?");
 		//printf("[%s]",test.c_str());
 
+		//time_t lastTextureLoadEvent = time(NULL);
 		//main loop
 		while(Window::handleEvent()) {
 			program->loop();
+			// Because OpenGL really doesn't do multi-threading well
+//			if(difftime(time(NULL),lastTextureLoadEvent) >= 3) {
+//				lastTextureLoadEvent = time(NULL);
+//				vector<Texture2D *> textureList = preCacheThread->getPendingTextureList(1);
+//				for(unsigned int i = 0; i < textureList.size(); ++i) {
+//					Texture2D * factionLogo = textureList[i];
+//					if(factionLogo != NULL) {
+//						printf("\n\n\n\n|||||||||||||||||||||||||| Load texture [%s]\n",factionLogo->getPath().c_str());
+//						//Renderer::findFactionLogoTexture(factionLogo);
+//						renderer.initTexture(rsGlobal,factionLogo);
+//					}
+//				}
+//			}
 		}
 
 		if(preCacheThread.get() != NULL) {

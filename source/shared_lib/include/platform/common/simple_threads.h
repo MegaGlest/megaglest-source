@@ -15,12 +15,22 @@
 #include <vector>
 #include <string>
 #include "util.h"
+#include "texture.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Util;
+using namespace Shared::Graphics;
 
 namespace Shared { namespace PlatformCommon {
+
+//
+// This interface describes the methods a callback object must implement
+//
+class FileCRCPreCacheThreadCallbackInterface {
+public:
+	virtual vector<Texture2D *> processTech(string techName) = 0;
+};
 
 // =====================================================
 //	class FileCRCPreCacheThread
@@ -31,13 +41,22 @@ class FileCRCPreCacheThread : public BaseThread
 protected:
 	vector<string> techDataPaths;
 	vector<string> workerThreadTechPaths;
+	FileCRCPreCacheThreadCallbackInterface *processTechCB;
+
+	Mutex mutexPendingTextureList;
+	vector<Texture2D *> pendingTextureList;
+
+	void addPendingTexture(Texture2D *texture);
+	void addPendingTextureList(vector<Texture2D *> textureList);
 
 public:
 	FileCRCPreCacheThread();
-	FileCRCPreCacheThread(vector<string> techDataPaths,vector<string> workerThreadTechPaths);
+	FileCRCPreCacheThread(vector<string> techDataPaths,vector<string> workerThreadTechPaths,FileCRCPreCacheThreadCallbackInterface *processTechCB);
     virtual void execute();
     void setTechDataPaths(vector<string> value) { this->techDataPaths = value; }
     void setWorkerThreadTechPaths(vector<string> value) { this->workerThreadTechPaths = value; }
+    void setFileCRCPreCacheThreadCallbackInterface(FileCRCPreCacheThreadCallbackInterface *value) { processTechCB = value; }
+    vector<Texture2D *> getPendingTextureList(int maxTexturesToGet);
 };
 
 // =====================================================

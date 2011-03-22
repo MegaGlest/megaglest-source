@@ -434,6 +434,7 @@ public:
 	void renderProgressBar(int size, int x, int y, Font2D *font,int customWidth=-1, string prefixLabel="");
 
 	static Texture2D * findFactionLogoTexture(string logoFilename);
+	static Texture2D * preloadTexture(string logoFilename);
 	int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
 
 private:

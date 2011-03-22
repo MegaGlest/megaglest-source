@@ -51,7 +51,7 @@ enum LoadGameItem {
 // =====================================================
 
 //class Game: public ProgramState, public SimpleTaskCallbackInterface {
-class Game: public ProgramState {
+class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface {
 public:
 	enum Speed{
 		sFast,
@@ -115,6 +115,7 @@ private:
 	bool gameStarted;
 
 public:
+	Game();
     Game(Program *program, const GameSettings *gameSettings);
     ~Game();
 
@@ -171,9 +172,14 @@ public:
 
 	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter="loading_screen.*", bool useTechDefaultIfFilterNotFound=true);
 	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
+	static string extractScenarioLogoFile(const GameSettings *settings, string factionLogoFilter,string &result, Logger *logger, bool &loadingImageUsed);
+	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, Logger *logger,string scenarioDir, string techName, string factionLogoFilter);
+	static string extractTechLogoFile(string scenarioDir, string techName,string factionLogoFilter, Logger *logger, bool &loadingImageUsed);
+
 
 	bool getGameOver() { return gameOver; }
 	bool hasGameStarted() { return gameStarted;}
+	virtual vector<Texture2D *> processTech(string techName);
 
 private:
 	//render

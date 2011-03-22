@@ -28,12 +28,15 @@ const static int MAX_FileCRCPreCacheThread_WORKER_THREADS = 3;
 FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	techDataPaths.clear();
 	workerThreadTechPaths.clear();
+	processTechCB = NULL;
 }
 
 FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
-											vector<string> workerThreadTechPaths) {
-	this->techDataPaths				= techDataPaths;
-	this->workerThreadTechPaths 	= workerThreadTechPaths;
+											vector<string> workerThreadTechPaths,
+											FileCRCPreCacheThreadCallbackInterface *processTechCB) {
+	this->techDataPaths					= techDataPaths;
+	this->workerThreadTechPaths 		= workerThreadTechPaths;
+	this->processTechCB 				= processTechCB;
 }
 
 void FileCRCPreCacheThread::execute() {
@@ -93,7 +96,10 @@ void FileCRCPreCacheThread::execute() {
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
 
-						FileCRCPreCacheThread *workerThread = new FileCRCPreCacheThread(techDataPaths,workerTechList);
+						FileCRCPreCacheThread *workerThread =
+								new FileCRCPreCacheThread(techDataPaths,
+										workerTechList,
+										this->processTechCB);
 						workerThread->setUniqueID(__FILE__);
 						preCacheWorkerThreadList.push_back(workerThread);
 						workerThread->start();
@@ -111,15 +117,21 @@ void FileCRCPreCacheThread::execute() {
 						hasRunningWorkerThread = false;
 						for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
 							FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
-							if(workerThread != NULL && workerThread->getRunningStatus() == true) {
-								hasRunningWorkerThread = true;
-								if(getQuitStatus() == true) {
-									workerThread->signalQuit();
+
+							if(workerThread != NULL) {
+								//vector<Texture2D *> textureList = workerThread->getPendingTextureList(-1);
+								//addPendingTextureList(textureList);
+
+								if(workerThread->getRunningStatus() == true) {
+									hasRunningWorkerThread = true;
+									if(getQuitStatus() == true) {
+										workerThread->signalQuit();
+									}
 								}
-							}
-							else if(workerThread != NULL && workerThread->getRunningStatus() == false) {
-								delete workerThread;
-								preCacheWorkerThreadList[idx] = NULL;
+								else if(workerThread->getRunningStatus() == false) {
+									delete workerThread;
+									preCacheWorkerThreadList[idx] = NULL;
+								}
 							}
 						}
 
@@ -159,6 +171,16 @@ void FileCRCPreCacheThread::execute() {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 					}
+
+//					if(processTechCB) {
+//						vector<Texture2D *> files = processTechCB->processTech(techName);
+//						for(unsigned int logoIdx = 0; logoIdx < files.size(); ++logoIdx) {
+//							addPendingTexture(files[logoIdx]);
+//
+//							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread added texture [%s] for tech [%s] ---------------------------\n",files[logoIdx]->getPath().c_str(),techName.c_str());
+//						}
+//					}
+
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread END for tech [%s] ---------------------------\n",techName.c_str());
 
 					if(getQuitStatus() == true) {
@@ -179,6 +201,41 @@ void FileCRCPreCacheThread::execute() {
         SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	deleteSelfIfRequired();
+}
+
+void FileCRCPreCacheThread::addPendingTextureList(vector<Texture2D *> textureList) {
+	for(unsigned int textureIdx = 0; textureIdx < textureList.size(); ++textureIdx) {
+		this->addPendingTexture(textureList[textureIdx]);
+	}
+}
+
+void FileCRCPreCacheThread::addPendingTexture(Texture2D *texture) {
+	if(texture == NULL) {
+		return;
+	}
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
+	pendingTextureList.push_back(texture);
+	safeMutex.ReleaseLock();
+}
+
+vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTexturesToGet) {
+	vector<Texture2D *> result;
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
+	unsigned int listCount = pendingTextureList.size();
+	if(listCount > 0) {
+		if(maxTexturesToGet >= 0) {
+			listCount = maxTexturesToGet;
+		}
+		for(unsigned int i = 0; i < listCount; ++i) {
+			result.push_back(pendingTextureList[i]);
+		}
+		pendingTextureList.erase(pendingTextureList.begin() + 0, pendingTextureList.begin() + listCount);
+	}
+	safeMutex.ReleaseLock();
+
+	return result;
 }
 
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
