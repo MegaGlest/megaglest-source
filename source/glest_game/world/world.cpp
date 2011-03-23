@@ -780,6 +780,8 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 			scriptManager->onUnitCreated(unit);
 		}
 		else {
+			delete unit;
+			unit = NULL;
 			throw runtime_error("Unit cant be placed");
 		}
 
@@ -1256,6 +1258,8 @@ void World::initUnits() {
 					unit->born();
 				}
 				else {
+					delete unit;
+					unit = NULL;
 					throw runtime_error("Unit cant be placed, this error is caused because there is no enough place to put the units near its start location, make a better map: "+unit->getType()->getName() + " Faction: "+intToStr(i));
 				}
 				if (unit->getType()->hasSkillClass(scBeBuilt)) {

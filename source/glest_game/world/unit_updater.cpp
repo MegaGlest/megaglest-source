@@ -266,11 +266,15 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 		//if no commands stop and add stop command
 		if(unit->anyCommand() == false && unit->isOperative()) {
 			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			unit->setCurrSkill(scStop);
 
-			if(unit->getType()->hasCommandClass(ccStop)) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
+			const SkillType *currSkill= unit->getCurrSkill();
+			if(currSkill == NULL || currSkill->getClass() != scStop) {
+				unit->setCurrSkill(scStop);
+
+				if(unit->getType()->hasCommandClass(ccStop)) {
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
+				}
 			}
 		}
     }

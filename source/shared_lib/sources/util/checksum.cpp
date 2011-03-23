@@ -23,6 +23,7 @@
 
 #include "util.h"
 #include "platform_common.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -34,6 +35,7 @@ namespace Shared{ namespace Util{
 //	class Checksum
 // =====================================================
 
+Mutex Checksum::fileListCacheSynchAccessor;
 std::map<string,int32> Checksum::fileListCache;
 
 Checksum::Checksum() {
@@ -189,6 +191,8 @@ int32 Checksum::getSum() {
 		Checksum newResult;
 		for(std::map<string,int32>::iterator iterMap = fileList.begin();
 			iterMap != fileList.end(); iterMap++) {
+
+			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {
 				Checksum fileResult;
 				fileResult.addFileToSum(iterMap->first);
@@ -213,12 +217,14 @@ int32 Checksum::getFileCount() {
 }
 
 void Checksum::removeFileFromCache(const string file) {
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
     if(Checksum::fileListCache.find(file) != Checksum::fileListCache.end()) {
         Checksum::fileListCache.erase(file);
     }
 }
 
 void Checksum::clearFileCache() {
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
     Checksum::fileListCache.clear();
 }
 
