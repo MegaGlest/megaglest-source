@@ -45,6 +45,12 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	enabled  = true;
 	editable = true;
 	visible  = true;
+	x = 0;
+	y = 0;
+	w = 0;
+	h = 0;
+	text = "";
+	font = NULL;
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {

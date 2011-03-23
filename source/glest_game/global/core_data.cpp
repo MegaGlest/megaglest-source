@@ -44,6 +44,9 @@ CoreData::~CoreData() {
 
 void CoreData::load() {
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	if(data_path != "") {
+		endPathWithSlash(data_path);
+	}
 
 	const string dir = data_path + "data/core";
 	Logger::getInstance().add("Core data");
