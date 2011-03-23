@@ -15,11 +15,11 @@
 #include <string>
 #include <map>
 #include "types.h"
+#include "thread.h"
 #include "leak_dumper.h"
 
 using std::string;
-using Shared::Platform::int32;
-using Shared::Platform::int8;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
@@ -34,6 +34,8 @@ private:
     int32	c1;
     int32	c2;
 	std::map<string,int32> fileList;
+
+	static Mutex fileListCacheSynchAccessor;
 	static std::map<string,int32> fileListCache;
 
 	void addSum(int32 value);
