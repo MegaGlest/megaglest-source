@@ -37,17 +37,18 @@ POSSIBILITY OF SUCH DAMAGE.
  * of the xmlbuffer is reached. */
 static int parseatt(struct xmlparser * p)
 {
-	const char * attname;
-	int attnamelen;
-	const char * attvalue;
-	int attvaluelen;
+	const char * attname = 0;
+	int attnamelen = 0;
+	const char * attvalue = 0;
+	int attvaluelen = 0;
+	char sep = 0;
 	while(p->xml < p->xmlend)
 	{
 		if(*p->xml=='/' || *p->xml=='>')
 			return 0;
 		if( !IS_WHITE_SPACE(*p->xml) )
 		{
-			char sep;
+			sep = 0;
 			attname = p->xml;
 			attnamelen = 0;
 			while(*p->xml!='=' && !IS_WHITE_SPACE(*p->xml) )
@@ -108,8 +109,8 @@ static int parseatt(struct xmlparser * p)
  * call the callback functions when needed... */
 static void parseelt(struct xmlparser * p)
 {
-	int i;
-	const char * elementname;
+	int i = 0;
+	const char * elementname = 0;
 	while(p->xml < (p->xmlend - 1))
 	{
 		if((p->xml)[0]=='<' && (p->xml)[1]!='?')

@@ -65,6 +65,7 @@ SurfaceCell::SurfaceCell() {
 	normal= Vec3f(0.f, 1.f, 0.f);
 	surfaceType= -1;
 	surfaceTexture= NULL;
+	nearSubmerged = false;
 }
 
 SurfaceCell::~SurfaceCell() {
