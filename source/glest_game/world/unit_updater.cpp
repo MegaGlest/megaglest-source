@@ -219,13 +219,15 @@ void UnitUpdater::updateUnit(Unit *unit) {
 
 			//play water sound
 			if(map->getCell(unit->getPos())->getHeight() < map->getWaterLevel() && unit->getCurrField() == fLand) {
-				soundRenderer.playFx(
-					CoreData::getInstance().getWaterSound(),
-					unit->getCurrVector(),
-					gameCamera->getPos()
-				);
+				if(Config::getInstance().getBool("DisableWaterSounds","false") == false) {
+					soundRenderer.playFx(
+						CoreData::getInstance().getWaterSound(),
+						unit->getCurrVector(),
+						gameCamera->getPos()
+					);
 
-				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after soundFx()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+					if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after soundFx()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				}
 			}
 		}
 	}
